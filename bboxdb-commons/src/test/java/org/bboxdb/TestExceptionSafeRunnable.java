@@ -107,4 +107,32 @@ public class TestExceptionSafeRunnable {
 		Assert.assertEquals(1, afterExceptionCalls.get());
 	}
 	
+	@Test
+	public void testDefaultImplementation1() throws InterruptedException {
+		final ExceptionSafeRunnable runnable = new ExceptionSafeRunnable() {
+			@Override
+			protected void runThread() throws Exception {
+				
+			}
+		};
+		
+		final Thread thread = new Thread(runnable);
+		thread.start();
+		thread.join();
+	}
+	
+	@Test
+	public void testDefaultImplementation2() throws InterruptedException {
+		final ExceptionSafeRunnable runnable = new ExceptionSafeRunnable() {
+			@Override
+			protected void runThread() throws Exception {
+				throw new Exception("Exception");
+			}
+		};
+		
+		final Thread thread = new Thread(runnable);
+		thread.start();
+		thread.join();
+	}
+	
 }
