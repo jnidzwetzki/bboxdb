@@ -17,16 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.commons.concurrent;
 
-public interface AcquirableRessource {
+public interface AcquirableResource {
 
 	/** 
-	 * Acquire the ressource
+	 * Acquire the resource
 	 * @return
 	 */
 	public abstract boolean acquire();
 
 	/**
-	 * Release the ressource
+	 * Release the resource
 	 */
 	public abstract void release();
 }

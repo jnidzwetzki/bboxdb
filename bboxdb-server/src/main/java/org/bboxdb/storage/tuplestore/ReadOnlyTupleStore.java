@@ -20,13 +20,13 @@ package org.bboxdb.storage.tuplestore;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bboxdb.commons.concurrent.AcquirableRessource;
+import org.bboxdb.commons.concurrent.AcquirableResource;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 
-public interface ReadOnlyTupleStore extends Iterable<Tuple>, AcquirableRessource {
+public interface ReadOnlyTupleStore extends Iterable<Tuple>, AcquirableResource {
 	
 	/**
 	 * Get the internal name of the tuple store

@@ -35,12 +35,12 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.commons.concurrent.AcquirableRessource;
+import org.bboxdb.commons.concurrent.AcquirableResource;
 import org.bboxdb.misc.BBoxDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
+public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * The list of the zookeeper hosts
