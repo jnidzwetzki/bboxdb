@@ -24,19 +24,7 @@ public class InputParseException extends Exception {
 	 */
 	private static final long serialVersionUID = -8973551544773338553L;
 
-	public InputParseException() {
-	}
-
 	public InputParseException(final String message) {
 		super(message);
 	}
-
-	public InputParseException(final Throwable cause) {
-		super(cause);
-	}
-
-	public InputParseException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
 }
