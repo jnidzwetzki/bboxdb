@@ -306,6 +306,15 @@ public class TestDoubleInterval {
 	}
 	
 	/**
+	 * Test split at invalid position
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testIntervalSplit6() {
+		final DoubleInterval interval1 = new DoubleInterval(0, 100, false, false);
+		interval1.splitAndGetRightPart(-1, false);
+	}
+	
+	/**
 	 * Test midpoint calculation
 	 */
 	@Test
