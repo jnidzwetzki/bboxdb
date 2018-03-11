@@ -38,7 +38,10 @@ public class TestServiceState {
 
 		state.dipatchToStarting();
 		state.awaitStarting();
+		Assert.assertTrue(state.isInStartingState());
 		Assert.assertFalse(state.isInRunningState());
+		Assert.assertFalse(state.isInStoppingState());
+		Assert.assertFalse(state.isInFailedState());
 		state.dispatchToRunning();
 		Assert.assertTrue(state.isInRunningState());
 		state.awaitRunning();
@@ -209,4 +212,25 @@ public class TestServiceState {
 		Assert.assertTrue(state.isInNewState());
 	}
 	
+	/**
+	 * Dispath to starting
+	 */
+	@Test
+	public void testDispatchToStarting1() {
+		final ServiceState state = new ServiceState();
+		final IllegalArgumentException exception = new IllegalArgumentException();
+		state.dispatchToFailed(exception);
+		state.dipatchToStarting();
+		Assert.assertFalse(state.isInStartingState());
+	}
+	
+	/**
+	 * Dispath to starting
+	 */
+	@Test(expected=IllegalStateException.class)
+	public void testDispatchToStarting2() {
+		final ServiceState state = new ServiceState();
+		state.dipatchToStarting();
+		state.dipatchToStarting();
+	}
 }
