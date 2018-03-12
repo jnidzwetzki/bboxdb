@@ -535,7 +535,7 @@ public class TestMemtable {
 	 * @throws StorageManagerException 
 	 */
 	@Test
-	public void testAquire() throws StorageManagerException {
+	public void testAquire1() throws StorageManagerException {
 		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
 		memtable.init();
 		
@@ -549,6 +549,25 @@ public class TestMemtable {
 		
 		Assert.assertEquals(1, memtable.get("1").size());
 		memtable.release();
+		Assert.assertEquals(0, memtable.getSize());
+	}
+	
+	/**
+	 * Test the aquire
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void testAquire2() throws StorageManagerException {
+		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
+		memtable.init();
+		
+		Assert.assertTrue(memtable.acquire());
+		
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
+		memtable.put(createdTuple1);
+		memtable.release();
+		Assert.assertEquals(3, memtable.getSize());
+		memtable.deleteOnClose();
 		Assert.assertEquals(0, memtable.getSize());
 	}
 }
