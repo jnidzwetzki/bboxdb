@@ -118,14 +118,6 @@ public class BBoxDBCluster implements BBoxDB {
 		zookeeperClient.shutdown();
 	}
 
-	/**
-	 * Get the used zookeeper client
-	 * @return
-	 */
-	public ZookeeperClient getZookeeperClient() {
-		return zookeeperClient;
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
