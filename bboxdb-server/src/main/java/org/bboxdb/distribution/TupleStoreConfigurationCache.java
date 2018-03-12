@@ -81,7 +81,7 @@ public class TupleStoreConfigurationCache {
 				final TupleStoreName tupleStoreNameObject = new TupleStoreName(tupleStorename);
 
 				if(! tupleStoreAdapter.isTableKnown(tupleStoreNameObject)) {
-					logger.error("Table {} is not kown, using do nothing duplicate resolver", tupleStorename);
+					logger.error("Table {} is not known, using do nothing duplicate resolver", tupleStorename);
 					return new DoNothingDuplicateResolver();
 				}
 				
