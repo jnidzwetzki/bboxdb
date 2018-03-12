@@ -91,12 +91,12 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
-	 * Test a distribution group two times
+	 * Test create a distribution group two times
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
 	@Test
-	public void createDistributionGroupTwoTimes() throws BBoxDBException, InterruptedException {
+	public void testCreateDistributionGroupTwoTimes() throws BBoxDBException, InterruptedException {
 		final BBoxDBClient bboxdbClient = connectToServer();
 		
 		// Create distribution group
@@ -113,7 +113,36 @@ public class TestNetworkCommunication {
 		resultCreate.waitForAll();
 		Assert.assertTrue(resultCreate.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_EXISTS, resultCreate.getMessage(0));
+		Assert.assertTrue(bboxdbClient.getConnectionState().isInRunningState());
 		
+		disconnect(bboxdbClient);
+	}
+	
+	/**
+	 * Test create a table two times
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testCreateTableTwoTimes() throws BBoxDBException, InterruptedException {
+		final BBoxDBClient bboxdbClient = connectToServer();
+		
+		final String table = DISTRIBUTION_GROUP + "_mytable";
+		
+		final EmptyResultFuture resultCreateTable1 = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForAll();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		final EmptyResultFuture resultCreateTable2 = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		
+		// Prevent retries
+		bboxdbClient.getNetworkOperationRetryer().close();
+		
+		resultCreateTable2.waitForAll();
+		Assert.assertTrue(resultCreateTable2.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_EXISTS, resultCreateTable2.getMessage(0));
+		Assert.assertTrue(bboxdbClient.getConnectionState().isInRunningState());
+
 		disconnect(bboxdbClient);
 	}
 	
@@ -162,7 +191,7 @@ public class TestNetworkCommunication {
 	 * @throws ExecutionException 
 	 */
 	@Test(timeout=60000)
-	public void sendDeletePackage() throws InterruptedException, ExecutionException {
+	public void testSendDeletePackage() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendDeletePackage");
 
 		final BBoxDBClient bboxDBClient = connectToServer();
@@ -207,7 +236,7 @@ public class TestNetworkCommunication {
 	 * @throws ExecutionException 
 	 */
 	@Test(timeout=60000)
-	public void sendDeletePackage2() throws InterruptedException, ExecutionException {
+	public void testSendDeletePackage2() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendDeletePackage2");
 		
 		final String table = DISTRIBUTION_GROUP + "_relation3";
@@ -220,9 +249,6 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
-		
-		// Wait for command processing
-		Thread.sleep(1000);
 		
 		// Second call
 		final EmptyResultFuture result2 = bboxDBClient.deleteTable(table);
@@ -489,7 +515,7 @@ public class TestNetworkCommunication {
 	 * @throws ExecutionException 
 	 */
 	@Test(timeout=60000)
-	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
+	public void testSendKeepAlivePackage() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendKeepAlivePackage");
 
 		final BBoxDBClient bboxDBClient = connectToServer();

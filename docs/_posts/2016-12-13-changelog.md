@@ -36,8 +36,9 @@ order: 1
 - Bugfix: The cancel query operation now cancels the correct query
 - Bugfix: The future complete operation for the cancel query methods are now called
 - Bugfix: Fixed package handling in the newer as inserted time query
-- Bugfix: Handle creation call for distribution groups if group already exists
+- Bugfix: Handle creation call for already existing distribution groups
 - Bugfix: Allow queries on empty tables
+- Bugfix: Handle creation call for already existing tables
 
 ### Version 0.4.2 - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration

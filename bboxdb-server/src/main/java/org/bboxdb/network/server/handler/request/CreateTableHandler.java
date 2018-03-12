@@ -52,14 +52,21 @@ public class CreateTableHandler implements RequestHandler {
 		try {			
 			final CreateTableRequest createPackage = CreateTableRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = createPackage.getTable();
-			logger.info("Got create call for table: {}", requestTable);
+			logger.info("Got create call for table: {}", requestTable.getFullname());
 			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
-			tupleStoreAdapter.writeTuplestoreConfiguration(requestTable, 
-					createPackage.getTupleStoreConfiguration());
 			
-			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+			if(tupleStoreAdapter.isTableKnown(requestTable)) {
+				logger.warn("Table name is already known {}", requestTable.getFullname());
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_TABLE_EXISTS);
+				clientConnectionHandler.writeResultPackage(responsePackage);
+			} else {
+				tupleStoreAdapter.writeTuplestoreConfiguration(requestTable, 
+						createPackage.getTupleStoreConfiguration());
+				
+				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+			}
 		} catch (Exception e) {
 			logger.warn("Error while delete tuple", e);
 

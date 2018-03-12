@@ -30,9 +30,14 @@ public class ErrorMessages {
 	public final static String ERROR_EXCEPTION = "Got an exception during query processing, check server logs";
 
 	/**
-	 * Exception during query processing
+	 * Distribution group already exists
 	 */
 	public final static String ERROR_DGROUP_EXISTS = "Distribution group already exists";
+	
+	/**
+	 * Table already exists
+	 */
+	public final static String ERROR_TABLE_EXISTS = "Table already exists";
 	
 	/**
 	 * Query not found error
