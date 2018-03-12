@@ -29,8 +29,6 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.junit.AfterClass;
@@ -80,26 +78,12 @@ public class TestNetworkCommunication {
 	/**
 	 * Re-create distribution group for each test
 	 * @throws InterruptedException
+	 * @throws BBoxDBException 
 	 */
 	@Before
-	public void before() throws InterruptedException {
-		
-		// Delete distribution group
-		final BBoxDBClient bboxDBClient = connectToServer();
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
-				.withReplicationFactor((short) 1)
-				.build();
-		
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(DISTRIBUTION_GROUP, 
-				configuration);
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
+	public void before() throws InterruptedException, BBoxDBException {
+		final BBoxDB bboxdbClient = connectToServer();
+		TestHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
 	}
 	
 	/**
@@ -229,7 +213,7 @@ public class TestNetworkCommunication {
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
 		final BBoxDBClient bboxdbClient = connectToServer();
 
-		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient);
+		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient, DISTRIBUTION_GROUP);
 	}
 	
 	/**
@@ -242,7 +226,7 @@ public class TestNetworkCommunication {
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException, BBoxDBException {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
-		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient);
+		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient, DISTRIBUTION_GROUP);
 	}
 	
 	/**
@@ -255,7 +239,7 @@ public class TestNetworkCommunication {
 	public void testInsertAndBoundingBoxContinousQuery() throws InterruptedException, ExecutionException, BBoxDBException {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
-		NetworkQueryHelper.testBoundingBoxQueryContinous(bboxDBClient);
+		NetworkQueryHelper.testBoundingBoxQueryContinous(bboxDBClient, DISTRIBUTION_GROUP);
 	}
 	
 	/**
@@ -270,7 +254,7 @@ public class TestNetworkCommunication {
 
 		final BBoxDB bboxdbClient = connectToServer();
 
-		NetworkQueryHelper.executeJoinQuery(bboxdbClient);
+		NetworkQueryHelper.executeJoinQuery(bboxdbClient, DISTRIBUTION_GROUP);
 		
 		System.out.println("=== End network testJoin");
 	}
@@ -409,7 +393,7 @@ public class TestNetworkCommunication {
 
 		final BBoxDBClient bboxDBClient = connectToServer();
 
-		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient);
+		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 
 		System.out.println("=== End testInsertAndBoundingBoxTimeQuery");
 	}

@@ -27,6 +27,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,6 +37,8 @@ public class TestBBoxDBCluster {
 	 * The instance of the software
 	 */
 	private static BBoxDBMain bboxDBMain;
+	
+	private static final String DISTRIBUTION_GROUP = "testgroup";
 	
 	@BeforeClass
 	public static void init() throws Exception {
@@ -60,6 +63,17 @@ public class TestBBoxDBCluster {
 		
 		// Wait some time for socket re-use
 		Thread.sleep(5000);
+	}
+	
+	/**
+	 * Re-create distribution group for each test
+	 * @throws InterruptedException
+	 * @throws BBoxDBException 
+	 */
+	@Before
+	public void before() throws InterruptedException, BBoxDBException {
+		final BBoxDB bboxdbClient = connectToServer();
+		TestHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
 	}
 	
 	/**
@@ -91,7 +105,7 @@ public class TestBBoxDBCluster {
 
 		final BBoxDB bboxDBClient = connectToServer();
 
-		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient);
+		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 
 		System.out.println("=== End cluster testInsertAndBoundingBoxTimeQuery");
 	}
@@ -128,11 +142,9 @@ public class TestBBoxDBCluster {
 
 		final BBoxDB bboxdbClient = connectToServer();
 
-		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient);
+		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient, DISTRIBUTION_GROUP);
 		System.out.println("=== End cluster testInsertAndDelete");
-
 	}
-	
 	
 	/**
 	 * Test the tuple join
@@ -146,7 +158,7 @@ public class TestBBoxDBCluster {
 
 		final BBoxDB bboxdbClient = connectToServer();
 
-		NetworkQueryHelper.executeJoinQuery(bboxdbClient);
+		NetworkQueryHelper.executeJoinQuery(bboxdbClient, DISTRIBUTION_GROUP);
 		
 		System.out.println("=== End cluster testJoin");
 	}

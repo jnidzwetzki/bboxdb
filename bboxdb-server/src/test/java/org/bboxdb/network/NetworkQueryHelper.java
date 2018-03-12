@@ -27,8 +27,6 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -39,38 +37,15 @@ import com.google.common.collect.Lists;
 public class NetworkQueryHelper {
 
 	/**
-	 * The configuration for the unit tests
-	 */
-	public static DistributionGroupConfiguration getConfiguration(final int dimensions) {
-		return DistributionGroupConfigurationBuilder
-				.create(dimensions)
-				.withReplicationFactor((short) 1)
-				.build();
-	}
-	
-	/**
 	 * Execute a bounding box and time query
 	 * @param bboxDBClient
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	public static void executeBoudingboxAndTimeQuery(final BBoxDB bboxDBClient) 
-			throws BBoxDBException, InterruptedException {
+	public static void executeBoudingboxAndTimeQuery(final BBoxDB bboxDBClient, 
+			final String distributionGroup) throws BBoxDBException, InterruptedException {
 		
-		final String distributionGroup = "testgroup"; 
 		final String table = distributionGroup + "_relation9990";
-		
-		// Delete distribution group
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				getConfiguration(2));
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
@@ -115,25 +90,11 @@ public class NetworkQueryHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient) 
+	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient, final String distributionGroup) 
 			throws BBoxDBException, InterruptedException {
 		
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
-		final String distributionGroup = "testgroup"; 
 		final String table = distributionGroup + "_relation9991";
-		
-		// Delete distribution group
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				getConfiguration(2));
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
-		
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
@@ -180,24 +141,11 @@ public class NetworkQueryHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static void testBoundingBoxQueryContinous(final BBoxDBClient bboxDBClient) 
+	public static void testBoundingBoxQueryContinous(final BBoxDBClient bboxDBClient, final String distributionGroup) 
 			throws BBoxDBException, InterruptedException {
 		
 		System.out.println("=== Running testBoundingBoxQueryContinous");
-		final String distributionGroup = "testgroup"; 
 		final String table = distributionGroup + "_relation9991";
-		
-		// Delete distribution group
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				getConfiguration(2));
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
@@ -226,28 +174,13 @@ public class NetworkQueryHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static void testInsertAndDeleteTuple(final BBoxDB bboxDBClient) 
+	public static void testInsertAndDeleteTuple(final BBoxDB bboxDBClient, final String distributionGroup) 
 			throws BBoxDBException, InterruptedException {
 		
 		System.out.println("=== Running testInsertAndDelete");
 
-		final String distributionGroup = "testgroupdel"; 
 		final String table = distributionGroup + "_relation4";
 		final String key = "key12";
-		
-		// Delete distribution group
-		System.out.println("Delete distribution group");
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		System.out.println("Create distribution group");
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				getConfiguration(1));
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
@@ -302,29 +235,14 @@ public class NetworkQueryHelper {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	public static void executeJoinQuery(final BBoxDB bboxDBClient) 
+	public static void executeJoinQuery(final BBoxDB bboxDBClient, final String distributionGroup) 
 			throws InterruptedException, BBoxDBException {
 		
 		System.out.println("=== Execute join");
 		
-		final String distributionGroup = "testgroupjoin"; 
 		final String table1 = distributionGroup + "_table1";
 		final String table2 = distributionGroup + "_table2";
-		
-		// Delete distribution group
-		System.out.println("Delete distribution group");
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		System.out.println("Create distribution group");
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				getConfiguration(2));
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
-		
+	
 		// Create table1
 		System.out.println("Create table 1");
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table1, new TupleStoreConfiguration());
