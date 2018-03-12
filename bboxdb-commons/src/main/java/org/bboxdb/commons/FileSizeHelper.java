@@ -27,6 +27,10 @@ public class FileSizeHelper {
 			throw new IllegalArgumentException("Negative size: " + size);
 		}
 		
+		if(size == 0) {
+			return "0 B";
+		}
+		
 	    final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
 	    
 	    final int devider = (int) (Math.log10(size)/Math.log10(1024));

@@ -40,6 +40,7 @@ order: 1
 - Bugfix: Handle creation call for already existing distribution groups
 - Bugfix: Allow queries on empty tables
 - Bugfix: Handle creation call for already existing tables
+- Bugfix: The file size helper can now handle '0 bytes' values
 
 ### Version 0.4.2 - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration

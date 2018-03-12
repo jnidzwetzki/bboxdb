@@ -32,9 +32,15 @@ public class TestFilesizeHelper {
 	public void testFileSize() {
 		final String bytes = FileSizeHelper.readableFileSize(3);
 		Assert.assertEquals("3 B", bytes);
+		
 		final String kbytes = FileSizeHelper.readableFileSize(2048);
 		Assert.assertEquals("2 KB", kbytes);
+		
 		final String mbytes = FileSizeHelper.readableFileSize(4194304);
 		Assert.assertEquals("4 MB", mbytes);
+		
+		// Zero size
+		final String value0 = FileSizeHelper.readableFileSize(0);
+		Assert.assertEquals("0 B", value0);
 	}
 }
