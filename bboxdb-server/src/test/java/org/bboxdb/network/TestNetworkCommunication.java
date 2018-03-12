@@ -29,6 +29,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
@@ -111,6 +112,7 @@ public class TestNetworkCommunication {
 		
 		resultCreate.waitForAll();
 		Assert.assertTrue(resultCreate.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_EXISTS, resultCreate.getMessage(0));
 		
 		disconnect(bboxdbClient);
 	}
