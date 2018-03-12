@@ -296,4 +296,83 @@ public class NetworkQueryHelper {
 		System.out.println("=== End Execute join");
 	}
 
+	/**
+	 * Test the version time query
+	 * @param bboxDBClient
+	 * @param distributionGroup
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	public static void testVersionTimeQuery(final BBoxDBClient bboxDBClient, 
+			final String distributionGroup) throws InterruptedException, BBoxDBException {
+		
+		final String table = distributionGroup + "_relationqt";
+		final String key = "key12";
+		
+		System.out.println("== Executing testVersionTimeQuery");
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
+		
+		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+		insertResult.waitForAll();
+		Assert.assertFalse(insertResult.isFailed());
+		Assert.assertTrue(insertResult.isDone());
+
+		System.out.println("Query all versions");
+		final TupleListFuture getResult1 = bboxDBClient.queryVersionTime(table, 0);
+		getResult1.waitForAll();
+		final List<Tuple> resultList1 = Lists.newArrayList(getResult1.iterator());
+		Assert.assertEquals(1, resultList1.size());
+		Assert.assertEquals(tuple, resultList1.get(0));
+		
+		System.out.println("Query newest versions");
+		final TupleListFuture getResult2 = bboxDBClient.queryVersionTime(table, Long.MAX_VALUE);
+		getResult2.waitForAll();
+		final List<Tuple> resultList2 = Lists.newArrayList(getResult2.iterator());
+		Assert.assertTrue(resultList2.isEmpty());
+	}
+	
+	/**
+	 * Test the version time query
+	 * @param bboxDBClient
+	 * @param distributionGroup
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	public static void testInsertedTimeQuery(final BBoxDBClient bboxDBClient, 
+			final String distributionGroup) throws InterruptedException, BBoxDBException {
+		
+		final String table = distributionGroup + "_relationit";
+		final String key = "key12";
+		
+		System.out.println("== Executing testInsertedTimeQuery");
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
+		
+		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+		insertResult.waitForAll();
+		Assert.assertFalse(insertResult.isFailed());
+		Assert.assertTrue(insertResult.isDone());
+
+		System.out.println("Query all versions");
+		final TupleListFuture getResult1 = bboxDBClient.queryInsertedTime(table, 0);
+		getResult1.waitForAll();
+		final List<Tuple> resultList1 = Lists.newArrayList(getResult1.iterator());
+		Assert.assertEquals(1, resultList1.size());
+		Assert.assertEquals(tuple, resultList1.get(0));
+		
+		System.out.println("Query newest versions");
+		final TupleListFuture getResult2 = bboxDBClient.queryInsertedTime(table, Long.MAX_VALUE);
+		getResult2.waitForAll();
+		final List<Tuple> resultList2 = Lists.newArrayList(getResult2.iterator());
+		Assert.assertTrue(resultList2.isEmpty());
+	}
 }

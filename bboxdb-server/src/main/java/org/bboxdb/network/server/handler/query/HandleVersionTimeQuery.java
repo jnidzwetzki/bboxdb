@@ -52,7 +52,7 @@ public class HandleVersionTimeQuery implements QueryHandler {
 	public void handleQuery(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
-		
+				
 		try {
 			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
 				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
@@ -70,10 +70,11 @@ public class HandleVersionTimeQuery implements QueryHandler {
 					if(storageManager.size() != 1) {
 						throw new IllegalArgumentException("This operator tree needs 1 storage manager");
 					}
-					
-					
+				
 					final FullTablescanOperator tablescanOperator = new FullTablescanOperator(storageManager.get(0));
-					final Operator opeator = new NewerAsVersionTimeSelectionOperator(queryRequest.getTimestamp(), 
+					final long timestamp = queryRequest.getTimestamp();
+										
+					final Operator opeator = new NewerAsVersionTimeSelectionOperator(timestamp, 
 							tablescanOperator);
 					
 					return opeator;

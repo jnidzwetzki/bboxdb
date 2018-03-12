@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
+import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
@@ -59,7 +59,7 @@ public class HandleInsertTimeQuery implements QueryHandler {
 				return;
 			}
 			
-			final QueryVersionTimeRequest queryRequest = QueryVersionTimeRequest.decodeTuple(encodedPackage);
+			final QueryInsertTimeRequest queryRequest = QueryInsertTimeRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = queryRequest.getTable();
 			
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
@@ -71,10 +71,9 @@ public class HandleInsertTimeQuery implements QueryHandler {
 						throw new IllegalArgumentException("This operator tree needs 1 storage manager");
 					}
 					
-					
 					final FullTablescanOperator tablescanOperator = new FullTablescanOperator(storageManager.get(0));
-					final Operator opeator = new NewerAsInsertTimeSeclectionOperator(queryRequest.getTimestamp(), 
-							tablescanOperator);
+					final long timestamp = queryRequest.getTimestamp();
+					final Operator opeator = new NewerAsInsertTimeSeclectionOperator(timestamp, tablescanOperator);
 
 					return opeator;
 				}

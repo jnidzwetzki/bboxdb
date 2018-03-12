@@ -243,6 +243,30 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Execute the version time query
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testVersionTimeQuery() throws InterruptedException, BBoxDBException {
+		final BBoxDBClient bboxDBClient = connectToServer();
+
+		NetworkQueryHelper.testVersionTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
+	}
+	
+	/**
+	 * Execute the version inserted query
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testInsertedTimeQuery() throws InterruptedException, BBoxDBException {
+		final BBoxDBClient bboxDBClient = connectToServer();
+
+		NetworkQueryHelper.testInsertedTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
+	}
+	
+	/**
 	 * Test the tuple join
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
