@@ -62,4 +62,12 @@ public class TestPeerCapabilities {
 		peerCapabilities.freeze();
 		peerCapabilities.clearGZipCompression();
 	}
+	
+	/**
+	 * Test creation with empty bytes
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testPeerCapabilitiesConstruct() {
+		new PeerCapabilities(new byte[20]);
+	}
 }
