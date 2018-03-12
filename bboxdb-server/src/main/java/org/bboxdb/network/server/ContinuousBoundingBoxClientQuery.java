@@ -27,6 +27,10 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
@@ -35,6 +39,7 @@ import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -167,17 +172,42 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 			}
 
 			final TupleStoreName tupleStoreName = localTables.iterator().next();
-			storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
+			
+			storageManager = getTupleStoreManager(storageRegistry, tupleStoreName);
+			
 			storageManager.registerInsertCallback(tupleInsertCallback);
 			
 			// Remove tuple store insert listener on connection close
 			clientConnectionHandler.addConnectionClosedHandler((c) -> close());
-		} catch (StorageManagerException e) {
+		} catch (StorageManagerException | ZookeeperException e) {
 			logger.error("Got an exception during query init", e);
 			close();
 		}
 	}
 	
+	/**
+	 * Get or create the tuple store manager
+	 * @param storageRegistry
+	 * @param tupleStoreName
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws StorageManagerException
+	 */
+	private TupleStoreManager getTupleStoreManager(TupleStoreManagerRegistry storageRegistry, 
+			final TupleStoreName tupleStoreName) throws ZookeeperException, StorageManagerException {
+		
+		if(! storageRegistry.isStorageManagerKnown(tupleStoreName)) {
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			
+			final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(requestTable);
+			
+			return storageRegistry.createTableIfNotExist(tupleStoreName, config);
+		} else {
+			return storageRegistry.getTupleStoreManager(tupleStoreName);
+		}
+	}
+
 	@Override
 	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
 		

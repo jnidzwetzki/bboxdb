@@ -32,6 +32,7 @@ order: 1
 - Bugfix: Local tables are removed after merge/split (closes #77)
 - Bugfix: Min region size was set to max region size
 - Bugfix: Space partitioner config was not generated correctly
+- Bugfix: Continuous bounding box queries can now directly executed after table created
 
 ### Version 0.4.2 - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration
