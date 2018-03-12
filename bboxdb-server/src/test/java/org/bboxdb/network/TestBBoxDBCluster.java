@@ -206,4 +206,19 @@ public class TestBBoxDBCluster {
 		Assert.assertFalse(bboxDBClient.isConnected());
 		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
 	}
+	
+	/**
+	 * Test misc methods
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testMiscMethods() throws InterruptedException {
+		final BBoxDB bboxDBClient = connectToServer();
+		Assert.assertTrue(bboxDBClient.toString().length() > 10);
+		Assert.assertTrue(bboxDBClient.getTuplesPerPage() >= -1);
+		bboxDBClient.isPagingEnabled();
+		bboxDBClient.setMaxInFlightCalls((short) 1000);
+		Assert.assertEquals(1000, bboxDBClient.getMaxInFlightCalls());
+		disconnect(bboxDBClient);
+	}
 }
