@@ -84,6 +84,7 @@ public class TestNetworkCommunication {
 	public void before() throws InterruptedException, BBoxDBException {
 		final BBoxDB bboxdbClient = connectToServer();
 		TestHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
+		disconnectFromServer(bboxdbClient);
 	}
 	
 	/**
@@ -98,6 +99,7 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(bboxDBClient.isConnected());
 		disconnectFromServer(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());
+		disconnectFromServer(bboxDBClient);
 		
 		System.out.println("=== End testSendDisconnectPackage");
 	}
@@ -145,7 +147,8 @@ public class TestNetworkCommunication {
 		
 		disconnectFromServer(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());
-		
+		disconnectFromServer(bboxDBClient);
+
 		System.out.println("=== End sendDeletePackage");
 	}
 	
@@ -163,7 +166,8 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		bboxDBClient.disconnect();
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInTerminatedState());
-	
+		disconnectFromServer(bboxDBClient);
+
 		System.out.println("=== End testConnectionState");
 	}
 	
@@ -199,7 +203,8 @@ public class TestNetworkCommunication {
 		
 		disconnectFromServer(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());		
-		
+		disconnectFromServer(bboxDBClient);
+
 		System.out.println("=== End sendDeletePackage2");
 	}
 
@@ -212,8 +217,8 @@ public class TestNetworkCommunication {
 	@Test(timeout=60000)
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
 		final BBoxDBClient bboxdbClient = connectToServer();
-
 		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient, DISTRIBUTION_GROUP);
+		disconnectFromServer(bboxdbClient);
 	}
 	
 	/**
@@ -227,6 +232,7 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -240,6 +246,7 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.testBoundingBoxQueryContinous(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -252,6 +259,7 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.testVersionTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -264,6 +272,7 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.testInsertedTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -281,6 +290,7 @@ public class TestNetworkCommunication {
 		NetworkQueryHelper.executeJoinQuery(bboxdbClient, DISTRIBUTION_GROUP);
 		
 		System.out.println("=== End network testJoin");
+		disconnectFromServer(bboxdbClient);
 	}
 	
 	/**
@@ -370,6 +380,7 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(5, resultList5.size());
 		
 		System.out.println("=== End testPaging");
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -403,6 +414,7 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(1, resultList.size());
 	
 		System.out.println("=== End testGetByKey");
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -420,6 +432,7 @@ public class TestNetworkCommunication {
 		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 
 		System.out.println("=== End testInsertAndBoundingBoxTimeQuery");
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -444,6 +457,7 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(bboxDBClient.isConnected());
 		
 		System.out.println("=== End sendKeepAlivePackage");
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -489,6 +503,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.isPagingEnabled();
 		bboxDBClient.setMaxInFlightCalls((short) 1000);
 		Assert.assertEquals(1000, bboxDBClient.getMaxInFlightCalls());
+		disconnectFromServer(bboxDBClient);
 	}
 	
 	/**
@@ -503,7 +518,7 @@ public class TestNetworkCommunication {
 	 * Disconnect from server
 	 * @param bboxDBClient
 	 */
-	protected void disconnectFromServer(final BBoxDBClient bboxDBClient) {
+	protected void disconnectFromServer(final BBoxDB bboxDBClient) {
 		bboxDBClient.disconnect();
 		Assert.assertFalse(bboxDBClient.isConnected());
 		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
