@@ -90,7 +90,7 @@ public class TestNetworkCommunication {
 	 * Integration test for the disconnect package
 	 * 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSendDisconnectPackage() {
 		System.out.println("=== Running testSendDisconnectPackage");
 
@@ -105,7 +105,7 @@ public class TestNetworkCommunication {
 	/**
 	 * Test the double connect call
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDoubleConnect() {
 		final BBoxDBClient bboxDBClient = connectToServer();
 		Assert.assertTrue(bboxDBClient.isConnected());
@@ -117,7 +117,7 @@ public class TestNetworkCommunication {
 	/**
 	 * Test the double disconnect call
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDoubleDisconnect() {
 		final BBoxDBClient bboxDBClient = connectToServer();
 		disconnectFromServer(bboxDBClient);
@@ -129,7 +129,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws ExecutionException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void sendDeletePackage() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendDeletePackage");
 
@@ -152,7 +152,7 @@ public class TestNetworkCommunication {
 	/**
 	 * Test the state machine of the connection
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testConnectionState() {
 		System.out.println("=== Running testConnectionState");
 
@@ -172,7 +172,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws ExecutionException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void sendDeletePackage2() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendDeletePackage2");
 		
@@ -209,7 +209,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
 		final BBoxDBClient bboxdbClient = connectToServer();
 
@@ -247,7 +247,7 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testVersionTimeQuery() throws InterruptedException, BBoxDBException {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
@@ -259,7 +259,7 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertedTimeQuery() throws InterruptedException, BBoxDBException {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
@@ -272,7 +272,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testJoin() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running network testJoin");
 
@@ -289,7 +289,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testPaging() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running testPaging");
 		final String table = DISTRIBUTION_GROUP + "_relation9999";
@@ -373,12 +373,12 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
-	 * Insert a tuple and requet it via key
+	 * Insert a tuple and request it via key
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetByKey() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running testGetByKey");
 		final String table = DISTRIBUTION_GROUP + "_relation12333";
@@ -411,7 +411,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertAndBoundingBoxTimeQuery() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running testInsertAndBoundingBoxTimeQuery");
 
@@ -427,7 +427,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws ExecutionException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendKeepAlivePackage");
 
@@ -480,7 +480,7 @@ public class TestNetworkCommunication {
 	/**
 	 * Test misc methods
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMiscMethods() {
 		final BBoxDBClient bboxDBClient = connectToServer();
 		Assert.assertTrue(bboxDBClient.toString().length() > 10);
