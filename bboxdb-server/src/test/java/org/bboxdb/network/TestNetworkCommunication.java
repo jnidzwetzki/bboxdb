@@ -119,6 +119,18 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Test the double connect call
+	 */
+	@Test
+	public void testDoubleConnect() {
+		final BBoxDBClient bboxDBClient = connectToServer();
+		Assert.assertTrue(bboxDBClient.isConnected());
+		Assert.assertFalse(bboxDBClient.connect());
+		Assert.assertTrue(bboxDBClient.isConnected());
+		disconnectFromServer(bboxDBClient);
+	}
+	
+	/**
 	 * Send a delete package to the server
 	 * @throws InterruptedException 
 	 * @throws ExecutionException 
@@ -218,7 +230,6 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException, BBoxDBException {
-		
 		final BBoxDBClient bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient);
