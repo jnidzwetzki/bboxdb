@@ -131,6 +131,16 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Test the double disconnect call
+	 */
+	@Test
+	public void testDoubleDisconnect() {
+		final BBoxDBClient bboxDBClient = connectToServer();
+		disconnectFromServer(bboxDBClient);
+		disconnectFromServer(bboxDBClient);
+	}
+	
+	/**
 	 * Send a delete package to the server
 	 * @throws InterruptedException 
 	 * @throws ExecutionException 
