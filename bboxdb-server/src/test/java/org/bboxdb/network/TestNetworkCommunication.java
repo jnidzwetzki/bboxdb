@@ -356,7 +356,8 @@ public class TestNetworkCommunication {
 		
 		final String table = DISTRIBUTION_GROUP + "_nonexsting";
 
-		final TupleListFuture result1 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final BoundingBox boundingBox = new BoundingBox(-1d, 2d, -1d, 2d);
+		final TupleListFuture result1 = bboxDBClient.queryBoundingBox(table, boundingBox);
 		result1.waitForAll();
 		Assert.assertTrue(result1.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result1.getMessage(0));
@@ -365,6 +366,21 @@ public class TestNetworkCommunication {
 		result2.waitForAll();
 		Assert.assertTrue(result2.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result2.getMessage(0));
+		
+		final TupleListFuture result3 = bboxDBClient.queryInsertedTime(table, 1234);
+		result3.waitForAll();
+		Assert.assertTrue(result3.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result3.getMessage(0));
+		
+		final TupleListFuture result4 = bboxDBClient.queryVersionTime(table, 1234);
+		result4.waitForAll();
+		Assert.assertTrue(result4.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result4.getMessage(0));
+		
+		final TupleListFuture result5 = bboxDBClient.queryBoundingBoxAndTime(table, boundingBox, 1234);
+		result5.waitForAll();
+		Assert.assertTrue(result5.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result5.getMessage(0));
 		
 		disconnect(bboxDBClient);
 	}
