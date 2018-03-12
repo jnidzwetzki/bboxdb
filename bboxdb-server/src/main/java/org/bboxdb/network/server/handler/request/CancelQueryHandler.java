@@ -47,17 +47,21 @@ public class CancelQueryHandler implements RequestHandler {
 		
 		try {
 			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
-			logger.debug("Cancel query {} requested", nextPagePackage.getQuerySequence());
+			final short queryToCancel = nextPagePackage.getQuerySequence();
+			
+			logger.debug("Cancel query {} requested", queryToCancel);
 			
 			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
 			
-			if(! activeQueries.containsKey(packageSequence)) {
-				logger.error("Unable to cancel query {} - not found", packageSequence);
+			if(! activeQueries.containsKey(queryToCancel)) {
+				logger.error("Unable to cancel query {} - not found", queryToCancel);
 				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			} else {
-				final ClientQuery clientQuery = activeQueries.remove(packageSequence);
+				final ClientQuery clientQuery = activeQueries.remove(queryToCancel);
 				clientQuery.close();
 				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+				logger.info("Sending success for canceling query {} (request package {})", 
+						queryToCancel, packageSequence);
 			}
 		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);

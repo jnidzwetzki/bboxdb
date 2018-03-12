@@ -913,6 +913,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		final CancelQueryRequest requestPackage = new CancelQueryRequest(getNextSequenceNumber(), queryPackageId);
 
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 
 		return clientOperationFuture;

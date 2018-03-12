@@ -33,6 +33,8 @@ order: 1
 - Bugfix: Min region size was set to max region size
 - Bugfix: Space partitioner config was not generated correctly
 - Bugfix: Continuous bounding box queries can now directly executed after table created
+- Bugfix: The cancel query operation now cancels the correct query
+- Bugfix: The future complete operation for the cancel query methods are now called
 
 ### Version 0.4.2 - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration
