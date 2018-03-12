@@ -275,9 +275,7 @@ public class NetworkQueryHelper {
 		insertResult3.waitForAll();
 		Assert.assertFalse(insertResult3.isFailed());
 		Assert.assertTrue(insertResult3.isDone());
-		
-		Thread.sleep(10000);
-		
+				
 		// Execute the join
 		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), new BoundingBox(0.0, 10.0, 0.0, 10.0));
 		joinResult.waitForAll();
