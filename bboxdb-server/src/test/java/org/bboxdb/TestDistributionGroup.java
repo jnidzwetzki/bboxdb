@@ -80,7 +80,7 @@ public class TestDistributionGroup {
 	 * Test the distribution group config
 	 */
 	@Test
-	public void testDistributionGroupConfiguration() {
+	public void testDistributionGroupConfiguration1() {
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder
 				.create(45)
 				.withMaximumRegionSize(342)
@@ -98,6 +98,24 @@ public class TestDistributionGroup {
 		Assert.assertEquals("abc", config.getSpacePartitioner());
 		Assert.assertEquals("456", config.getSpacePartitionerConfig());
 		Assert.assertEquals((short) 99, config.getReplicationFactor());
+	}
+	
+	/**
+	 * Test the distribution group config
+	 */
+	@Test
+	public void testDistributionGroupConfiguration2() {
+		final DistributionGroupConfiguration config1 = DistributionGroupConfigurationBuilder
+				.create(45)
+				.build();
+		
+		final DistributionGroupConfiguration config2 = DistributionGroupConfigurationBuilder
+				.create(45)
+				.build();
+		
+		Assert.assertTrue(config1.toString().length() > 10);
+		Assert.assertEquals(config1, config2);
+		Assert.assertEquals(config1.hashCode(), config2.hashCode());
 	}
 	
 }
