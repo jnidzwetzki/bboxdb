@@ -278,6 +278,39 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Test insert into non existing table
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testInsertIntoNonExstingTable() throws BBoxDBException, InterruptedException {
+		System.out.println("=== Running testInsertIntoNonExstingTable");
+		
+		final BBoxDBClient bboxdbClient = connectToServer();
+
+
+		final String table = DISTRIBUTION_GROUP + "_relationnonexsting";
+		final String key = "key12";
+		
+		System.out.println("Insert tuple");
+		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
+		final EmptyResultFuture insertResult = bboxdbClient.insertTuple(table, tuple);
+		
+		// Prevent retries
+		bboxdbClient.getNetworkOperationRetryer().close();
+		
+		insertResult.waitForAll();
+		Assert.assertTrue(insertResult.isFailed());
+		Assert.assertTrue(insertResult.isDone());
+		
+		System.out.println(insertResult.getMessage(0));
+
+		bboxdbClient.disconnect();
+		
+		System.out.println("=== End testInsertIntoNonExstingTable");
+	}
+	
+	/**
 	 * Insert some tuples and start a bounding box query afterwards
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 

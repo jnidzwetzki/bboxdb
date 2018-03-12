@@ -212,6 +212,11 @@ public class InsertTupleHandler implements RequestHandler {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			
+			if(! tupleStoreAdapter.isTableKnown(requestTable)) {
+				throw new StorageManagerException("Table: " + requestTable.getFullname() + " is unkown");
+			}
+			
 			final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(requestTable);
 
 			for(final TupleStoreName tupleStoreName : localTables) {
