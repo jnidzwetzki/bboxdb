@@ -74,6 +74,7 @@ public class TestBBoxDBCluster {
 	public void before() throws InterruptedException, BBoxDBException {
 		final BBoxDB bboxdbClient = connectToServer();
 		TestHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
+		disconnect(bboxdbClient);
 	}
 	
 	/**
@@ -91,6 +92,7 @@ public class TestBBoxDBCluster {
 		Assert.assertFalse(bboxdbClient.isConnected());
 		
 		System.out.println("=== End cluster testSendDisconnectPackage");
+		disconnect(bboxdbClient);
 	}
 	
 	/**
@@ -108,6 +110,8 @@ public class TestBBoxDBCluster {
 		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 
 		System.out.println("=== End cluster testInsertAndBoundingBoxTimeQuery");
+		
+		disconnect(bboxDBClient);
 	}
 	
 	/**
@@ -144,6 +148,8 @@ public class TestBBoxDBCluster {
 
 		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient, DISTRIBUTION_GROUP);
 		System.out.println("=== End cluster testInsertAndDelete");
+		
+		disconnect(bboxdbClient);
 	}
 	
 	/**
@@ -161,5 +167,43 @@ public class TestBBoxDBCluster {
 		NetworkQueryHelper.executeJoinQuery(bboxdbClient, DISTRIBUTION_GROUP);
 		
 		System.out.println("=== End cluster testJoin");
+		
+		disconnect(bboxdbClient);
+	}
+	
+	/**
+	 * Execute the version time query
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testVersionTimeQuery() throws InterruptedException, BBoxDBException {
+		final BBoxDB bboxDBClient = connectToServer();
+
+		NetworkQueryHelper.testVersionTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnect(bboxDBClient);
+	}
+	
+	/**
+	 * Execute the version inserted query
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testInsertedTimeQuery() throws InterruptedException, BBoxDBException {
+		final BBoxDB bboxDBClient = connectToServer();
+
+		NetworkQueryHelper.testInsertedTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnect(bboxDBClient);
+	}
+	
+	/**
+	 * Disconnect from server
+	 * @param bboxDBClient
+	 */
+	protected void disconnect(final BBoxDB bboxDBClient) {
+		bboxDBClient.disconnect();
+		Assert.assertFalse(bboxDBClient.isConnected());
+		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
 	}
 }

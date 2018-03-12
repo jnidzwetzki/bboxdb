@@ -303,7 +303,7 @@ public class NetworkQueryHelper {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	public static void testVersionTimeQuery(final BBoxDBClient bboxDBClient, 
+	public static void testVersionTimeQuery(final BBoxDB bboxDBClient, 
 			final String distributionGroup) throws InterruptedException, BBoxDBException {
 		
 		final String table = distributionGroup + "_relationqt";
@@ -343,7 +343,7 @@ public class NetworkQueryHelper {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	public static void testInsertedTimeQuery(final BBoxDBClient bboxDBClient, 
+	public static void testInsertedTimeQuery(final BBoxDB bboxDBClient, 
 			final String distributionGroup) throws InterruptedException, BBoxDBException {
 		
 		final String table = distributionGroup + "_relationit";
