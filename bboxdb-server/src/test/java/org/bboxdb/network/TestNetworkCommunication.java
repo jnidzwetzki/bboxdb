@@ -125,7 +125,7 @@ public class TestNetworkCommunication {
 	public void testDoubleConnect() {
 		final BBoxDBClient bboxDBClient = connectToServer();
 		Assert.assertTrue(bboxDBClient.isConnected());
-		Assert.assertFalse(bboxDBClient.connect());
+		Assert.assertTrue(bboxDBClient.connect());
 		Assert.assertTrue(bboxDBClient.isConnected());
 		disconnectFromServer(bboxDBClient);
 	}
