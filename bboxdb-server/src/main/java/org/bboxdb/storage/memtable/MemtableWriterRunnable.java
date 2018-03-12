@@ -93,11 +93,6 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 	 * 
 	 */
 	protected void flushMemtableToDisk(final Memtable memtable, final TupleStoreManager sstableManager) {
-		
-		if(memtable == null) {
-			logger.warn("Got null memtable, not flushing");
-			return;
-		}
 
 		SSTableFacade facade = null;
 
