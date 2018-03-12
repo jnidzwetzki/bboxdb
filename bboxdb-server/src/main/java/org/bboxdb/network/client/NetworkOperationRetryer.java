@@ -141,6 +141,10 @@ public class NetworkOperationRetryer implements Closeable {
 			return false;
 		}
 		
+		if(scheduler.isShutdown()) {
+			return false;
+		}
+		
 		return retryPackageEntity.getRetryCounter() < Const.OPERATION_RETRY;
 	}
 	

@@ -79,6 +79,12 @@ public class TupleStoreConfigurationCache {
 				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 				final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 				final TupleStoreName tupleStoreNameObject = new TupleStoreName(tupleStorename);
+
+				if(! tupleStoreAdapter.isTableKnown(tupleStoreNameObject)) {
+					logger.error("Table {} is not kown, using do nothing duplicate resolver", tupleStorename);
+					return new DoNothingDuplicateResolver();
+				}
+				
 				final TupleStoreConfiguration tupleStoreConfiguration = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreNameObject);
 				final DuplicateResolver<Tuple> resolver = TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
 				cache.put(tupleStorename, resolver);
