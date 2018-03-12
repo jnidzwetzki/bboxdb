@@ -256,10 +256,28 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 */
 	@Test(timeout=60000)
-	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException, BBoxDBException {
+	public void testInsertAndBoundingBoxQuery() throws InterruptedException, 
+		ExecutionException, BBoxDBException {
+		
 		final BBoxDBClient bboxDBClient = connectToServer();
 
-		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient, DISTRIBUTION_GROUP);
+		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient, DISTRIBUTION_GROUP, true);
+		disconnect(bboxDBClient);
+	}
+	
+	/**
+	 * Start a bounding box query without inserted tuples
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test(timeout=60000)
+	public void testInsertAndBoundingBoxQuery2() throws InterruptedException, 
+		ExecutionException, BBoxDBException {
+		
+		final BBoxDBClient bboxDBClient = connectToServer();
+
+		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient, DISTRIBUTION_GROUP, false);
 		disconnect(bboxDBClient);
 	}
 	

@@ -29,6 +29,7 @@ import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
@@ -40,6 +41,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,20 +250,22 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 		try {
 			final List<TupleStoreManager> storageManagers = new ArrayList<>();
 			
+			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler
+					.getStorageRegistry();
+			
 			for(final TupleStoreName tupleStoreName : requestTables) {
 				final TupleStoreName sstableName = localTables.get(tupleStoreName).remove(0);
 				
-				final TupleStoreManager storageManager = clientConnectionHandler
-						.getStorageRegistry()
-						.getTupleStoreManager(sstableName);
-				
+				final TupleStoreManager storageManager 
+					= QueryHelper.getTupleStoreManager(storageRegistry, sstableName);
+
 				storageManagers.add(storageManager);
 			}
 			
 			activeOperator = operatorTreeBuilder.buildOperatorTree(storageManagers);
 			activeOperatorIterator = activeOperator.iterator();
 			return true;
-		} catch (StorageManagerException e) {
+		} catch (StorageManagerException | ZookeeperException e) {
 			logger.warn("Got exception while fetching tuples", e);
 		}
 		

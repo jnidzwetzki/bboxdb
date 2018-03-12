@@ -90,8 +90,8 @@ public class NetworkQueryHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient, final String distributionGroup) 
-			throws BBoxDBException, InterruptedException {
+	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient, final String distributionGroup, 
+			final boolean withTupes) throws BBoxDBException, InterruptedException {
 		
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
 		final String table = distributionGroup + "_relation9991";
@@ -101,37 +101,43 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForAll();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
-		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
-		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes());
-		final EmptyResultFuture result2 = bboxDBClient.insertTuple(table, tuple2);
 		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
-		final EmptyResultFuture result3 = bboxDBClient.insertTuple(table, tuple3);
-		
+
 		// Outside our bbox query
 		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		final EmptyResultFuture result4 = bboxDBClient.insertTuple(table, tuple4);
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
-		final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
 
-		result1.waitForAll();
-		result2.waitForAll();
-		result3.waitForAll();
-		result4.waitForAll();
-		result5.waitForAll();
+		if(withTupes) {
+			final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
+			final EmptyResultFuture result2 = bboxDBClient.insertTuple(table, tuple2);
+			final EmptyResultFuture result3 = bboxDBClient.insertTuple(table, tuple3);
+			final EmptyResultFuture result4 = bboxDBClient.insertTuple(table, tuple4);
+			final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
+	
+			result1.waitForAll();
+			result2.waitForAll();
+			result3.waitForAll();
+			result4.waitForAll();
+			result5.waitForAll();
+		}
 		
 		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
 		future.waitForAll();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		
-		Assert.assertEquals(3, resultList.size());
-		Assert.assertTrue(resultList.contains(tuple1));
-		Assert.assertTrue(resultList.contains(tuple2));
-		Assert.assertTrue(resultList.contains(tuple3));
-		Assert.assertFalse(resultList.contains(tuple4));
-		Assert.assertFalse(resultList.contains(tuple5));
+		if(! withTupes) {
+			Assert.assertEquals(0, resultList.size());
+		} else {
+			Assert.assertEquals(3, resultList.size());
+			Assert.assertTrue(resultList.contains(tuple1));
+			Assert.assertTrue(resultList.contains(tuple2));
+			Assert.assertTrue(resultList.contains(tuple3));
+			Assert.assertFalse(resultList.contains(tuple4));
+			Assert.assertFalse(resultList.contains(tuple5));
+		}
 		System.out.println("=== End testInsertAndBoundingBoxQuery");
 	}
 
