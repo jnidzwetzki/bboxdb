@@ -20,11 +20,15 @@ package org.bboxdb.network;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -205,6 +209,33 @@ public class TestBBoxDBCluster {
 		bboxDBClient.disconnect();
 		Assert.assertFalse(bboxDBClient.isConnected());
 		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
+	}
+	
+	/**
+	 * Insert some tuples and start a bounding box query afterwards
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test(timeout=60000)
+	public void testInsertAndBoundingBoxContinousQuery() throws InterruptedException, 
+	ExecutionException, BBoxDBException {
+		
+		final BBoxDB bboxDBClient = connectToServer();
+		
+		final String table = DISTRIBUTION_GROUP + "_relation9991";
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
+		
+		// Execute query
+		final TupleListFuture result = bboxDBClient.queryBoundingBoxContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
+
+		Assert.assertFalse(result.isFailed());
+		
+		disconnect(bboxDBClient);
 	}
 	
 	/**
