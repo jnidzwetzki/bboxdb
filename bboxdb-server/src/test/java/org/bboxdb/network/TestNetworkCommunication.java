@@ -272,7 +272,7 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 */
 	@Test(timeout=60000)
-	public void testInsertAndBoundingBoxQuery2() throws InterruptedException, 
+	public void testEmptyBoundingBoxQuery() throws InterruptedException, 
 		ExecutionException, BBoxDBException {
 		
 		final BBoxDBClient bboxDBClient = connectToServer();
