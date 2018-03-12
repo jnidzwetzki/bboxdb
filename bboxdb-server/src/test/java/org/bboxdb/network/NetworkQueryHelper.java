@@ -168,6 +168,18 @@ public class NetworkQueryHelper {
 
 		Thread.sleep(1000);
 		
+		System.out.println("=== Tuples per page is: " + bboxDBClient.getTuplesPerPage());
+		if(bboxDBClient.getTuplesPerPage() > 0) {
+			for(int i = 0; i <= bboxDBClient.getTuplesPerPage(); i++) {
+				bboxDBClient.insertTuple(table, new Tuple("1", new BoundingBox(0d, 1d, 0d, 1d), "".getBytes()));
+			}
+		}
+		
+		System.out.println("=== Wait for query result");
+		future.waitForAll();
+		
+		Assert.assertTrue(future.iterator().hasNext());
+		
 		final short queryId = future.getRequestId(0);
 		System.out.println("Canceling query: " + queryId);
 		final EmptyResultFuture cancelResult = bboxDBClient.cancelQuery(queryId);
