@@ -454,6 +454,20 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Test misc methods
+	 */
+	@Test
+	public void testMiscMethods() {
+		final BBoxDBClient bboxDBClient = connectToServer();
+		Assert.assertTrue(bboxDBClient.toString().length() > 10);
+		Assert.assertTrue(bboxDBClient.getServerAddress() != null);
+		Assert.assertTrue(bboxDBClient.getTuplesPerPage() >= -1);
+		bboxDBClient.isPagingEnabled();
+		bboxDBClient.setMaxInFlightCalls((short) 1000);
+		Assert.assertEquals(1000, bboxDBClient.getMaxInFlightCalls());
+	}
+	
+	/**
 	 * Should the packages be compressed or not
 	 * @return
 	 */
