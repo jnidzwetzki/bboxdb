@@ -83,7 +83,7 @@ public class TupleStoreConfigurationCache {
 				final DuplicateResolver<Tuple> resolver = TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
 				cache.put(tupleStorename, resolver);
 			} catch (ZookeeperException e) {
-				logger.error("Exception while reading zokeeper data", e);
+				logger.error("Exception while reading zookeeper data", e);
 				return new DoNothingDuplicateResolver();
 			}
 		}
