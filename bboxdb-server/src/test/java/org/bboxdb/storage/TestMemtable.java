@@ -41,11 +41,29 @@ import com.google.common.collect.Iterators;
 
 public class TestMemtable {
 	
+	/**
+	 * The table name
+	 */
+	private static final TupleStoreName MEMTABLE_TABLE_NAME = new TupleStoreName("3_mygroup_test");
+	
+	/**
+	 * The max amount of entries
+	 */
+	private static final int MEMTABLE_MAX_ENTRIES = 1000;
+	
+	/**
+	 * The max size of a memtable
+	 */
+	private static final int MEMTABLE_MAX_SIZE = 10000;
+	
+	/**
+	 * The memtable reference
+	 */
 	private static Memtable memtable;
 	
 	@Before
 	public void before() {
-		memtable = new Memtable(new TupleStoreName("3_mygroup_test"), 1000, 10000);
+		memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
 		memtable.init();
 		memtable.acquire();
 	}
@@ -430,4 +448,26 @@ public class TestMemtable {
 		Assert.assertTrue(memtable.getTupleStoreName() != null);
 	}
 
+	/**
+	 * Test if full 
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void isFullBySize() throws StorageManagerException {				
+		Assert.assertFalse(memtable.isFull());
+		
+		final Tuple tuple = new Tuple("3", null, "def".getBytes(), 1) {
+			@Override
+			public int getSize() {
+				return (int) ((MEMTABLE_MAX_SIZE / 2) - 1);
+			}
+		};
+		
+		memtable.put(tuple);
+		Assert.assertFalse(memtable.isFull());
+		memtable.put(tuple);
+		Assert.assertFalse(memtable.isFull());
+		memtable.put(tuple);
+		Assert.assertTrue(memtable.isFull());
+	}
 }
