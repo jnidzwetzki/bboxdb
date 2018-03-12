@@ -146,15 +146,15 @@ public class TupleStoreMetaData {
 	 * @throws FileNotFoundException
 	 */
 	public static TupleStoreMetaData importFromYamlFile(final File tmpFile) {
-		  final Yaml yaml = new Yaml(); 
-		  FileReader reader;
+		final Yaml yaml = new Yaml(); 
+		FileReader reader;
 		try {
 			reader = new FileReader(tmpFile);
 		} catch (FileNotFoundException e) {
 			logger.warn("Unable to load file: " + tmpFile, e);
 			return null;
 		}
-		
+
 		return yaml.loadAs(reader, TupleStoreMetaData.class);
 	}
 

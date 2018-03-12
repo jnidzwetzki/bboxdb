@@ -205,7 +205,7 @@ public class TestSSTableMetadataBuilder {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		ssTableIndexBuilder.addTuple(tuple1);
-
+			
 		final String yamlData = ssTableIndexBuilder.getMetaData().exportToYaml();
 		Assert.assertTrue(yamlData.length() > 10);
 	}
@@ -226,6 +226,10 @@ public class TestSSTableMetadataBuilder {
 				
 		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYaml(yamlData);
 		Assert.assertEquals(metaData, metaDataRead);
+		Assert.assertEquals(2, metaData.getDimensions());
+		
+		Assert.assertTrue(metaData.toString().length() > 10);
+		Assert.assertEquals(metaData.hashCode(), metaDataRead.hashCode());
 	}
 	
 	/**
@@ -242,6 +246,16 @@ public class TestSSTableMetadataBuilder {
 			
 		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYaml(yamlData);
 		Assert.assertEquals(metaData, metaDataRead);
+	}
+	
+	/**
+	 * Read from non existing file
+	 */
+	@Test()
+	public void readFromNonEstingFile() {
+		final File tmpFile = new File("/tmp/medatadafile");
+		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYamlFile(tmpFile);
+		Assert.assertTrue(metaDataRead == null);
 	}
 	
 	/**
