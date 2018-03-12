@@ -195,7 +195,12 @@ public class DiskStorage implements BBoxDBService {
 	 * Schedule a memtable flush
 	 * @param memtable
 	 */
-	public void scheduleMemtableFlush(final MemtableAndTupleStoreManagerPair memtable) {		
+	public void scheduleMemtableFlush(final MemtableAndTupleStoreManagerPair memtable) {	
+		
+		assert(memtable != null) : "Memtable pair can not be null";
+		assert(memtable.getMemtable() != null) : "Memtable can not be null";
+		assert(memtable.getTupleStoreManager() != null) : "Tuple store manager can not be null";
+		
 		// The put call can block when more than
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
 		try {
