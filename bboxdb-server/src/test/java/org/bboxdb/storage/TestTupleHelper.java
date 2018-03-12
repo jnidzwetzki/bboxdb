@@ -306,6 +306,16 @@ public class TestTupleHelper {
 		Assert.assertEquals(tuple, readTuple2);
 	}
 
-	
-	
+	/**
+	 * Test misc methods of a tuple
+	 */
+	@Test
+	public void testTupleMisc() {
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
+		Assert.assertTrue(tuple1.compareTo(tuple1) == 0);
+		Assert.assertTrue(tuple1.getFormatedString().length() > 10);
+		
+		final Tuple tuple2 = new DeletedTuple("abc");
+		Assert.assertTrue(tuple2.getFormatedString().length() > 10);
+	}
 }
