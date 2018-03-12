@@ -29,6 +29,8 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.junit.AfterClass;
@@ -84,6 +86,32 @@ public class TestNetworkCommunication {
 	public void before() throws InterruptedException, BBoxDBException {
 		final BBoxDB bboxdbClient = connectToServer();
 		TestHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
+		disconnect(bboxdbClient);
+	}
+	
+	/**
+	 * Test a distribution group two times
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void createDistributionGroupTwoTimes() throws BBoxDBException, InterruptedException {
+		final BBoxDBClient bboxdbClient = connectToServer();
+		
+		// Create distribution group
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
+				.withReplicationFactor((short) 1)
+				.build();
+		
+		final EmptyResultFuture resultCreate = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
+				configuration);
+		
+		// Prevent retries
+		bboxdbClient.getNetworkOperationRetryer().close();
+		
+		resultCreate.waitForAll();
+		Assert.assertTrue(resultCreate.isFailed());
+		
 		disconnect(bboxdbClient);
 	}
 	

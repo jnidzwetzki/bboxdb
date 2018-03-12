@@ -19,6 +19,7 @@ package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -56,6 +57,14 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			logger.info("Create distribution group: {}", distributionGroup);
 			
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			
+			final List<String> knownGroups = distributionGroupZookeeperAdapter.getDistributionGroups();
+			if(knownGroups.contains(distributionGroup)) {
+				logger.error("Untable to create distributon group {}, already exists", distributionGroup);
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_DGROUP_EXISTS);
+				clientConnectionHandler.writeResultPackage(responsePackage);
+				return true;
+			}
 			
 			distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, 
 					createPackage.getDistributionGroupConfiguration());

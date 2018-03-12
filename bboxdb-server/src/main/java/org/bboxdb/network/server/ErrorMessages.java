@@ -30,6 +30,11 @@ public class ErrorMessages {
 	public final static String ERROR_EXCEPTION = "Got an exception during query processing, check server logs";
 
 	/**
+	 * Exception during query processing
+	 */
+	public final static String ERROR_DGROUP_EXISTS = "Distribution group already exists";
+	
+	/**
 	 * Query not found error
 	 */
 	public final static String ERROR_QUERY_NOT_FOUND = "Query not found";
