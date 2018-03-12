@@ -71,6 +71,7 @@ public class TestMemtable {
 	@After
 	public void after() {
 		if(memtable != null) {
+			memtable.deleteOnClose();
 			memtable.release();
 			memtable.shutdown();
 			memtable = null;
@@ -294,6 +295,48 @@ public class TestMemtable {
 		Assert.assertEquals(3, tuples);
 	}
 	
+	
+	/**
+	 * Test iterator 4
+	 * @throws Exception
+	 */
+	@Test(expected=IllegalStateException.class)
+	public void testIterate4() throws Exception {
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(createdTuple1);
+		
+		final Tuple createdTuple2 = new Tuple("2", null, "abc".getBytes());
+		memtable.put(createdTuple2);
+		
+		final Tuple createdTuple3 = new Tuple("3", null, "abc".getBytes());
+		memtable.put(createdTuple3);
+		
+		final Iterator<Tuple> iter = memtable.iterator();
+		iter.remove();
+	}
+	
+	/**
+	 * Test iterator 5
+	 * @throws Exception
+	 */
+	@Test(expected=IllegalStateException.class, timeout=10000)
+	public void testIterate5() throws Exception {
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(createdTuple1);
+		
+		final Tuple createdTuple2 = new Tuple("2", null, "abc".getBytes());
+		memtable.put(createdTuple2);
+		
+		final Tuple createdTuple3 = new Tuple("3", null, "abc".getBytes());
+		memtable.put(createdTuple3);
+		
+		final Iterator<Tuple> iter = memtable.iterator();
+		
+		while(true) {
+			iter.next();
+		}
+	}
+	
 	/**
 	 * Test memtable empty
 	 * @throws StorageManagerException 
@@ -469,5 +512,43 @@ public class TestMemtable {
 		Assert.assertFalse(memtable.isFull());
 		memtable.put(tuple);
 		Assert.assertTrue(memtable.isFull());
+	}
+	
+	/**
+	 * Test the reinit
+	 */
+	@Test
+	public void testReinit() {
+		memtable.init();
+	}
+	
+	/**
+	 * Test the to string method
+	 */
+	@Test
+	public void testToString() {
+		Assert.assertTrue(memtable.toString().length() > 10);
+	}
+	
+	/**
+	 * Test the aquire
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void testAquire() throws StorageManagerException {
+		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
+		memtable.init();
+		
+		Assert.assertTrue(memtable.acquire());
+		
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
+		memtable.put(createdTuple1);
+		
+		memtable.deleteOnClose();
+		Assert.assertFalse(memtable.acquire());
+		
+		Assert.assertEquals(1, memtable.get("1").size());
+		memtable.release();
+		Assert.assertEquals(0, memtable.getSize());
 	}
 }

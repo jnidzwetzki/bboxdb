@@ -247,7 +247,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 			data[i] = null;
 		}
 		
-		freePos = 0;
+		this.freePos = 0;
+		this.sizeInMemory = 0;
 	}
 	
 	/**
@@ -379,9 +380,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 		pendingDelete = true;
 		
-		if(usage.get() == 0) {
-			clear();
-		}
+		clearIfUnreferenced();
 	}
 
 	@Override
@@ -401,11 +400,18 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		usage.decrementAndGet();
 		
 		if(pendingDelete) {
-			logger.debug("Release called and we have {} references", usage.get());
+			clearIfUnreferenced();
+		}
+	}
 
-			if(usage.get() == 0) {
-				clear();
-			}
+	/**
+	 * Clear if no other references are hold
+	 */
+	private void clearIfUnreferenced() {
+		logger.debug("Release called and we have {} references", usage.get());
+
+		if(usage.get() == 0) {
+			clear();
 		}
 	}
 
