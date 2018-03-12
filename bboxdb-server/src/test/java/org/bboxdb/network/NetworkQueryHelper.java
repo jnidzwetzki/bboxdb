@@ -87,20 +87,21 @@ public class NetworkQueryHelper {
 	/**
 	 * Test a bounding box query
 	 * @param bboxDBClient
+	 * @return 
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient, final String distributionGroup, 
+	public static TupleListFuture testBoundingBoxQuery(final BBoxDB bboxDBClient, final String distributionGroup, 
 			final boolean withTupes) throws BBoxDBException, InterruptedException {
 		
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
 		final String table = distributionGroup + "_relation9991";
-		
+	
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
 		resultCreateTable.waitForAll();
 		Assert.assertFalse(resultCreateTable.isFailed());
-		
+
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes());
@@ -126,6 +127,8 @@ public class NetworkQueryHelper {
 		
 		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
 		future.waitForAll();
+		Assert.assertFalse(future.isFailed());
+		
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		
 		if(! withTupes) {
@@ -138,7 +141,10 @@ public class NetworkQueryHelper {
 			Assert.assertFalse(resultList.contains(tuple4));
 			Assert.assertFalse(resultList.contains(tuple5));
 		}
+	
 		System.out.println("=== End testInsertAndBoundingBoxQuery");
+		
+		return future;
 	}
 
 	/**

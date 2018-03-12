@@ -28,6 +28,7 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.KeyClientQuery;
+import org.bboxdb.network.server.QueryHelper;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,11 @@ public class HandleKeyQuery implements QueryHandler {
 					
 					final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
 					final TupleStoreName requestTable = queryKeyRequest.getTable();
+					
+					if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
+						return;
+					}
+					
 					final String key = queryKeyRequest.getKey();
 					
 					final ClientQuery clientQuery = new KeyClientQuery(key, queryKeyRequest.isPagingEnabled(), 

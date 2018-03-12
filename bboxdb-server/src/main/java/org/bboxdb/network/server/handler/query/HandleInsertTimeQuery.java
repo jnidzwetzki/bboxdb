@@ -27,6 +27,7 @@ import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.network.server.QueryHelper;
 import org.bboxdb.network.server.StreamClientQuery;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
@@ -61,6 +62,10 @@ public class HandleInsertTimeQuery implements QueryHandler {
 			
 			final QueryInsertTimeRequest queryRequest = QueryInsertTimeRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = queryRequest.getTable();
+			
+			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
+				return;
+			}
 			
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
 				

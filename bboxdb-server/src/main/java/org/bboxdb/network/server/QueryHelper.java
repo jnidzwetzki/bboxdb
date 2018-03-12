@@ -17,17 +17,29 @@
  *******************************************************************************/
 package org.bboxdb.network.server;
 
+import java.io.IOException;
+
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueryHelper {
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(QueryHelper.class);
+
 	
 	/**
 	 * Get or create the tuple store manager
@@ -44,11 +56,53 @@ public class QueryHelper {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 			
+			if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
+				throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unkown");
+			}
+			
 			final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreName);
 			
 			return storageRegistry.createTableIfNotExist(tupleStoreName, config);
 		} else {
 			return storageRegistry.getTupleStoreManager(tupleStoreName);
 		}
+	}
+
+	/**
+	 * Handle a non existing table
+	 * @param requestTable
+	 * @param clientConnectionHandler
+	 * @return
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
+	 */
+	public static boolean handleNonExstingTable(final TupleStoreName requestTable, 
+			final short packageSequence,	final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
+		
+		
+		// Table is locally known, prevent expensive zookeeper call
+		final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
+		
+		if(storageRegistry.isStorageManagerKnown(requestTable)) {
+			return true;
+		}
+		
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+
+		try {
+			final boolean tableKnown = tupleStoreAdapter.isTableKnown(requestTable);
+			
+			if(! tableKnown) {
+				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_TABLE_NOT_EXIST));	
+				return false;
+			}
+		} catch (ZookeeperException e) {
+			logger.error("Got an exception while query for table", e);
+			return false;
+		}
+		
+		return true;
 	}
 }

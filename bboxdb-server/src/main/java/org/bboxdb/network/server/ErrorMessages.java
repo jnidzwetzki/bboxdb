@@ -40,6 +40,11 @@ public class ErrorMessages {
 	public final static String ERROR_TABLE_EXISTS = "Table already exists";
 	
 	/**
+	 * Table does not exist
+	 */
+	public final static String ERROR_TABLE_NOT_EXIST = "Table does not exists";
+	
+	/**
 	 * Query not found error
 	 */
 	public final static String ERROR_QUERY_NOT_FOUND = "Query not found";

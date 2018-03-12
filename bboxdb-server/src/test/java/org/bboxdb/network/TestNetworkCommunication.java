@@ -343,6 +343,33 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Start a bounding box query without inserted tuples
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test(timeout=60000)
+	public void testQueriesWithoutTables() throws InterruptedException, 
+		ExecutionException, BBoxDBException {
+		
+		final BBoxDBClient bboxDBClient = connectToServer();
+		
+		final String table = DISTRIBUTION_GROUP + "_nonexsting";
+
+		final TupleListFuture result1 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		result1.waitForAll();
+		Assert.assertTrue(result1.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result1.getMessage(0));
+		
+		final TupleListFuture result2 = bboxDBClient.queryKey(table, "abc");
+		result2.waitForAll();
+		Assert.assertTrue(result2.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result2.getMessage(0));
+		
+		disconnect(bboxDBClient);
+	}
+	
+	/**
 	 * Insert some tuples and start a bounding box query afterwards
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 

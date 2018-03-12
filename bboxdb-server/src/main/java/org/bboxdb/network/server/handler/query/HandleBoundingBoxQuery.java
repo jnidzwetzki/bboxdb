@@ -28,6 +28,7 @@ import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.network.server.QueryHelper;
 import org.bboxdb.network.server.StreamClientQuery;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
@@ -61,6 +62,10 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 			
 			final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = queryRequest.getTable();
+			
+			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
+				return;
+			}
 			
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
 				
