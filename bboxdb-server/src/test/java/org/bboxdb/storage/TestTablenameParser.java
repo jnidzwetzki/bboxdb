@@ -31,7 +31,7 @@ public class TestTablenameParser {
 	 */
 	@Test
 	public void testTablenameParserInvalid() {
-		final List<String> invalidNames = new ArrayList<String>();
+		final List<String> invalidNames = new ArrayList<>();
 		invalidNames.add("");
 		invalidNames.add(null);
 		invalidNames.add("abc");
@@ -50,6 +50,8 @@ public class TestTablenameParser {
 		invalidNames.add("0_df_def_a");
 		invalidNames.add("0_df_def__");
 		invalidNames.add("_____");
+		invalidNames.add("1_2_");
+
 
 		for(final String invalidTablename : invalidNames) {
 			final TupleStoreName tablename = new TupleStoreName(invalidTablename);
@@ -80,5 +82,21 @@ public class TestTablenameParser {
 			Assert.assertNotNull(tablename.getDistributionGroup());
 			Assert.assertNotNull(tablename.getTablename());
 		}
+	}
+	
+	/**
+	 * Test the compare to method
+	 */
+	@Test
+	public void testCompareTo() {
+		final TupleStoreName tupleStoreName1 = new TupleStoreName("abc_def_1");
+		final TupleStoreName tupleStoreName2 = new TupleStoreName("def_def_2");
+		
+		Assert.assertTrue(tupleStoreName1.isRegionIdValid());
+		Assert.assertTrue(tupleStoreName2.isRegionIdValid());
+		
+		Assert.assertTrue(tupleStoreName1.compareTo(tupleStoreName1) == 0);
+		Assert.assertTrue(tupleStoreName1.compareTo(tupleStoreName2) < 0);
+		Assert.assertTrue(tupleStoreName2.compareTo(tupleStoreName1) > 0);
 	}
 }
