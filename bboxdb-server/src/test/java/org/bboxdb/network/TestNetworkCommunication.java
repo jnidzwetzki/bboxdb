@@ -238,11 +238,24 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException, BBoxDBException {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient);
+	}
+	
+	/**
+	 * Insert some tuples and start a bounding box query afterwards
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test(timeout=60000)
+	public void testInsertAndBoundingBoxContinousQuery() throws InterruptedException, ExecutionException, BBoxDBException {
+		final BBoxDBClient bboxDBClient = connectToServer();
+
+		NetworkQueryHelper.testBoundingBoxQueryContinous(bboxDBClient);
 	}
 	
 	/**

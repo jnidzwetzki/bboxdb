@@ -23,6 +23,7 @@ import java.util.List;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -174,7 +175,53 @@ public class NetworkQueryHelper {
 	}
 
 	/**
-	 * Inset and delete tuple
+	 * Test a bounding box query
+	 * @param bboxDBClient
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	public static void testBoundingBoxQueryContinous(final BBoxDBClient bboxDBClient) 
+			throws BBoxDBException, InterruptedException {
+		
+		System.out.println("=== Running testBoundingBoxQueryContinous");
+		final String distributionGroup = "testgroup"; 
+		final String table = distributionGroup + "_relation9991";
+		
+		// Delete distribution group
+		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
+		resultDelete.waitForAll();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		// Create distribution group
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
+				getConfiguration(2));
+		
+		resultCreate.waitForAll();
+		Assert.assertFalse(resultCreate.isFailed());
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
+		
+		final TupleListFuture future = bboxDBClient.queryBoundingBoxContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
+
+		Thread.sleep(1000);
+		
+		final short queryId = future.getRequestId(0);
+		System.out.println("Canceling query: " + queryId);
+		final EmptyResultFuture cancelResult = bboxDBClient.cancelQuery(queryId);
+		
+		cancelResult.waitForAll();
+		
+		Assert.assertTrue(cancelResult.isDone());
+		Assert.assertFalse(cancelResult.isFailed());
+		
+		System.out.println("=== End testBoundingBoxQueryContinous");
+	}
+	
+	/**
+	 * Insert and delete tuple
 	 * @param bboxDBClient
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
