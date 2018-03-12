@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
@@ -317,5 +318,56 @@ public class TestTupleHelper {
 		
 		final Tuple tuple2 = new DeletedTuple("abc");
 		Assert.assertTrue(tuple2.getFormatedString().length() > 10);
+	}
+	
+	/**
+	 * Test misc function of the joined tuple
+	 */
+	public void testJoinedTupleMisc() {
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());
+		final Tuple tuple3 = new Tuple("yjk", new BoundingBox(1d, 2d), "".getBytes());
+
+		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		final JoinedTuple joinedTuple2 = new JoinedTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
+		final JoinedTuple joinedTuple3 = new JoinedTuple(Arrays.asList(tuple2), Arrays.asList("abc"));
+
+		Assert.assertEquals(joinedTuple1, joinedTuple1);
+		Assert.assertEquals(joinedTuple1.hashCode(), joinedTuple1.hashCode());
+
+		Assert.assertEquals(joinedTuple2, joinedTuple2);
+		Assert.assertEquals(joinedTuple2.hashCode(), joinedTuple2.hashCode());
+
+		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple2) > 0);
+		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple2) < 0);
+		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple1) == 0);
+		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple3) > 0);
+
+		Assert.assertTrue(joinedTuple1.getFormatedString().length() > 10);
+		Assert.assertTrue(joinedTuple2.getFormatedString().length() > 10);
+		Assert.assertTrue(joinedTuple3.getFormatedString().length() > 10);
+	}
+	
+	/**
+	 * Test the convert method of multiple tuples
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testConvertMultiTuple() {
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());
+
+		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		joinedTuple1.convertToSingleTupleIfPossible();
+	}
+	
+	/**
+	 * Test the creation with different sizes
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testCreateWithDifferentSizes() {
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());
+
+		new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc"));
 	}
 }
