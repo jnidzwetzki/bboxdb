@@ -24,12 +24,12 @@ public class TupleAndTable {
 	/**
 	 * The tuple
 	 */
-	protected Tuple tuple;
+	private final Tuple tuple;
 	
 	/**
 	 * The table
 	 */
-	protected String table;
+	private final String table;
 	
 	public TupleAndTable(final Tuple tuple, final String table) {
 		this.tuple = Objects.requireNonNull(tuple);
@@ -40,16 +40,8 @@ public class TupleAndTable {
 		return tuple;
 	}
 
-	public void setTuple(final Tuple tuple) {
-		this.tuple = tuple;
-	}
-
 	public String getTable() {
 		return table;
-	}
-
-	public void setTable(final String table) {
-		this.table = table;
 	}
 	
 }
