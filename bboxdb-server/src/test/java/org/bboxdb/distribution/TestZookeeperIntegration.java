@@ -88,6 +88,8 @@ public class TestZookeeperIntegration {
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
+		
+		Assert.assertTrue(zookeeperClient.getClustername().length() > 5);
 	}
 
 	/**
