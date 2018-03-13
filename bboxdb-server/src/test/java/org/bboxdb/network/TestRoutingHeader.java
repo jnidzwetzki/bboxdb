@@ -171,6 +171,8 @@ public class TestRoutingHeader {
 		
 		Assert.assertEquals(0, bb.remaining());
 		Assert.assertEquals(routingHeader, resultRoutingHeader);
+		Assert.assertEquals(routingHeader.hashCode(), resultRoutingHeader.hashCode());
+		Assert.assertTrue(routingHeader.toString().length() > 10);
 	}
 	
 	/**

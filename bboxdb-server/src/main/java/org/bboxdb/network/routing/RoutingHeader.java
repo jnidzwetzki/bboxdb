@@ -97,14 +97,6 @@ public class RoutingHeader {
 	}
 
 	/**
-	 * Set routed flag
-	 * @param routedPackage
-	 */
-	public void setRoutedPackage(final boolean routedPackage) {
-		this.routedPackage = routedPackage;
-	}
-
-	/**
 	 * Get the current hop
 	 * @return
 	 */
@@ -171,15 +163,6 @@ public class RoutingHeader {
 		return routingList;
 	}
 
-	/**
-	 * Set the list with hops
-	 * @param routingList
-	 */
-	public void setRoutingList(final List<RoutingHop> routingList) {
-		this.routingList.clear();
-		this.routingList.addAll(routingList);
-	}
-	
 	/**
 	 * Set the list with hops (as string list)
 	 * @param stringRoutingList
