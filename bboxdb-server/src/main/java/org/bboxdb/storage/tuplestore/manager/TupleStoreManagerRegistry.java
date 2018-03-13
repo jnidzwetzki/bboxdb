@@ -20,7 +20,6 @@ package org.bboxdb.storage.tuplestore.manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -497,8 +496,8 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Get all storages
 	 * @return 
 	 */
-	public synchronized Collection<DiskStorage> getAllStorages() {
-		return storages.values();
+	public synchronized List<DiskStorage> getAllStorages() {
+		return new ArrayList<>(storages.values());
 	}
 	
 	/**

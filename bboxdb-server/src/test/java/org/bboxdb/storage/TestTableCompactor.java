@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
@@ -34,8 +35,10 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
+import org.bboxdb.storage.sstable.compact.SSTableCompactorRunnable;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.junit.AfterClass;
@@ -421,4 +424,39 @@ public class TestTableCompactor {
 		return ssTableIndexReader;
 	}
 	
+	
+	/**
+	 * Test the compactor runnable
+	 * @throws RejectedException 
+	 * @throws StorageManagerException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test
+	public void testCompactorRunnable() throws StorageManagerException, 
+		RejectedException, BBoxDBException, InterruptedException {
+		
+		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
+
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
+		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
+
+		// Create file 1
+		for(int i = 0; i < 1000; i++) {
+			storageManager.put(new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, "abc".getBytes()));
+		}
+		storageManager.flush();
+		
+		// Create file 2
+		for(int i = 0; i < 1000; i++) {
+			storageManager.put(new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, "abc".getBytes()));
+		}
+		storageManager.flush();
+		
+		
+		final List<DiskStorage> storages = storageRegistry.getAllStorages();
+		Assert.assertEquals(1, storages.size());
+		final SSTableCompactorRunnable ssTableCompactorRunnable = new SSTableCompactorRunnable(storages.get(0));
+		ssTableCompactorRunnable.forceMajorCompact(storageManager);
+	}
 }

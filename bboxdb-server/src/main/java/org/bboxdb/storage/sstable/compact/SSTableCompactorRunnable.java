@@ -47,6 +47,8 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	
 	/**
@@ -363,7 +365,8 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	private void forceMajorCompact(final TupleStoreManager sstableManager)
+	@VisibleForTesting
+	public void forceMajorCompact(final TupleStoreManager sstableManager)
 			throws StorageManagerException, BBoxDBException, InterruptedException {
 		
 		logger.info("Force major compact for {}", sstableManager.getTupleStoreName().getFullname());
