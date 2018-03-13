@@ -433,11 +433,14 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	
 	/** 
 	 * Handle exception in compact thread
-	 * @param newFacedes
+	 * @param newFacades
 	 */
-	private void handleCompactException(final List<SSTableFacade> newFacedes) {
-		logger.info("Exception, schedule delete for {} compacted tables", newFacedes.size());
-		for(final SSTableFacade facade : newFacedes) {
+	@VisibleForTesting
+	public void handleCompactException(final List<SSTableFacade> newFacades) {
+		logger.error("Got an exception, schedule delete for {} partially written tables", 
+				newFacades.size());
+		
+		for(final SSTableFacade facade : newFacades) {
 			facade.deleteOnClose();
 			assert (facade.getUsage().get() == 0) : "Usage counter is not 0 " + facade.getInternalName();
 		}

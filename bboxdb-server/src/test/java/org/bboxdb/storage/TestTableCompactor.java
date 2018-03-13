@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
@@ -36,9 +37,11 @@ import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorRunnable;
+import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
 import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.junit.AfterClass;
@@ -453,10 +456,23 @@ public class TestTableCompactor {
 		}
 		storageManager.flush();
 		
-		
 		final List<DiskStorage> storages = storageRegistry.getAllStorages();
 		Assert.assertEquals(1, storages.size());
 		final SSTableCompactorRunnable ssTableCompactorRunnable = new SSTableCompactorRunnable(storages.get(0));
 		ssTableCompactorRunnable.forceMajorCompact(storageManager);
+		
+		// Test exception handler
+		final List<ReadOnlyTupleStore> writtenStorages = storageManager.aquireStorage();
+		storageManager.releaseStorage(writtenStorages);
+		storageManager.shutdown();
+
+		final List<SSTableFacade> tupleStorages = writtenStorages.stream()
+			.filter(r -> r instanceof SSTableFacade)
+			.map(r -> (SSTableFacade) r)
+			.collect(Collectors.toList());
+	
+		Assert.assertFalse(tupleStorages.isEmpty());
+	
+		ssTableCompactorRunnable.handleCompactException(tupleStorages);
 	}
 }
