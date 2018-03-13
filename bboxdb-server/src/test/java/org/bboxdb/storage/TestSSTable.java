@@ -101,7 +101,11 @@ public class TestSSTable {
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
-		ssTableWriter.setExceptionFlag();
+		
+		Assert.assertFalse(ssTableWriter.isErrorFlagSet());
+		ssTableWriter.setErrorFlag();
+		Assert.assertTrue(ssTableWriter.isErrorFlagSet());
+		
 		ssTableWriter.close();
 		
 		Assert.assertFalse(sstableFile.exists());

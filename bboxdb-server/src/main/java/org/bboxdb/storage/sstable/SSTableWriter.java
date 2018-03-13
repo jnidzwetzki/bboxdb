@@ -342,7 +342,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * Set the error flag
 	 */
 	@VisibleForTesting
-	public void setExceptionFlag() {
+	public void setErrorFlag() {
 		exceptionDuringWrite = true;
 	}
 	
