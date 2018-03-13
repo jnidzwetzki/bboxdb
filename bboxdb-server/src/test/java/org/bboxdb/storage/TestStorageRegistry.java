@@ -116,7 +116,7 @@ public class TestStorageRegistry {
 		}
 		
 		// Wait for requests to settle
-		Thread.sleep(10000);
+		storageManager.flush();
 		
 		storageRegistry.deleteTable(RELATION_NAME);
 		
