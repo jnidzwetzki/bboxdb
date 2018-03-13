@@ -94,59 +94,7 @@ public class TestStaticgridSpacePartitioner {
 				
 		Assert.assertEquals(120, regions);
 	}
-	
-	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration1() throws ZookeeperException, BBoxDBException {
-	final String config = "abc"; 
-		
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
-				.create(2)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.FixedgridSpacePartitioner", config)
-				.build();
 
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
-	}
-	
-	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration2() throws ZookeeperException, BBoxDBException {
-		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5"; 
-		
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
-				.create(2)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.FixedgridSpacePartitioner", config)
-				.build();
-
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
-	}
-	
-	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration3() throws ZookeeperException, BBoxDBException {
-		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5;0.5;0.5"; 
-		
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
-				.create(2)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.FixedgridSpacePartitioner", config)
-				.build();
-
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
-	}
-	
-	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration4() throws ZookeeperException, BBoxDBException {
-		final String config = ""; 
-		
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
-				.create(2)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.FixedgridSpacePartitioner", config)
-				.build();
-
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
-	}
-	
 	/**
 	 * Get the space partitioner
 	 * @return
@@ -160,4 +108,5 @@ public class TestStaticgridSpacePartitioner {
 				
 		return spacepartitionier;
 	}
+	
 }
