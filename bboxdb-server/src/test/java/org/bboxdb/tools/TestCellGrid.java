@@ -35,6 +35,14 @@ public class TestCellGrid {
 	}
 	
 	/**
+	 * Test negative cell size
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testNegativeSize() {
+		CellGrid.buildWithFixedAmountOfCells(new BoundingBox(1.0, 1.0, 1.0, 1.0), -10);
+	}
+	
+	/**
 	 * Test the empty grid
 	 */
 	@Test(expected=RuntimeException.class)
@@ -107,6 +115,18 @@ public class TestCellGrid {
 	}
 	
 	/**
+	 * Test the cell creation
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testGetCells3() {
+		final CellGrid cellGrid2D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		Assert.assertEquals(1, cellGrid2D.getAllInersectedBoundingBoxes(new BoundingBox(1.5, 1.5, 1.5, 1.5)).size());
+		
+		// Wrong dimension
+		Assert.assertEquals(1, cellGrid2D.getAllInersectedBoundingBoxes(new BoundingBox(10.0, 10.0)).size());
+	}
+	
+	/**
 	 * Test cell grid creation
 	 */
 	@Test
@@ -116,5 +136,16 @@ public class TestCellGrid {
 
 		Assert.assertEquals(cellGrid2D1.getAllCells(), cellGrid2D2.getAllCells());
 		Assert.assertEquals(cellGrid2D1, cellGrid2D2);
+	}
+	
+	/**
+	 * Hashcode
+	 */
+	@Test
+	public void testHashCodeAndEquals() {
+		final CellGrid cellGrid2D1 = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid2D2 = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		Assert.assertEquals(cellGrid2D1, cellGrid2D2);
+		Assert.assertEquals(cellGrid2D1.hashCode(), cellGrid2D2.hashCode());
 	}
 }
