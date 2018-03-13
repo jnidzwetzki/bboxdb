@@ -249,7 +249,7 @@ public class TestStorageManager {
 			storageManager.put(createdTuple);
 		}
 		
-		Thread.sleep(1000);
+		storageManager.flush();
 		
 		System.out.println("Deleting tuples...");
 		for(int i = 0; i < MAX_TUPLES; i++) {
