@@ -323,6 +323,7 @@ public class TestTupleHelper {
 	/**
 	 * Test misc function of the joined tuple
 	 */
+	@Test
 	public void testJoinedTupleMisc() {
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());
@@ -338,10 +339,10 @@ public class TestTupleHelper {
 		Assert.assertEquals(joinedTuple2, joinedTuple2);
 		Assert.assertEquals(joinedTuple2.hashCode(), joinedTuple2.hashCode());
 
-		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple2) > 0);
 		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple2) < 0);
+		Assert.assertTrue(joinedTuple2.compareTo(joinedTuple1) > 0);
 		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple1) == 0);
-		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple3) > 0);
+		Assert.assertTrue(joinedTuple1.compareTo(joinedTuple3) < 0);
 
 		Assert.assertTrue(joinedTuple1.getFormatedString().length() > 10);
 		Assert.assertTrue(joinedTuple2.getFormatedString().length() > 10);
