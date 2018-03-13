@@ -34,12 +34,12 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FixedgridSpacePartitioner extends AbstractGridSpacePartitioner {
+public class StaticgridSpacePartitioner extends AbstractGridSpacePartitioner {
 
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(FixedgridSpacePartitioner.class);
+	private final static Logger logger = LoggerFactory.getLogger(StaticgridSpacePartitioner.class);
 
 	/**
 	 * Create the cell grid

@@ -22,7 +22,7 @@ import java.util.HashSet;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.partitioner.FixedgridSpacePartitioner;
+import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestFixedgridSpacePartitioner {
+public class TestStaticgridSpacePartitioner {
 	
 	/**
 	 * The name of the test region
@@ -61,7 +61,7 @@ public class TestFixedgridSpacePartitioner {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.FixedgridSpacePartitioner", config)
+				.withSpacePartitioner("org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner", config)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 
@@ -71,7 +71,7 @@ public class TestFixedgridSpacePartitioner {
 
 	@Test
 	public void testRootElement() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
-		final FixedgridSpacePartitioner spacePartitioner = getSpacePartitioner();
+		final StaticgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
 		Assert.assertEquals(rootElement.getState(), DistributionRegionState.SPLIT);
@@ -82,7 +82,7 @@ public class TestFixedgridSpacePartitioner {
 	
 	@Test
 	public void createGridCells() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
-		final FixedgridSpacePartitioner spacePartitioner = getSpacePartitioner();
+		final StaticgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
 
 		final long regions = rootElement
@@ -153,8 +153,8 @@ public class TestFixedgridSpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	private FixedgridSpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
-		final FixedgridSpacePartitioner spacepartitionier = (FixedgridSpacePartitioner) 
+	private StaticgridSpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
+		final StaticgridSpacePartitioner spacepartitionier = (StaticgridSpacePartitioner) 
 				distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
 						new HashSet<>(), new DistributionRegionIdMapper());
 				
