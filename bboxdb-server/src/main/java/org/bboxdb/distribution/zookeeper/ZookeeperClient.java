@@ -664,6 +664,15 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	}
 
 	/**
+	 * Returns the name of the cluster
+	 * 
+	 * @return
+	 */
+	public String getClustername() {
+		return clustername;
+	}
+
+	/**
 	 * Get the service state
 	 * @return
 	 */
