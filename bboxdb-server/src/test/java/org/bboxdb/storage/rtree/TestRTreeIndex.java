@@ -58,6 +58,18 @@ public class TestRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
+	public void testBoxQuery1d0() {
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.getEntryList();
+		
+		final SpatialIndexBuilder index = new RTreeBuilder(4);
+		index.bulkInsert(tupleList);
+		RTreeTestHelper.queryIndex(tupleList, index);
+	}
+	
+	/**
+	 * Test to query the index
+	 */
+	@Test
 	public void testBoxQuery1d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.getEntryList();
 		
