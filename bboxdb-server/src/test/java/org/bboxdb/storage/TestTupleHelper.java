@@ -29,6 +29,7 @@ import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
@@ -370,5 +371,19 @@ public class TestTupleHelper {
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());
 
 		new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc"));
+	}
+	
+	/**
+	 * Test the joined tuple identifier
+	 */
+	@Test
+	public void testJoinedTupleIdentifier() {
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());
+
+		final JoinedTupleIdentifier joinedTupleIdentifier = 
+				new JoinedTupleIdentifier(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		
+		Assert.assertTrue(joinedTupleIdentifier.toString().length() > 10);
 	}
 }
