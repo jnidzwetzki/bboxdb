@@ -197,4 +197,10 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	public boolean isPagingEnabled() {
 		return pagingEnabled;
 	}
+
+	@Override
+	public String toString() {
+		return "QueryJoinRequest [tables=" + tables + ", box=" + box + ", pagingEnabled=" + pagingEnabled
+				+ ", tuplesPerPage=" + tuplesPerPage + "]";
+	}
 }

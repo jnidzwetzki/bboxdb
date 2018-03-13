@@ -177,6 +177,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(insertPackage.getRoutingHeader(), new RoutingHeader(false));
 		Assert.assertEquals(insertPackage, decodedPackage);
+		Assert.assertEquals(insertPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(insertPackage.toString(), decodedPackage.toString());
+
 		Assert.assertTrue(TupleHelper.isDeletedTuple(decodedPackage.getTuple()));
 	}
 	
@@ -202,6 +205,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(insertPackage.getRoutingHeader(), new RoutingHeader(false));
 		Assert.assertEquals(insertPackage, decodedPackage);
+		Assert.assertEquals(insertPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertTrue(insertPackage.toString().length() > 10);
 	}
 	
 	/**
@@ -226,6 +231,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(insertPackage.getRoutingHeader(), new RoutingHeader(false));
 		Assert.assertEquals(insertPackage, decodedPackage);
+		Assert.assertEquals(insertPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertTrue(insertPackage.toString().length() > 10);
 	}
 	
 	/**
@@ -261,6 +268,8 @@ public class TestNetworkClasses {
 			Assert.assertEquals(tupleList.get(i), decodedJoinedTuple.getTuple(i));
 			Assert.assertEquals(tableNames.get(i), decodedJoinedTuple.getTupleStoreName(i));
 		}
+		
+		Assert.assertTrue(joinedResponse.toString().length() > 10);
 	}
 	
 	/**
@@ -288,6 +297,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(routingHeader, decodedPackage.getRoutingHeader());
 		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
 		Assert.assertEquals(insertPackage, decodedPackage);
+		
+		Assert.assertEquals(insertPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertTrue(insertPackage.toString().length() > 10);
 	}
 	
 	/**
@@ -318,6 +330,9 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
 		Assert.assertEquals(groupPackage.getDistributionGroupConfiguration(), distributionGroupConfiguration);
+	
+		Assert.assertEquals(groupPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(groupPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -339,6 +354,9 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
 		Assert.assertEquals(groupPackage, decodedPackage);
+		
+		Assert.assertEquals(groupPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(groupPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -360,6 +378,9 @@ public class TestNetworkClasses {
 		final NextPageRequest decodedPackage = NextPageRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(decodedPackage.getQuerySequence(), querySequence);
+		
+		Assert.assertEquals(nextPageRequest.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(nextPageRequest.toString(), decodedPackage.toString());
 	}
 	
 	
@@ -382,6 +403,8 @@ public class TestNetworkClasses {
 		final CancelQueryRequest decodedPackage = CancelQueryRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(decodedPackage.getQuerySequence(), querySequence);
+		Assert.assertEquals(cancelQueryRequest.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(cancelQueryRequest.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -403,9 +426,9 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(deletePackage, decodedPackage);
+		Assert.assertEquals(decodedPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(deletePackage.toString(), decodedPackage.toString());
 	}
-	
-	
 	
 	/**
 	 * The the encoding and decoding of an create table package
@@ -436,6 +459,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(createPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(createPackage.getTupleStoreConfiguration(), ssTableConfiguration);
 		Assert.assertEquals(createPackage, decodedPackage);
+		
+		Assert.assertEquals(createPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(createPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -463,6 +489,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryKeyRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryKeyRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_KEY, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	
+		Assert.assertEquals(queryKeyRequest.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -490,6 +518,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+
+		Assert.assertEquals(queryRequest.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -515,6 +545,7 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+		Assert.assertTrue(queryRequest.toString().length() > 10);
 	}
 	
 	/**
@@ -543,6 +574,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_VERSION_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	
+		Assert.assertTrue(queryRequest.toString().length() > 10);
 	}
 	
 	/**
@@ -571,6 +604,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_INSERT_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	
+		Assert.assertEquals(queryRequest.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -602,6 +637,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
+		
+		Assert.assertEquals(queryRequest.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -631,6 +668,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_JOIN, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	
+		Assert.assertEquals(queryRequest.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -651,6 +690,8 @@ public class TestNetworkClasses {
 		final DisconnectRequest decodedPackage = DisconnectRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(listPackage, decodedPackage);
+		
+		Assert.assertEquals(listPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -674,6 +715,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasGZipCompression());
 		Assert.assertFalse(helloPackage.getPeerCapabilities().hasGZipCompression());
+		
+		Assert.assertEquals(helloPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(helloPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -699,6 +743,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
+		
+		Assert.assertEquals(helloPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(helloPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -722,6 +769,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasGZipCompression());
 		Assert.assertFalse(helloPackage.getPeerCapabilities().hasGZipCompression());
+		
+		Assert.assertEquals(helloPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(helloPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -746,6 +796,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
 		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
+		
+		Assert.assertEquals(helloPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(helloPackage.toString(), decodedPackage.toString());
 	}
 	
 	
@@ -785,12 +838,12 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
 
-		byte[] encodedPackage = networkPackageToByte(insertPackage);
+		final byte[] encodedPackage = networkPackageToByte(insertPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		short packageSequencenUmber = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
+		final short packageSequencenNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
 		
-		Assert.assertEquals(sequenceNumber, packageSequencenUmber);		
+		Assert.assertEquals(sequenceNumber, packageSequencenNumber);		
 	}
 	
 	/**
@@ -805,13 +858,13 @@ public class TestNetworkClasses {
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
 		
-		byte[] encodedPackage = networkPackageToByte(insertPackage);
+		final byte[] encodedPackage = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedPackage);
 		
 		// 18 Byte package header
-		int calculatedBodyLength = encodedPackage.length - 18;
+		final int calculatedBodyLength = encodedPackage.length - 18;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(bb);
+		final long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}
@@ -929,6 +982,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());
 		Assert.assertFalse(singleTupleResponse.getTuple() instanceof DeletedTuple);
+		
+		Assert.assertTrue(singleTupleResponse.toString().length() > 10);
 	}
 	
 	/**
@@ -951,6 +1006,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());	
 		Assert.assertTrue(singleTupleResponse.getTuple() instanceof DeletedTuple);
+		
+		Assert.assertEquals(singleTupleResponse.toString(), responseDecoded.toString());
 	}
 
 	/**
@@ -991,6 +1048,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(routingHeader, decodedPackage.getRoutingHeader());
 		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
 		Assert.assertEquals(insertPackage, decodedPackage);
+		
+		Assert.assertEquals(insertPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertTrue(insertPackage.toString().length() > 10);
 	}
 	
 	/**
@@ -1031,6 +1091,9 @@ public class TestNetworkClasses {
 		Assert.assertEquals(routingHeader, decodedPackage.getRoutingHeader());
 		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
 		Assert.assertEquals(insertPackage, decodedPackage);
+		
+		Assert.assertEquals(insertPackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertTrue(insertPackage.toString().length() > 10);
 	}
 	
 	/**
@@ -1056,6 +1119,8 @@ public class TestNetworkClasses {
 		final TupleResponse responseDecoded = TupleResponse.decodePackage(uncompressedByteBuffer);
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());
+		
+		Assert.assertTrue(singleTupleResponse.toString().length() > 10);
 	}
 	
 	/**
@@ -1087,6 +1152,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
 		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
+		
+		Assert.assertEquals(helloPackage.toString(), decodedPackage.toString());
 	}
 	
 	/**
@@ -1107,6 +1174,9 @@ public class TestNetworkClasses {
 		final KeepAliveRequest decodedPackage = KeepAliveRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(keepAlivePackage, decodedPackage);
+		
+		Assert.assertEquals(keepAlivePackage.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(keepAlivePackage.toString(), decodedPackage.toString());
 	}
 	
 	/**

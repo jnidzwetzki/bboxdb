@@ -98,4 +98,10 @@ public class TupleResponse extends NetworkResponsePackage {
 	public Tuple getTuple() {
 		return tuple;
 	}
+
+	@Override
+	public String toString() {
+		return "TupleResponse [table=" + table + ", tuple=" + tuple + "]";
+	}
+	
 }

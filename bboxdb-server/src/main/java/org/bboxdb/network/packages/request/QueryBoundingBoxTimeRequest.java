@@ -198,4 +198,10 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 	public long getTimestamp() {
 		return timestamp;
 	}
+
+	@Override
+	public String toString() {
+		return "QueryBoundingBoxTimeRequest [table=" + table + ", box=" + box + ", timestamp=" + timestamp
+				+ ", pagingEnabled=" + pagingEnabled + ", tuplesPerPage=" + tuplesPerPage + "]";
+	}
 }

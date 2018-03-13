@@ -177,4 +177,10 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	public boolean isPagingEnabled() {
 		return pagingEnabled;
 	}
+
+	@Override
+	public String toString() {
+		return "QueryKeyRequest [table=" + table + ", key=" + key + ", pagingEnabled=" + pagingEnabled
+				+ ", tuplesPerPage=" + tuplesPerPage + "]";
+	}
 }

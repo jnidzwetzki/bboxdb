@@ -186,4 +186,10 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
+	@Override
+	public String toString() {
+		return "QueryBoundingBoxRequest [table=" + table + ", box=" + box + ", pagingEnabled=" + pagingEnabled
+				+ ", tuplesPerPage=" + tuplesPerPage + "]";
+	}
+
 }

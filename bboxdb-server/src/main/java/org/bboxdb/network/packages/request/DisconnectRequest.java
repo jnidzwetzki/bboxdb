@@ -82,4 +82,10 @@ public class DisconnectRequest extends NetworkRequestPackage {
 		
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "DisconnectRequest []";
+	}
+	
 }

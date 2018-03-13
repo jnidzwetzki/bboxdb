@@ -172,4 +172,9 @@ public class QueryInsertTimeRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
+	@Override
+	public String toString() {
+		return "QueryInsertTimeRequest [table=" + table + ", timestamp=" + timestamp + ", pagingEnabled="
+				+ pagingEnabled + ", tuplesPerPage=" + tuplesPerPage + "]";
+	}
 }
