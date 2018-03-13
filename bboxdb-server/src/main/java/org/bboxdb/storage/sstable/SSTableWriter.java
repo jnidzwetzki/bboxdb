@@ -40,6 +40,7 @@ import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.hash.BloomFilter;
 import com.google.common.io.CountingOutputStream;
 
@@ -50,77 +51,77 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The number of the table
 	 */
-	protected final int tablenumber;
+	private final int tablenumber;
 	
 	/**
 	 * The name of the table
 	 */
-	protected final TupleStoreName name;
+	private final TupleStoreName name;
 	
 	/**
 	 * The directory for the SSTables
 	 */
-	protected final String directory;
+	private final String directory;
 	
 	/**
 	 * SSTable output stream
 	 */
-	protected CountingOutputStream sstableOutputStream;
+	private CountingOutputStream sstableOutputStream;
 	
 	/**
 	 * SSTable index stream
 	 */
-	protected OutputStream sstableIndexOutputStream;
+	private OutputStream sstableIndexOutputStream;
 	
 	/**
 	 * The SSTable file object
 	 */
-	protected File sstableFile;
+	private File sstableFile;
 	
 	/**
 	 * The SSTable index file object
 	 */
-	protected File sstableIndexFile;
+	private File sstableIndexFile;
 	
 	/**
 	 * The bloom filter file
 	 */
-	protected File sstableBloomFilterFile;
+	private File sstableBloomFilterFile;
 	
 	/**
 	 * The spatial index file
 	 */
-	protected File spatialIndexFile;
+	private File spatialIndexFile;
 	
 	/**
 	 * The meta data file
 	 */
-	protected File metadatafile;
+	private File metadatafile;
 	
 	/**
 	 * A counter for the written tuples
 	 */
-	protected final SSTableMetadataBuilder metadataBuilder;
+	private final SSTableMetadataBuilder metadataBuilder;
 	
 	/**
 	 * The bloom filter
 	 */
-	protected final BloomFilter<String> bloomFilter;
+	private final BloomFilter<String> bloomFilter;
 	
 	/**
 	 * The spatial index
 	 */
-	protected final SpatialIndexBuilder spatialIndex;
+	private final SpatialIndexBuilder spatialIndex;
 	
 	/**
 	 * The error flag
 	 */
-	protected boolean exceptionDuringWrite;
+	private boolean exceptionDuringWrite;
 
 	/**
 	 * The amount of written tuple bytes
 	 */
-	protected final static Counter writtenTuplesBytes = Counter.build()
+	private final static Counter writtenTuplesBytes = Counter.build()
 			.name("bboxdb_written_tuple_bytes")
 			.help("Written tuple bytes")
 			.register();
@@ -128,7 +129,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The amount of written tuples
 	 */
-	protected final static Counter writtenTuplesTotal = Counter.build()
+	private final static Counter writtenTuplesTotal = Counter.build()
 			.name("bboxdb_written_tuple_total")
 			.help("Written tuples total")
 			.register();
@@ -246,7 +247,7 @@ public class SSTableWriter implements AutoCloseable {
 	 *  Delete half written files if an exception has occurred
 	 *  The variable exceptionDuringWrite is set to true in every catch block
 	 */
-	protected void checkForWriteException() {
+	private void checkForWriteException() {
 		if(exceptionDuringWrite == true) {
 			deleteFromDisk();
 		}
@@ -282,7 +283,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws IOException
 	 * @throws StorageManagerException 
 	 */
-	protected void writeSpatialIndex() throws IOException, StorageManagerException {
+	private void writeSpatialIndex() throws IOException, StorageManagerException {
 		try (   
 				final RandomAccessFile file = new RandomAccessFile(spatialIndexFile, "rw" );
 			) {
@@ -295,7 +296,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * Write the bloom filter into the filter file
 	 * @throws IOException
 	 */
-	protected void writeBloomFilter() throws IOException {
+	private void writeBloomFilter() throws IOException {
 		
 		try (   final FileOutputStream fos = new FileOutputStream(sstableBloomFilterFile);
 				final OutputStream outputStream = new BufferedOutputStream(fos);
@@ -310,7 +311,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * Write the meta data to yaml info file
 	 * @throws IOException
 	 */
-	protected void writeMetadata() throws IOException {
+	private void writeMetadata() throws IOException {
 		final TupleStoreMetaData metadata = metadataBuilder.getMetaData();
 		metadata.exportToYamlFile(metadatafile);
 	}
@@ -337,6 +338,14 @@ public class SSTableWriter implements AutoCloseable {
 		}
 	}
 
+	/**
+	 * Set the error flag
+	 */
+	@VisibleForTesting
+	public void setExceptionFlag() {
+		exceptionDuringWrite = true;
+	}
+	
 	/**
 	 * Add the next tuple into the result sstable
 	 * @param tuple
@@ -386,7 +395,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @param keyPosition
 	 * @throws IOException
 	 */
-	protected void writeIndexEntry(int tuplePosition) throws IOException {
+	private void writeIndexEntry(final int tuplePosition) throws IOException {
 		final ByteBuffer tuplePositionBytes = DataEncoderHelper.intToByteBuffer(tuplePosition);
 		sstableIndexOutputStream.write(tuplePositionBytes.array());
 	}

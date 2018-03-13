@@ -77,8 +77,37 @@ public class TestSSTable {
 		ssTableWriter.close();
 		
 		Assert.assertTrue(sstableFile.exists());
-		Assert.assertTrue(sstableIndexFile.exists());
+		Assert.assertTrue(sstableIndexFile.exists());		
 	}
+	
+	/**
+	 * Test written files
+	 * @throws Exception
+	 */
+	@Test
+	public void testWrittenFilesWithExceiton() throws Exception {
+		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
+		final File relationDirectoryFile = new File(relationDirectory);
+		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
+		
+		Assert.assertFalse(relationDirectoryFile.exists());
+		
+		relationDirectoryFile.mkdirs();
+			
+		final List<Tuple> tupleList = createTupleList();
+		
+		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
+		ssTableWriter.open();
+		ssTableWriter.addData(tupleList);
+		final File sstableFile = ssTableWriter.getSstableFile();
+		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
+		ssTableWriter.setExceptionFlag();
+		ssTableWriter.close();
+		
+		Assert.assertFalse(sstableFile.exists());
+		Assert.assertFalse(sstableIndexFile.exists());		
+	}
+	
 	
 	/**
 	 * Test the tuple iterator
