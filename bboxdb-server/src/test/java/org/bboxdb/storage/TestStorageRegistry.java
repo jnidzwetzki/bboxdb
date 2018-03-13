@@ -155,7 +155,7 @@ public class TestStorageRegistry {
 		}
 		
 		// Wait for requests to settle
-		Thread.sleep(10000);
+		storageManager.flush();
 		
 		final List<TupleStoreName> tablesBeforeDelete = storageRegistry.getAllTables();
 		System.out.println(tablesBeforeDelete);
