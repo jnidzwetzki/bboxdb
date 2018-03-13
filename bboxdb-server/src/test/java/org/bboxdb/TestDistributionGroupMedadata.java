@@ -97,6 +97,17 @@ public class TestDistributionGroupMedadata {
 		
 		Assert.assertTrue(distributionGroupMetadata1read.equals(distributionGroupMetadata1));
 		Assert.assertTrue(distributionGroupMetadata2read.equals(distributionGroupMetadata2));
+		
+		Assert.assertEquals(distributionGroupMetadata2read.hashCode(), distributionGroupMetadata2.hashCode());
+	}
+	
+	/**
+	 * Test the to sting method
+	 */
+	@Test
+	public void testToString() {
+		final DistributionGroupMetadata distributionGroupMetadata2 = new DistributionGroupMetadata();
+		Assert.assertTrue(distributionGroupMetadata2.toString().length() > 10);
 	}
 
 }
