@@ -19,6 +19,8 @@ package org.bboxdb.commons;
 
 import java.io.File;
 
+import org.bboxdb.commons.io.UnsafeMemoryHelper;
+
 public class SystemInfo {
 
 	/**
@@ -53,6 +55,43 @@ public class SystemInfo {
 	 */
 	public static long getFreeDiskspace(final File path) {
 		return path.getUsableSpace();
+	}
+	
+	/**
+	 * Log statistics about memory consumption
+	 */
+	public static String getMemoryStatisticsString() {
+		final long totalMemory = Runtime.getRuntime().totalMemory();
+		final long freeMemory = Runtime.getRuntime().freeMemory();
+		final long maxMemory = Runtime.getRuntime().maxMemory();
+		final long usedMemory = totalMemory - freeMemory;
+		
+		final StringBuilder sb = new StringBuilder();
+		
+		final String memoryString = 
+				String.format("Maximum memory: %s, Total memory: %s, "
+				+ "Free memory within total: %s, Used memory %s", 
+				FileSizeHelper.readableFileSize(maxMemory),
+				FileSizeHelper.readableFileSize(totalMemory), 
+				FileSizeHelper.readableFileSize(freeMemory), 
+				FileSizeHelper.readableFileSize(usedMemory));
+		
+		sb.append(memoryString);
+		
+		try {
+			final long mappedBytes = UnsafeMemoryHelper.getMappedBytes();
+			
+			final String mappedString =
+					String.format(", Memory mapped segments: %d, memory mapped data: %s",
+					UnsafeMemoryHelper.getMappedSegments(),
+					FileSizeHelper.readableFileSize(mappedBytes));
+			
+			sb.append(mappedString);
+		} catch (Exception e) {
+			// Ignore exception
+		}
+		
+		return sb.toString();
 	}
 
 }

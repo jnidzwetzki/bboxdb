@@ -25,12 +25,25 @@ import org.junit.Test;
 
 public class TestSysteminfo {
 
+	/**
+	 * Test the system info
+	 */
 	@Test
 	public void testSysteminfo() {
 		Assert.assertTrue(SystemInfo.getAvailableMemory() >= 1);
 		Assert.assertTrue(SystemInfo.getCPUCores() >= 1);
 		Assert.assertTrue(SystemInfo.getFreeDiskspace(new File("/")) >= 1);
 		Assert.assertTrue(SystemInfo.getTotalDiskspace(new File("/")) >= 1);
+	}
+	
+	/**
+	 * Test the system info
+	 */
+	@Test
+	public void testMemoryInfo() {
+		final String memoryStatisticsString = SystemInfo.getMemoryStatisticsString();
+		System.out.println(memoryStatisticsString);
+		Assert.assertTrue(memoryStatisticsString.length() > 10);
 	}
 	
 }

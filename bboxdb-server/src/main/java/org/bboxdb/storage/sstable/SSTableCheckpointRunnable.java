@@ -22,9 +22,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongPredicate;
 
-import org.bboxdb.commons.FileSizeHelper;
+import org.bboxdb.commons.SystemInfo;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
-import org.bboxdb.commons.io.UnsafeMemoryHelper;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -68,7 +67,7 @@ public class SSTableCheckpointRunnable extends ExceptionSafeRunnable {
 			while(! Thread.currentThread().isInterrupted()) {
 				
 				if(Const.LOG_MEMORY_STATISTICS) {
-					logMemoryStatistics();
+					logger.info(SystemInfo.getMemoryStatisticsString());
 				}
 				
 				final List<TupleStoreName> allTables = storageRegistry.getTupleStoresForLocation(
@@ -180,30 +179,4 @@ public class SSTableCheckpointRunnable extends ExceptionSafeRunnable {
 		}
 	}
 	
-	
-	/**
-	 * Log statistics about memory consumption
-	 */
-	protected void logMemoryStatistics() {
-		final long totalMemory = Runtime.getRuntime().totalMemory();
-		final long freeMemory = Runtime.getRuntime().freeMemory();
-		final long maxMemory = Runtime.getRuntime().maxMemory();
-		final long usedMemory = totalMemory - freeMemory;
-		
-		logger.info("Maximum memory: {}, Total memory: {}, "
-				+ "Free memory within total: {}, Used memory {}", 
-				FileSizeHelper.readableFileSize(maxMemory),
-				FileSizeHelper.readableFileSize(totalMemory), 
-				FileSizeHelper.readableFileSize(freeMemory), 
-				FileSizeHelper.readableFileSize(usedMemory));
-		
-		try {
-			final long mappedBytes = UnsafeMemoryHelper.getMappedBytes();
-			logger.info("Memory mapped segments: {}, memory mapped data: {}",
-					UnsafeMemoryHelper.getMappedSegments(),
-					FileSizeHelper.readableFileSize(mappedBytes));
-		} catch (Exception e) {
-			logger.debug("Unable to get memory statistics", e);
-		}
-	}
 }
