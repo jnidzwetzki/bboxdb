@@ -26,6 +26,7 @@ order: 1
 - Improvement: The space partitioner can now determine the destination for a split
 - Improvement: Introduced the new state REDISTRIBUTION_ACTIVE to indicate a active data redistribution
 - Improvement: Improved handling of queries on non existing tables
+- Improvement: Increased test coverage to 72% (closes #47)
 - Bugfix: Wait before data is merged / distributed until we see the region change in zookeeper (closes #75)
 - Bugfix: The average region is size is used in merges to prevent merges directly after a split (closes #76)
 - Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 
