@@ -357,12 +357,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 	 */
 	private void testForUnderflow(final SpacePartitioner spacePartitioner, 
 			final DistributionRegion oneSourceNode) throws BBoxDBException {
-		
-		// The root region has not a parent, so skip the test
-		if(oneSourceNode.isRootElement()) {
-			return;
-		}
-		
+				
 		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(oneSourceNode);
 	
 		for(final List<DistributionRegion> sources : candidates) {
