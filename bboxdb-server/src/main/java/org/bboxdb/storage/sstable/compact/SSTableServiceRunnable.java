@@ -125,7 +125,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 		while(! pendingTableDeletions.isEmpty()) {
 			final TupleStoreName tableName = pendingTableDeletions.poll();
 			if(tableName != null) {
-				logger.info("Deleting table {}", tableName);
+				logger.info("Deleting table {}", tableName.getFullname());
 				TupleStoreManager.deletePersistentTableData(storage.getBasedir().getAbsolutePath(), tableName);
 			}
 		}

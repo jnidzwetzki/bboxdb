@@ -82,8 +82,8 @@ public class TestSampling {
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 		
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		storageRegistry.deleteAllTablesInDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 		
 	}
 
