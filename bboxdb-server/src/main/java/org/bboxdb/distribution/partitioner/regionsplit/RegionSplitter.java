@@ -94,6 +94,8 @@ public class RegionSplitter {
 	
 			redistributeDataSplit(region, destination);
 			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
+			
+			// Setting the region to split will cause a local data delete (see TupleStoreZookeeperObserver)
 			spacePartitioner.splitComplete(region, destination);
 		} catch (Throwable e) {
 			logger.warn("Got exception during split, retry in a few minutes: " + region.getIdentifier(), e);
