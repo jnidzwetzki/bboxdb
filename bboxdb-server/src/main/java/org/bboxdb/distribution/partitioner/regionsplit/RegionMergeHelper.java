@@ -67,7 +67,7 @@ public class RegionMergeHelper {
 	 */
 	public static boolean isRegionUnderflow(final List<DistributionRegion> sources) throws BBoxDBException {
 		
-		assert(sources.isEmpty()) : "Sources can not be empty";
+		assert(! sources.isEmpty()) : "Sources can not be empty";
 
 		final List<String> sourceIds = getRegionIdsFromRegionList(sources);
 		
