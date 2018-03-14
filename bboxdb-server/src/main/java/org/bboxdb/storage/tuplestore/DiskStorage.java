@@ -257,7 +257,15 @@ public class DiskStorage implements BBoxDBService {
 	 * @param tablename
 	 */
 	public void scheduleTableForDeletionAndWait(final TupleStoreName table) {
-		pendingTableDeletions.add(table);
+		try {
+			logger.info("Waiting for table deletion {}", table);
+			pendingTableDeletions.transfer(table);
+			logger.info("Table deletion is done {}", table);
+		} catch (InterruptedException e) {
+			logger.error("Got interrupted exception while waiting for deletion", e);
+			Thread.currentThread().interrupt();
+			return;
+		}
 	}
 	
 	/**
