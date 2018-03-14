@@ -82,10 +82,6 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 			final DoubleInterval tupleInterval = sampleBox.getIntervalForDimension(splitDimension);
 			final DoubleInterval groupInterval = coveringBox.getIntervalForDimension(splitDimension);
 			
-			if(! tupleInterval.isOverlappingWith(groupInterval)) {
-				continue;
-			}
-			
 			if(groupInterval.isPointIncluded(tupleInterval.getBegin())) {
 				pointSamples.add(tupleInterval.getBegin());
 			}
