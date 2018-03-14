@@ -49,7 +49,7 @@ public class DistributionRegionHelper {
 	/**
 	 * The states for read operations
 	 */
-	private final static Collection<DistributionRegionState> STATES_READ = Arrays.asList(
+	public final static Collection<DistributionRegionState> STATES_READ = Arrays.asList(
 			DistributionRegionState.ACTIVE, 
 			DistributionRegionState.ACTIVE_FULL, 
 			DistributionRegionState.SPLITTING, 
@@ -61,11 +61,11 @@ public class DistributionRegionHelper {
 	 */
 	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_READ 
 		= (s) -> (STATES_READ.contains(s));
-	
+	 
 	/**
 	 * The states for write operations
 	 */
-	private	final static Collection<DistributionRegionState> STATES_WRITE = Arrays.asList(
+	public final static Collection<DistributionRegionState> STATES_WRITE = Arrays.asList(
 				DistributionRegionState.ACTIVE, 
 				DistributionRegionState.ACTIVE_FULL,
 				DistributionRegionState.REDISTRIBUTION_ACTIVE);

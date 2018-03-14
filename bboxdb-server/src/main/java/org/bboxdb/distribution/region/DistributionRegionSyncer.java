@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution.region;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -364,9 +363,6 @@ public class DistributionRegionSyncer implements Watcher {
 		
 		final Set<Long> allExistingMappings = new HashSet<>(distributionRegionMapper.getAllRegionIds());
 		
-		final List<DistributionRegionState> activeStates = 
-				Arrays.asList(DistributionRegionState.ACTIVE, DistributionRegionState.ACTIVE_FULL);
-						
 		for(final DistributionRegion region : allChildren) {
 			final long regionId = region.getRegionId();
 			logger.debug("Processing region {}", regionId);
@@ -375,8 +371,7 @@ public class DistributionRegionSyncer implements Watcher {
 				continue;
 			}
 			
-			if(activeStates.contains(region.getState())) {
-				
+			if(DistributionRegionHelper.STATES_WRITE.contains(region.getState())) {
 				// Add the mapping to the nameprefix mapper
 				if(! allExistingMappings.contains(regionId)) {
 					distributionRegionMapper.addMapping(regionId, region.getConveringBox(), distributionGroupName);
