@@ -22,16 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
 
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.concurrent.ThreadHelper;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.memtable.MemtableWriterRunnable;
 import org.bboxdb.storage.sstable.SSTableCheckpointRunnable;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.storage.sstable.compact.SSTableCompactorRunnable;
+import org.bboxdb.storage.sstable.compact.SSTableServiceRunnable;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,37 +50,42 @@ public class DiskStorage implements BBoxDBService {
 	/**
 	 * The state of the service
 	 */
-	protected final ServiceState serviceState = new ServiceState();
+	private final ServiceState serviceState = new ServiceState();
 	
 	/**
 	 * The queue for the memtable flush thread
 	 */
-	protected final BlockingQueue<MemtableAndTupleStoreManagerPair> memtablesToFlush;
+	private final BlockingQueue<MemtableAndTupleStoreManagerPair> memtablesToFlush;
+	
+	/**
+	 * The pending table deletions
+	 */
+	private final LinkedTransferQueue<TupleStoreName> pendingTableDeletions;
 	
 	/**
 	 * The storage base dir
 	 */
-	protected final File basedir;
+	private final File basedir;
 	
 	/**
 	 * Number of flush threads per storage
 	 */
-	protected int flushThreadsPerStorage;
+	private int flushThreadsPerStorage;
 	
 	/**
 	 * The tuple store manager registry
 	 */
-	protected final TupleStoreManagerRegistry tupleStoreManagerRegistry;
+	private final TupleStoreManagerRegistry tupleStoreManagerRegistry;
 	
 	/**
 	 * The storage label
 	 */
-	protected final String performanceCounterLabel;
+	private final String performanceCounterLabel;
 	
 	/**
 	 * The unflushed memtable total counter
 	 */
-	protected final static Gauge unflushedMemtablesTotal = Gauge.build()
+	private final static Gauge unflushedMemtablesTotal = Gauge.build()
 			.name("bboxdb_unflushed_memtables_total")
 			.help("Total unflushed memtables")
 			.labelNames("storage").register();
@@ -86,7 +93,7 @@ public class DiskStorage implements BBoxDBService {
 	/**
 	 * The unflushed memtable bytes counter
 	 */
-	protected final static Gauge unflushedMemtablesBytes = Gauge.build()
+	private final static Gauge unflushedMemtablesBytes = Gauge.build()
 			.name("bboxdb_unflushed_memtables_bytes")
 			.help("Unflushed memtable bytes")
 			.labelNames("storage").register();
@@ -104,7 +111,7 @@ public class DiskStorage implements BBoxDBService {
 		this.basedir = basedir;
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
-		
+		this.pendingTableDeletions = new LinkedTransferQueue<>();
 		this.performanceCounterLabel = basedir.toString();
 	}
 
@@ -128,7 +135,7 @@ public class DiskStorage implements BBoxDBService {
 	/**
 	 * Start the flush threads
 	 */
-	protected void startFlushThreads() {
+	private void startFlushThreads() {
 		for(int i = 0; i < flushThreadsPerStorage; i++) {
 			final String threadname = i + ". Memtable write thread for storage: " + basedir;
 			
@@ -145,8 +152,8 @@ public class DiskStorage implements BBoxDBService {
 	/**
 	 * Start the compact thread if needed
 	 */
-	protected void startCompactThread() {
-		final SSTableCompactorRunnable sstableCompactor = new SSTableCompactorRunnable(this);
+	private void startCompactThread() {
+		final SSTableServiceRunnable sstableCompactor = new SSTableServiceRunnable(this);
 		final Thread compactThread = new Thread(sstableCompactor);
 		compactThread.setName("Compact thread for: " + basedir);
 		compactThread.start();
@@ -156,7 +163,7 @@ public class DiskStorage implements BBoxDBService {
 	/**
 	 * Start the checkpoint thread for the storage
 	 */
-	protected void startCheckpointThread() {
+	private void startCheckpointThread() {
 		final BBoxDBConfiguration configuration = tupleStoreManagerRegistry.getConfiguration();
 		if(configuration.getStorageCheckpointInterval() > 0) {
 			final int maxUncheckpointedSeconds = configuration.getStorageCheckpointInterval();
@@ -244,4 +251,21 @@ public class DiskStorage implements BBoxDBService {
 	public TupleStoreManagerRegistry getTupleStoreManagerRegistry() {
 		return tupleStoreManagerRegistry;
 	}
+	
+	/**
+	 * Add a table for deletion
+	 * @param tablename
+	 */
+	public void scheduleTableForDeletionAndWait(final TupleStoreName table) {
+		pendingTableDeletions.add(table);
+	}
+	
+	/**
+	 * Get the pending table deletions queue
+	 * @return
+	 */
+	public LinkedTransferQueue<TupleStoreName> getPendingTableDeletions() {
+		return pendingTableDeletions;
+	}
+	
 }

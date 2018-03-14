@@ -36,7 +36,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
-import org.bboxdb.storage.sstable.compact.SSTableCompactorRunnable;
+import org.bboxdb.storage.sstable.compact.SSTableServiceRunnable;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
@@ -458,7 +458,7 @@ public class TestTableCompactor {
 		
 		final List<DiskStorage> storages = storageRegistry.getAllStorages();
 		Assert.assertEquals(1, storages.size());
-		final SSTableCompactorRunnable ssTableCompactorRunnable = new SSTableCompactorRunnable(storages.get(0));
+		final SSTableServiceRunnable ssTableCompactorRunnable = new SSTableServiceRunnable(storages.get(0));
 		ssTableCompactorRunnable.forceMajorCompact(storageManager);
 		
 		// Test exception handler

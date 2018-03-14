@@ -43,6 +43,7 @@ order: 1
 - Bugfix: Handle creation call for already existing tables
 - Bugfix: The file size helper can now handle '0 bytes' values
 - Bugfix: Fixed several issues with the sampling based split strategy
+- Bugfix: Table deletions are now executed by the SSTable service runnable to prevent deletions while running compactions
 
 ### Version 0.4.2 - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration

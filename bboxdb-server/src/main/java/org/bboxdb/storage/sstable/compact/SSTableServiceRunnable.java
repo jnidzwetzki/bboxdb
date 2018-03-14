@@ -20,12 +20,12 @@ package org.bboxdb.storage.sstable.compact;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.LinkedTransferQueue;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
+public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 	
 	/**
 	 * The merge strategy
@@ -67,21 +67,21 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorRunnable.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableServiceRunnable.class);
 
-	public SSTableCompactorRunnable(final DiskStorage storage) {
+	public SSTableServiceRunnable(final DiskStorage storage) {
 		this.storage = storage;
 		this.mergeStrategy = new SimpleMergeStrategy();
 	}
 
 	@Override
 	protected void beginHook() {
-		logger.info("Compact thread has started");
+		logger.info("SSTable service thread for {} has started", storage.getBasedir());
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.info("Compact thread is DONE");
+		logger.info("SSTable service thread for {} is DONE", storage.getBasedir());
 	}
 	
 	/**
@@ -109,13 +109,26 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 		final String location = storage.getBasedir().getAbsolutePath();
 		final List<TupleStoreName> tupleStores = storageRegistry.getTupleStoresForLocation(location);
-		
-		if(tupleStores.isEmpty()) {
-			logger.debug("Skipping run, tuple stores list is empty");
-			return;
-		}
 				
 		processTupleStores(storageRegistry, tupleStores);
+		processRegionMerges();
+		processScheduldedDeletions();
+	}
+
+	/**
+	 * Process the schedules table deletions
+	 */
+	private void processScheduldedDeletions() {
+		final LinkedTransferQueue<TupleStoreName> pendingTableDeletions 
+			= storage.getPendingTableDeletions();
+		
+		while(! pendingTableDeletions.isEmpty()) {
+			final TupleStoreName tableName = pendingTableDeletions.poll();
+			if(tableName != null) {
+				logger.info("Deleting table {}", tableName);
+				TupleStoreManager.deletePersistentTableData(storage.getBasedir().getAbsolutePath(), tableName);
+			}
+		}
 	}
 
 	/**
@@ -138,7 +151,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 					continue;
 				}
 			
-				if(! isRegionActive(tupleStoreName)) {
+				if(! CompactorHelper.isRegionActive(tupleStoreName)) {
 					logger.info("Skipping compact run, because region is not active {}", tupleStoreName);
 					continue;
 				}
@@ -151,9 +164,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 			} catch (StorageManagerException | BBoxDBException e) {
 				logger.error("Error while merging tables", e);	
 			} 
-		}
-		
-		testForRegionMerge();
+		}		
 	}
 
 	/**
@@ -161,7 +172,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	 * 
 	 * @throws BBoxDBException
 	 */
-	private void testForRegionMerge() {
+	private void processRegionMerges() {
 		final Set<String> groups = SpacePartitionerCache.getInstance().getAllKnownDistributionGroups();
 		
 		for(final String groupName : groups) {
@@ -197,53 +208,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 		}
 	}
 	
-	/**
-	 * Is the region active? Prevents compact runs when the data is currently redistributing
-	 * 
-	 * @param tupleStoreName
-	 * @return
-	 * @throws StorageManagerException
-	 * @throws InterruptedException
-	 */
-	private boolean isRegionActive(final TupleStoreName tupleStoreName) 
-			throws StorageManagerException, InterruptedException {
-		
-		try {
-			if(! tupleStoreName.isDistributedTable()) {
-				logger.error("Tuple store {} is not a distributed table, untable to split", 
-						tupleStoreName);
-				return false;
-			}
-			
-			final long regionId = tupleStoreName.getRegionId();
-			
-			final String distributionGroup = tupleStoreName.getDistributionGroup();
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
-					.getSpacePartitionerForGroupName(distributionGroup);
-			
-			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 
-			final DistributionRegion regionToSplit = DistributionRegionHelper
-					.getDistributionRegionForNamePrefix(distributionRegion, regionId);
-			
-			// Region does not exist
-			if(regionToSplit == null) {
-				logger.error("Unable to get distribution region {} {}", distributionRegion, regionId);
-				return false;
-			}
-			
-			if(regionToSplit.isRootElement()) {
-				return true;
-			}
-		
-			return regionToSplit.getState() == DistributionRegionState.ACTIVE;
-		} catch (BBoxDBException e) {
-			throw new StorageManagerException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw e;
-		}
-	}
 
 	/**
 	 * Create a copy to ensure, that the list of facades don't change
