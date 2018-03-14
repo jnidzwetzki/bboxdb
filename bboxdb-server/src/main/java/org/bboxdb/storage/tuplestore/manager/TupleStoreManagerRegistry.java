@@ -351,7 +351,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
 				-> (t.getDistributionGroup().equals(distributionGroupName));
 		
-		shutdownAndDeleteTablesForPredicate(deleteTablePredicate);
+		shutdownAndDeleteTablesForPredicate(deleteTablePredicate, true);
 		
 		// Delete the group dir
 		for(final String directory : storages.keySet()) {
@@ -382,14 +382,14 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @throws StorageManagerException 
 	 */
 	public synchronized void deleteDataOfDistributionRegion(final String distributionGroup, 
-			final long region) throws StorageManagerException {
+			final long region, final boolean synchronous) throws StorageManagerException {
 		
 		logger.info("Deleting all data for: {} / {}", distributionGroup, region);
 		
 		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
 				-> (t.getDistributionGroup().equals(distributionGroup)) && (t.getRegionId() == region);
 		
-		shutdownAndDeleteTablesForPredicate(deleteTablePredicate);
+		shutdownAndDeleteTablesForPredicate(deleteTablePredicate, synchronous);
 	}
 
 	/**
@@ -397,8 +397,8 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param deleteTablePredicate
 	 * @throws StorageManagerException
 	 */
-	private void shutdownAndDeleteTablesForPredicate(final Predicate<TupleStoreName> deleteTablePredicate)
-			throws StorageManagerException {
+	private void shutdownAndDeleteTablesForPredicate(final Predicate<TupleStoreName> deleteTablePredicate, 
+			final boolean synchronous) throws StorageManagerException {
 		
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
 		final Set<TupleStoreName> copyOfInstances = new HashSet<>(managerInstances.keySet());
@@ -412,7 +412,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		final List<TupleStoreName> allTables = getAllTables();
 		for(final TupleStoreName tupleStoreName : allTables) {
 			if(deleteTablePredicate.test(tupleStoreName)) {
-				deleteTable(tupleStoreName, true);
+				deleteTable(tupleStoreName, synchronous);
 			}
 		}
 	}

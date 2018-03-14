@@ -112,11 +112,11 @@ public class TupleStoreZookeeperObserver {
 			if(event == DistributionRegionEvent.REMOVED) {
 				if(callbackEntity.equals(entityToObserver)) {
 					logger.info("The region {} has merged, deleted local data", callbackEntity);
-					registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId());
+					registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId(), false);
 				}
 			} else if(eventEntity.getState() == DistributionRegionState.SPLIT) {
 				logger.info("The region {} has split, deleted local data", callbackEntity);
-				registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId());
+				registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId(), false);
 			}
 			
 		} catch (StorageManagerException e1) {
