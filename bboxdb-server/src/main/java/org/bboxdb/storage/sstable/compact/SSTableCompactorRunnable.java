@@ -180,7 +180,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	 * @param groupName
 	 * @throws BBoxDBException
 	 */
-	private void testForMergeInGroup(final String groupName)	throws BBoxDBException {
+	private void testForMergeInGroup(final String groupName) throws BBoxDBException {
 		
 		final BBoxDBInstance localinstance = ZookeeperClientFactory.getLocalInstanceName();
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(groupName);
