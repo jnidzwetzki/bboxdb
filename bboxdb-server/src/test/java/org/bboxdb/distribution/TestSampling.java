@@ -32,6 +32,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
@@ -118,6 +119,7 @@ public class TestSampling {
 		
 		for(int i = 0; i < 100; i++) {
 			table.put(new Tuple(Integer.toString(i), new BoundingBox(1d, 2d, 1d, 20d), "".getBytes()));
+			table.put(new DeletedTuple(Integer.toString(i+10000)));
 		}
 	}
 	
