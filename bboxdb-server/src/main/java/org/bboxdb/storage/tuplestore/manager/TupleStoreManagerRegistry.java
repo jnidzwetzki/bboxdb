@@ -253,7 +253,8 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @throws StorageManagerException 
 	 */
-	public void deleteTable(final TupleStoreName table) throws StorageManagerException {
+	public void deleteTable(final TupleStoreName table, final boolean synchronous) 
+			throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
@@ -274,10 +275,16 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			storageDirectory = tupleStoreLocations.get(table);
 			tupleStoreLocations.remove(table);	
 		}
-		
-		
+			
 		final DiskStorage storage = storages.get(storageDirectory);
-		storage.scheduleTableForDeletionAndWait(table);
+		
+		logger.info("Deleting table {} synchronous {}", table.getFullname(), synchronous);
+		
+		if(synchronous) {
+			TupleStoreManager.deletePersistentTableData(storageDirectory, table);
+		} else {
+			storage.getPendingTableDeletions().add(table);
+		}
 	}
 	
 	/**
@@ -338,7 +345,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	public synchronized void deleteAllTablesInDistributionGroup(
 			final String distributionGroupName) throws StorageManagerException {
 				
-		// Memtabes
+		// Memtables
 		logger.info("Shuting down active memtables for distribution group: {}", distributionGroupName);
 		
 		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
@@ -405,7 +412,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		final List<TupleStoreName> allTables = getAllTables();
 		for(final TupleStoreName tupleStoreName : allTables) {
 			if(deleteTablePredicate.test(tupleStoreName)) {
-				deleteTable(tupleStoreName);
+				deleteTable(tupleStoreName, true);
 			}
 		}
 	}
@@ -434,7 +441,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @return
 	 */
-	public synchronized boolean isStorageManagerActive(final TupleStoreName table) {
+	public boolean isStorageManagerActive(final TupleStoreName table) {
 		return managerInstances.containsKey(table);
 	}
 	
@@ -443,7 +450,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @return
 	 */
-	public synchronized boolean isStorageManagerKnown(final TupleStoreName table) {
+	public boolean isStorageManagerKnown(final TupleStoreName table) {
 		return tupleStoreLocations.containsKey(table);
 	}
 	
@@ -460,8 +467,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Get all tables for a given distribution group
 	 * @return
 	 */
-	public synchronized List<TupleStoreName> getAllTablesForDistributionGroup
-		(final String distributionGroupName) {
+	public List<TupleStoreName> getAllTablesForDistributionGroup(final String distributionGroupName) {
 		
 		return tupleStoreLocations.keySet()
 			.stream()
@@ -491,7 +497,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param basedir
 	 * @return 
 	 */
-	public synchronized List<TupleStoreName> getTupleStoresForLocation(final String basedir) {
+	public List<TupleStoreName> getTupleStoresForLocation(final String basedir) {
 		return tupleStoreLocations.entrySet().stream()
 				.filter(e -> e.getValue().equals(basedir))
 				.map(e -> e.getKey())

@@ -83,13 +83,13 @@ public class TestQueryProcessing {
 	
 	@Before
 	public void init() throws StorageManagerException {
-		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.deleteTable(TABLE_1, true);
 		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
 		
-		storageRegistry.deleteTable(TABLE_2);
+		storageRegistry.deleteTable(TABLE_2, true);
 		storageRegistry.createTable(TABLE_2, new TupleStoreConfiguration());
 		
-		storageRegistry.deleteTable(TABLE_3);
+		storageRegistry.deleteTable(TABLE_3, true);
 		storageRegistry.createTable(TABLE_3, new TupleStoreConfiguration());
 	}
 	

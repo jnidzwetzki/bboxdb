@@ -68,7 +68,7 @@ public class LocalSelftest {
 
 			for(int iteration = 0; iteration < iterations; iteration++) {
 				logger.info("Running iteration {}", iteration);
-				storageRegistry.deleteTable(sstable);
+				storageRegistry.deleteTable(sstable, true);
 				testInsertDelete(storageManager);
 			}
 			

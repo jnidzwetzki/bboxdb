@@ -251,23 +251,7 @@ public class DiskStorage implements BBoxDBService {
 	public TupleStoreManagerRegistry getTupleStoreManagerRegistry() {
 		return tupleStoreManagerRegistry;
 	}
-	
-	/**
-	 * Add a table for deletion
-	 * @param tablename
-	 */
-	public void scheduleTableForDeletionAndWait(final TupleStoreName table) {
-		try {
-			logger.info("Waiting for table deletion {}", table);
-			pendingTableDeletions.transfer(table);
-			logger.info("Table deletion is done {}", table);
-		} catch (InterruptedException e) {
-			logger.error("Got interrupted exception while waiting for deletion", e);
-			Thread.currentThread().interrupt();
-			return;
-		}
-	}
-	
+		
 	/**
 	 * Get the pending table deletions queue
 	 * @return

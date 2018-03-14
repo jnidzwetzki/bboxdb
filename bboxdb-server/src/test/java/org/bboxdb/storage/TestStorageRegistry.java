@@ -87,7 +87,7 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
-		storageRegistry.deleteTable(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME, true);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
 		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
 		storageRegistry.getTupleStoreManager(RELATION_NAME);
@@ -104,7 +104,7 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
-		storageRegistry.deleteTable(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME, true);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
 		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
 		
@@ -118,7 +118,7 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		storageManager.flush();
 		
-		storageRegistry.deleteTable(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME, true);
 		
 		Assert.assertTrue(storageManager.isShutdownComplete());
 		
@@ -143,7 +143,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		storageRegistry.deleteTable(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME, true);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
 		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
 		
@@ -166,7 +166,7 @@ public class TestStorageRegistry {
 		
 		Assert.assertTrue(size1 > 0);
 		
-		storageRegistry.deleteTable(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME, true);
 		
 		final List<TupleStoreName> tablesAfterDelete = storageRegistry.getAllTables();
 		System.out.println(tablesAfterDelete);

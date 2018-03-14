@@ -71,7 +71,7 @@ public class DeleteTableHandler implements RequestHandler {
 			final Collection<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
 			for(final TupleStoreName ssTableName : localTables) {
-				clientConnectionHandler.getStorageRegistry().deleteTable(ssTableName);	
+				clientConnectionHandler.getStorageRegistry().deleteTable(ssTableName, false);	
 			}
 			
 			// Delete zookeeper configuration
