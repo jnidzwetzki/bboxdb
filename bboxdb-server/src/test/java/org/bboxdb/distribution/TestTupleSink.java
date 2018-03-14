@@ -36,6 +36,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
@@ -193,6 +194,12 @@ public class TestTupleSink {
 		tupleRedistributor.redistributeTuple(tuple3);
 		(Mockito.verify(tupleSink1, Mockito.atLeast(2))).sinkTuple(Mockito.any(Tuple.class));
 		(Mockito.verify(tupleSink2, Mockito.atLeast(2))).sinkTuple(Mockito.any(Tuple.class));
+		
+		final Tuple tuple4 = new DeletedTuple("abc");
+		tupleRedistributor.redistributeTuple(tuple4);
+		(Mockito.verify(tupleSink1, Mockito.atLeast(3))).sinkTuple(Mockito.any(Tuple.class));
+		(Mockito.verify(tupleSink2, Mockito.atLeast(3))).sinkTuple(Mockito.any(Tuple.class));
+
 
 		System.out.println(tupleRedistributor.getStatistics());
 	}
