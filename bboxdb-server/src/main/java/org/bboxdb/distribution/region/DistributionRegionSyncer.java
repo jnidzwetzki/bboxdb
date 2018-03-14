@@ -115,7 +115,7 @@ public class DistributionRegionSyncer implements Watcher {
 				return;
 			}
 			
-			logger.info("Handling event: {}", event);
+			logger.debug("Handling event: {}", event);
 			processNodeUpdateEvent(event);
 		} catch (Throwable e) {
 			logger.error("Got uncatched throwable during event handling", e);
@@ -182,7 +182,7 @@ public class DistributionRegionSyncer implements Watcher {
 	 */
 	private void updateNodeIfNeeded(final String nodePath, final DistributionRegion region) {
 		try {
-			logger.info("updateNodeIfNeeded called with path {}", nodePath);
+			logger.debug("updateNodeIfNeeded called with path {}", nodePath);
 						
 			final long remoteVersion = distributionGroupAdapter.getNodeMutationVersion(nodePath, this);
 			final long localVersion = versions.getOrDefault(region, 0l);
@@ -194,11 +194,11 @@ public class DistributionRegionSyncer implements Watcher {
 			}
 			
 			if(remoteVersion == localVersion) {
-				logger.info("Ignoring event for {}, version has not changed", nodePath);
+				logger.debug("Ignoring event for {}, version has not changed", nodePath);
 				return;
 			}
 			
-			logger.info("Updating node {} (local {} / remote {})", 
+			logger.debug("Updating node {} (local {} / remote {})", 
 					nodePath, localVersion, remoteVersion);
 			
 			updateNode(nodePath, region);
@@ -222,7 +222,7 @@ public class DistributionRegionSyncer implements Watcher {
 	private void updateNode(final String nodePath, final DistributionRegion region) 
 			throws InterruptedException {
 		
-		logger.info("updateNode called with node {}", nodePath);
+		logger.debug("updateNode called with node {}", nodePath);
 				
 		final Watcher callbackWatcher = this;
 		
@@ -249,7 +249,7 @@ public class DistributionRegionSyncer implements Watcher {
 				
 			} catch(ZookeeperNotFoundException e) {
 				// Node is deleted, let the deletion callback remove the node
-				logger.info("Skippping node update for path {}, node is deleted", nodePath);
+				logger.debug("Skippping node update for path {}, node is deleted", nodePath);
 			}
 			
 			return true;
@@ -282,10 +282,10 @@ public class DistributionRegionSyncer implements Watcher {
 			}
 			
 			final String childPath = path + "/" + child;
-			logger.info("Reading {}", childPath);
+			logger.debug("Reading {}", childPath);
 			
 			if(! distributionGroupAdapter.isNodeCompletelyCreated(childPath)) {
-				logger.info("Node {} not complete, skipping", childPath);
+				logger.debug("Node {} not complete, skipping", childPath);
 				continue;
 			} 
 			
@@ -315,7 +315,7 @@ public class DistributionRegionSyncer implements Watcher {
 		
 		// Process all in-memory children which are not registered in zookeeper
 		for(final long regionNumber : notFoundChildren) {
-			logger.info("Removing not existing children {}", regionNumber);
+			logger.debug("Removing not existing children {}", regionNumber);
 			final DistributionRegion removedRegion = region.removeChildren(regionNumber);
 			notifyCallbacks(DistributionRegionEvent.REMOVED, removedRegion);
 		}
@@ -408,7 +408,7 @@ public class DistributionRegionSyncer implements Watcher {
 					logger.info("Root node does not exist");
 				}
 			} catch (ZookeeperException | ZookeeperNotFoundException e) {
-				logger.info("Got exception while reading root node", e);
+				logger.debug("Got exception while reading root node", e);
 			}
 		}
 		
