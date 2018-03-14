@@ -190,7 +190,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 				return true;
 			}
 		
-			return regionToSplit.getParent().getState() == DistributionRegionState.ACTIVE;
+			return regionToSplit.getState() == DistributionRegionState.ACTIVE;
 		} catch (BBoxDBException e) {
 			throw new StorageManagerException(e);
 		} catch (InterruptedException e) {
