@@ -19,10 +19,12 @@ package org.bboxdb.storage.sstable.compact;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -32,6 +34,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBException;
@@ -143,11 +146,54 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 				final List<SSTableFacade> facades = getAllTupleStores(tupleStoreManager);
 				final MergeTask mergeTask = mergeStrategy.getMergeTask(facades);
 				executeCompactTask(mergeTask, tupleStoreManager);
-				checkForRegionSplitOrMerge(tupleStoreManager);
+				testForRegionOverflow(tupleStoreManager);
 				
 			} catch (StorageManagerException | BBoxDBException e) {
 				logger.error("Error while merging tables", e);	
 			} 
+		}
+		
+		testForRegionMerge();
+	}
+
+	/**
+	 * Test for region merge
+	 * 
+	 * @throws BBoxDBException
+	 */
+	private void testForRegionMerge() {
+		final Set<String> groups = SpacePartitionerCache.getInstance().getAllKnownDistributionGroups();
+		
+		for(final String groupName : groups) {
+			try {
+				testForMergeInGroup(groupName);
+			} catch (BBoxDBException e) {
+				logger.error("Got an exception while testing for region merge {}", groupName, e);
+			}
+		}
+	}
+
+	/**
+	 * Test for merge in distribution region
+	 * 
+	 * @param localinstance
+	 * @param groupName
+	 * @throws BBoxDBException
+	 */
+	private void testForMergeInGroup(final String groupName)	throws BBoxDBException {
+		
+		final BBoxDBInstance localinstance = ZookeeperClientFactory.getLocalInstanceName();
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(groupName);
+		
+		final List<DistributionRegion> mergeCandidates = spacePartitioner
+				.getRootNode()
+				.getThisAndChildRegions()
+				.stream()
+				.filter(r -> r.getSystems().contains(localinstance))
+				.collect(Collectors.toList());
+		
+		for(final DistributionRegion region : mergeCandidates) {
+			testForUnderflow(spacePartitioner, region);
 		}
 	}
 	
@@ -266,7 +312,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	private void checkForRegionSplitOrMerge(final TupleStoreManager sstableManager)
+	private void testForRegionOverflow(final TupleStoreManager sstableManager)
 			throws BBoxDBException, InterruptedException {
 		
 		// Don't try to split non-distributed tables
@@ -277,11 +323,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 		try {
 			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
 			final long regionId = ssTableName.getRegionId();
-			
-			final String distributionGroup = ssTableName.getDistributionGroup();
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
-					.getSpacePartitionerForGroupName(distributionGroup);
-			
+			final SpacePartitioner spacePartitioner = getSpacePartitioner(ssTableName);
 			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 
 			final DistributionRegion regionToSplit = DistributionRegionHelper
@@ -292,35 +334,32 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 				return;
 			}
 			
-			testForOverflow(sstableManager, spacePartitioner, regionToSplit); 
-			testForUnderflow(spacePartitioner, regionToSplit);
+			if(! RegionSplitHelper.isSplittingSupported(regionToSplit)) {
+				return;
+			}
+					
+			if(! RegionSplitHelper.isRegionOverflow(regionToSplit)) {
+				return;
+			}
 			
+			executeSplit(sstableManager, spacePartitioner, regionToSplit);			
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		}
 	}
 
 	/**
-	 * Test for region overflow
+	 * Execute a region split
 	 * 
 	 * @param sstableManager
 	 * @param spacePartitioner
 	 * @param regionToSplit
-	 * @throws BBoxDBException
 	 * @throws StorageManagerException
+	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	private void testForOverflow(final TupleStoreManager sstableManager, 
-			final SpacePartitioner spacePartitioner, final DistributionRegion regionToSplit)
-			throws BBoxDBException, StorageManagerException, InterruptedException {
-		
-		if(! RegionSplitHelper.isSplittingSupported(regionToSplit)) {
-			return;
-		}
-				
-		if(! RegionSplitHelper.isRegionOverflow(regionToSplit)) {
-			return;
-		}
+	private void executeSplit(final TupleStoreManager sstableManager, final SpacePartitioner spacePartitioner,
+			final DistributionRegion regionToSplit) throws Exception {
 		
 		final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
 		final RegionSplitter regionSplitter = new RegionSplitter(tupleStoreManagerRegistry);
@@ -328,6 +367,20 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 		forceMajorCompact(sstableManager);
 		
 		regionSplitter.splitRegion(regionToSplit, spacePartitioner, tupleStoreManagerRegistry);
+	}
+
+	/**
+	 * Get the space partitioner
+	 * 
+	 * @param ssTableName
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	private SpacePartitioner getSpacePartitioner(final TupleStoreName ssTableName) throws BBoxDBException {
+		
+		final String distributionGroup = ssTableName.getDistributionGroup();
+		return SpacePartitionerCache.getInstance()
+				.getSpacePartitionerForGroupName(distributionGroup);
 	}
 
 	/**

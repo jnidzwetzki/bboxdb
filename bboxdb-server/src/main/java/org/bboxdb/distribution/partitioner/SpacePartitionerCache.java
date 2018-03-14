@@ -74,8 +74,6 @@ public class SpacePartitionerCache implements Watcher {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SpacePartitionerCache.class);
 
-
-
 	private SpacePartitionerCache() {
 		this.spacePartitioner = new HashMap<>();
 		this.distributionRegionIdMapper = new HashMap<>();
@@ -133,6 +131,14 @@ public class SpacePartitionerCache implements Watcher {
 		}
 	}
 
+	/**
+	 * Get all known distribution groups
+	 * @return
+	 */
+	public synchronized Set<String> getAllKnownDistributionGroups() {
+		return new HashSet<>(spacePartitioner.keySet());
+	}
+	
 	/**
 	 * Process changed on the registered distribution regions
 	 */
