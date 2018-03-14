@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 0.5.1 - TBA
+
 ### Version 0.5.0 - 14.03.2018
 - New Feature: Added initial partitioning helper program (closes #78)
 - New Feature: Implemented non-mergeable distribution regions (closes #81)
