@@ -249,7 +249,7 @@ public class DistributionRegionIdMapper {
 	}
 	
 	/**
-	 * Test until a change happes
+	 * Test until a change happens
 	 * @param regionId
 	 * @param maxWaitTime
 	 * @param timeUnit
