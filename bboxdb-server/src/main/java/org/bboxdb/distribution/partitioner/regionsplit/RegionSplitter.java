@@ -194,9 +194,6 @@ public class RegionSplitter {
 				distributeData(ssTableName, source, destination);	
 			}
 
-			// Remove local data
-			logger.info("Deleting local data for {}", regionId);
-			deleteLocalData(localTables);
 		} catch (InterruptedException e) {
 			logger.warn("Thread was interrupted");
 			Thread.currentThread().interrupt();
@@ -207,36 +204,6 @@ public class RegionSplitter {
 		}
 		
 		logger.info("Redistributing data for region: {} DONE", regionId);
-	}
-
-	/**
-	 * Delete the local data for the given sstables
-	 * @param localTables
-	 * @throws StorageManagerException
-	 * @throws Exception
-	 * @throws InterruptedException
-	 */
-	private void deleteLocalData(final List<TupleStoreName> localTables)
-			throws StorageManagerException, Exception, InterruptedException {
-		
-		for(final TupleStoreName ssTableName : localTables) {
-			final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
-			
-			final List<ReadOnlyTupleStore> storages = new ArrayList<>();
-			
-			try {
-				final List<ReadOnlyTupleStore> aquiredStorages = ssTableManager.aquireStorage();
-				storages.addAll(aquiredStorages);
-				storages.forEach(s -> s.deleteOnClose());	
-			} catch (Exception e) {
-				throw e;
-			} finally {
-				ssTableManager.releaseStorage(storages);
-			}
-			
-			ssTableManager.shutdown();
-			ssTableManager.awaitShutdown();
-		}
 	}
 
 	/**
