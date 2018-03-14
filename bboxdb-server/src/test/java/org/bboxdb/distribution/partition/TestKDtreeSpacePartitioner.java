@@ -43,7 +43,6 @@ public class TestKDtreeSpacePartitioner {
 	 */
 	private static final String TEST_GROUP = "abc";
 	
-	
 	/**
 	 * The distribution group adapter
 	 */
@@ -54,9 +53,15 @@ public class TestKDtreeSpacePartitioner {
 		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
 
-	@Test
+	/**
+	 * Test the root node dimensions
+	 * @throws ZookeeperException
+	 * @throws InterruptedException
+	 * @throws ZookeeperNotFoundException
+	 * @throws BBoxDBException
+	 */
+	@Test(timeout=60000)
 	public void testDimensionsOfRootNode() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
-	
 		for(int i = 1; i < 2 ; i++) {
 			createNewDistributionGroup(i); 
 			final KDtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
@@ -99,7 +104,7 @@ public class TestKDtreeSpacePartitioner {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ResourceAllocationException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetMergeCandidates() throws ZookeeperException, BBoxDBException, ZookeeperNotFoundException, ResourceAllocationException {
 		createNewDistributionGroup(2); 
 		
@@ -108,6 +113,7 @@ public class TestKDtreeSpacePartitioner {
 		spacepartitionier.splitNode(rootNode, 10);
 		spacepartitionier.waitForSplitCompleteZookeeperCallback(rootNode, 2);
 		spacepartitionier.splitComplete(rootNode, rootNode.getDirectChildren());
+		spacepartitionier.waitUntilNodeStateIs(rootNode, DistributionRegionState.SPLIT);
 		Assert.assertEquals(rootNode.getState(), DistributionRegionState.SPLIT);
 		
 		final DistributionRegion childNumber0 = rootNode.getChildNumber(0);
@@ -119,6 +125,7 @@ public class TestKDtreeSpacePartitioner {
 		spacepartitionier.splitNode(childNumber0, 10);
 		spacepartitionier.waitForSplitCompleteZookeeperCallback(childNumber0, 2);
 		spacepartitionier.splitComplete(childNumber0, childNumber0.getDirectChildren());
+		spacepartitionier.waitUntilNodeStateIs(childNumber0, DistributionRegionState.SPLIT);
 		Assert.assertEquals(childNumber0.getState(), DistributionRegionState.SPLIT);
 
 		Assert.assertTrue(spacepartitionier.getMergeCandidates(childNumber0.getChildNumber(0)).isEmpty());

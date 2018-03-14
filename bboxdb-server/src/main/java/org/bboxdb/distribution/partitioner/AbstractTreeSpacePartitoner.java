@@ -179,6 +179,17 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r, noOfChildren);
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
 	}
+	
+	/**
+	 * Wait until the node state is
+	 * @param region
+	 * @param state
+	 */
+	@VisibleForTesting
+	public void waitUntilNodeStateIs(final DistributionRegion region, final DistributionRegionState state) {
+		final Predicate<DistributionRegion> predicate = (r) -> r.getState() == state;
+		DistributionRegionSyncerHelper.waitForPredicate(predicate, region, distributionRegionSyncer);
+	}
 
 	/**
 	 * Is the split for the given node complete?
