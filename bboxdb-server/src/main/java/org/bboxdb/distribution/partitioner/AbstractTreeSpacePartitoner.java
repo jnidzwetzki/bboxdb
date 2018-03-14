@@ -230,8 +230,15 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		final List<DistributionRegion> allChildren = distributionRegion.getAllChildren();
 		final List<DistributionRegion> directChildren = distributionRegion.getDirectChildren();
 		
+		final int directChildrenSize = directChildren.size();
+		
+		// We have no children, no merge is possible
+		if(directChildrenSize == 0) {
+			return result;
+		}
+		
 		// Do we have only direct children?
-		if(allChildren.size() == directChildren.size()) {
+		if(allChildren.size() == directChildrenSize) {
 			result.add(directChildren);
 		}
 		

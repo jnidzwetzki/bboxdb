@@ -18,9 +18,12 @@
 package org.bboxdb.distribution.partition;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -55,23 +58,79 @@ public class TestKDtreeSpacePartitioner {
 	public void testDimensionsOfRootNode() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 	
 		for(int i = 1; i < 2 ; i++) {
-			
-			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
-					.create(i)
-					.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
-					.build();
-			
-			distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-			distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
-			
-			final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) 
-					distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
-							new HashSet<>(), new DistributionRegionIdMapper());
-			
+			createNewDistributionGroup(i); 
+			final KDtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
 			final DistributionRegion rootNode = spacepartitionier.getRootNode();
-			
 			Assert.assertEquals(i, rootNode.getConveringBox().getDimension());
 		}
+	}
 
+	/**
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	private KDtreeSpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
+		return (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
+						new HashSet<>(), new DistributionRegionIdMapper());		
+	}
+
+	/**
+	 * Create a new distribution group
+	 * 
+	 * @param dimension
+	 * @throws ZookeeperException
+	 * @throws BBoxDBException
+	 */
+	private void createNewDistributionGroup(int dimension) throws ZookeeperException, BBoxDBException {
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+				.create(dimension)
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.build();
+		
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
+	}
+	
+	/**
+	 * Test get merge candidates
+	 * @throws BBoxDBException 
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ResourceAllocationException 
+	 */
+	@Test
+	public void testGetMergeCandidates() throws ZookeeperException, BBoxDBException, ZookeeperNotFoundException, ResourceAllocationException {
+		createNewDistributionGroup(2); 
+		
+		final KDtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
+		final DistributionRegion rootNode = spacepartitionier.getRootNode();
+		spacepartitionier.splitNode(rootNode, 10);
+		spacepartitionier.waitForSplitCompleteZookeeperCallback(rootNode, 2);
+		spacepartitionier.splitComplete(rootNode, rootNode.getDirectChildren());
+		Assert.assertEquals(rootNode.getState(), DistributionRegionState.SPLIT);
+		
+		final DistributionRegion childNumber0 = rootNode.getChildNumber(0);
+		final DistributionRegion childNumber1 = rootNode.getChildNumber(1);
+
+		Assert.assertTrue(spacepartitionier.getMergeCandidates(childNumber0).isEmpty());
+		Assert.assertTrue(spacepartitionier.getMergeCandidates(childNumber1).isEmpty());
+		
+		spacepartitionier.splitNode(childNumber0, 10);
+		spacepartitionier.waitForSplitCompleteZookeeperCallback(childNumber0, 2);
+		spacepartitionier.splitComplete(childNumber0, childNumber0.getDirectChildren());
+		Assert.assertEquals(childNumber0.getState(), DistributionRegionState.SPLIT);
+
+		Assert.assertTrue(spacepartitionier.getMergeCandidates(childNumber0.getChildNumber(0)).isEmpty());
+		Assert.assertTrue(spacepartitionier.getMergeCandidates(childNumber0.getChildNumber(1)).isEmpty());
+
+		final List<List<DistributionRegion>> mergeCandidates0 = spacepartitionier.getMergeCandidates(childNumber0);
+
+		Assert.assertFalse(mergeCandidates0.isEmpty());
+		Assert.assertTrue(spacepartitionier.getMergeCandidates(childNumber1).isEmpty());
+		
+		for(final List<DistributionRegion> regions : mergeCandidates0) {
+			Assert.assertTrue(regions.size() == 2);
+		}
 	}
 }

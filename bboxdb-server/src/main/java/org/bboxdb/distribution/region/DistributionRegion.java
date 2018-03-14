@@ -208,8 +208,8 @@ public class DistributionRegion {
 
 	@Override
 	public String toString() {
-		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", "
-				+ ", converingBox=" + converingBox + ", state=" + state
+		return "DistributionRegion [distributionGroupName=" + distributionGroupName
+				+ ", converingBox=" + converingBox.toCompactString() + ", state=" + state
 				+ ", systems=" + systems + ", nameprefix=" + regionid + "]";
 	}
 

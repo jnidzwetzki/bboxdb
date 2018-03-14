@@ -347,12 +347,11 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 		
 		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(oneSourceNode);
 	
-		for(List<DistributionRegion> sources : candidates) {
-			
+		for(final List<DistributionRegion> sources : candidates) {
+		
 			if(RegionMergeHelper.isRegionUnderflow(sources)) {
 				final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
 				final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
-	
 				regionMerger.mergeRegion(sources, spacePartitioner, tupleStoreManagerRegistry);	
 				return;
 			}	
