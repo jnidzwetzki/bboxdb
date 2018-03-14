@@ -253,25 +253,31 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @throws StorageManagerException 
 	 */
-	public synchronized void deleteTable(final TupleStoreName table) throws StorageManagerException {
+	public void deleteTable(final TupleStoreName table) throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
 		}
 		
-		if(managerInstances.containsKey(table)) {
-			shutdownSStable(table);
+		String storageDirectory = null;
+		
+		synchronized (this) {
+			if(managerInstances.containsKey(table)) {
+				shutdownSStable(table);
+			}
+			
+			if(! tupleStoreLocations.containsKey(table)) {
+				logger.error("Table {} not known during deletion", table.getFullname());
+				return;
+			}
+			
+			storageDirectory = tupleStoreLocations.get(table);
+			tupleStoreLocations.remove(table);	
 		}
 		
-		if(! tupleStoreLocations.containsKey(table)) {
-			logger.error("Table {} not known during deletion", table.getFullname());
-			return;
-		}
 		
-		final String storageDirectory = tupleStoreLocations.get(table);
 		final DiskStorage storage = storages.get(storageDirectory);
 		storage.scheduleTableForDeletionAndWait(table);
-		tupleStoreLocations.remove(table);	
 	}
 	
 	/**
