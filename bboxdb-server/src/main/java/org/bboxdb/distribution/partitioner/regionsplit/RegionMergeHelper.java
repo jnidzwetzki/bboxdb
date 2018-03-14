@@ -130,14 +130,23 @@ public class RegionMergeHelper {
 	 */
 	public static double getTotalRegionSize(final List<DistributionRegion> sources) {
 		
+		if(sources.isEmpty()) {
+			return StatisticsHelper.INVALID_STATISTICS;
+		}
+		
 		// Update statistics
 		sources.forEach(r -> StatisticsHelper.updateAverageStatistics(r));
+		
+		for(final DistributionRegion region : sources) {			
+			if(! StatisticsHelper.isEnoughHistoryDataAvailable(region.getIdentifier())) {
+				return StatisticsHelper.INVALID_STATISTICS;
+			}
+		}
 		
 		// Get statistics
 		return sources
 				.stream()
 				.filter(Objects::nonNull)
-				.filter(r -> StatisticsHelper.isEnoughHistoryDataAvailable(r.getIdentifier()))
 				.mapToDouble(r -> StatisticsHelper.getAverageStatistics(r.getIdentifier()))
 				.sum();
 	}

@@ -378,15 +378,14 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSize1, DELTA);
 		
 		spaceparitioner.splitNode(region, 12);
-		
-		Thread.sleep(1000);
+		spaceparitioner.waitForSplitCompleteZookeeperCallback(region, 2);
 		
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getDirectChildren().get(0), system1, 12, 999);
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getDirectChildren().get(1), system1, 33, 999);
 
 		StatisticsHelper.clearHistory();
 		final double totalSizeAfterClear = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
-		Assert.assertEquals(0, totalSizeAfterClear, DELTA);
+		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSizeAfterClear, DELTA);
 
 		// Update complete history
 		for(int i = 0; i < StatisticsHelper.HISTORY_LENGTH; i++) {

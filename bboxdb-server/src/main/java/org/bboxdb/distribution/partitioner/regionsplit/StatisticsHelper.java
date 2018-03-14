@@ -157,7 +157,7 @@ public class StatisticsHelper {
 			}
 			
 			final int historySize = statisticsHistory.get(regionIdentifier).size();
-					
+								
 			return historySize >= HISTORY_LENGTH;
 		}
 	}
