@@ -249,7 +249,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		}
 		
 		final DoubleInterval dimensionInterval = boundingBox.get(dimension);
-		return dimensionInterval.isNumberIncluded(point);
+		return dimensionInterval.isPointIncluded(point);
 	}
 	
 	/**

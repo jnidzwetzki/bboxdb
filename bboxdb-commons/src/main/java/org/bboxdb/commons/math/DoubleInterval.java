@@ -166,7 +166,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	 * @param number
 	 * @return
 	 */
-	public boolean isNumberIncluded(final double number) {
+	public boolean isPointIncluded(final double number) {
 		return overlapsWith(number, true);
 	}
 	
