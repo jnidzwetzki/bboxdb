@@ -39,7 +39,7 @@ public class StatisticsHelper {
 	/**
 	 * The value for invalid statistics
 	 */
-	public final static long INVALID_STATISTICS = 0;
+	public final static long INVALID_STATISTICS = Integer.MIN_VALUE;
 		
 	/**
 	 * The Logger
