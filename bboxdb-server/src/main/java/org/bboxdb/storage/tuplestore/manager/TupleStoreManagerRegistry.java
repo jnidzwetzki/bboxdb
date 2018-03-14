@@ -240,7 +240,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		
 		// Add SSTables per storage usage 
 		tupleStoreLocations.values().forEach(v -> usage.add(v));
-		
+				
 		// Return the lowest usage
 		return usage.entrySet().stream()
 			.reduce((a,b) -> a.getCount() < b.getCount() ? a : b)

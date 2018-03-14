@@ -19,16 +19,30 @@ package org.bboxdb.distribution;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSink;
+import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.LocalTupleSink;
+import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.NetworkTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -36,15 +50,38 @@ import org.mockito.Mockito;
 public class TestTupleSink {
 
 	/**
+	 * The tablename
+	 */
+	private static final TupleStoreName TABLENAME = new TupleStoreName("region_mytable");
+
+	/**
 	 * The distribution region
 	 */
-	private static final String DREGION = "region";
+	private static final String TEST_GROUP = "region";
+	
+	/**
+	 * The distribution group adapter
+	 */
+	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	
+	/**
+	 * The tuple store adapter
+	 */
+	private static TupleStoreAdapter tupleStoreAdapter;
 
-
+	
 	@BeforeClass
-	public static void before() {
-		DistributionGroupConfigurationCache.getInstance().clear();
-		DistributionGroupConfigurationCache.getInstance().addNewConfiguration(DREGION, new DistributionGroupConfiguration(2));
+	public static void before() throws ZookeeperException, BBoxDBException {
+		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		tupleStoreAdapter = new TupleStoreAdapter(ZookeeperClientFactory.getZookeeperClient());
+		
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+				.create(2)
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.build();
+		
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 	}
 	
 	/**
@@ -62,13 +99,15 @@ public class TestTupleSink {
 	
 	/**
 	 * Register region two times
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
 	 * @throws Exception
 	 */
 	@Test(expected=StorageManagerException.class)
-	public void testRegisterRegionDuplicate() throws StorageManagerException {
+	public void testRegisterRegionDuplicate() throws StorageManagerException, InterruptedException, BBoxDBException {
 		
 		final DistributionRegion distributionRegion = new DistributionRegion(
-				DREGION, BoundingBox.createFullCoveringDimensionBoundingBox(3));
+				TEST_GROUP, BoundingBox.createFullCoveringDimensionBoundingBox(3));
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
@@ -79,11 +118,14 @@ public class TestTupleSink {
 	/**
 	 * Get the tuple redistributor
 	 * @return
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
 	 */
-	protected TupleRedistributor createTupleRedistributor() {
-		final TupleStoreName tupleStoreName = new TupleStoreName("region_abc");
-
-		return new TupleRedistributor(new TupleStoreManagerRegistry(), tupleStoreName);
+	protected TupleRedistributor createTupleRedistributor() throws InterruptedException, BBoxDBException {
+		final TupleStoreName tupleStoreName = new TupleStoreName(TABLENAME.getFullname());
+		final TupleStoreManagerRegistry tupleStoreManagerRegistry = new TupleStoreManagerRegistry();
+		tupleStoreManagerRegistry.init();
+		return new TupleRedistributor(tupleStoreManagerRegistry, tupleStoreName);
 	}
 	
 	/**
@@ -94,7 +136,7 @@ public class TestTupleSink {
 	public void testTupleRedistribution1() throws Exception {
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
-				DREGION, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				TEST_GROUP, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
 				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
@@ -121,11 +163,11 @@ public class TestTupleSink {
 	@Test
 	public void testTupleRedistribution2() throws Exception {		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
-				DREGION, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				TEST_GROUP, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
 				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final DistributionRegion distributionRegion2 = new DistributionRegion(
-				DREGION, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				TEST_GROUP, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
 				new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
@@ -153,6 +195,53 @@ public class TestTupleSink {
 		(Mockito.verify(tupleSink2, Mockito.atLeast(2))).sinkTuple(Mockito.any(Tuple.class));
 
 		System.out.println(tupleRedistributor.getStatistics());
+	}
+	
+	/**
+	 * Test the tuple sinks
+	 * @throws StorageManagerException 
+	 * @throws BBoxDBException 
+	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testTupleSink() throws StorageManagerException, BBoxDBException, ZookeeperException, InterruptedException {
+		final DistributionRegion distributionRegion = SpacePartitionerCache
+				.getInstance()
+				.getSpacePartitionerForGroupName(TEST_GROUP)
+				.getRootNode();
+		
+		tupleStoreAdapter.deleteTable(TABLENAME);
+		tupleStoreAdapter.writeTuplestoreConfiguration(TABLENAME, new TupleStoreConfiguration());
+		
+		final List<BBoxDBInstance> systems = Arrays.asList(
+				new BBoxDBInstance("10.0.0.1:10000"), 
+				new BBoxDBInstance("10.0.0.2:10000"), 
+				ZookeeperClientFactory.getLocalInstanceName());
+		
+		distributionRegion.setSystems(systems);
+		
+		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
+		tupleRedistributor.registerRegion(distributionRegion);
+		
+		final Map<DistributionRegion, List<AbstractTupleSink>> map = tupleRedistributor.getRegionMap();
+		Assert.assertEquals(1, map.size());
+		
+		final long networkSinks = map.values()
+				.stream()
+				.flatMap(e -> e.stream())
+				.filter(s -> s instanceof NetworkTupleSink)
+				.count();
+		
+		Assert.assertEquals(2, networkSinks);
+		
+		final long localSinks = map.values()
+				.stream()
+				.flatMap(e -> e.stream())
+				.filter(s -> s instanceof LocalTupleSink)
+				.count();
+		
+		Assert.assertEquals(1, localSinks);
 	}
 
 }

@@ -41,32 +41,34 @@ import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class TupleRedistributor {
 	
 	/**
 	 * The tuple store name for data redistribution
 	 */
-	protected final TupleStoreName tupleStoreName;
+	private final TupleStoreName tupleStoreName;
 	
 	/**
 	 * The list with the distribution regions
 	 */
-	protected final Map<DistributionRegion, List<AbstractTupleSink>> regionMap;
+	private final Map<DistributionRegion, List<AbstractTupleSink>> regionMap;
 	
 	/**
 	 * The amount of total redistributed tuples
 	 */
-	protected long redistributedTuples;
+	private long redistributedTuples;
 
 	/**
 	 * The storage registry
 	 */
-	protected final TupleStoreManagerRegistry tupleStoreManagerRegistry;
+	private final TupleStoreManagerRegistry tupleStoreManagerRegistry;
 	
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
 
 	
 	public TupleRedistributor(final TupleStoreManagerRegistry tupleStoreManagerRegistry, 
@@ -234,5 +236,15 @@ public class TupleRedistributor {
 		sb.append(String.format(" (%.2f %%)", percent));
 
 		return sb.toString();
+	}
+	
+	/**
+	 * Get the region map
+	 * @return
+	 */
+	@VisibleForTesting
+	public Map<DistributionRegion, List<AbstractTupleSink>> getRegionMap() {
+		
+		return regionMap;
 	}
 }
