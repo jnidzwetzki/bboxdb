@@ -148,10 +148,7 @@ public class TreeJPanel extends JPanel {
 				RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		//graphics2D.translate(w/2, h/2);
-		graphics2D.scale(zoomFactor, zoomFactor);
-		//graphics2D.translate(-w/2, -h/2);
-		
+		graphics2D.scale(zoomFactor, zoomFactor);		
 		
 		try {
 			final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
