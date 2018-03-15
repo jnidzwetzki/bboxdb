@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -76,15 +77,21 @@ public class TreeJPanel extends JPanel {
 	protected final int rootPosY;
 	
 	/**
+	 * The zoom factor
+	 */
+	private double zoomFactor;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TreeJPanel.class);
-
 
 	public TreeJPanel(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 		this.rootPosX = 1000;
 		this.rootPosY = 30;
+		this.zoomFactor = 1.0;
+		setToolTipText("");
 	}
 
 	/**
@@ -103,14 +110,6 @@ public class TreeJPanel extends JPanel {
 		}
 		
 		return minBoundingBox;
-	}
-
-	/**
-	 * Get the minimal bounding box for this component
-	 * @return
-	 */
-	protected BoundingBox getMinimalBoundingBox() {
-		return new BoundingBox(0.0, 400.0, 0.0, 200.0);
 	}
 	
 	/**
@@ -137,6 +136,8 @@ public class TreeJPanel extends JPanel {
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		
+		setBackground(Color.WHITE);
+		
 		// Group is not set
 		if(guiModel.getTreeAdapter() == null) {
 			return;
@@ -147,7 +148,11 @@ public class TreeJPanel extends JPanel {
 				RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-
+		//graphics2D.translate(w/2, h/2);
+		graphics2D.scale(zoomFactor, zoomFactor);
+		//graphics2D.translate(-w/2, -h/2);
+		
+		
 		try {
 			final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 			
@@ -160,7 +165,7 @@ public class TreeJPanel extends JPanel {
 			calculateRootNodeXPos();
 			
 			final BoundingBox drawBox = drawDistributionRegion(graphics2D);
-
+			
 			updateComponentSize(drawBox);
 		} catch (BBoxDBException e) {
 			logger.error("Got an exception", e);
@@ -168,7 +173,7 @@ public class TreeJPanel extends JPanel {
 	}
 
 	/**
-	 * Calculate the root node X postion
+	 * Calculate the root node X position
 	 */
 	protected void calculateRootNodeXPos() {
 		
@@ -203,27 +208,43 @@ public class TreeJPanel extends JPanel {
 		if(boundingBox == BoundingBox.FULL_SPACE) {
 			return;
 		}
-
+				
+		final int preferedWidth = (int) ((boundingBox.getCoordinateHigh(0) + (2 * PADDING_LEFT_RIGHT)) * zoomFactor);
+		final int preferedHeight = (int) ((boundingBox.getCoordinateHigh(1) + (2 * PADDING_TOP_BOTTOM) + rootPosY) * zoomFactor);
+		
 		final Dimension boundingBoxSize = new Dimension(
-				(int) boundingBox.getExtent(0) + (2 * PADDING_LEFT_RIGHT), 
-				(int) boundingBox.getExtent(1) + (2 * PADDING_TOP_BOTTOM) + rootPosY);
+				preferedWidth, 
+				preferedHeight);
 
 		// Size has changed, update
 		if(! boundingBoxSize.equals(componentSize)) {
 			componentSize = boundingBoxSize;
+			
 			setPreferredSize(boundingBoxSize);
-			setSize(boundingBoxSize);
+			setMinimumSize(boundingBoxSize);
+			
+			revalidate();
+			repaint();
 		}
 	}
-
+	
 	/**
 	 * Get the text for the tool tip
 	 */
 	@Override
 	public String getToolTipText(final MouseEvent event) {
 
+		final MouseEvent scaledEvent = new MouseEvent(event.getComponent(), 
+				event.getID(), 
+				event.getWhen(), 
+				event.getModifiers(), 
+				(int) (event.getX() / zoomFactor), 
+				(int) (event.getY() / zoomFactor), 
+				event.getClickCount(), 
+				event.isPopupTrigger());
+
 		for(final DistributionRegionComponent component : regions) {
-			if(component.isMouseOver(event)) {
+			if(component.isMouseOver(scaledEvent)) {
 				return component.getToolTipText();
 			}
 		}
@@ -246,5 +267,23 @@ public class TreeJPanel extends JPanel {
 	 */
 	public int getRootPosY() {
 		return rootPosY;
+	}
+	
+	/**
+	 * Get the zoom factor
+	 * @return
+	 */
+	public double getZoomFactor() {
+		return zoomFactor;
+	}
+	
+	/**
+	 * Set the zoom factor
+	 * @param zoomFactor
+	 */
+	public void setZoomFactor(final double zoomFactor) {
+		this.zoomFactor = zoomFactor;
+		revalidate();
+		repaint();
 	}
 }

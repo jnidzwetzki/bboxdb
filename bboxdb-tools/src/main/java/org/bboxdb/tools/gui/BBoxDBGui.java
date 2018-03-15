@@ -18,7 +18,6 @@
 package org.bboxdb.tools.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -180,17 +180,16 @@ public class BBoxDBGui {
 	 */
 	protected void buildMainPanel() {
 		
-		final JScrollPane rightScrollPanel = getRightPanel();
+		final JComponent rightScrollPanel = getRightPanel();
 
 		final JList<String> leftPanel = getLeftPanel();
 
 		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightScrollPanel);
 		mainPanel.setOneTouchExpandable(true);
 		mainPanel.setDividerLocation(150);
-		mainPanel.setPreferredSize(new Dimension(1100, 600));		
 	}
 
-	protected JScrollPane getRightPanel() {
+	protected JComponent getRightPanel() {
 		View view = null;
 			
 		if(viewMode == ViewMode.TREE_MODE) {
@@ -199,12 +198,7 @@ public class BBoxDBGui {
 			view = new OSMView(guiModel);
 		}
 
-		final JPanel rightPanel = view.getJPanel();
-		rightPanel.setBackground(Color.WHITE);
-		rightPanel.setToolTipText("");
-
-		final JScrollPane rightScrollPanel = new JScrollPane(rightPanel);
-		return rightScrollPanel;
+		return view.getJPanel();
 	}
 	
 	/**

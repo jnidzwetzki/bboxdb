@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 public interface View {
-	public JPanel getJPanel();
+	public JComponent getJPanel();
 }

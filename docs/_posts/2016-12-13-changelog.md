@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.5.1 - TBA
 - Improvement: The screenshot mode in the GUI can be toggled at runtime
+- Improvement: Added zoom function in the GUI tree view (closes #83)
 
 ### Version 0.5.0 - 14.03.2018
 - New Feature: Added initial partitioning helper program (closes #78)
