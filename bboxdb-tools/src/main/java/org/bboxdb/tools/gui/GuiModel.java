@@ -47,7 +47,7 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * In screenshot mode, all IPs are replaced with 'XXXX'
 	 */
-	public final static boolean SCREENSHOT_MODE = false;
+	public boolean screenshotMode = false;
 
 	/**
 	 * The BBoxDB instances
@@ -298,4 +298,19 @@ public class GuiModel implements DistributionRegionCallback {
 		return distributionGroupZookeeperAdapter.getDistributionGroups();
 	}
 
+	/**
+	 * Get the screenshot mode
+	 * @return
+	 */
+	public boolean isScreenshotMode() {
+		return screenshotMode;
+	}
+
+	/**
+	 * Set the screenshot mode
+	 * @param screenshotMode
+	 */
+	public void setScreenshotMode(final boolean screenshotMode) {
+		this.screenshotMode = screenshotMode;
+	}
 }

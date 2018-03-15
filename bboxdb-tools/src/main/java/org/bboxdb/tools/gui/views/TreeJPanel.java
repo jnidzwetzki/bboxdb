@@ -123,7 +123,9 @@ public class TreeJPanel extends JPanel {
 			return;
 		}
 		
-		final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, this);
+		final DistributionRegionComponent distributionRegionComponent 
+			= new DistributionRegionComponent(distributionRegion, this, guiModel);
+		
 		regions.add(distributionRegionComponent);
 				
 		for(final DistributionRegion region : distributionRegion.getDirectChildren()) {

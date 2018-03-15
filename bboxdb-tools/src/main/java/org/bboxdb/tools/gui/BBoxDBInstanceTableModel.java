@@ -32,9 +32,17 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 	 * The running bboxdb instances
 	 */
 	protected final List<BBoxDBInstance> instances;
+
+	/**
+	 * The gui model
+	 */
+	private GuiModel guiModel;
 	
-	public BBoxDBInstanceTableModel(final List<BBoxDBInstance> distributedInstances) {
+	public BBoxDBInstanceTableModel(final List<BBoxDBInstance> distributedInstances, 
+			final GuiModel guiModel) {
+		
 		this.instances = distributedInstances;
+		this.guiModel = guiModel;
 	}
 
 	/**
@@ -68,7 +76,7 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 			
 			if(columnIndex == 1) {
 				
-				if(GuiModel.SCREENSHOT_MODE) {
+				if(guiModel.isScreenshotMode()) {
 					return "XXX.XXX.XXX.XXX";
 				}
 				

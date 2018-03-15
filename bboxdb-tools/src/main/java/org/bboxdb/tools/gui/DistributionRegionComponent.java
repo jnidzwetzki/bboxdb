@@ -83,16 +83,23 @@ public class DistributionRegionComponent {
 	private final TreeJPanel panel;
 	
 	/**
+	 * The GUI model
+	 */
+	private GuiModel guiModel;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ConnectDialog.class);
+
 	
 
 	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
-			final TreeJPanel distributionGroupJPanel) {
+			final TreeJPanel distributionGroupJPanel, final GuiModel guiModel) {
 		
 		this.distributionRegion = distributionRegion;
 		this.panel = distributionGroupJPanel;
+		this.guiModel = guiModel;
 
 		this.xOffset = calculateXOffset();
 		this.yOffset = calculateYOffset();
@@ -310,7 +317,7 @@ public class DistributionRegionComponent {
 			for(final BBoxDBInstance instance : systems) {
 				if(! statistics.keySet().contains(instance)) {
 					sb.append("System: ");
-					sb.append(instance.toGUIString(GuiModel.SCREENSHOT_MODE));
+					sb.append(instance.toGUIString(guiModel.isScreenshotMode()));
 					sb.append(" <br>");
 				}
 			}
@@ -353,7 +360,7 @@ public class DistributionRegionComponent {
 		for(final BBoxDBInstance instance : statistics.keySet()) {
 			final Map<String, Long> statisticData = statistics.get(instance);
 			sb.append("Node: ");
-			sb.append(instance.toGUIString(GuiModel.SCREENSHOT_MODE));
+			sb.append(instance.toGUIString(guiModel.isScreenshotMode()));
 			sb.append(" Tuples: ");
 			sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES));
 			sb.append(", Size: ");

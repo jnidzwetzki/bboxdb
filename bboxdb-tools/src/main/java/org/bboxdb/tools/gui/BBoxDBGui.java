@@ -171,7 +171,7 @@ public class BBoxDBGui {
 	 */
 	private BBoxDBInstanceTableModel getTableModel() {
 		final List<BBoxDBInstance> bboxDBInstances = guiModel.getBBoxDBInstances();
-		return new BBoxDBInstanceTableModel(bboxDBInstances);
+		return new BBoxDBInstanceTableModel(bboxDBInstances, guiModel);
 	}
 
 	/**
@@ -280,6 +280,13 @@ public class BBoxDBGui {
 		menu.add(reloadItem);
 		reloadItem.addActionListener((e) ->  {
 				refreshDistributionGroups(listModel);
+		});
+		
+		final JMenuItem screeenshotMode = new JMenuItem("Toggle screenshot mode");
+		menu.add(screeenshotMode);
+		screeenshotMode.addActionListener((e) -> {
+			guiModel.setScreenshotMode(! guiModel.isScreenshotMode());
+			tableModel.fireTableDataChanged();
 		});
 		
 
