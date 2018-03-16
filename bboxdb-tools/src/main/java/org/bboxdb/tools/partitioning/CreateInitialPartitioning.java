@@ -39,7 +39,7 @@ import org.bboxdb.tools.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateBasePartitioning implements Runnable {
+public class CreateInitialPartitioning implements Runnable {
 
 	/**
 	 * The sampling file
@@ -64,9 +64,9 @@ public class CreateBasePartitioning implements Runnable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(CreateBasePartitioning.class);
+	private final static Logger logger = LoggerFactory.getLogger(CreateInitialPartitioning.class);
 
-	public CreateBasePartitioning(final String filename, final String format, 
+	public CreateInitialPartitioning(final String filename, final String format, 
 			final String distributionGroup, final int partitions) {
 		
 		this.filename = filename;
@@ -164,7 +164,7 @@ public class CreateBasePartitioning implements Runnable {
 		doesGroupExist(distributionGroup);		
 		checkForExistingPartitioning(distributionGroup);
 		
-		final CreateBasePartitioning dataRedistributionLoader = new CreateBasePartitioning(filename, format, 
+		final CreateInitialPartitioning dataRedistributionLoader = new CreateInitialPartitioning(filename, format, 
 				distributionGroup, partitions);
 		
 		dataRedistributionLoader.run();
