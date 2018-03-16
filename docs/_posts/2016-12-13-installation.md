@@ -48,7 +48,7 @@ export BBOXDB_HOME=/opt/bboxdb
 echo 'export BBOXDB_HOME=/opt/bboxdb' >> .bashrc
 ```
 
-## Downloading and compiling the s	oftware
+## Downloading and compiling the software
 ```bash
 git clone https://github.com/jnidzwetzki/bboxdb
 mv bboxdb $BBOXDB_HOME
