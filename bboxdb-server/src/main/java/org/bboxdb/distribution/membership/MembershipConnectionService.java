@@ -19,12 +19,11 @@ package org.bboxdb.distribution.membership;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.BBoxDBService;
@@ -38,27 +37,27 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * The server connections
 	 */
-	protected final Map<InetSocketAddress, BBoxDBClient> serverConnections;
+	private final Map<InetSocketAddress, BBoxDBClient> serverConnections;
 	
 	/**
 	 * The known instances
 	 */
-	protected final Map<InetSocketAddress, BBoxDBInstance> knownInstances;
+	private final Map<InetSocketAddress, BBoxDBInstance> knownInstances;
 	
 	/**
 	 * The blacklisted instances, no connection will be created to these systems
 	 */
-	protected final Set<InetSocketAddress> blacklist;
+	private final Set<InetSocketAddress> blacklist;
 	
 	/**
 	 * Is the paging for queries enabled?
 	 */
-	protected boolean pagingEnabled;
+	private boolean pagingEnabled;
 	
 	/**
 	 * The amount of tuples per page
 	 */
-	protected short tuplesPerPage;
+	private short tuplesPerPage;
 	
 	/**
 	 * The tuple store manager registry (used for gossip, between server<->server connections)
@@ -68,7 +67,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * The event handler
 	 */
-	protected BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer 
+	private BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer 
 		= this::handleDistributedEvent;
 	
 	/**
@@ -82,22 +81,18 @@ public class MembershipConnectionService implements BBoxDBService {
 	private final static Logger logger = LoggerFactory.getLogger(MembershipConnectionService.class);
 	
 	private MembershipConnectionService() {
-		final HashMap<InetSocketAddress, BBoxDBClient> connectionMap = new HashMap<>();
-		serverConnections = Collections.synchronizedMap(connectionMap);
-		
-		final HashMap<InetSocketAddress, BBoxDBInstance> instanceMap = new HashMap<>();
-		knownInstances = Collections.synchronizedMap(instanceMap);
-		
-		pagingEnabled = false;
-		tuplesPerPage = 0;
-		blacklist = new HashSet<>();
+		this.serverConnections = new ConcurrentHashMap<>();		
+		this.knownInstances = new ConcurrentHashMap<>();
+		this.pagingEnabled = false;
+		this.tuplesPerPage = 0;
+		this.blacklist = new HashSet<>();
 	}
 	
 	/**
 	* Handle membership events	
 	 * @param instance 
 	*/
-	protected void handleDistributedEvent(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
+	private void handleDistributedEvent(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
 		if(event == DistributedInstanceEvent.ADD) {
 			createOrTerminateConnetion(instance);
 		} else if(event == DistributedInstanceEvent.CHANGED) {
@@ -190,7 +185,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * Add a new connection to a bboxdb system
 	 * @param distributedInstance
 	 */
-	protected synchronized void createOrTerminateConnetion(final BBoxDBInstance distributedInstance) {
+	private synchronized void createOrTerminateConnetion(final BBoxDBInstance distributedInstance) {
 
 		// Create only connections to readonly or readwrite systems
 		if(distributedInstance.getState() == BBoxDBInstanceState.FAILED) {			
@@ -205,7 +200,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * Create a new connection to the given instance
 	 * @param distributedInstance
 	 */
-	protected void createConnection(final BBoxDBInstance distributedInstance) {
+	private void createConnection(final BBoxDBInstance distributedInstance) {
 		
 		final String instanceName = distributedInstance.getStringValue();
 		
@@ -240,7 +235,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * Terminate the connection to a missing bboxdb system
 	 * @param distributedInstance 
 	 */
-	protected synchronized void terminateConnection(final BBoxDBInstance distributedInstance) {
+	private synchronized void terminateConnection(final BBoxDBInstance distributedInstance) {
 		
 		final String instanceName = distributedInstance.getStringValue();
 		
