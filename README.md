@@ -42,7 +42,7 @@ BBoxDB is implemented as a distributed and highly available system. It supports 
 The documentation of the project is located at [http://jnidzwetzki.github.io/bboxdb/](http://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
 ## Getting started
-See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) chapter in the documentation. We also recommend to read the examples located in the [bboxdb-examples/src/main/java](bboxdb-examples/src/main/java/) directory.
+See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/gettingstarted.html) chapter in the documentation. We also recommend to read the examples located in the [bboxdb-examples/src/main/java](bboxdb-examples/src/main/java/) directory.
 
 ## Screenshots
 BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown. 
