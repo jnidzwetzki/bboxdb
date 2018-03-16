@@ -21,11 +21,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -91,10 +92,10 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 
 	public TupleStoreManagerRegistry() {
 		this.configuration = BBoxDBConfigurationManager.getConfiguration();
-		this.managerInstances = Collections.synchronizedMap(new HashMap<>());
-		this.tupleStoreLocations = Collections.synchronizedMap(new HashMap<>());
-		this.storages = new HashMap<>();
-		this.flushCallbacks = new ArrayList<>();
+		this.managerInstances = new ConcurrentHashMap<>();
+		this.tupleStoreLocations = new ConcurrentHashMap<>();
+		this.storages = new ConcurrentHashMap<>();
+		this.flushCallbacks = new CopyOnWriteArrayList<>();
 		this.serviceState = new ServiceState();
 		this.zookeeperObserver = new TupleStoreZookeeperObserver(this);
 	}
@@ -508,7 +509,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Get all storages
 	 * @return 
 	 */
-	public synchronized List<DiskStorage> getAllStorages() {
+	public List<DiskStorage> getAllStorages() {
 		return new ArrayList<>(storages.values());
 	}
 	
