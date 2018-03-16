@@ -55,13 +55,13 @@ mv bboxdb $BBOXDB_HOME
 $BBOXDB_HOME/bin/manage_instance.sh bboxdb_update
 ```
 
-The last command executed maven, downloads all needed dependencies and complies BBoxDB.
+The last command executes maven, downloads all needed dependencies and complies BBoxDB. This step has to be repeated on every node in your cluster.
 
 # Initial Setup
 The following sections are covering the initial setup of the BBoxDB.
 
 ## Setup the nodes of the system
-BBoxDB employs [Apache Zookeeper](https://zookeeper.apache.org/) to coordinate the distributed system. BBoxDB includes some helper scripts to install and configure the Zookeeper installation automatically. To setup the Zookeeper- and BBoxDB-nodes you only need to define the hosts in two files. The file ```$BBOXDB_HOME/conf/bboxdb-nodes``` contains the name of all BBoxDB nodes and the file ```$BBOXDB_HOME/conf/zookeeper-nodes``` contains the names of all Zookeeper nodes. It is recommended to define at least 3 Zookeeper nodes. Bellow, you find an example with 3 Zookeeper nodes and 6 BBoxDB nodes. Zookeeper and BBoxDB can be installed on the same hardware.
+BBoxDB employs [Apache Zookeeper](https://zookeeper.apache.org/) to coordinate the distributed system. BBoxDB includes some helper scripts to install and configure the Zookeeper installation automatically. To setup the Zookeeper and BBoxDB nodes, you only need to define the name of the hosts in two files. The file ```$BBOXDB_HOME/conf/bboxdb-nodes``` contains the name of all BBoxDB nodes and the file ```$BBOXDB_HOME/conf/zookeeper-nodes``` contains the names of all Zookeeper nodes. It is recommended to define at least 3 Zookeeper nodes. Bellow, you find an example with 3 Zookeeper nodes and 6 BBoxDB nodes. Zookeeper and BBoxDB can be installed on the same hardware.
 
 ```bash
 cat $BBOXDB_HOME/conf/zookeeper-nodes
