@@ -201,6 +201,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 */
 	private void shutdownFileChannel() {
 		if(fileChannel == null) {
+			return;
 		}
 		
 		try {
