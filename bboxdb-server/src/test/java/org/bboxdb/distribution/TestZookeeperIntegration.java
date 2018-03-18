@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
+import org.bboxdb.distribution.membership.ZookeeperInstancePathHelper;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
@@ -666,9 +666,9 @@ public class TestZookeeperIntegration {
 		
 		for(final String path : paths) {
 			Assert.assertTrue(path.contains("/"));
-			final String quotedPath = ZookeeperBBoxDBInstanceAdapter.quotePath(path);
+			final String quotedPath = ZookeeperInstancePathHelper.quotePath(path);
 			Assert.assertFalse(quotedPath.contains("/"));
-			final String unquotedPath = ZookeeperBBoxDBInstanceAdapter.unquotePath(quotedPath);
+			final String unquotedPath = ZookeeperInstancePathHelper.unquotePath(quotedPath);
 			Assert.assertEquals(path, unquotedPath);
 		}
 	}

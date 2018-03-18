@@ -44,7 +44,12 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	/**
 	 * The zookeeper client
 	 */
-	protected final ZookeeperClient zookeeperClient;
+	private final ZookeeperClient zookeeperClient;
+	
+	/**
+	 * The path helper
+	 */
+	private final ZookeeperInstancePathHelper pathHelper;
 
 	/**
 	 * The logger
@@ -53,6 +58,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 
 	public ZookeeperBBoxDBInstanceAdapter(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = Objects.requireNonNull(zookeeperClient);
+		this.pathHelper = new ZookeeperInstancePathHelper(zookeeperClient);
 	}
 
 	/**
@@ -156,7 +162,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @throws ZookeeperNotFoundException
 	 */
 	protected String getVersionForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
-		final String versionPath = getInstancesVersionPath(instance);
+		final String versionPath = pathHelper.getInstancesVersionPath(instance);
 
 		try {
 			return zookeeperClient.readPathAndReturnString(versionPath, null);
@@ -174,7 +180,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @throws ZookeeperNotFoundException
 	 */
 	protected int getCpuCoresForInstnace(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
-		final String versionPath = getInstancesCpuCorePath(instance);
+		final String versionPath = pathHelper.getInstancesCpuCorePath(instance);
 
 		String versionString = null;
 		
@@ -197,7 +203,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @throws ZookeeperNotFoundException
 	 */
 	protected long getMemoryForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
-		final String memoryPath = getInstancesMemoryPath(instance);
+		final String memoryPath = pathHelper.getInstancesMemoryPath(instance);
 
 		String memoryString = null;
 
@@ -222,14 +228,14 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	protected void readDiskSpaceForInstance(final BBoxDBInstance instance) 
 			throws ZookeeperNotFoundException, ZookeeperException {
 		
-		final String diskspacePath = getInstancesDiskspacePath(instance);
+		final String diskspacePath = pathHelper.getInstancesDiskspacePath(instance);
 		
 		final List<String> diskspaceChilds = zookeeperClient.getChildren(diskspacePath, null);
 		
 		for(final String path : diskspaceChilds) {
-			final String unquotedPath = unquotePath(path);
-			final String totalDiskspacePath = getInstancesDiskspaceTotalPath(instance, unquotedPath);
-			final String freeDiskspacePath = getInstancesDiskspaceFreePath(instance, unquotedPath);
+			final String unquotedPath = ZookeeperInstancePathHelper.unquotePath(path);
+			final String totalDiskspacePath = pathHelper.getInstancesDiskspaceTotalPath(instance, unquotedPath);
+			final String freeDiskspacePath = pathHelper.getInstancesDiskspaceFreePath(instance, unquotedPath);
 			
 			final String totalDiskspaceString = zookeeperClient.readPathAndReturnString(totalDiskspacePath);
 			final String freeDiskspaceString = zookeeperClient.readPathAndReturnString(freeDiskspacePath);
@@ -322,83 +328,6 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		return zookeeperClient;
 	}
 	
-
-	/**
-	 * Get the node info path
-	 * @param distributedInstance 
-	 * @return
-	 */
-	protected String getInstanceDetailsPath(final BBoxDBInstance distributedInstance) {
-		return zookeeperClient.getDetailsPath() + "/" + distributedInstance.getStringValue();
-	}
-	
-	/**
-	 * Get the path of the version node
-	 */
-	protected String getInstancesVersionPath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/version";
-	}
-	
-
-	/**
-	 * Get the path of the cpu core node
-	 */
-	protected String getInstancesCpuCorePath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/cpucore";
-	}
-	
-	/**
-	 * Get the path of the memory node
-	 */
-	protected String getInstancesMemoryPath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/memory";
-	}
-	
-	/**
-	 * Get the path of the diskspace node
-	 */
-	protected String getInstancesDiskspacePath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/diskspace";
-	}
-
-	/**
-	 * Get the free space of the diskspace node
-	 */
-	protected String getInstancesDiskspaceFreePath(final BBoxDBInstance distributedInstance, 
-			final String path) {
-		final String zookeeperPath = quotePath(path);
-		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/free";
-	}
-	
-	/**
-	 * Get the total space of the diskspace node
-	 */
-	protected String getInstancesDiskspaceTotalPath(final BBoxDBInstance distributedInstance, 
-			final String path) {
-		final String zookeeperPath = quotePath(path);
-		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/total";
-	}
-	
-	/**
-	 * Quote the file system path (replace all '/' with '__') to get 
-	 * a valid zookeeper node name
-	 * 
-	 * @param path
-	 * @return
-	 */
-	public static String quotePath(final String path) {
-		return path.replaceAll("/", "__");
-	}
-	
-	/**
-	 * Unquote the given path
-	 * @param path
-	 * @return
-	 */
-	public static String unquotePath(final String path) {
-		return path.replaceAll("__", "/");
-	}
-	
 	/**
 	 * Update the hardware info
 	 * @param zookeeperClient
@@ -407,17 +336,17 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	public void updateNodeInfo(final BBoxDBInstance instance) throws ZookeeperException {
 		
 		// Version 
-		final String versionPath = getInstancesVersionPath(instance);
+		final String versionPath = pathHelper.getInstancesVersionPath(instance);
 		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes());
 		
 		// CPUs
 		final int cpuCores = SystemInfo.getCPUCores();
-		final String cpuCoresPath = getInstancesCpuCorePath(instance);
+		final String cpuCoresPath = pathHelper.getInstancesCpuCorePath(instance);
 		zookeeperClient.replacePersistentNode(cpuCoresPath, Integer.toString(cpuCores).getBytes());
 
 		// Memory
 		final long memory = SystemInfo.getAvailableMemory();
-		final String memoryPath = getInstancesMemoryPath(instance);
+		final String memoryPath = pathHelper.getInstancesMemoryPath(instance);
 		zookeeperClient.replacePersistentNode(memoryPath, Long.toString(memory).getBytes());
 
 		// Diskspace
@@ -428,12 +357,12 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 			
 			// Free
 			final long freeDiskspace = SystemInfo.getFreeDiskspace(path);
-			final String freeDiskspacePath = getInstancesDiskspaceFreePath(instance, directory);
+			final String freeDiskspacePath = pathHelper.getInstancesDiskspaceFreePath(instance, directory);
 			zookeeperClient.replacePersistentNode(freeDiskspacePath, Long.toString(freeDiskspace).getBytes());
 
 			// Total
 			final long totalDiskspace = SystemInfo.getTotalDiskspace(path);
-			final String totalDiskspacePath = getInstancesDiskspaceTotalPath(instance, directory);
+			final String totalDiskspacePath = pathHelper.getInstancesDiskspaceTotalPath(instance, directory);
 			zookeeperClient.replacePersistentNode(totalDiskspacePath, Long.toString(totalDiskspace).getBytes());
 		}
 	}
