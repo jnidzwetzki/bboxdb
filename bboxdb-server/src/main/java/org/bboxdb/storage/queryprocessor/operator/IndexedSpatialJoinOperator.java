@@ -26,6 +26,77 @@ import org.bboxdb.storage.entity.Tuple;
 
 public class IndexedSpatialJoinOperator implements Operator {
 	
+	private final class Spatialterator implements Iterator<JoinedTuple> {
+		
+		/**
+		 * The tuple stream source
+		 */
+		private JoinedTuple tupleFromStreamSource = null;
+		
+		/**
+		 * The candidates
+		 */
+		private Iterator<JoinedTuple> candidatesForCurrentTuple = null;
+		
+		/**
+		 * The next tuple 
+		 */
+		private JoinedTuple nextTuple = null;
+
+		@Override
+		public boolean hasNext() {
+			
+			while(nextTuple == null) {					
+				// Join partner exhausted, try next tuple
+				while(candidatesForCurrentTuple == null || ! candidatesForCurrentTuple.hasNext()) {						
+					// Fetch next tuple from stream source
+					if(! tupleStreamSource.hasNext()) { 
+						return false;
+					} else {
+						// Start a new index scan for the next steam source tuple bounding box
+						tupleFromStreamSource = tupleStreamSource.next();
+						CloseableHelper.closeWithoutException(indexReader);
+						indexReader.setBoundingBox(tupleFromStreamSource.getBoundingBox());
+						candidatesForCurrentTuple = indexReader.iterator();							
+					} 
+				}
+				
+				final Tuple nextCandidateTuple = candidatesForCurrentTuple.next().convertToSingleTupleIfPossible();
+				assert (nextCandidateTuple.getBoundingBox().overlaps(tupleFromStreamSource.getBoundingBox())) : "Wrong join, no overlap";
+				nextTuple = buildNextJoinedTuple(nextCandidateTuple);
+			}
+							
+			return nextTuple != null;
+		}
+
+		/**
+		 * Build the next joined tuple
+		 * @param nextCandidateTuple
+		 * @return
+		 */
+		private JoinedTuple buildNextJoinedTuple(final Tuple nextCandidateTuple) {
+			final List<String> tupleStoreNames = tupleFromStreamSource.getTupleStoreNames();
+			final List<Tuple> tuples = tupleFromStreamSource.getTuples();
+			
+			tupleStoreNames.add(indexReader.getTupleStoreName().getFullnameWithoutPrefix());
+			tuples.add(nextCandidateTuple);
+
+			return new JoinedTuple(tuples, tupleStoreNames);
+		}
+
+		@Override
+		public JoinedTuple next() {
+			
+			if(nextTuple == null) {
+				throw new IllegalArgumentException("Next tuple is null, do you forget to call hasNext()?");
+			}
+							
+			final JoinedTuple returnTuple = nextTuple;
+			nextTuple = null;
+			return returnTuple;
+		}
+	}
+
 	/**
 	 * The first query processor
 	 */
@@ -62,67 +133,6 @@ public class IndexedSpatialJoinOperator implements Operator {
 	 * @return
 	 */
 	public Iterator<JoinedTuple> iterator() {
-		
-		return new Iterator<JoinedTuple>() {
-			
-			private JoinedTuple tupleFromStreamSource = null;
-			
-			private Iterator<JoinedTuple> candidatesForCurrentTuple = null;
-			
-			private JoinedTuple nextTuple = null;
-
-			@Override
-			public boolean hasNext() {
-				
-				while(nextTuple == null) {					
-					// Join partner exhausted, try next tuple
-					while(candidatesForCurrentTuple == null || ! candidatesForCurrentTuple.hasNext()) {						
-						// Fetch next tuple from stream source
-						if(! tupleStreamSource.hasNext()) { 
-							return false;
-						} else {
-							// Start a new index scan for the next steam source tuple bounding box
-							tupleFromStreamSource = tupleStreamSource.next();
-							CloseableHelper.closeWithoutException(indexReader);
-							indexReader.setBoundingBox(tupleFromStreamSource.getBoundingBox());
-							candidatesForCurrentTuple = indexReader.iterator();							
-						} 
-					}
-					
-					final Tuple nextCandidateTuple = candidatesForCurrentTuple.next().convertToSingleTupleIfPossible();
-					assert (nextCandidateTuple.getBoundingBox().overlaps(tupleFromStreamSource.getBoundingBox())) : "Wrong join, no overlap";
-					nextTuple = buildNextJoinedTuple(nextCandidateTuple);
-				}
-								
-				return nextTuple != null;
-			}
-
-			/**
-			 * Build the next joined tuple
-			 * @param nextCandidateTuple
-			 * @return
-			 */
-			private JoinedTuple buildNextJoinedTuple(final Tuple nextCandidateTuple) {
-				final List<String> tupleStoreNames = tupleFromStreamSource.getTupleStoreNames();
-				final List<Tuple> tuples = tupleFromStreamSource.getTuples();
-				
-				tupleStoreNames.add(indexReader.getTupleStoreName().getFullnameWithoutPrefix());
-				tuples.add(nextCandidateTuple);
-
-				return new JoinedTuple(tuples, tupleStoreNames);
-			}
-
-			@Override
-			public JoinedTuple next() {
-				
-				if(nextTuple == null) {
-					throw new IllegalArgumentException("Next tuple is null, do you forget to call hasNext()?");
-				}
-								
-				final JoinedTuple returnTuple = nextTuple;
-				nextTuple = null;
-				return returnTuple;
-			}
-		};	
+		return new Spatialterator();	
 	}
 }
