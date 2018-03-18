@@ -35,6 +35,108 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTablescanOperator implements Operator {
 	
+	private final class TablescanIterator implements Iterator<JoinedTuple> {
+		/**
+		 * The active iterator
+		 */
+		protected Iterator<Tuple> activeIterator = null;
+		
+		/**
+		 * The next precomputed tuple
+		 */
+		protected final List<JoinedTuple> nextTuples = new ArrayList<>();
+
+		/**
+		 * Setup the next iterator
+		 */
+		protected void setupNewIterator() {
+			activeIterator = null;
+
+			// Find next iterator 
+			while(! unprocessedStorages.isEmpty()) {
+				
+				final ReadOnlyTupleStore nextStorage = unprocessedStorages.remove(0);
+				activeIterator = setupNewTuplestore(nextStorage);
+				
+				if(activeIterator == null) {
+					continue;
+				}
+				
+				if(activeIterator.hasNext()) {
+					return;
+				}
+			}
+			
+			activeIterator = null;
+		}
+
+		/**
+		 * Fetch the next tuple from the iterator
+		 * @throws StorageManagerException
+		 */
+		protected void setupNextTuples() throws StorageManagerException {
+			if(ready == false) {
+				throw new IllegalStateException("Iterator is not ready");
+			}
+			
+			while(nextTuples.isEmpty()) {
+				if(activeIterator == null || ! activeIterator.hasNext()) {
+					setupNewIterator();
+				}
+				
+				// All iterators are exhausted
+				if(activeIterator == null) {
+					return;
+				}
+
+				final Tuple possibleTuple = activeIterator.next();
+				
+				if(! seenTuples.contains(possibleTuple.getKey())) {
+					final List<Tuple> tupleVersions = tupleStoreManager.getVersionsForTuple(
+							possibleTuple.getKey());
+											
+					filterTupleVersions(tupleVersions);
+					
+					final String tupelStorename = tupleStoreManager.getTupleStoreName().getFullnameWithoutPrefix();
+
+					tupleVersions
+						.stream()
+						.map(t -> new JoinedTuple(t, tupelStorename))
+						.forEach(t -> nextTuples.add(t));
+					
+					seenTuples.add(possibleTuple.getKey());
+				}
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			try {
+				if(nextTuples.isEmpty()) {
+					setupNextTuples();
+				}
+			} catch (StorageManagerException e) {
+				logger.error("Got an exception while locating next tuple", e);
+			}
+			
+			return (! nextTuples.isEmpty());
+		}
+
+		@Override
+		public JoinedTuple next() {
+
+			if(ready == false) {
+				throw new IllegalStateException("Iterator is not ready");
+			}
+			
+			if(nextTuples.isEmpty()) {
+				throw new IllegalStateException("Next tuple is empty, did you really call hasNext() before?");
+			}
+			
+			return nextTuples.remove(0);
+		}
+	}
+
 	/**
 	 * The unprocessed storages
 	 */
@@ -126,107 +228,6 @@ public abstract class AbstractTablescanOperator implements Operator {
 
 		aquireStorage();
 		
-		return new Iterator<JoinedTuple>() {
-
-			/**
-			 * The active iterator
-			 */
-			protected Iterator<Tuple> activeIterator = null;
-			
-			/**
-			 * The next precomputed tuple
-			 */
-			protected final List<JoinedTuple> nextTuples = new ArrayList<>();
-			
-			/**
-			 * Setup the next iterator
-			 */
-			protected void setupNewIterator() {
-				activeIterator = null;
-
-				// Find next iterator 
-				while(! unprocessedStorages.isEmpty()) {
-					
-					final ReadOnlyTupleStore nextStorage = unprocessedStorages.remove(0);
-					activeIterator = setupNewTuplestore(nextStorage);
-					
-					if(activeIterator == null) {
-						continue;
-					}
-					
-					if(activeIterator.hasNext()) {
-						return;
-					}
-				}
-				
-				activeIterator = null;
-			}
-			
-			/**
-			 * Fetch the next tuple from the iterator
-			 * @throws StorageManagerException
-			 */
-			protected void setupNextTuples() throws StorageManagerException {
-				if(ready == false) {
-					throw new IllegalStateException("Iterator is not ready");
-				}
-				
-				while(nextTuples.isEmpty()) {
-					if(activeIterator == null || ! activeIterator.hasNext()) {
-						setupNewIterator();
-					}
-					
-					// All iterators are exhausted
-					if(activeIterator == null) {
-						return;
-					}
-		
-					final Tuple possibleTuple = activeIterator.next();
-					
-					if(! seenTuples.contains(possibleTuple.getKey())) {
-						final List<Tuple> tupleVersions = tupleStoreManager.getVersionsForTuple(
-								possibleTuple.getKey());
-												
-						filterTupleVersions(tupleVersions);
-						
-						final String tupelStorename = tupleStoreManager.getTupleStoreName().getFullnameWithoutPrefix();
-
-						tupleVersions
-							.stream()
-							.map(t -> new JoinedTuple(t, tupelStorename))
-							.forEach(t -> nextTuples.add(t));
-						
-						seenTuples.add(possibleTuple.getKey());
-					}
-				}
-			}
-
-			@Override
-			public boolean hasNext() {
-				try {
-					if(nextTuples.isEmpty()) {
-						setupNextTuples();
-					}
-				} catch (StorageManagerException e) {
-					logger.error("Got an exception while locating next tuple", e);
-				}
-				
-				return (! nextTuples.isEmpty());
-			}
-
-			@Override
-			public JoinedTuple next() {
-
-				if(ready == false) {
-					throw new IllegalStateException("Iterator is not ready");
-				}
-				
-				if(nextTuples.isEmpty()) {
-					throw new IllegalStateException("Next tuple is empty, did you really call hasNext() before?");
-				}
-				
-				return nextTuples.remove(0);
-			}
-		};
+		return new TablescanIterator();
 	}
 }
