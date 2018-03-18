@@ -34,6 +34,81 @@ import java.util.Objects;
  */
 public class SortedIteratorMerger<E> implements Iterable<E> {
 
+	private final class SortedIterator implements Iterator<E> {
+		/**
+		 * The list with unconsumed duplicates for the current key
+		 */
+		final List<E> unconsumedDuplicates = new ArrayList<E>();
+
+		@Override
+		public boolean hasNext() {
+			
+			if(! unconsumedDuplicates.isEmpty()) {
+				return true;
+			}
+			
+			// Any new values left?
+			return iteratorElementMap.values()
+					.stream()
+					.anyMatch(e -> Objects.nonNull(e));
+		}
+
+		@Override
+		public E next() {
+			
+			assert (hasNext() == true);
+			
+			// Consume the duplicates first 
+			if(! unconsumedDuplicates.isEmpty()) {
+				return unconsumedDuplicates.remove(0);
+			}
+			
+			final E lowestElement = iteratorElementMap
+					.values()
+					.stream()
+					.filter(e -> Objects.nonNull(e))
+					.min(elementComparator)
+					.orElse(null);
+			
+			assert (lowestElement != null);
+			
+			for(final Iterator<E> iteratorToCheck : iteratorElementMap.keySet()) {
+				E element = iteratorElementMap.get(iteratorToCheck);
+				
+				// Move the searched element from the iterator list to the result list
+				while(belongsElementToCurrentKey(lowestElement, element)) {	
+					unconsumedDuplicates.add(element);
+					element = refreshIterator(iteratorToCheck);
+				}
+			}
+			
+			assert (! unconsumedDuplicates.isEmpty());
+			duplicateResolver.removeDuplicates(unconsumedDuplicates);
+			assert (! unconsumedDuplicates.isEmpty());
+			
+			
+			return unconsumedDuplicates.remove(0);				
+		}
+
+		/**
+		 * Belongs the given element to the current key
+		 * @param lowestElement
+		 * @param element
+		 * @return
+		 */
+		protected boolean belongsElementToCurrentKey(final E lowestElement, final E element) {
+			if(element == null) {
+				return false;
+			}
+					
+			if(elementComparator.compare(element, lowestElement) == 0) {
+				return true;
+			}
+			
+			return false;
+		}
+	}
+
 	/**
 	 * The iterator map, contains all iterators and the
 	 * last fetched element
@@ -92,81 +167,7 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 
 	@Override
 	public Iterator<E> iterator() {
-		return new Iterator<E>() {
-			
-			/**
-			 * The list with unconsumed duplicates for the current key
-			 */
-			final List<E> unconsumedDuplicates = new ArrayList<E>();
-
-			@Override
-			public boolean hasNext() {
-				
-				if(! unconsumedDuplicates.isEmpty()) {
-					return true;
-				}
-				
-				// Any new values left?
-				return iteratorElementMap.values()
-						.stream()
-						.anyMatch(e -> Objects.nonNull(e));
-			}
-
-			@Override
-			public E next() {
-				
-				assert (hasNext() == true);
-				
-				// Consume the duplicates first 
-				if(! unconsumedDuplicates.isEmpty()) {
-					return unconsumedDuplicates.remove(0);
-				}
-				
-				final E lowestElement = iteratorElementMap
-						.values()
-						.stream()
-						.filter(e -> Objects.nonNull(e))
-						.min(elementComparator)
-						.orElse(null);
-				
-				assert (lowestElement != null);
-				
-				for(final Iterator<E> iteratorToCheck : iteratorElementMap.keySet()) {
-					E element = iteratorElementMap.get(iteratorToCheck);
-					
-					// Move the searched element from the iterator list to the result list
-					while(belongsElementToCurrentKey(lowestElement, element)) {	
-						unconsumedDuplicates.add(element);
-						element = refreshIterator(iteratorToCheck);
-					}
-				}
-				
-				assert (! unconsumedDuplicates.isEmpty());
-				duplicateResolver.removeDuplicates(unconsumedDuplicates);
-				assert (! unconsumedDuplicates.isEmpty());
-				
-				
-				return unconsumedDuplicates.remove(0);				
-			}
-
-			/**
-			 * Belongs the given element to the current key
-			 * @param lowestElement
-			 * @param element
-			 * @return
-			 */
-			protected boolean belongsElementToCurrentKey(final E lowestElement, final E element) {
-				if(element == null) {
-					return false;
-				}
-						
-				if(elementComparator.compare(element, lowestElement) == 0) {
-					return true;
-				}
-				
-				return false;
-			}
-		};
+		return new SortedIterator();
 	}
 
 	/**
