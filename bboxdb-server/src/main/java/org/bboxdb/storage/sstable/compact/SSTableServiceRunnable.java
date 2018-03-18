@@ -404,17 +404,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 		final List<SSTableFacade> newFacades = new ArrayList<>();
 		
 		// Open new facades
-		for(final SSTableWriter writer : newTableWriter) {
-			
-			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
-			final BBoxDBConfiguration configuration = tupleStoreManagerRegistry.getConfiguration();
-			final int sstableKeyCacheEntries = configuration.getSstableKeyCacheEntries();
-			
-			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 
-					writer.getName(), writer.getTablenumber(), sstableKeyCacheEntries);
-			
-			newFacades.add(newFacade);
-		}
+		openFacades(newTableWriter, newFacades);
 		
 		// Manager has switched to read only
 		if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
@@ -441,6 +431,29 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 			Thread.currentThread().interrupt();
 			throw new StorageManagerException(e);
 		} 
+	}
+
+	/**
+	 * Open the facades
+	 * 
+	 * @param newTableWriter
+	 * @param newFacades
+	 * @throws StorageManagerException
+	 */
+	private void openFacades(final List<SSTableWriter> newTableWriter, final List<SSTableFacade> newFacades)
+			throws StorageManagerException {
+		
+		for(final SSTableWriter writer : newTableWriter) {
+			
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+			final BBoxDBConfiguration configuration = tupleStoreManagerRegistry.getConfiguration();
+			final int sstableKeyCacheEntries = configuration.getSstableKeyCacheEntries();
+			
+			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 
+					writer.getName(), writer.getTablenumber(), sstableKeyCacheEntries);
+			
+			newFacades.add(newFacade);
+		}
 	}
 	
 	/** 
