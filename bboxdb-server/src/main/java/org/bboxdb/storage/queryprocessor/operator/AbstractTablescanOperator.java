@@ -79,6 +79,9 @@ public abstract class AbstractTablescanOperator implements Operator {
 				throw new IllegalStateException("Iterator is not ready");
 			}
 			
+			final TupleStoreName tupleStoreName = tupleStoreManager.getTupleStoreName();
+			final String tupleStorename = tupleStoreName.getFullnameWithoutPrefix();
+			
 			while(nextTuples.isEmpty()) {
 				if(activeIterator == null || ! activeIterator.hasNext()) {
 					setupNewIterator();
@@ -91,22 +94,35 @@ public abstract class AbstractTablescanOperator implements Operator {
 
 				final Tuple possibleTuple = activeIterator.next();
 				
-				if(! seenTuples.contains(possibleTuple.getKey())) {
-					final List<Tuple> tupleVersions = tupleStoreManager.getVersionsForTuple(
-							possibleTuple.getKey());
-											
-					filterTupleVersions(tupleVersions);
-					
-					final String tupelStorename = tupleStoreManager.getTupleStoreName().getFullnameWithoutPrefix();
-
-					tupleVersions
-						.stream()
-						.map(t -> new JoinedTuple(t, tupelStorename))
-						.forEach(t -> nextTuples.add(t));
-					
-					seenTuples.add(possibleTuple.getKey());
-				}
+				final String key = possibleTuple.getKey();
+				
+				if(! seenTuples.contains(key)) {
+					addTuplesForKey(tupleStorename, key);
+				}	
 			}
+		}
+
+		/**
+		 * Add the tuples for the given key
+		 * 
+		 * @param tupleStorename
+		 * @param key
+		 * @return
+		 * @throws StorageManagerException
+		 */
+		private void addTuplesForKey(final String tupleStorename, final String key)
+				throws StorageManagerException {
+			
+			final List<Tuple> tupleVersions = tupleStoreManager.getVersionsForTuple(key);
+									
+			filterTupleVersions(tupleVersions);
+			
+			tupleVersions
+				.stream()
+				.map(t -> new JoinedTuple(t, tupleStorename))
+				.forEach(t -> nextTuples.add(t));
+			
+			seenTuples.add(key);
 		}
 
 		@Override
