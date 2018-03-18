@@ -162,32 +162,54 @@ public abstract class AbstractTableReader implements BBoxDBService {
 
 	@Override
 	public void shutdown() {
-	
-		if(fileChannel != null) {
-			try {
-				fileChannel.close();
-				fileChannel = null;
-			} catch (IOException e) {
-				if(! Thread.currentThread().isInterrupted()) {
-					logger.error("Error during an IO operation", e);
-				}
-			}
+		shutdownFileChannel();
+		shutdownRandomAccessFile();
+		shutdownMemory();
+	}
+
+	/**
+	 * Shutdown the memory
+	 */
+	private void shutdownMemory() {
+		if(memory == null) {
+			return;
 		}
 		
-		if(randomAccessFile != null) {
-			try {
-				randomAccessFile.close();
-			} catch (IOException e) {
-				if(! Thread.currentThread().isInterrupted()) {
-					logger.error("Error during an IO operation", e);
-				}
-			}
-			randomAccessFile = null;
+		UnsafeMemoryHelper.unmapMemory(memory);
+	}
+
+	/**
+	 * Shutdown the random access file
+	 */
+	private void shutdownRandomAccessFile() {
+		if(randomAccessFile == null) {
+			return;
 		}
 		
-		if(memory != null) {
-			UnsafeMemoryHelper.unmapMemory(memory);
-			memory = null;
+		try {
+			randomAccessFile.close();
+		} catch (IOException e) {
+			if(! Thread.currentThread().isInterrupted()) {
+				logger.error("Error during an IO operation", e);
+			}
+		}
+		randomAccessFile = null;
+	}
+
+	/**
+	 * Shutdown the file channel
+	 */
+	private void shutdownFileChannel() {
+		if(fileChannel == null) {
+		}
+		
+		try {
+			fileChannel.close();
+			fileChannel = null;
+		} catch (IOException e) {
+			if(! Thread.currentThread().isInterrupted()) {
+				logger.error("Error during an IO operation", e);
+			}
 		}
 	}
 	
