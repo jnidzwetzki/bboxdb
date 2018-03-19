@@ -90,7 +90,7 @@ public class TestQuadtreeSpacePartitioner {
 		final DistributionRegion child1 = rootNode.getChildNumber(1);
 		spacepartitionier.splitRegion(child1, new HashSet<>());
 		Assert.assertEquals(4, child1.getDirectChildren().size());
-		Assert.assertEquals(8, rootNode.getAllChildren().size());
+		Assert.assertEquals(8, rootNode.getAllChildren().size());		
 	}
 	
 	/**

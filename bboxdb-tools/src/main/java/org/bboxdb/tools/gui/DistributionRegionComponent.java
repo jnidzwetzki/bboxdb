@@ -86,22 +86,27 @@ public class DistributionRegionComponent {
 	 * The GUI model
 	 */
 	private GuiModel guiModel;
+
+	/**
+	 * The max number of children
+	 */
+	private int maxChildren;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ConnectDialog.class);
 
-	
 
 	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
-			final TreeJPanel distributionGroupJPanel, final GuiModel guiModel) {
+			final TreeJPanel distributionGroupJPanel, final GuiModel guiModel, final int maxChildren) {
 		
 		this.distributionRegion = distributionRegion;
 		this.panel = distributionGroupJPanel;
 		this.guiModel = guiModel;
+		this.maxChildren = maxChildren;
 
-		this.xOffset = calculateXOffset();
+		this.xOffset = calculateXOffset(maxChildren);
 		this.yOffset = calculateYOffset();
 		
 		this.HEIGHT = 40 + (distributionRegion.getConveringBox().getDimension() * 15);
@@ -109,16 +114,16 @@ public class DistributionRegionComponent {
 	
 	/**
 	 * Calculate the x offset of the component
+	 * @param maxChildren 
 	 * @return
 	 */
-	private int calculateXOffset() {
+	private int calculateXOffset(final int maxChildren) {
 		int offset = panel.getRootPosX();
 		
 		DistributionRegion level = distributionRegion;
 		
 		while(! level.isRootElement()) {
-			
-			if(level.getParent().getAllChildren().get(0) == level) {
+			if(level.getChildNumberOfParent() == 0) {
 				offset = offset - calculateLevelXOffset(level.getLevel());
 			} else {
 				offset = offset + calculateLevelXOffset(level.getLevel());
@@ -170,12 +175,13 @@ public class DistributionRegionComponent {
 	/**
 	 * Draw this component
 	 * @param g
+	 * @param maxChildren 
 	 * @return 
 	 */
 	public BoundingBox drawComponent(final Graphics2D g) {
 		
 		// Recalculate the offsets
-		this.xOffset = calculateXOffset();
+		this.xOffset = calculateXOffset(maxChildren);
 		this.yOffset = calculateYOffset();
 		
 		// Draw the node

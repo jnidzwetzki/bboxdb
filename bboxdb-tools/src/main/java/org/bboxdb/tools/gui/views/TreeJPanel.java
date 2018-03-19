@@ -97,6 +97,7 @@ public class TreeJPanel extends JPanel {
 	/**
 	 * Draw the given distribution region
 	 * @param graphics2d
+	 * @param maxChildren 
 	 * @param distributionRegion
 	 * @return 
 	 */
@@ -104,7 +105,7 @@ public class TreeJPanel extends JPanel {
 
 		BoundingBox minBoundingBox = BoundingBox.FULL_SPACE;
 		
-		for(DistributionRegionComponent component : regions) {
+		for(final DistributionRegionComponent component : regions) {
 			final BoundingBox boundingBox = component.drawComponent(graphics2d);
 			minBoundingBox = BoundingBox.getCoveringBox(boundingBox, minBoundingBox);
 		}
@@ -115,20 +116,22 @@ public class TreeJPanel extends JPanel {
 	/**
 	 * Create the distribution region components
 	 * @param distributionRegion
+	 * @param maxChildren 
 	 */
-	protected void createDistribtionRegionComponents(final DistributionRegion distributionRegion) {
+	protected void createDistribtionRegionComponents(final DistributionRegion distributionRegion, 
+			final int maxChildren) {
 		
 		if(distributionRegion == null) {
 			return;
 		}
 		
 		final DistributionRegionComponent distributionRegionComponent 
-			= new DistributionRegionComponent(distributionRegion, this, guiModel);
+			= new DistributionRegionComponent(distributionRegion, this, guiModel, maxChildren);
 		
 		regions.add(distributionRegionComponent);
 				
 		for(final DistributionRegion region : distributionRegion.getDirectChildren()) {
-			createDistribtionRegionComponents(region);
+			createDistribtionRegionComponents(region, maxChildren);
 		}
 	}
 	
@@ -155,9 +158,16 @@ public class TreeJPanel extends JPanel {
 			
 			regions.clear();
 			
+			final int maxChildren = distributionRegion
+					.getThisAndChildRegions()
+					.stream()
+					.mapToInt(r -> r.getDirectChildren().size())
+					.max()
+					.orElse(0);
+			
 			// Fake position to calculate the real width
 			rootPosX = 100000;
-			createDistribtionRegionComponents(distributionRegion);
+			createDistribtionRegionComponents(distributionRegion, maxChildren);
 			
 			calculateRootNodeXPos();
 			
