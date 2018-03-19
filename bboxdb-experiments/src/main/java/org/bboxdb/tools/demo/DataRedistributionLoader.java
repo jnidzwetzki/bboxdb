@@ -237,8 +237,10 @@ public class DataRedistributionLoader implements Runnable {
 				final Tuple tuple = tupleBuilder.buildTuple(key, l);
 				
 				try {
-					final EmptyResultFuture insertFuture = bboxDBCluster.insertTuple(TABLE, tuple);
-					pendingFutures.put(insertFuture);
+					if(tuple != null) {
+						final EmptyResultFuture insertFuture = bboxDBCluster.insertTuple(TABLE, tuple);
+						pendingFutures.put(insertFuture);
+					}
 				} catch (BBoxDBException e) {
 					logger.error("Got error while inserting tuple", e);
 				}
