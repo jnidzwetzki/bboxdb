@@ -48,7 +48,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			logger.info("Splitting region {}", regionToSplit.getIdentifier());
 			
 			final String parentPath 
-				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
+				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 	
 			final BoundingBox box = regionToSplit.getConveringBox();
 			
@@ -58,11 +58,11 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	
 			for(int i = 0; i < numberOfChilden; i++) {
 				final BoundingBox childBox = childBoxes.get(i);
-				distributionGroupZookeeperAdapter.createNewChild(parentPath, i, childBox, distributionGroupName);
+				distributionRegionZookeeperAdapter.createNewChild(parentPath, i, childBox, distributionGroupName);
 			}
 			
 			// Update state
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 			
 			waitUntilChildrenAreCreated(regionToSplit, numberOfChilden);
 			allocateSystems(regionToSplit, numberOfChilden);

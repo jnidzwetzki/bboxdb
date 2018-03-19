@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partitioner;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -39,8 +40,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 		checkConfigParameter(configuration, splitConfig);
 		
 		try {
-			final String distributionGroup 
-				= spacePartitionerContext.getDistributionGroupName();
+			final String distributionGroup = spacePartitionerContext.getDistributionGroupName();
 			
 			final String rootPath = 
 					distributionGroupZookeeperAdapter.getDistributionGroupRootElementPath(distributionGroup);
@@ -57,7 +57,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 					"".getBytes());
 					
 			final BoundingBox rootBox = new BoundingBox(splitConfig[0]);
-			distributionGroupZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
+			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
 			
 			// Create grid
 			createCells(splitConfig, configuration, rootPath, rootBox);
@@ -65,7 +65,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
 					DistributionRegionState.SPLIT.getStringValue().getBytes());		
 			
-			distributionGroupZookeeperAdapter.markNodeMutationAsComplete(rootPath);
+			NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, rootPath);
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		}

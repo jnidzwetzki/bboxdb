@@ -108,7 +108,7 @@ public class TupleStoreAdapter {
 		zookeeperClient.createPersistentNode(getDuplicateVersionsPath(tupleStoreName), 
 				versionsString.getBytes());
 		
-		distributionGroupAdapter.markNodeMutationAsComplete(tablePath);
+		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, tablePath);
 	}
 
 	/**

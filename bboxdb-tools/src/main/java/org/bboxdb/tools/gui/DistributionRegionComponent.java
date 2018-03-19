@@ -31,7 +31,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -358,8 +358,9 @@ public class DistributionRegionComponent {
 	private Map<BBoxDBInstance, Map<String, Long>> addStatisticsToTooltip(final StringBuilder sb)
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final DistributionGroupAdapter adapter 
-			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+		final DistributionRegionAdapter adapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
+		
 		final Map<BBoxDBInstance, Map<String, Long>> statistics 
 			= adapter.getRegionStatistics(distributionRegion);
 

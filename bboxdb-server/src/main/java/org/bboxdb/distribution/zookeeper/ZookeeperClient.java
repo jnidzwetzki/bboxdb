@@ -683,6 +683,14 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public DistributionGroupAdapter getDistributionGroupAdapter() {
 		return new DistributionGroupAdapter(this);
 	}
+	
+	/**
+	 * Get the distribution region adapter
+	 * @return 
+	 */
+	public DistributionRegionAdapter getDistributionRegionAdapter() {
+		return new DistributionRegionAdapter(this);
+	}
 
 	@Override
 	public boolean acquire() {

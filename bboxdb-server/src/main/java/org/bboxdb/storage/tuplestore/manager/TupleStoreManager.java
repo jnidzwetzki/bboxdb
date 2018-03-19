@@ -31,6 +31,7 @@ import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -371,7 +372,7 @@ public class TupleStoreManager implements BBoxDBService {
 		final DistributionGroupAdapter dAdapter = new DistributionGroupAdapter(zookeeperClient);
 		
 		final String path = dAdapter.getDistributionGroupPath(groupName);
-		final long version = dAdapter.getNodeMutationVersion(path, null);
+		final long version = NodeMutationHelper.getNodeMutationVersion(zookeeperClient, path, null);
 
 		DistributionGroupMetadata distributionGroupMetadata = new DistributionGroupMetadata();
 		distributionGroupMetadata.setVersion(version);

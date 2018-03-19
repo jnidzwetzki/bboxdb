@@ -30,6 +30,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -93,8 +94,8 @@ public class CreateInitialPartitioning implements Runnable {
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
 			
-			final DistributionGroupAdapter adapter 
-				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+			final DistributionRegionAdapter adapter 
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
 			
 			while(getActiveRegions(spacePartitioner).size() < partitions) {
 				logger.info("We have now {} of {} active partitons, executing split", 

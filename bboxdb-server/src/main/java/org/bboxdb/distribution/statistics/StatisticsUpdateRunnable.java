@@ -30,6 +30,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -56,11 +57,17 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 	/**
 	 * The distribution group adapter
 	 */
-	private final DistributionGroupAdapter adapter;
+	private final DistributionGroupAdapter groupAdapter;
+	
+	/**
+	 * The distribution region adapter
+	 */
+	private final DistributionRegionAdapter regionAdapter;
 	
 	public StatisticsUpdateRunnable(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
-		this.adapter = ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+		this.groupAdapter = ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+		this.regionAdapter = ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
 	}
 	
 	@Override
@@ -114,7 +121,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 	private void updateRegionStatistics() {
 		
 		try {
-			final List<String> allDistributionGroups = adapter.getDistributionGroups();
+			final List<String> allDistributionGroups = groupAdapter.getDistributionGroups();
 			for(final String distributionGroup : allDistributionGroups) {
 				
 				final SpacePartitioner spacePartitioner = SpacePartitionerCache
@@ -165,7 +172,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 		logger.info("Updating region statistics: {} / {}. Size in MB: {} / Tuples: {}", 
 				distributionGroup, regionId, totalSizeInMb, totalTuples);
 										
-		adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
+		regionAdapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
 				totalSizeInMb, totalTuples);
 	}
 }

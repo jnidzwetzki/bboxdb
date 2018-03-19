@@ -92,15 +92,15 @@ public class StaticgridSpacePartitioner extends AbstractGridSpacePartitioner {
 				boundingBoxToSplit = boundingBoxToSplit.splitAndGetRight(splitPos, dimension, true);
 			}
 						
-			final String childPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
+			final String childPath = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					childNumber, nodeBox, fullname);
 			
 			if(dimension == 0) {	
 				SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
-						new ArrayList<BBoxDBInstance>(), distributionGroupZookeeperAdapter);
-				distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
+						new ArrayList<BBoxDBInstance>(), zookeeperClient);
+				distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
 			} else {
-				distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.SPLIT);
+				distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.SPLIT);
 				createGridInDimension(splitConfig, childPath, nodeBox, dimension - 1);
 			}
 			

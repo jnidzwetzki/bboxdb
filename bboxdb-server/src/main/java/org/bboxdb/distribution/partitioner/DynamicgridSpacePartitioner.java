@@ -32,8 +32,6 @@ import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
@@ -79,10 +77,10 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final DistributionRegion parent = regionToSplit.getParent();
 			
 			final String sourcePath 
-				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
+				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 
 			final String parentPath 
-				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(parent);
+				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(parent);
 			
 			// Calculate the covering bounding boxes
 			final BoundingBox parentBox = regionToSplit.getConveringBox();
@@ -95,26 +93,26 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final int oldNumberOfhildren = parent.getDirectChildren().size();
 			final long childNumber = parent.getHighestChildNumber();
 			
-			final String child1Path = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
+			final String child1Path = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					(int) childNumber + 1, leftBoundingBox, fullname);
 			
-			final String child2Path = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
+			final String child2Path = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					(int) childNumber + 2, rightBoundingBox, fullname);
 
 			// Update state
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(sourcePath, DistributionRegionState.SPLITTING);
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(sourcePath, DistributionRegionState.SPLITTING);
 			
 			final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == oldNumberOfhildren + 2;
 			DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
 						
 			// The first child is stored on the same systems as the parent
 			SpacePartitionerHelper.copySystemsToRegion(regionToSplit.getSystems(), 
-					child1Path, distributionGroupZookeeperAdapter);
+					child1Path, zookeeperClient);
 
 			final List<BBoxDBInstance> blacklistSystems = regionToSplit.getSystems();
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(child2Path, fullname, 
-					blacklistSystems, distributionGroupZookeeperAdapter);
+					blacklistSystems, zookeeperClient);
 
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
@@ -126,15 +124,14 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final List<DistributionRegion> destination) throws BBoxDBException {
 		
 		try {
-			final DistributionGroupAdapter zookeperAdapter 
-				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
-			
 			logger.info("Split done deleting: {}", sourceRegion.getIdentifier());
-			distributionGroupZookeeperAdapter.deleteChild(sourceRegion);
+			
+			distributionRegionZookeeperAdapter.deleteChild(sourceRegion);
 						
 			// Children are ready
 			for(final DistributionRegion childRegion : destination) {
-				zookeperAdapter.setStateForDistributionRegion(childRegion, DistributionRegionState.ACTIVE);
+				distributionRegionZookeeperAdapter
+					.setStateForDistributionRegion(childRegion, DistributionRegionState.ACTIVE);
 			}
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
@@ -154,19 +151,19 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			
 			final DistributionRegion parent = source.get(0).getParent();
 			
-			final String parentPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(parent);
+			final String parentPath = distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(parent);
 			
 			final int childNumber = (int) parent.getHighestChildNumber();
 			
-			final String childPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
+			final String childPath = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					childNumber, bbox, distributionGroupName);
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
-					new ArrayList<>(), distributionGroupZookeeperAdapter);
+					new ArrayList<>(), zookeeperClient);
 			
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
 	
-			return distributionGroupZookeeperAdapter.getNodeForPath(source.get(0).getRootRegion(), childPath);
+			return distributionRegionZookeeperAdapter.getNodeForPath(source.get(0).getRootRegion(), childPath);
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		}
@@ -180,10 +177,10 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		try {			
 			for(final DistributionRegion childRegion : source) {
 				logger.info("Merge done deleting: {}", childRegion.getIdentifier());
-				distributionGroupZookeeperAdapter.deleteChild(childRegion);
+				distributionRegionZookeeperAdapter.deleteChild(childRegion);
 			}
 			
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(destination, 
+			distributionRegionZookeeperAdapter.setStateForDistributionRegion(destination, 
 					DistributionRegionState.ACTIVE);
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
@@ -195,10 +192,10 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			throws BBoxDBException {
 		
 		try {
-			distributionGroupZookeeperAdapter.deleteChild(destination);
+			distributionRegionZookeeperAdapter.deleteChild(destination);
 			
 			for(final DistributionRegion childRegion : source) {
-				distributionGroupZookeeperAdapter.setStateForDistributionRegion(childRegion, 
+				distributionRegionZookeeperAdapter.setStateForDistributionRegion(childRegion, 
 						DistributionRegionState.ACTIVE);
 				
 			}
@@ -269,12 +266,12 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		logger.info("Processing dimension {}", dimension);
 				
 		if(dimension == 0) {	
-			final String childPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
+			final String childPath = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					0, box, distributionGroupName);
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
-					new ArrayList<BBoxDBInstance>(), distributionGroupZookeeperAdapter);
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
+					new ArrayList<BBoxDBInstance>(), zookeeperClient);
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
 			
 			return;
 		}
@@ -299,10 +296,10 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 				boundingBoxToSplit = boundingBoxToSplit.splitAndGetRight(splitPos, dimension, true);
 			}
 						
-			final String childPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
+			final String childPath = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					childNumber, nodeBox, distributionGroupName);
 			
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.SPLIT);
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.SPLIT);
 			createGridInDimension(splitConfig, childPath, nodeBox, dimension - 1);
 			
 			childNumber++;

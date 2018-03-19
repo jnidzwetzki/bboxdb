@@ -30,6 +30,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -160,8 +161,8 @@ public class DistributedRecoveryService implements BBoxDBService {
 			final String path = distributionGroupZookeeperAdapter
 					.getDistributionGroupPath(distributionGroupName);
 			
-			final long remoteVersion = distributionGroupZookeeperAdapter
-					.getNodeMutationVersion(path, null);
+			final long remoteVersion = NodeMutationHelper
+					.getNodeMutationVersion(zookeeperClient, path, null);
 			
 			final long localVersion = metaData.getVersion();
 			

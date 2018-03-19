@@ -26,8 +26,7 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -66,16 +65,16 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 					"".getBytes());
 					
-			distributionGroupZookeeperAdapter.setBoundingBoxForPath(rootPath, 
+			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, 
 					BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
 
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
 					DistributionRegionState.ACTIVE.getStringValue().getBytes());		
 						
 			SpacePartitionerHelper.allocateSystemsToRegion(rootPath, distributionGroup,
-					new HashSet<>(), distributionGroupZookeeperAdapter);
+					new HashSet<>(), zookeeperClient);
 			
-			distributionGroupZookeeperAdapter.markNodeMutationAsComplete(rootPath);
+			NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, rootPath);
 		} catch (ZookeeperException | ResourceAllocationException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		}
@@ -86,12 +85,12 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			final List<DistributionRegion> destination) throws BBoxDBException {
 		
 		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(sourceRegion, 
+			distributionRegionZookeeperAdapter.setStateForDistributionRegion(sourceRegion, 
 					DistributionRegionState.ACTIVE);
 			
 			for(final DistributionRegion childRegion : destination) {
 				logger.info("Deleting child after failed split: {}", childRegion.getIdentifier());
-				distributionGroupZookeeperAdapter.deleteChild(childRegion);
+				distributionRegionZookeeperAdapter.deleteChild(childRegion);
 			}
 			
 		} catch (ZookeeperException e) {
@@ -104,11 +103,11 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			final DistributionRegion destination) throws BBoxDBException {
 		
 		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(source.get(0).getParent(), 
+			distributionRegionZookeeperAdapter.setStateForDistributionRegion(source.get(0).getParent(), 
 					DistributionRegionState.SPLIT);
 			
 			for(final DistributionRegion childRegion : source) {
-				distributionGroupZookeeperAdapter.setStateForDistributionRegion(childRegion, 
+				distributionRegionZookeeperAdapter.setStateForDistributionRegion(childRegion, 
 						DistributionRegionState.ACTIVE);
 				
 			}
@@ -123,10 +122,10 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		try {			
 			for(final DistributionRegion childRegion : source) {
 				logger.info("Merge done deleting: {}", childRegion.getIdentifier());
-				distributionGroupZookeeperAdapter.deleteChild(childRegion);
+				distributionRegionZookeeperAdapter.deleteChild(childRegion);
 			}
 			
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(destination, 
+			distributionRegionZookeeperAdapter.setStateForDistributionRegion(destination, 
 					DistributionRegionState.ACTIVE);
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
@@ -145,14 +144,13 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			final List<DistributionRegion> destination) throws BBoxDBException {
 		
 		try {
-			final DistributionGroupAdapter zookeperAdapter 
-				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
-			
-			zookeperAdapter.setStateForDistributionRegion(sourceRegion, DistributionRegionState.SPLIT);
+			distributionRegionZookeeperAdapter
+				.setStateForDistributionRegion(sourceRegion, DistributionRegionState.SPLIT);
 			
 			// Children are ready
 			for(final DistributionRegion childRegion : destination) {
-				zookeperAdapter.setStateForDistributionRegion(childRegion, DistributionRegionState.ACTIVE);
+				distributionRegionZookeeperAdapter
+					.setStateForDistributionRegion(childRegion, DistributionRegionState.ACTIVE);
 			}
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
@@ -221,9 +219,9 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		// update state
 		for (final DistributionRegion region : regionToSplit.getAllChildren()) {
 			final String childPath 
-				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
+				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, 
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, 
 					DistributionRegionState.REDISTRIBUTION_ACTIVE);
 		}
 		

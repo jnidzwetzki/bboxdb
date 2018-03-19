@@ -34,7 +34,7 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.OutdatedDistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -186,10 +186,6 @@ public class DistributionRegionHelper {
 			return result;
 		}
 		
-		final DistributionGroupAdapter distributionGroupZookeeperAdapter 
-			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
-
-		
 		final List<DistributionRegion> regions = region.getThisAndChildRegions().stream()
 			.filter(r -> r.getSystems().contains(distributedInstance))
 			.collect(Collectors.toList());
@@ -197,7 +193,8 @@ public class DistributionRegionHelper {
 		for(final DistributionRegion regionToInspect : regions) {
 			try {
 				final OutdatedDistributionRegion regionResult 
-					= processRegion(distributedInstance, distributionGroupZookeeperAdapter, regionToInspect);
+					= processRegion(distributedInstance, ZookeeperClientFactory.getZookeeperClient(), 
+							regionToInspect);
 				
 				if(regionResult != null) {
 					result.add(regionResult);
@@ -222,14 +219,14 @@ public class DistributionRegionHelper {
 	 * @throws BBoxDBException
 	 */
 	private static OutdatedDistributionRegion processRegion(final BBoxDBInstance distributedInstance,
-			final DistributionGroupAdapter distributionGroupZookeeperAdapter,
+			final ZookeeperClient zookeeperClient,
 			final DistributionRegion regionToInspect) throws ZookeeperException, BBoxDBException {
 		
 		final Map<BBoxDBInstance, Long> versions = new HashMap<>();
 		
 		for(final BBoxDBInstance instance : regionToInspect.getSystems()) {
 			final long version 
-				= distributionGroupZookeeperAdapter
+				= zookeeperClient.getDistributionRegionAdapter()
 					.getCheckpointForDistributionRegion(regionToInspect, instance);
 			
 			versions.put(instance, version);

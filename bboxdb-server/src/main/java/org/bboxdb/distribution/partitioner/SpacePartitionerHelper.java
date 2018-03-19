@@ -28,7 +28,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -49,13 +49,13 @@ public class SpacePartitionerHelper {
 	 * @throws ZookeeperException 
 	 */
 	public static void copySystemsToRegion(final List<BBoxDBInstance> systems, 
-			final String destinationPath, final DistributionGroupAdapter adapter) 
+			final String destinationPath, final ZookeeperClient client) 
 					throws ZookeeperException {
 		
 		assert (! systems.isEmpty()) : "Systems are empty: " + systems;
 		
 		for(final BBoxDBInstance system : systems) {
-			adapter.addSystemToDistributionRegion(destinationPath, system);
+			client.getDistributionRegionAdapter().addSystemToDistributionRegion(destinationPath, system);
 		}
 	}
 	
@@ -71,7 +71,7 @@ public class SpacePartitionerHelper {
 	public static void allocateSystemsToRegion(final String regionPath,
 			final String distributionGroupName,
 			final Collection<BBoxDBInstance> blacklist, 
-			final DistributionGroupAdapter distributionGroupZookeeperAdapter) 
+			final ZookeeperClient zookeeperClient) 
 					throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
 				
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
@@ -106,6 +106,7 @@ public class SpacePartitionerHelper {
 		logger.info("Allocated new ressource to {} with blacklist {}", 
 				allocationSystems, blacklist);
 
-		distributionGroupZookeeperAdapter.allocateSystemsToRegion(regionPath, allocationSystems);
+		zookeeperClient.getDistributionRegionAdapter()
+			.allocateSystemsToRegion(regionPath, allocationSystems);
 	}
 }

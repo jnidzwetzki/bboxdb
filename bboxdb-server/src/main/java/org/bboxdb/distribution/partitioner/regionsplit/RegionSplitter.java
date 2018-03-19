@@ -28,7 +28,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
@@ -70,13 +70,14 @@ public class RegionSplitter {
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		
 		assert(region != null);
-		
-		final DistributionGroupAdapter distributionGroupZookeeperAdapter 
-			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
-		
+	
+		final DistributionRegionAdapter distributionRegionZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
+
+
 		logger.info("Performing split for: {}", region.getIdentifier());
 		
-		final boolean setResult = tryToSetToFullSplitting(region, distributionGroupZookeeperAdapter);
+		final boolean setResult = tryToSetToFullSplitting(region, distributionRegionZookeeperAdapter);
 		
 		if(! setResult) {
 			return;
@@ -93,7 +94,7 @@ public class RegionSplitter {
 			destination.addAll(splitRegions);
 	
 			redistributeDataSplit(region, destination);
-			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
+			distributionRegionZookeeperAdapter.deleteRegionStatistics(region);
 			
 			// Setting the region to split will cause a local data delete (see TupleStoreZookeeperObserver)
 			spacePartitioner.splitComplete(region, destination);
@@ -133,20 +134,20 @@ public class RegionSplitter {
 	 * Try to set the region split state
 	 * 
 	 * @param region
-	 * @param distributionGroupZookeeperAdapter
+	 * @param distributionRegionAdapter
 	 * @return 
 	 */
 	private boolean tryToSetToFullSplitting(final DistributionRegion region,
-			final DistributionGroupAdapter distributionGroupZookeeperAdapter) {
+			final DistributionRegionAdapter distributionRegionAdapter) {
 		
 		try {
 			// Try to set region state to full. If this fails, another node is already 
 			// splits the region
-			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
+			final boolean setToFullResult = distributionRegionAdapter.setToFull(region);
 			
 			if(! setToFullResult) {
 				final DistributionRegionState stateForDistributionRegion 
-					= distributionGroupZookeeperAdapter.getStateForDistributionRegion(region);
+					= distributionRegionAdapter.getStateForDistributionRegion(region);
 				
 				logger.info("Unable to set state to full for region: {}, stopping split. Old state was {}", 
 						region.getIdentifier(), stateForDistributionRegion);

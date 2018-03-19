@@ -33,6 +33,8 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
+import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -67,6 +69,11 @@ public class DistributionRegionSyncer implements Watcher {
 	/**
 	 * The distribution group adapter
 	 */
+	private DistributionRegionAdapter distributionRegionAdapter;
+	
+	/**
+	 * The distribution group adapter
+	 */
 	private DistributionGroupAdapter distributionGroupAdapter;
 	
 	/**
@@ -85,15 +92,15 @@ public class DistributionRegionSyncer implements Watcher {
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionSyncer.class);
 
 	public DistributionRegionSyncer(final SpacePartitionerContext spacePartitionerContext) {
-		
+
+		final ZookeeperClient zookeeperClient = spacePartitionerContext.getZookeeperClient();
+
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
-		
-		this.distributionGroupAdapter 
-			= spacePartitionerContext.getZookeeperClient().getDistributionGroupAdapter();
-		
+		this.distributionRegionAdapter = zookeeperClient.getDistributionRegionAdapter();
+		this.distributionGroupAdapter = zookeeperClient.getDistributionGroupAdapter();
 		this.distributionRegionMapper = spacePartitionerContext.getDistributionRegionMapper();
 		this.callbacks = spacePartitionerContext.getCallbacks();
-		this.zookeeperClient = spacePartitionerContext.getZookeeperClient();
+		this.zookeeperClient = zookeeperClient;
 		this.versions = new HashMap<>();
 	}
 	
@@ -135,7 +142,7 @@ public class DistributionRegionSyncer implements Watcher {
 		final String eventPath = event.getPath();
 		final String nodePath = eventPath.replace("/" + ZookeeperNodeNames.NAME_NODE_VERSION, "");
 		
-		final DistributionRegion region = distributionGroupAdapter.getNodeForPath(rootNode, nodePath);
+		final DistributionRegion region = distributionRegionAdapter.getNodeForPath(rootNode, nodePath);
 		
 		if(region == null) {
 			return;
@@ -168,7 +175,7 @@ public class DistributionRegionSyncer implements Watcher {
 		final String eventPath = event.getPath();
 		final String nodePath = eventPath.replace("/" + ZookeeperNodeNames.NAME_NODE_VERSION, "");
 		
-		final DistributionRegion region = distributionGroupAdapter.getNodeForPath(rootNode, nodePath);
+		final DistributionRegion region = distributionRegionAdapter.getNodeForPath(rootNode, nodePath);
 		
 		if(region == null) {
 			logger.debug("Got null region when reading path {}, waiting for node deletion", nodePath);
@@ -187,7 +194,9 @@ public class DistributionRegionSyncer implements Watcher {
 		try {
 			logger.debug("updateNodeIfNeeded called with path {}", nodePath);
 						
-			final long remoteVersion = distributionGroupAdapter.getNodeMutationVersion(nodePath, this);
+			final long remoteVersion = NodeMutationHelper.getNodeMutationVersion(
+					zookeeperClient, nodePath, this);
+			
 			final long localVersion = versions.getOrDefault(region, 0l);
 			
 			if(localVersion > remoteVersion) {
@@ -232,7 +241,7 @@ public class DistributionRegionSyncer implements Watcher {
 		final Retryer<Boolean> retryer = new Retryer<>(10, 100, () -> {
 			try {
 				final Collection<BBoxDBInstance> systemsForDistributionRegion 
-					= distributionGroupAdapter.getSystemsForDistributionRegion(region);
+					= distributionRegionAdapter.getSystemsForDistributionRegion(region);
 	
 				region.setSystems(systemsForDistributionRegion);
 				
@@ -244,7 +253,7 @@ public class DistributionRegionSyncer implements Watcher {
 				}
 				
 				final DistributionRegionState regionState 
-					= distributionGroupAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
+					= distributionRegionAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
 			
 				region.setState(regionState);
 			
@@ -287,7 +296,7 @@ public class DistributionRegionSyncer implements Watcher {
 			final String childPath = path + "/" + child;
 			logger.debug("Reading {}", childPath);
 			
-			if(! distributionGroupAdapter.isNodeCompletelyCreated(childPath)) {
+			if(! NodeMutationHelper.isNodeCompletelyCreated(zookeeperClient, childPath)) {
 				logger.debug("Node {} not complete, skipping", childPath);
 				continue;
 			} 
@@ -335,7 +344,7 @@ public class DistributionRegionSyncer implements Watcher {
 	private DistributionRegion readChild(final String childPath, final DistributionRegion parentRegion) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final BoundingBox boundingBox = distributionGroupAdapter.getBoundingBoxForPath(childPath);
+		final BoundingBox boundingBox = distributionRegionAdapter.getBoundingBoxForPath(childPath);
 		final long regionId = distributionGroupAdapter.getRegionIdForPath(childPath);
 		
 		final DistributionRegion region = new DistributionRegion(distributionGroupName, parentRegion, boundingBox, regionId);		
@@ -400,10 +409,10 @@ public class DistributionRegionSyncer implements Watcher {
 			final String path = distributionGroupAdapter.getDistributionGroupRootElementPath(groupNameString);
 			
 			try {
-				if(distributionGroupAdapter.isNodeCompletelyCreated(path)) {
+				if(NodeMutationHelper.isNodeCompletelyCreated(zookeeperClient, path)) {
 					logger.info("Create new root element for {}", distributionGroupName);
 					
-					final BoundingBox rootBoundingBox = distributionGroupAdapter.getBoundingBoxForPath(path);
+					final BoundingBox rootBoundingBox = distributionRegionAdapter.getBoundingBoxForPath(path);
 					
 					rootNode = new DistributionRegion(distributionGroupName, rootBoundingBox);
 					updateNodeIfNeeded(path, rootNode);

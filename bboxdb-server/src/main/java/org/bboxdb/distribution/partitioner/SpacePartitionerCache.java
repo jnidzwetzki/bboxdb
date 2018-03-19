@@ -29,7 +29,8 @@ import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -63,7 +64,7 @@ public class SpacePartitionerCache implements Watcher {
 	/**
 	 * The zookeeper adapter
 	 */
-	private final DistributionGroupAdapter distributionGroupAdapter;
+	private final ZookeeperClient zookeeperClient;
 
 	/**
 	 * The instance
@@ -80,9 +81,7 @@ public class SpacePartitionerCache implements Watcher {
 		this.distributionRegionIdMapper = new HashMap<>();
 		this.partitionerVersions = new HashMap<>();
 		this.callbacks = new HashMap<>();
-		this.distributionGroupAdapter = 
-				ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
-
+		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 	}
 	
 	public synchronized static SpacePartitionerCache getInstance() {
@@ -106,8 +105,11 @@ public class SpacePartitionerCache implements Watcher {
 		
 		try {
 			if(! spacePartitioner.containsKey(groupName)) {		
-				final String path = distributionGroupAdapter.getDistributionGroupPath(groupName);
-				final long version = distributionGroupAdapter.getNodeMutationVersion(path, this);
+				final String path = zookeeperClient
+						.getDistributionGroupAdapter().getDistributionGroupPath(groupName);
+				
+				final long version = NodeMutationHelper
+						.getNodeMutationVersion(zookeeperClient, path, this);
 				
 				// Create callback list
 				if(! callbacks.containsKey(groupName)) {
@@ -121,7 +123,8 @@ public class SpacePartitionerCache implements Watcher {
 					distributionRegionIdMapper.put(groupName, mapper);
 				}
 				
-				final SpacePartitioner adapter = distributionGroupAdapter.getSpaceparitioner(groupName, 
+				final SpacePartitioner adapter = zookeeperClient
+						.getDistributionGroupAdapter().getSpaceparitioner(groupName, 
 						callbacks.get(groupName), distributionRegionIdMapper.get(groupName));
 				
 				partitionerVersions.put(groupName, version);
@@ -186,10 +189,11 @@ public class SpacePartitionerCache implements Watcher {
 		for(final String groupname : knownPartitioner) {
 
 			try {
-				final String path = distributionGroupAdapter.getDistributionGroupPath(groupname);
+				final String path = zookeeperClient
+						.getDistributionGroupAdapter().getDistributionGroupPath(groupname);
 				
 				final long zookeeperVersion 
-					= distributionGroupAdapter.getNodeMutationVersion(path, this);
+					= NodeMutationHelper.getNodeMutationVersion(zookeeperClient, path, this);
 				
 				final long memoryVersion = partitionerVersions.getOrDefault(groupname, 0l);
 				

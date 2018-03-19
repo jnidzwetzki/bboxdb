@@ -24,7 +24,7 @@ import java.util.Queue;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -49,7 +49,7 @@ public class StatisticsHelper {
 	/**
 	 * The zookeeper adapter
 	 */
-	private final static DistributionGroupAdapter distributionGroupZookeeperAdapter;
+	private final static DistributionRegionAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The statistics history
@@ -63,7 +63,8 @@ public class StatisticsHelper {
 	
 	static {
 		distributionGroupZookeeperAdapter 
-			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
+		
 		statisticsHistory = new HashMap<>();
 	}
 

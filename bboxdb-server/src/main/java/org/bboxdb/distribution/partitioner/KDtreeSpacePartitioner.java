@@ -83,7 +83,7 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 		try {
 			logger.debug("Write split at pos {} into zookeeper", splitPosition);
 			final String parentPath 
-				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
+				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 			
 			// Calculate the covering bounding boxes
 			final BoundingBox parentBox = regionToSplit.getConveringBox();
@@ -92,11 +92,11 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(splitPosition, splitDimension, false);
 						
 			// Only one system executes the split, therefore we can determine the child ids
-			distributionGroupZookeeperAdapter.createNewChild(parentPath, 0, leftBoundingBox, distributionGroupName);
-			distributionGroupZookeeperAdapter.createNewChild(parentPath, 1, rightBoundingBox, distributionGroupName);
+			distributionRegionZookeeperAdapter.createNewChild(parentPath, 0, leftBoundingBox, distributionGroupName);
+			distributionRegionZookeeperAdapter.createNewChild(parentPath, 1, rightBoundingBox, distributionGroupName);
 			
 			// Update state
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 			
 			waitUntilChildrenAreCreated(regionToSplit, 2);
 			allocateSystems(regionToSplit, 2);

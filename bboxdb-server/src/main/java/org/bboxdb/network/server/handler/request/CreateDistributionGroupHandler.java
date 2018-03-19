@@ -26,6 +26,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
@@ -56,10 +57,13 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final String distributionGroup = createPackage.getDistributionGroup();
 			logger.info("Create distribution group: {}", distributionGroup);
 			
-			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
+			final DistributionGroupAdapter distributionGroupAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
-			final List<String> knownGroups = distributionGroupZookeeperAdapter.getDistributionGroups();
+			final DistributionRegionAdapter distributionRegionAdapter 
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
+			
+			final List<String> knownGroups = distributionGroupAdapter.getDistributionGroups();
 			if(knownGroups.contains(distributionGroup)) {
 				logger.error("Untable to create distributon group {}, already exists", distributionGroup);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_DGROUP_EXISTS);
@@ -67,7 +71,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 				return true;
 			}
 			
-			distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, 
+			distributionGroupAdapter.createDistributionGroup(distributionGroup, 
 					createPackage.getDistributionGroupConfiguration());
 			
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
@@ -75,7 +79,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 
 			final DistributionRegion region = spacePartitioner.getRootNode();
 			
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
+			distributionRegionAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {

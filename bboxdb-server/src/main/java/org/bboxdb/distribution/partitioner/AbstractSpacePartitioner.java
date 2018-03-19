@@ -28,6 +28,7 @@ import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -42,6 +43,11 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	 */
 	protected DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
+	/**
+	 * The distribution group adapter
+	 */
+	protected DistributionRegionAdapter distributionRegionZookeeperAdapter;
+
 	/**
 	 * The zookeper client
 	 */
@@ -78,6 +84,9 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		
 		this.distributionGroupZookeeperAdapter 
 			= spacePartitionerContext.getZookeeperClient().getDistributionGroupAdapter();
+		
+		this.distributionRegionZookeeperAdapter 
+			= spacePartitionerContext.getZookeeperClient().getDistributionRegionAdapter();
 		
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
 		this.spacePartitionerContext = spacePartitionerContext;
@@ -144,10 +153,10 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		final DistributionRegion firstRegion = regionToSplit.getDirectChildren().get(0);
 		
 		final String firstRegionPath 
-			= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(firstRegion);
+			= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(firstRegion);
 				
 		SpacePartitionerHelper.copySystemsToRegion(regionToSplit.getSystems(), 
-				firstRegionPath, distributionGroupZookeeperAdapter);
+				firstRegionPath, zookeeperClient);
 
 		final List<BBoxDBInstance> blacklistSystems = regionToSplit.getSystems();
 
@@ -156,12 +165,12 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 			final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
 			
 			final String path 
-				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
+				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 			
 			final String fullname = region.getDistributionGroupName();
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(path, fullname, 
-					blacklistSystems, distributionGroupZookeeperAdapter);
+					blacklistSystems, zookeeperClient);
 		}
 	}
 
@@ -172,14 +181,14 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		try {			
 			logger.debug("Merging region: {}", destination.getIdentifier());
 			
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(destination, 
+			distributionRegionZookeeperAdapter.setStateForDistributionRegion(destination, 
 					DistributionRegionState.REDISTRIBUTION_ACTIVE);
 			
 			for(final DistributionRegion childRegion : source) {
-				final String zookeeperPathChild = distributionGroupZookeeperAdapter
+				final String zookeeperPathChild = distributionRegionZookeeperAdapter
 						.getZookeeperPathForDistributionRegion(childRegion);
 				
-				distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
+				distributionRegionZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
 					DistributionRegionState.MERGING);
 			}			
 		} catch (ZookeeperException e) {
@@ -192,12 +201,12 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 			throws BBoxDBException {
 		
 		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(sourceRegion, 
+			distributionRegionZookeeperAdapter.setStateForDistributionRegion(sourceRegion, 
 					DistributionRegionState.ACTIVE);
 			
 			for(final DistributionRegion childRegion : destination) {
 				logger.info("Deleting child after failed split: {}", childRegion.getIdentifier());
-				distributionGroupZookeeperAdapter.deleteChild(childRegion);
+				distributionRegionZookeeperAdapter.deleteChild(childRegion);
 			}
 			
 		} catch (ZookeeperException e) {
