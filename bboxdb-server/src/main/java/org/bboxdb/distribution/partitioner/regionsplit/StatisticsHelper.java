@@ -166,6 +166,8 @@ public class StatisticsHelper {
 	 * Delete all old statistics
 	 */
 	public static void clearHistory() {
-		statisticsHistory.clear();
+		synchronized (statisticsHistory) {
+			statisticsHistory.clear();
+		}
 	}
 }
