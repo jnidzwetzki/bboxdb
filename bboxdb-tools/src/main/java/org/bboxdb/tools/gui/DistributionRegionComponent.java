@@ -43,12 +43,12 @@ import org.slf4j.LoggerFactory;
 public class DistributionRegionComponent {
 	
 	/**
-	 * The x offset of a child (- if left child / + if right child)
+	 * The padding between two nodes
 	 */
-	public final static int LEFT_RIGHT_OFFSET = 15;
+	public final static int PADDING_LEFT_RIGHT = 15;
 	
 	/**
-	 * The distance between two levels
+	 * The padding between two levels
 	 */
 	public final static int LEVEL_DISTANCE = 100;
 
@@ -106,7 +106,7 @@ public class DistributionRegionComponent {
 		this.guiModel = guiModel;
 		this.maxChildren = maxChildren;
 
-		this.xOffset = calculateXOffset(maxChildren);
+		this.xOffset = calculateXOffset();
 		this.yOffset = calculateYOffset();
 		
 		this.HEIGHT = 40 + (distributionRegion.getConveringBox().getDimension() * 15);
@@ -117,19 +117,19 @@ public class DistributionRegionComponent {
 	 * @param maxChildren 
 	 * @return
 	 */
-	private int calculateXOffset(final int maxChildren) {
+	private int calculateXOffset() {
 		int offset = panel.getRootPosX();
 		
-		DistributionRegion level = distributionRegion;
+		DistributionRegion region = distributionRegion;
 		
-		while(! level.isRootElement()) {
-			if(level.getChildNumberOfParent() == 0) {
-				offset = offset - calculateLevelXOffset(level.getLevel());
+		while(! region.isRootElement()) {
+			if(region.getChildNumberOfParent() == 0) {
+				offset = offset - calculateLevelXOffset(region.getLevel());
 			} else {
-				offset = offset + calculateLevelXOffset(level.getLevel());
+				offset = offset + calculateLevelXOffset(region.getLevel());
 			}
 			
-			level = level.getParent();
+			region = region.getParent();
 		}
 		
 		return offset;
@@ -142,11 +142,11 @@ public class DistributionRegionComponent {
 	 */
 	private int calculateLevelXOffset(final int level) {
 		
-		final int offsetLastLevel = (LEFT_RIGHT_OFFSET + WIDTH) / 2;
+		final int offsetLastLevel = (PADDING_LEFT_RIGHT + WIDTH) / 2;
 		
 		final int curentLevel = distributionRegion.getTotalLevel() - level - 1;
 		
-		return (int) (offsetLastLevel * Math.pow(2, curentLevel));
+		return (int) (offsetLastLevel * Math.pow(maxChildren, curentLevel));
 	}
 	
 	/**
@@ -181,7 +181,7 @@ public class DistributionRegionComponent {
 	public BoundingBox drawComponent(final Graphics2D g) {
 		
 		// Recalculate the offsets
-		this.xOffset = calculateXOffset(maxChildren);
+		this.xOffset = calculateXOffset();
 		this.yOffset = calculateYOffset();
 		
 		// Draw the node
