@@ -80,6 +80,11 @@ public class RegionMerger {
 		
 		try {
 			destination = spacePartitioner.getDestinationForMerge(source);
+			
+			if(destination == null) {
+				throw new BBoxDBException("Got null result when calling getDestinationForMerge" + source);
+			}
+			
 			final String identifier = destination.getIdentifier();
 			
 			// Try to set region state to merging. If this fails, another node is already 
