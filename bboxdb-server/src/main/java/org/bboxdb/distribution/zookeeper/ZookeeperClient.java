@@ -204,7 +204,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 		try {
 			if (zookeeper.exists(path, false) == null) {
-				return null;
+				throw new ZookeeperNotFoundException("The path does not exist: " + path);
 			}
 
 			return zookeeper.getChildren(path, watcher);
