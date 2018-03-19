@@ -81,9 +81,11 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 			
 			final Set<BBoxDBInstance> instanceSet = new HashSet<>();
 			
-			for (final String instanceName : instances) {
-				final BBoxDBInstance distributedInstance = readInstance(instanceName);
-				instanceSet.add(distributedInstance);
+			if(instances != null) {
+				for (final String instanceName : instances) {
+					final BBoxDBInstance distributedInstance = readInstance(instanceName);
+					instanceSet.add(distributedInstance);
+				}
 			}
 
 			distributedInstanceManager.updateInstanceList(instanceSet);
