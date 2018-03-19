@@ -21,13 +21,13 @@ import java.util.Collection;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.SimpleSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -50,7 +50,7 @@ public class TestSampling {
 	/**
 	 * The distribution group adapter
 	 */
-	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 
 	/**
 	 * The name of the test region

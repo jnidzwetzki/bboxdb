@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -31,6 +30,7 @@ import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionEvent;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -51,7 +51,7 @@ public class TestRegionSyncer {
 	/**
 	 * The adapter
 	 */
-	private final DistributionGroupZookeeperAdapter distributionGroupAdapter = 
+	private final DistributionGroupAdapter distributionGroupAdapter = 
 			ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	
 	@Before

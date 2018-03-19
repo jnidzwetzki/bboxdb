@@ -29,6 +29,7 @@ import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -62,7 +63,7 @@ public class SpacePartitionerCache implements Watcher {
 	/**
 	 * The zookeeper adapter
 	 */
-	private final DistributionGroupZookeeperAdapter distributionGroupAdapter;
+	private final DistributionGroupAdapter distributionGroupAdapter;
 
 	/**
 	 * The instance

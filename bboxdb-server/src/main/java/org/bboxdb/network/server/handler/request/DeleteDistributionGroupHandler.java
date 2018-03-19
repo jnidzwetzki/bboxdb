@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
@@ -54,7 +54,7 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 			logger.info("Delete distribution group: {}", distributionGroup);
 			
 			// Delete in Zookeeper
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
 

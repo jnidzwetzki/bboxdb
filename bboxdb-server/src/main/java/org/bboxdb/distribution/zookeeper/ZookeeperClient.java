@@ -36,7 +36,6 @@ import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.concurrent.AcquirableResource;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.misc.BBoxDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -681,8 +680,8 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * Get the group adapter
 	 * @return
 	 */
-	public DistributionGroupZookeeperAdapter getDistributionGroupAdapter() {
-		return new DistributionGroupZookeeperAdapter(this);
+	public DistributionGroupAdapter getDistributionGroupAdapter() {
+		return new DistributionGroupAdapter(this);
 	}
 
 	@Override

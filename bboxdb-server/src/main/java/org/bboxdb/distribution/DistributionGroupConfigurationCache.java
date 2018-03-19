@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bboxdb.commons.InputParseException;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -83,7 +83,7 @@ public class DistributionGroupConfigurationCache {
 		if(! cache.containsKey(distributionGroupName)) {
 			try {
 				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-				final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+				final DistributionGroupAdapter distributionGroupZookeeperAdapter = new DistributionGroupAdapter(zookeeperClient);
 				
 				final DistributionGroupConfiguration configuration = distributionGroupZookeeperAdapter.getDistributionGroupConfiguration(distributionGroupName);
 				

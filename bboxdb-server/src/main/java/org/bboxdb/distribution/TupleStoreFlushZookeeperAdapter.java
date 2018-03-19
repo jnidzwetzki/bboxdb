@@ -20,11 +20,11 @@ package org.bboxdb.distribution;
 import java.util.function.BiConsumer;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -60,7 +60,7 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 			final DistributionRegion distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableName.getRegionId());
 		
 			logger.debug("Updating checkpoint for: {} to {}", ssTableName.getFullname(), flushTimestamp);
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			if(distributionGroupZookeeperAdapter != null && distributionRegion != null) {

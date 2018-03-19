@@ -19,9 +19,9 @@ package org.bboxdb.distribution.partition;
 
 import java.util.HashSet;
 
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -42,7 +42,7 @@ public class TestStaticgridSpacePartitioner2 {
 	/**
 	 * The distribution group adapter
 	 */
-	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	@BeforeClass
 	public static void beforeClass() throws ZookeeperException, BBoxDBException {

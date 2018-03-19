@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -204,7 +204,7 @@ public class RegionMergeHelper {
 	 */
 	public static boolean isMergingByZookeeperAllowed(final DistributionRegion region) {
 		try {
-			final DistributionGroupZookeeperAdapter groupZookeeperAdapter 
+			final DistributionGroupAdapter groupZookeeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			return groupZookeeperAdapter.isMergingSupported(region);

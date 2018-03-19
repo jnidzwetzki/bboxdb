@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.util.UpdateAnomalyResolver;
@@ -62,11 +61,11 @@ public class TupleStoreAdapter {
 	/**
 	 * The distribution group adapter
 	 */
-	private final DistributionGroupZookeeperAdapter distributionGroupAdapter;
+	private final DistributionGroupAdapter distributionGroupAdapter;
 
 	public TupleStoreAdapter(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
-		this.distributionGroupAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		this.distributionGroupAdapter = new DistributionGroupAdapter(zookeeperClient);
 	}
 	
 	/**

@@ -22,13 +22,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
@@ -71,7 +71,7 @@ public class RegionSplitter {
 		
 		assert(region != null);
 		
-		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+		final DistributionGroupAdapter distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		logger.info("Performing split for: {}", region.getIdentifier());
@@ -137,7 +137,7 @@ public class RegionSplitter {
 	 * @return 
 	 */
 	private boolean tryToSetToFullSplitting(final DistributionRegion region,
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) {
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter) {
 		
 		try {
 			// Try to set region state to full. If this fails, another node is already 

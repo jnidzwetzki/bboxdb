@@ -33,8 +33,8 @@ import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.OutdatedDistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -186,7 +186,7 @@ public class DistributionRegionHelper {
 			return result;
 		}
 		
-		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+		final DistributionGroupAdapter distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 
 		
@@ -222,7 +222,7 @@ public class DistributionRegionHelper {
 	 * @throws BBoxDBException
 	 */
 	private static OutdatedDistributionRegion processRegion(final BBoxDBInstance distributedInstance,
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter,
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter,
 			final DistributionRegion regionToInspect) throws ZookeeperException, BBoxDBException {
 		
 		final Map<BBoxDBInstance, Long> versions = new HashMap<>();

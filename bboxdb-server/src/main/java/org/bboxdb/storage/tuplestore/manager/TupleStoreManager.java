@@ -30,7 +30,7 @@ import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -368,7 +368,7 @@ public class TupleStoreManager implements BBoxDBService {
 		logger.debug("Write meta data for distribution group: ", groupName);
 
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		final DistributionGroupZookeeperAdapter dAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		final DistributionGroupAdapter dAdapter = new DistributionGroupAdapter(zookeeperClient);
 		
 		final String path = dAdapter.getDistributionGroupPath(groupName);
 		final long version = dAdapter.getNodeMutationVersion(path, null);

@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
@@ -56,7 +56,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final String distributionGroup = createPackage.getDistributionGroup();
 			logger.info("Create distribution group: {}", distributionGroup);
 			
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			final List<String> knownGroups = distributionGroupZookeeperAdapter.getDistributionGroups();

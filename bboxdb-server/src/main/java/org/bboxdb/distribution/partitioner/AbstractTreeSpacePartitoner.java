@@ -26,6 +26,7 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -144,7 +145,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			final List<DistributionRegion> destination) throws BBoxDBException {
 		
 		try {
-			final DistributionGroupZookeeperAdapter zookeperAdapter 
+			final DistributionGroupAdapter zookeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			zookeperAdapter.setStateForDistributionRegion(sourceRegion, DistributionRegionState.SPLIT);

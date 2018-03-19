@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -87,7 +87,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	protected Multiset<BBoxDBInstance> calculateSystemUsage() 
 			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 				
-		final DistributionGroupZookeeperAdapter zookeeperAdapter 
+		final DistributionGroupAdapter zookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		final List<String> distributionGroups = zookeeperAdapter.getDistributionGroups();

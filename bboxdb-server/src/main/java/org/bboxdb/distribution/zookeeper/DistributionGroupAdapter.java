@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.partitioner;
+package org.bboxdb.distribution.zookeeper;
 
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
@@ -35,20 +35,21 @@ import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
+import org.bboxdb.distribution.partitioner.SpacePartitionerFactory;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
-import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DistributionGroupZookeeperAdapter {
+public class DistributionGroupAdapter {
 
 	/**
 	 * The zookeeper client
@@ -58,9 +59,9 @@ public class DistributionGroupZookeeperAdapter {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DistributionGroupZookeeperAdapter.class);
+	private final static Logger logger = LoggerFactory.getLogger(DistributionGroupAdapter.class);
 
-	public DistributionGroupZookeeperAdapter(final ZookeeperClient zookeeperClient) {
+	public DistributionGroupAdapter(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
 	}
 	

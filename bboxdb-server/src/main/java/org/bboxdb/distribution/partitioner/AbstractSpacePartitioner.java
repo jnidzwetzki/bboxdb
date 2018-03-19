@@ -27,6 +27,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -39,7 +40,7 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	/**
 	 * The distribution group adapter
 	 */
-	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	protected DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The zookeper client

@@ -27,7 +27,6 @@ import java.util.Map;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperInstancePathHelper;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -37,6 +36,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.StatisticsHelper;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -61,7 +61,7 @@ public class TestZookeeperIntegration {
 	/**
 	 * The distribution group adapter
 	 */
-	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The compare delta
@@ -582,7 +582,7 @@ public class TestZookeeperIntegration {
 		spacepartitionier.splitNode(level3lll, 35);
 		level3lll.makeChildsActive();
 
-		final DistributionGroupZookeeperAdapter zookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		final DistributionGroupAdapter zookeeperAdapter = new DistributionGroupAdapter(zookeeperClient);
 		
 		final String path0 = zookeeperAdapter.getZookeeperPathForDistributionRegion(level0);
 		final String path1 = zookeeperAdapter.getZookeeperPathForDistributionRegion(level1l);

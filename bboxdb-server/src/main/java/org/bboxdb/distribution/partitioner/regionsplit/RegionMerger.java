@@ -23,12 +23,12 @@ import java.util.List;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
@@ -74,7 +74,7 @@ public class RegionMerger {
 		
 		logger.info("Performing merge for: {}", source.get(0).getIdentifier());
 
-		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+		final DistributionGroupAdapter distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 
 		DistributionRegion destination = null;

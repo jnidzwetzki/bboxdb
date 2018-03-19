@@ -25,11 +25,11 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -93,7 +93,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 	 */
 	protected void runRecovery() throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+		final DistributionGroupAdapter distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		final List<String> distributionGroups 
@@ -154,8 +154,8 @@ public class DistributedRecoveryService implements BBoxDBService {
 				return;
 			}
 			
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
-				= new DistributionGroupZookeeperAdapter(zookeeperClient);
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
+				= new DistributionGroupAdapter(zookeeperClient);
 			
 			final String path = distributionGroupZookeeperAdapter
 					.getDistributionGroupPath(distributionGroupName);

@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -61,7 +61,7 @@ public class TestStorageRegistry {
 		storageRegistry.init();
 		
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		final DistributionGroupZookeeperAdapter adapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		final DistributionGroupAdapter adapter = new DistributionGroupAdapter(zookeeperClient);
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)

@@ -18,11 +18,11 @@
 package org.bboxdb.distribution.partition;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
@@ -41,7 +41,7 @@ public class TestSpacePartitionerCache {
 	/**
 	 * The distribution group adapter
 	 */
-	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	@BeforeClass
 	public static void before() {

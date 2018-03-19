@@ -30,9 +30,9 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -67,7 +67,7 @@ public class DistributionRegionSyncer implements Watcher {
 	/**
 	 * The distribution group adapter
 	 */
-	private DistributionGroupZookeeperAdapter distributionGroupAdapter;
+	private DistributionGroupAdapter distributionGroupAdapter;
 	
 	/**
 	 * The callbacks

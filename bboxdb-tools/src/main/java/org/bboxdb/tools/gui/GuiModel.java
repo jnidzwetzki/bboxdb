@@ -29,12 +29,12 @@ import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstanceEvent;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionEvent;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -77,7 +77,7 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * The distribution group adapter
 	 */
-	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	protected final DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The event handler
@@ -93,7 +93,7 @@ public class GuiModel implements DistributionRegionCallback {
 
 	public GuiModel(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
-		this.distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(
+		this.distributionGroupZookeeperAdapter = new DistributionGroupAdapter(
 				zookeeperClient);
 		bboxdbInstances = new ArrayList<BBoxDBInstance>();
 

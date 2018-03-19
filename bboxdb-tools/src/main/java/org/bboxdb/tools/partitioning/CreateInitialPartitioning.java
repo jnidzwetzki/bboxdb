@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -93,7 +93,7 @@ public class CreateInitialPartitioning implements Runnable {
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
 			
-			final DistributionGroupZookeeperAdapter adapter 
+			final DistributionGroupAdapter adapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			while(getActiveRegions(spacePartitioner).size() < partitions) {
@@ -179,7 +179,7 @@ public class CreateInitialPartitioning implements Runnable {
 	private static void doesGroupExist(final String distributionGroup)
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final DistributionGroupZookeeperAdapter adapter 
+		final DistributionGroupAdapter adapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		final List<String> knownGroups = adapter.getDistributionGroups();

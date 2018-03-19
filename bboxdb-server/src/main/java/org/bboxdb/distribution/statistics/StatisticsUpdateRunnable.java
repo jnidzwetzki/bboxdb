@@ -24,12 +24,12 @@ import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -56,7 +56,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 	/**
 	 * The distribution group adapter
 	 */
-	private final DistributionGroupZookeeperAdapter adapter;
+	private final DistributionGroupAdapter adapter;
 	
 	public StatisticsUpdateRunnable(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;

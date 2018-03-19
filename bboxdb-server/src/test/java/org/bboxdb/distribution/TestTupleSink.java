@@ -24,13 +24,13 @@ import java.util.Map;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.LocalTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.NetworkTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -63,7 +63,7 @@ public class TestTupleSink {
 	/**
 	 * The distribution group adapter
 	 */
-	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The tuple store adapter
