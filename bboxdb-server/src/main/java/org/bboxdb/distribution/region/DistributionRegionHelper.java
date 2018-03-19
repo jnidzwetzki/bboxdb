@@ -244,6 +244,10 @@ public class DistributionRegionHelper {
 				.reduce((a, b) -> a.getValue() > b.getValue() ? a : b)
 				.orElse(null);
 		
+		if(newestInstance == null) {
+			return null;
+		}
+		
 		final long localVersion = versions.get(distributedInstance);
 		
 		if(! newestInstance.getKey().equals(distributedInstance)) {
