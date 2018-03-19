@@ -82,7 +82,9 @@ public class RegionMerger {
 			destination = spacePartitioner.getDestinationForMerge(source);
 			
 			if(destination == null) {
-				throw new BBoxDBException("Got null result when calling getDestinationForMerge" + source);
+				logger.error("Got null when calling getDestinationForMerge from space partitoner {}",
+						source);
+				return;
 			}
 			
 			final String identifier = destination.getIdentifier();
@@ -97,7 +99,7 @@ public class RegionMerger {
 				return;
 			}
 
-			destination = spacePartitioner.prepareMerge(source, destination);
+			spacePartitioner.prepareMerge(source, destination);
 			redistributeDataMerge(source, destination);
 			spacePartitioner.mergeComplete(source, destination);
 

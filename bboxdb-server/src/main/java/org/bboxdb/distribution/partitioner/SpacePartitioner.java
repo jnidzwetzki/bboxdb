@@ -101,7 +101,7 @@ public interface SpacePartitioner {
 	 * @param regionToMerge
 	 * @throws BBoxDBException
 	 */
-	public DistributionRegion prepareMerge(final List<DistributionRegion> source, 
+	public void prepareMerge(final List<DistributionRegion> source, 
 			final DistributionRegion destination) throws BBoxDBException;
 	
 	/**

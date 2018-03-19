@@ -162,7 +162,7 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	}
 
 	@Override
-	public DistributionRegion prepareMerge(final List<DistributionRegion> source, 
+	public void prepareMerge(final List<DistributionRegion> source, 
 			final DistributionRegion destination) throws BBoxDBException {
 		
 		try {			
@@ -177,9 +177,7 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 				
 				distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
 					DistributionRegionState.MERGING);
-			}
-			
-			return destination;
+			}			
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}

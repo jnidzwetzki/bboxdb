@@ -161,7 +161,7 @@ public class StaticgridSpacePartitioner extends AbstractGridSpacePartitioner {
 	}
 
 	@Override
-	public DistributionRegion prepareMerge(final List<DistributionRegion> source, 
+	public void prepareMerge(final List<DistributionRegion> source, 
 			final DistributionRegion destination) throws BBoxDBException {
 		
 		throw new BBoxDBException("Unsupported operation");	
