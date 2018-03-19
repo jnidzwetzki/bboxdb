@@ -74,7 +74,8 @@ public class RegionMerger {
 		
 		logger.info("Performing merge for: {}", source.get(0).getIdentifier());
 
-		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 
 		DistributionRegion destination = null;
 		

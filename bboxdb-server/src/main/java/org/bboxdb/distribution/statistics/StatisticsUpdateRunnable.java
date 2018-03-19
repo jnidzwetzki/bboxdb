@@ -60,7 +60,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 	
 	public StatisticsUpdateRunnable(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
-		adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		this.adapter = ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	}
 	
 	@Override

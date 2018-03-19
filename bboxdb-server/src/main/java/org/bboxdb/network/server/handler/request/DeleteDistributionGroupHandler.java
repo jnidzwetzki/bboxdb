@@ -54,7 +54,8 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 			logger.info("Delete distribution group: {}", distributionGroup);
 			
 			// Delete in Zookeeper
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
 
 			// Delete local stored data

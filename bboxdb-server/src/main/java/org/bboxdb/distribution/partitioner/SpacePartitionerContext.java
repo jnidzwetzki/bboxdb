@@ -42,11 +42,6 @@ public class SpacePartitionerContext {
 	private ZookeeperClient zookeeperClient;
 	
 	/**
-	 * The adapter
-	 */
-	private DistributionGroupZookeeperAdapter distributionGroupAdapter;
-	
-	/**
 	 * The callbacks
 	 */
 	private Set<DistributionRegionCallback> callback;
@@ -57,13 +52,12 @@ public class SpacePartitionerContext {
 	private DistributionRegionIdMapper mapper;
 
 	public SpacePartitionerContext(final String spacePartitionerConfig, final String distributionGroupName,
-			final ZookeeperClient zookeeperClient, final DistributionGroupZookeeperAdapter distributionGroupAdapter,
-			final Set<DistributionRegionCallback> callback, final DistributionRegionIdMapper mapper) {
+			final ZookeeperClient zookeeperClient, final Set<DistributionRegionCallback> callback, 
+			final DistributionRegionIdMapper mapper) {
 		
 		this.spacePartitionerConfig = Objects.requireNonNull(spacePartitionerConfig);
 		this.distributionGroupName = Objects.requireNonNull(distributionGroupName);
 		this.zookeeperClient = Objects.requireNonNull(zookeeperClient);
-		this.distributionGroupAdapter = Objects.requireNonNull(distributionGroupAdapter);
 		this.callback = Objects.requireNonNull(callback);
 		this.mapper =Objects.requireNonNull(mapper);
 	}
@@ -78,10 +72,6 @@ public class SpacePartitionerContext {
 
 	public ZookeeperClient getZookeeperClient() {
 		return zookeeperClient;
-	}
-
-	public DistributionGroupZookeeperAdapter getDistributionGroupAdapter() {
-		return distributionGroupAdapter;
 	}
 
 	public Set<DistributionRegionCallback> getCallbacks() {

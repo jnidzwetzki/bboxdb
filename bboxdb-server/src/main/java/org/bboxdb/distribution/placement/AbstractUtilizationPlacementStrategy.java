@@ -88,7 +88,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 				
 		final DistributionGroupZookeeperAdapter zookeeperAdapter 
-			= ZookeeperClientFactory.getDistributionGroupAdapter();
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		final List<String> distributionGroups = zookeeperAdapter.getDistributionGroups();
 		

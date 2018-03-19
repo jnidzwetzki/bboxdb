@@ -39,7 +39,6 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -126,7 +125,6 @@ public class DistributionGroupZookeeperAdapter {
 				config.getSpacePartitionerConfig(), 
 				distributionGroup, 
 				zookeeperClient, 
-				ZookeeperClientFactory.getDistributionGroupAdapter(), 
 				callback, 
 				mapper);
 		

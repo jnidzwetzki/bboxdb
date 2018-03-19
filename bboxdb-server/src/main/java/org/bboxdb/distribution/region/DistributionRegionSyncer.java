@@ -87,7 +87,10 @@ public class DistributionRegionSyncer implements Watcher {
 	public DistributionRegionSyncer(final SpacePartitionerContext spacePartitionerContext) {
 		
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
-		this.distributionGroupAdapter = spacePartitionerContext.getDistributionGroupAdapter();
+		
+		this.distributionGroupAdapter 
+			= spacePartitionerContext.getZookeeperClient().getDistributionGroupAdapter();
+		
 		this.distributionRegionMapper = spacePartitionerContext.getDistributionRegionMapper();
 		this.callbacks = spacePartitionerContext.getCallbacks();
 		this.zookeeperClient = spacePartitionerContext.getZookeeperClient();

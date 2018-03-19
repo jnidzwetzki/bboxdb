@@ -359,7 +359,7 @@ public class DistributionRegionComponent {
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final DistributionGroupZookeeperAdapter adapter 
-			= ZookeeperClientFactory.getDistributionGroupAdapter();
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		final Map<BBoxDBInstance, Map<String, Long>> statistics 
 			= adapter.getRegionStatistics(distributionRegion);
 

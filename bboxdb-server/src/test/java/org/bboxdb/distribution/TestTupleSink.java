@@ -73,7 +73,7 @@ public class TestTupleSink {
 	
 	@BeforeClass
 	public static void before() throws ZookeeperException, BBoxDBException {
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		tupleStoreAdapter = new TupleStoreAdapter(ZookeeperClientFactory.getZookeeperClient());
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder

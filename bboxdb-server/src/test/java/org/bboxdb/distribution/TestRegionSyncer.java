@@ -51,7 +51,8 @@ public class TestRegionSyncer {
 	/**
 	 * The adapter
 	 */
-	private final DistributionGroupZookeeperAdapter distributionGroupAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+	private final DistributionGroupZookeeperAdapter distributionGroupAdapter = 
+			ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	
 	@Before
 	public void before() throws ZookeeperException, BBoxDBException {
@@ -339,7 +340,7 @@ public class TestRegionSyncer {
 		
 		final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
 				"", GROUP, ZookeeperClientFactory.getZookeeperClient(), 
-				distributionGroupAdapter, callbacks, distributionRegionIdMapper);
+				callbacks, distributionRegionIdMapper);
 		
 		return new DistributionRegionSyncer(spacePartitionerContext);
 	}

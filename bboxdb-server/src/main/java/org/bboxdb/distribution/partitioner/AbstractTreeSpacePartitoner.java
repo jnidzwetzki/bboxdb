@@ -145,7 +145,8 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		
 		try {
 			final DistributionGroupZookeeperAdapter zookeperAdapter 
-				= ZookeeperClientFactory.getDistributionGroupAdapter();
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+			
 			zookeperAdapter.setStateForDistributionRegion(sourceRegion, DistributionRegionState.SPLIT);
 			
 			// Children are ready

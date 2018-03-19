@@ -79,7 +79,9 @@ public class SpacePartitionerCache implements Watcher {
 		this.distributionRegionIdMapper = new HashMap<>();
 		this.partitionerVersions = new HashMap<>();
 		this.callbacks = new HashMap<>();
-		this.distributionGroupAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		this.distributionGroupAdapter = 
+				ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+
 	}
 	
 	public synchronized static SpacePartitionerCache getInstance() {

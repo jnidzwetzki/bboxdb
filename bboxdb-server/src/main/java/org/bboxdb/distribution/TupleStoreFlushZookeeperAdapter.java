@@ -60,7 +60,8 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 			final DistributionRegion distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableName.getRegionId());
 		
 			logger.debug("Updating checkpoint for: {} to {}", ssTableName.getFullname(), flushTimestamp);
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			if(distributionGroupZookeeperAdapter != null && distributionRegion != null) {
 				distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(distributionRegion, localInstance, flushTimestamp);

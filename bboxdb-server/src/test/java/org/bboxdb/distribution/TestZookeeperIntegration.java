@@ -76,7 +76,8 @@ public class TestZookeeperIntegration {
 	@BeforeClass
 	public static void beforeClass() {
 		zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	}
 	
 	@Before

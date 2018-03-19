@@ -74,7 +74,10 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	@Override
 	public void init(final SpacePartitionerContext spacePartitionerContext) {
 		this.zookeeperClient = spacePartitionerContext.getZookeeperClient();
-		this.distributionGroupZookeeperAdapter = spacePartitionerContext.getDistributionGroupAdapter();
+		
+		this.distributionGroupZookeeperAdapter 
+			= spacePartitionerContext.getZookeeperClient().getDistributionGroupAdapter();
+		
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
 		this.spacePartitionerContext = spacePartitionerContext;
 		this.active = true;

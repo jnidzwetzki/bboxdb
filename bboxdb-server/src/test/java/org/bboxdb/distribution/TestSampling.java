@@ -70,7 +70,8 @@ public class TestSampling {
 
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}

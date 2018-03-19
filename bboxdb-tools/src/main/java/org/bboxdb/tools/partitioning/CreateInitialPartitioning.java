@@ -94,7 +94,7 @@ public class CreateInitialPartitioning implements Runnable {
 					.getSpacePartitionerForGroupName(distributionGroup);
 			
 			final DistributionGroupZookeeperAdapter adapter 
-				= ZookeeperClientFactory.getDistributionGroupAdapter();
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			while(getActiveRegions(spacePartitioner).size() < partitions) {
 				logger.info("We have now {} of {} active partitons, executing split", 
@@ -179,7 +179,8 @@ public class CreateInitialPartitioning implements Runnable {
 	private static void doesGroupExist(final String distributionGroup)
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		final DistributionGroupZookeeperAdapter adapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		final List<String> knownGroups = adapter.getDistributionGroups();
 		

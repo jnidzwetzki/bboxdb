@@ -46,8 +46,9 @@ public class TestStaticgridSpacePartitioner2 {
 	
 	@BeforeClass
 	public static void beforeClass() throws ZookeeperException, BBoxDBException {
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-	
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+		
 		final String config = "[[0.0,1.0]:[0.0,0.5]];0.5;0.5"; 
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder

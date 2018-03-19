@@ -72,7 +72,7 @@ public class RegionSplitter {
 		assert(region != null);
 		
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
-			= ZookeeperClientFactory.getDistributionGroupAdapter();
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		logger.info("Performing split for: {}", region.getIdentifier());
 		

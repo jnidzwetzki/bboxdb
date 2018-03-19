@@ -45,7 +45,8 @@ public class TestSpacePartitionerCache {
 	
 	@BeforeClass
 	public static void before() {
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	}
 
 	@Test

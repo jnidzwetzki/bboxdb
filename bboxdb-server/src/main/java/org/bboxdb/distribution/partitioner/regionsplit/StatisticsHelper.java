@@ -62,7 +62,8 @@ public class StatisticsHelper {
 	public final static int HISTORY_LENGTH = 5;
 	
 	static {
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		statisticsHistory = new HashMap<>();
 	}
 

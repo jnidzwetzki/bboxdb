@@ -49,7 +49,8 @@ public class TestQuadtreeSpacePartitioner {
 	
 	@BeforeClass
 	public static void beforeClass() {
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter 
+		= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	}
 	
 	@Before

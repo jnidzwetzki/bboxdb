@@ -187,7 +187,8 @@ public class DistributionRegionHelper {
 		}
 		
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
-			= ZookeeperClientFactory.getDistributionGroupAdapter();
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+
 		
 		final List<DistributionRegion> regions = region.getThisAndChildRegions().stream()
 			.filter(r -> r.getSystems().contains(distributedInstance))

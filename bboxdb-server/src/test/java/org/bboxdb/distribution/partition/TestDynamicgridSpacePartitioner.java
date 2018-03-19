@@ -51,7 +51,8 @@ public class TestDynamicgridSpacePartitioner {
 	
 	@BeforeClass
 	public static void beforeClass() throws ZookeeperException {
-		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	}
 	
 	@Before

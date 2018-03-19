@@ -94,7 +94,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 	protected void runRecovery() throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
-			= ZookeeperClientFactory.getDistributionGroupAdapter();
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		final List<String> distributionGroups 
 			= distributionGroupZookeeperAdapter.getDistributionGroups();

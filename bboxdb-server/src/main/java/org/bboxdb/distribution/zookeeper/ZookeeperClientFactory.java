@@ -20,7 +20,6 @@ package org.bboxdb.distribution.zookeeper;
 import java.util.Collection;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.Const;
@@ -84,13 +83,5 @@ public class ZookeeperClientFactory {
 		}
 		
 		return localInstanceName;
-	}
-	
-	/**
-	 * Get a new instance of the DistributionGroupZookeeperAdapter
-	 */
-	public static DistributionGroupZookeeperAdapter getDistributionGroupAdapter() {
-		final ZookeeperClient zookeeperClient = getZookeeperClient();
-		return new DistributionGroupZookeeperAdapter(zookeeperClient);
 	}
 }

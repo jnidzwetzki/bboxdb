@@ -126,7 +126,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		
 		try {
 			final DistributionGroupZookeeperAdapter zookeperAdapter 
-				= ZookeeperClientFactory.getDistributionGroupAdapter();
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			logger.info("Split done deleting: {}", sourceRegion.getIdentifier());
 			distributionGroupZookeeperAdapter.deleteChild(sourceRegion);

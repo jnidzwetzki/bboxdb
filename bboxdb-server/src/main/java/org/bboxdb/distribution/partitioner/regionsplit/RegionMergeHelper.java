@@ -205,7 +205,7 @@ public class RegionMergeHelper {
 	public static boolean isMergingByZookeeperAllowed(final DistributionRegion region) {
 		try {
 			final DistributionGroupZookeeperAdapter groupZookeeperAdapter 
-				= ZookeeperClientFactory.getDistributionGroupAdapter();
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 			
 			return groupZookeeperAdapter.isMergingSupported(region);
 		} catch (BBoxDBException e) {
