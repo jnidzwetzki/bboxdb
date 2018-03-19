@@ -73,7 +73,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 
 			// Reregister watch on membership
 			final String activeInstancesPath = zookeeperClient.getActiveInstancesPath();
-			zookeeperClient.getChildren(activeInstancesPath);
+			zookeeperClient.getChildren(activeInstancesPath, this);
 			
 			// Read version data
 			final String detailsPath = zookeeperClient.getDetailsPath();
