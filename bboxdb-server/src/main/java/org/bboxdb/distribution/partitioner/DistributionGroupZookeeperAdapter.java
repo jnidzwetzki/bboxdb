@@ -965,21 +965,33 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 */
 	public Map<BBoxDBInstance, Map<String, Long>> getRegionStatistics(final DistributionRegion region) 
-			throws ZookeeperException, ZookeeperNotFoundException {
+			throws ZookeeperException {
 		
-		final  Map<BBoxDBInstance, Map<String, Long>> result = new HashMap<>();
+		final Map<BBoxDBInstance, Map<String, Long>> result = new HashMap<>();
 		
 		logger.debug("Get statistics for {}", region.getDistributionGroupName());
 				
 		final String statisticsPath = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_STATISTICS;
 		
-		final List<String> childs = zookeeperClient.getChildren(statisticsPath, null);
+		try {
+			final List<String> children = zookeeperClient.getChildren(statisticsPath, null);
+			processStatistics(result, statisticsPath, children);
+		} catch (ZookeeperNotFoundException e) {
+			// No statistics are found, return empty result
+		}		
 		
-		// No statistics found
-		if(childs == null) {
-			return result;
-		}
+		return result;
+	}
+
+	/**
+	 * @param result
+	 * @param statisticsPath
+	 * @param childs
+	 * @throws ZookeeperException
+	 */
+	private void processStatistics(final Map<BBoxDBInstance, Map<String, Long>> result, 
+			final String statisticsPath, final List<String> childs) throws ZookeeperException {
 		
 		for(final String system : childs) {
 			final String path = statisticsPath + "/" + system;
@@ -1002,12 +1014,10 @@ public class DistributionGroupZookeeperAdapter {
 				}
 				
 				result.put(new BBoxDBInstance(system), systemMap);
-			} catch (InputParseException e) {
+			} catch (InputParseException | ZookeeperNotFoundException e) {
 				logger.error("Unable to read statistics", e);
 			}
-		}		
-		
-		return result;
+		}
 	}
 	
 	/**
