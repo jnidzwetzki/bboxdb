@@ -22,7 +22,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -595,18 +594,14 @@ public class DistributionGroupZookeeperAdapter {
 	public Collection<BBoxDBInstance> getSystemsForDistributionRegion(final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 	
-		final Set<BBoxDBInstance> result = new HashSet<BBoxDBInstance>();
-		
 		final String path = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 		
 		final List<String> children = zookeeperClient.getChildren(path);
 		
-		for(final String childName : children) {
-			result.add(new BBoxDBInstance(childName));
-		}
-	
-		return result;
+		return children.stream()
+			.map(c -> new BBoxDBInstance(c))
+			.collect(Collectors.toList());
 	}
 	
 	/**
