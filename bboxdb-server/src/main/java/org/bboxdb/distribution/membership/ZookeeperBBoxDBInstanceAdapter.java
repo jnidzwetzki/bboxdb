@@ -73,11 +73,11 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 
 			// Reregister watch on membership
 			final String activeInstancesPath = zookeeperClient.getActiveInstancesPath();
-			zookeeperClient.getChildren(activeInstancesPath, this);
+			zookeeperClient.getChildren(activeInstancesPath);
 			
 			// Read version data
 			final String detailsPath = zookeeperClient.getDetailsPath();
-			final List<String> instances = zookeeperClient.getChildren(detailsPath, null);
+			final List<String> instances = zookeeperClient.getChildren(detailsPath);
 			
 			final Set<BBoxDBInstance> instanceSet = new HashSet<>();
 			
@@ -230,7 +230,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		
 		final String diskspacePath = pathHelper.getInstancesDiskspacePath(instance);
 		
-		final List<String> diskspaceChilds = zookeeperClient.getChildren(diskspacePath, null);
+		final List<String> diskspaceChilds = zookeeperClient.getChildren(diskspacePath);
 		
 		for(final String path : diskspaceChilds) {
 			final String unquotedPath = ZookeeperInstancePathHelper.unquotePath(path);

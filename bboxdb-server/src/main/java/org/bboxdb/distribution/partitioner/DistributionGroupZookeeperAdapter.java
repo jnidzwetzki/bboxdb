@@ -600,19 +600,12 @@ public class DistributionGroupZookeeperAdapter {
 		final String path = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 		
-		// Does the requested node exists?
-		if(! zookeeperClient.exists(path)) {
-			return null;
+		final List<String> children = zookeeperClient.getChildren(path, null);
+		
+		for(final String childName : children) {
+			result.add(new BBoxDBInstance(childName));
 		}
-		
-		final List<String> childs = zookeeperClient.getChildren(path, null);
-		
-		if(childs != null && !childs.isEmpty()) {
-			for(final String childName : childs) {
-				result.add(new BBoxDBInstance(childName));
-			}
-		}
-		
+	
 		return result;
 	}
 	
@@ -811,10 +804,6 @@ public class DistributionGroupZookeeperAdapter {
 		final String clusterPath = zookeeperClient.getClusterPath();
 		final List<String> nodes = zookeeperClient.getChildren(clusterPath, watcher);
 		
-		if(nodes == null) {
-			return groups;
-		}
-		
 		for(final String groupName : nodes) {
 			
 			// Ignore systems
@@ -975,7 +964,7 @@ public class DistributionGroupZookeeperAdapter {
 				+ "/" + ZookeeperNodeNames.NAME_STATISTICS;
 		
 		try {
-			final List<String> children = zookeeperClient.getChildren(statisticsPath, null);
+			final List<String> children = zookeeperClient.getChildren(statisticsPath);
 			processStatistics(result, statisticsPath, children);
 		} catch (ZookeeperNotFoundException e) {
 			// No statistics are found, return empty result
