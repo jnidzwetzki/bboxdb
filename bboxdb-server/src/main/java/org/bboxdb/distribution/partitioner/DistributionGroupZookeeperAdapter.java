@@ -600,7 +600,7 @@ public class DistributionGroupZookeeperAdapter {
 		final String path = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 		
-		final List<String> children = zookeeperClient.getChildren(path, null);
+		final List<String> children = zookeeperClient.getChildren(path);
 		
 		for(final String childName : children) {
 			result.add(new BBoxDBInstance(childName));
