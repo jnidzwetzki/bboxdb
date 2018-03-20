@@ -23,6 +23,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.commons.math.BoundingBox;
@@ -106,7 +107,7 @@ public class DistributionRegionComponent {
 		this.guiModel = guiModel;
 		this.maxChildren = maxChildren;
 
-		this.xOffset = calculateXOffset();
+		this.xOffset = calculateXOffset(distributionRegion);
 		this.yOffset = calculateYOffset();
 		
 		this.HEIGHT = 40 + (distributionRegion.getConveringBox().getDimension() * 15);
@@ -117,16 +118,25 @@ public class DistributionRegionComponent {
 	 * @param maxChildren 
 	 * @return
 	 */
-	private int calculateXOffset() {
+	private int calculateXOffset(DistributionRegion region) {
 		int offset = panel.getRootPosX();
 		
-		DistributionRegion region = distributionRegion;
 		
 		while(! region.isRootElement()) {
-			if(region.getChildNumberOfParent() == 0) {
-				offset = offset - calculateLevelXOffset(region.getLevel());
-			} else {
-				offset = offset + calculateLevelXOffset(region.getLevel());
+			
+			final List<DistributionRegion> children = region.getParent().getDirectChildren();
+			
+			final int noOfChildren = children.size();
+			final int silbingsBlockSize = (noOfChildren + 1) * levelChildrenDistance(region.getLevel());
+			
+			offset = offset - (silbingsBlockSize / 2);
+			
+			for(int i = 0; i < children.size(); i++) {
+				offset = offset + levelChildrenDistance(region.getLevel());
+
+				if(children.get(i) == region) {
+					break;
+				}
 			}
 			
 			region = region.getParent();
@@ -140,15 +150,36 @@ public class DistributionRegionComponent {
 	 * @param level
 	 * @return
 	 */
-	private int calculateLevelXOffset(final int level) {
-		
-		final int offsetLastLevel = (PADDING_LEFT_RIGHT + WIDTH) / 2;
+	private int levelChildrenDistance(final int level) {
+		final int offsetLastLevel = (PADDING_LEFT_RIGHT + WIDTH);
 		
 		final int curentLevel = distributionRegion.getTotalLevel() - level - 1;
 		
 		return (int) (offsetLastLevel * Math.pow(maxChildren, curentLevel));
 	}
 	
+
+	/**
+	 * Draw the line to the parent node
+	 * @param g
+	 * @param xOffset
+	 * @param yOffset
+	 */
+	private void drawParentNodeLine(final Graphics2D g) {
+		
+		// The root element don't have a parent
+		if(distributionRegion.isRootElement()) {
+			return;
+		}
+		
+		final int parentOffset = calculateXOffset(distributionRegion.getParent());
+
+		int lineEndX = parentOffset + (WIDTH / 2);
+		int lineEndY = yOffset - LEVEL_DISTANCE + HEIGHT;
+		
+		g.drawLine(xOffset + (WIDTH / 2), yOffset, lineEndX, lineEndY);
+	}
+
 	/**
 	 * Calculate the Y offset
 	 * @return
@@ -181,7 +212,7 @@ public class DistributionRegionComponent {
 	public BoundingBox drawComponent(final Graphics2D g) {
 		
 		// Recalculate the offsets
-		this.xOffset = calculateXOffset();
+		this.xOffset = calculateXOffset(distributionRegion);
 		this.yOffset = calculateYOffset();
 		
 		// Draw the node
@@ -274,31 +305,6 @@ public class DistributionRegionComponent {
 		default:
 			return Color.LIGHT_GRAY;
 		}
-	}
-
-	/**
-	 * Draw the line to the parent node
-	 * @param g
-	 * @param xOffset
-	 * @param yOffset
-	 */
-	private void drawParentNodeLine(final Graphics2D g) {
-		
-		// The root element don't have a parent
-		if(distributionRegion.getParent() == null) {
-			return;
-		}
-		
-		int lineEndX = xOffset + (WIDTH / 2);
-		int lineEndY = yOffset - LEVEL_DISTANCE + HEIGHT;
-		
-		if(distributionRegion.getParent().getAllChildren().get(0) == distributionRegion) {
-			lineEndX = lineEndX + calculateLevelXOffset(distributionRegion.getLevel());
-		} else {
-			lineEndX = lineEndX - calculateLevelXOffset(distributionRegion.getLevel());
-		}
-		
-		g.drawLine(xOffset + (WIDTH / 2), yOffset, lineEndX, lineEndY);
 	}
 
 	/**
