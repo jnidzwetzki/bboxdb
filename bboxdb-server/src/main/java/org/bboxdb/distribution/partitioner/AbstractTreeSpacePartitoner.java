@@ -87,9 +87,14 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 */
 	private BoundingBox getRootBox(DistributionGroupConfiguration configuration) {
 		
-		if(configuration.getSpacePartitionerConfig().length() > 0) {
-			final String[] splitConfig = configuration.getSpacePartitionerConfig().split(";");
-			return  new BoundingBox(splitConfig[0]);	
+		final String spConfig = configuration.getSpacePartitionerConfig();
+		if(! spConfig.isEmpty()) {
+			if(spConfig.contains(";")) {
+				final String[] splitConfig = spConfig.split(";");
+				return new BoundingBox(splitConfig[0]);	
+			} else {
+				logger.error("Got invalid space partitoner config {}", spConfig);
+			}
 		}
 		
 		return BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions());
