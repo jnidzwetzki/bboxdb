@@ -110,7 +110,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			final double midpoint = interval.getMidpoint();
 			final DoubleInterval interval1 = interval.splitAndGetLeftPart(midpoint, false);
 			list1.add(interval1);
-			final DoubleInterval interval2 = interval.splitAndGetLeftPart(midpoint, true);
+			final DoubleInterval interval2 = interval.splitAndGetRightPart(midpoint, true);
 			list2.add(interval2);
 		}
 	}

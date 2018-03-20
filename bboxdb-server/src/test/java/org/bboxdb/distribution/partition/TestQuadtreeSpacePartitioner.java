@@ -19,6 +19,7 @@ package org.bboxdb.distribution.partition;
 
 import java.util.HashSet;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -92,6 +93,40 @@ public class TestQuadtreeSpacePartitioner {
 		spacepartitionier.splitRegion(child1, new HashSet<>());
 		Assert.assertEquals(4, child1.getDirectChildren().size());
 		Assert.assertEquals(8, rootNode.getAllChildren().size());		
+	}
+	
+	/**
+	 * Test the restricted space
+	 * @throws ZookeeperException
+	 * @throws BBoxDBException
+	 * @throws ZookeeperNotFoundException 
+	 */
+	@Test
+	public void testRestrictedSpace() throws ZookeeperException, BBoxDBException, 
+		ZookeeperNotFoundException {
+		
+		final BoundingBox completeSpace = new BoundingBox(0d, 10d, 0d, 10d);
+		
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+				.create(2)
+				.withSpacePartitioner("org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner", completeSpace.toCompactString())
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.build();
+
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
+		
+		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
+		
+		final DistributionRegion rootNode = spacepartitionier.getRootNode();
+		Assert.assertEquals(completeSpace, rootNode.getConveringBox());
+		
+		spacepartitionier.splitRegion(rootNode, new HashSet<>());
+		
+		Assert.assertEquals("[[0.0,5.0):[0.0,5.0)]", rootNode.getChildNumber(0).getConveringBox().toCompactString());
+		Assert.assertEquals("[[5.0,10.0]:[0.0,5.0)]", rootNode.getChildNumber(1).getConveringBox().toCompactString());
+		Assert.assertEquals("[[0.0,5.0):[5.0,10.0]]", rootNode.getChildNumber(2).getConveringBox().toCompactString());
+		Assert.assertEquals("[[5.0,10.0]:[5.0,10.0]]", rootNode.getChildNumber(3).getConveringBox().toCompactString());
 	}
 	
 	/**
