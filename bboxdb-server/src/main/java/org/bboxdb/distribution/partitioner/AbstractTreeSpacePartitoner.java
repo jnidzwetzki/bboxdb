@@ -88,10 +88,10 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	private BoundingBox getRootBox(DistributionGroupConfiguration configuration) {
 		
 		final String spConfig = configuration.getSpacePartitionerConfig();
+		
 		if(! spConfig.isEmpty()) {
-			if(spConfig.contains(";")) {
-				final String[] splitConfig = spConfig.split(";");
-				return new BoundingBox(splitConfig[0]);	
+			if(spConfig.contains("[") && spConfig.contains("]")) {
+				return new BoundingBox(spConfig);	
 			} else {
 				logger.error("Got invalid space partitoner config {}", spConfig);
 			}
