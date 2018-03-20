@@ -42,7 +42,7 @@ public class TestStaticgridSpacePartitioner {
 	/**
 	 * The name of the test region
 	 */
-	private static final String TEST_GROUP = "abc";
+	private static final String TEST_GROUP = "staticgrid1";
 	
 	/**
 	 * The distribution group adapter

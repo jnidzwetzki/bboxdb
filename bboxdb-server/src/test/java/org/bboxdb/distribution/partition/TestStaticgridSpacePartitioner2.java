@@ -37,7 +37,7 @@ public class TestStaticgridSpacePartitioner2 {
 	/**
 	 * The name of the test region
 	 */
-	private static final String TEST_GROUP = "abc";
+	private static final String TEST_GROUP = "staticgrid2";
 	
 	/**
 	 * The distribution group adapter
@@ -47,7 +47,7 @@ public class TestStaticgridSpacePartitioner2 {
 	@BeforeClass
 	public static void beforeClass() throws ZookeeperException, BBoxDBException {
 		distributionGroupZookeeperAdapter 
-			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
 		final String config = "[[0.0,1.0]:[0.0,0.5]];0.5;0.5"; 
 		
