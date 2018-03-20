@@ -49,7 +49,7 @@ public class TestStaticgridSpacePartitioner2 {
 		distributionGroupZookeeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
-		final String config = "[[0.0,1.0]:[0.0,0.5]];0.5;0.5"; 
+		final String config = "[[0.0,1.0]:[0.0,1.0]];0.5;0.5"; 
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
