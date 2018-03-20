@@ -158,6 +158,11 @@ public class TreeJPanel extends JPanel {
 			
 			regions.clear();
 			
+			if(distributionRegion == null) {
+				logger.error("Got null root node");
+				return;
+			}
+			
 			final int maxChildren = distributionRegion
 					.getThisAndChildRegions()
 					.stream()
