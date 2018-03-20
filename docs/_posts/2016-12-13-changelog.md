@@ -12,6 +12,7 @@ order: 1
 - Improvement: Fixed bugs found by Coverity scan
 - Improvement: Refactored maintainability to A rating (closes #80)
 - Improvement: The complete space of the tree space partitioner can be restricted
+- Improvement: Added the ability to display generic trees in GUI (closes #84) 
 - Bugfix: Fixed the Quadtree space partitioner
 
 ### Version 0.5.0 - 14.03.2018
