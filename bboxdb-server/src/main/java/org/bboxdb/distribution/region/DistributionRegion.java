@@ -369,7 +369,7 @@ public class DistributionRegion {
 			return;
 		}
 		
-		final ArrayList<BBoxDBInstance> newSystemsList = new ArrayList<>(newSystems.size());
+		final List<BBoxDBInstance> newSystemsList = new ArrayList<>(newSystems.size());
 		newSystemsList.addAll(newSystems);
 		
 		// Replace systems atomically
