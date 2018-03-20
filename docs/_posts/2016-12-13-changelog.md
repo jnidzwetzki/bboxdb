@@ -11,6 +11,7 @@ order: 1
 - Improvement: Added zoom function in the GUI tree view (closes #83)
 - Improvement: Fixed bugs found by Coverity scan
 - Improvement: Refactored maintainability to A rating (closes #80)
+- Improvement: The complete space of the tree space partitioner can be restricted
 
 ### Version 0.5.0 - 14.03.2018
 - New Feature: Added initial partitioning helper program (closes #78)

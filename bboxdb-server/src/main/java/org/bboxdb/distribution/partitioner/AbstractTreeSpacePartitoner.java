@@ -65,8 +65,8 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 					"".getBytes());
 					
-			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, 
-					BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
+			final BoundingBox rootBox = getRootBox(configuration);
+			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
 
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
 					DistributionRegionState.ACTIVE.getStringValue().getBytes());		
@@ -80,6 +80,21 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		}
 	}
 	
+	/**
+	 * Get the root box
+	 * @param configuration
+	 * @return
+	 */
+	private BoundingBox getRootBox(DistributionGroupConfiguration configuration) {
+		
+		if(configuration.getSpacePartitionerConfig().length() > 0) {
+			final String[] splitConfig = configuration.getSpacePartitionerConfig().split(";");
+			return  new BoundingBox(splitConfig[0]);	
+		}
+		
+		return BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions());
+	}
+
 	@Override
 	public void splitFailed(final DistributionRegion sourceRegion, 
 			final List<DistributionRegion> destination) throws BBoxDBException {
