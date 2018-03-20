@@ -300,7 +300,7 @@ public class DistributionRegion {
 	}
 	
 	/**
-	 * Is this the left child of the parent
+	 * Get the child number
 	 * @return
 	 */
 	public long getChildNumberOfParent() {
