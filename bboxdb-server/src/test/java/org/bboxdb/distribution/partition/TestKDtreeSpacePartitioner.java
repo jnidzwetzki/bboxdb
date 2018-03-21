@@ -210,7 +210,7 @@ public class TestKDtreeSpacePartitioner {
 	/**
 	 * Test the distribution of changes in the zookeeper structure (reading data from the second object)
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDistributionRegionSplitWithZookeeperPropergate() throws Exception {
 		
 		final KDtreeSpacePartitioner adapter1 = 
@@ -245,7 +245,7 @@ public class TestKDtreeSpacePartitioner {
 	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDistributionRegionSplitWithZookeeperPropergate2() throws Exception {
 		
 		System.out.println("== Build KD adapter 1");
@@ -286,7 +286,7 @@ public class TestKDtreeSpacePartitioner {
 	 * Test the distribution region level
 	 * @throws Exception  
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDistributionRegionLevel() throws Exception {
 		
 		final KDtreeSpacePartitioner kdTreeAdapter = (KDtreeSpacePartitioner) SpacePartitionerCache
