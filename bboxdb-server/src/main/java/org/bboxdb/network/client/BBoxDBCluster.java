@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
@@ -201,7 +200,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		// Determine the first system, it will route the request to the remaining systems
-		final BBoxDBInstance system = hops.iterator().next().getDistributedInstance();
+		final BBoxDBInstance system = hops.get(0).getDistributedInstance();
 		final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 
 		if(connection == null) {
@@ -369,7 +368,7 @@ public class BBoxDBCluster implements BBoxDB {
 			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 
 		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-		final Set<DistributionRegion> regions 
+		final List<DistributionRegion> regions 
 			= distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
 
 		if(regions.size() != 1) {
@@ -377,9 +376,9 @@ public class BBoxDBCluster implements BBoxDB {
 					+ "this is not supported in continuous queries");
 		}
 
-		final DistributionRegion region = regions.iterator().next();
+		final DistributionRegion region = regions.get(0);
 
-		final BBoxDBInstance firstSystem = region.getSystems().iterator().next();
+		final BBoxDBInstance firstSystem = region.getSystems().get(0);
 		final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(firstSystem);
 
 		return connection.queryBoundingBoxContinuous(table, boundingBox);

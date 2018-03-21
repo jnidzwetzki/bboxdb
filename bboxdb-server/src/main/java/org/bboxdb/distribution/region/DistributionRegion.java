@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -381,10 +380,10 @@ public class DistributionRegion {
 	 * @param boundingBox
 	 * @return
 	 */
-	public Set<DistributionRegion> getDistributionRegionsForBoundingBox(final BoundingBox boundingBox) {
+	public List<DistributionRegion> getDistributionRegionsForBoundingBox(final BoundingBox boundingBox) {
 		return getThisAndChildRegions().stream()
 			.filter(r -> r.getConveringBox().overlaps(boundingBox))
-			.collect(Collectors.toSet());
+			.collect(Collectors.toList());
 	}
 	
 	/**

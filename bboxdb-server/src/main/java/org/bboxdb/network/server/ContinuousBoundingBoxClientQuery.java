@@ -18,7 +18,7 @@
 package org.bboxdb.network.server;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
@@ -158,7 +158,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
 					.getDistributionRegionIdMapper();
 		
-			final Collection<TupleStoreName> localTables 
+			final List<TupleStoreName> localTables 
 				= regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
 			
 			if(localTables.size() != 1) {
@@ -167,7 +167,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 				return;
 			}
 
-			final TupleStoreName tupleStoreName = localTables.iterator().next();
+			final TupleStoreName tupleStoreName = localTables.get(0);
 			
 			storageManager = QueryHelper.getTupleStoreManager(storageRegistry, tupleStoreName);
 			

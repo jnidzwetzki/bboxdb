@@ -84,7 +84,7 @@ public class DistributionRegionIdMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public Collection<TupleStoreName> getLocalTablesForRegion(final BoundingBox region, 
+	public List<TupleStoreName> getLocalTablesForRegion(final BoundingBox region, 
 			final TupleStoreName ssTableName) {
 	
 		Collection<Long> namprefixes = null;
