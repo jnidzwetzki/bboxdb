@@ -204,8 +204,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 
 		if(connection == null) {
-			final String errorMessage = "Unable to insert tuple, no connection to system: " 
-					+ system; 
+			final String errorMessage = "Unable to insert tuple, no connection to system: " + system; 
 			logger.error(errorMessage);
 			return FutureHelper.getFailedEmptyResultFuture(errorMessage);
 		}
@@ -220,7 +219,9 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException {
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
+			throws BBoxDBException {
+		
 		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
@@ -249,7 +250,6 @@ public class BBoxDBCluster implements BBoxDB {
 			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
 
 			return bboxdbClient.createDistributionGroup(distributionGroup, distributionGroupConfiguration);
-
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
 			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
@@ -355,7 +355,6 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) 
 			throws BBoxDBException {
-
 	
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
