@@ -133,7 +133,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 			return bboxdbClient.createTable(table, configuration);
 		} catch (ResourceAllocationException e) {
-			logger.warn("createDistributionGroup called, but no ressoures are available", e);
+			logger.warn("createDistributionGroup called, but no resources are available", e);
 			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
 		}
 	}
