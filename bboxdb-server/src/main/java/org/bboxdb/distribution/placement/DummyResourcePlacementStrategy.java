@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.placement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,6 +44,13 @@ public class DummyResourcePlacementStrategy extends ResourcePlacementStrategy {
 	@VisibleForTesting
 	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
 			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException {
+		
+		final ArrayList<BBoxDBInstance> availableSystems = new ArrayList<>(systems);
+		availableSystems.removeAll(blacklist);
+		
+		if(! availableSystems.isEmpty()) {
+			return availableSystems.get(0);
+		}
 		
 		logger.debug("Executing new dummy allocation to {}", DUMMY_INSTANCE.getStringValue());
 		
