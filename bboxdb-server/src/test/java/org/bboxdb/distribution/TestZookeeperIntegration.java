@@ -94,6 +94,7 @@ public class TestZookeeperIntegration {
 	public void before() throws ZookeeperException, BBoxDBException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
+				.withReplicationFactor((short) 1)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 		
