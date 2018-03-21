@@ -20,6 +20,7 @@ package org.bboxdb.storage.tuplestore.manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -359,14 +360,16 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			logger.info("Deleting all local stored data for distribution group {} in path {} ",
 					distributionGroupName, directory);
 			
+			executePendingDeletes(directory);
+			
 			deleteMedatadaOfDistributionGroup(distributionGroupName, directory);
 	
 			final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupName);
 			final File groupDir = new File(groupDirName);
-			final String[] childs = groupDir.list();
+			final String[] children = groupDir.list();
 			
-			if(childs != null && childs.length > 0) {
-				final List<String> childList = Arrays.asList(childs);
+			if(children != null && children.length > 0) {
+				final List<String> childList = Arrays.asList(children);
 				throw new StorageManagerException("Unable to delete non empty dir: " 
 						+ groupDirName + " / " + childList);
 			}
@@ -376,6 +379,19 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 				groupDir.delete();
 			}
 		}
+	}
+
+	/**
+	 * Execute the pending deletes immediately
+	 * 
+	 * @param directory
+	 */
+	private void executePendingDeletes(final String directory) {
+		final Collection<TupleStoreName> pendingDeletes = new ArrayList<>();
+		storages.get(directory).getPendingTableDeletions().drainTo(pendingDeletes);
+		logger.info("Executing pending deleted immediately {}", pendingDeletes);
+		
+		pendingDeletes.forEach(t -> TupleStoreManager.deletePersistentTableData(directory, t));
 	}
 	
 	/**
