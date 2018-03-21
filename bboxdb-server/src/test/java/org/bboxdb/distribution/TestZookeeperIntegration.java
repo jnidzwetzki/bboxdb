@@ -177,7 +177,7 @@ public class TestZookeeperIntegration {
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(TEST_GROUP);
 
-		Assert.assertEquals(3, config.getReplicationFactor());
+		Assert.assertEquals(1, config.getReplicationFactor());
 	}
 	
 	/**
