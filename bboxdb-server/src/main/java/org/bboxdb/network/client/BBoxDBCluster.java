@@ -280,15 +280,13 @@ public class BBoxDBCluster implements BBoxDB {
 			throw new BBoxDBException("deleteDistributionGroup called, but connection list is empty");
 		}
 
-		final EmptyResultFuture future = new EmptyResultFuture();
+		try {
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
 
-		membershipConnectionService.getAllConnections()
-			.stream()
-			.map(c -> c.deleteDistributionGroup(distributionGroup))
-			.filter(Objects::nonNull)
-			.forEach(f -> future.merge(f));
-
-		return future;
+			return bboxdbClient.deleteDistributionGroup(distributionGroup);
+		} catch (ResourceAllocationException e) {
+			throw new BBoxDBException(e);
+		}
 	}
 
 	@Override
