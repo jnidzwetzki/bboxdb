@@ -52,20 +52,20 @@ public class QueryHelper {
 	public static TupleStoreManager getTupleStoreManager(TupleStoreManagerRegistry storageRegistry, 
 			final TupleStoreName tupleStoreName) throws ZookeeperException, StorageManagerException {
 		
-		if(! storageRegistry.isStorageManagerKnown(tupleStoreName)) {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
-			
-			if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
-				throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unkown");
-			}
-			
-			final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreName);
-			
-			return storageRegistry.createTableIfNotExist(tupleStoreName, config);
-		} else {
+		if(storageRegistry.isStorageManagerKnown(tupleStoreName)) {
 			return storageRegistry.getTupleStoreManager(tupleStoreName);
 		}
+			
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+		
+		if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
+			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unkown");
+		}
+		
+		final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreName);
+		
+		return storageRegistry.createTableIfNotExist(tupleStoreName, config);
 	}
 
 	/**
