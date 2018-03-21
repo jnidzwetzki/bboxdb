@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.util.List;
+
+import org.apache.zookeeper.Watcher;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.util.UpdateAnomalyResolver;
@@ -109,6 +112,9 @@ public class TupleStoreAdapter {
 				versionsString.getBytes());
 		
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, tablePath);
+		
+		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, getAllTablesPath( 
+				tupleStoreName.getDistributionGroup()));
 	}
 
 	/**
@@ -118,8 +124,45 @@ public class TupleStoreAdapter {
 	 */
 	private String getTablePath(final TupleStoreName tupleStoreName) {
 		final String distributionGroup = tupleStoreName.getDistributionGroup();
+		return getAllTablesPath(distributionGroup) + "/" + tupleStoreName.getFullnameWithoutPrefix();
+	}
+	
+	/**
+	 * Get the path for all tables
+	 * @param distributionGroup
+	 * @return
+	 */
+	public String getAllTablesPath(final String distributionGroup) {
 		return distributionGroupAdapter.getDistributionGroupPath(distributionGroup) 
-				+ "/" + ZookeeperNodeNames.NAME_TABLES + "/" + tupleStoreName.getFullnameWithoutPrefix();
+				+ "/" + ZookeeperNodeNames.NAME_TABLES;
+	}
+	
+	/**
+	 * Get all known tables
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public List<String> getAllTables(final String distributionGroup) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		return getAllTables(distributionGroup, null);
+	}
+	
+	/**
+	 * Get all known tables
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public List<String> getAllTables(final String distributionGroup, final Watcher watcher) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String allTablesPath = getAllTablesPath(distributionGroup);
+		NodeMutationHelper.getNodeMutationVersion(zookeeperClient, allTablesPath, watcher);
+		
+		final List<String> children = zookeeperClient.getChildren(allTablesPath);
+		children.removeIf(c -> c.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION));
+		
+		return children;
 	}
 	
 	/**
@@ -157,6 +200,7 @@ public class TupleStoreAdapter {
 			
 			final String duplicateVersions = 
 					zookeeperClient.readPathAndReturnString(getDuplicateVersionsPath(tupleStoreName));
+			
 			final Integer duplicateVersionsInteger = Integer.parseInt(duplicateVersions);
 			tupleStoreConfiguration.setVersions(duplicateVersionsInteger);
 		} catch (ZookeeperNotFoundException | NumberFormatException e) {
@@ -184,6 +228,9 @@ public class TupleStoreAdapter {
 	public void deleteTable(final TupleStoreName tupleStoreName) throws ZookeeperException {
 		final String tablePath = getTablePath(tupleStoreName);
 		zookeeperClient.deleteNodesRecursive(tablePath);
+		
+		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, getAllTablesPath( 
+				tupleStoreName.getDistributionGroup()));
 	}
 
 	/**

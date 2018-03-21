@@ -23,6 +23,10 @@ import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
@@ -34,6 +38,8 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -189,24 +195,51 @@ public class TestNetworkCommunication {
 	 * Send a delete package to the server
 	 * @throws InterruptedException 
 	 * @throws ExecutionException 
+	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
 	 */
 	@Test(timeout=60000)
-	public void testSendDeletePackage() throws InterruptedException, ExecutionException {
+	public void testSendDeletePackage() throws InterruptedException, 
+	ExecutionException, ZookeeperException, BBoxDBException {
+		
 		System.out.println("=== Running sendDeletePackage");
 
 		final BBoxDBClient bboxDBClient = connectToServer();
 		
-		final EmptyResultFuture result = bboxDBClient.deleteTable(DISTRIBUTION_GROUP + "_relation3");
+		final String tableName = DISTRIBUTION_GROUP + "_relation3";
+		final TupleStoreName tupleStoreName = new TupleStoreName(tableName);
+
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		final TupleStoreAdapter tupleStoreAdapter = zookeeperClient.getTupleStoreAdapter();
+		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
-		result.waitForAll();
+		// Create table
+		final TupleStoreConfiguration configuration = TupleStoreConfigurationBuilder.create().build();
+		final EmptyResultFuture createFuture = bboxDBClient.createTable(tableName, configuration);
+		createFuture.waitForAll();
+		Assert.assertTrue(createFuture.isDone());
+		Assert.assertFalse(createFuture.isFailed());
+		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
-		Assert.assertTrue(result.isDone());
-		Assert.assertFalse(result.isFailed());
+		// Delete table
+		final EmptyResultFuture deleteResult1 = bboxDBClient.deleteTable(tableName);
+		deleteResult1.waitForAll();
+		Assert.assertTrue(deleteResult1.isDone());
+		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
+		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
+		// Second call
+		final EmptyResultFuture deleteResult2 = bboxDBClient.deleteTable(tableName);
+		deleteResult2.waitForAll();
+		Assert.assertTrue(deleteResult2.isDone());
+		Assert.assertFalse(deleteResult2.isFailed());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
+		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
+		
+		// Disconnect
 		disconnect(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());
-		disconnect(bboxDBClient);
 
 		System.out.println("=== End sendDeletePackage");
 	}
@@ -228,40 +261,6 @@ public class TestNetworkCommunication {
 		disconnect(bboxDBClient);
 
 		System.out.println("=== End testConnectionState");
-	}
-	
-	/**
-	 * Send a delete package to the server
-	 * @throws InterruptedException 
-	 * @throws ExecutionException 
-	 */
-	@Test(timeout=60000)
-	public void testSendDeletePackage2() throws InterruptedException, ExecutionException {
-		System.out.println("=== Running sendDeletePackage2");
-		
-		final String table = DISTRIBUTION_GROUP + "_relation3";
-
-		final BBoxDBClient bboxDBClient = connectToServer();
-		
-		// First call
-		final EmptyResultFuture result1 = bboxDBClient.deleteTable(table);
-		result1.waitForAll();
-		Assert.assertTrue(result1.isDone());
-		Assert.assertFalse(result1.isFailed());
-		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
-		
-		// Second call
-		final EmptyResultFuture result2 = bboxDBClient.deleteTable(table);
-		result2.waitForAll();
-		Assert.assertTrue(result2.isDone());
-		Assert.assertFalse(result2.isFailed());
-		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
-		
-		disconnect(bboxDBClient);
-		Assert.assertFalse(bboxDBClient.isConnected());		
-		disconnect(bboxDBClient);
-
-		System.out.println("=== End sendDeletePackage2");
 	}
 
 	/**
