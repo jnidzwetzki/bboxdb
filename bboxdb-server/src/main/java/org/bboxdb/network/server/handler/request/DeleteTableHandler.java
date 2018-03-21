@@ -26,7 +26,6 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
@@ -75,8 +74,8 @@ public class DeleteTableHandler implements RequestHandler {
 			}
 			
 			// Delete zookeeper configuration
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+					.getZookeeperClient().getTupleStoreAdapter();
 			tupleStoreAdapter.deleteTable(requestTable);
 			
 			// Clear cached data

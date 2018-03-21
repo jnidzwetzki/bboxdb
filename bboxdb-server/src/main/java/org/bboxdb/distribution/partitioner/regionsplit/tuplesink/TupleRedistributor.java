@@ -27,7 +27,6 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
@@ -124,8 +123,9 @@ public class TupleRedistributor {
 				final TupleStoreName localTableName = tupleStoreName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
-				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-				final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+				final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+						.getZookeeperClient().getTupleStoreAdapter();
+				
 				final TupleStoreConfiguration config = readTuplestoreConfig(localTableName, tupleStoreAdapter);
 				
 				final TupleStoreManager storageManager = tupleStoreManagerRegistry.createTableIfNotExist(localTableName, config);

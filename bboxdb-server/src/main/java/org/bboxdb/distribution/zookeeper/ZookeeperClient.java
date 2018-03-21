@@ -691,6 +691,13 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public DistributionRegionAdapter getDistributionRegionAdapter() {
 		return new DistributionRegionAdapter(this);
 	}
+	
+	/**
+	 * Get the tuple store adapter
+	 */
+	public TupleStoreAdapter getTupleStoreAdapter() {
+		return new TupleStoreAdapter(this);
+	}
 
 	@Override
 	public boolean acquire() {

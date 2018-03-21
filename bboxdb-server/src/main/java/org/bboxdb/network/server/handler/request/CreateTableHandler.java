@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateTableRequest;
@@ -54,8 +53,8 @@ public class CreateTableHandler implements RequestHandler {
 			final TupleStoreName requestTable = createPackage.getTable();
 			logger.info("Got create call for table: {}", requestTable.getFullname());
 			
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+					.getZookeeperClient().getTupleStoreAdapter();
 			
 			if(tupleStoreAdapter.isTableKnown(requestTable)) {
 				logger.warn("Table name is already known {}", requestTable.getFullname());

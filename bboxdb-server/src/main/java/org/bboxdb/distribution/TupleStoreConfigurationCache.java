@@ -22,7 +22,6 @@ import java.util.Map;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.entity.Tuple;
@@ -76,8 +75,9 @@ public class TupleStoreConfigurationCache {
 		
 		if(!cache.containsKey(tupleStorename)) {
 			try {
-				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-				final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+				final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+						.getZookeeperClient().getTupleStoreAdapter();
+				
 				final TupleStoreName tupleStoreNameObject = new TupleStoreName(tupleStorename);
 
 				if(! tupleStoreAdapter.isTableKnown(tupleStoreNameObject)) {

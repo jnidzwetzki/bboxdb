@@ -20,7 +20,6 @@ package org.bboxdb.distribution;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -35,8 +34,7 @@ public class TestTupleStoreAdapter {
 	protected final TupleStoreAdapter tupleStoreAdapter;
 	
 	public TestTupleStoreAdapter() {
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+		tupleStoreAdapter = ZookeeperClientFactory.getZookeeperClient().getTupleStoreAdapter();
 	}
 
 	/**

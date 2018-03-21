@@ -20,7 +20,6 @@ package org.bboxdb.network.server;
 import java.io.IOException;
 
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -56,8 +55,8 @@ public class QueryHelper {
 			return storageRegistry.getTupleStoreManager(tupleStoreName);
 		}
 			
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+		final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+				.getZookeeperClient().getTupleStoreAdapter();
 		
 		if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
 			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unkown");
@@ -88,8 +87,8 @@ public class QueryHelper {
 			return true;
 		}
 		
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+		final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+				.getZookeeperClient().getTupleStoreAdapter();
 
 		try {
 			final boolean tableKnown = tupleStoreAdapter.isTableKnown(requestTable);

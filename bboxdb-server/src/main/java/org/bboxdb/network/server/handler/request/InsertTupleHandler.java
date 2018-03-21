@@ -27,7 +27,6 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -210,8 +209,8 @@ public class InsertTupleHandler implements RequestHandler {
 			throws StorageManagerException {
 		
 		try {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+					.getZookeeperClient().getTupleStoreAdapter();
 			
 			if(! tupleStoreAdapter.isTableKnown(requestTable)) {
 				throw new StorageManagerException("Table: " + requestTable.getFullname() + " is unkown");
