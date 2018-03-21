@@ -35,7 +35,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestKDtreeSpacePartitioner {
@@ -54,10 +54,9 @@ public class TestKDtreeSpacePartitioner {
 	 * The compare delta
 	 */
 	private final static double DELTA = 0.0001;
-
 	
-	@BeforeClass
-	public static void before() throws ZookeeperException, BBoxDBException {
+	@Before
+	public void before() throws ZookeeperException, BBoxDBException {
 		distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
