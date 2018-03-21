@@ -38,7 +38,7 @@ public class TestTuplestoreConfiguration {
 
 	@Test
 	public void testReadNonExistingFile() {
-		final File tmpFile = new File("/tmp/tuplestore.nonexsting");
+		final File tmpFile = new File("/tmp/tuplestore.nonexisting");
 		Assert.assertTrue(TupleStoreConfiguration.importFromYamlFile(tmpFile) == null);
 	}
 }
