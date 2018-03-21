@@ -139,21 +139,19 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public EmptyResultFuture deleteTable(final String table) throws BBoxDBException {
+	public EmptyResultFuture deleteTable(final String deleteTable) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("deleteTable called, but connection list is empty");
 		}
 
-		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
-		final EmptyResultFuture future = new EmptyResultFuture();
+		try {
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
 
-		connections.stream()
-		.map(c -> c.deleteTable(table))
-		.filter(Objects::nonNull)
-		.forEach(f -> future.merge(f));
-
-		return future;
+			return bboxdbClient.deleteTable(deleteTable);
+		} catch (ResourceAllocationException e) {
+			throw new BBoxDBException(e);
+		}
 	}
 
 	@Override
