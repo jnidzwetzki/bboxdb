@@ -45,6 +45,10 @@ public class DummyResourcePlacementStrategy extends ResourcePlacementStrategy {
 	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
 			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException {
 		
+		if(systems == null) {
+			return DUMMY_INSTANCE;
+		}
+		
 		final ArrayList<BBoxDBInstance> availableSystems = new ArrayList<>(systems);
 		availableSystems.removeAll(blacklist);
 		
