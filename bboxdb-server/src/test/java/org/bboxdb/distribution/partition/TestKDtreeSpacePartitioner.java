@@ -57,9 +57,18 @@ public class TestKDtreeSpacePartitioner {
 
 	
 	@BeforeClass
-	public static void before() {
+	public static void before() throws ZookeeperException, BBoxDBException {
 		distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+		
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+				.create(2)
+				.withReplicationFactor((short) 1)
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.build();
+		
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 	}
 
 	/**
