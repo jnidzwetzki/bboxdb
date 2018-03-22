@@ -106,7 +106,7 @@ public class TestDynamicgridSpacePartitioner {
 	private DynamicgridSpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
 		final DynamicgridSpacePartitioner spacepartitionier = (DynamicgridSpacePartitioner) 
 				distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
-						new HashSet<>(), new DistributionRegionIdMapper());
+						new HashSet<>(), new DistributionRegionIdMapper(TEST_GROUP));
 				
 		return spacepartitionier;
 	}

@@ -343,7 +343,7 @@ public class TestRegionSyncer {
 	 */
 	private DistributionRegionSyncer buildSyncer() {
 		final Set<DistributionRegionCallback> callbacks = new CopyOnWriteArraySet<>();
-		final DistributionRegionIdMapper distributionRegionIdMapper = new DistributionRegionIdMapper();
+		final DistributionRegionIdMapper distributionRegionIdMapper = new DistributionRegionIdMapper(GROUP);
 		
 		final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
 				"", GROUP, ZookeeperClientFactory.getZookeeperClient(), 

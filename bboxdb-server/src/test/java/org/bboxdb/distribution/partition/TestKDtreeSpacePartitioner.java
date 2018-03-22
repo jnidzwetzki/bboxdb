@@ -94,7 +94,7 @@ public class TestKDtreeSpacePartitioner {
 	 */
 	private KDtreeSpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
 		return (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
-						new HashSet<>(), new DistributionRegionIdMapper());		
+						new HashSet<>(), new DistributionRegionIdMapper(TEST_GROUP));		
 	}
 
 	/**

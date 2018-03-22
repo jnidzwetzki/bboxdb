@@ -67,7 +67,7 @@ public class TestSpacePartitionerCache {
 		final DistributionRegionIdMapper mapper = oldSpacepartitionier.getDistributionRegionIdMapper();
 		
 		Assert.assertEquals(0, mapper.getAllRegionIds().size());
-		mapper.addMapping(3, BoundingBox.FULL_SPACE, TEST_GROUP);
+		mapper.addMapping(3, BoundingBox.FULL_SPACE);
 		Assert.assertEquals(1, mapper.getAllRegionIds().size());
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);

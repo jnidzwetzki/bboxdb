@@ -386,7 +386,7 @@ public class DistributionRegionSyncer implements Watcher {
 			if(DistributionRegionHelper.STATES_WRITE.contains(region.getState())) {
 				// Add the mapping to the nameprefix mapper
 				if(! allExistingMappings.contains(regionId)) {
-					distributionRegionMapper.addMapping(regionId, region.getConveringBox(), distributionGroupName);
+					distributionRegionMapper.addMapping(regionId, region.getConveringBox());
 				}
 				
 				allExistingMappings.remove(regionId);
@@ -394,7 +394,7 @@ public class DistributionRegionSyncer implements Watcher {
 		}
 	
 		// Remove all active but not seen mappings
-		allExistingMappings.forEach(m -> distributionRegionMapper.removeMapping(m, distributionGroupName));
+		allExistingMappings.forEach(m -> distributionRegionMapper.removeMapping(m));
 	}
 	
 	/**

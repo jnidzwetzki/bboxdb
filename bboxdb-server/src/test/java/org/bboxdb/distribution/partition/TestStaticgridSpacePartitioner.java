@@ -105,7 +105,7 @@ public class TestStaticgridSpacePartitioner {
 	private StaticgridSpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
 		final StaticgridSpacePartitioner spacepartitionier = (StaticgridSpacePartitioner) 
 				distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
-						new HashSet<>(), new DistributionRegionIdMapper());
+						new HashSet<>(), new DistributionRegionIdMapper(TEST_GROUP));
 				
 		return spacepartitionier;
 	}

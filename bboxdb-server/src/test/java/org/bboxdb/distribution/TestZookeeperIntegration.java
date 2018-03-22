@@ -38,6 +38,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -47,6 +48,10 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
+import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -164,6 +169,47 @@ public class TestZookeeperIntegration {
 		final List<String> groups2 = distributionGroupZookeeperAdapter.getDistributionGroups();
 		Assert.assertFalse(groups2.contains(TEST_GROUP));
 		Assert.assertFalse(distributionGroupZookeeperAdapter.isDistributionGroupRegistered(TEST_GROUP));
+	}
+	
+	/** 
+	 * Test the table deletion and creation
+	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testTableCreateDelete() throws Exception {
+		final TupleStoreAdapter tupleStoreAdapter = zookeeperClient.getTupleStoreAdapter();
+		final SpacePartitioner spacePartitioner = getSpacePartitioner();
+		final DistributionRegion rootNode = spacePartitioner.getRootNode();
+		
+		final String rootPath = distributionRegionAdapter.getZookeeperPathForDistributionRegion(rootNode);
+		distributionRegionAdapter.addSystemToDistributionRegion(rootPath, ZookeeperClientFactory.getLocalInstanceName());
+
+		final TupleStoreName tupleStoreName = new TupleStoreName(TEST_GROUP + "_tabletest");
+		final TupleStoreName tupleStoreName0 = new TupleStoreName(TEST_GROUP + "_tabletest_0");
+
+		final TupleStoreConfiguration configuration = TupleStoreConfigurationBuilder.create().build();
+		
+		tupleStoreAdapter.writeTuplestoreConfiguration(tupleStoreName, configuration);
+		
+		final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
+		storageRegistry.init();
+		storageRegistry.deleteTable(tupleStoreName0, true);
+		storageRegistry.createTable(tupleStoreName0, configuration);
+		
+		storageRegistry.getTupleStoreManager(tupleStoreName0);
+		Assert.assertTrue(storageRegistry.isStorageManagerKnown(tupleStoreName0));
+		
+		Thread.sleep(5000);
+		System.out.println("=== Executing deletion");
+		tupleStoreAdapter.deleteTable(tupleStoreName0);
+		Thread.sleep(5000);
+
+		Assert.assertTrue(storageRegistry.getAllStorages().get(0).getPendingTableDeletions().contains(tupleStoreName0));
+
+		Assert.assertFalse(storageRegistry.isStorageManagerKnown(tupleStoreName0));
+		//storageRegistry.shutdown();
 	}
 	
 	/**
@@ -532,7 +578,7 @@ public class TestZookeeperIntegration {
 	 */
 	private SpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
 		return distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
-				new HashSet<>(), new DistributionRegionIdMapper());
+				new HashSet<>(), new DistributionRegionIdMapper(TEST_GROUP));
 	}
 	
 	/**

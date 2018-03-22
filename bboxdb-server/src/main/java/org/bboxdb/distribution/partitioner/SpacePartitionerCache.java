@@ -119,7 +119,7 @@ public class SpacePartitionerCache implements Watcher {
 				
 				// Create region id mapper
 				if(! distributionRegionIdMapper.containsKey(groupName)) {
-					final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper();
+					final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper(groupName);
 					distributionRegionIdMapper.put(groupName, mapper);
 				}
 				

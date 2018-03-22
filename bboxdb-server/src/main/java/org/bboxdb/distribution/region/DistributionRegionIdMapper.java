@@ -44,6 +44,11 @@ public class DistributionRegionIdMapper {
 	private final Map<Long, BoundingBox> regions;
 	
 	/**
+	 * The distribution group name
+	 */
+	private String distributionGroup;
+	
+	/**
 	 * The mutex for synchronization
 	 */
 	private final Object MUTEX;
@@ -52,9 +57,9 @@ public class DistributionRegionIdMapper {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionIdMapper.class);
-	
-	
-	public DistributionRegionIdMapper() {
+
+	public DistributionRegionIdMapper(final String distributionGroup) {
+		this.distributionGroup = distributionGroup;
 		this.regions = new ConcurrentHashMap<>();
 		this.MUTEX = new Object();
 	}
@@ -105,7 +110,7 @@ public class DistributionRegionIdMapper {
 		}
 		
 		if(namprefixes.isEmpty() && logger.isDebugEnabled()) {
-			logger.debug("Got an empty result list by query region: {}", region);
+			logger.debug("Got an empty result list by query region: {} in {}", region, distributionGroup);
 		}
 		
 		return convertRegionIdToTableNames(ssTableName, namprefixes);
@@ -120,7 +125,7 @@ public class DistributionRegionIdMapper {
 		final Collection<Long> namprefixes = getAllRegionIds();
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
-			logger.warn("Got an empty result list by query all regions");
+			logger.warn("Got an empty result list by query all regions in {}", distributionGroup);
 		}
 		
 		return convertRegionIdToTableNames(ssTableName, namprefixes);		
@@ -146,8 +151,7 @@ public class DistributionRegionIdMapper {
 	 * @param tablename
 	 * @param boundingBox
 	 */
-	public boolean addMapping(final long regionId, final BoundingBox boundingBox, 
-			final String distributionGroup) {
+	public boolean addMapping(final long regionId, final BoundingBox boundingBox) {
 				
 		if(regions.containsKey(regionId)) {
 			logger.debug("Mapping for region {} / {} already exists, ignoring", 
@@ -171,7 +175,7 @@ public class DistributionRegionIdMapper {
 	 * Remove a mapping
 	 * @return
 	 */
-	public boolean removeMapping(final long regionId, final String distributionGroup) {
+	public boolean removeMapping(final long regionId) {
 		
 		final boolean removed = regions.containsKey(regionId);
 		regions.remove(regionId);
@@ -191,7 +195,7 @@ public class DistributionRegionIdMapper {
 	 * Remove all mappings
 	 */
 	public void clear() {
-		logger.info("Clear all local mappings");
+		logger.info("Clear all local mappings in {}", distributionGroup);
 		
 		regions.clear();
 		
