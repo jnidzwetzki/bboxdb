@@ -14,7 +14,9 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
 </a> <a href="https://gitter.im/bboxdb/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
   <img alt="Join the chat at https://gitter.im/bboxdb/Lobby" src="https://badges.gitter.im/Join%20Chat.svg">
   </a> <a href="https://repo1.maven.org/maven2/org/bboxdb/"><img alt="Maven Central Version" src="https://maven-badges.herokuapp.com/maven-central/org.bboxdb/bboxdb-server/badge.svg" />
-  </a> <a href="https://codeclimate.com/github/jnidzwetzki/bboxdb/maintainability"><img src="https://api.codeclimate.com/v1/badges/0b8b98bde4ec65bfb5b7/maintainability" /></a>
+  </a> <a href="https://codeclimate.com/github/jnidzwetzki/bboxdb/maintainability"><img src="https://api.codeclimate.com/v1/badges/0b8b98bde4ec65bfb5b7/maintainability" /></a><a href="http://makeapullrequest.com">
+ <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
+</a>
 
 ## What is the difference to traditional key-value-stores?
 
