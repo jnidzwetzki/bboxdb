@@ -46,7 +46,7 @@ public class DistributionRegionIdMapper {
 	/**
 	 * The distribution group name
 	 */
-	private String distributionGroup;
+	private final String distributionGroup;
 	
 	/**
 	 * The mutex for synchronization
