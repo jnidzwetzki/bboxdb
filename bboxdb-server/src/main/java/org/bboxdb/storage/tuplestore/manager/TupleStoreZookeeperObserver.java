@@ -112,17 +112,20 @@ public class TupleStoreZookeeperObserver {
 	 * @param e
 	 */
 	private void handleTableDelete(final WatchedEvent e) {
-		
-		
-		logger.info("-----> Got Event " + e);
-		
+				
 		if(e.getType() == null) {
 			return;
 		}
 		
+		final String path = e.getPath();
+
+		if(path == null) {
+			return;
+		}
+		
+		logger.debug("Got event for {}", path);
+		
 		try {
-			final String path = e.getPath();
-			logger.info("----------> Got deleted call for {}", path);
 
 			final String changedPath = path.replaceFirst(zookeeperClient.getClusterPath() + "/", "");
 						
