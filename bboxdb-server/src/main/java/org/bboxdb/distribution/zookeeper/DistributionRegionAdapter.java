@@ -374,7 +374,7 @@ public class DistributionRegionAdapter {
 
 		logger.debug("Register system under systems node: {}", systemsPath);
 		
-		zookeeperClient.createPersistentNode(instancePath, "".getBytes());
+		zookeeperClient.replacePersistentNode(instancePath, "".getBytes());
 		
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, regionPath);
 	}
