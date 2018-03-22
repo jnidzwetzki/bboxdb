@@ -17,15 +17,26 @@
  *******************************************************************************/
 package org.bboxdb.storage.tuplestore.manager;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.zookeeper.WatchedEvent;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionEvent;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -42,19 +53,127 @@ public class TupleStoreZookeeperObserver {
 	/**
 	 * The known regions
 	 */
-	private final Set<DistributionRegionEntity> knownRegions; 
+	private final Set<DistributionRegionEntity> knownRegions;
+
+	/**
+	 * The zookeeper client
+	 */
+	private final ZookeeperClient zookeeperClient;
+
+	/**
+	 * The group adapter
+	 */
+	private final DistributionGroupAdapter groupAdapter;
 	
+	/**
+	 * The tuple store adapter
+	 */
+	private final TupleStoreAdapter storeAdapter;
+
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreZookeeperObserver.class);
-
 	
 	public TupleStoreZookeeperObserver(final TupleStoreManagerRegistry registry) {
 		this.registry = registry;
 		this.knownRegions = new HashSet<>();
+		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		this.groupAdapter = zookeeperClient.getDistributionGroupAdapter();
+		this.storeAdapter = zookeeperClient.getTupleStoreAdapter();
+		
+		readAndWatchTableConfiguration();
+	}
+
+	/**
+	 * Read table configuraitons
+	 * 
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	private void readAndWatchTableConfiguration() {
+		try {
+			final List<String> groups = groupAdapter.getDistributionGroups();
+			
+			for(final String group : groups) {
+				try {
+					storeAdapter.getAllTables(group, w -> handleTableDelete(w));
+				} catch (Exception e) {
+					logger.error("Got exception while reading table configurations", e);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Got exception while reading table configurations", e);
+		}
 	}
 	
+	/**
+	 * Handle the deleted table event
+	 * @param e
+	 */
+	private void handleTableDelete(final WatchedEvent e) {
+		
+		
+		logger.info("-----> Got Event " + e);
+		
+		if(e.getType() == null) {
+			return;
+		}
+		
+		try {
+			final String path = e.getPath();
+			logger.info("----------> Got deleted call for {}", path);
+
+			final String changedPath = path.replaceFirst(zookeeperClient.getClusterPath() + "/", "");
+						
+			final String[] splitPath = changedPath.split("/");
+			final String distributionGroup = splitPath[0];
+			
+			// Reregister watcher
+			final List<String> allZookeeperTables = storeAdapter.getAllTables(distributionGroup, 
+					w -> handleTableDelete(w));
+			
+			TupleStoreConfigurationCache.getInstance().clear();
+
+			deleteAllDeletedTables(distributionGroup, allZookeeperTables);
+		} catch (Throwable e1) {
+			logger.error("Got exception while deleting tuple", e1);
+		}
+	}
+
+	/**
+	 * Delete all deleted tables
+	 * 
+	 * @param distributionGroup
+	 * @param allZookeeperTables
+	 * @throws BBoxDBException
+	 * @throws StorageManagerException
+	 */
+	private void deleteAllDeletedTables(final String distributionGroup, final List<String> allZookeeperTables)
+			throws BBoxDBException, StorageManagerException {
+		final List<TupleStoreName> allLocalTables 
+			= registry.getAllTablesForDistributionGroup(distributionGroup);
+		
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		
+		final DistributionRegionIdMapper regionIdMapper = spacePartitioner
+				.getDistributionRegionIdMapper();
+				
+		for(final TupleStoreName localTable : allLocalTables) {
+			final String localTableName = localTable.getFullnameWithoutPrefix();
+			
+			if(! allZookeeperTables.contains(localTableName)) {
+				logger.info("Table {} is not known in zookeeper, deleting local", localTableName);
+				final Collection<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(localTable);
+				
+				for(final TupleStoreName ssTableName : localTables) {
+					registry.deleteTable(ssTableName, false);	
+				}
+			}
+		}
+	}
+
 	/**
 	 * Register a new table, a callback is registered on the space partitioner
 	 * to delete the table when it is split or merged
@@ -62,13 +181,13 @@ public class TupleStoreZookeeperObserver {
 	 * @param tupleStoreName
 	 */
 	public void registerTable(final TupleStoreName tupleStoreName) {
+		
+		final String distributionGroup = tupleStoreName.getDistributionGroup();
+		
+		final DistributionRegionEntity tableEntity = new DistributionRegionEntity(
+				distributionGroup, tupleStoreName.getRegionId());
+		
 		synchronized (knownRegions) {
-			
-			final String distributionGroup = tupleStoreName.getDistributionGroup();
-			
-			final DistributionRegionEntity tableEntity = new DistributionRegionEntity(
-					distributionGroup, tupleStoreName.getRegionId());
-			
 			if(knownRegions.contains(tableEntity)) {
 				return;
 			}
@@ -119,68 +238,10 @@ public class TupleStoreZookeeperObserver {
 				registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId(), false);
 			}
 			
-		} catch (StorageManagerException e1) {
+			storeAdapter.getAllTables(groupName, w -> handleTableDelete(w));
+
+		} catch (Throwable e1) {
 			logger.error("Got exception while deleting tuple stores", e1);
 		}
-	}
-} 
-
-class DistributionRegionEntity {
-	
-	/**
-	 * The distribution group name
-	 */
-	private final String distributionGroupName;
-	
-	/**
-	 * The region id
-	 */
-	private final long regionId;
-
-	public DistributionRegionEntity(final String distributionGroupName, final long regionId) {
-		this.distributionGroupName = distributionGroupName;
-		this.regionId = regionId;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((distributionGroupName == null) ? 0 : distributionGroupName.hashCode());
-		result = prime * result + (int) (regionId ^ (regionId >>> 32));
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DistributionRegionEntity other = (DistributionRegionEntity) obj;
-		if (distributionGroupName == null) {
-			if (other.distributionGroupName != null)
-				return false;
-		} else if (!distributionGroupName.equals(other.distributionGroupName))
-			return false;
-		if (regionId != other.regionId)
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "DistributionRegionEntity [distributionGroupName=" + distributionGroupName + ", regionId=" + regionId
-				+ "]";
-	}
-
-	public String getDistributionGroupName() {
-		return distributionGroupName;
-	}
-
-	public long getRegionId() {
-		return regionId;
 	}
 }

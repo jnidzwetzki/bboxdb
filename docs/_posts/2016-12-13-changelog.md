@@ -13,6 +13,8 @@ order: 1
 - Improvement: Refactored maintainability to A rating (closes #80)
 - Improvement: The complete space of the tree space partitioner can be restricted
 - Improvement: Added the ability to display generic trees in GUI (closes #84) 
+- Improvement: The delete distribution group call needs only to be send to one node
+- Improvement: The table deletion call needs only to be send to one node
 - Bugfix: Fixed the Quadtree space partitioner
 - Bugfix: Execute the pending table deletes immediately on distribution group delete
 

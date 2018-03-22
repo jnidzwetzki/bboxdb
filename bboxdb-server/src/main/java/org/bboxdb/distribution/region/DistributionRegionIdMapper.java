@@ -58,7 +58,7 @@ public class DistributionRegionIdMapper {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionIdMapper.class);
 
-	public DistributionRegionIdMapper(final String distributionGroup) {
+	public DistributionRegionIdMapper(final String distributionGroup) {		
 		this.distributionGroup = distributionGroup;
 		this.regions = new ConcurrentHashMap<>();
 		this.MUTEX = new Object();

@@ -158,7 +158,7 @@ public class TupleStoreAdapter {
 		
 		final String allTablesPath = getAllTablesPath(distributionGroup);
 		NodeMutationHelper.getNodeMutationVersion(zookeeperClient, allTablesPath, watcher);
-		
+				
 		final List<String> children = zookeeperClient.getChildren(allTablesPath);
 		children.removeIf(c -> c.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION));
 		
@@ -228,9 +228,9 @@ public class TupleStoreAdapter {
 	public void deleteTable(final TupleStoreName tupleStoreName) throws ZookeeperException {
 		final String tablePath = getTablePath(tupleStoreName);
 		zookeeperClient.deleteNodesRecursive(tablePath);
+		final String allTablesPath = getAllTablesPath(tupleStoreName.getDistributionGroup());	
 		
-		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, getAllTablesPath( 
-				tupleStoreName.getDistributionGroup()));
+		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, allTablesPath);
 	}
 
 	/**

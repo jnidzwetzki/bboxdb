@@ -20,7 +20,6 @@ package org.bboxdb.distribution;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,6 @@ import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.StatisticsHelper;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
@@ -201,15 +199,12 @@ public class TestZookeeperIntegration {
 		storageRegistry.getTupleStoreManager(tupleStoreName0);
 		Assert.assertTrue(storageRegistry.isStorageManagerKnown(tupleStoreName0));
 		
-		Thread.sleep(5000);
 		System.out.println("=== Executing deletion");
 		tupleStoreAdapter.deleteTable(tupleStoreName0);
 		Thread.sleep(5000);
 
-		Assert.assertTrue(storageRegistry.getAllStorages().get(0).getPendingTableDeletions().contains(tupleStoreName0));
-
 		Assert.assertFalse(storageRegistry.isStorageManagerKnown(tupleStoreName0));
-		//storageRegistry.shutdown();
+		storageRegistry.shutdown();
 	}
 	
 	/**
@@ -575,10 +570,12 @@ public class TestZookeeperIntegration {
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
-	private SpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
-		return distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
-				new HashSet<>(), new DistributionRegionIdMapper(TEST_GROUP));
+	private SpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException,
+		BBoxDBException {
+		
+		return SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
 	}
 	
 	/**
