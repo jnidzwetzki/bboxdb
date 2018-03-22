@@ -31,7 +31,7 @@ public class TestStatisticsHelper {
 	
 	private final static double DELTA = 0.0001;
 
-	@Test
+	@Test(timeout=60000)
 	public void testStatististicsHistory() {
 		StatisticsHelper.clearHistory();
 		

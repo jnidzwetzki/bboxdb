@@ -27,7 +27,7 @@ public class TestMicroSecondTimestampProvider {
 	 * Test the timestamp generator
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetTimestamp() {
 		
 		long oldValue = 0;

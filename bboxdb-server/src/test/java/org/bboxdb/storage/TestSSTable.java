@@ -57,7 +57,7 @@ public class TestSSTable {
 	 * Test written files
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testWrittenFiles() throws Exception {
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
@@ -84,7 +84,7 @@ public class TestSSTable {
 	 * Test written files
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testWrittenFilesWithExceiton() throws Exception {
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
@@ -117,7 +117,7 @@ public class TestSSTable {
 	 * Test the tuple iterator
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIndexIterator() throws Exception {
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
@@ -176,7 +176,7 @@ public class TestSSTable {
 	 * Test delayed deletion
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDelayedDeletion() throws Exception {	
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);

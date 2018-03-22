@@ -33,7 +33,7 @@ public class TestSequenceNumberGenerator {
 	/**
 	 * Ensure that all sequence numbers are distinct
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSequenceNumberGenerator1() {
 		final int NUMBERS = 1000;
 		final HashMap<Short, Short> sequenceNumberMap = new HashMap<>();
@@ -51,7 +51,7 @@ public class TestSequenceNumberGenerator {
 	 * Ensure the generatror is able to create more than 2^16 numbers, even we have
 	 * some overruns 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSequenceNumberGenerator2() {
 		final HashMap<Short, Short> sequenceNumberMap = new HashMap<>();
 

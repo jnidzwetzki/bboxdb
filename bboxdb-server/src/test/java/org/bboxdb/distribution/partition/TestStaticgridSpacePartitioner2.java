@@ -216,7 +216,7 @@ public class TestStaticgridSpacePartitioner2 {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIsSplittable() throws ZookeeperException, ZookeeperNotFoundException {
 		final StaticgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		Assert.assertFalse(spacePartitioner.isSplitable(null));
@@ -225,7 +225,7 @@ public class TestStaticgridSpacePartitioner2 {
 	/**
 	 * Get the merge candidates
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetMergeCandidates() throws ZookeeperException, ZookeeperNotFoundException {
 		final StaticgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		Assert.assertTrue(spacePartitioner.getMergeCandidates(null).isEmpty());

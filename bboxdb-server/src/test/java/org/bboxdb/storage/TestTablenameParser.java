@@ -29,7 +29,7 @@ public class TestTablenameParser {
 	/**
 	 * Test the parsing of invalid tablenames
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTablenameParserInvalid() {
 		final List<String> invalidNames = new ArrayList<>();
 		invalidNames.add("");
@@ -65,7 +65,7 @@ public class TestTablenameParser {
 	/**
 	 * Test the parsing of valid tablenames
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTablenameParserValid() {
 		final List<String> validNames = new ArrayList<String>();
 		validNames.add("abc_def");
@@ -87,7 +87,7 @@ public class TestTablenameParser {
 	/**
 	 * Test the compare to method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompareTo() {
 		final TupleStoreName tupleStoreName1 = new TupleStoreName("abc_def_1");
 		final TupleStoreName tupleStoreName2 = new TupleStoreName("def_def_2");

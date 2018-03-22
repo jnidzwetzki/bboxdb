@@ -40,7 +40,7 @@ public class TestRoundRobinRessourcePlacement extends TestRandomRessourcePlaceme
 	 * Test round robin placement 1
 	 * @throws ResourceAllocationException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoundRobinPlacement1() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
@@ -60,7 +60,7 @@ public class TestRoundRobinRessourcePlacement extends TestRandomRessourcePlaceme
 	 * Test round robin placement 2 (removed system)
 	 * @throws ResourceAllocationException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoundRobinPlacement2() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();

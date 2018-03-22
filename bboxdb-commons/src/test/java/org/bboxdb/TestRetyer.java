@@ -25,7 +25,7 @@ import org.junit.Test;
 
 public class TestRetyer {
 
-	@Test
+	@Test(timeout=60000)
 	public void testSuccess() throws InterruptedException {
 		final Callable<Boolean> callable = new Callable<Boolean>() {
 
@@ -49,7 +49,7 @@ public class TestRetyer {
 		Assert.assertEquals(1, retryer.getNeededExecutions());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testSuccessAfter5() throws InterruptedException {
 		final Callable<Boolean> callable = new Callable<Boolean>() {
 
@@ -83,7 +83,7 @@ public class TestRetyer {
 		Assert.assertTrue(retryer.getLastException() != null);
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testSuccessAfter20() throws InterruptedException {
 		final Callable<Boolean> callable = new Callable<Boolean>() {
 

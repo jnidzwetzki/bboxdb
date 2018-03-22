@@ -64,7 +64,7 @@ public class TestBoundingBox {
 	 * Create some valid bounding boxes
 	 */
 	@SuppressWarnings("unused")
-	@Test
+	@Test(timeout=60000)
 	public void testBoundingBoxCreateValid() {
 		final BoundingBox bb1 = new BoundingBox(1d, 10d);
 		final BoundingBox bb2 = new BoundingBox(-10d, 10d);
@@ -75,7 +75,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the getter and the setter for the dimension data
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetValues() {
 		final BoundingBox bb1 = new BoundingBox(1d, 11d);
 		Assert.assertEquals(1d, bb1.getCoordinateLow(0), EQUALS_DELTA);
@@ -93,7 +93,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the calculation of low and high values
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testLowHigh() {
 		final BoundingBox bb1 = new BoundingBox(1d, 11d);
 		Assert.assertEquals(1d, bb1.getCoordinateLow(0), EQUALS_DELTA);
@@ -109,7 +109,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the dimension of the bounding box
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDimension() {
 		final BoundingBox bb1 = new BoundingBox();
 		Assert.assertEquals(0, bb1.getDimension());
@@ -127,7 +127,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the overlapping in 1d
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testOverlapping1D() {
 		final BoundingBox bb1left = new BoundingBox(0d, 10d);
 		final BoundingBox bb1middle = new BoundingBox(5d, 15d);
@@ -154,7 +154,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the overlapping in 2d
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testOverlapping2D() {
 		final BoundingBox bb1left = new BoundingBox(0d, 1d, 0d, 1d);
 		final BoundingBox bb1leftinside = new BoundingBox(0.5d, 0.7d, 0.5d, 0.7d);
@@ -174,7 +174,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the overlapping in 3d
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testOverlapping3D() {
 		final BoundingBox bb1left = new BoundingBox(0d, 1d, 0d, 1d, 0d, 1d);
 		final BoundingBox bb1leftinside = new BoundingBox(0.5d, 0.7d, 0.5d, 0.7d, 0.5d, 0.7d);
@@ -193,7 +193,7 @@ public class TestBoundingBox {
 	/**
 	 * Test empty bounding box overlapping
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testOverlapEmptyBoundingBox() {
 		final BoundingBox bb1left = new BoundingBox(0d, 1d, 0d, 1d, 0d, 1d);
 		Assert.assertTrue(bb1left.overlaps(BoundingBox.FULL_SPACE));
@@ -203,7 +203,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the creation of the covering bounding box 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCoverBoundingBox1() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 1d, 3d);
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 4d, 1d, 4d);
@@ -236,7 +236,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the creation of the covering bounding box 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCoverBoundingBox2() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 1d, 3d);
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1));
@@ -279,7 +279,7 @@ public class TestBoundingBox {
 	/**
 	 * Test merge on array
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeBoxes0() {
 		final BoundingBox resultBox = BoundingBox.getCoveringBox();
 		Assert.assertEquals(BoundingBox.FULL_SPACE, resultBox);
@@ -288,7 +288,7 @@ public class TestBoundingBox {
 	/**
 	 * Test merge on array
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeBoxes1() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 1d);
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 4d);
@@ -299,7 +299,7 @@ public class TestBoundingBox {
 	/**
 	 * Test merge on array
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeBoxes2() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 1d);
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 4d);
@@ -310,7 +310,7 @@ public class TestBoundingBox {
 	/**
 	 * Test merge on array
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeBoxes3() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 1d);
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 4d);
@@ -321,7 +321,7 @@ public class TestBoundingBox {
 	/**
 	 * Test merge on array
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeBoxes4() {
 		final BoundingBox resultBox1 = BoundingBox.getCoveringBox();
 		Assert.assertEquals(BoundingBox.FULL_SPACE, resultBox1);
@@ -336,7 +336,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the comparable interface of the bounding box
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBoundingBoxSorting() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 3d, 7d);
 		final BoundingBox boundingBox2 = new BoundingBox(-1d, 1d, 3d, 7d);
@@ -363,7 +363,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the split method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBoundingBoxSplit1() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 3d, 7d);
 		final BoundingBox resultBox = boundingBox1.splitAndGetLeft(2d, 0, true);
@@ -391,7 +391,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the open / closed interval split
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBoundingBoxSplit4() {
 		final BoundingBox boundingBox = new BoundingBox(1d, 3d, 3d, 7d);
 		final BoundingBox leftBox = boundingBox.splitAndGetLeft(2, 0, false);
@@ -404,7 +404,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the bounding box split
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBoundingBoxSplit5() {
 		final BoundingBox boundingBox = BoundingBox.createFullCoveringDimensionBoundingBox(1);		
 		Assert.assertTrue(boundingBox.isCoveringPointInDimension(0, 0));
@@ -419,7 +419,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the intersection of two bounding boxes
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection1() {
 		final BoundingBox boundingBox = new BoundingBox(1d, 3d, 3d, 7d);
 		Assert.assertEquals(BoundingBox.FULL_SPACE, boundingBox.getIntersection(BoundingBox.FULL_SPACE));
@@ -429,7 +429,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the intersection of two bounding boxes
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection2() {
 		final BoundingBox boundingBox = new BoundingBox(1d, 3d, 3d, 7d);		
 		Assert.assertEquals(boundingBox, boundingBox.getIntersection(boundingBox));
@@ -439,7 +439,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the intersection of two bounding boxes
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection3() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 5d, 1d, 5d);	
 		final BoundingBox boundingBox2 = new BoundingBox(2d, 4d, 2d, 4d);		
@@ -451,7 +451,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the intersection of two bounding boxes
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection4() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 5d, 1d, 5d);	
 		final BoundingBox boundingBox2 = new BoundingBox(2d, 6d, 2d, 6d);	
@@ -465,7 +465,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the intersection of two bounding boxes
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection5() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 5d);	
 		final BoundingBox boundingBox2 = new BoundingBox(6d, 9d, 6d, 9d);	
@@ -477,7 +477,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the intersection of two bounding boxes
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection6() {
 		final BoundingBox boundingBox1 = new BoundingBox(1.0d, 2.0d, 1.0d, 2.0d);
 		final BoundingBox boundingBox2 = new BoundingBox(1.0d, 3.0d, 1.0d, 3.0d);
@@ -489,7 +489,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the is covered method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIsFullyCovered1() {
 		final BoundingBox boundingBox1 = new BoundingBox(0d, 10d, 0d, 10d);	
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 5d, 1d, 5d);	
@@ -522,7 +522,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the is covered method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIsFullyCovered3() {
 		final BoundingBox boundingBox1 = new BoundingBox(0d, 10d, 0d, 10d);	
 		Assert.assertTrue(boundingBox1.isCovering(BoundingBox.FULL_SPACE));
@@ -531,7 +531,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the volume of the bounding box
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testVolume() {
 		final BoundingBox boundingBox1 = new BoundingBox(0d, 1d, 0d, 1d);	
 		final BoundingBox boundingBox2 = new BoundingBox(0d, 10d, 0d, 10d);	
@@ -545,7 +545,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the volume of the bounding box
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testEnlargement() {
 		final BoundingBox boundingBox1 = new BoundingBox(0d, 1d, 0d, 1d);	
 		final BoundingBox boundingBox2 = new BoundingBox(0d, 10d, 0d, 10d);	
@@ -559,7 +559,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the from and to string method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testFromToString1() {
 		final BoundingBox boundingBox1 = BoundingBox.FULL_SPACE;
 		final BoundingBox boundingBox2 = new BoundingBox(0d, 1d);	
@@ -591,7 +591,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the to string method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testToString() {
 		final BoundingBox boundingBox = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false)));	
 		Assert.assertTrue(boundingBox.toString().length() > 10);
@@ -601,7 +601,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the compare to method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompareTo() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 3d, 4d);
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 2d);
@@ -614,7 +614,7 @@ public class TestBoundingBox {
 	/**
 	 * Test the size
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSize() {
 		final BoundingBox boundingBox = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false)));	
 		Assert.assertTrue(boundingBox.getSize() > 0);
@@ -623,7 +623,7 @@ public class TestBoundingBox {
 	/**
 	 * Test from and to byte array
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testFromAndToByteArray() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 3d, 4d);
 		final byte[] bytes = boundingBox1.toByteArray();

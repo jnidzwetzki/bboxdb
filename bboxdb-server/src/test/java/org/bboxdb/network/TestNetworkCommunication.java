@@ -101,7 +101,7 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCreateDistributionGroupTwoTimes() throws BBoxDBException, InterruptedException {
 		final BBoxDBClient bboxdbClient = connectToServer();
 		
@@ -129,7 +129,7 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCreateTableTwoTimes() throws BBoxDBException, InterruptedException {
 		final BBoxDBClient bboxdbClient = connectToServer();
 		

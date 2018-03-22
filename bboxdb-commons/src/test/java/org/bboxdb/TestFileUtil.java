@@ -25,7 +25,7 @@ import org.junit.Test;
 
 public class TestFileUtil {
 	
-	@Test
+	@Test(timeout=60000)
 	public void testNonExisting() {
 		final File file = new File("/tmp/deletion");
 		Assert.assertFalse(file.exists());
@@ -33,7 +33,7 @@ public class TestFileUtil {
 		Assert.assertFalse(file.exists());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testNonExisting1() {
 		final File file = new File("/tmp/deletion");
 		file.mkdirs();
@@ -42,7 +42,7 @@ public class TestFileUtil {
 		Assert.assertFalse(file.exists());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testNonExisting2() {
 		final File file = new File("/tmp/deletion");
 		file.mkdirs();

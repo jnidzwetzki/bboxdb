@@ -70,7 +70,7 @@ public class TestDynamicgridSpacePartitioner {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testRootElement() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		
@@ -81,7 +81,7 @@ public class TestDynamicgridSpacePartitioner {
 		Assert.assertEquals(new BoundingBox(0.0, 5.0, 0.0, 6.0), box);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void createGridCells() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();

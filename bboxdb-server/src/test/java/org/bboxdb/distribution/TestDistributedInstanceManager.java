@@ -60,7 +60,7 @@ public class TestDistributedInstanceManager {
 	/**
 	 * test unregister
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRegisterUnregister() throws InterruptedException {
 		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
@@ -82,7 +82,7 @@ public class TestDistributedInstanceManager {
 	/**
 	 * test unregister
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRegisterUnregister2() throws InterruptedException {
 		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
@@ -117,7 +117,7 @@ public class TestDistributedInstanceManager {
 	/**
 	 * No instance is known - but zookeeper init is called
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRegisterInstance1() throws InterruptedException {
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(null);
 		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
@@ -131,7 +131,7 @@ public class TestDistributedInstanceManager {
 	/**
 	 * One instance is known
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRegisterInstance2() throws InterruptedException {
 		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
@@ -153,7 +153,7 @@ public class TestDistributedInstanceManager {
 	 * One instance is known and changes
 	 * @throws ZookeeperException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRegisterInstance3() throws InterruptedException, ZookeeperException {
 		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
@@ -183,7 +183,7 @@ public class TestDistributedInstanceManager {
 	 * Two instances are known and changing
 	 * @throws ZookeeperException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRegisterInstance4() throws InterruptedException, ZookeeperException {
 		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
 		final BBoxDBInstance instance1 = new BBoxDBInstance("node1:5050");
@@ -412,7 +412,7 @@ public class TestDistributedInstanceManager {
 	/**
 	 * Test write the system info
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testWriteSystemInfo() {
 		final BBoxDBInstance instance1 = new BBoxDBInstance("node6:5050");
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
@@ -449,7 +449,7 @@ public class TestDistributedInstanceManager {
 	 * Test the reconnect
 	 * @throws ZookeeperException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testReconnect() throws InterruptedException, ZookeeperException {
 		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
 

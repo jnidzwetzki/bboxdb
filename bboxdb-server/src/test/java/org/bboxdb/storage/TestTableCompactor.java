@@ -96,7 +96,7 @@ public class TestTableCompactor {
 		relationDirectoryFile.mkdirs();
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testCompactTestFileCreation() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
@@ -126,7 +126,7 @@ public class TestTableCompactor {
 		
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testCompactTestMerge() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
@@ -147,7 +147,7 @@ public class TestTableCompactor {
 		Assert.assertEquals(tupleList1.size() + tupleList2.size(), counter);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testCompactTestMergeBig() throws StorageManagerException {
 		
 		SSTableKeyIndexReader reader1 = null;
@@ -185,7 +185,7 @@ public class TestTableCompactor {
 	}
 	
 	
-	@Test
+	@Test(timeout=60000)
 	public void testCompactTestFileOneEmptyfile1() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
@@ -204,7 +204,7 @@ public class TestTableCompactor {
 		Assert.assertEquals(tupleList1.size() + tupleList2.size(), counter);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testCompactTestFileOneEmptyfile2() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -223,7 +223,7 @@ public class TestTableCompactor {
 		Assert.assertEquals(tupleList1.size() + tupleList2.size(), counter);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testCompactTestSameKey() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 1));
@@ -249,7 +249,7 @@ public class TestTableCompactor {
 	 * Run the compactification with one deleted tuple
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompactTestWithDeletedTuple() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
@@ -274,7 +274,7 @@ public class TestTableCompactor {
 	 * Test a minor compactation
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompactationMinor() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
@@ -304,7 +304,7 @@ public class TestTableCompactor {
 	 * Test a major compactation
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompactationMajor1() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
@@ -334,7 +334,7 @@ public class TestTableCompactor {
 	 * Test a major compactation
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompactationMajor2() throws StorageManagerException {
 		
 		final List<Tuple> tupleList1 = new ArrayList<>();
@@ -435,7 +435,7 @@ public class TestTableCompactor {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompactorRunnable() throws StorageManagerException, 
 		RejectedException, BBoxDBException, InterruptedException {
 		

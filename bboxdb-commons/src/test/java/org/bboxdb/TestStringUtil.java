@@ -26,7 +26,7 @@ public class TestStringUtil {
 	/**
 	 * Test the countCharOccurrence method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testcountCharOccurrence() {
 		Assert.assertEquals(0, StringUtil.countCharOccurrence("abc", '_'));
 

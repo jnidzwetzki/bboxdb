@@ -40,7 +40,7 @@ public class TestTupleListFutureStore {
 		Assert.assertTrue(tupleListFutureStore.getServiceState().isInShutdownState());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testDefaultValues() {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 		Assert.assertEquals(TupleListFutureStore.DEFAULT_MAX_QUEUE_SIZE, tupleListFutureStore.getMaxQueueSize());
@@ -55,7 +55,7 @@ public class TestTupleListFutureStore {
 		tupleListFutureStore.put(new TupleListFuture(new DoNothingDuplicateResolver(), ""));
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testOneFuture() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 		final TestTupleListFuture testFuture = new TestTupleListFuture();
@@ -71,7 +71,7 @@ public class TestTupleListFutureStore {
 		Assert.assertEquals(testFuture.getIteratorCalls(), TestTupleListFuture.ELEMENTS);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testFiftyFutures() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 

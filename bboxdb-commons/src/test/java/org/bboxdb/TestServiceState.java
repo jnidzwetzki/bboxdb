@@ -138,7 +138,7 @@ public class TestServiceState {
 	/**
 	 * Test the to string method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testToString() {
 		final ServiceState state = new ServiceState();
 		final int length = state.toString().length();
@@ -178,7 +178,7 @@ public class TestServiceState {
 	/**
 	 * Test the register and unregister method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCallbackListenerRegisterAndUnregister() {
 		final ServiceState state = new ServiceState();
 		
@@ -202,7 +202,7 @@ public class TestServiceState {
 	/**
 	 * Test the reset call
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testReset() {
 		final ServiceState state = new ServiceState();
 		final IllegalArgumentException exception = new IllegalArgumentException();
@@ -215,7 +215,7 @@ public class TestServiceState {
 	/**
 	 * Dispath to starting
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDispatchToStarting1() {
 		final ServiceState state = new ServiceState();
 		final IllegalArgumentException exception = new IllegalArgumentException();

@@ -86,7 +86,7 @@ public class TestBBoxDBCluster {
 	 * @throws InterruptedException 
 	 * 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSendDisconnectPackage() throws InterruptedException {
 		System.out.println("=== Running cluster testSendDisconnectPackage");
 
@@ -105,7 +105,7 @@ public class TestBBoxDBCluster {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertAndBoundingBoxTimeQuery() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running cluster testInsertAndBoundingBoxTimeQuery");
 
@@ -144,7 +144,7 @@ public class TestBBoxDBCluster {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running cluster testInsertAndDelete");
 
@@ -162,7 +162,7 @@ public class TestBBoxDBCluster {
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testJoin() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running cluster testJoin");
 

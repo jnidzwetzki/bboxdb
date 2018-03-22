@@ -108,7 +108,7 @@ public class TestExceptionSafeRunnable {
 		Assert.assertEquals(1, afterExceptionCalls.get());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testDefaultImplementation1() throws InterruptedException {
 		final ExceptionSafeRunnable runnable = new ExceptionSafeRunnable() {
 			@Override
@@ -122,7 +122,7 @@ public class TestExceptionSafeRunnable {
 		thread.join();
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testDefaultImplementation2() throws InterruptedException {
 		final ExceptionSafeRunnable runnable = new ExceptionSafeRunnable() {
 			@Override

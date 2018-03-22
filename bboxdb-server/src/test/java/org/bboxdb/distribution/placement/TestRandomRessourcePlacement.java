@@ -66,7 +66,7 @@ public class TestRandomRessourcePlacement {
 	 * Test placement 2 (only one system)
 	 * @throws ResourceAllocationException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testPlacement2() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
@@ -114,7 +114,7 @@ public class TestRandomRessourcePlacement {
 	 * Only ready systems should be returned
 	 * @throws ResourceAllocationException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testNonReadySystems3() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();

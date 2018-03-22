@@ -79,7 +79,7 @@ public class TestDistributionGroupMedadata {
 	 * Test reading and writing distribution group meta data
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testReadAndWriteDistributionGroupMetadata() throws IOException {
 		final DistributionGroupMetadata distributionGroupMetadata1 = new DistributionGroupMetadata();
 		final DistributionGroupMetadata distributionGroupMetadata2 = new DistributionGroupMetadata();
@@ -104,7 +104,7 @@ public class TestDistributionGroupMedadata {
 	/**
 	 * Test the to sting method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testToString() {
 		final DistributionGroupMetadata distributionGroupMetadata2 = new DistributionGroupMetadata();
 		Assert.assertTrue(distributionGroupMetadata2.toString().length() > 10);

@@ -31,7 +31,7 @@ public class TestUnsafeMemoryHandler {
 	 * Test the unmapping of memory mapped files (if available in JVM)
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testUnsafeMemoryHandler() throws Exception {
 		UnsafeMemoryHelper.testMemoryUnmapperAvailable();
 		

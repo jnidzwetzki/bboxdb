@@ -33,7 +33,7 @@ public class TestFuture {
 	/**
 	 * Test the empty future
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testEmptyFuture() {
 		final OperationFuture operationFuture = new OperationFutureImpl<Object>();
 		Assert.assertFalse(operationFuture.isFailed());
@@ -45,7 +45,7 @@ public class TestFuture {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testFutureFailureState() throws InterruptedException, ExecutionException {
 		final OperationFutureImpl<Object> future = new OperationFutureImpl<Object>(1);
 		Assert.assertFalse(future.isFailed());
@@ -60,7 +60,7 @@ public class TestFuture {
 	/**
 	 * Test the done state
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testFutureDoneState() {
 		final OperationFutureImpl<Object> future = new OperationFutureImpl<Object>(1);
 		future.fireCompleteEvent();
@@ -71,7 +71,7 @@ public class TestFuture {
 	/**
 	 * Test multi future done
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMultiFutureDoneState1() {
 		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
 		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
@@ -95,7 +95,7 @@ public class TestFuture {
 	/**
 	 * Test multi future done
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMultiFutureDoneState2() {
 		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
 		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
@@ -115,7 +115,7 @@ public class TestFuture {
 	/**
 	 * Test multi future failed
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMultiFutureFailedState1() {
 		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
 		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
@@ -140,7 +140,7 @@ public class TestFuture {
 	/**
 	 * Test multi future failed
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMultiFutureFailedState2() {
 		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
 		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
@@ -181,7 +181,7 @@ public class TestFuture {
 	/**
 	 * Test the tuple list future
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleListFuture() {
 		final TupleListFuture tupleListFuture = new TupleListFuture(2, new DoNothingDuplicateResolver(), "");
 		

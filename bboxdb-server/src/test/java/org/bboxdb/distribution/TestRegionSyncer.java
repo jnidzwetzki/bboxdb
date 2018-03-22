@@ -73,7 +73,7 @@ public class TestRegionSyncer {
 		distributionGroupAdapter.createDistributionGroup(GROUP, configuration);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void getNonExistingRoot() throws ZookeeperException {
 		distributionGroupAdapter.deleteDistributionGroup(GROUP);
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
@@ -81,7 +81,7 @@ public class TestRegionSyncer {
 		Assert.assertEquals(null, root);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void getExistingRoot() throws ZookeeperException {
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();

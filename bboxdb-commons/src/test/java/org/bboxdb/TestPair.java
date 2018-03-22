@@ -26,7 +26,7 @@ public class TestPair {
 	/**
 	 * Test the pair class
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testPair() {
 		final String string1 = "abc";
 		final String string2 = "123";

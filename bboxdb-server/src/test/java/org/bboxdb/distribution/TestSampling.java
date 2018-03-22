@@ -94,7 +94,7 @@ public class TestSampling {
 	 * @throws StorageManagerException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSampling1() throws StorageManagerException, RejectedException, BBoxDBException {
 				
 		createDummyTable();
@@ -130,7 +130,7 @@ public class TestSampling {
 	 * @throws StorageManagerException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSampling2() throws StorageManagerException, RejectedException, BBoxDBException {
 				
 		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
@@ -150,7 +150,7 @@ public class TestSampling {
 	 * @throws StorageManagerException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSamplingBasedSplitStrategy1() throws StorageManagerException, RejectedException, BBoxDBException {
 				
 		createDummyTable();
@@ -221,7 +221,7 @@ public class TestSampling {
 	 * Test the simple splitpoint strategy
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSimpleSplitpointStrategy1() throws StorageManagerException {
 		final SplitpointStrategy splitpointStrategy = new SimpleSplitStrategy();
 		final BoundingBox coveringBox = new BoundingBox(1d, 2d, -1d, 20d);

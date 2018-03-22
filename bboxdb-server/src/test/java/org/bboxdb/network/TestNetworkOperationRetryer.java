@@ -65,7 +65,7 @@ public class TestNetworkOperationRetryer {
 		retryer.close();
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void successOnFirst() {
 		final NetworkOperationRetryer retryer 
 			= new NetworkOperationRetryer(doNothingConsumer);
@@ -75,7 +75,7 @@ public class TestNetworkOperationRetryer {
 		retryer.close();
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void retry() throws InterruptedException {
 		@SuppressWarnings("unchecked")
 		final BiConsumer<NetworkRequestPackage, OperationFuture> consumer = Mockito.mock(BiConsumer.class);

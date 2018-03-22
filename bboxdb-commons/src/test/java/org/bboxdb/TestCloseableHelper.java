@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 
 public class TestCloseableHelper {
 
-	@Test
+	@Test(timeout=60000)
 	public void testCloseAutocloseable() throws Exception {
 		@SuppressWarnings("unchecked")
 		final Consumer<Exception> consumer = Mockito.mock(Consumer.class);
@@ -48,7 +48,7 @@ public class TestCloseableHelper {
 		(Mockito.verify(consumer, Mockito.times(1))).accept(ioException);
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testCloseCloseable() throws IOException {
 		@SuppressWarnings("unchecked")
 		final Consumer<Exception> consumer = Mockito.mock(Consumer.class);

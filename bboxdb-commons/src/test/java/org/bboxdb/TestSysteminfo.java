@@ -28,7 +28,7 @@ public class TestSysteminfo {
 	/**
 	 * Test the system info
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSysteminfo() {
 		Assert.assertTrue(SystemInfo.getAvailableMemory() >= 1);
 		Assert.assertTrue(SystemInfo.getCPUCores() >= 1);
@@ -39,7 +39,7 @@ public class TestSysteminfo {
 	/**
 	 * Test the system info
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMemoryInfo() {
 		final String memoryStatisticsString = SystemInfo.getMemoryStatisticsString();
 		System.out.println(memoryStatisticsString);

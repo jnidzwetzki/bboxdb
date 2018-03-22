@@ -32,7 +32,7 @@ public class TestNetworkInterfaceHelper {
 	 * Get the local IPs
 	 * @throws SocketException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetLocalIps() throws SocketException {
 		final List<Inet4Address> localIps = NetworkInterfaceHelper.getNonLoopbackIPv4();
 		Assert.assertTrue(localIps.size() > 0);
@@ -42,7 +42,7 @@ public class TestNetworkInterfaceHelper {
 	 * Get the first IP as string
 	 * @throws SocketException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetFirstIpAsString() throws SocketException {
 		final String firstIp = NetworkInterfaceHelper.getFirstNonLoopbackIPv4AsString();
 		Assert.assertTrue(firstIp.length() > 5);

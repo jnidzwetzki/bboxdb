@@ -96,14 +96,14 @@ public class TestStorageManager {
 		storageManager.flush();
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testInsertElements1() throws Exception {
 		final Tuple tuple = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes());
 		storageManager.put(tuple);
 		Assert.assertEquals(tuple, storageManager.get("1").get(0));
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testInsertElements2() throws Exception {
 		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes());
 		final Tuple tuple2 = new Tuple("1", BoundingBox.FULL_SPACE, "def".getBytes());
@@ -114,7 +114,7 @@ public class TestStorageManager {
 		Assert.assertEquals(tuple2, storageManager.get("1").get(0));
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testInsertAndReadPerson() throws Exception {
 		final PersonEntity person1 = new PersonEntity("Jan", "Jansen", 30);
 		final ObjectSerializer<PersonEntity> serializer = new ObjectSerializer<PersonEntity>();
@@ -132,7 +132,7 @@ public class TestStorageManager {
 		Assert.assertEquals(person1, readPerson1);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void getNonExisting() throws Exception {
 		Assert.assertTrue(storageManager.get("1").isEmpty());
 		Assert.assertTrue(storageManager.get("1000").isEmpty());
@@ -145,7 +145,7 @@ public class TestStorageManager {
 		Assert.assertTrue(false);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testInsertCallbacks() throws StorageManagerException, RejectedException {
 		final List<Tuple> receivedTuples = new ArrayList<>();
 		final Consumer<Tuple> callback = ((t) -> receivedTuples.add(t));
@@ -171,7 +171,7 @@ public class TestStorageManager {
 		Assert.assertEquals(2, receivedTuples.size());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDelete() throws Exception {
 		final Tuple createdTuple = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes());
 		storageManager.put(createdTuple);
@@ -182,7 +182,7 @@ public class TestStorageManager {
 		Assert.assertTrue(storageManager.get("1").get(0) instanceof DeletedTuple);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testDeleteTuple() throws StorageManagerException, InterruptedException, RejectedException {
 		int MAX_TUPLES = 100000;
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
@@ -204,7 +204,7 @@ public class TestStorageManager {
 		Assert.assertTrue(readTuples.get(0) instanceof DeletedTuple);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testDeleteTuple2() throws StorageManagerException, InterruptedException, RejectedException {
 		int MAX_TUPLES = 100000;
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
@@ -239,7 +239,7 @@ public class TestStorageManager {
 	 * @throws InterruptedException
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDeleteTuple3() throws StorageManagerException, InterruptedException, RejectedException {
 		int MAX_TUPLES = getNumberOfTuplesForBigInsert();
 		
@@ -268,7 +268,7 @@ public class TestStorageManager {
 		}
 	}
 	/*
-	@Test
+	@Test(timeout=60000)
 	public void testBigInsert() throws Exception {
 
 		final int BIG_INSERT_TUPLES = getNumberOfTuplesForBigInsert();
@@ -307,7 +307,7 @@ public class TestStorageManager {
 	 * @throws StorageManagerException 
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testWithDuplicates() throws StorageManagerException, RejectedException {
 		
 		// Delete the old table
@@ -354,7 +354,7 @@ public class TestStorageManager {
 	 * @throws StorageManagerException 
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testVersionDuplicates() throws StorageManagerException, RejectedException {
 		
 		// Delete the old table
@@ -401,7 +401,7 @@ public class TestStorageManager {
 	 * @throws RejectedException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTTLDuplicates() throws StorageManagerException, RejectedException, InterruptedException {
 		
 		// The TTL

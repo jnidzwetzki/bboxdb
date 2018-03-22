@@ -26,7 +26,7 @@ public class TestDummyResourcePlacementStrategy {
 	 * Test the placement
 	 * @throws ResourceAllocationException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testPlacement() throws ResourceAllocationException {
 		final ResourcePlacementStrategy strategy = new DummyResourcePlacementStrategy();
 		

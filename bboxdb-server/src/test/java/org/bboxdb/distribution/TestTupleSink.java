@@ -133,7 +133,7 @@ public class TestTupleSink {
 	 * Test the tuple redistribution
 	 * @throws Exception 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleRedistribution1() throws Exception {
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
@@ -161,7 +161,7 @@ public class TestTupleSink {
 	 * Test the tuple redistribution
 	 * @throws Exception 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleRedistribution2() throws Exception {		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				TEST_GROUP, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
@@ -211,7 +211,7 @@ public class TestTupleSink {
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleSink() throws StorageManagerException, BBoxDBException, ZookeeperException, InterruptedException {
 		final DistributionRegion distributionRegion = SpacePartitionerCache
 				.getInstance()

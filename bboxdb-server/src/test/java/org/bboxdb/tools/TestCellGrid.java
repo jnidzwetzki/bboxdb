@@ -78,7 +78,7 @@ public class TestCellGrid {
 	/**
 	 * Test the cell creation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetCells1() {
 		final CellGrid cellGrid1D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0), 10);
 		Assert.assertEquals(10, cellGrid1D.getAllCells().size());
@@ -96,7 +96,7 @@ public class TestCellGrid {
 	/**
 	 * Test the cell creation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetCells2() {
 		final CellGrid cellGrid2D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(1, cellGrid2D.getAllInersectedBoundingBoxes(new BoundingBox(1.5, 1.5, 1.5, 1.5)).size());
@@ -129,7 +129,7 @@ public class TestCellGrid {
 	/**
 	 * Test cell grid creation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCellGridCreation() {
 		final CellGrid cellGrid2D1 = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
 		final CellGrid cellGrid2D2 = CellGrid.buildWithFixedCellSize(new BoundingBox(0.0, 10.0, 0.0, 10.0), 1);
@@ -141,7 +141,7 @@ public class TestCellGrid {
 	/**
 	 * Hashcode
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testHashCodeAndEquals() {
 		final CellGrid cellGrid2D1 = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
 		final CellGrid cellGrid2D2 = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);

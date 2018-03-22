@@ -29,7 +29,7 @@ public class TestMathUtil {
 	 */
 	private static final double DEFAULT_ASSERT_DELTA = 0.0000001;
 
-	@Test
+	@Test(timeout=60000)
 	public void testRound() {
 		final double d1 = 1.5;
 		final double d2 = 1.51;
@@ -50,7 +50,7 @@ public class TestMathUtil {
 		Assert.assertEquals(1.53440, MathUtil.round(d8, 5), DEFAULT_ASSERT_DELTA);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testParseInteger(){
 		try {
 			MathUtil.tryParseInt("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
@@ -75,7 +75,7 @@ public class TestMathUtil {
 	}
 
 	
-	@Test
+	@Test(timeout=60000)
 	public void testParseDouble() {
 		try {
 			MathUtil.tryParseDouble("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
@@ -99,7 +99,7 @@ public class TestMathUtil {
 		}
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testParseLong() {
 		try {
 			MathUtil.tryParseLong("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
@@ -130,7 +130,7 @@ public class TestMathUtil {
 		}
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testParseBoolean() {
 		try {
 			MathUtil.tryParseBoolean("true1234", MathUtil.DEFAULT_ERROR_SUPPLIER);

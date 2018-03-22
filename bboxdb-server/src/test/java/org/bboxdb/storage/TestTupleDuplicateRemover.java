@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class TestTupleDuplicateRemover {
 
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateRemoverDiffKey() {
 		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
@@ -42,7 +42,7 @@ public class TestTupleDuplicateRemover {
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateRemoverEqualKeyDiffVesion() {
 		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
@@ -55,7 +55,7 @@ public class TestTupleDuplicateRemover {
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateRemoverEqualKeyEqualVesion() {
 		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
@@ -68,7 +68,7 @@ public class TestTupleDuplicateRemover {
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testJoinedTuple() {
 	final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		

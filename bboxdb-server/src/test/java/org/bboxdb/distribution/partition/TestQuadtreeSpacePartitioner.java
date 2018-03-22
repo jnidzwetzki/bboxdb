@@ -66,7 +66,7 @@ public class TestQuadtreeSpacePartitioner {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testSplit0() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, ResourceAllocationException {
 		
 		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
@@ -78,7 +78,7 @@ public class TestQuadtreeSpacePartitioner {
 		Assert.assertEquals(4, rootNode.getDirectChildren().size());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testSplit1() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, ResourceAllocationException {
 		
 		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
@@ -101,7 +101,7 @@ public class TestQuadtreeSpacePartitioner {
 	 * @throws BBoxDBException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRestrictedSpace() throws ZookeeperException, BBoxDBException, 
 		ZookeeperNotFoundException {
 		

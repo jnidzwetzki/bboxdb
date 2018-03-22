@@ -24,7 +24,7 @@ import org.junit.Test;
 
 public class TestStacktraceHelper {
 	
-	@Test
+	@Test(timeout=60000)
 	public void getStacktrace() {
 		final String stacktrace = StacktraceHelper.getFormatedStacktrace();
 		Assert.assertTrue(stacktrace.length() > 100);

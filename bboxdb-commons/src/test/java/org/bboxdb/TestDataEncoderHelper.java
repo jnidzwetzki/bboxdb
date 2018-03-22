@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class TestDataEncoderHelper {
 
-	@Test
+	@Test(timeout=60000)
 	public void testDoubleArray() {
 		final double[] arrayEmpty = {};
 		final double[] arrayData = {3d, 5.3d, 9d, 1d, -1, -3};
@@ -43,7 +43,7 @@ public class TestDataEncoderHelper {
 		Assert.assertArrayEquals(arrayData, arrayBytesResult, 0.0);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testDouble() {
 		final double longValue = 4534545.5345;
 		final ByteBuffer byteValue = DataEncoderHelper.doubleToByteBuffer(longValue);
@@ -51,7 +51,7 @@ public class TestDataEncoderHelper {
 		Assert.assertEquals(longValue, result, 0.0);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLongArray() {
 		final long[] arrayEmpty = {};
 		final long[] arrayData = {3, 54354, 94354, -1, -3};
@@ -65,7 +65,7 @@ public class TestDataEncoderHelper {
 		Assert.assertArrayEquals(arrayData, arrayBytesResult);
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testLong() {
 		final long longValue = 4534545;
 		final ByteBuffer byteValue = DataEncoderHelper.longToByteBuffer(longValue);
@@ -73,7 +73,7 @@ public class TestDataEncoderHelper {
 		Assert.assertEquals(longValue, result);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testInt() throws IOException {
 		final int intValue = 4534545;
 		final ByteBuffer byteValue = DataEncoderHelper.intToByteBuffer(intValue);
@@ -89,7 +89,7 @@ public class TestDataEncoderHelper {
 		Assert.assertEquals(intValue, dataInputInt);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testShort() {
 		final short shortValue = 11;
 		final ByteBuffer byteValue = DataEncoderHelper.shortToByteBuffer(shortValue);
@@ -97,7 +97,7 @@ public class TestDataEncoderHelper {
 		Assert.assertEquals(shortValue, result);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testConstants() {
 		Assert.assertTrue(DataEncoderHelper.DOUBLE_BYTES > 0);
 		Assert.assertTrue(DataEncoderHelper.INT_BYTES > 0);

@@ -99,7 +99,7 @@ public class TestQueryProcessing {
 	 * @throws RejectedException 
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBBoxQuery1() throws StorageManagerException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
@@ -145,7 +145,7 @@ public class TestQueryProcessing {
 	 * @throws RejectedException 
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBBoxQuery2() throws StorageManagerException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
@@ -183,7 +183,7 @@ public class TestQueryProcessing {
 	 * @throws RejectedException 
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
@@ -223,7 +223,7 @@ public class TestQueryProcessing {
 	 * @throws RejectedException 
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
@@ -261,7 +261,7 @@ public class TestQueryProcessing {
 	 * @throws StorageManagerException
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testJoin1() throws StorageManagerException, RejectedException {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
@@ -285,7 +285,7 @@ public class TestQueryProcessing {
 	 * @throws StorageManagerException
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testJoin3() throws StorageManagerException, RejectedException {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
@@ -327,7 +327,7 @@ public class TestQueryProcessing {
 	 * @throws StorageManagerException
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDoubleJoin1() throws StorageManagerException, RejectedException {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
@@ -381,7 +381,7 @@ public class TestQueryProcessing {
 	 * @throws StorageManagerException
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testJoinWithChangedTuple1() throws StorageManagerException, RejectedException {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);

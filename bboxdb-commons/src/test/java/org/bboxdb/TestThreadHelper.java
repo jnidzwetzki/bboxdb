@@ -27,14 +27,14 @@ import org.junit.Test;
 public class TestThreadHelper {
 
 
-	@Test
+	@Test(timeout=60000)
 	public void testEmptyList() {
 		final List<Thread> threads = new ArrayList<>();
 		final boolean result = ThreadHelper.stopThreads(threads);
 		Assert.assertTrue(result);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testThreadInterruptable() {
 		final Thread thread = getInterruptibleThread();	
 		final List<Thread> threads = new ArrayList<>();

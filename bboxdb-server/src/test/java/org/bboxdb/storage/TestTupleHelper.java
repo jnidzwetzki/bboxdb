@@ -45,7 +45,7 @@ public class TestTupleHelper {
 	/**
 	 * Find the most recent tuple
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetMostRecentTuple() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -62,7 +62,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the duplicate tuple resolver
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateResolverNewest() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -83,7 +83,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the tuple resolver
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateResolverTTLAndVersion1() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -110,7 +110,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the tuple resolver
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateResolverTTLAndVersion2() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -137,7 +137,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the tuple resolver
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateResolverTTL() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -161,7 +161,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the tuple resolver - versions
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDuplicateResolverVersions() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -185,7 +185,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the do nothing tuple resolver
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDoNothingTupleDuplicateResolverVersions() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -212,7 +212,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the tuple key comparator
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleKeyComparator1() {
 		final Tuple tupleA = new Tuple("xyz", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("ijk", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -230,7 +230,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the tuple key comparator
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleKeyComparator2() {
 		final Tuple tupleA = new Tuple("xyz", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("ijk", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
@@ -250,7 +250,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the tuple key comparator
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleKeyComparator3() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
@@ -271,7 +271,7 @@ public class TestTupleHelper {
 	 * Encode and decode a tuple
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void encodeAndDecodeTuple1() throws IOException {
 		final Tuple tuple = new Tuple("abc", new BoundingBox(1.0, 2.0, 3.0, 4.0), "abc".getBytes());
 		
@@ -292,7 +292,7 @@ public class TestTupleHelper {
 	 * Encode and decode a tuple
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void encodeAndDecodeTuple2() throws IOException {
 		final Tuple tuple = new DeletedTuple("abc");
 		
@@ -311,7 +311,7 @@ public class TestTupleHelper {
 	/**
 	 * Test misc methods of a tuple
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleMisc() {
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
 		Assert.assertTrue(tuple1.compareTo(tuple1) == 0);
@@ -324,7 +324,7 @@ public class TestTupleHelper {
 	/**
 	 * Test misc function of the joined tuple
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testJoinedTupleMisc() {
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());
@@ -376,7 +376,7 @@ public class TestTupleHelper {
 	/**
 	 * Test the joined tuple identifier
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testJoinedTupleIdentifier() {
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(1d, 2d), "".getBytes());

@@ -28,7 +28,7 @@ public class TestFilesizeHelper {
 		FileSizeHelper.readableFileSize(-2);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testFileSize() {
 		final String bytes = FileSizeHelper.readableFileSize(3);
 		Assert.assertEquals("3 B", bytes);

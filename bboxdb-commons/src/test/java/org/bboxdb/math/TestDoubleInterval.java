@@ -44,7 +44,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test the from and to string method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testToAndFromString1() {
 		final DoubleInterval doubleInterval1 = new DoubleInterval(1, 2, false, false);
 		final DoubleInterval doubleInterval2 = new DoubleInterval(-1, 2, true, false);
@@ -120,7 +120,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test cover method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void coveredPoint1() {
 		final DoubleInterval floatInterval = new DoubleInterval(1, 100);
 		Assert.assertTrue(floatInterval.isBeginIncluded());
@@ -139,7 +139,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test cover method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void coveredPoint2() {
 		final DoubleInterval floatInterval = new DoubleInterval(1, 100, false, false);
 		Assert.assertFalse(floatInterval.isBeginIncluded());
@@ -158,7 +158,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test overlap method (closed intervals)
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void intervalCovered1() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100);
 		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150);
@@ -181,7 +181,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test overlap method (open intervals)
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void intervalCovered2() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100, false, false);
 		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150, false, false);
@@ -203,7 +203,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test overlap method (half open intervals)
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void intervalConvered3() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100, false, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150, false, true);
@@ -225,7 +225,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test overlap method (half open intervals)
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void intervalConvered4() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100, true, false);
 		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150, true, false);
@@ -247,7 +247,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test the splitting of intervals
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntervalSplit1() {
 		final DoubleInterval interval1 = new DoubleInterval(0, 100);
 		final DoubleInterval leftPart = interval1.splitAndGetLeftPart(50, true);
@@ -317,7 +317,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test midpoint calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMidpoint1() {
 		final DoubleInterval interval1 = new DoubleInterval(DoubleInterval.MIN_VALUE, DoubleInterval.MAX_VALUE);
 		Assert.assertEquals(0, interval1.getMidpoint(), 0.0001f);
@@ -326,7 +326,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection1() {
 		final DoubleInterval floatInterval = new DoubleInterval(1, 2);
 		Assert.assertTrue(floatInterval.getIntersection(null) == null);
@@ -336,7 +336,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection2() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, false, false);
 		final DoubleInterval floatInterval2 = new DoubleInterval(2, 3, false, false);
@@ -346,7 +346,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection3() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(2, 3, true, true);
@@ -362,7 +362,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection4() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(5, 10, true, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(1, 11, true, true);
@@ -375,7 +375,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection5() {
 		final DoubleInterval floatInterval2 = new DoubleInterval(5, 10, true, true);
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 11, true, true);
@@ -388,7 +388,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection6() {
 		final DoubleInterval floatInterval2 = new DoubleInterval(16, 20, true, true);
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 11, true, true);
@@ -401,7 +401,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection7() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(1, 3, true, true);
@@ -412,7 +412,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test intersection calculation
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIntersection8() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(2, 3, true, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(1, 3, true, true);
@@ -423,7 +423,7 @@ public class TestDoubleInterval {
 	/**
 	 * The the covering method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIsCovered1() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(1.5, 3, true, true);
@@ -439,7 +439,7 @@ public class TestDoubleInterval {
 	/**
 	 * The the covering method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIsCovered2() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(1, 2, false, false);
@@ -470,7 +470,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test the rounded string method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoundedString() {
 		final DoubleInterval doubleInterval1 = new DoubleInterval(0.4543534d, 0.9423444d, true, true);
 		final String toStringValue1 = doubleInterval1.toString();
@@ -490,7 +490,7 @@ public class TestDoubleInterval {
 	/**
 	 * Test the compare to method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCompareTo() {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
 		final DoubleInterval floatInterval2 = new DoubleInterval(3, 4, false, false);

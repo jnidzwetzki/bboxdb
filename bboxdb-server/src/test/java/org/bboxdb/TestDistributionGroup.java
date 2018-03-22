@@ -50,7 +50,7 @@ public class TestDistributionGroup {
 	/**
 	 * Test a distribution region with only one level
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testLeafNode() {
 		final DistributionRegion distributionRegion = createDistributionGroup(2);
 		Assert.assertTrue(distributionRegion.isLeafRegion());
@@ -79,7 +79,7 @@ public class TestDistributionGroup {
 	/**
 	 * Test the distribution group config
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDistributionGroupConfiguration1() {
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder
 				.create(45)
@@ -103,7 +103,7 @@ public class TestDistributionGroup {
 	/**
 	 * Test the distribution group config
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDistributionGroupConfiguration2() {
 		final DistributionGroupConfiguration config1 = DistributionGroupConfigurationBuilder
 				.create(45)

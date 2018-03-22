@@ -33,7 +33,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build empty index
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSSTableIndexBuilder1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
@@ -44,7 +44,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build index with one tuple
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSSTableIndexBuilder2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -62,7 +62,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build index with two tuples
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSSTableIndexBuilder3() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -81,7 +81,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build index with two tuples
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSSTableIndexBuilder4() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -101,7 +101,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build index with two tuples
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSSTableIndexBuilder5() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -142,7 +142,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build index with two tuples - bounding boxes are differ in the dimension
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSSTableIndexBuilder7() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -157,7 +157,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build index with multiple tuples - check timestamps
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSSTableIndexBuilder8() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		final Tuple tuple1 = new Tuple("0", BoundingBox.FULL_SPACE, "".getBytes(), 6);
@@ -188,7 +188,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Dump the index to yaml
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDumpToYaml1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		final String yamlData = ssTableIndexBuilder.getMetaData().exportToYaml();
@@ -198,7 +198,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Dump the index to yaml
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDumpToYaml2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -213,7 +213,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Dump the index to yaml and reread the data
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlString1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -235,7 +235,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Dump the index to yaml and reread the data
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlStrig2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
@@ -262,7 +262,7 @@ public class TestSSTableMetadataBuilder {
 	 * Dump the index to yaml file and reread the data - zero tuples
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlFile1() throws IOException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 				
@@ -281,7 +281,7 @@ public class TestSSTableMetadataBuilder {
 	 * Dump the index to yaml file and reread the data - two tuple
 	 * @throws IOException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlFile2() throws IOException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		

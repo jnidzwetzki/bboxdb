@@ -82,7 +82,7 @@ public class TestMemtable {
 	 * Test insert1
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertElements() throws Exception {
 		final Tuple tuple = new Tuple("1", null, "abc".getBytes());
 		memtable.put(tuple);
@@ -94,7 +94,7 @@ public class TestMemtable {
 	 * Test insert2
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testInsertAndReadPerson() throws Exception {
 		final PersonEntity person1 = new PersonEntity("Jan", "Jansen", 30);
 		final ObjectSerializer<PersonEntity> serializer = new ObjectSerializer<PersonEntity>();
@@ -114,7 +114,7 @@ public class TestMemtable {
 	 * Query for non existing tuples
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void getNonExisting() throws Exception {
 		Assert.assertTrue(memtable.get("1").isEmpty());
 		Assert.assertTrue(memtable.get("1000").isEmpty());
@@ -135,7 +135,7 @@ public class TestMemtable {
 	 * Test the deletion of a tuple
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleDelete() throws Exception {		
 		final Tuple createdTuple = new Tuple("1", null, "abc".getBytes());
 		memtable.put(createdTuple);
@@ -164,7 +164,7 @@ public class TestMemtable {
 	 * Test the sorted list query
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSortedList0() throws StorageManagerException {
 		// Cleared memtables should return an empty list
 		Assert.assertEquals(memtable.getSortedTupleList().size(), 0);
@@ -174,7 +174,7 @@ public class TestMemtable {
 	 * Test key updates and sorted list query
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSortedList1() throws StorageManagerException {
 		// Insert key 1
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
@@ -192,7 +192,7 @@ public class TestMemtable {
 	 * Test the sorted tuple list
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSortedList3() throws StorageManagerException {
 		// Insert key 1
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
@@ -208,7 +208,7 @@ public class TestMemtable {
 	 * The the time query
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTimeQuery() throws StorageManagerException {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 1);
 		memtable.put(createdTuple1);
@@ -242,7 +242,7 @@ public class TestMemtable {
 	 * Test iterator 1
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIterate1() throws Exception {
 		
 		Assert.assertEquals(0, memtable.getSortedTupleList().size());
@@ -259,7 +259,7 @@ public class TestMemtable {
 	 * Test iterator 2
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIterate2() throws Exception {
 		final Tuple tuple1 = new Tuple("1", null, "abc".getBytes());
 		memtable.put(tuple1);
@@ -276,7 +276,7 @@ public class TestMemtable {
 	 * Test iterator 3
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testIterate3() throws Exception {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
 		memtable.put(createdTuple1);
@@ -341,7 +341,7 @@ public class TestMemtable {
 	 * Test memtable empty
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testEmptyCall() throws StorageManagerException {
 		Assert.assertTrue(memtable.isEmpty());
 		memtable.clear();
@@ -359,7 +359,7 @@ public class TestMemtable {
 	 * Test the tuple list generator
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetTupleListCall() throws StorageManagerException {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
 		memtable.put(createdTuple1);
@@ -381,7 +381,7 @@ public class TestMemtable {
 	 * Test newest and oldest timestamp
 	 * @throws StorageManagerException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testNewestOldest() throws StorageManagerException {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
 		memtable.put(createdTuple1);
@@ -403,7 +403,7 @@ public class TestMemtable {
 	 * Test the newest tuple insert timestamp
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void newestTupleInsertTimestamp() throws StorageManagerException {
 		final long timestamp1 = memtable.getNewestTupleInsertedTimestamp();
 		Assert.assertTrue(timestamp1 > 0);
@@ -419,7 +419,7 @@ public class TestMemtable {
 	 * Test the number of tuples
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testNumberOfTuples() throws StorageManagerException {
 		Assert.assertEquals(0, memtable.getNumberOfTuples());
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
@@ -432,7 +432,7 @@ public class TestMemtable {
 	 * Test the delete on close
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDeleteOnShutdown() throws StorageManagerException {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
 		memtable.put(createdTuple1);
@@ -466,7 +466,7 @@ public class TestMemtable {
 	 * Test get tuple at position
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void getTupleAtPosition() throws StorageManagerException {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
 		memtable.put(createdTuple1);
@@ -485,7 +485,7 @@ public class TestMemtable {
 	/**
 	 * Test the service name
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testServicenameAndTablename() {
 		Assert.assertTrue(memtable.getServicename() != null);
 		Assert.assertTrue(memtable.getTupleStoreName() != null);
@@ -495,7 +495,7 @@ public class TestMemtable {
 	 * Test if full 
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void isFullBySize() throws StorageManagerException {				
 		Assert.assertFalse(memtable.isFull());
 		
@@ -517,7 +517,7 @@ public class TestMemtable {
 	/**
 	 * Test the reinit
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testReinit() {
 		memtable.init();
 	}
@@ -525,7 +525,7 @@ public class TestMemtable {
 	/**
 	 * Test the to string method
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testToString() {
 		Assert.assertTrue(memtable.toString().length() > 10);
 	}
@@ -534,7 +534,7 @@ public class TestMemtable {
 	 * Test the aquire
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testAquire1() throws StorageManagerException {
 		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
 		memtable.init();
@@ -556,7 +556,7 @@ public class TestMemtable {
 	 * Test the aquire
 	 * @throws StorageManagerException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testAquire2() throws StorageManagerException {
 		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
 		memtable.init();

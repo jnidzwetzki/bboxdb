@@ -57,7 +57,7 @@ public class TestRegionIdMapper {
 	/**
 	 * Test the mapping with no entries
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testZeroMapping() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		
@@ -68,7 +68,7 @@ public class TestRegionIdMapper {
 	/**
 	 * Test the mapping with one entry
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testOneMapping() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
@@ -89,7 +89,7 @@ public class TestRegionIdMapper {
 	/**
 	 * Test the mapping with two entries
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTwoMapping() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
@@ -113,7 +113,7 @@ public class TestRegionIdMapper {
 	/**
 	 * Test the mapping with three entries
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testThreeMapping() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
@@ -127,7 +127,7 @@ public class TestRegionIdMapper {
 	/**
 	 * Test the tablename result
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetTableNames1() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
@@ -146,7 +146,7 @@ public class TestRegionIdMapper {
 	/**
 	 * Test the tablename result
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetTableNames2() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
@@ -165,7 +165,7 @@ public class TestRegionIdMapper {
 	/**
 	 * Get all known mappings
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testGetAll() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));

@@ -49,7 +49,7 @@ public class TestSpacePartitionerCache {
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testRootNodeRefresh() throws Exception {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder

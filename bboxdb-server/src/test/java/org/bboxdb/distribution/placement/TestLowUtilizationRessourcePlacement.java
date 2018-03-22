@@ -54,7 +54,7 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 	 * Test round robin placement 1
 	 * @throws ResourceAllocationException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testUtilPlacement() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<>();

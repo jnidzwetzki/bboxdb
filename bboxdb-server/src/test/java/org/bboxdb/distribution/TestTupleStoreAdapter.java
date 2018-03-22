@@ -41,7 +41,7 @@ public class TestTupleStoreAdapter {
 	 * Test the tuplestore creation and deletion
 	 * @throws ZookeeperException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void deleteAndCreateTable() throws ZookeeperException {
 		final TupleStoreName tupleStoreName1 = new TupleStoreName("dg_table1");
 		final TupleStoreName tupleStoreName2 = new TupleStoreName("dg_table2");
@@ -75,7 +75,7 @@ public class TestTupleStoreAdapter {
 	 * Test configuration 1
 	 * @throws ZookeeperException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleStoreConfig1() throws ZookeeperException {
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
 				.create()
@@ -96,7 +96,7 @@ public class TestTupleStoreAdapter {
 	 * Test configuration 2
 	 * @throws ZookeeperException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleStoreConfig2() throws ZookeeperException {
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder.create()
 				.allowDuplicates(true)
@@ -119,7 +119,7 @@ public class TestTupleStoreAdapter {
 	 * Test configuration 3
 	 * @throws ZookeeperException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTupleStoreConfig3() throws ZookeeperException {
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder.create()
 				.withSpatialIndexReader("reader")
@@ -138,7 +138,7 @@ public class TestTupleStoreAdapter {
 		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName));
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testDeleteDistributionGroup() throws ZookeeperException {
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
 				.create()

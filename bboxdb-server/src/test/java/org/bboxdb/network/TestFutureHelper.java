@@ -26,7 +26,7 @@ public class TestFutureHelper {
 	/**
 	 * Test the future helper
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testFutureHelper() {
 		Assert.assertTrue(FutureHelper.getFailedEmptyResultFuture("failed").isFailed());
 		Assert.assertTrue(FutureHelper.getFailedJoinedTupleListFuture("failed").isFailed());

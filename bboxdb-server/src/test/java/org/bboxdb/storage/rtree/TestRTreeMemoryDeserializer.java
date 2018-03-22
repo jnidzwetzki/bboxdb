@@ -50,7 +50,7 @@ public class TestRTreeMemoryDeserializer {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSerializeIndex0() throws StorageManagerException, IOException, InterruptedException {
 		final int maxNodeSize = 12;
 		final RTreeBuilder index = new RTreeBuilder(maxNodeSize);
@@ -80,7 +80,7 @@ public class TestRTreeMemoryDeserializer {
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSerializeIndexSmall() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = new ArrayList<>();
 		tupleList.add(new SpatialIndexEntry(new BoundingBox(1.0, 1.2), 2));
@@ -113,7 +113,7 @@ public class TestRTreeMemoryDeserializer {
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSerializeIndex1D() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(1);
 		
@@ -143,7 +143,7 @@ public class TestRTreeMemoryDeserializer {
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSerializeIndex3D() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3);
 		

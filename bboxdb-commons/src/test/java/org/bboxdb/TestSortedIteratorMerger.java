@@ -52,7 +52,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test merger with one iterator
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeOneIterator1() {
 		final String stringA = "a";
 		
@@ -70,7 +70,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test merger with one iterator
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeOneIterator2() {
 		final String stringA = "a";
 		final String stringB = "b";
@@ -90,7 +90,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test merger with one iterator
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testMergeTwoIterator1() {
 		final String stringA = "a";
 		final String stringB = "b";
@@ -120,7 +120,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test empty list
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testEmpty1() {
 
 		final SortedIteratorMerger<String> mergeIterator = new SortedIteratorMerger<String>(
@@ -141,7 +141,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test empty list
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testEmpty2() {
 		
 		final List<String> list1 = new ArrayList<>();
@@ -160,7 +160,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test one list
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testOne() {
 		final List<String> list1 = Arrays.asList("abc", "def", "geh");
 		final List<String> list2 = new ArrayList<>();
@@ -178,7 +178,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test two lists
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testTwo() {
 		final List<String> list1 = Arrays.asList("abc", "def", "geh");
 		final List<String> list2 = Arrays.asList("ijk");
@@ -196,7 +196,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test three lists
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testThree() {
 		final List<String> list1 = Arrays.asList("abc", "def", "geh");
 		final List<String> list2 = Arrays.asList("ijk");
@@ -214,7 +214,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test three lists
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testThreeEqualList() {
 		final List<String> list1 = Arrays.asList("abc", "def", "geh");
 
@@ -231,7 +231,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test three lists
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testThreeEqualListDuplicateResolver() {
 		final List<String> list1 = Arrays.asList("abc", "def", "geh");
 
@@ -249,7 +249,7 @@ public class TestSortedIteratorMerger {
 	/**
 	 * Test the first element duplicate resolver
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void firstElementDuplicateResolver() {
 		final List<String> list1 = Arrays.asList("abc", "def", "geh");
 		final List<String> list2 = Arrays.asList("def", "geh");

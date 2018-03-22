@@ -25,7 +25,7 @@ import org.junit.Test;
 
 public class TestTuplestoreConfiguration {
 	
-	@Test
+	@Test(timeout=60000)
 	public void testWriteAndReadConfiguration() {
 		final TupleStoreConfiguration configuration1 = new TupleStoreConfiguration();
 		final String yamlString = configuration1.exportToYaml();
@@ -36,7 +36,7 @@ public class TestTuplestoreConfiguration {
 		Assert.assertTrue(configuration1.toString().length() > 10);
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testReadNonExistingFile() {
 		final File tmpFile = new File("/tmp/tuplestore.nonexisting");
 		Assert.assertTrue(TupleStoreConfiguration.importFromYamlFile(tmpFile) == null);

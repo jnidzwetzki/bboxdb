@@ -26,7 +26,7 @@ public class TestPeerCapabilities {
 	/**
 	 * Test the peer capabilities
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testPeerCapabilities1() {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		Assert.assertTrue(peerCapabilities.toString().length() > 10);
@@ -35,7 +35,7 @@ public class TestPeerCapabilities {
 	/**
 	 * Test the peer capabilities
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testPeerCapabilities2() {
 		final PeerCapabilities peerCapabilities1 = new PeerCapabilities();
 		final PeerCapabilities peerCapabilities2 = new PeerCapabilities();

@@ -39,7 +39,7 @@ public class TestRoutingHeader {
 	/**
 	 * Test the hop parser
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutingHeaderHopParser1() {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 0, new ArrayList<RoutingHop>());
 
@@ -54,7 +54,7 @@ public class TestRoutingHeader {
 	/**
 	 * Test the hop parser
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutingHeaderHopParser2() {
 		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123l));
 		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456l));
@@ -81,7 +81,7 @@ public class TestRoutingHeader {
 	/**
 	 * Test the routing hop parser
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutingHopParser3() {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
@@ -94,7 +94,7 @@ public class TestRoutingHeader {
 	/**
 	 * Test the routing hop parser
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutingHopParser4() {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1,2,3;node2:23,2");
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
@@ -111,7 +111,7 @@ public class TestRoutingHeader {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testUnroutedPackageHeader() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader(false);
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
@@ -127,7 +127,7 @@ public class TestRoutingHeader {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutedPackageHeader1() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
@@ -143,7 +143,7 @@ public class TestRoutingHeader {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutedPackageHeader2() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
@@ -159,7 +159,7 @@ public class TestRoutingHeader {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutedPackageHeader3() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
@@ -180,7 +180,7 @@ public class TestRoutingHeader {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRoutedPackageHeader4() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
@@ -197,7 +197,7 @@ public class TestRoutingHeader {
 	/**
 	 * Test set valid next hops
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testSetHopValid() {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,2;node2:23,1");
 		routingHeader.setHop((short) 0);
@@ -216,7 +216,7 @@ public class TestRoutingHeader {
 	/**
 	 * Test header dispatch
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDispatchHeader() {
 		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123l));
 		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456l));

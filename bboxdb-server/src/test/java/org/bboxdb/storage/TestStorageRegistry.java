@@ -85,7 +85,7 @@ public class TestStorageRegistry {
 	 * 
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRegisterAndUnregister() throws StorageManagerException {
 		storageRegistry.deleteTable(RELATION_NAME, true);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
@@ -102,7 +102,7 @@ public class TestStorageRegistry {
 	 * @throws InterruptedException 
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
 		storageRegistry.deleteTable(RELATION_NAME, true);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
@@ -140,7 +140,7 @@ public class TestStorageRegistry {
 	 * @throws InterruptedException
 	 * @throws RejectedException 
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
 		
 		storageRegistry.deleteTable(RELATION_NAME, true);

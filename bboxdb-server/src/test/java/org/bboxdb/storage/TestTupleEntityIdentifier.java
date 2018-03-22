@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class TestTupleEntityIdentifier {
 
-	@Test
+	@Test(timeout=60000)
 	public void testGetSetter() {
 		final TupleEntityIdentifier tupleEntityIdentifier = new TupleEntityIdentifier("abc", 1234);
 		Assert.assertEquals("abc", tupleEntityIdentifier.getKey());

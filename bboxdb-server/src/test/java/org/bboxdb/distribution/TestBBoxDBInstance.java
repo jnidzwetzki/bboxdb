@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class TestBBoxDBInstance {
 
-	@Test
+	@Test(timeout=60000)
 	public void testCompare() {
 		final BBoxDBInstance bBoxDBInstance1 = new BBoxDBInstance("127.0.0.1:10000");
 		final BBoxDBInstance bBoxDBInstance2 = new BBoxDBInstance("127.0.0.2:10000");
@@ -32,7 +32,7 @@ public class TestBBoxDBInstance {
 		Assert.assertTrue(bBoxDBInstance1.compareTo(bBoxDBInstance1) == 0);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testToString() {
 		final BBoxDBInstance bBoxDBInstance1 = new BBoxDBInstance("127.0.0.1:10000");
 		Assert.assertTrue(bBoxDBInstance1.getStringValue().length() > 0);
@@ -40,7 +40,7 @@ public class TestBBoxDBInstance {
 		Assert.assertTrue(bBoxDBInstance1.toGUIString(true).length() > 0);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testGetter() {
 		final BBoxDBInstance bBoxDBInstance1 = new BBoxDBInstance("127.0.0.1:10000");
 		Assert.assertEquals("127.0.0.1", bBoxDBInstance1.getIp());
@@ -48,7 +48,7 @@ public class TestBBoxDBInstance {
 		Assert.assertEquals(BBoxDBInstance.UNKOWN_PROPERTY, bBoxDBInstance1.getVersion());
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testSocketEquals() {
 		final BBoxDBInstance bBoxDBInstance1 = new BBoxDBInstance("127.0.0.1:10000");
 		Assert.assertFalse(bBoxDBInstance1.socketAddressEquals(null));

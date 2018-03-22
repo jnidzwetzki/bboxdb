@@ -38,7 +38,7 @@ public class TestPredicates {
 	 * Test the newer as predicate
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testNewerAsPredicate1() throws Exception {
 		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		final Tuple tuple2 = new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes(), 2);
@@ -61,7 +61,7 @@ public class TestPredicates {
 	 * Test the newer as predicate
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testNewerAsPredicate2() throws Exception {
 		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 50);
 		final Tuple tuple2 = new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes(), 1234);
@@ -82,7 +82,7 @@ public class TestPredicates {
 	 * Test the bounding box predicate
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void boundingBoxPredicate() {
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);
@@ -110,7 +110,7 @@ public class TestPredicates {
 	 * Test the and predicate
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void boundingAndPredicate() {
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);

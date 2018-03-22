@@ -41,7 +41,7 @@ public class TestListHelper {
 	/**
 	 * Test random get
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testRandom2() {
 		final List<String> list = Arrays.asList("a", "b", "c", "d", "e", "f");
 		
@@ -61,7 +61,7 @@ public class TestListHelper {
 	/**
 	 * Get all combinations
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCombinations1() {
 		final List<String> list1 = new ArrayList<>();
 		final List<String> list2 = new ArrayList<>();
@@ -85,7 +85,7 @@ public class TestListHelper {
 	/**
 	 * Get all combinations
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCombinations3() {
 		final List<String> list1 = Arrays.asList("a");
 		final List<String> list2 = Arrays.asList("1");
@@ -100,7 +100,7 @@ public class TestListHelper {
 	/**
 	 * Get all combinations
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCombinations4() {
 		final List<String> list1 = Arrays.asList("a", "b");
 		final List<String> list2 = Arrays.asList("1", "2");
@@ -113,7 +113,7 @@ public class TestListHelper {
 	/**
 	 * Get all combinations
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testCombinations5() {
 		final List<String> list1 = Arrays.asList("a", "b", "c");
 		final List<String> list2 = Arrays.asList("1", "2", "3");
