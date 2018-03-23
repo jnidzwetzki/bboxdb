@@ -30,58 +30,58 @@ public class FutureImplementation<T> {
 	/**
 	 * The id of the operation
 	 */
-	protected short requestId;
+	private short requestId;
 	
 	/**
 	 * The result of the operation
 	 */
-	protected volatile T operationResult = null;
+	private volatile T operationResult = null;
 	
 	/**
 	 * The mutex for sync operations
 	 */
-	protected final Object mutex = new Object();
+	private final Object mutex = new Object();
 	
 	/**
 	 * The error flag for the operation
 	 */
-	protected volatile boolean failed = false;
+	private volatile boolean failed = false;
 	
 	/**
 	 * The done flag
 	 */
-	protected volatile boolean done = false;
+	private volatile boolean done = false;
 	
 	/**
 	 * The complete / partial result flag
 	 */
-	protected volatile boolean complete = true;
+	private volatile boolean complete = true;
 	
 	/**
 	 * Additional message
 	 */
-	protected String message;
+	private String message;
 	
 	/**
 	 * The future start time
 	 */
-	protected final long startTime;
+	private final long startTime;
 	
 	/**
 	 * The future completion time
 	 */
-	protected long completionTime;
+	private long completionTime;
 	
 	/**
 	 * The associated connection
 	 */
-	protected BBoxDBClient connection;
+	private BBoxDBClient connection;
 	
 	/**
 	 * Empty constructor
 	 */
 	public FutureImplementation() {
-		startTime = System.nanoTime();
+		this.startTime = System.nanoTime();
 	}
 	
 	/**
