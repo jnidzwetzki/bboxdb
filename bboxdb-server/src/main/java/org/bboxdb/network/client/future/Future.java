@@ -25,7 +25,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 
 import com.google.common.base.Stopwatch;
 
-public class FutureImplementation<T> {
+public class Future<T> {
 	
 	/**
 	 * The id of the operation
@@ -75,7 +75,7 @@ public class FutureImplementation<T> {
 	/**
 	 * Empty constructor
 	 */
-	public FutureImplementation() {
+	public Future() {
 		this.stopwatch = Stopwatch.createStarted();
 	}
 	
@@ -83,7 +83,7 @@ public class FutureImplementation<T> {
 	 * Constructor with the request id
 	 * @param requestId
 	 */
-	public FutureImplementation(final short requestId) {
+	public Future(final short requestId) {
 		this();
 		this.requestId = requestId;
 	}
@@ -238,7 +238,7 @@ public class FutureImplementation<T> {
 
 	@Override
 	public String toString() {
-		return "FutureImplementation [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
+		return "Future [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
 				+ mutex + ", failed=" + failed + ", done=" + done + ", complete=" + complete + ", message=" + message
 				+ ", stopwatch=" + stopwatch + ", connection=" + connection + "]";
 	}

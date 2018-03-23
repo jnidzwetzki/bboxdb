@@ -30,17 +30,17 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	/**
 	 * The futures
 	 */
-	protected final List<FutureImplementation<T>> futures;
+	protected final List<Future<T>> futures;
 	
 	public OperationFutureImpl() {
 		this(0);
 	}
 	
 	public OperationFutureImpl(final int numberOfFutures) {
-		futures = new ArrayList<FutureImplementation<T>>(numberOfFutures);
+		futures = new ArrayList<Future<T>>(numberOfFutures);
 		
 		for(int i = 0; i < numberOfFutures; i++) {
-			futures.add(new FutureImplementation<T>());
+			futures.add(new Future<T>());
 		}
 	}
 	
@@ -158,7 +158,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	@Override
 	public void setFailedState() {
-		for(final FutureImplementation<T> future : futures) {
+		for(final Future<T> future : futures) {
 			future.setFailedState();
 		}
 	}
@@ -233,7 +233,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	@Override
 	public void fireCompleteEvent() {
-		for(final FutureImplementation<T> future : futures) {
+		for(final Future<T> future : futures) {
 			future.fireCompleteEvent();
 		}
 	}
