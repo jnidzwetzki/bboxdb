@@ -29,7 +29,6 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -135,16 +134,8 @@ public class TupleRedistributor {
 				sinks.add(tupleSink);
 				logger.info("Redistributing data to local table {}", localTableName.getFullname());
 			} else {
-				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(instance);
-				
-				if(connection == null) {
-					logger.error("Unable to get connection to system {}, can't redistribute tuples", 
-							instance.getInetSocketAddress());
-					continue;
-				}
-				
-				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-				final NetworkTupleSink tupleSink = new NetworkTupleSink(tupleStoreName, bboxDBClient);
+				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(instance);				
+				final NetworkTupleSink tupleSink = new NetworkTupleSink(tupleStoreName, connection);
 				sinks.add(tupleSink);
 				logger.info("Redistributing data to remote system {}", instance.getInetSocketAddress());
 			}
