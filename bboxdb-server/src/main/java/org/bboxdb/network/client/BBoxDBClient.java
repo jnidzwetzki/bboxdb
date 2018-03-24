@@ -504,6 +504,11 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture cancelQuery(final short queryPackageId) {
+		
+		if(! connection.getConnectionState().isInRunningState()) {
+			return FutureHelper.getFailedEmptyResultFuture("cancelQuery called, but connection not ready: " + this);
+		}
+		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		
 		final short nextSequenceNumber = connection.getNextSequenceNumber();
