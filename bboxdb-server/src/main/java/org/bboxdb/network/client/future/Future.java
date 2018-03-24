@@ -220,10 +220,14 @@ public class Future<T> {
 			return;
 		}
 		
+		final boolean notifyWaiter = callRunnables();
+
+		if(! notifyWaiter) {
+			return;
+		}
+		
 		done = true;
 		stopwatch.stop();
-		
-		callRunnables();
 		
 		synchronized (mutex) {
 			mutex.notifyAll();
@@ -233,11 +237,14 @@ public class Future<T> {
 	/**
 	 * Call the error or the result runnable
 	 */
-	private void callRunnables() {
+	private boolean callRunnables() {
+		
+		boolean notifyWaiter = true;
+		
 		if(! failed) {
 			if(errorHandler != null) {
 				try {
-					errorHandler.call();
+					notifyWaiter = errorHandler.call();
 				} catch (Exception e) {
 					logger.error("Got an exception while calling error handler", e);
 				}
@@ -247,6 +254,8 @@ public class Future<T> {
 				successHandler.run();
 			}
 		}
+		
+		return notifyWaiter;
 	}
 
 	/**
