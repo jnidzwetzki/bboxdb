@@ -43,7 +43,7 @@ public class DistributionGroupAdapter {
 	/**
 	 * The zookeeper client
 	 */
-	protected final ZookeeperClient zookeeperClient;
+	private final ZookeeperClient zookeeperClient;
 	
 	/**
 	 * The logger

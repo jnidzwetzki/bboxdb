@@ -234,7 +234,7 @@ public class DistributionRegionAdapter {
 	 * @param region
 	 * @return
 	 */
-	protected String getZookeeperPathForDistributionRegionState(final DistributionRegion region) {
+	private String getZookeeperPathForDistributionRegionState(final DistributionRegion region) {
 		
 		return getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_REGION_STATE;

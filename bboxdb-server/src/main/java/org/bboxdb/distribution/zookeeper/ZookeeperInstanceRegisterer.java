@@ -29,7 +29,7 @@ public class ZookeeperInstanceRegisterer implements BBoxDBService {
 	/**
 	 * The name of the instance
 	 */
-	protected final BBoxDBInstance instance;
+	private final BBoxDBInstance instance;
 	
 	/**
 	 * The zookeeper client

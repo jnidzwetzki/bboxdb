@@ -45,37 +45,37 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	/**
 	 * The list of the zookeeper hosts
 	 */
-	protected final String connectionString;
+	private final String connectionString;
 
 	/**
 	 * The name of the bboxdb cluster
 	 */
-	protected final String clustername;
+	private final String clustername;
 
 	/**
 	 * The zookeeper client instance
 	 */
-	protected ZooKeeper zookeeper;
+	private ZooKeeper zookeeper;
 	
 	/**
 	 * Service state
 	 */
-	protected final ServiceState serviceState;
+	private final ServiceState serviceState;
 	
 	/**
 	 * The usage counter
 	 */
-	protected Phaser usage;
+	private Phaser usage;
 
 	/**
 	 * The timeout for the zookeeper session in milliseconds
 	 */
-	protected final static int ZOOKEEPER_SESSION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
+	private final static int ZOOKEEPER_SESSION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
 
 	/**
 	 * The connect timeout in seconds
 	 */
-	protected final static int ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC = 5;
+	private final static int ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC = 5;
 
 	/**
 	 * The logger
@@ -156,7 +156,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	/**
 	 * Close the zookeeper connection without any exception
 	 */
-	protected void closeZookeeperConnectionNE() {
+	private void closeZookeeperConnectionNE() {
 		if (zookeeper == null) {
 			return;
 		}
@@ -291,7 +291,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * @throws KeeperException
 	 * @throws InterruptedException
 	 */
-	protected void createDirectoryStructureIfNeeded() throws ZookeeperException {
+	private void createDirectoryStructureIfNeeded() throws ZookeeperException {
 
 		// Active instances
 		final String activeInstancesPath = getActiveInstancesPath();
