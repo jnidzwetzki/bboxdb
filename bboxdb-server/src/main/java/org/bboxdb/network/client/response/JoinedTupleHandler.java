@@ -19,12 +19,15 @@ package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.JoinedTupleResponse;
+import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +43,7 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 	 * @return 
 	 */
 	@Override
-	public boolean handleServerResult(final BBoxDBClient bboxDBClient, 
+	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final OperationFuture future)
 			throws PackageEncodeException {
 		
@@ -53,8 +56,10 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
 		
 		// Tuple is part of a multi tuple result
-		if(bboxDBClient.getResultBuffer().containsKey(sequenceNumber)) {
-			bboxDBClient.getResultBuffer().get(sequenceNumber).add(singleTupleResponse.getJoinedTuple());
+		final Map<Short, List<PagedTransferableEntity>> resultBuffer = bBoxDBConnection.getResultBuffer();
+		
+		if(resultBuffer.containsKey(sequenceNumber)) {
+			resultBuffer.get(sequenceNumber).add(singleTupleResponse.getJoinedTuple());
 			
 			// The removal of the future depends, if this is a one
 			// tuple result or a multiple tuple result

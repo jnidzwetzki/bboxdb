@@ -32,6 +32,7 @@ import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -258,14 +259,15 @@ public class RegionMerger {
 
 		final BBoxDBInstance firstSystem = systems.get(0);
 
-		final BBoxDBClient connection = MembershipConnectionService.getInstance()
+		final BBoxDBConnection connection = MembershipConnectionService.getInstance()
 				.getConnectionForInstance(firstSystem);
 
 		assert (connection != null) : "Connection can not be null: " + firstSystem.getStringValue();
 
 		final BoundingBox bbox = childRegion.getConveringBox();
 		final String fullname = tupleStoreName.getFullname();
-		final TupleListFuture result = connection.queryBoundingBox(fullname, bbox);
+		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+		final TupleListFuture result = bboxDBClient.queryBoundingBox(fullname, bbox);
 
 		result.waitForAll();
 

@@ -203,12 +203,11 @@ public class TestBBoxDBCluster {
 	
 	/**
 	 * Disconnect from server
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 */
 	protected void disconnect(final BBoxDB bboxDBClient) {
 		bboxDBClient.disconnect();
 		Assert.assertFalse(bboxDBClient.isConnected());
-		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
 	}
 	
 	/**
@@ -248,8 +247,6 @@ public class TestBBoxDBCluster {
 		Assert.assertTrue(bboxDBClient.toString().length() > 10);
 		Assert.assertTrue(bboxDBClient.getTuplesPerPage() >= -1);
 		bboxDBClient.isPagingEnabled();
-		bboxDBClient.setMaxInFlightCalls((short) 1000);
-		Assert.assertEquals(1000, bboxDBClient.getMaxInFlightCalls());
 		disconnect(bboxDBClient);
 	}
 }

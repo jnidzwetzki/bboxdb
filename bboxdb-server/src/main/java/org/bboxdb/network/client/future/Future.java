@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ public class Future<T> {
 	/**
 	 * The associated connection
 	 */
-	private BBoxDBClient connection;
+	private BBoxDBConnection connection;
 	
 	/**
 	 * The success runnable
@@ -313,7 +313,7 @@ public class Future<T> {
 	 * Get the id of the connection
 	 * @return
 	 */
-	public BBoxDBClient getConnection() {
+	public BBoxDBConnection getConnection() {
 		return connection;
 	}
 
@@ -321,7 +321,7 @@ public class Future<T> {
 	 * Set the id of the connection
 	 * @param connectionName
 	 */
-	public void setConnection(final BBoxDBClient connection) {
+	public void setConnection(final BBoxDBConnection connection) {
 		this.connection = connection;
 	}
 	
@@ -354,7 +354,7 @@ public class Future<T> {
 		if(getConnection() == null) {
 			sb.append("null");
 		} else {
-			sb.append(getConnection().getConnectionName());
+			sb.append(connection.getConnectionName());
 		}
 		
 		sb.append("]");

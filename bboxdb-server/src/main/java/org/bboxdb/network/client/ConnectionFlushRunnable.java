@@ -27,15 +27,15 @@ public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 	/**
 	 * The BBOXDB Client
 	 */
-	private final BBoxDBClient bboxDBClient;
+	private final BBoxDBConnection bboxDBClient;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ConnectionFlushRunnable.class);
 	
-	public ConnectionFlushRunnable(final BBoxDBClient bboxDBClient) {
-		this.bboxDBClient = bboxDBClient;
+	public ConnectionFlushRunnable(final BBoxDBConnection bBoxDBConnection) {
+		this.bboxDBClient = bBoxDBConnection;
 	}
 
 	@Override

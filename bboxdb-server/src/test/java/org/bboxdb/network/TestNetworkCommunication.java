@@ -31,6 +31,7 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.server.ErrorMessages;
@@ -91,9 +92,10 @@ public class TestNetworkCommunication {
 	 */
 	@Before
 	public void before() throws InterruptedException, BBoxDBException {
-		final BBoxDB bboxdbClient = connectToServer();
-		TestHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
-		disconnect(bboxdbClient);
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		TestHelper.recreateDistributionGroup(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnect(bboxDBClient);
 	}
 	
 	/**
@@ -103,25 +105,26 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testCreateDistributionGroupTwoTimes() throws BBoxDBException, InterruptedException {
-		final BBoxDBClient bboxdbClient = connectToServer();
-		
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+				
 		// Create distribution group
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
 				.withReplicationFactor((short) 1)
 				.build();
 		
-		final EmptyResultFuture resultCreate = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(DISTRIBUTION_GROUP, 
 				configuration);
 		
 		// Prevent retries
-		bboxdbClient.getNetworkOperationRetryer().close();
+		bboxdbConnection.getNetworkOperationRetryer().close();
 		
 		resultCreate.waitForAll();
 		Assert.assertTrue(resultCreate.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_EXISTS, resultCreate.getMessage(0));
-		Assert.assertTrue(bboxdbClient.getConnectionState().isInRunningState());
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
 		
-		disconnect(bboxdbClient);
+		disconnect(bboxDBClient);
 	}
 	
 	/**
@@ -131,25 +134,26 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testCreateTableTwoTimes() throws BBoxDBException, InterruptedException {
-		final BBoxDBClient bboxdbClient = connectToServer();
-		
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+				
 		final String table = DISTRIBUTION_GROUP + "_mytable";
 		
-		final EmptyResultFuture resultCreateTable1 = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
 		resultCreateTable1.waitForAll();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
-		final EmptyResultFuture resultCreateTable2 = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
 		
 		// Prevent retries
-		bboxdbClient.getNetworkOperationRetryer().close();
+		bboxdbConnection.getNetworkOperationRetryer().close();
 		
 		resultCreateTable2.waitForAll();
 		Assert.assertTrue(resultCreateTable2.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_EXISTS, resultCreateTable2.getMessage(0));
-		Assert.assertTrue(bboxdbClient.getConnectionState().isInRunningState());
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
 
-		disconnect(bboxdbClient);
+		disconnect(bboxDBClient);
 	}
 	
 	/**
@@ -160,7 +164,9 @@ public class TestNetworkCommunication {
 	public void testSendDisconnectPackage() {
 		System.out.println("=== Running testSendDisconnectPackage");
 
-		final BBoxDBClient bboxDBClient = connectToServer();
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		Assert.assertTrue(bboxDBClient.isConnected());
 		disconnect(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());
@@ -174,7 +180,9 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testDoubleConnect() {
-		final BBoxDBClient bboxDBClient = connectToServer();
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		Assert.assertTrue(bboxDBClient.isConnected());
 		Assert.assertTrue(bboxDBClient.connect());
 		Assert.assertTrue(bboxDBClient.isConnected());
@@ -186,7 +194,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testDoubleDisconnect() {
-		final BBoxDBClient bboxDBClient = connectToServer();
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 		disconnect(bboxDBClient);
 		disconnect(bboxDBClient);
 	}
@@ -204,8 +213,9 @@ public class TestNetworkCommunication {
 		
 		System.out.println("=== Running sendDeletePackage");
 
-		final BBoxDBClient bboxDBClient = connectToServer();
-		
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+				
 		final String tableName = DISTRIBUTION_GROUP + "_relation3";
 		final TupleStoreName tupleStoreName = new TupleStoreName(tableName);
 
@@ -226,7 +236,7 @@ public class TestNetworkCommunication {
 		deleteResult1.waitForAll();
 		Assert.assertTrue(deleteResult1.isDone());
 		Assert.assertFalse(deleteResult1.isFailed());
-		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
 		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
 		// Second call
@@ -234,7 +244,7 @@ public class TestNetworkCommunication {
 		deleteResult2.waitForAll();
 		Assert.assertTrue(deleteResult2.isDone());
 		Assert.assertFalse(deleteResult2.isFailed());
-		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
 		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
 		// Disconnect
@@ -252,13 +262,14 @@ public class TestNetworkCommunication {
 		System.out.println("=== Running testConnectionState");
 
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
-		final BBoxDBClient bboxDBClient = new BBoxDBClient(new InetSocketAddress("127.0.0.1", port));
+		final BBoxDBConnection bboxDBClient = new BBoxDBConnection(new InetSocketAddress("127.0.0.1", port));
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInNewState());
 		bboxDBClient.connect();
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		bboxDBClient.disconnect();
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInTerminatedState());
-		disconnect(bboxDBClient);
+		
+		bboxDBClient.closeSocket();
 
 		System.out.println("=== End testConnectionState");
 	}
@@ -271,9 +282,11 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
-		final BBoxDBClient bboxdbClient = connectToServer();
-		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient, DISTRIBUTION_GROUP);
-		disconnect(bboxdbClient);
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
+		NetworkQueryHelper.testInsertAndDeleteTuple(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnect(bboxDBClient);
 	}
 	
 	/**
@@ -285,18 +298,18 @@ public class TestNetworkCommunication {
 	public void testInsertIntoNonExstingTable() throws BBoxDBException, InterruptedException {
 		System.out.println("=== Running testInsertIntoNonExstingTable");
 		
-		final BBoxDBClient bboxdbClient = connectToServer();
-
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 
 		final String table = DISTRIBUTION_GROUP + "_relationnonexsting";
 		final String key = "key12";
 		
 		System.out.println("Insert tuple");
 		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
-		final EmptyResultFuture insertResult = bboxdbClient.insertTuple(table, tuple);
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		
 		// Prevent retries
-		bboxdbClient.getNetworkOperationRetryer().close();
+		bboxdbConnection.getNetworkOperationRetryer().close();
 		
 		insertResult.waitForAll();
 		Assert.assertTrue(insertResult.isFailed());
@@ -304,7 +317,7 @@ public class TestNetworkCommunication {
 		
 		System.out.println(insertResult.getMessage(0));
 
-		bboxdbClient.disconnect();
+		bboxDBClient.disconnect();
 		
 		System.out.println("=== End testInsertIntoNonExstingTable");
 	}
@@ -319,8 +332,9 @@ public class TestNetworkCommunication {
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, 
 		ExecutionException, BBoxDBException {
 		
-		final BBoxDBClient bboxDBClient = connectToServer();
-
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient, DISTRIBUTION_GROUP, true);
 		disconnect(bboxDBClient);
 	}
@@ -335,8 +349,9 @@ public class TestNetworkCommunication {
 	public void testEmptyBoundingBoxQuery() throws InterruptedException, 
 		ExecutionException, BBoxDBException {
 		
-		final BBoxDBClient bboxDBClient = connectToServer();
-
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient, DISTRIBUTION_GROUP, false);
 		disconnect(bboxDBClient);
 	}
@@ -351,8 +366,10 @@ public class TestNetworkCommunication {
 	public void testQueriesWithoutTables() throws InterruptedException, 
 		ExecutionException, BBoxDBException {
 		
-		final BBoxDBClient bboxDBClient = connectToServer();
-		bboxDBClient.getNetworkOperationRetryer().close();
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
+		bboxdbConnection.getNetworkOperationRetryer().close();
 
 		final String table = DISTRIBUTION_GROUP + "_nonexisting";
 
@@ -398,8 +415,9 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testInsertAndBoundingBoxContinousQuery() throws InterruptedException, ExecutionException, BBoxDBException {
-		final BBoxDBClient bboxDBClient = connectToServer();
-
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		NetworkQueryHelper.testBoundingBoxQueryContinous(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
 	}
@@ -411,8 +429,9 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testVersionTimeQuery() throws InterruptedException, BBoxDBException {
-		final BBoxDBClient bboxDBClient = connectToServer();
-
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		NetworkQueryHelper.testVersionTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
 	}
@@ -424,8 +443,9 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testInsertedTimeQuery() throws InterruptedException, BBoxDBException {
-		final BBoxDBClient bboxDBClient = connectToServer();
-
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		NetworkQueryHelper.testInsertedTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
 	}
@@ -440,12 +460,13 @@ public class TestNetworkCommunication {
 	public void testJoin() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running network testJoin");
 
-		final BBoxDB bboxdbClient = connectToServer();
-
-		NetworkQueryHelper.executeJoinQuery(bboxdbClient, DISTRIBUTION_GROUP);
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
+		NetworkQueryHelper.executeJoinQuery(bboxDBClient, DISTRIBUTION_GROUP);
 		
 		System.out.println("=== End network testJoin");
-		disconnect(bboxdbClient);
+		disconnect(bboxDBClient);
 	}
 	
 	/**
@@ -459,8 +480,9 @@ public class TestNetworkCommunication {
 		System.out.println("=== Running testPaging");
 		final String table = DISTRIBUTION_GROUP + "_relation9999";
 		
-		final BBoxDBClient bboxDBClient = connectToServer();
-		
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+				
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
 		resultCreateTable.waitForAll();
@@ -549,8 +571,9 @@ public class TestNetworkCommunication {
 		System.out.println("=== Running testGetByKey");
 		final String table = DISTRIBUTION_GROUP + "_relation12333";
 		
-		final BBoxDBClient bboxDBClient = connectToServer();
-		
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+				
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
 		resultCreateTable.waitForAll();
@@ -582,8 +605,9 @@ public class TestNetworkCommunication {
 	public void testInsertAndBoundingBoxTimeQuery() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running testInsertAndBoundingBoxTimeQuery");
 
-		final BBoxDBClient bboxDBClient = connectToServer();
-
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
 		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 
 		System.out.println("=== End testInsertAndBoundingBoxTimeQuery");
@@ -599,14 +623,15 @@ public class TestNetworkCommunication {
 	public void testSendKeepAlivePackage() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendKeepAlivePackage");
 
-		final BBoxDBClient bboxDBClient = connectToServer();
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 		
 		final EmptyResultFuture result = bboxDBClient.sendKeepAlivePackage();
 		result.waitForAll();
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
-		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
 		
 		disconnect(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());
@@ -620,9 +645,9 @@ public class TestNetworkCommunication {
 	 * 
 	 * @return
 	 */
-	protected BBoxDBClient connectToServer() {
+	protected BBoxDBConnection connectToServer() {
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
-		final BBoxDBClient bboxDBClient = new BBoxDBClient(new InetSocketAddress("127.0.0.1", port));
+		final BBoxDBConnection bboxDBClient = new BBoxDBConnection(new InetSocketAddress("127.0.0.1", port));
 		
 		if(compressPackages()) {
 			bboxDBClient.getClientCapabilities().setGZipCompression();
@@ -651,13 +676,10 @@ public class TestNetworkCommunication {
 	 */
 	@Test(timeout=60000)
 	public void testMiscMethods() {
-		final BBoxDBClient bboxDBClient = connectToServer();
+		final BBoxDBClient bboxDBClient = connectToServer().getBboxDBClient();
 		Assert.assertTrue(bboxDBClient.toString().length() > 10);
-		Assert.assertTrue(bboxDBClient.getServerAddress() != null);
 		Assert.assertTrue(bboxDBClient.getTuplesPerPage() >= -1);
 		bboxDBClient.isPagingEnabled();
-		bboxDBClient.setMaxInFlightCalls((short) 1000);
-		Assert.assertEquals(1000, bboxDBClient.getMaxInFlightCalls());
 		disconnect(bboxDBClient);
 	}
 	
@@ -671,11 +693,10 @@ public class TestNetworkCommunication {
 	
 	/**
 	 * Disconnect from server
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 */
 	protected void disconnect(final BBoxDB bboxDBClient) {
 		bboxDBClient.disconnect();
 		Assert.assertFalse(bboxDBClient.isConnected());
-		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
 	}
 }

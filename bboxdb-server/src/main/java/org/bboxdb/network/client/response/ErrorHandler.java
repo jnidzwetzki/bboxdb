@@ -19,7 +19,7 @@ package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.NetworkOperationRetryer;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -40,8 +40,8 @@ public class ErrorHandler implements ServerResponseHandler {
 	 * @return 
 	 */
 	@Override
-	public boolean handleServerResult(final BBoxDBClient bboxDBClient, 
-			final ByteBuffer encodedPackage, final OperationFuture pendingCall)
+	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
+			final ByteBuffer encodedPackage, final OperationFuture future)
 			throws PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
@@ -50,7 +50,7 @@ public class ErrorHandler implements ServerResponseHandler {
 		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
-		final NetworkOperationRetryer networkOperationRetryer = bboxDBClient.getNetworkOperationRetryer();
+		final NetworkOperationRetryer networkOperationRetryer = bBoxDBConnection.getNetworkOperationRetryer();
 		
 		final short sequenceNumber = result.getSequenceNumber();
 		
@@ -63,10 +63,10 @@ public class ErrorHandler implements ServerResponseHandler {
 			}
 		}
 		
-		if(pendingCall != null) {
-			pendingCall.setMessage(0, result.getBody());
-			pendingCall.setFailedState();
-			pendingCall.fireCompleteEvent();
+		if(future != null) {
+			future.setMessage(0, result.getBody());
+			future.setFailedState();
+			future.fireCompleteEvent();
 		}
 		
 		return true;

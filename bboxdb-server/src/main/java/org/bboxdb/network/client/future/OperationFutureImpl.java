@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 
 public class OperationFutureImpl<T> implements OperationFuture {
 
@@ -95,14 +95,14 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 	
 	@Override
-	public void setConnection(final int resultId, final BBoxDBClient connection) {
+	public void setConnection(final int resultId, final BBoxDBConnection connection) {
 		checkFutureSize(resultId);
 
 		futures.get(resultId).setConnection(connection);
 	}
 
 	@Override
-	public BBoxDBClient getConnection(final int resultId) {
+	public BBoxDBConnection getConnection(final int resultId) {
 		checkFutureSize(resultId);
 
 		return futures.get(resultId).getConnection();

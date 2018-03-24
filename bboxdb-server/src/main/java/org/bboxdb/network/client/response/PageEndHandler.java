@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.PageEndResponse;
@@ -41,7 +41,7 @@ public class PageEndHandler implements ServerResponseHandler {
 	 * @return 
 	 */
 	@Override
-	public boolean handleServerResult(final BBoxDBClient bboxDBClient, 
+	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final OperationFuture future)
 			throws PackageEncodeException {
 		
@@ -52,10 +52,10 @@ public class PageEndHandler implements ServerResponseHandler {
 		final PageEndResponse result = PageEndResponse.decodePackage(encodedPackage);
 
 		final short sequenceNumber = result.getSequenceNumber();
-		final List<PagedTransferableEntity> resultList = bboxDBClient.getResultBuffer().remove(sequenceNumber);
+		final List<PagedTransferableEntity> resultList = bBoxDBConnection.getResultBuffer().remove(sequenceNumber);
 
 		// Collect tuples of the next page in new list
-		bboxDBClient.getResultBuffer().put(sequenceNumber, new ArrayList<>());
+		bBoxDBConnection.getResultBuffer().put(sequenceNumber, new ArrayList<>());
 
 		if(future == null) {
 			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
@@ -71,7 +71,7 @@ public class PageEndHandler implements ServerResponseHandler {
 			return true;
 		}
 				
-		ResponseHandlerHelper.castAndSetFutureResult(future, resultList, false, bboxDBClient);
+		ResponseHandlerHelper.castAndSetFutureResult(future, resultList, false);
 		
 		return true;
 	}

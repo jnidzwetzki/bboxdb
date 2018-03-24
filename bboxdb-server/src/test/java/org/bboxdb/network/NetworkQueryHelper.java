@@ -38,7 +38,7 @@ public class NetworkQueryHelper {
 
 	/**
 	 * Execute a bounding box and time query
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
@@ -86,7 +86,7 @@ public class NetworkQueryHelper {
 	
 	/**
 	 * Test a bounding box query
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 * @return 
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
@@ -149,7 +149,7 @@ public class NetworkQueryHelper {
 
 	/**
 	 * Test a bounding box query
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
@@ -194,7 +194,7 @@ public class NetworkQueryHelper {
 	
 	/**
 	 * Insert and delete tuple
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
@@ -255,7 +255,7 @@ public class NetworkQueryHelper {
 
 	/**
 	 * Execute a join
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
 	 */
@@ -322,7 +322,7 @@ public class NetworkQueryHelper {
 
 	/**
 	 * Test the version time query
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 * @param distributionGroup
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
@@ -362,7 +362,7 @@ public class NetworkQueryHelper {
 	
 	/**
 	 * Test the version time query
-	 * @param bboxDBClient
+	 * @param bboxDBConnection
 	 * @param distributionGroup
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 

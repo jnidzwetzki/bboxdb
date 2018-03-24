@@ -61,12 +61,6 @@ public class BBoxDBCluster implements BBoxDB {
 	private final ZookeeperClient zookeeperClient;
 
 	/**
-	 * The number of in flight requests
-	 * @return
-	 */
-	private volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
-
-	/**
 	 * The resource placement strategy
 	 */
 	private final ResourcePlacementStrategy resourcePlacementStrategy;
@@ -129,7 +123,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		try {
-			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources().getBboxDBClient();
 
 			return bboxdbClient.createTable(table, configuration);
 		} catch (ResourceAllocationException e) {
@@ -146,7 +140,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		try {
-			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources().getBboxDBClient();
 
 			return bboxdbClient.deleteTable(deleteTable);
 		} catch (ResourceAllocationException e) {
@@ -199,7 +193,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 		// Determine the first system, it will route the request to the remaining systems
 		final BBoxDBInstance system = hops.get(0).getDistributedInstance();
-		final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
+		final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(system);
 
 		if(connection == null) {
 			final String errorMessage = "Unable to insert tuple, no connection to system: " + system; 
@@ -207,7 +201,7 @@ public class BBoxDBCluster implements BBoxDB {
 			return FutureHelper.getFailedEmptyResultFuture(errorMessage);
 		}
 
-		return connection.insertTuple(table, tuple, routingHeaderSupplier);
+		return connection.getBboxDBClient().insertTuple(table, tuple, routingHeaderSupplier);
 	}
 
 	@Override
@@ -220,7 +214,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
 			throws BBoxDBException {
 		
-		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
+		final List<BBoxDBConnection> connections = membershipConnectionService.getAllConnections();
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("deleteTuple called, but connection list is empty");
@@ -229,7 +223,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final EmptyResultFuture future = new EmptyResultFuture();
 
 		connections.stream()
-		.map(c -> c.deleteTuple(table, key, timestamp))
+		.map(c -> c.getBboxDBClient().deleteTuple(table, key, timestamp))
 		.filter(Objects::nonNull)
 		.forEach(f -> future.merge(f));
 
@@ -245,7 +239,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		try {
-			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources().getBboxDBClient();
 
 			return bboxdbClient.createDistributionGroup(distributionGroup, distributionGroupConfiguration);
 		} catch (ResourceAllocationException e) {
@@ -259,7 +253,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	private BBoxDBClient getSystemForNewRessources() throws ResourceAllocationException {
+	private BBoxDBConnection getSystemForNewRessources() throws ResourceAllocationException {
 		final List<BBoxDBInstance> serverConnections = membershipConnectionService.getAllInstances();
 
 		if(serverConnections == null) {
@@ -279,7 +273,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		try {
-			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources().getBboxDBClient();
 
 			return bboxdbClient.deleteDistributionGroup(distributionGroup);
 		} catch (ResourceAllocationException e) {
@@ -304,7 +298,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 		membershipConnectionService.getAllConnections()
 			.stream()
-			.map(c -> c.queryKey(table, key))
+			.map(c -> c.getBboxDBClient().queryKey(table, key))
 			.filter(Objects::nonNull)
 			.forEach(f -> future.merge(f));
 
@@ -336,7 +330,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 		hops.stream()
 			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
-			.map(c -> c.queryBoundingBox(table, boundingBox))
+			.map(c -> c.getBboxDBClient().queryBoundingBox(table, boundingBox))
 			.filter(Objects::nonNull)
 			.forEach(f -> future.merge(f));
 	
@@ -374,9 +368,9 @@ public class BBoxDBCluster implements BBoxDB {
 		final DistributionRegion region = regions.get(0);
 
 		final BBoxDBInstance firstSystem = region.getSystems().get(0);
-		final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(firstSystem);
+		final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
 
-		return connection.queryBoundingBoxContinuous(table, boundingBox);
+		return connection.getBboxDBClient().queryBoundingBoxContinuous(table, boundingBox);
 	}
 
 	@Override
@@ -406,6 +400,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 		hops.stream()
 			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+			.map(s -> s.getBboxDBClient())
 			.map(c -> c.queryBoundingBoxAndTime(table, boundingBox, timestamp))
 			.filter(Objects::nonNull)
 			.forEach(f -> future.merge(f));
@@ -425,8 +420,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
-		membershipConnectionService.getAllConnections()
-		.stream()
+		membershipConnectionService.getAllConnections().stream()
+		.map(s -> s.getBboxDBClient())
 		.map(c -> c.queryVersionTime(table, timestamp))
 		.filter(Objects::nonNull)
 		.forEach(f -> future.merge(f));
@@ -446,8 +441,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
-		membershipConnectionService.getAllConnections()
-		.stream()
+		membershipConnectionService.getAllConnections().stream()
+		.map(s -> s.getBboxDBClient())
 		.map(c -> c.queryInsertedTime(table, timestamp))
 		.filter(Objects::nonNull)
 		.forEach(f -> future.merge(f));
@@ -483,6 +478,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 		hops.stream()
 			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+			.map(s -> s.getBboxDBClient())
 			.map(c -> c.queryJoin(tableNames, boundingBox))
 			.filter(Objects::nonNull)
 			.forEach(f -> future.merge(f));
@@ -493,25 +489,6 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public boolean isConnected() {
 		return (membershipConnectionService.getNumberOfConnections() > 0);
-	}
-
-	@Override
-	public int getInFlightCalls() {
-		return membershipConnectionService
-				.getAllConnections()
-				.stream()
-				.mapToInt(BBoxDBClient::getInFlightCalls)
-				.sum();
-	}
-
-	@Override
-	public short getMaxInFlightCalls() {
-		return maxInFlightCalls;
-	}
-
-	@Override
-	public void setMaxInFlightCalls(final short maxInFlightCalls) {
-		this.maxInFlightCalls = maxInFlightCalls;
 	}
 
 	/**
@@ -544,6 +521,15 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		membershipConnectionService.setTuplesPerPage(tuplesPerPage);
+	}
+	
+	@Override
+	public int getInFlightCalls() {
+		return membershipConnectionService
+				.getAllConnections()
+				.stream()
+				.mapToInt(BBoxDBConnection::getInFlightCalls)
+				.sum();
 	}
 
 }

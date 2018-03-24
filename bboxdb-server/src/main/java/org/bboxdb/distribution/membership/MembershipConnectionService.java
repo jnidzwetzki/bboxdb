@@ -28,6 +28,7 @@ import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * The server connections
 	 */
-	private final Map<InetSocketAddress, BBoxDBClient> serverConnections;
+	private final Map<InetSocketAddress, BBoxDBConnection> serverConnections;
 	
 	/**
 	 * The known instances
@@ -163,7 +164,7 @@ public class MembershipConnectionService implements BBoxDBService {
 		// Close all connections
 		synchronized (serverConnections) {
 			for(final InetSocketAddress instance : serverConnections.keySet()) {
-				final BBoxDBClient client = serverConnections.get(instance);
+				final BBoxDBConnection client = serverConnections.get(instance);
 				logger.info("Closing connection to server: " + instance);
 				client.disconnect();
 			}
@@ -195,7 +196,6 @@ public class MembershipConnectionService implements BBoxDBService {
 		}
 	}
 
-
 	/**
 	 * Create a new connection to the given instance
 	 * @param distributedInstance
@@ -216,17 +216,20 @@ public class MembershipConnectionService implements BBoxDBService {
 		
 		logger.info("Opening connection to instance: {}", instanceName);
 		
-		final BBoxDBClient client = new BBoxDBClient(distributedInstance.getInetSocketAddress());
+		final BBoxDBConnection connection = new BBoxDBConnection(distributedInstance.getInetSocketAddress());
+		final BBoxDBClient client = connection.getBboxDBClient();
+		
 		client.setPagingEnabled(pagingEnabled);
 		client.setTuplesPerPage(tuplesPerPage);
 		client.setTupleStoreManagerRegistry(tupleStoreManagerRegistry);
-		final boolean result = client.connect();
+		
+		final boolean result = connection.connect();
 		
 		if(! result) {
 			logger.info("Unable to open connection to: {}", instanceName);
 		} else {
 			logger.info("Connection successfully established: {}", instanceName);
-			serverConnections.put(distributedInstance.getInetSocketAddress(), client);
+			serverConnections.put(distributedInstance.getInetSocketAddress(), connection);
 			knownInstances.put(distributedInstance.getInetSocketAddress(), distributedInstance);
 		}
 	}
@@ -246,8 +249,8 @@ public class MembershipConnectionService implements BBoxDBService {
 		logger.info("Closing connection to dead instance: {}", instanceName);
 		
 		knownInstances.remove(distributedInstance.getInetSocketAddress());
-		final BBoxDBClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
-		client.terminateConnection();
+		final BBoxDBConnection connection = serverConnections.remove(distributedInstance.getInetSocketAddress());
+		connection.terminateConnection();
 	}
 
 	/**
@@ -255,7 +258,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * @param instance
 	 * @return
 	 */
-	public BBoxDBClient getConnectionForInstance(final BBoxDBInstance instance) {
+	public BBoxDBConnection getConnectionForInstance(final BBoxDBInstance instance) {
 		return serverConnections.get(instance.getInetSocketAddress());
 	}
 	
@@ -271,8 +274,8 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * Get all connections
 	 * @return 
 	 */
-	public List<BBoxDBClient> getAllConnections() {
-		return new ArrayList<BBoxDBClient>(serverConnections.values());
+	public List<BBoxDBConnection> getAllConnections() {
+		return new ArrayList<>(serverConnections.values());
 	}
 	
 	/**
@@ -297,7 +300,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 */
 	public void setPagingEnabled(final boolean pagingEnabled) {
 		this.pagingEnabled = pagingEnabled;
-		serverConnections.values().forEach(c -> c.setPagingEnabled(pagingEnabled));
+		serverConnections.values().forEach(c -> c.getBboxDBClient().setPagingEnabled(pagingEnabled));
 	}
 
 	/**
@@ -314,7 +317,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 */
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		this.tuplesPerPage = tuplesPerPage;
-		serverConnections.values().forEach(c -> c.setTuplesPerPage(tuplesPerPage));
+		serverConnections.values().forEach(c -> c.getBboxDBClient().setTuplesPerPage(tuplesPerPage));
 	}
 
 	/**

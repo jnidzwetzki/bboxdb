@@ -17,7 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -28,7 +29,7 @@ public class TestClient {
 	 */
 	@Test(timeout=10000)
 	public void testSettleRequests1() {
-		final BBoxDBClient client = Mockito.spy(BBoxDBClient.class);
+		final BBoxDBConnection client = Mockito.spy(BBoxDBConnection.class);
 		client.settlePendingCalls(1000);
 		Mockito.verify(client, Mockito.atLeast(1)).getInFlightCalls();
 	}
@@ -38,9 +39,21 @@ public class TestClient {
 	 */
 	@Test(timeout=10000)
 	public void testSettleRequests2() {
-		final BBoxDBClient client = Mockito.spy(BBoxDBClient.class);
+		final BBoxDBConnection client = Mockito.spy(BBoxDBConnection.class);
 		Mockito.when(client.getInFlightCalls()).thenReturn(10);
 		client.settlePendingCalls(1000);
 		Mockito.verify(client, Mockito.atLeast(1)).getInFlightCalls();
 	}
+	
+	/**
+	 * Test misc methods
+	 */
+	@Test(timeout=10000)
+	public void testMisc() {
+		final BBoxDBConnection bBoxDBConnection = new BBoxDBConnection();
+		bBoxDBConnection.setMaxInFlightCalls((short) 1000);
+		Assert.assertEquals(1000, bBoxDBConnection.getMaxInFlightCalls());
+	}
+	
+	
 }

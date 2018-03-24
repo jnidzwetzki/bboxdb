@@ -19,7 +19,7 @@ package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.HelloFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -39,7 +39,7 @@ public class HelloHandler implements ServerResponseHandler {
 	 * @return 
 	 */
 	@Override
-	public boolean handleServerResult(final BBoxDBClient bboxDBClient, 
+	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final OperationFuture future)
 			throws PackageEncodeException {
 		

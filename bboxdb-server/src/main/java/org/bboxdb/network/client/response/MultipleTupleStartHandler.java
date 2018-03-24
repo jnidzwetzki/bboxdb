@@ -20,7 +20,7 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
@@ -40,7 +40,7 @@ public class MultipleTupleStartHandler implements ServerResponseHandler {
 	 * @return 
 	 */
 	@Override
-	public boolean handleServerResult(final BBoxDBClient bboxDBClient, 
+	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final OperationFuture future)
 			throws PackageEncodeException {
 		
@@ -49,7 +49,7 @@ public class MultipleTupleStartHandler implements ServerResponseHandler {
 		}
 		
 		final MultipleTupleStartResponse result = MultipleTupleStartResponse.decodePackage(encodedPackage);
-		bboxDBClient.getResultBuffer().put(result.getSequenceNumber(), new ArrayList<PagedTransferableEntity>());
+		bBoxDBConnection.getResultBuffer().put(result.getSequenceNumber(), new ArrayList<PagedTransferableEntity>());
 		
 		return false;
 	}

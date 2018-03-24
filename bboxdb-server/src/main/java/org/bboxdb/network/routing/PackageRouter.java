@@ -29,6 +29,7 @@ import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
@@ -138,7 +139,7 @@ public class PackageRouter {
 		final RoutingHop routingHop = routingHeader.getRoutingHop();
 		final BBoxDBInstance receiverInstance = routingHop.getDistributedInstance();
 				
-		final BBoxDBClient connection = MembershipConnectionService
+		final BBoxDBConnection connection = MembershipConnectionService
 				.getInstance()
 				.getConnectionForInstance(receiverInstance);
 		
@@ -149,7 +150,8 @@ public class PackageRouter {
 		
 		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
 		
-		final EmptyResultFuture insertFuture = connection.insertTuple(
+		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+		final EmptyResultFuture insertFuture = bboxDBClient.insertTuple(
 				insertTupleRequest.getTable().getFullname(), 
 				insertTupleRequest.getTuple(), 
 				routingHeaderSupplier);

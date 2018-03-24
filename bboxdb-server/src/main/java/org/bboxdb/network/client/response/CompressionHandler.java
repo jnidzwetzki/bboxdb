@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.ServerResponseReader;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -40,7 +40,7 @@ public class CompressionHandler implements ServerResponseHandler {
 	 * Handle the compressed package
 	 */
 	@Override
-	public boolean handleServerResult(final BBoxDBClient bboxDBClient, 
+	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final OperationFuture future)
 			throws PackageEncodeException {
 		
@@ -48,7 +48,7 @@ public class CompressionHandler implements ServerResponseHandler {
 			logger.debug("Handle compression package");
 		}
 		
-		final ServerResponseReader serverResponseReader = bboxDBClient.getServerResponseReader();
+		final ServerResponseReader serverResponseReader = bBoxDBConnection.getServerResponseReader();
 		final InputStream uncompressedStream = CompressionEnvelopeResponse.decodePackage(encodedPackage);
 		
 		try {

@@ -25,6 +25,7 @@ import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.RoutingHeaderHelper;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
@@ -138,7 +139,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		
 		final List<Tuple> tupleResult = get(resultId);
 
-		final BBoxDBClient bboxDBConnection = getConnection(resultId);
+		final BBoxDBConnection bboxDBConnection = getConnection(resultId);
 		
 		if(bboxDBConnection == null) {
 			// Unable to perform read repair when the connection is not known
@@ -161,7 +162,8 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 						bboxDBConnection.getConnectionName());
 				
 				final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
-				bboxDBConnection.insertTuple(tablename, tuple, routingHeaderSupplier);
+				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
+				bboxDBClient.insertTuple(tablename, tuple, routingHeaderSupplier);
 			}
 		}
 	}	

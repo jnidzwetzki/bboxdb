@@ -31,12 +31,6 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 public interface BBoxDB {
 	
 	/**
-	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
-	 * prevent two in flight requests with the same id.
-	 */
-	public final static short MAX_IN_FLIGHT_CALLS = 1000;
-
-	/**
 	 * Connect to the server
 	 * @return true or false, depending on the connection state
 	 */
@@ -177,18 +171,6 @@ public interface BBoxDB {
 	 */
 	public int getInFlightCalls();
 
-	/**
-	 * Get the max amount of in flight calls
-	 * @return
-	 */
-	public short getMaxInFlightCalls();
-
-	/**
-	 * Set the max amount of in flight calls
-	 * @param maxInFlightCalls
-	 */
-	public void setMaxInFlightCalls(final short maxInFlightCalls);
-	
 	/**
 	 * Is the paging for queries enables
 	 * @return

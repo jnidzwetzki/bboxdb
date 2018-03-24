@@ -38,6 +38,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
@@ -186,7 +187,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 		
 		for(final OutdatedDistributionRegion outdatedDistributionRegion : outdatedRegions) {
 			
-			final BBoxDBClient connection = MembershipConnectionService.getInstance()
+			final BBoxDBConnection connection = MembershipConnectionService.getInstance()
 					.getConnectionForInstance(outdatedDistributionRegion.getNewestInstance());
 			
 			final long regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
@@ -196,7 +197,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 			
 			for(final TupleStoreName ssTableName : allTables) {
 				try {
-					runRecoveryForTable(ssTableName, outdatedDistributionRegion, connection);
+					runRecoveryForTable(ssTableName, outdatedDistributionRegion, connection.getBboxDBClient());
 				} catch (RejectedException | StorageManagerException | ExecutionException e) {
 					logger.error("Got an exception while performing recovery for table: " + ssTableName.getFullname());
 				} catch (InterruptedException e) {

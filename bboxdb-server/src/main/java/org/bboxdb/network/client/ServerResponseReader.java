@@ -37,15 +37,15 @@ public class ServerResponseReader extends ExceptionSafeRunnable {
 	/**
 	 * The BBOXDB Client
 	 */
-	protected final BBoxDBClient bboxDBClient;
+	protected final BBoxDBConnection bboxDBConnection;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReader.class);
 	
-	public ServerResponseReader(final BBoxDBClient bboxDBClient) {
-		this.bboxDBClient = bboxDBClient;
+	public ServerResponseReader(final BBoxDBConnection bboxDBConnection) {
+		this.bboxDBConnection = bboxDBConnection;
 	}
 	
 	/**
@@ -72,34 +72,34 @@ public class ServerResponseReader extends ExceptionSafeRunnable {
 			throw new IOException("Read error from socket, exiting");
 		}
 		
-		final ByteBuffer encodedPackage = bboxDBClient.readFullPackage(bb, inputStream);
-		bboxDBClient.handleResultPackage(encodedPackage);
+		final ByteBuffer encodedPackage = bboxDBConnection.readFullPackage(bb, inputStream);
+		bboxDBConnection.handleResultPackage(encodedPackage);
 	}
 
 	@Override
 	protected void beginHook() {
-		logger.debug("Started new response reader for " + bboxDBClient.getConnectionName());
+		logger.debug("Started new response reader for " + bboxDBConnection.getConnectionName());
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.debug("Stopping new response reader for " + bboxDBClient.getConnectionName());
+		logger.debug("Stopping new response reader for " + bboxDBConnection.getConnectionName());
 	}
 	
 	@Override
 	public void runThread() {
 		
-		while(bboxDBClient.clientSocket != null) {
+		while(bboxDBConnection.isConnected()) {
 			try {
-				processNextResponsePackage(bboxDBClient.inputStream);
+				processNextResponsePackage(bboxDBConnection.getInputStream());
 			} catch(Exception e) {
 				
-				bboxDBClient.closeSocket();
+				bboxDBConnection.closeSocket();
 				
 				// Ignore exceptions when connection is closing
-				if(bboxDBClient.getConnectionState().isInRunningState()) {
-					bboxDBClient.getConnectionState().dispatchToFailed(e);
-					bboxDBClient.terminateConnection();
+				if(bboxDBConnection.getConnectionState().isInRunningState()) {
+					bboxDBConnection.getConnectionState().dispatchToFailed(e);
+					bboxDBConnection.terminateConnection();
 				}
 			}
 		}

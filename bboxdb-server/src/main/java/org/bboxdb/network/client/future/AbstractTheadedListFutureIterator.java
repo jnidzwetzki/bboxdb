@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.bboxdb.storage.util.CloseableIterator;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
@@ -141,18 +142,20 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			 */
 			@SuppressWarnings("unchecked")
 			protected void handleAdditionalPages() throws InterruptedException, ExecutionException {
-				final BBoxDBClient bboxdbClient = abstractLisFuture.getConnection(resultId);
-						
-				final short queryRequestId = abstractLisFuture.getRequestId(resultId);
 				
-				if(bboxdbClient == null) {
+				final BBoxDBConnection bboxdbConnection = abstractLisFuture.getConnection(resultId);
+
+				if(bboxdbConnection == null) {
 					logger.error("Unable to get connection for paging: {}", resultId);
 					return;
 				}
 				
+				final short queryRequestId = abstractLisFuture.getRequestId(resultId);
+				final BBoxDBClient bbBoxDBClient = bboxdbConnection.getBboxDBClient();
+				
 				AbstractListFuture<T> nextPage = null;
 				do {
-					 nextPage = (AbstractListFuture<T>) bboxdbClient.getNextPage(queryRequestId);
+					 nextPage = (AbstractListFuture<T>) bbBoxDBClient.getNextPage(queryRequestId);
 
 					 nextPage.waitForAll();
 

@@ -59,7 +59,12 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	private TupleStoreName lastGossipTableName;
 
 	/**
-	 * The BBOXDB Client
+	 * The BBOXDB connection
+	 */
+	private final BBoxDBConnection connection;
+	
+	/**
+	 * The BBoxDBCliet
 	 */
 	private final BBoxDBClient bboxDBClient;
 	
@@ -68,29 +73,30 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReader.class);
 	
-	public ConnectionMainteinanceRunnable(final BBoxDBClient bboxDBClient) {
-		this.bboxDBClient = bboxDBClient;
+	public ConnectionMainteinanceRunnable(final BBoxDBConnection bBoxDBConnection) {
+		this.connection = bBoxDBConnection;
+		this.bboxDBClient = bBoxDBConnection.getBboxDBClient();
 	}
 
 	@Override
 	protected void beginHook() {
-		logger.debug("Starting connection mainteinance thread for: {}", bboxDBClient.getConnectionName());
+		logger.debug("Starting connection mainteinance thread for: {}", connection.getConnectionName());
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.debug("Mainteinance thread for: {} has terminated", bboxDBClient.getConnectionName());
+		logger.debug("Mainteinance thread for: {} has terminated", connection.getConnectionName());
 	}
 	
 	@Override
 	public void runThread() {
 
-		while(! bboxDBClient.getConnectionState().isInTerminatedState()) {
+		while(! connection.getConnectionState().isInTerminatedState()) {
 			try {					
 				if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
 					
 					// Send keep alive only on open connections
-					if(bboxDBClient.getConnectionState().isInRunningState()) {
+					if(connection.getConnectionState().isInRunningState()) {
 						final EmptyResultFuture resultFuture = sendKeepAlivePackage();
 						waitForResult(resultFuture);
 					}
@@ -112,6 +118,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	private EmptyResultFuture sendKeepAlivePackage() {
 		
 		final TupleStoreManagerRegistry tupleStoreManagerRegistry = bboxDBClient.getTupleStoreManagerRegistry();
+		
 		if(tupleStoreManagerRegistry == null) {
 			return bboxDBClient.sendKeepAlivePackage();
 		}
