@@ -136,6 +136,13 @@ public class TupleRedistributor {
 				logger.info("Redistributing data to local table {}", localTableName.getFullname());
 			} else {
 				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(instance);
+				
+				if(connection == null) {
+					logger.error("Unable to get connection to system {}, can't redistribute tuples", 
+							instance.getInetSocketAddress());
+					continue;
+				}
+				
 				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
 				final NetworkTupleSink tupleSink = new NetworkTupleSink(tupleStoreName, bboxDBClient);
 				sinks.add(tupleSink);
