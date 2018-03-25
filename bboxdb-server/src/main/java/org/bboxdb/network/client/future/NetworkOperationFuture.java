@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
-public class Future<T> {
+public class NetworkOperationFuture<T> {
 	
 	/**
 	 * The id of the operation
@@ -77,13 +77,13 @@ public class Future<T> {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(Future.class);
+	protected final static Logger logger = LoggerFactory.getLogger(NetworkOperationFuture.class);
 
 
 	/**
 	 * Empty constructor
 	 */
-	public Future() {
+	public NetworkOperationFuture() {
 		this.stopwatch = Stopwatch.createStarted();
 	}
 	
@@ -91,7 +91,7 @@ public class Future<T> {
 	 * Constructor with the request id
 	 * @param requestId
 	 */
-	public Future(final short requestId) {
+	public NetworkOperationFuture(final short requestId) {
 		this();
 		this.requestId = requestId;
 	}
@@ -251,7 +251,7 @@ public class Future<T> {
 
 	@Override
 	public String toString() {
-		return "Future [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
+		return "NetworkOperationFuture [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
 				+ mutex + ", failed=" + failed + ", done=" + done + ", complete=" + complete + ", message=" + message
 				+ ", stopwatch=" + stopwatch + ", connection=" + connection + "]";
 	}

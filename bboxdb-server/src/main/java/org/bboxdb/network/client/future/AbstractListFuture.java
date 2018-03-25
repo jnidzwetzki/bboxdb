@@ -73,7 +73,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	@Override
 	public Iterator<T> iterator() {
 		if(! isDone() ) {
-			throw new IllegalStateException("Future is not done, unable to build iterator");
+			throw new IllegalStateException("NetworkOperationFuture is not done, unable to build iterator");
 		}
 		
 		if( isFailed() ) {

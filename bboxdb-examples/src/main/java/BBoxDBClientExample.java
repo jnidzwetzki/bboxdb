@@ -132,7 +132,7 @@ public class BBoxDBClientExample {
 		resultFuture1.waitForAll();
 		
 		if(resultFuture1.isFailed()) {
-			System.err.println("Future is failed: " + resultFuture1.getAllMessages());
+			System.err.println("NetworkOperationFuture is failed: " + resultFuture1.getAllMessages());
 			System.exit(-1);
 		}
 		
@@ -148,7 +148,7 @@ public class BBoxDBClientExample {
 		resultFuture2.waitForAll();
 		
 		if(resultFuture2.isFailed()) {
-			System.err.println("Future is failed: " + resultFuture2.getAllMessages());
+			System.err.println("NetworkOperationFuture is failed: " + resultFuture2.getAllMessages());
 			System.exit(-1);
 		}
 		
