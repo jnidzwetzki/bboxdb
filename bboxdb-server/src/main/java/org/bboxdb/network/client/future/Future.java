@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -76,19 +75,9 @@ public class Future<T> {
 	private BBoxDBConnection connection;
 	
 	/**
-	 * The success runnable
-	 */
-	private Runnable successHandler;
-	
-	/**
-	 * The error runntable
-	 */
-	private Callable<Boolean> errorHandler;
-	
-	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(Future.class);
+	protected final static Logger logger = LoggerFactory.getLogger(Future.class);
 
 
 	/**
@@ -220,42 +209,12 @@ public class Future<T> {
 			return;
 		}
 		
-		final boolean notifyWaiter = callRunnables();
-
-		if(! notifyWaiter) {
-			return;
-		}
-		
 		done = true;
 		stopwatch.stop();
 		
 		synchronized (mutex) {
 			mutex.notifyAll();
 		}
-	}
-
-	/**
-	 * Call the error or the result runnable
-	 */
-	private boolean callRunnables() {
-		
-		boolean notifyWaiter = true;
-		
-		if(! failed) {
-			if(errorHandler != null) {
-				try {
-					notifyWaiter = errorHandler.call();
-				} catch (Exception e) {
-					logger.error("Got an exception while calling error handler", e);
-				}
-			}
-		} else {
-			if(successHandler != null) {
-				successHandler.run();
-			}
-		}
-		
-		return notifyWaiter;
 	}
 
 	/**
@@ -323,22 +282,6 @@ public class Future<T> {
 	 */
 	public void setConnection(final BBoxDBConnection connection) {
 		this.connection = connection;
-	}
-	
-	/**
-	 * The success runntable
-	 * @param successHandler
-	 */
-	public void setSuccessHandler(final Runnable successRunnable) {
-		this.successHandler = successRunnable;
-	}
-	
-	/**
-	 * The error runnable
-	 * @param errorHandler
-	 */
-	public void setErrorHandler(final Callable<Boolean> errorHandler) {
-		this.errorHandler = errorHandler;
 	}
 	
 	/**
