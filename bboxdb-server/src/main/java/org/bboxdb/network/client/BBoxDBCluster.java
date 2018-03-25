@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
@@ -151,57 +150,43 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
-		final TupleStoreName ssTableName = new TupleStoreName(table);
+		try {
+			final TupleStoreName ssTableName = new TupleStoreName(table);
 
-		final String distributionGroup = ssTableName.getDistributionGroup();
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+			final String distributionGroup = ssTableName.getDistributionGroup();
+			final SpacePartitioner distributionAdapter = SpacePartitionerCache
+					.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
-			try {
-				final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-
-				final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, 
-						tuple.getBoundingBox());
-				
-				return new RoutingHeader((short) -1, hops);	
-			} catch (InterruptedException e) {
-				logger.warn("Interrupted while waiting for systems list");
-				Thread.currentThread().interrupt();
-			} catch (BBoxDBException e) {
-				logger.error("Unable to get read systems", e);
-			}
 			
-			return null;
-		};
+			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 
-		// Calculate routing list to determine start system
-		final RoutingHeader routingHeader = routingHeaderSupplier.get();
-		
-		if(routingHeader == null) {
-			throw new BBoxDBException("Routing header is null");
+			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, 
+					tuple.getBoundingBox());
+			
+			final RoutingHeader routingHeader = new RoutingHeader((short) -1, hops);	
+					
+			if(hops.isEmpty()) {
+				final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
+						+ tuple.getBoundingBox(); 
+				logger.error(errorMessage);
+				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
+			}
+
+			// Determine the first system, it will route the request to the remaining systems
+			final BBoxDBInstance system = hops.get(0).getDistributedInstance();
+			final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(system);
+
+			if(connection == null) {
+				final String errorMessage = "Unable to insert tuple, no connection to system: " + system; 
+				logger.error(errorMessage);
+				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
+			}
+
+			return connection.getBboxDBClient().insertTuple(table, tuple, routingHeader);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new BBoxDBException(e);
 		}
-		
-		final List<RoutingHop> hops = routingHeader.getRoutingList();
-		
-		if(hops.isEmpty()) {
-			final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
-					+ tuple.getBoundingBox(); 
-			logger.error(errorMessage);
-			return FutureHelper.getFailedEmptyResultFuture(errorMessage);
-		}
-
-		// Determine the first system, it will route the request to the remaining systems
-		final BBoxDBInstance system = hops.get(0).getDistributedInstance();
-		final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(system);
-
-		if(connection == null) {
-			final String errorMessage = "Unable to insert tuple, no connection to system: " + system; 
-			logger.error(errorMessage);
-			return FutureHelper.getFailedEmptyResultFuture(errorMessage);
-		}
-
-		return connection.getBboxDBClient().insertTuple(table, tuple, routingHeaderSupplier);
 	}
 
 	@Override

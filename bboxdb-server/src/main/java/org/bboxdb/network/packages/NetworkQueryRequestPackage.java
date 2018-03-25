@@ -17,16 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.network.packages;
 
-import java.util.function.Supplier;
-
 import org.bboxdb.network.routing.RoutingHeader;
 
 public abstract class NetworkQueryRequestPackage extends NetworkRequestPackage {
 
 	public NetworkQueryRequestPackage(final short sequenceNumber, 
-			final Supplier<RoutingHeader> routingHeaderSupplier) {
+			final RoutingHeader routingHeader) {
 		
-		super(sequenceNumber, routingHeaderSupplier);
+		super(sequenceNumber, routingHeader);
 	}
 
 	/**

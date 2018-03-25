@@ -535,9 +535,7 @@ public class BBoxDBConnection {
 	 */
 	private boolean recalculateRoutingHeader(final NetworkRequestPackage requestPackage, final OperationFuture future) {
 		
-		try {
-			requestPackage.recalculateRoutingHeaderIfSupported();
-			
+		try {			
 			// Check if package needs to be send
 			final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
 			

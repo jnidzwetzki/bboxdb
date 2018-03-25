@@ -20,7 +20,6 @@ package org.bboxdb.network.client;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.DuplicateResolver;
@@ -141,7 +140,7 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
 		}
 
-		final Supplier<RoutingHeader> routingHeader = () -> RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, tuple.getBoundingBox(), false, connection.getServerAddress());
 
 		return insertTuple(table, tuple, routingHeader);
@@ -151,7 +150,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
-			final Supplier<RoutingHeader> routingHeaderSupplier) {
+			final RoutingHeader routingHeader) {
 
 		if(! connection.getConnectionState().isInRunningState()) {
 			return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
@@ -163,7 +162,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(
 				sequenceNumber, 
-				routingHeaderSupplier, 
+				routingHeader, 
 				ssTableName, 
 				tuple);
 
@@ -177,7 +176,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
-		final Supplier<RoutingHeader> routingHeader = () -> RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
 		
 		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
@@ -246,9 +245,8 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture("queryKey called, but connection not ready: " + this, table);
 		}
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+		final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+					table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
 		
 		final DuplicateResolver<Tuple> duplicateResolver 
 			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
@@ -274,9 +272,8 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this, table);
 		}
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, boundingBox, false, connection.getServerAddress());
+		final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+					table, boundingBox, false, connection.getServerAddress());
 
 		final short nextSequenceNumber = connection.getNextSequenceNumber();
 
@@ -300,9 +297,8 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture("queryBoundingBoxContinuous called, but connection not ready: " + this, table);
 		}
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, boundingBox, false, connection.getServerAddress());
+		final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+					table, boundingBox, false, connection.getServerAddress());
 		
 				final short nextSequenceNumber = connection.getNextSequenceNumber();
 			
@@ -326,15 +322,15 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this, table);
 		}
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table,boundingBox, false, connection.getServerAddress());
+		final RoutingHeader routingHeader =RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+					table,boundingBox, false, connection.getServerAddress());
 		
 		final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
+		
 		final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(nextSequenceNumber, 
-				routingHeaderSupplier, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
+				routingHeader, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
 
 		sendPackageToServer(clientOperationFuture, requestPackage, true);
 
@@ -351,9 +347,8 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this, table);
 		}
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+		final RoutingHeader routingHeaderSupplier =  RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+					table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
 
 		final short nextSequenceNumber = connection.getNextSequenceNumber();
 				
@@ -376,15 +371,14 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this, table);
 		}
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 						table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
 
 		final short nextSequenceNumber = connection.getNextSequenceNumber();
 				
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 		final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(nextSequenceNumber, 
-				routingHeaderSupplier, table, timestamp, pagingEnabled, tuplesPerPage);
+				routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
 
 		sendPackageToServer(clientOperationFuture, requestPackage, true);
 
@@ -401,8 +395,7 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedJoinedTupleListFuture("queryTime called, but connection not ready: " + this);
 		}
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 					tableNames.get(0), boundingBox, true, connection.getServerAddress());
 
 		final JoinedTupleListFuture clientOperationFuture = new JoinedTupleListFuture(1);
@@ -415,7 +408,7 @@ public class BBoxDBClient implements BBoxDB {
 		final short nextSequenceNumber = connection.getNextSequenceNumber();
 		
 		final QueryJoinRequest requestPackage = new QueryJoinRequest(nextSequenceNumber, 
-				routingHeaderSupplier, tupleStoreNames, boundingBox, pagingEnabled, tuplesPerPage);
+				routingHeader, tupleStoreNames, boundingBox, pagingEnabled, tuplesPerPage);
 		
 		sendPackageToServer(clientOperationFuture, requestPackage, true);
 

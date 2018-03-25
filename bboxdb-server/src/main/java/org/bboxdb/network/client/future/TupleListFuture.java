@@ -19,7 +19,6 @@ package org.bboxdb.network.client.future;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -161,9 +160,8 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 						+ "performing read repair", tuple, tupleResult, 
 						bboxDBConnection.getConnectionName());
 				
-				final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
 				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
-				bboxDBClient.insertTuple(tablename, tuple, routingHeaderSupplier);
+				bboxDBClient.insertTuple(tablename, tuple, routingHeader);
 			}
 		}
 	}	

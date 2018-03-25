@@ -20,7 +20,7 @@ package org.bboxdb.network.packages;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.function.Supplier;
+import java.util.Objects;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -29,36 +29,19 @@ import org.bboxdb.network.routing.RoutingHeaderParser;
 public abstract class NetworkRequestPackage extends NetworkPackage {
 	
 	/**
-	 * The routing handler supplier (used for retry and routing handler recalculation)
+	 * The routing handler
 	 */
-	private final Supplier<RoutingHeader> routingHeaderSupplier;
+	private final RoutingHeader routingHeader;
 	
-	/**
-	 * The routing header
-	 */
-	private RoutingHeader routingHeader;
-
-	public NetworkRequestPackage(short sequenceNumber, final Supplier<RoutingHeader> roundingHeaderSupplier) {
+	public NetworkRequestPackage(short sequenceNumber, final RoutingHeader routingHeader) {
 		super(sequenceNumber);
-		this.routingHeaderSupplier = roundingHeaderSupplier;
+		this.routingHeader = Objects.requireNonNull(routingHeader);
 	}
 	
 	public NetworkRequestPackage(final short sequenceNumber) {
-		this(sequenceNumber, () -> (new RoutingHeader(false)));
+		this(sequenceNumber, new RoutingHeader(false));
 	}
 
-	/**
-	 * Recalculate the routing header, e.g. during retry
-	 */
-	public void recalculateRoutingHeaderIfSupported() throws PackageEncodeException {
-		
-		routingHeader = routingHeaderSupplier.get();
-		
-		if(routingHeader == null) {
-			throw new PackageEncodeException("Unable to recalculate new package header");
-		}
-	}
-	
 	/**
 	 * Append the request package header to the output stream
 	 * @param bodyLength 
@@ -96,10 +79,6 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	 * @throws PackageEncodeException 
 	 */
 	public RoutingHeader getRoutingHeader() throws PackageEncodeException {
-		if(routingHeader == null) {
-			recalculateRoutingHeaderIfSupported();
-		}
-		
 		return routingHeader;
 	}
 }

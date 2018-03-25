@@ -20,7 +20,6 @@ package org.bboxdb.network.packages.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.function.Supplier;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -53,10 +52,10 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 * @param bbox
 	 * @param data
 	 */
-	public InsertTupleRequest(final short sequenceNumber, final Supplier<RoutingHeader> routingHeaderSupplier, 
+	public InsertTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
 			final TupleStoreName table, final Tuple tuple) {
 		
-		super(sequenceNumber, routingHeaderSupplier);
+		super(sequenceNumber, routingHeader);
 		
 		this.table = table;
 		this.tuple = tuple;
@@ -87,13 +86,9 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
-		
-		final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
-			return routingHeader;
-		};
-		
+
 		final TupleStoreName ssTableName = new TupleStoreName(tupleAndTable.getTable());
-		return new InsertTupleRequest(sequenceNumber, routingHeaderSupplier, ssTableName, tupleAndTable.getTuple());
+		return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tupleAndTable.getTuple());
 	}
 
 	@Override
