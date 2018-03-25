@@ -101,11 +101,6 @@ public class BBoxDBConnection {
 	private final Map<Short, List<PagedTransferableEntity>> resultBuffer = new HashMap<>();
 
 	/**
-	 * The retryer
-	 */
-	private final NetworkOperationRetryer networkOperationRetryer;
-
-	/**
 	 * The server response reader
 	 */
 	private ServerResponseReader serverResponseReader;
@@ -222,8 +217,6 @@ public class BBoxDBConnection {
 
 		this.pendingCompressionPackages = new ArrayList<>();
 		this.serverResponseHandler = new HashMap<>();
-
-		this.networkOperationRetryer = new NetworkOperationRetryer((p, f) -> {sendPackageToServer(p, f);});
 
 		initResponseHandler();
 	}
@@ -464,7 +457,6 @@ public class BBoxDBConnection {
 		logger.info("Disconnected from server: {}", getConnectionName());
 		connectionState.forceDispatchToTerminated();
 		mainteinanceThread.interrupt();
-		networkOperationRetryer.close();
 	}
 
 	/* (non-Javadoc)
@@ -528,11 +520,6 @@ public class BBoxDBConnection {
 			return;
 		}
 		
-		if(! networkOperationRetryer.isPackageIdKnown(sequenceNumber)) {
-			networkOperationRetryer.registerOperation(sequenceNumber, 
-				requestPackage, future);
-		}
-
 		if(connectionCapabilities.hasGZipCompression()) {
 			writePackageWithCompression(requestPackage, future);
 		} else {
@@ -798,14 +785,6 @@ public class BBoxDBConnection {
 		return resultBuffer;
 	}
 
-	/**
-	 * Get the network operation retryer
-	 * @return
-	 */
-	public NetworkOperationRetryer getNetworkOperationRetryer() {
-		return networkOperationRetryer;
-	}
-	
 	/**
 	 * Get the server response reader
 	 * @return

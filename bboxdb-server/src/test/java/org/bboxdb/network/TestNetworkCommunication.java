@@ -116,9 +116,6 @@ public class TestNetworkCommunication {
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(DISTRIBUTION_GROUP, 
 				configuration);
 		
-		// Prevent retries
-		bboxdbConnection.getNetworkOperationRetryer().close();
-		
 		resultCreate.waitForAll();
 		Assert.assertTrue(resultCreate.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_EXISTS, resultCreate.getMessage(0));
@@ -144,9 +141,6 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		
-		// Prevent retries
-		bboxdbConnection.getNetworkOperationRetryer().close();
 		
 		resultCreateTable2.waitForAll();
 		Assert.assertTrue(resultCreateTable2.isFailed());
@@ -308,9 +302,6 @@ public class TestNetworkCommunication {
 		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		
-		// Prevent retries
-		bboxdbConnection.getNetworkOperationRetryer().close();
-		
 		insertResult.waitForAll();
 		Assert.assertTrue(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
@@ -368,8 +359,6 @@ public class TestNetworkCommunication {
 		
 		final BBoxDBConnection bboxdbConnection = connectToServer();
 		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
-		
-		bboxdbConnection.getNetworkOperationRetryer().close();
 
 		final String table = DISTRIBUTION_GROUP + "_nonexisting";
 
