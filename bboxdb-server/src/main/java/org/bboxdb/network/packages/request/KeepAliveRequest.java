@@ -157,11 +157,6 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 	public byte getPackageType() {
 		return NetworkConst.REQUEST_TYPE_KEEP_ALIVE;
 	}
-	
-	@Override
-	public boolean canBeRetriedOnFailure() {
-		return false;
-	}
 
 	@Override
 	public int hashCode() {

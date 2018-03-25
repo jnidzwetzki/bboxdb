@@ -102,12 +102,4 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 		
 		return routingHeader;
 	}
-	
-	/**
-	 * Can this package be retried on failure
-	 * @return
-	 */
-	public boolean canBeRetriedOnFailure() {
-		return true;
-	}
 }
