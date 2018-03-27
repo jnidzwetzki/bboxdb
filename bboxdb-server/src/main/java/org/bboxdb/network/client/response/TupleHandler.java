@@ -57,7 +57,9 @@ public class TupleHandler implements ServerResponseHandler {
 		final Map<Short, List<PagedTransferableEntity>> resultBuffer = bBoxDBConnection.getResultBuffer();
 		
 		if(resultBuffer.containsKey(sequenceNumber)) {
-			resultBuffer.get(sequenceNumber).add(singleTupleResponse.getTuple());
+			
+			final List<PagedTransferableEntity> packageResult = resultBuffer.get(sequenceNumber);
+			packageResult.add(singleTupleResponse.getTuple());
 			
 			// The removal of the future depends, if this is a one
 			// tuple result or a multiple tuple result

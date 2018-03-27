@@ -88,10 +88,10 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		
 		// Sort tuples
 		allTuples.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
-		
+				
 		// Remove duplicates
 		duplicateResolver.removeDuplicates(allTuples);
-		
+
 		// Perform read repair
 		performReadRepair(allTuples);
 		

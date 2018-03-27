@@ -50,6 +50,7 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -328,11 +329,8 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			return futures;
 		};
-		
-		final DuplicateResolver<Tuple> duplicateResolver 
-			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
-	
-		return new TupleListFuture(futureProvider, duplicateResolver, table);
+
+		return new TupleListFuture(futureProvider, new DoNothingDuplicateResolver(), table);
 	}
 
 	/**
@@ -396,11 +394,8 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			return futures;
 		};
-		
-		final DuplicateResolver<Tuple> duplicateResolver 
-			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
 
-		return new TupleListFuture(futureProvider, duplicateResolver, table);
+		return new TupleListFuture(futureProvider, new DoNothingDuplicateResolver(), table);
 	}
 
 	@Override
@@ -434,11 +429,8 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			return futures;
 		};
-		
-		final DuplicateResolver<Tuple> duplicateResolver 
-			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
 
-		return new TupleListFuture(futureProvider, duplicateResolver, table);
+		return new TupleListFuture(futureProvider, new DoNothingDuplicateResolver(), table);
 	}
 
 	@Override
@@ -473,11 +465,8 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			return futures;
 		};
-		
-		final DuplicateResolver<Tuple> duplicateResolver 
-			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
 
-		return new TupleListFuture(futureProvider, duplicateResolver, table);
+		return new TupleListFuture(futureProvider, new DoNothingDuplicateResolver(), table);
 	}
 	
 	/* (non-Javadoc)

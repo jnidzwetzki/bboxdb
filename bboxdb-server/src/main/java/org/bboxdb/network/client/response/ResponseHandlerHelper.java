@@ -54,7 +54,7 @@ public class ResponseHandlerHelper {
 			for(final PagedTransferableEntity entity : resultList) {
 				tupleList.add((Tuple) entity);
 			}
-			
+						
 			future.setCompleteResult(completeResult);
 			future.setOperationResult(tupleList);
 			future.fireCompleteEvent();

@@ -75,7 +75,7 @@ public class NetworkQueryHelper {
 		final TupleListFuture future = bboxDBClient.queryBoundingBoxAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
 		future.waitForAll();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
-		
+				
 		Assert.assertEquals(3, resultList.size());
 		Assert.assertTrue(resultList.contains(tuple1));
 		Assert.assertTrue(resultList.contains(tuple2));

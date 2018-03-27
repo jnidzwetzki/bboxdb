@@ -126,7 +126,7 @@ public class TestBBoxDBCluster {
 	 */
 	protected BBoxDBCluster connectToServer() throws InterruptedException {
 		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
-		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster("localhost:2181", clusterName);
+		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster("node1:2181", clusterName);
 	
 		final boolean result = bboxdbCluster.connect();
 		Assert.assertTrue(result);

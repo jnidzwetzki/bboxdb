@@ -94,7 +94,9 @@ public class TupleStoreConfigurationCache {
 			}
 		}
 		
-		return cache.get(tupleStorename);
+		final DuplicateResolver<Tuple> duplicateResolver = cache.get(tupleStorename);
+			
+		return duplicateResolver;
 	}
 	
 	/**
