@@ -150,10 +150,10 @@ public class NetworkOperationFuture {
 	 */
 	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
 
-		latch.await(timeout, TimeUnit.MILLISECONDS);
+		latch.await(timeout, unit);
 		
 		if(! done) {
-			throw new TimeoutException("Unable to receive data in " + timeout + " ms");
+			throw new TimeoutException("Unable to receive data in " + timeout + " " + unit);
 		}
 				
 		return operationResult;
