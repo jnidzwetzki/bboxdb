@@ -45,7 +45,7 @@ public class HandshakeHandler implements RequestHandler {
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
-		logger.info("Handshaking with: " + clientConnectionHandler.clientSocket.getInetAddress());
+		logger.info("Handshaking with: {}", clientConnectionHandler.clientSocket.getInetAddress());
 		
 		try {	
 			final HelloRequest heloRequest = HelloRequest.decodeRequest(encodedPackage);
