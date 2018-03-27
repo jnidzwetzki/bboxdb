@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -43,9 +44,9 @@ public class NetworkOperationFuture {
 	private volatile Object operationResult = null;
 	
 	/**
-	 * The mutex for sync operations
+	 * The latch for sync operations
 	 */
-	private final Object mutex = new Object();
+	private final CountDownLatch latch = new CountDownLatch(1);
 	
 	/**
 	 * The error flag for the operation
@@ -135,13 +136,7 @@ public class NetworkOperationFuture {
 	 * @throws InterruptedException
 	 */
 	public Object get() throws InterruptedException {
-		
-		synchronized (mutex) {
-			while(! done) {
-				mutex.wait();
-			}
-		}
-		
+		latch.await();
 		return operationResult;
 	}
 
@@ -154,20 +149,11 @@ public class NetworkOperationFuture {
 	 * @throws TimeoutException 
 	 */
 	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
-				
-		final Stopwatch stopwatch = Stopwatch.createStarted();
-		final long waitTimeInMilis = unit.toMillis(timeout);
 
-		synchronized (mutex) {
-			while(! done) {
-				mutex.wait(waitTimeInMilis);
-				
-				final long passedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-				
-				if(passedTime >= waitTimeInMilis) {
-					throw new TimeoutException("Unable to receive data in " + passedTime + " ms");
-				}
-			}
+		latch.await(timeout, TimeUnit.MILLISECONDS);
+		
+		if(! done) {
+			throw new TimeoutException("Unable to receive data in " + timeout + " ms");
 		}
 				
 		return operationResult;
@@ -226,9 +212,7 @@ public class NetworkOperationFuture {
 		done = true;
 		stopwatch.stop();
 		
-		synchronized (mutex) {
-			mutex.notifyAll();
-		}
+		latch.countDown();
 	}
 
 	/**
@@ -265,8 +249,8 @@ public class NetworkOperationFuture {
 
 	@Override
 	public String toString() {
-		return "NetworkOperationFuture [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
-				+ mutex + ", failed=" + failed + ", done=" + done + ", complete=" + complete + ", message=" + message
+		return "NetworkOperationFuture [requestId=" + requestId + ", operationResult=" + operationResult + ", latch="
+				+ latch + ", failed=" + failed + ", done=" + done + ", complete=" + complete + ", message=" + message
 				+ ", stopwatch=" + stopwatch + ", connection=" + connection + "]";
 	}
 
