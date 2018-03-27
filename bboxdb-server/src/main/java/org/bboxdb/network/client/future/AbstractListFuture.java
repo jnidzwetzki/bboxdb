@@ -54,16 +54,14 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 				final List<T> tupleResult = get(i);
 				
 				if(tupleResult != null) {
-					for(final T tuple : tupleResult) {
-						allTuples.add(tuple);
-					}
+					allTuples.addAll(tupleResult);
 				}
 				
 			} catch (Exception e) {
 				logger.error("Got exception while iterating", e);
 			}
 		}
-		
+				
 		return allTuples;
 	}
 	
