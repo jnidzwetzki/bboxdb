@@ -115,7 +115,7 @@ public interface OperationFuture {
 	/**
 	 * Get the time for completing the task
 	 */
-	public long getCompletionTime();
+	public long getCompletionTime(final TimeUnit timeUnit);
 
 	/**
 	 * Fire the completion event

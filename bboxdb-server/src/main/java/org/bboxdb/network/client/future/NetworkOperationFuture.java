@@ -258,12 +258,12 @@ public class NetworkOperationFuture {
 	 * Get the elapsed time in nanoseconds for task completion
 	 * @return
 	 */
-	public long getCompletionTime() {
+	public long getCompletionTime(final TimeUnit timeUnit) {
 		if (! isDone()) {
 			throw new IllegalArgumentException("The future is not done. Unable to calculate completion time");
 		}
 		
-		return stopwatch.elapsed(TimeUnit.NANOSECONDS);
+		return stopwatch.elapsed(timeUnit);
 	}
 
 	/**

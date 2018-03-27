@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -232,8 +233,8 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	@Override
-	public long getCompletionTime() {
-		return futures.stream().mapToLong(f -> f.getCompletionTime()).sum();
+	public long getCompletionTime(final TimeUnit timeUnit) {
+		return futures.stream().mapToLong(f -> f.getCompletionTime(timeUnit)).sum();
 	}
 	
 	/**
