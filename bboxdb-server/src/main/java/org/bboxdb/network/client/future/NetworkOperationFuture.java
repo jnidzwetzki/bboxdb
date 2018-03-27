@@ -255,7 +255,7 @@ public class NetworkOperationFuture {
 	}
 
 	/**
-	 * Get the elapsed time in nanoseconds for task completion
+	 * Get the needed time for task completion
 	 * @return
 	 */
 	public long getCompletionTime(final TimeUnit timeUnit) {
