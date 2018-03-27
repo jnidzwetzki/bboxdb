@@ -119,7 +119,11 @@ public class NetworkOperationFuture {
 		final NetworkRequestPackage requestPackage = packageSupplier.get();
 
 		this.executions.incrementAndGet();
-		this.requestId = requestPackage.getSequenceNumber();
+		
+		// Can be null in some unit tests
+		if(requestPackage != null) {
+			this.requestId = requestPackage.getSequenceNumber();
+		}
 		
 		connection.registerPackageCallback(requestPackage, this);
 		connection.sendPackageToServer(requestPackage, this);
