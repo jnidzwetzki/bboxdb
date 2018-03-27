@@ -196,8 +196,13 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 		final BBoxDBInstance localinstance = ZookeeperClientFactory.getLocalInstanceName();
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(groupName);
 		
-		final List<DistributionRegion> mergeCandidates = spacePartitioner
-				.getRootNode()
+		final DistributionRegion rootNode = spacePartitioner.getRootNode();
+		
+		if(rootNode == null) {
+			return;
+		}
+		
+		final List<DistributionRegion> mergeCandidates = rootNode
 				.getThisAndChildRegions()
 				.stream()
 				.filter(r -> r.getSystems().contains(localinstance))
