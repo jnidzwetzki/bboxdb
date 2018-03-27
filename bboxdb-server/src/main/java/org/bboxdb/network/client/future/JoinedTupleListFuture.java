@@ -19,18 +19,19 @@ package org.bboxdb.network.client.future;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
 
 public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 
-	public JoinedTupleListFuture(final int numberOfFutures) {
-		super(numberOfFutures);
+	public JoinedTupleListFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+		super(futures);
 	}
-	
-	public JoinedTupleListFuture() {
-		super();
+
+	public JoinedTupleListFuture(final NetworkOperationFuture future) {
+		super(future);
 	}
 
 	@Override

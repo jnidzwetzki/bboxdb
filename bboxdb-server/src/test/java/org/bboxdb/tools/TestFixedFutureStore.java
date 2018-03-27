@@ -17,12 +17,18 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
-import org.bboxdb.network.client.future.OperationFutureImpl;
+import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
+import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestFixedFutureStore {
 
@@ -34,7 +40,7 @@ public class TestFixedFutureStore {
 		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
 
 		for(int i = 0; i < 20; i++) {
-			final OperationFutureImpl<Object> future = new OperationFutureImpl<>(1);
+			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
 			future.setFailedState();
 			future.fireCompleteEvent();
 			futureStore.put(future);
@@ -54,7 +60,7 @@ public class TestFixedFutureStore {
 		futureStore.addFailedFutureCallback(c -> {Assert.assertTrue(false);});
 		
 		for(int i = 0; i < 20; i++) {
-			final OperationFutureImpl<Object> future = new OperationFutureImpl<>(1);
+			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
 			future.fireCompleteEvent();
 			futureStore.put(future);
 		}
@@ -63,7 +69,7 @@ public class TestFixedFutureStore {
 	}
 	
 	/**
-	 * Add more futures in failed state and cound failed callbacks
+	 * Add more futures in failed state and count failed callbacks
 	 * @throws InterruptedException 
 	 */
 	@Test(timeout=5000)
@@ -72,9 +78,13 @@ public class TestFixedFutureStore {
 		final AtomicInteger atomicInteger = new AtomicInteger(0);
 		
 		futureStore.addFailedFutureCallback(c -> {atomicInteger.incrementAndGet();});
-
+		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
+		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		
 		for(int i = 0; i < 20; i++) {
-			final OperationFutureImpl<Object> future = new OperationFutureImpl<>(1);
+			final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier);
+			networkOperationFuture.setFailedState();
+			final EmptyResultFuture future = new EmptyResultFuture(networkOperationFuture);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			futureStore.put(future);

@@ -17,10 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.BBoxDBConnection;
@@ -30,18 +31,27 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	/**
 	 * The futures
 	 */
-	protected final List<NetworkOperationFuture<T>> futures;
+	protected final List<NetworkOperationFuture> futures;
 	
-	public OperationFutureImpl() {
-		this(0);
+	/**
+	 * The default retry policy
+	 */
+	private FutureRetryPolicy retryPolicy;
+	
+	/**
+	 * The retry counter
+	 * @param future
+	 */
+	private int retryCounter = 0;
+	
+	public OperationFutureImpl(final NetworkOperationFuture future) {
+		this.futures = Arrays.asList(future);
+		this.retryPolicy = FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE;
 	}
 	
-	public OperationFutureImpl(final int numberOfFutures) {
-		futures = new ArrayList<NetworkOperationFuture<T>>(numberOfFutures);
-		
-		for(int i = 0; i < numberOfFutures; i++) {
-			futures.add(new NetworkOperationFuture<T>());
-		}
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures) {
+		this.futures = futures.get();
+		this.retryPolicy = FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES;
 	}
 	
 	/* (non-Javadoc)
@@ -92,13 +102,6 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		checkFutureSize(resultId);
 		
 		return futures.get(resultId).getMessage();
-	}
-	
-	@Override
-	public void setConnection(final int resultId, final BBoxDBConnection connection) {
-		checkFutureSize(resultId);
-
-		futures.get(resultId).setConnection(connection);
 	}
 
 	@Override
@@ -158,7 +161,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	@Override
 	public void setFailedState() {
-		for(final NetworkOperationFuture<T> future : futures) {
+		for(final NetworkOperationFuture future : futures) {
 			future.setFailedState();
 		}
 	}
@@ -183,10 +186,11 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * Get the result of the future
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public T get(final int resultId) throws InterruptedException {
 		checkFutureSize(resultId);
 		
-		return futures.get(resultId).get();
+		return (T) futures.get(resultId).get();
 	}
 
     /**
@@ -194,12 +198,13 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * @return
      * @throws TimeoutException 
 	 */
+	@SuppressWarnings("unchecked")
 	public T get(final int resultId, final long timeout, final TimeUnit unit)
 			throws InterruptedException, TimeoutException {
 		
 		checkFutureSize(resultId);
 		
-		return futures.get(resultId).get(timeout, unit);
+		return (T) futures.get(resultId).get(timeout, unit);
 	}
 	
     /* (non-Javadoc)
@@ -233,22 +238,22 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	@Override
 	public void fireCompleteEvent() {
-		for(final NetworkOperationFuture<T> future : futures) {
+		for(final NetworkOperationFuture future : futures) {
 			future.fireCompleteEvent();
 		}
-	}
-
-	/**
-	 * Merge future lists
-	 * @param result
-	 */
-	public void merge(final OperationFutureImpl<T> result) {
-		futures.addAll(result.futures);
 	}
 
 	@Override
 	public long getCompletionTime() {
 		return futures.stream().mapToLong(f -> f.getCompletionTime()).sum();
+	}
+	
+	/**
+	 * Set the retry policy
+	 * @param retry
+	 */
+	public void setRetryPolicy(final FutureRetryPolicy retryPolicy) {
+		this.retryPolicy = retryPolicy;
 	}
 
 }

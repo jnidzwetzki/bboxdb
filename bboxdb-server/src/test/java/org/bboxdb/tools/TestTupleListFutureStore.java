@@ -20,14 +20,19 @@ package org.bboxdb.tools;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
+import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestTupleListFutureStore {
 
@@ -52,7 +57,10 @@ public class TestTupleListFutureStore {
 	public void testRejectedExeption() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 		tupleListFutureStore.shutdown();
-		tupleListFutureStore.put(new TupleListFuture(new DoNothingDuplicateResolver(), ""));
+		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
+		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier);
+		tupleListFutureStore.put(new TupleListFuture(networkOperationFuture, new DoNothingDuplicateResolver(), ""));
 	}
 
 	@Test(timeout=60000)
@@ -102,8 +110,18 @@ public class TestTupleListFutureStore {
  */
 class TestTupleListFuture extends TupleListFuture {
 	
-	public TestTupleListFuture() {
-		super(new DoNothingDuplicateResolver(), "");
+	public TestTupleListFuture() {	
+		super(getFuture(), new DoNothingDuplicateResolver(), "");
+	}
+
+	/**
+	 * @return
+	 */
+	private static NetworkOperationFuture getFuture() {
+		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
+		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier);
+		return networkOperationFuture;
 	}
 
 	public final static int ELEMENTS = 100;

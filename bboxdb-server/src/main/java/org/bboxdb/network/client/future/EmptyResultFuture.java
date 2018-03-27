@@ -17,20 +17,21 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 
-	public EmptyResultFuture() {
-		super();
+	public EmptyResultFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+		super(futures);
 	}
 
-	public EmptyResultFuture(final int numberOfFutures) {
-		super(numberOfFutures);
+	public EmptyResultFuture(final NetworkOperationFuture future) {
+		super(future);
 	}
-	
-	
+
 	@Override
 	public Boolean get(int resultId) throws InterruptedException {
 		

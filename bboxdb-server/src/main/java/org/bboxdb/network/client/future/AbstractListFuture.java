@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +33,15 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbstractListFuture.class);
-
-	public AbstractListFuture() {
-		super();
-	}
-
-	public AbstractListFuture(final int numberOfFutures) {
-		super(numberOfFutures);
-	}
 	
+	public AbstractListFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+		super(futures);
+	}
+
+	public AbstractListFuture(final NetworkOperationFuture future) {
+		super(future);
+	}
+
 	/**
 	 * Get a list with all results
 	 * @return

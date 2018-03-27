@@ -28,11 +28,11 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.network.client.future.FutureHelper;
+import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
@@ -56,15 +56,13 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BBoxDBClient implements BBoxDB {
 
 	/**
 	 * The Connection
 	 */
-	private BBoxDBConnection connection;
+	private final BBoxDBConnection connection;
 	
 	/**
 	 * Is the paging for queries enabled?
@@ -81,11 +79,6 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	private TupleStoreManagerRegistry tupleStoreManagerRegistry;
 
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
-
 	public BBoxDBClient(final BBoxDBConnection connection) {
 		this.connection = Objects.requireNonNull(connection);
 		this.pagingEnabled = true;
@@ -98,17 +91,23 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException {
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("createTable called, but connection not ready: " + this);
-		}
+		final NetworkOperationFuture future = getCreateTableFugure(table, configuration);
+		
+		return new EmptyResultFuture(future);
+	}
 
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-		final CreateTableRequest requestPackage = new CreateTableRequest(nextSequenceNumber, table, configuration);
+	/**
+	 * @param table
+	 * @param configuration
+	 * @return
+	 */
+	public NetworkOperationFuture getCreateTableFugure(final String table,
+			final TupleStoreConfiguration configuration) {
 		
-		sendPackageToServer(clientOperationFuture, requestPackage, false);
-		
-		return clientOperationFuture;
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			return new CreateTableRequest(nextSequenceNumber, table, configuration);
+		});		
 	}
 
 	/* (non-Javadoc)
@@ -116,18 +115,18 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteTable(final String table) {
+		return new EmptyResultFuture(getDeleteTableFuture(table));
+	}
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("deleteTable called, but connection not ready: " + this);
-		}
-
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-		final DeleteTableRequest requestPackage = new DeleteTableRequest(nextSequenceNumber, table);
-		
-		sendPackageToServer(clientOperationFuture, requestPackage, false);
-
-		return clientOperationFuture;
+	/**
+	 * @param table
+	 * @return
+	 */
+	public NetworkOperationFuture getDeleteTableFuture(final String table) {
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			return new DeleteTableRequest(nextSequenceNumber, table);
+		});
 	}
 
 	/* (non-Javadoc)
@@ -135,10 +134,6 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
-		
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
-		}
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, tuple.getBoundingBox(), false, connection.getServerAddress());
@@ -152,23 +147,26 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
 			final RoutingHeader routingHeader) {
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
-		}
+		final NetworkOperationFuture future = getInsertTupleFuture(table, tuple, routingHeader);
+		
+		return new EmptyResultFuture(future);
+	}
 
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final TupleStoreName ssTableName = new TupleStoreName(table);
-		final short sequenceNumber = connection.getNextSequenceNumber();
+	/**
+	 * @param table
+	 * @param tuple
+	 * @param routingHeader
+	 * @return
+	 */
+	public NetworkOperationFuture getInsertTupleFuture(final String table, final Tuple tuple,
+			final RoutingHeader routingHeader) {
+		
+		return new NetworkOperationFuture(connection, () -> {
+			final TupleStoreName ssTableName = new TupleStoreName(table);
+			final short sequenceNumber = connection.getNextSequenceNumber();
 
-		final InsertTupleRequest requestPackage = new InsertTupleRequest(
-				sequenceNumber, 
-				routingHeader, 
-				ssTableName, 
-				tuple);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, false);
-
-		return clientOperationFuture;
+			return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tuple);
+		});
 	}
 
 	/* (non-Javadoc)
@@ -197,21 +195,28 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
 			final DistributionGroupConfiguration distributionGroupConfiguration) {
-
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("listTables called, but connection not ready: " + this);
-		}
-
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-
-		final CreateDistributionGroupRequest requestPackage = new CreateDistributionGroupRequest(
-				nextSequenceNumber, distributionGroup, 
+		
+		final NetworkOperationFuture future = getCreateDistributionGroupFuture(distributionGroup,
 				distributionGroupConfiguration);
 
-		sendPackageToServer(clientOperationFuture, requestPackage, false);
+		return new EmptyResultFuture(future);
+	}
 
-		return clientOperationFuture;
+	/**
+	 * @param distributionGroup
+	 * @param distributionGroupConfiguration
+	 * @return
+	 */
+	public NetworkOperationFuture getCreateDistributionGroupFuture(final String distributionGroup,
+			final DistributionGroupConfiguration distributionGroupConfiguration) {
+		
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+
+			return new CreateDistributionGroupRequest(
+					nextSequenceNumber, distributionGroup, 
+					distributionGroupConfiguration);
+		});
 	}
 
 	/* (non-Javadoc)
@@ -219,20 +224,21 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
+		final NetworkOperationFuture future = getDeleteDistributionGroupFuture(distributionGroup);
+		return new EmptyResultFuture(future);
+	}
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("delete distribution group called, but connection not ready: " + this);
-		}
+	/**
+	 * @param distributionGroup
+	 * @return
+	 */
+	public NetworkOperationFuture getDeleteDistributionGroupFuture(final String distributionGroup) {
 		
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final DeleteDistributionGroupRequest requestPackage = new DeleteDistributionGroupRequest(
-				nextSequenceNumber, distributionGroup);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, false);
-
-		return clientOperationFuture;
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			return new DeleteDistributionGroupRequest(nextSequenceNumber, distributionGroup);
+		});
+		
 	}
 
 	/* (non-Javadoc)
@@ -241,25 +247,31 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryKey(final String table, final String key) {
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryKey called, but connection not ready: " + this, table);
-		}
-
-		final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-					table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+		
+		final NetworkOperationFuture future = getQueryKeyFuture(table, key, routingHeader);
 		
 		final DuplicateResolver<Tuple> duplicateResolver 
 			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
+
+		return new TupleListFuture(future, duplicateResolver, table);
+	}
+
+	/**
+	 * @param table
+	 * @param key
+	 * @return
+	 */
+	public NetworkOperationFuture getQueryKeyFuture(final String table, final String key, 
+			final RoutingHeader routingHeader) {
 		
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, duplicateResolver, table);
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-
-		final QueryKeyRequest requestPackage = new QueryKeyRequest(nextSequenceNumber, 
-				routingHeaderSupplier, table, key, pagingEnabled, tuplesPerPage);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
-
-		return clientOperationFuture;
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+	
+			return new QueryKeyRequest(nextSequenceNumber, 
+					routingHeader, table, key, pagingEnabled, tuplesPerPage);
+		});
 	}
 
 	/* (non-Javadoc)
@@ -267,23 +279,28 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+				table, boundingBox, false, connection.getServerAddress());
+		final NetworkOperationFuture future = getQueryBoundingBoxFuture(table, boundingBox, routingHeader);
+		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
+	}
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this, table);
-		}
-
-		final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-					table, boundingBox, false, connection.getServerAddress());
-
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
-		final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(nextSequenceNumber, 
-				routingHeaderSupplier, table, boundingBox, pagingEnabled, tuplesPerPage);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
-
-		return clientOperationFuture;
+	/**
+	 * 
+	 * @param table
+	 * @param boundingBox
+	 * @param routingHeader 
+	 * @return
+	 */
+	public NetworkOperationFuture getQueryBoundingBoxFuture(final String table, 
+			final BoundingBox boundingBox, RoutingHeader routingHeader) {
+		
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			
+			return new QueryBoundingBoxRequest(nextSequenceNumber, 
+					routingHeader, table, boundingBox, pagingEnabled, tuplesPerPage);
+		});
 	}
 
 	/**
@@ -292,23 +309,27 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) {
+		final NetworkOperationFuture future = getQueryBoundingBoxContinousFuture(table, boundingBox);
+		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
+	}
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryBoundingBoxContinuous called, but connection not ready: " + this, table);
-		}
-
-		final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-					table, boundingBox, false, connection.getServerAddress());
+	/**
+	 * @param table
+	 * @param boundingBox
+	 * @return
+	 */
+	public NetworkOperationFuture getQueryBoundingBoxContinousFuture(final String table,
+			final BoundingBox boundingBox) {
 		
-				final short nextSequenceNumber = connection.getNextSequenceNumber();
+		return new NetworkOperationFuture(connection, () -> {
+			final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+					table, boundingBox, false, connection.getServerAddress());
+
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
-		final QueryBoundingBoxContinuousRequest requestPackage = new QueryBoundingBoxContinuousRequest(
-				nextSequenceNumber, routingHeaderSupplier, table, boundingBox);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
-
-		return clientOperationFuture;
+			return new QueryBoundingBoxContinuousRequest(
+					nextSequenceNumber, routingHeaderSupplier, table, boundingBox);
+		});
 	}
 
 	/* (non-Javadoc)
@@ -317,24 +338,32 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
 			final BoundingBox boundingBox, final long timestamp) {
-
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this, table);
-		}
-
-		final RoutingHeader routingHeader =RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-					table,boundingBox, false, connection.getServerAddress());
 		
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+				table, boundingBox, false, connection.getServerAddress());
 		
-		final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(nextSequenceNumber, 
-				routingHeader, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
+		final NetworkOperationFuture future = getBoundingBoxAndTimeFuture(table, boundingBox, 
+				timestamp, routingHeader);
+		
+		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
+	}
 
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
-
-		return clientOperationFuture;
+	/**
+	 * @param table
+	 * @param boundingBox
+	 * @param timestamp
+	 * @param routingHeader 
+	 * @return
+	 */
+	public NetworkOperationFuture getBoundingBoxAndTimeFuture(final String table, final BoundingBox boundingBox,
+			final long timestamp, RoutingHeader routingHeader) {
+		
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			
+			return new QueryBoundingBoxTimeRequest(nextSequenceNumber, 
+					routingHeader, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
+		});
 	}
 
 	/* (non-Javadoc)
@@ -342,23 +371,28 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryVersionTime(final String table, final long timestamp) {
+		final RoutingHeader routingHeader =  RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
+				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this, table);
-		}
+		final NetworkOperationFuture future = getVersionTimeFuture(table, timestamp, routingHeader);
+		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
+	}
 
-		final RoutingHeader routingHeaderSupplier =  RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-					table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
-
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-				
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
-		final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(nextSequenceNumber, 
-				routingHeaderSupplier, table, timestamp, pagingEnabled, tuplesPerPage);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
-
-		return clientOperationFuture;
+	/**
+	 * @param table
+	 * @param timestamp
+	 * @param routingHeader 
+	 * @return
+	 */
+	public NetworkOperationFuture getVersionTimeFuture(final String table, final long timestamp, 
+			final RoutingHeader routingHeader) {
+		
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+					
+			return new QueryVersionTimeRequest(nextSequenceNumber, 
+					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
+		});
 	}
 
 	/* (non-Javadoc)
@@ -366,23 +400,26 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) {
-
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this, table);
-		}
-
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+		final NetworkOperationFuture future = getInsertedTimeFuture(table, timestamp, routingHeader);
+		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
+	}
 
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-				
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
-		final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(nextSequenceNumber, 
-				routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
-
-		return clientOperationFuture;
+	/**
+	 * @param table
+	 * @param timestamp
+	 * @param routingHeader2 
+	 * @return
+	 */
+	public NetworkOperationFuture getInsertedTimeFuture(final String table, final long timestamp, 
+			final RoutingHeader routingHeader) {
+		
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			return new QueryInsertTimeRequest(nextSequenceNumber, 
+					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
+		});
 	}
 	
 	/* (non-Javadoc)
@@ -390,29 +427,34 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) {
-		
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedJoinedTupleListFuture("queryTime called, but connection not ready: " + this);
-		}
-
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-					tableNames.get(0), boundingBox, true, connection.getServerAddress());
+				tableNames.get(0), boundingBox, true, connection.getServerAddress());
+		
+		final NetworkOperationFuture future = getJoinFuture(tableNames, boundingBox, routingHeader);
+		return new JoinedTupleListFuture(future);
+	}
 
-		final JoinedTupleListFuture clientOperationFuture = new JoinedTupleListFuture(1);
+	/**
+	 * @param tableNames
+	 * @param boundingBox
+	 * @param routingHeader2 
+	 * @return
+	 */
+	public NetworkOperationFuture getJoinFuture(final List<String> tableNames, final BoundingBox boundingBox, 
+			final RoutingHeader routingHeader) {
 		
-		final List<TupleStoreName> tupleStoreNames = tableNames
-				.stream()
-				.map(t -> new TupleStoreName(t))
-				.collect(Collectors.toList());
-		
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-		
-		final QueryJoinRequest requestPackage = new QueryJoinRequest(nextSequenceNumber, 
-				routingHeader, tupleStoreNames, boundingBox, pagingEnabled, tuplesPerPage);
-		
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
+		return new NetworkOperationFuture(connection, () -> {
 
-		return clientOperationFuture;
+			final List<TupleStoreName> tupleStoreNames = tableNames
+					.stream()
+					.map(t -> new TupleStoreName(t))
+					.collect(Collectors.toList());
+			
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			
+			return new QueryJoinRequest(nextSequenceNumber, 
+					routingHeader, tupleStoreNames, boundingBox, pagingEnabled, tuplesPerPage);
+		});
 	}
 
 	/**
@@ -430,21 +472,25 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture sendKeepAlivePackage(final String tablename, final List<Tuple> tuples) {
+		final NetworkOperationFuture future = getKeepAliveFuture(tablename, tuples);
+		final EmptyResultFuture resultFuture = new EmptyResultFuture(future);
+		
+		// Unsuccesfull means only we have to send gossip data
+		resultFuture.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+		
+		return resultFuture;
+	}
 
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("sendKeepAlivePackage called, but connection not ready: " + this);
-		}
-		
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-		
-		final KeepAliveRequest requestPackage 
-			= new KeepAliveRequest(nextSequenceNumber, tablename, tuples);
-		
-		sendPackageToServer(clientOperationFuture, requestPackage, false);
-
-		return clientOperationFuture;
+	/**
+	 * @param tablename
+	 * @param tuples
+	 * @return
+	 */
+	public NetworkOperationFuture getKeepAliveFuture(final String tablename, final List<Tuple> tuples) {
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			return new KeepAliveRequest(nextSequenceNumber, tablename, tuples);
+		});
 	}
 
 	/**
@@ -453,42 +499,14 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public OperationFuture getNextPage(final short queryPackageId) {
-
-		if(! connection.getResultBuffer().containsKey(queryPackageId)) {
-			final String errorMessage = "Query package " + queryPackageId 
-					+ " not found in the result buffer";
-
-			logger.error(errorMessage);
-			return FutureHelper.getFailedTupleListFuture(errorMessage, "");
-		}
-
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), "");
 		
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
-		
-		final NextPageRequest requestPackage = new NextPageRequest(
-				nextSequenceNumber, queryPackageId);
+		final NetworkOperationFuture future = new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			
+			return new NextPageRequest(nextSequenceNumber, queryPackageId);
+		});
 
-		sendPackageToServer(clientOperationFuture, requestPackage, true);
-
-		return clientOperationFuture;
-	}
-
-	/**
-	 * Send the package to the server
-	 * 
-	 * @param clientOperationFuture
-	 * @param requestPackage
-	 */
-	private void sendPackageToServer(final OperationFuture clientOperationFuture,
-			final NetworkRequestPackage requestPackage, final boolean flush) {
-		
-		connection.registerPackageCallback(requestPackage, clientOperationFuture);
-		connection.sendPackageToServer(requestPackage, clientOperationFuture);
-
-		if(flush) {
-			connection.flushPendingCompressionPackages();
-		}
+		return new TupleListFuture(future, new DoNothingDuplicateResolver(), "");
 	}
 
 	/**
@@ -497,20 +515,19 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture cancelQuery(final short queryPackageId) {
-		
-		if(! connection.getConnectionState().isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("cancelQuery called, but connection not ready: " + this);
-		}
-		
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		
-		final short nextSequenceNumber = connection.getNextSequenceNumber();
+		final NetworkOperationFuture future = getCancelQueryFuture(queryPackageId);
+		return new EmptyResultFuture(future);
+	}
 
-		final CancelQueryRequest requestPackage = new CancelQueryRequest(nextSequenceNumber, queryPackageId);
-
-		sendPackageToServer(clientOperationFuture, requestPackage, false);
-
-		return clientOperationFuture;
+	/**
+	 * @param queryPackageId
+	 * @return
+	 */
+	public NetworkOperationFuture getCancelQueryFuture(final short queryPackageId) {
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			return new CancelQueryRequest(nextSequenceNumber, queryPackageId);
+		});
 	}
 
 	@Override

@@ -82,7 +82,7 @@ public class DistributionRegionHelper {
 	 * @param systems
 	 * @return 
 	 */
-	public static Collection<RoutingHop> getRegionsForPredicateAndBox(
+	public static List<RoutingHop> getRegionsForPredicateAndBox(
 			final DistributionRegion rootRegion, final BoundingBox boundingBox, 
 			final Predicate<DistributionRegionState> statePredicate) {
 	
@@ -111,7 +111,7 @@ public class DistributionRegionHelper {
 			}
 		}
 		
-		return hops.values();
+		return new ArrayList<>(hops.values());
 	}
 		
 	/**

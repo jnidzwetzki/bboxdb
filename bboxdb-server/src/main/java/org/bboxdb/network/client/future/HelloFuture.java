@@ -17,15 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import java.util.List;
+import java.util.function.Supplier;
+
 import org.bboxdb.network.packages.response.HelloResponse;
 
 public class HelloFuture extends OperationFutureImpl<HelloResponse>{
 
-	public HelloFuture() {
-		super();
+	public HelloFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+		super(futures);
 	}
 
-	public HelloFuture(final int numberOfFutures) {
-		super(numberOfFutures);
+	public HelloFuture(final NetworkOperationFuture future) {
+		super(future);
 	}
+
 }

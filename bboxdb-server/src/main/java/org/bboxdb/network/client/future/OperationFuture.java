@@ -50,14 +50,7 @@ public interface OperationFuture {
 	 * @return 
 	 */
 	public String getMessage(final int resultId);
-	
-	/**
-	 * Set the connection for the future
-	 * @param resultId
-	 * @param connectionId
-	 */
-	public void setConnection(final int resultId, final BBoxDBConnection bBoxDBConnection);
-	
+
 	/**
 	 * Is the result complete?
 	 * @param resultId

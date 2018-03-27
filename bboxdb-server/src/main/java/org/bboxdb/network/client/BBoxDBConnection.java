@@ -41,8 +41,8 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
-import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.HelloFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.response.CompressionHandler;
 import org.bboxdb.network.client.response.ErrorHandler;
@@ -312,27 +312,27 @@ public class BBoxDBConnection {
 	 */
 	private void runHandshake() throws Exception {
 
-		final HelloFuture operationFuture = new HelloFuture(1);
-
 		if(! connectionState.isInStartingState()) {
 			logger.error("Handshaking called in wrong state: {}", connectionState);
 		}
 
 		// Capabilities are reported to server; now freeze client capabilities. 
 		clientCapabilities.freeze();
-		final HelloRequest requestPackage = new HelloRequest(getNextSequenceNumber(), 
-				NetworkConst.PROTOCOL_VERSION, clientCapabilities);
+	
 
-		registerPackageCallback(requestPackage, operationFuture);
-		sendPackageToServer(requestPackage, operationFuture);
-
-		operationFuture.waitForAll();
+		NetworkOperationFuture operationFuture = new NetworkOperationFuture(this, () -> {
+			return new HelloRequest(getNextSequenceNumber(), 
+					NetworkConst.PROTOCOL_VERSION, clientCapabilities);
+		});
+		
+		final HelloFuture helloFuture = new HelloFuture(operationFuture);
+		helloFuture.waitForAll();
 
 		if(operationFuture.isFailed()) {
 			throw new Exception("Got an error during handshake");
 		}
 
-		final HelloResponse helloResponse = operationFuture.get(0);
+		final HelloResponse helloResponse = helloFuture.get(0);
 		connectionCapabilities = helloResponse.getPeerCapabilities();
 
 		connectionState.dispatchToRunning();
@@ -363,11 +363,9 @@ public class BBoxDBConnection {
 			logger.info("Disconnecting from server: {}", getConnectionName());
 			connectionState.dispatchToStopping();
 
-			final DisconnectRequest requestPackage = new DisconnectRequest(getNextSequenceNumber());
-			final EmptyResultFuture operationFuture = new EmptyResultFuture(1);
-
-			registerPackageCallback(requestPackage, operationFuture);
-			sendPackageToServer(requestPackage, operationFuture);
+			new NetworkOperationFuture(this, () -> {
+				return new DisconnectRequest(getNextSequenceNumber());
+			});
 		}
 
 		settlePendingCalls(DEFAULT_TIMEOUT_MILLIS);
@@ -507,9 +505,7 @@ public class BBoxDBConnection {
 	 * @throws IOException 
 	 */
 	public void sendPackageToServer(final NetworkRequestPackage requestPackage, 
-			final OperationFuture future) {
-
-		future.setConnection(0, this);
+			final NetworkOperationFuture future) {
 		
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 		final boolean result = recalculateRoutingHeader(requestPackage, future);
@@ -533,7 +529,8 @@ public class BBoxDBConnection {
 	 * @param future
 	 * @return 
 	 */
-	private boolean recalculateRoutingHeader(final NetworkRequestPackage requestPackage, final OperationFuture future) {
+	private boolean recalculateRoutingHeader(final NetworkRequestPackage requestPackage, 
+			final NetworkOperationFuture future) {
 		
 		try {			
 			// Check if package needs to be send
@@ -541,7 +538,7 @@ public class BBoxDBConnection {
 			
 			if(routingHeader.isRoutedPackage()) {
 				if(routingHeader.getHopCount() == 0) {
-					future.setMessage(0, "No distribution regions in next hop, not sending to server");
+					future.setMessage("No distribution regions in next hop, not sending to server");
 					future.fireCompleteEvent();
 					return false;
 				}
@@ -550,7 +547,7 @@ public class BBoxDBConnection {
 		} catch (PackageEncodeException e) {
 			final String message = "Got a exception during package encoding";
 			logger.error(message);
-			future.setMessage(0, message);
+			future.setMessage(message);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return false;
@@ -565,7 +562,7 @@ public class BBoxDBConnection {
 	 * @param future
 	 */
 	private void writePackageUncompressed(final NetworkRequestPackage requestPackage, 
-			final OperationFuture future) {
+			final NetworkOperationFuture future) {
 
 		try {	
 			writePackageToSocket(requestPackage);
@@ -582,7 +579,8 @@ public class BBoxDBConnection {
 	 * @param requestPackage
 	 * @param future
 	 */
-	private void writePackageWithCompression(NetworkRequestPackage requestPackage, OperationFuture future) {
+	private void writePackageWithCompression(NetworkRequestPackage requestPackage, 
+			NetworkOperationFuture future) {
 
 		boolean queueFull = false;
 

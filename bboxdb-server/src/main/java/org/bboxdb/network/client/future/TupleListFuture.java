@@ -19,6 +19,7 @@ package org.bboxdb.network.client.future;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -50,13 +51,19 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 	 */
 	private final String tablename;
 
-	public TupleListFuture(final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
+	public TupleListFuture(final NetworkOperationFuture future, 
+			final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
+		
+		super(future);
+		
 		this.duplicateResolver = duplicateResolver;
 		this.tablename = tablename;
 	}
 
-	public TupleListFuture(final int numberOfFutures, final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
-		super(numberOfFutures);
+	public TupleListFuture(final Supplier<List<NetworkOperationFuture>> futures, 
+			final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
+		
+		super(futures);
 		
 		this.duplicateResolver = duplicateResolver;
 		this.tablename = tablename;

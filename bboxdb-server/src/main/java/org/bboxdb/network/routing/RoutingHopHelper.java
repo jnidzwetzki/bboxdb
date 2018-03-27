@@ -95,7 +95,7 @@ public class RoutingHopHelper {
 	 * Get the a list of systems for the bounding box
 	 * @return
 	 */
-	public static Collection<RoutingHop> getRoutingHopsForRead(final DistributionRegion rootRegion, 
+	public static List<RoutingHop> getRoutingHopsForRead(final DistributionRegion rootRegion, 
 			final BoundingBox boundingBox) {
 		
 		return DistributionRegionHelper.getRegionsForPredicateAndBox(rootRegion, boundingBox, 
@@ -106,7 +106,7 @@ public class RoutingHopHelper {
 	 * Get the a list of systems for the bounding box
 	 * @return
 	 */
-	public static Collection<RoutingHop> getRoutingHopsForWrite(final DistributionRegion rootRegion, 
+	public static List<RoutingHop> getRoutingHopsForWrite(final DistributionRegion rootRegion, 
 			final BoundingBox boundingBox) {
 		
 		return DistributionRegionHelper.getRegionsForPredicateAndBox(rootRegion, boundingBox, 

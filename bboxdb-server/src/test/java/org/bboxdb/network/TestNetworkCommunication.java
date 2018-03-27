@@ -33,6 +33,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -116,6 +117,9 @@ public class TestNetworkCommunication {
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(DISTRIBUTION_GROUP, 
 				configuration);
 		
+		// Prevent retries
+		resultCreate.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+		
 		resultCreate.waitForAll();
 		Assert.assertTrue(resultCreate.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_EXISTS, resultCreate.getMessage(0));
@@ -141,6 +145,9 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		
+		// Prevent retries
+		resultCreateTable2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		
 		resultCreateTable2.waitForAll();
 		Assert.assertTrue(resultCreateTable2.isFailed());
@@ -302,6 +309,9 @@ public class TestNetworkCommunication {
 		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		
+		// Prevent retries
+		insertResult.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+		
 		insertResult.waitForAll();
 		Assert.assertTrue(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
@@ -361,34 +371,39 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 
 		final String table = DISTRIBUTION_GROUP + "_nonexisting";
-
+		
 		System.out.println("== Waiting for queryBoundingBox");
 		final BoundingBox boundingBox = new BoundingBox(-1d, 2d, -1d, 2d);
 		final TupleListFuture result1 = bboxDBClient.queryBoundingBox(table, boundingBox);
+		result1.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result1.waitForAll();
 		Assert.assertTrue(result1.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result1.getMessage(0));
 		
 		System.out.println("== Waiting for queryKey");
 		final TupleListFuture result2 = bboxDBClient.queryKey(table, "abc");
+		result2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result2.waitForAll();
 		Assert.assertTrue(result2.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result2.getMessage(0));
 		
 		System.out.println("== Waiting for queryInsertedTime");
 		final TupleListFuture result3 = bboxDBClient.queryInsertedTime(table, 1234);
+		result3.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result3.waitForAll();
 		Assert.assertTrue(result3.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result3.getMessage(0));
 		
 		System.out.println("== Waiting for queryVersionTime");
 		final TupleListFuture result4 = bboxDBClient.queryVersionTime(table, 1234);
+		result4.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result4.waitForAll();
 		Assert.assertTrue(result4.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result4.getMessage(0));
 		
 		System.out.println("== Waiting for queryBoundingBoxAndTime");
 		final TupleListFuture result5 = bboxDBClient.queryBoundingBoxAndTime(table, boundingBox, 1234);
+		result5.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result5.waitForAll();
 		Assert.assertTrue(result5.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result5.getMessage(0));

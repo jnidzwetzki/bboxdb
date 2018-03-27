@@ -20,14 +20,17 @@ package org.bboxdb.network.client.future;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
-public class NetworkOperationFuture<T> {
+public class NetworkOperationFuture {
 	
 	/**
 	 * The id of the operation
@@ -37,7 +40,7 @@ public class NetworkOperationFuture<T> {
 	/**
 	 * The result of the operation
 	 */
-	private volatile T operationResult = null;
+	private volatile Object operationResult = null;
 	
 	/**
 	 * The mutex for sync operations
@@ -72,28 +75,33 @@ public class NetworkOperationFuture<T> {
 	/**
 	 * The associated connection
 	 */
-	private BBoxDBConnection connection;
+	private final BBoxDBConnection connection;
+	
+	/**
+	 * The packge supplier
+	 */
+	private Supplier<NetworkRequestPackage> packageSupplier;
+
+	/**
+	 * The executions
+	 */
+	private AtomicInteger executions = new AtomicInteger(0);
 	
 	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(NetworkOperationFuture.class);
 
-
 	/**
 	 * Empty constructor
 	 */
-	public NetworkOperationFuture() {
+	public NetworkOperationFuture(final BBoxDBConnection connection, 
+			final Supplier<NetworkRequestPackage> packageSupplier) {
+		
+		this.packageSupplier = packageSupplier;
 		this.stopwatch = Stopwatch.createStarted();
-	}
-	
-	/**
-	 * Constructor with the request id
-	 * @param requestId
-	 */
-	public NetworkOperationFuture(final short requestId) {
-		this();
-		this.requestId = requestId;
+		this.connection = connection;
+		reexecute();
 	}
 
 	/**
@@ -105,11 +113,19 @@ public class NetworkOperationFuture<T> {
 	}
 
 	/**
+	 * Reexecute
+	 */
+	public void reexecute() {
+		executions.incrementAndGet();
+		connection.sendPackageToServer(packageSupplier.get(), this);
+	}
+	
+	/**
 	 * Get (and wait) for the result
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public T get() throws InterruptedException {
+	public Object get() throws InterruptedException {
 		
 		synchronized (mutex) {
 			while(! done) {
@@ -128,7 +144,7 @@ public class NetworkOperationFuture<T> {
 	 * @throws InterruptedException
 	 * @throws TimeoutException 
 	 */
-	public T get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
+	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
 				
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		final long waitTimeInMilis = unit.toMillis(timeout);
@@ -158,7 +174,7 @@ public class NetworkOperationFuture<T> {
 	/**
 	 * Set the result of the operation
 	 */
-	public void setOperationResult(final T result) {
+	public void setOperationResult(final Object result) {
 		
 		synchronized (mutex) {
 			this.operationResult = result;
@@ -276,14 +292,6 @@ public class NetworkOperationFuture<T> {
 		return connection;
 	}
 
-	/**
-	 * Set the id of the connection
-	 * @param connectionName
-	 */
-	public void setConnection(final BBoxDBConnection connection) {
-		this.connection = connection;
-	}
-	
 	/**
 	 * Get the message and the connection id in a human readable format
 	 * @return
