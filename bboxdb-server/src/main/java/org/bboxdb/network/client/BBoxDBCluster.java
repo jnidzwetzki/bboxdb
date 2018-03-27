@@ -151,14 +151,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
 		try {
-			final TupleStoreName ssTableName = new TupleStoreName(table);
-
-			final String distributionGroup = ssTableName.getDistributionGroup();
-			final SpacePartitioner distributionAdapter = SpacePartitionerCache
-					.getInstance().getSpacePartitionerForGroupName(distributionGroup);
-
-			
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+			final DistributionRegion distributionRegion = getRootNode(table);
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, 
 					tuple.getBoundingBox());
@@ -198,14 +191,8 @@ public class BBoxDBCluster implements BBoxDB {
 			throws BBoxDBException {
 		
 		final DeletedTuple tuple = new DeletedTuple(key);
-		final TupleStoreName tupleStoreName = new TupleStoreName(table);
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-		
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, 
 					tuple.getBoundingBox());
@@ -285,14 +272,8 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		final DeletedTuple tuple = new DeletedTuple(key);
-		final TupleStoreName tupleStoreName = new TupleStoreName(table);
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-		
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, 
@@ -326,14 +307,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
 		}
 		
-		final TupleStoreName tupleStoreName = new TupleStoreName(table);
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-		
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, 
@@ -369,14 +344,8 @@ public class BBoxDBCluster implements BBoxDB {
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) 
 			throws BBoxDBException {
 	
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final TupleStoreName sstableName = new TupleStoreName(table);
-
-		final String distributionGroup = sstableName.getDistributionGroup();
-		final SpacePartitioner distributionAdapter 
-			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
-
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 		final List<DistributionRegion> regions 
 			= distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
 
@@ -405,14 +374,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
 		}
 		
-		final TupleStoreName tupleStoreName = new TupleStoreName(table);
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-		
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, 
@@ -450,14 +413,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 
-		final TupleStoreName tupleStoreName = new TupleStoreName(table);
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-		
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, 
@@ -494,14 +451,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 
-		final TupleStoreName tupleStoreName = new TupleStoreName(table);
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-		
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, 
@@ -544,13 +495,8 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		
-		final TupleStoreName tupleStoreName = new TupleStoreName(tableNames.get(0));
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
-
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+		final String fullname = tableNames.get(0);
+		final DistributionRegion distributionRegion = getRootNode(fullname);
 		
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
@@ -574,6 +520,23 @@ public class BBoxDBCluster implements BBoxDB {
 		};
 
 		return new JoinedTupleListFuture(futureProvider);		
+	}
+
+	/**
+	 * Get the root node from space partitioner
+	 * 
+	 * @param fullname
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	private DistributionRegion getRootNode(final String fullname) throws BBoxDBException {
+		final TupleStoreName tupleStoreName = new TupleStoreName(fullname);
+		final String distributionGroup = tupleStoreName.getDistributionGroup();
+		
+		final SpacePartitioner distributionAdapter = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+
+		return distributionAdapter.getRootNode();
 	}
 
 	@Override
