@@ -184,11 +184,7 @@ public class NetworkOperationFuture {
 	 * Set the result of the operation
 	 */
 	public void setOperationResult(final Object result) {
-		
-		synchronized (mutex) {
-			this.operationResult = result;
-			mutex.notifyAll();
-		}
+		this.operationResult = result;
 	}
 
 	/**
