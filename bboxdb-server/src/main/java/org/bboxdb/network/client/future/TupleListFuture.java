@@ -47,7 +47,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 	private final static Logger logger = LoggerFactory.getLogger(TupleListFuture.class);
 
 	/**
-	 * The tablename for the read opeation
+	 * The tablename for the read operation
 	 */
 	private final String tablename;
 
