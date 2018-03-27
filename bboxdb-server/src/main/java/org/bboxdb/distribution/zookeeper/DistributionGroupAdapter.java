@@ -157,7 +157,10 @@ public class DistributionGroupAdapter {
 		zookeeperClient.replacePersistentNode(spacePartitionerPath, configuration.getSpacePartitioner().getBytes());
 		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
 		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, configuration.getSpacePartitionerConfig().getBytes());
-					
+		
+		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+		tupleStoreAdapter.createTupleStoreConfigNode(distributionGroup);
+		
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, path);
 		
 		final SpacePartitioner spacePartitioner 
