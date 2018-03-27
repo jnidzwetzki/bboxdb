@@ -243,6 +243,8 @@ public class TupleStoreZookeeperObserver {
 			
 			storeAdapter.getAllTables(groupName, w -> handleTableDelete(w));
 
+		} catch(ZookeeperNotFoundException e1) {
+			logger.info("Got zookeeper not found exception while reading table versions");
 		} catch (Throwable e1) {
 			logger.error("Got exception while deleting tuple stores", e1);
 		}
