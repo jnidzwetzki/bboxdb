@@ -65,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 
 public class BBoxDBConnection {
@@ -376,17 +377,15 @@ public class BBoxDBConnection {
 	 * Settle all pending calls
 	 */
 	public void settlePendingCalls(final long shutdownTimeMillis) {
-
-		final long shutdownStarted = System.currentTimeMillis();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
 			
 			while(getInFlightCalls() > 0) {
-				final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
-				final long timeoutLeft = shutdownTimeMillis - shutdownDuration;
-
-				if(timeoutLeft <= 0) {
+				final long timeLeft = shutdownTimeMillis - stopwatch.elapsed(TimeUnit.MILLISECONDS);
+				
+				if (timeLeft <= 0) {
 					break;
 				}
 				
@@ -397,12 +396,12 @@ public class BBoxDBConnection {
 				}
 				
 				logger.info("Waiting up to {} seconds for pending requests to settle "
-						+ "(pending {} / server {})", TimeUnit.MILLISECONDS.toSeconds(timeoutLeft), 
+						+ "(pending {} / server {})", timeLeft, 
 						getInFlightCalls(), getConnectionName());
 				
 				try {
 					// Recheck connection state all 5 seconds
-					final long maxWaitTime = Math.min(timeoutLeft, TimeUnit.SECONDS.toMillis(5));
+					final long maxWaitTime = Math.min(timeLeft, TimeUnit.SECONDS.toMillis(5));
 					pendingCalls.wait(maxWaitTime);
 				} catch (InterruptedException e) {
 					logger.debug("Got an InterruptedException during pending calls wait.");
