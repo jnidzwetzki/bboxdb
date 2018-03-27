@@ -37,11 +37,10 @@ public class HandshakeHandler implements RequestHandler {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(HandshakeHandler.class);
 	
-
-	@Override
 	/**
 	 * Handle the handshake request
 	 */
+	@Override
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
@@ -51,7 +50,9 @@ public class HandshakeHandler implements RequestHandler {
 			final HelloRequest heloRequest = HelloRequest.decodeRequest(encodedPackage);
 			clientConnectionHandler.setConnectionCapabilities(heloRequest.getPeerCapabilities());
 
-			final HelloResponse responsePackage = new HelloResponse(packageSequence, NetworkConst.PROTOCOL_VERSION, clientConnectionHandler.getConnectionCapabilities());
+			final HelloResponse responsePackage = new HelloResponse(packageSequence, 
+					NetworkConst.PROTOCOL_VERSION, clientConnectionHandler.getConnectionCapabilities());
+			
 			clientConnectionHandler.writeResultPackage(responsePackage);
 
 			clientConnectionHandler.setConnectionStateToOpen();
