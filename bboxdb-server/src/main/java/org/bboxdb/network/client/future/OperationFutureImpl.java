@@ -228,9 +228,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	@Override
 	public void fireCompleteEvent() {
-		for(final NetworkOperationFuture future : futures) {
-			future.fireCompleteEvent();
-		}
+		futures.forEach(f -> f.fireCompleteEvent());
 	}
 
 	@Override
