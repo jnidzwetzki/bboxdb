@@ -19,6 +19,7 @@ package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
@@ -39,26 +40,24 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
-		
+				
 		if(logger.isDebugEnabled()) {
-			logger.debug("Handle multuple tuple end package");
+			logger.debug("Handle multiple tuple end package");
 		}
-		
+				
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
 		
 		final short sequenceNumber = result.getSequenceNumber();
-		final List<PagedTransferableEntity> resultList = bBoxDBConnection.getResultBuffer().remove(sequenceNumber);
-
+		final Map<Short, List<PagedTransferableEntity>> resultBuffer = bBoxDBConnection.getResultBuffer();
+		final List<PagedTransferableEntity> resultList = resultBuffer.remove(sequenceNumber);
+		
 		if(future == null) {
-			logger.warn("Got handleMultiTupleEnd and pendingCall is empty (package {}) ",
-					sequenceNumber);
+			logger.error("Got handleMultiTupleEnd and future is null (package {}) ", sequenceNumber);
 			return true;
 		}
 		
 		if(resultList == null) {
-			logger.warn("Got handleMultiTupleEnd and resultList is empty (package {})",
-					sequenceNumber);
-			
+			logger.error("Got handleMultiTupleEnd and resultList is empty (package {})", sequenceNumber);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return true;

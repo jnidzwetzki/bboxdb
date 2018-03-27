@@ -125,8 +125,11 @@ public class NetworkQueryHelper {
 			result5.waitForAll();
 		}
 		
+		System.out.println("=== Executing query");
 		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
 		future.waitForAll();
+		System.out.println("=== Query DONE");
+
 		Assert.assertFalse(future.isFailed());
 		
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());

@@ -40,6 +40,9 @@ public class ResponseHandlerHelper {
 					throws PackageEncodeException {
 		
 		if(resultList.isEmpty()) {
+			future.setCompleteResult(completeResult);
+			future.setOperationResult(new ArrayList<>());
+			future.fireCompleteEvent();
 			return;
 		}
 		
