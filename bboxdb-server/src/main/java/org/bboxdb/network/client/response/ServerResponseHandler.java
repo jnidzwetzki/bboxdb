@@ -20,7 +20,7 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 
 public interface ServerResponseHandler {
@@ -29,9 +29,10 @@ public interface ServerResponseHandler {
 	 * Handle a server result
 	 * @param encodedPackage
 	 * @param future
-	 * @return Remove the result futore or not
+	 * @return Remove the result future or not
 	 * @throws PackageEncodeException
 	 */
-	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, final ByteBuffer encodedPackage,
-			final OperationFuture future) throws PackageEncodeException;
+	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
+			final ByteBuffer encodedPackage,final NetworkOperationFuture future) 
+					throws PackageEncodeException;
 }

@@ -116,8 +116,13 @@ public class NetworkOperationFuture {
 	 * Reexecute
 	 */
 	public void reexecute() {
-		executions.incrementAndGet();
-		connection.sendPackageToServer(packageSupplier.get(), this);
+		final NetworkRequestPackage requestPackage = packageSupplier.get();
+
+		this.executions.incrementAndGet();
+		this.requestId = requestPackage.getSequenceNumber();
+		
+		connection.registerPackageCallback(requestPackage, this);
+		connection.sendPackageToServer(requestPackage, this);
 	}
 	
 	/**
@@ -180,13 +185,6 @@ public class NetworkOperationFuture {
 			this.operationResult = result;
 			mutex.notifyAll();
 		}
-	}
-
-	/**
-	 * Set the ID of the request
-	 */
-	public void setRequestId(final short requestId) {
-		this.requestId = requestId;
 	}
 
 	/**

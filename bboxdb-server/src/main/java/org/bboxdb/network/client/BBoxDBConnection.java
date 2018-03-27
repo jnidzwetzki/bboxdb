@@ -43,7 +43,6 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.future.HelloFuture;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
-import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.response.CompressionHandler;
 import org.bboxdb.network.client.response.ErrorHandler;
 import org.bboxdb.network.client.response.HelloHandler;
@@ -93,7 +92,7 @@ public class BBoxDBConnection {
 	/**
 	 * The pending calls
 	 */
-	private final Map<Short, OperationFuture> pendingCalls = new HashMap<>();
+	private final Map<Short, NetworkOperationFuture> pendingCalls = new HashMap<>();
 
 	/**
 	 * The result buffer
@@ -320,7 +319,7 @@ public class BBoxDBConnection {
 		clientCapabilities.freeze();
 	
 
-		NetworkOperationFuture operationFuture = new NetworkOperationFuture(this, () -> {
+		final NetworkOperationFuture operationFuture = new NetworkOperationFuture(this, () -> {
 			return new HelloRequest(getNextSequenceNumber(), 
 					NetworkConst.PROTOCOL_VERSION, clientCapabilities);
 		});
@@ -427,7 +426,7 @@ public class BBoxDBConnection {
 				logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
 
 				for(final short requestId : pendingCalls.keySet()) {
-					final OperationFuture future = pendingCalls.get(requestId);
+					final NetworkOperationFuture future = pendingCalls.get(requestId);
 					future.setFailedState();
 					future.fireCompleteEvent();
 				}
@@ -508,14 +507,14 @@ public class BBoxDBConnection {
 			final NetworkOperationFuture future) {
 		
 		final short sequenceNumber = requestPackage.getSequenceNumber();
-		final boolean result = recalculateRoutingHeader(requestPackage, future);
+		final boolean result = testPackageSend(requestPackage, future);
 		
 		// Package don't need to be send
 		if(result == false) {
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
 			return;
 		}
-		
+				
 		if(connectionCapabilities.hasGZipCompression()) {
 			writePackageWithCompression(requestPackage, future);
 		} else {
@@ -529,7 +528,7 @@ public class BBoxDBConnection {
 	 * @param future
 	 * @return 
 	 */
-	private boolean recalculateRoutingHeader(final NetworkRequestPackage requestPackage, 
+	private boolean testPackageSend(final NetworkRequestPackage requestPackage, 
 			final NetworkOperationFuture future) {
 		
 		try {			
@@ -653,10 +652,9 @@ public class BBoxDBConnection {
 	 * @return
 	 */
 	public short registerPackageCallback(final NetworkRequestPackage requestPackage, 
-			final OperationFuture future) {
+			final NetworkOperationFuture future) {
 		
 		final short sequenceNumber = requestPackage.getSequenceNumber();
-		future.setRequestId(0, sequenceNumber);
 
 		synchronized (pendingCalls) {
 			assert (! pendingCalls.containsKey(sequenceNumber)) 
@@ -690,12 +688,12 @@ public class BBoxDBConnection {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
-		OperationFuture future = null;
+		NetworkOperationFuture future = null;
 
 		synchronized (pendingCalls) {
 			future = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}
-
+		
 		if(! serverResponseHandler.containsKey(packageType)) {
 			logger.error("Unknown respose package type: {}", packageType);
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
@@ -705,7 +703,7 @@ public class BBoxDBConnection {
 				future.fireCompleteEvent();
 			}
 
-		} else {
+		} else {			
 			final ServerResponseHandler handler = serverResponseHandler.get(packageType);
 			final boolean removeFuture = handler.handleServerResult(this, encodedPackage, future);
 

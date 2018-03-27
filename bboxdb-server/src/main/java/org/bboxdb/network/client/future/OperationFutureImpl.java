@@ -53,16 +53,6 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		this.futures = futures.get();
 		this.retryPolicy = FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.OperationFuture#setRequestId(int, short)
-	 */
-	@Override
-	public void setRequestId(final int resultId, final short requestId) {
-		checkFutureSize(resultId);
-		
-		futures.get(resultId).setRequestId(requestId);
-	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#getRequestId(int)

@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
@@ -37,7 +37,7 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
-			final ByteBuffer encodedPackage, final OperationFuture future)
+			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {

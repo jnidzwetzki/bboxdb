@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.JoinedTupleListFuture;
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.JoinedTupleResponse;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
@@ -44,14 +43,13 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 	 */
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
-			final ByteBuffer encodedPackage, final OperationFuture future)
+			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle joined tuple package");
 		}
 		
-		final JoinedTupleListFuture pendingCall = (JoinedTupleListFuture) future;
 		final JoinedTupleResponse singleTupleResponse = JoinedTupleResponse.decodePackage(encodedPackage);
 		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
 		
@@ -67,9 +65,9 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 		}
 		
 		// Single tuple is returned
-		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, Arrays.asList(singleTupleResponse.getJoinedTuple()));
-			pendingCall.fireCompleteEvent();
+		if(future != null) {
+			future.setOperationResult(Arrays.asList(singleTupleResponse.getJoinedTuple()));
+			future.fireCompleteEvent();
 		}
 		
 		return true;

@@ -26,12 +26,6 @@ import org.bboxdb.network.client.BBoxDBConnection;
 public interface OperationFuture {
 
 	/**
-	 * Set the request id of the operation
-	 * @return
-	 */
-	public void setRequestId(final int resultId, final short requestId);
-
-	/**
 	 * Get the request id of the operation
 	 * @return
 	 */

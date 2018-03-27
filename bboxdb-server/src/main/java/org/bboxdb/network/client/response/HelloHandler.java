@@ -20,8 +20,7 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.HelloFuture;
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.slf4j.Logger;
@@ -35,25 +34,23 @@ public class HelloHandler implements ServerResponseHandler {
 	private final static Logger logger = LoggerFactory.getLogger(HelloHandler.class);
 
 	/**
-	 * Handle the helo result package
+	 * Handle the hello result package
 	 * @return 
 	 */
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
-			final ByteBuffer encodedPackage, final OperationFuture future)
+			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
-		
+
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle helo package");
 		}
-		
-		final HelloFuture pendingCall = (HelloFuture) future;
-		
+				
 		final HelloResponse helloResponse = HelloResponse.decodePackage(encodedPackage);
 		
-		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, helloResponse);
-			pendingCall.fireCompleteEvent();
+		if(future != null) {
+			future.setOperationResult(helloResponse);
+			future.fireCompleteEvent();
 		}
 		
 		return true;
