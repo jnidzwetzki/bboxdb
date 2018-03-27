@@ -38,11 +38,20 @@ import org.junit.Test;
 public class TestBBoxDBCluster {
 
 	/**
+	 * The cluster contact point
+	 */
+	private static final String CLUSTER_CONTACT_POINT = "localhost:2181";
+
+	/**
+	 * The distribution group
+	 */
+	private static final String DISTRIBUTION_GROUP = "testgroup";
+	
+	/**
 	 * The instance of the software
 	 */
 	private static BBoxDBMain bboxDBMain;
 	
-	private static final String DISTRIBUTION_GROUP = "testgroup";
 	
 	@BeforeClass
 	public static void init() throws Exception {
@@ -126,7 +135,7 @@ public class TestBBoxDBCluster {
 	 */
 	protected BBoxDBCluster connectToServer() throws InterruptedException {
 		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
-		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster("node1:2181", clusterName);
+		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(CLUSTER_CONTACT_POINT, clusterName);
 	
 		final boolean result = bboxdbCluster.connect();
 		Assert.assertTrue(result);
