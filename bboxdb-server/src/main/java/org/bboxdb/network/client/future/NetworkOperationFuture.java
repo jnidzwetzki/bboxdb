@@ -97,12 +97,12 @@ public class NetworkOperationFuture {
 	/**
 	 * The success callback
 	 */
-	private Consumer<NetworkOperationFuture> successCallback;
+	protected Consumer<NetworkOperationFuture> successCallback;
 	
 	/**
 	 * The error callback
 	 */
-	private FutureErrorCallback errorCallback;
+	protected FutureErrorCallback errorCallback;
 
 	/**
 	 * The Logger
@@ -346,6 +346,14 @@ public class NetworkOperationFuture {
 	 */
 	public void setSuccessCallback(final Consumer<NetworkOperationFuture> successCallback) {
 		this.successCallback = successCallback;
+	}
+	
+	/**
+	 * Get the number of executions
+	 * @return
+	 */
+	public int getExecutions() {
+		return executions.get();
 	}
 	
 }

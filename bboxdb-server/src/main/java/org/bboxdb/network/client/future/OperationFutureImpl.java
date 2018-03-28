@@ -19,6 +19,7 @@ package org.bboxdb.network.client.future;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -44,13 +45,18 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * The ready latch
 	 */
-	private final CountDownLatch readyLatch = new CountDownLatch(1);
+	protected final CountDownLatch readyLatch = new CountDownLatch(1);
 	
 	/**
 	 * The retry counter
 	 * @param future
 	 */
-	private int retryCounter = 0;
+	private int globalRetryCounter = 0;
+	
+	/**
+	 * The number of retries
+	 */
+	private final int TOTAL_RETRIES = 10;
 
 	/**
 	 * The future supplier
@@ -321,12 +327,31 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 		
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE) {
-			return false;
+			
+			if(future.getExecutions() >= TOTAL_RETRIES) {
+				return false;
+			}
+			
+			cancelOldFuture(future);
+			
+			return true;
 		}
 		
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES) {
+			
+			if(globalRetryCounter > TOTAL_RETRIES) {
+				return false;
+			}
+			
+			if(futureSupplier == null) {
+				throw new RuntimeException("Error policy is RETRY_ALL_FUTURES and supplier is null");
+			}
+			
+			globalRetryCounter++;
 			cancelOldQueries();
-			return false;
+			futures = futureSupplier.get();
+
+			return true;
 		}
 		
 		throw new RuntimeException("Unknown retry policy: " + retryPolicy);

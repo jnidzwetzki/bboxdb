@@ -112,6 +112,7 @@ class TestTupleListFuture extends TupleListFuture {
 	
 	public TestTupleListFuture() {	
 		super(getFuture(), new DoNothingDuplicateResolver(), "");
+		readyLatch.countDown();
 	}
 
 	/**
