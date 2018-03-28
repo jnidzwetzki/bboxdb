@@ -15,30 +15,19 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.packages;
+package org.bboxdb.network.packages.request;
 
+import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public abstract class NetworkQueryRequestPackage extends NetworkRequestPackage {
+public abstract class AbstractQueryPackage extends NetworkQueryRequestPackage {
 
-	public NetworkQueryRequestPackage(final short sequenceNumber, 
-			final RoutingHeader routingHeader) {
-		
+	public AbstractQueryPackage(final short sequenceNumber, final RoutingHeader routingHeader) {
 		super(sequenceNumber, routingHeader);
 	}
 
-	/**
-	 * Returns the query type of the package as a byte
-	 * @return
-	 */
-	public abstract byte getQueryType();
-	
-	/**
-	 * Need the package to be canceled before it is retried
-	 * @return
-	 */
+	@Override
 	public boolean needsToBeCanceled() {
-		return false;
+		return true;
 	}
-	
 }

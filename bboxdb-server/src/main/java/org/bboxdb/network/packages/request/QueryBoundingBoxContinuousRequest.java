@@ -25,12 +25,11 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreName;
 
-public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackage {
+public class QueryBoundingBoxContinuousRequest extends AbstractQueryPackage {
 
 	/**
 	 * The name of the table

@@ -24,12 +24,11 @@ import java.nio.ByteBuffer;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreName;
 
-public class QueryKeyRequest extends NetworkQueryRequestPackage {
+public class QueryKeyRequest extends AbstractQueryPackage {
 	
 	/**
 	 * The name of the table
