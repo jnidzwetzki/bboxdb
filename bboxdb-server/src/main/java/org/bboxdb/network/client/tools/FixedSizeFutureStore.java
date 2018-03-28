@@ -20,6 +20,7 @@ package org.bboxdb.network.client.tools;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.future.OperationFuture;
 
@@ -87,14 +88,18 @@ public class FixedSizeFutureStore {
 	 */
 	protected void removeCompleteFutures() {
 		
+		// Get done futures
+		final List<OperationFuture> doneFutures = pendingFutures.stream()
+			.filter(f -> f.isDone())
+			.collect(Collectors.toList());
+		
 		// Handle failed futures
-		pendingFutures.stream()
-				.filter(f -> f.isDone())
+		doneFutures.stream()
 				.filter(f -> f.isFailed())
 				.forEach(f -> handleFailedFuture(f));
 		
 		// Remove old futures
-		pendingFutures.removeIf(f -> f.isDone());
+		pendingFutures.removeAll(doneFutures);
 	}
 
 	/**
