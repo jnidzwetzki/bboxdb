@@ -81,4 +81,12 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	public RoutingHeader getRoutingHeader() throws PackageEncodeException {
 		return routingHeader;
 	}
+	
+	/**
+	 * Need the package to be canceled before it is retried
+	 * @return
+	 */
+	public boolean needsToBeCanceled() {
+		return false;
+	}
 }

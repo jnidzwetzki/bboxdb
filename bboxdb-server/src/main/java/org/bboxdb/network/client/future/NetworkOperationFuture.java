@@ -89,6 +89,16 @@ public class NetworkOperationFuture {
 	private final AtomicInteger executions = new AtomicInteger(0);
 	
 	/**
+	 * The last send package
+	 */
+	private NetworkRequestPackage lastTransmittedPackage;
+	
+	/**
+	 * The 
+	 */
+	private FutureErrorCallback errorCallback;
+
+	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(NetworkOperationFuture.class);
@@ -116,17 +126,18 @@ public class NetworkOperationFuture {
 	 * Reexecute
 	 */
 	public void execute() {
-		final NetworkRequestPackage requestPackage = packageSupplier.get();
-
+		
+		this.lastTransmittedPackage = packageSupplier.get();
+		
 		this.executions.incrementAndGet();
 		
 		// Can be null in some unit tests
-		if(requestPackage != null) {
-			this.requestId = requestPackage.getSequenceNumber();
+		if(lastTransmittedPackage != null) {
+			this.requestId = lastTransmittedPackage.getSequenceNumber();
 		}
 		
-		connection.registerPackageCallback(requestPackage, this);
-		connection.sendPackageToServer(requestPackage, this);
+		connection.registerPackageCallback(lastTransmittedPackage, this);
+		connection.sendPackageToServer(lastTransmittedPackage, this);
 	}
 	
 	/**
@@ -208,6 +219,15 @@ public class NetworkOperationFuture {
 			return;
 		}
 		
+		// Try to handle the error
+		if(errorCallback != null && failed) {
+			final boolean couldBeHandled = errorCallback.handleError(this);
+			if(couldBeHandled) {
+				failed = false;
+				return;
+			}
+		}
+		
 		done = true;
 		stopwatch.stop();
 		
@@ -272,6 +292,14 @@ public class NetworkOperationFuture {
 	public BBoxDBConnection getConnection() {
 		return connection;
 	}
+	
+	/**
+	 * The last transmitted package
+	 * @return
+	 */
+	public NetworkRequestPackage getTransmittedPackage() {
+		return lastTransmittedPackage;
+	}
 
 	/**
 	 * Get the message and the connection id in a human readable format
@@ -291,6 +319,15 @@ public class NetworkOperationFuture {
 		
 		sb.append("]");
 		return sb.toString();
+	}
+	
+	/**
+	 * The error callback
+	 * 
+	 * @param errorCallback
+	 */
+	public void setErrorCallback(final FutureErrorCallback errorCallback) {
+		this.errorCallback = errorCallback;
 	}
 	
 }

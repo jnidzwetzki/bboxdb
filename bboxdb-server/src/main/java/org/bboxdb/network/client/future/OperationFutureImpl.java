@@ -24,7 +24,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.packages.NetworkRequestPackage;
 
 public class OperationFutureImpl<T> implements OperationFuture {
 
@@ -261,6 +263,23 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	public void setRetryPolicy(final FutureRetryPolicy retryPolicy) {
 		this.retryPolicy = retryPolicy;
+	}
+	
+	/**
+	 * Cancel all old queries
+	 */
+	private void cancelOldQueries() {
+		
+		for(final NetworkOperationFuture future : futures) {
+			
+			final NetworkRequestPackage transmittedPackage = future.getTransmittedPackage();
+			
+			if(transmittedPackage != null && transmittedPackage.needsToBeCanceled()) {
+				final BBoxDBConnection connection = future.getConnection();
+				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+				bboxDBClient.cancelQuery(transmittedPackage.getSequenceNumber());
+			}
+		}
 	}
 
 }

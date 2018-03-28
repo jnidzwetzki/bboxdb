@@ -15,19 +15,17 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.packages.request;
+package org.bboxdb.network.client.future;
 
-import org.bboxdb.network.packages.NetworkQueryRequestPackage;
-import org.bboxdb.network.routing.RoutingHeader;
+@FunctionalInterface
+public interface FutureErrorCallback {
 
-public abstract class AbstractQueryPackage extends NetworkQueryRequestPackage {
-
-	public AbstractQueryPackage(final short sequenceNumber, final RoutingHeader routingHeader) {
-		super(sequenceNumber, routingHeader);
-	}
-
-	@Override
-	public boolean needsToBeCanceled() {
-		return true;
-	}
+	/**
+	 * Handle the failure of a network operation future
+	 * 
+	 * The result determines, whether the future should be retried 
+	 * or should be fail
+	 * @return
+	 */
+	public boolean handleError(final NetworkOperationFuture future);
 }

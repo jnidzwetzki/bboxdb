@@ -33,12 +33,8 @@ public abstract class NetworkQueryRequestPackage extends NetworkRequestPackage {
 	 */
 	public abstract byte getQueryType();
 	
-	/**
-	 * Need the package to be canceled before it is retried
-	 * @return
-	 */
+	@Override
 	public boolean needsToBeCanceled() {
-		return false;
+		return true;
 	}
-	
 }
