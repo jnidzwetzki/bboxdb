@@ -29,17 +29,17 @@ public class FixedSizeFutureStore {
 	/**
 	 * The amount of max pending futures
 	 */
-	protected final long maxPendingFutures;
+	private final long maxPendingFutures;
 
 	/**
 	 * The pending futures list
 	 */
-	protected final List<OperationFuture> pendingFutures;
+	private final List<OperationFuture> pendingFutures;
 	
 	/**
 	 * The failed future callback
 	 */
-	protected final List<FailedFutureCallback> failedFutureCallbacks;
+	private final List<FailedFutureCallback> failedFutureCallbacks;
 	
 	public FixedSizeFutureStore(final long maxPendingFutures) {
 		this.maxPendingFutures = maxPendingFutures;
@@ -61,7 +61,7 @@ public class FixedSizeFutureStore {
 	/**
 	 * Check and cleanup running futures
 	 */
-	protected void checkAndCleanupRunningFuture() {
+	private void checkAndCleanupRunningFuture() {
 		if (pendingFutures.size() <= maxPendingFutures) {
 			return;
 		}
@@ -86,7 +86,7 @@ public class FixedSizeFutureStore {
 	/**
 	 * Remove all complete futures
 	 */
-	protected void removeCompleteFutures() {
+	private void removeCompleteFutures() {
 		
 		// Get done futures
 		final List<OperationFuture> doneFutures = pendingFutures.stream()
@@ -106,7 +106,7 @@ public class FixedSizeFutureStore {
 	 * Handle a failed future
 	 * @param future
 	 */
-	protected void handleFailedFuture(final OperationFuture future) {		
+	private void handleFailedFuture(final OperationFuture future) {		
 		failedFutureCallbacks.forEach(c -> c.handleFailedFuture(future));
 	}
 
@@ -114,7 +114,7 @@ public class FixedSizeFutureStore {
 	 * Is the future cleanup needed?
 	 * @return
 	 */
-	protected boolean isCleanupNeeded() {
+	private boolean isCleanupNeeded() {
 		return pendingFutures.size() > maxPendingFutures * 0.8;
 	}
 	
@@ -147,7 +147,9 @@ public class FixedSizeFutureStore {
 	 * 
 	 */
 	public void waitForCompletion() throws InterruptedException {
-		while(pendingFutures.size() > 0) {
+		
+		while(! pendingFutures.isEmpty()) {
+			
 			for(final OperationFuture future : pendingFutures) {
 				future.waitForAll();
 			}
