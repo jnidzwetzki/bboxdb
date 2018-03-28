@@ -75,12 +75,7 @@ public interface OperationFuture {
 	 * @return
 	 */
 	public boolean isFailed();
-
-	/**
-	 * Set the failed state
-	 */
-	public void setFailedState();
-
+	
 	/**
 	 * Is the future done
 	 */

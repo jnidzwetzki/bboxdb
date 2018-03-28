@@ -131,10 +131,9 @@ public class NetworkOperationFuture {
 	/**
 	 * Reexecute
 	 */
-	public void execute() {
-		
+	public void execute() {		
 		this.lastTransmittedPackage = packageSupplier.get();
-		
+		this.failed = false;		
 		this.executions.incrementAndGet();
 		
 		// Can be null in some unit tests
@@ -224,16 +223,16 @@ public class NetworkOperationFuture {
 		if(done) {
 			return;
 		}
-		
+				
 		// Run error handler
 		if(errorCallback != null && failed) {
 			final boolean couldBeHandled = errorCallback.handleError(this);
 			if(couldBeHandled) {
 				failed = false;
 				return;
-			}
+			}			
 		}
-		
+				
 		done = true;
 		stopwatch.stop();
 		latch.countDown();
@@ -241,7 +240,7 @@ public class NetworkOperationFuture {
 		// Run success handler
 		if(successCallback != null) {
 			successCallback.accept(this);
-		}
+		}		
 	}
 
 	/**

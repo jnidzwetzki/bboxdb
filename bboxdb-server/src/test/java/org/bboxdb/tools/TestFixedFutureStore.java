@@ -41,11 +41,8 @@ public class TestFixedFutureStore {
 
 		for(int i = 0; i < 20; i++) {
 			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
-			future.setFailedState();
 			futureStore.put(future);
-		}
-		
-		Assert.assertTrue(true);
+		}		
 	}
 	
 	/**
@@ -80,10 +77,15 @@ public class TestFixedFutureStore {
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 		
 		for(int i = 0; i < 20; i++) {
-			final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier);
+			final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier) {
+				public void execute() {		
+					super.execute();
+					setFailedState();
+					fireCompleteEvent();
+				};
+			};
+			
 			final EmptyResultFuture future = new EmptyResultFuture(networkOperationFuture);
-			networkOperationFuture.setFailedState();
-			networkOperationFuture.fireCompleteEvent();
 			futureStore.put(future);
 		}
 		
@@ -92,5 +94,4 @@ public class TestFixedFutureStore {
 		Assert.assertTrue(true);
 		Assert.assertEquals(20, atomicInteger.get());
 	}
-	
 }
