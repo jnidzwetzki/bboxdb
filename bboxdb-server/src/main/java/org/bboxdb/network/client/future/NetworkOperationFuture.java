@@ -102,7 +102,6 @@ public class NetworkOperationFuture {
 		this.packageSupplier = packageSupplier;
 		this.stopwatch = Stopwatch.createStarted();
 		this.connection = connection;
-		reexecute();
 	}
 
 	/**
@@ -116,7 +115,7 @@ public class NetworkOperationFuture {
 	/**
 	 * Reexecute
 	 */
-	public void reexecute() {
+	public void execute() {
 		final NetworkRequestPackage requestPackage = packageSupplier.get();
 
 		this.executions.incrementAndGet();

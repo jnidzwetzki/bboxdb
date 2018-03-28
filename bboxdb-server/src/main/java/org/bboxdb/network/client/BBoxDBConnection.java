@@ -363,9 +363,11 @@ public class BBoxDBConnection {
 			logger.info("Disconnecting from server: {}", getConnectionName());
 			connectionState.dispatchToStopping();
 
-			new NetworkOperationFuture(this, () -> {
+			final NetworkOperationFuture future = new NetworkOperationFuture(this, () -> {
 				return new DisconnectRequest(getNextSequenceNumber());
 			});
+			
+			future.execute();
 		}
 
 		settlePendingCalls(DEFAULT_TIMEOUT_MILLIS);

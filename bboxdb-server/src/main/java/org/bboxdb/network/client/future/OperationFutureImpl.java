@@ -56,12 +56,21 @@ public class OperationFutureImpl<T> implements OperationFuture {
 			final FutureRetryPolicy retryPolicy) {
 		this.futures = Arrays.asList(future);
 		this.retryPolicy = retryPolicy;
+		execute();
 	}
 	
 	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures, 
 			final FutureRetryPolicy retryPolicy) {
 		this.futures = futures.get();
 		this.retryPolicy = retryPolicy;
+		execute();
+	}
+	
+	/**
+	 * Execute the network operation futures
+	 */
+	public void execute() {
+		futures.forEach(f -> f.execute());
 	}
 	
 	/* (non-Javadoc)
@@ -253,5 +262,5 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	public void setRetryPolicy(final FutureRetryPolicy retryPolicy) {
 		this.retryPolicy = retryPolicy;
 	}
-	
+
 }
