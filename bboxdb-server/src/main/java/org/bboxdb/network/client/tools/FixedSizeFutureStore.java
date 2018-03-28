@@ -89,6 +89,7 @@ public class FixedSizeFutureStore {
 		
 		// Handle failed futures
 		pendingFutures.stream()
+				.filter(f -> f.isDone())
 				.filter(f -> f.isFailed())
 				.forEach(f -> handleFailedFuture(f));
 		
