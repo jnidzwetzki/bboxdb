@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.sql.Time;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -46,15 +45,25 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	private int retryCounter = 0;
 	
 	public OperationFutureImpl(final NetworkOperationFuture future) {
-		this.futures = Arrays.asList(future);
-		this.retryPolicy = FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE;
+		this(future, FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
 	}
 	
 	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures) {
-		this.futures = futures.get();
-		this.retryPolicy = FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES;
+		this(futures, FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
 	}
 
+	public OperationFutureImpl(final NetworkOperationFuture future, 
+			final FutureRetryPolicy retryPolicy) {
+		this.futures = Arrays.asList(future);
+		this.retryPolicy = retryPolicy;
+	}
+	
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures, 
+			final FutureRetryPolicy retryPolicy) {
+		this.futures = futures.get();
+		this.retryPolicy = retryPolicy;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#getRequestId(int)
 	 */
@@ -244,5 +253,5 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	public void setRetryPolicy(final FutureRetryPolicy retryPolicy) {
 		this.retryPolicy = retryPolicy;
 	}
-
+	
 }
