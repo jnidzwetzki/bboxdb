@@ -28,12 +28,12 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 
-public class OperationFutureImpl<T> implements OperationFuture {
+public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallback {
 
 	/**
 	 * The futures
 	 */
-	protected final List<NetworkOperationFuture> futures;
+	protected List<NetworkOperationFuture> futures;
 	
 	/**
 	 * The default retry policy
@@ -45,6 +45,11 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * @param future
 	 */
 	private int retryCounter = 0;
+
+	/**
+	 * The future supplier
+	 */
+	private Supplier<List<NetworkOperationFuture>> futureSupplier;
 	
 	public OperationFutureImpl(final NetworkOperationFuture future) {
 		this(future, FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
@@ -56,15 +61,19 @@ public class OperationFutureImpl<T> implements OperationFuture {
 
 	public OperationFutureImpl(final NetworkOperationFuture future, 
 			final FutureRetryPolicy retryPolicy) {
+		
 		this.futures = Arrays.asList(future);
 		this.retryPolicy = retryPolicy;
+		
 		execute();
 	}
 	
-	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures, 
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futureSupplier, 
 			final FutureRetryPolicy retryPolicy) {
-		this.futures = futures.get();
+		
+		this.futureSupplier = futureSupplier;
 		this.retryPolicy = retryPolicy;
+		
 		execute();
 	}
 	
@@ -72,6 +81,12 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * Execute the network operation futures
 	 */
 	public void execute() {
+		
+		if(futureSupplier != null) {
+			this.futures = futureSupplier.get();
+		}
+
+		futures.forEach(f -> f.setErrorCallback(this));
 		futures.forEach(f -> f.execute());
 	}
 	
@@ -280,6 +295,12 @@ public class OperationFutureImpl<T> implements OperationFuture {
 				bboxDBClient.cancelQuery(transmittedPackage.getSequenceNumber());
 			}
 		}
+	}
+
+	@Override
+	public boolean handleError(NetworkOperationFuture future) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
