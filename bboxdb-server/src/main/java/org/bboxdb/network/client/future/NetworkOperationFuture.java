@@ -79,7 +79,7 @@ public class NetworkOperationFuture {
 	private final BBoxDBConnection connection;
 	
 	/**
-	 * The packge supplier
+	 * The package supplier
 	 */
 	private Supplier<NetworkRequestPackage> packageSupplier;
 
