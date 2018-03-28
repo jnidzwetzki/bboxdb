@@ -19,6 +19,7 @@ package org.bboxdb.network.client.future;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
@@ -39,6 +40,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * The default retry policy
 	 */
 	private FutureRetryPolicy retryPolicy;
+	
+	/**
+	 * The ready latch
+	 */
+	private final CountDownLatch readyLatch = new CountDownLatch(1);
 	
 	/**
 	 * The retry counter
@@ -87,7 +93,20 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 
 		futures.forEach(f -> f.setErrorCallback(this));
+		futures.forEach(f -> f.setSuccessCallback((c) -> handleNetworkFutureSuccess(c)));
 		futures.forEach(f -> f.execute());
+	}
+	
+	/**
+	 * Handle a future success
+	 * @param future
+	 */
+	private void handleNetworkFutureSuccess(final NetworkOperationFuture future) {
+		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
+		
+		if(allDone) {
+			readyLatch.countDown();
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -237,34 +256,18 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
-	public boolean waitForAll() throws InterruptedException {
-		for(int i = 0; i < getNumberOfResultObjets(); i++) {
-			get(i);
-		}
-		
-		return true;
+	public void waitForAll() throws InterruptedException {
+		readyLatch.await();
 	}
 	
     /* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
-	public boolean waitForAll(final long timeout, final TimeUnit unit) 
+	public void waitForAll(final long timeout, final TimeUnit unit) 
 			throws InterruptedException, TimeoutException {
 		
-		for(int i = 0; i < getNumberOfResultObjets(); i++) {
-			get(i, timeout, unit);
-		}
-		
-		return true;
-	}
-
-	/**
-	 * Fire the completion event
-	 */
-	@Override
-	public void fireCompleteEvent() {
-		futures.forEach(f -> f.fireCompleteEvent());
+		readyLatch.await(timeout, unit);
 	}
 
 	@Override
@@ -283,24 +286,50 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * Cancel all old queries
 	 */
-	private void cancelOldQueries() {
-		
-		for(final NetworkOperationFuture future : futures) {
-			
-			final NetworkRequestPackage transmittedPackage = future.getTransmittedPackage();
-			
-			if(transmittedPackage != null && transmittedPackage.needsToBeCanceled()) {
-				final BBoxDBConnection connection = future.getConnection();
-				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-				bboxDBClient.cancelQuery(transmittedPackage.getSequenceNumber());
-			}
-		}
+	private void cancelOldQueries() {	
+		futures.forEach(f -> cancelOldFuture(f));
 	}
 
+	/**
+	 * Cancel the old future
+	 * @param future
+	 */
+	private void cancelOldFuture(final NetworkOperationFuture future) {
+		final NetworkRequestPackage transmittedPackage = future.getTransmittedPackage();
+		
+		if(transmittedPackage == null) {
+			return;
+		}
+		
+		if(! transmittedPackage.needsToBeCanceled()) {
+			return;
+		}
+	
+		final BBoxDBConnection connection = future.getConnection();
+		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+		bboxDBClient.cancelQuery(transmittedPackage.getSequenceNumber());
+	}
+
+	/**
+	 * Handle the error callback
+	 */
 	@Override
-	public boolean handleError(NetworkOperationFuture future) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean handleError(final NetworkOperationFuture future) {
+		
+		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
+			return false;
+		}
+		
+		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE) {
+			return false;
+		}
+		
+		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES) {
+			cancelOldQueries();
+			return false;
+		}
+		
+		throw new RuntimeException("Unknown retry policy: " + retryPolicy);
 	}
 
 }

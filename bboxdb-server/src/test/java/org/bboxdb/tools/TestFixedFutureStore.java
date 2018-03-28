@@ -42,7 +42,6 @@ public class TestFixedFutureStore {
 		for(int i = 0; i < 20; i++) {
 			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
 			future.setFailedState();
-			future.fireCompleteEvent();
 			futureStore.put(future);
 		}
 		
@@ -61,7 +60,6 @@ public class TestFixedFutureStore {
 		
 		for(int i = 0; i < 20; i++) {
 			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
-			future.fireCompleteEvent();
 			futureStore.put(future);
 		}
 		
@@ -83,10 +81,9 @@ public class TestFixedFutureStore {
 		
 		for(int i = 0; i < 20; i++) {
 			final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier);
-			networkOperationFuture.setFailedState();
 			final EmptyResultFuture future = new EmptyResultFuture(networkOperationFuture);
-			future.setFailedState();
-			future.fireCompleteEvent();
+			networkOperationFuture.setFailedState();
+			networkOperationFuture.fireCompleteEvent();
 			futureStore.put(future);
 		}
 		

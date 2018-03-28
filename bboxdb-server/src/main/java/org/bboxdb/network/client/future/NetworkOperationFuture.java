@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
@@ -94,7 +95,12 @@ public class NetworkOperationFuture {
 	private NetworkRequestPackage lastTransmittedPackage;
 	
 	/**
-	 * The 
+	 * The success callback
+	 */
+	private Consumer<NetworkOperationFuture> successCallback;
+	
+	/**
+	 * The error callback
 	 */
 	private FutureErrorCallback errorCallback;
 
@@ -219,7 +225,7 @@ public class NetworkOperationFuture {
 			return;
 		}
 		
-		// Try to handle the error
+		// Run error handler
 		if(errorCallback != null && failed) {
 			final boolean couldBeHandled = errorCallback.handleError(this);
 			if(couldBeHandled) {
@@ -230,8 +236,12 @@ public class NetworkOperationFuture {
 		
 		done = true;
 		stopwatch.stop();
-		
 		latch.countDown();
+		
+		// Run success handler
+		if(successCallback != null) {
+			successCallback.accept(this);
+		}
 	}
 
 	/**
@@ -328,6 +338,14 @@ public class NetworkOperationFuture {
 	 */
 	public void setErrorCallback(final FutureErrorCallback errorCallback) {
 		this.errorCallback = errorCallback;
+	}
+	
+	/**
+	 * The success callback
+	 * @param successCallback
+	 */
+	public void setSuccessCallback(final Consumer<NetworkOperationFuture> successCallback) {
+		this.successCallback = successCallback;
 	}
 	
 }

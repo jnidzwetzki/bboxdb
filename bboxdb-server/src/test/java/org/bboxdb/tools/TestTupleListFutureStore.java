@@ -138,11 +138,6 @@ class TestTupleListFuture extends TupleListFuture {
 	}
 	
 	@Override
-	public boolean waitForAll() throws InterruptedException {
-		return true;
-	}
-	
-	@Override
 	public Iterator<Tuple> iterator() {
 		return new Iterator<Tuple>() {
 

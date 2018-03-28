@@ -98,7 +98,7 @@ public interface OperationFuture {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public boolean waitForAll() throws InterruptedException;
+	public void waitForAll() throws InterruptedException;
 	
 	/**
 	 * Wait for the future to complete (with timeout)
@@ -109,17 +109,12 @@ public interface OperationFuture {
 	 * @throws ExecutionException
 	 * @throws TimeoutException 
 	 */
-	public boolean waitForAll(final long timeout, final TimeUnit unit) 
+	public void waitForAll(final long timeout, final TimeUnit unit) 
 			throws InterruptedException, TimeoutException;
 	
 	/**
 	 * Get the time for completing the task
 	 */
 	public long getCompletionTime(final TimeUnit timeUnit);
-
-	/**
-	 * Fire the completion event
-	 */
-	public void fireCompleteEvent();
 
 }
