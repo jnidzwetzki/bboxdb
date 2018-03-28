@@ -86,7 +86,7 @@ public class NetworkOperationFuture {
 	/**
 	 * The executions
 	 */
-	private AtomicInteger executions = new AtomicInteger(0);
+	private final AtomicInteger executions = new AtomicInteger(0);
 	
 	/**
 	 * The Logger
