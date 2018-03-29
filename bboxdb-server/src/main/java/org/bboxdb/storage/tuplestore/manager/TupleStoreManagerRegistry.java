@@ -403,8 +403,14 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		
 		logger.info("Deleting all data for: {} / {}", distributionGroup, region);
 		
+		final Predicate<TupleStoreName> namePredicate = (t) -> 
+			(t.getDistributionGroup().equals(distributionGroup));
+			
+		final Predicate<TupleStoreName> regionPredicate = (t) ->
+			(t.getRegionId().getAsLong() == region);
+		
 		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
-				-> (t.getDistributionGroup().equals(distributionGroup)) && (t.getRegionId() == region);
+				-> namePredicate.test(t) && regionPredicate.test(t);
 		
 		shutdownAndDeleteTablesForPredicate(deleteTablePredicate, synchronous);
 	}

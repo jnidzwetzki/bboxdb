@@ -287,7 +287,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 
 		try {
 			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
-			final long regionId = ssTableName.getRegionId();
+			final long regionId = ssTableName.getRegionId().getAsLong();
 			final SpacePartitioner spacePartitioner = getSpacePartitioner(ssTableName);
 			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 

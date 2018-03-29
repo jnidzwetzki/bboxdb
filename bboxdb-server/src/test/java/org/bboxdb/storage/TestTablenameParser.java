@@ -92,8 +92,8 @@ public class TestTablenameParser {
 		final TupleStoreName tupleStoreName1 = new TupleStoreName("abc_def_1");
 		final TupleStoreName tupleStoreName2 = new TupleStoreName("def_def_2");
 		
-		Assert.assertTrue(tupleStoreName1.isRegionIdValid());
-		Assert.assertTrue(tupleStoreName2.isRegionIdValid());
+		Assert.assertTrue(tupleStoreName1.getRegionId().isPresent());
+		Assert.assertTrue(tupleStoreName2.getRegionId().isPresent());
 		
 		Assert.assertTrue(tupleStoreName1.compareTo(tupleStoreName1) == 0);
 		Assert.assertTrue(tupleStoreName1.compareTo(tupleStoreName2) < 0);

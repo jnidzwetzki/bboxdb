@@ -53,7 +53,7 @@ public class CompactorHelper {
 				return false;
 			}
 			
-			final long regionId = tupleStoreName.getRegionId();
+			final long regionId = tupleStoreName.getRegionId().getAsLong();
 			
 			final String distributionGroup = tupleStoreName.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()

@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.util.OptionalLong;
+
 import org.bboxdb.commons.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	/**
 	 * The region id
 	 */
-	private long regionid;
+	private OptionalLong regionid;
 	
 	/**
 	 * The value for an invalid group
@@ -62,11 +64,6 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * The value for an invalid table
 	 */
 	public final static String INVALID_TABLENAME = null;
-	
-	/**
-	 * The value for an invalid name prefix
-	 */
-	public final static short INVALID_REGIONID = -1;
 	
 	/**
 	 * The Logger
@@ -80,12 +77,12 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	
 	public TupleStoreName(final String distributionGroup, 
 			final String tablename, final long regionid) {		
+		
 		this.fullname = distributionGroup + "_" + tablename + "_" + regionid;
 		this.valid = true;
-
 		this.group = distributionGroup;
 		this.tablename = tablename;
-		this.regionid = regionid;
+		this.regionid = OptionalLong.of(regionid);
 	}
 	
 	/**
@@ -127,7 +124,9 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 			logger.warn("Got invalid tablename: {}", fullname);
 			return false;
 		}
-				
+		
+		regionid = OptionalLong.empty();
+		
 		if(parts.length == 3) {
 			final String regionIdString = parts[2];
 
@@ -137,14 +136,13 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 			}
 			
 			try {
-				regionid = Short.parseShort(regionIdString);
+				final long regionidLong = Long.parseLong(regionIdString);
+				regionid = OptionalLong.of(regionidLong);
 			} catch(NumberFormatException e) {
 				logger.warn("Invalid tablenumber: {}", regionIdString);
 				return false;
 			}			
-		} else {
-			regionid = INVALID_REGIONID;
-		}
+		} 
 		
 		return true;
 	}
@@ -162,7 +160,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * @return
 	 */
 	public boolean isDistributedTable() {
-		return regionid != INVALID_REGIONID;
+		return regionid.isPresent();
 	}
 
 	/**
@@ -201,16 +199,8 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * Get the region id of the table
 	 * @return
 	 */
-	public long getRegionId() {
+	public OptionalLong getRegionId() {
 		return regionid;
-	}
-	
-	/**
-	 * Is the region id valid?
-	 * @return
-	 */
-	public boolean isRegionIdValid() {
-		return regionid != INVALID_REGIONID;
 	}
 	
 	/**
@@ -235,7 +225,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 		int result = 1;
 		result = prime * result + ((fullname == null) ? 0 : fullname.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
-		result = prime * result + (int) (regionid ^ (regionid >>> 32));
+		result = prime * result + ((regionid == null) ? 0 : regionid.hashCode());
 		result = prime * result + ((tablename == null) ? 0 : tablename.hashCode());
 		result = prime * result + (valid ? 1231 : 1237);
 		return result;
@@ -260,7 +250,10 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 				return false;
 		} else if (!group.equals(other.group))
 			return false;
-		if (regionid != other.regionid)
+		if (regionid == null) {
+			if (other.regionid != null)
+				return false;
+		} else if (!regionid.equals(other.regionid))
 			return false;
 		if (tablename == null) {
 			if (other.tablename != null)

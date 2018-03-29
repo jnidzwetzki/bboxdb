@@ -40,7 +40,7 @@ public class TupleStoreUtil {
 		
 		return groupTables
 			.stream()
-			.filter(s -> s.getRegionId() == regionId)
+			.filter(s -> s.getRegionId().getAsLong() == regionId)
 			.collect(Collectors.toList());
 	}
 	
