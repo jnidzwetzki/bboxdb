@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -237,16 +238,16 @@ public class DistributionRegionHelper {
 					+ distributedInstance + " / "+ regionToInspect);
 		}
 		
-		final Entry<BBoxDBInstance, Long> newestInstance = versions.entrySet()
+		final Optional<Entry<BBoxDBInstance, Long>> newestInstanceOptional = versions.entrySet()
 				.stream()
-				.reduce((a, b) -> a.getValue() > b.getValue() ? a : b)
-				.orElse(null);
+				.reduce((a, b) -> a.getValue() > b.getValue() ? a : b);
 		
-		if(newestInstance == null) {
+		if(! newestInstanceOptional.isPresent()) {
 			return null;
 		}
 		
 		final long localVersion = versions.get(distributedInstance);
+		final Entry<BBoxDBInstance, Long> newestInstance = newestInstanceOptional.get();
 		
 		if(! newestInstance.getKey().equals(distributedInstance)) {
 			return new OutdatedDistributionRegion(regionToInspect, newestInstance.getKey(), localVersion);
