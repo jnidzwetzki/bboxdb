@@ -19,6 +19,7 @@ order: 1
 - Bugfix: Fixed the Quadtree space partitioner
 - Bugfix: Execute the pending table deletes immediately on distribution group delete
 - Bugfix: Fixed a race condition in the FixedFutureStore
+- Bugfix: Removed Zookeeper table observer registration for non-distributed tables
 
 ### Version 0.5.0 - 14.03.2018
 - New Feature: Added initial partitioning helper program (closes #78)
