@@ -31,27 +31,27 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * e.g. mydata_mytable2
 	 * 
 	 */
-	protected final String fullname;
+	private final String fullname;
 	
 	/**
 	 * Is the tablename valid?
 	 */
-	protected final boolean valid;
+	private final boolean valid;
 	
 	/**
 	 * The group of the table
 	 */
-	protected String group;
+	private String group;
 	
 	/**
 	 * The name of the table
 	 */
-	protected String tablename;
+	private String tablename;
 	
 	/**
 	 * The region id
 	 */
-	protected long regionid;
+	private long regionid;
 	
 	/**
 	 * The value for an invalid group
@@ -101,7 +101,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * Split the tablename into the three components
 	 * @return
 	 */
-	protected boolean splitTablename() {
+	private boolean splitTablename() {
 		
 		if(fullname == null) {
 			return false;
