@@ -58,11 +58,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @param future
 	 */
 	private int globalRetryCounter = 0;
-	
-	/**
-	 * The number of retries
-	 */
-	private final int TOTAL_RETRIES = 5;
 
 	/**
 	 * The future supplier
@@ -100,7 +95,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * Execute the network operation futures
 	 */
 	public void execute() {
-
 		// Set callbacks
 		futures.forEach(f -> f.setErrorCallback(this));
 		futures.forEach(f -> f.setSuccessCallback((c) -> handleNetworkFutureSuccess()));
@@ -346,7 +340,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleOneFutureRetry(final NetworkOperationFuture future) {
-		if(future.getExecutions() >= TOTAL_RETRIES) {				
+		if(future.getExecutions() > TOTAL_RETRIES) {				
 			return false;
 		}
 
@@ -367,7 +361,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleAllFutureRetry() {
-		if(globalRetryCounter > TOTAL_RETRIES) {
+		if(globalRetryCounter >= TOTAL_RETRIES) {
 			return false;
 		}
 		
@@ -376,9 +370,15 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 		
 		globalRetryCounter++;
-		cancelOldFutures();
-		futures = futureSupplier.get();
-		execute();
+		
+		final Runnable futureTask = () -> {
+			cancelOldFutures();			
+			futures = futureSupplier.get();
+			execute();
+		};
+
+		final int delay = 100 * globalRetryCounter;
+		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 		
 		return true;
 	}

@@ -19,16 +19,13 @@ package org.bboxdb.tools;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.TestFuture;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
-import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class TestFixedFutureStore {
 
@@ -73,18 +70,9 @@ public class TestFixedFutureStore {
 		final AtomicInteger atomicInteger = new AtomicInteger(0);
 		
 		futureStore.addFailedFutureCallback(c -> {atomicInteger.incrementAndGet();});
-		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
-		final Supplier<NetworkRequestPackage> supplier = () -> (null);
-		
+
 		for(int i = 0; i < 20; i++) {
-			final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier) {
-				public void execute() {		
-					super.execute();
-					setFailedState();
-					fireCompleteEvent();
-				};
-			};
-			
+			final NetworkOperationFuture networkOperationFuture = TestFuture.getFailingNetworkFuture();	
 			final EmptyResultFuture future = new EmptyResultFuture(networkOperationFuture);
 			futureStore.put(future);
 		}

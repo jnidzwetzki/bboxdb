@@ -230,7 +230,7 @@ public class NetworkOperationFuture {
 			if(couldBeHandled) {
 				failed = false;
 				return;
-			}			
+			}						
 		}
 				
 		done = true;

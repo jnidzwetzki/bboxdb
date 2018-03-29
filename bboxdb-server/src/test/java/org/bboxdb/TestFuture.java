@@ -17,7 +17,151 @@
  *******************************************************************************/
 package org.bboxdb;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
+
+import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.FutureRetryPolicy;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.OperationFutureImpl;
+import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 public class TestFuture {
 
+	private static final BBoxDBConnection MOCKED_CONNECTION = Mockito.mock(BBoxDBConnection.class);
+
+	@Test(timeout=60000)
+	public void testNoRetry1() throws InterruptedException {
+		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(networkFuture, 
+				FutureRetryPolicy.RETRY_POLICY_NONE);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(1, networkFuture.getExecutions());
+	}
 	
+	@Test(timeout=60000)
+	public void testNoRetry2() throws InterruptedException {
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier 
+			= () -> (Arrays.asList(networkFuture1, networkFuture2));
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_NONE);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(1, networkFuture1.getExecutions());
+		Assert.assertEquals(1, networkFuture2.getExecutions());
+	}
+	
+	@Test(timeout=60000)
+	public void testOneRetry1() throws InterruptedException {
+		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(networkFuture, 
+				FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
+	}
+	
+	@Test(timeout=60000)
+	public void testOneRetry2() throws InterruptedException {
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier 
+			= () -> (Arrays.asList(networkFuture1, networkFuture2));
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture1.getExecutions());
+		Assert.assertEquals(1, networkFuture2.getExecutions());
+	}
+	
+	
+	@Test(timeout=60000)
+	public void testAllRetry1() throws InterruptedException {
+		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		
+		final Supplier<List<NetworkOperationFuture>> supplier 
+		= () -> (Arrays.asList(networkFuture));
+	
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
+	}
+	
+	@Test(timeout=60000)
+	public void testAllRetry2() throws InterruptedException {
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier 
+			= () -> (Arrays.asList(networkFuture1, networkFuture2));
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture1.getExecutions());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture2.getExecutions());
+	}
+	
+	/**
+	 * Get a failing network future
+	 * 
+	 * @return
+	 */
+	public static NetworkOperationFuture getFailingNetworkFuture() {
+		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		
+		return new NetworkOperationFuture(MOCKED_CONNECTION, supplier) {
+			public void execute() {		
+				super.execute();
+				setFailedState();
+				fireCompleteEvent();
+			};
+		};		
+	}
+	
+	/**
+	 * Get a new network future
+	 * 
+	 * @return
+	 */
+	public static NetworkOperationFuture getReadyNetworkFuture() {
+		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		
+		return new NetworkOperationFuture(MOCKED_CONNECTION, supplier) {
+			public void execute() {		
+				super.execute();
+				fireCompleteEvent();
+			};
+		};		
+	}
 }
