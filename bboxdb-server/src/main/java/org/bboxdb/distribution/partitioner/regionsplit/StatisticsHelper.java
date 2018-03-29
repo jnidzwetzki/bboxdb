@@ -20,6 +20,7 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalDouble;
 import java.util.Queue;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -35,12 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.EvictingQueue;
 
 public class StatisticsHelper {
-	
-	/**
-	 * The value for invalid statistics
-	 */
-	public final static long INVALID_STATISTICS = Integer.MIN_VALUE;
-		
+
 	/**
 	 * The Logger
 	 */
@@ -75,26 +71,28 @@ public class StatisticsHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	public static double updateStatistics(final DistributionRegion region) {
+	public static OptionalDouble getAndUpdateStatistics(final DistributionRegion region) {
 		
 		try {
 			final Map<BBoxDBInstance, Map<String, Long>> statistics 
 				= distributionGroupZookeeperAdapter.getRegionStatistics(region);
 			
-			final double regionSize = statistics
+			final OptionalDouble regionSize = statistics
 				.values()
 				.stream()
 				.mapToDouble(p -> p.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE))
 				.filter(Objects::nonNull)
-				.max().orElse(INVALID_STATISTICS);
+				.max();
 			
-			final String regionIdentifier = region.getIdentifier();
-			updateStatisticsHistory(regionIdentifier, regionSize);
+			if(regionSize.isPresent()) {
+				final String regionIdentifier = region.getIdentifier();
+				updateStatisticsHistory(regionIdentifier, regionSize.getAsDouble());
+			}
 			
 			return regionSize;
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics", e);
-			return INVALID_STATISTICS;
+			return OptionalDouble.empty();
 		} 
 	}
 
@@ -135,15 +133,6 @@ public class StatisticsHelper {
 						
 			return statistics;
 		}
-	}
-	
-	/**
-	 * Get and update the statistics
-	 * @param region
-	 * @return
-	 */
-	public static void updateAverageStatistics(final DistributionRegion region) {
-		updateStatistics(region);
 	}
 	
 	/**

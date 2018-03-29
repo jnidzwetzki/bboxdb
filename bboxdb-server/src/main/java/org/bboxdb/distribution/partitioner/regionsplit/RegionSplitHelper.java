@@ -18,6 +18,8 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 
+import java.util.OptionalDouble;
+
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -50,15 +52,15 @@ public class RegionSplitHelper {
 			return false;
 		}
 		
-		final double sizeOfRegionInMB = StatisticsHelper.updateStatistics(region);
+		final OptionalDouble sizeOfRegionInMB = StatisticsHelper.getAndUpdateStatistics(region);
 
-		if(sizeOfRegionInMB == StatisticsHelper.INVALID_STATISTICS) {
+		if(! sizeOfRegionInMB.isPresent()) {
 			return false;
 		}
 		
 		try {			
 			final long maxSize = getConfiguredRegionMaxSize(region);
-			return (sizeOfRegionInMB > maxSize);
+			return (sizeOfRegionInMB.getAsDouble() > maxSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
