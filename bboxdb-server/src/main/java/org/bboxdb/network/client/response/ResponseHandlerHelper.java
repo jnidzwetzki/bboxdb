@@ -20,9 +20,7 @@ package org.bboxdb.network.client.response;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.network.client.future.JoinedTupleListFuture;
-import org.bboxdb.network.client.future.OperationFuture;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
@@ -37,34 +35,41 @@ public class ResponseHandlerHelper {
 	 * @param completeResult 
 	 * @throws PackageEncodeException
 	 */
-	public static void castAndSetFutureResult(final OperationFuture future, 
+	public static void castAndSetFutureResult(final NetworkOperationFuture future, 
 			final List<PagedTransferableEntity> resultList, final boolean completeResult) 
 					throws PackageEncodeException {
 		
-		if(future instanceof TupleListFuture) {
-			final TupleListFuture pendingCall = (TupleListFuture) future;
+		if(resultList.isEmpty()) {
+			future.setCompleteResult(completeResult);
+			future.setOperationResult(new ArrayList<>());
+			future.fireCompleteEvent();
+			return;
+		}
+		
+		final PagedTransferableEntity firstElement = resultList.get(0);
+		
+		if(firstElement instanceof Tuple) {
 			final List<Tuple> tupleList = new ArrayList<>();
 			
 			for(final PagedTransferableEntity entity : resultList) {
 				tupleList.add((Tuple) entity);
 			}
-			
-			pendingCall.setCompleteResult(0, completeResult);
-			pendingCall.setOperationResult(0, tupleList);
-			pendingCall.fireCompleteEvent();
-		} else if(future instanceof JoinedTupleListFuture) {
-			final JoinedTupleListFuture pendingCall = (JoinedTupleListFuture) future;
+						
+			future.setCompleteResult(completeResult);
+			future.setOperationResult(tupleList);
+			future.fireCompleteEvent();
+		} else if(firstElement instanceof JoinedTuple) {
 			final List<JoinedTuple> tupleList = new ArrayList<>();
 			
 			for(final PagedTransferableEntity entity : resultList) {
 				tupleList.add((JoinedTuple) entity);
 			}
 			
-			pendingCall.setCompleteResult(0, completeResult);
-			pendingCall.setOperationResult(0, tupleList);
-			pendingCall.fireCompleteEvent();
+			future.setCompleteResult(completeResult);
+			future.setOperationResult(tupleList);
+			future.fireCompleteEvent();
 		} else {
-			throw new PackageEncodeException("Unknown future type: " + future);
+			throw new PackageEncodeException("Unknown future type: " + firstElement);
 		}
 	}
 }

@@ -17,9 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.network.client.future.OperationFutureImpl;
+import org.bboxdb.TestFuture;
+import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,13 +37,9 @@ public class TestFixedFutureStore {
 		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
 
 		for(int i = 0; i < 20; i++) {
-			final OperationFutureImpl<Object> future = new OperationFutureImpl<>(1);
-			future.setFailedState();
-			future.fireCompleteEvent();
+			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
 			futureStore.put(future);
-		}
-		
-		Assert.assertTrue(true);
+		}		
 	}
 	
 	/**
@@ -54,8 +53,7 @@ public class TestFixedFutureStore {
 		futureStore.addFailedFutureCallback(c -> {Assert.assertTrue(false);});
 		
 		for(int i = 0; i < 20; i++) {
-			final OperationFutureImpl<Object> future = new OperationFutureImpl<>(1);
-			future.fireCompleteEvent();
+			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
 			futureStore.put(future);
 		}
 		
@@ -63,7 +61,7 @@ public class TestFixedFutureStore {
 	}
 	
 	/**
-	 * Add more futures in failed state and cound failed callbacks
+	 * Add more futures in failed state and count failed callbacks
 	 * @throws InterruptedException 
 	 */
 	@Test(timeout=5000)
@@ -74,9 +72,8 @@ public class TestFixedFutureStore {
 		futureStore.addFailedFutureCallback(c -> {atomicInteger.incrementAndGet();});
 
 		for(int i = 0; i < 20; i++) {
-			final OperationFutureImpl<Object> future = new OperationFutureImpl<>(1);
-			future.setFailedState();
-			future.fireCompleteEvent();
+			final NetworkOperationFuture networkOperationFuture = TestFuture.getFailingNetworkFuture();	
+			final EmptyResultFuture future = new EmptyResultFuture(networkOperationFuture);
 			futureStore.put(future);
 		}
 		
@@ -85,5 +82,4 @@ public class TestFixedFutureStore {
 		Assert.assertTrue(true);
 		Assert.assertEquals(20, atomicInteger.get());
 	}
-	
 }

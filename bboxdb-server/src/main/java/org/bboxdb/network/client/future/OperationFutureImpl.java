@@ -17,43 +17,108 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.packages.NetworkRequestPackage;
 
-public class OperationFutureImpl<T> implements OperationFuture {
+public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallback {
+	
+    /**
+     * The tuple send delayer
+     */
+    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	/**
 	 * The futures
 	 */
-	protected final List<Future<T>> futures;
+	protected List<NetworkOperationFuture> futures;
 	
-	public OperationFutureImpl() {
-		this(0);
+	/**
+	 * The default retry policy
+	 */
+	private FutureRetryPolicy retryPolicy;
+	
+	/**
+	 * The ready latch
+	 */
+	protected final CountDownLatch readyLatch = new CountDownLatch(1);
+	
+	/**
+	 * The retry counter
+	 * @param future
+	 */
+	private int globalRetryCounter = 0;
+
+	/**
+	 * The future supplier
+	 */
+	private Supplier<List<NetworkOperationFuture>> futureSupplier;
+	
+	public OperationFutureImpl(final NetworkOperationFuture future) {
+		this(future, FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
 	}
 	
-	public OperationFutureImpl(final int numberOfFutures) {
-		futures = new ArrayList<Future<T>>(numberOfFutures);
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures) {
+		this(futures, FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+	}
+
+	public OperationFutureImpl(final NetworkOperationFuture future, 
+			final FutureRetryPolicy retryPolicy) {
 		
-		for(int i = 0; i < numberOfFutures; i++) {
-			futures.add(new Future<T>());
+		this.futures = Arrays.asList(future);
+		this.retryPolicy = retryPolicy;
+		
+		execute();
+	}
+	
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futureSupplier, 
+			final FutureRetryPolicy retryPolicy) {
+		
+		this.futureSupplier = futureSupplier;
+		this.futures = futureSupplier.get();
+		this.retryPolicy = retryPolicy;
+		
+		execute();
+	}
+	
+	/**
+	 * Execute the network operation futures
+	 */
+	public void execute() {
+		// Set callbacks
+		futures.forEach(f -> f.setErrorCallback(this));
+		futures.forEach(f -> f.setSuccessCallback((c) -> handleNetworkFutureSuccess()));
+		
+		// Execute
+		futures.forEach(f -> f.execute());
+		
+		// Maybe we have a empty future list, so no callback is executed. Let's
+		// check if we are already done
+		handleNetworkFutureSuccess();
+	}
+	
+	/**
+	 * Handle a future success
+	 * @param future
+	 */
+	private void handleNetworkFutureSuccess() {
+		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
+		
+		if(allDone) {
+			readyLatch.countDown();
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.OperationFuture#setRequestId(int, short)
-	 */
-	@Override
-	public void setRequestId(final int resultId, final short requestId) {
-		checkFutureSize(resultId);
-		
-		futures.get(resultId).setRequestId(requestId);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#getRequestId(int)
 	 */
@@ -92,13 +157,6 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		checkFutureSize(resultId);
 		
 		return futures.get(resultId).getMessage();
-	}
-	
-	@Override
-	public void setConnection(final int resultId, final BBoxDBConnection connection) {
-		checkFutureSize(resultId);
-
-		futures.get(resultId).setConnection(connection);
 	}
 
 	@Override
@@ -154,21 +212,11 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.OperationFuture#setFailedState()
-	 */
-	@Override
-	public void setFailedState() {
-		for(final Future<T> future : futures) {
-			future.setFailedState();
-		}
-	}
-
-	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#isDone()
 	 */
 	@Override
-	public boolean isDone() {
-		return futures.stream().allMatch(f -> f.isDone());
+	public boolean isDone() {		
+		return readyLatch.getCount() == 0;
 	}
 
 	/* (non-Javadoc)
@@ -183,10 +231,11 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * Get the result of the future
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public T get(final int resultId) throws InterruptedException {
 		checkFutureSize(resultId);
 		
-		return futures.get(resultId).get();
+		return (T) futures.get(resultId).get();
 	}
 
     /**
@@ -194,61 +243,144 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * @return
      * @throws TimeoutException 
 	 */
+	@SuppressWarnings("unchecked")
 	public T get(final int resultId, final long timeout, final TimeUnit unit)
 			throws InterruptedException, TimeoutException {
 		
 		checkFutureSize(resultId);
 		
-		return futures.get(resultId).get(timeout, unit);
+		return (T) futures.get(resultId).get(timeout, unit);
 	}
 	
     /* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
-	public boolean waitForAll() throws InterruptedException {
-		for(int i = 0; i < getNumberOfResultObjets(); i++) {
-			get(i);
-		}
-		
-		return true;
+	public void waitForAll() throws InterruptedException {
+		readyLatch.await();
 	}
 	
     /* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
-	public boolean waitForAll(final long timeout, final TimeUnit unit) 
+	public void waitForAll(final long timeout, final TimeUnit unit) 
 			throws InterruptedException, TimeoutException {
 		
-		for(int i = 0; i < getNumberOfResultObjets(); i++) {
-			get(i, timeout, unit);
+		readyLatch.await(timeout, unit);
+	}
+
+	@Override
+	public long getCompletionTime(final TimeUnit timeUnit) {
+		return futures.stream().mapToLong(f -> f.getCompletionTime(timeUnit)).sum();
+	}
+	
+	/**
+	 * Set the retry policy
+	 * @param retry
+	 */
+	public void setRetryPolicy(final FutureRetryPolicy retryPolicy) {
+		this.retryPolicy = retryPolicy;
+	}
+	
+	/**
+	 * Cancel all old queries
+	 */
+	private void cancelOldFutures() {	
+		futures.forEach(f -> cancelOldFuture(f));
+	}
+
+	/**
+	 * Cancel the old future
+	 * @param future
+	 */
+	private void cancelOldFuture(final NetworkOperationFuture future) {
+		final NetworkRequestPackage transmittedPackage = future.getTransmittedPackage();
+		
+		if(transmittedPackage == null) {
+			return;
 		}
+		
+		if(! transmittedPackage.needsToBeCanceled()) {
+			return;
+		}
+	
+		final BBoxDBConnection connection = future.getConnection();
+		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+		bboxDBClient.cancelQuery(transmittedPackage.getSequenceNumber());
+	}
+
+	/**
+	 * Handle the error callback
+	 */
+	@Override
+	public boolean handleError(final NetworkOperationFuture future) {
+		
+		assert (futures.contains(future)) : "Future is unknown";
+		
+		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
+			return false;
+		}
+		
+		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE) {
+			return handleOneFutureRetry(future);
+		}
+		
+		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES) {
+			return handleAllFutureRetry();
+		}
+		
+		throw new RuntimeException("Unknown retry policy: " + retryPolicy);
+	}
+
+	/**
+	 * Handle all futures retry
+	 * 
+	 * @param future
+	 * @return
+	 */
+	private boolean handleOneFutureRetry(final NetworkOperationFuture future) {
+		if(future.getExecutions() > TOTAL_RETRIES) {				
+			return false;
+		}
+
+		final Runnable futureTask = () -> {
+			cancelOldFuture(future);
+			future.execute();
+		};
+
+		final int delay = 100 * future.getExecutions();
+		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 		
 		return true;
 	}
 
 	/**
-	 * Fire the completion event
+	 * Handle one future retry
+	 * 
+	 * @return
 	 */
-	@Override
-	public void fireCompleteEvent() {
-		for(final Future<T> future : futures) {
-			future.fireCompleteEvent();
+	private boolean handleAllFutureRetry() {
+		if(globalRetryCounter >= TOTAL_RETRIES) {
+			return false;
 		}
-	}
+		
+		if(futureSupplier == null) {
+			throw new RuntimeException("Error policy is RETRY_ALL_FUTURES and supplier is null");
+		}
+		
+		globalRetryCounter++;
+		
+		final Runnable futureTask = () -> {
+			cancelOldFutures();			
+			futures = futureSupplier.get();
+			execute();
+		};
 
-	/**
-	 * Merge future lists
-	 * @param result
-	 */
-	public void merge(final OperationFutureImpl<T> result) {
-		futures.addAll(result.futures);
-	}
-
-	@Override
-	public long getCompletionTime() {
-		return futures.stream().mapToLong(f -> f.getCompletionTime()).sum();
+		final int delay = 100 * globalRetryCounter;
+		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
+		
+		return true;
 	}
 
 }

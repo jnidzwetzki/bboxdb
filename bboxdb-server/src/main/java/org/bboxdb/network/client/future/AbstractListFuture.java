@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +33,15 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbstractListFuture.class);
-
-	public AbstractListFuture() {
-		super();
-	}
-
-	public AbstractListFuture(final int numberOfFutures) {
-		super(numberOfFutures);
-	}
 	
+	public AbstractListFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+		super(futures);
+	}
+
+	public AbstractListFuture(final NetworkOperationFuture future) {
+		super(future);
+	}
+
 	/**
 	 * Get a list with all results
 	 * @return
@@ -53,16 +54,14 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 				final List<T> tupleResult = get(i);
 				
 				if(tupleResult != null) {
-					for(final T tuple : tupleResult) {
-						allTuples.add(tuple);
-					}
+					allTuples.addAll(tupleResult);
 				}
 				
 			} catch (Exception e) {
 				logger.error("Got exception while iterating", e);
 			}
 		}
-		
+				
 		return allTuples;
 	}
 	
@@ -73,7 +72,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	@Override
 	public Iterator<T> iterator() {
 		if(! isDone() ) {
-			throw new IllegalStateException("Future is not done, unable to build iterator");
+			throw new IllegalStateException("NetworkOperationFuture is not done, unable to build iterator");
 		}
 		
 		if( isFailed() ) {

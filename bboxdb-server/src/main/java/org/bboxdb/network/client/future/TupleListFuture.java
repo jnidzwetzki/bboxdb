@@ -47,17 +47,23 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 	private final static Logger logger = LoggerFactory.getLogger(TupleListFuture.class);
 
 	/**
-	 * The tablename for the read opeation
+	 * The tablename for the read operation
 	 */
 	private final String tablename;
 
-	public TupleListFuture(final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
+	public TupleListFuture(final NetworkOperationFuture future, 
+			final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
+		
+		super(future);
+		
 		this.duplicateResolver = duplicateResolver;
 		this.tablename = tablename;
 	}
 
-	public TupleListFuture(final int numberOfFutures, final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
-		super(numberOfFutures);
+	public TupleListFuture(final Supplier<List<NetworkOperationFuture>> futures, 
+			final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
+		
+		super(futures);
 		
 		this.duplicateResolver = duplicateResolver;
 		this.tablename = tablename;
@@ -82,10 +88,10 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		
 		// Sort tuples
 		allTuples.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
-		
+				
 		// Remove duplicates
 		duplicateResolver.removeDuplicates(allTuples);
-		
+
 		// Perform read repair
 		performReadRepair(allTuples);
 		
@@ -161,9 +167,8 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 						+ "performing read repair", tuple, tupleResult, 
 						bboxDBConnection.getConnectionName());
 				
-				final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
 				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
-				bboxDBClient.insertTuple(tablename, tuple, routingHeaderSupplier);
+				bboxDBClient.insertTuple(tablename, tuple, routingHeader);
 			}
 		}
 	}	

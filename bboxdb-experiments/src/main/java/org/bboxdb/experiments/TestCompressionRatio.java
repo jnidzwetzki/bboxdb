@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.NetworkConst;
@@ -140,12 +139,12 @@ public class TestCompressionRatio implements Runnable {
 	 */
 	protected long handleCompressedData(final TupleStoreName tableName, final List<Tuple> buffer) {
 		
-		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (new RoutingHeader(false));
+		final RoutingHeader routingHeader = new RoutingHeader(false);
 		
 		final List<NetworkRequestPackage> packages = 
 				buffer
 				.stream()
-				.map(t -> new InsertTupleRequest((short) 4, routingHeaderSupplier, tableName, t))
+				.map(t -> new InsertTupleRequest((short) 4, routingHeader, tableName, t))
 				.collect(Collectors.toList());
 				
 		final CompressionEnvelopeRequest compressionEnvelopeRequest 
@@ -163,11 +162,11 @@ public class TestCompressionRatio implements Runnable {
 	 */
 	protected long handleUncompressedData(final TupleStoreName tableName, final Tuple tuple) {
 	
-		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (new RoutingHeader(false));
+		final RoutingHeader routingHeader = new RoutingHeader(false);
 
 		final InsertTupleRequest insertTupleRequest = new InsertTupleRequest(
 				(short) 4, 
-				routingHeaderSupplier, 
+				routingHeader, 
 				tableName, 
 				tuple);
 		

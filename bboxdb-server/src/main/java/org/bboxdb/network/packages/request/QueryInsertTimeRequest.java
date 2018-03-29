@@ -20,7 +20,6 @@ package org.bboxdb.network.packages.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.function.Supplier;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -52,11 +51,11 @@ public class QueryInsertTimeRequest extends NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 
-	public QueryInsertTimeRequest(final short packageSequene, final Supplier<RoutingHeader> routingHeaderSupplier, 
+	public QueryInsertTimeRequest(final short packageSequene, final RoutingHeader routingHeader, 
 			final String table, final long timestamp, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
-		super(packageSequene, routingHeaderSupplier);
+		super(packageSequene, routingHeader);
 		
 		this.table = new TupleStoreName(table);
 		this.timestamp = timestamp;
@@ -140,9 +139,8 @@ public class QueryInsertTimeRequest extends NetworkQueryRequestPackage {
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
-		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
 
-		return new QueryInsertTimeRequest(sequenceNumber, routingHeaderSupplier, table, timestamp, 
+		return new QueryInsertTimeRequest(sequenceNumber, routingHeader, table, timestamp, 
 				pagingEnabled, tuplesPerPage);
 	}
 

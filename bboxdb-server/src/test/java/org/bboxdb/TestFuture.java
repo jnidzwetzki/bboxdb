@@ -17,181 +17,151 @@
  *******************************************************************************/
 package org.bboxdb;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
+import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.FutureRetryPolicy;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.OperationFutureImpl;
-import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
+import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestFuture {
 
-	/**
-	 * Test the empty future
-	 */
+	private static final BBoxDBConnection MOCKED_CONNECTION = Mockito.mock(BBoxDBConnection.class);
+
 	@Test(timeout=60000)
-	public void testEmptyFuture() {
-		final OperationFuture operationFuture = new OperationFutureImpl<Object>();
-		Assert.assertFalse(operationFuture.isFailed());
-		Assert.assertTrue(operationFuture.isDone());
-	}
-	
-	/**
-	 * Test the failed operation
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
-	 */
-	@Test(timeout=60000)
-	public void testFutureFailureState() throws InterruptedException, ExecutionException {
-		final OperationFutureImpl<Object> future = new OperationFutureImpl<Object>(1);
-		Assert.assertFalse(future.isFailed());
-		Assert.assertFalse(future.isDone());
-		future.setFailedState();
-		future.fireCompleteEvent();
+	public void testNoRetry1() throws InterruptedException {
+		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(networkFuture, 
+				FutureRetryPolicy.RETRY_POLICY_NONE);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(1, networkFuture.getExecutions());
+	}
+	
+	@Test(timeout=60000)
+	public void testNoRetry2() throws InterruptedException {
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier 
+			= () -> (Arrays.asList(networkFuture1, networkFuture2));
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_NONE);
+		
+		future.waitForAll();
 		Assert.assertTrue(future.isDone());
-		Assert.assertTrue(future.get(0) == null);
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(1, networkFuture1.getExecutions());
+		Assert.assertEquals(1, networkFuture2.getExecutions());
 	}
 	
-	/**
-	 * Test the done state
-	 */
 	@Test(timeout=60000)
-	public void testFutureDoneState() {
-		final OperationFutureImpl<Object> future = new OperationFutureImpl<Object>(1);
-		future.fireCompleteEvent();
-		Assert.assertFalse(future.isFailed());
+	public void testOneRetry1() throws InterruptedException {
+		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(networkFuture, 
+				FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
+		
+		future.waitForAll();
 		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
+	}
+	
+	@Test(timeout=60000)
+	public void testOneRetry2() throws InterruptedException {
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier 
+			= () -> (Arrays.asList(networkFuture1, networkFuture2));
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture1.getExecutions());
+		Assert.assertEquals(1, networkFuture2.getExecutions());
+	}
+	
+	
+	@Test(timeout=60000)
+	public void testAllRetry1() throws InterruptedException {
+		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		
+		final Supplier<List<NetworkOperationFuture>> supplier 
+		= () -> (Arrays.asList(networkFuture));
+	
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
+	}
+	
+	@Test(timeout=60000)
+	public void testAllRetry2() throws InterruptedException {
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier 
+			= () -> (Arrays.asList(networkFuture1, networkFuture2));
+		
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
+				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+		
+		future.waitForAll();
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture1.getExecutions());
+		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture2.getExecutions());
 	}
 	
 	/**
-	 * Test multi future done
-	 */
-	@Test(timeout=60000)
-	public void testMultiFutureDoneState1() {
-		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
-		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
-		
-		final OperationFutureImpl<Object> mergedFuture = new OperationFutureImpl<Object>(0);
-		mergedFuture.merge(future1);
-		mergedFuture.merge(future2);
-
-		Assert.assertFalse(mergedFuture.isFailed());
-		Assert.assertFalse(mergedFuture.isDone());
-		
-		future1.fireCompleteEvent();
-		Assert.assertFalse(mergedFuture.isFailed());
-		Assert.assertFalse(mergedFuture.isDone());
-		
-		future2.fireCompleteEvent();
-		Assert.assertFalse(mergedFuture.isFailed());
-		Assert.assertTrue(mergedFuture.isDone());
-	}
-	
-	/**
-	 * Test multi future done
-	 */
-	@Test(timeout=60000)
-	public void testMultiFutureDoneState2() {
-		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
-		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
-		
-		final OperationFutureImpl<Object> mergedFuture = new OperationFutureImpl<Object>(0);
-		mergedFuture.merge(future1);
-		mergedFuture.merge(future2);
-
-		Assert.assertFalse(mergedFuture.isFailed());
-		Assert.assertFalse(mergedFuture.isDone());
-		
-		mergedFuture.fireCompleteEvent();
-		Assert.assertFalse(mergedFuture.isFailed());
-		Assert.assertTrue(mergedFuture.isDone());
-	}
-
-	/**
-	 * Test multi future failed
-	 */
-	@Test(timeout=60000)
-	public void testMultiFutureFailedState1() {
-		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
-		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
-		
-		final OperationFutureImpl<Object> mergedFuture = new OperationFutureImpl<Object>(0);
-		mergedFuture.merge(future1);
-		mergedFuture.merge(future2);
-
-		Assert.assertFalse(mergedFuture.isFailed());
-		Assert.assertFalse(mergedFuture.isDone());
-		
-		future1.setFailedState();
-		Assert.assertTrue(mergedFuture.isFailed());
-		Assert.assertFalse(mergedFuture.isDone());
-		
-		future1.fireCompleteEvent();
-		future2.fireCompleteEvent();
-		Assert.assertTrue(mergedFuture.isFailed());
-		Assert.assertTrue(mergedFuture.isDone());
-	}
-	
-	/**
-	 * Test multi future failed
-	 */
-	@Test(timeout=60000)
-	public void testMultiFutureFailedState2() {
-		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
-		final OperationFutureImpl<Object> future2 = new OperationFutureImpl<Object>(1);
-		
-		final OperationFutureImpl<Object> mergedFuture = new OperationFutureImpl<Object>(0);
-		mergedFuture.merge(future1);
-		mergedFuture.merge(future2);
-
-		Assert.assertFalse(mergedFuture.isFailed());
-		Assert.assertFalse(mergedFuture.isDone());
-		
-		mergedFuture.setFailedState();
-		mergedFuture.fireCompleteEvent();
-
-		Assert.assertTrue(mergedFuture.isFailed());
-		Assert.assertTrue(mergedFuture.isDone());
-		
-		Assert.assertTrue(future1.isFailed());
-		Assert.assertTrue(future1.isDone());
-
-		Assert.assertTrue(future2.isFailed());
-		Assert.assertTrue(future2.isDone());
-	}
-	
-	/**
-	 * Test the timeout method
+	 * Get a failing network future
 	 * 
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @return
 	 */
-	@Test(timeout=3000, expected=TimeoutException.class)
-	public void testTimeout() throws InterruptedException, ExecutionException, TimeoutException {
-		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
-		future1.get(0, 1, TimeUnit.SECONDS);
+	public static NetworkOperationFuture getFailingNetworkFuture() {
+		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		
+		return new NetworkOperationFuture(MOCKED_CONNECTION, supplier) {
+			public void execute() {		
+				super.execute();
+				setFailedState();
+				fireCompleteEvent();
+			};
+		};		
 	}
 	
 	/**
-	 * Test the tuple list future
+	 * Get a new network future
+	 * 
+	 * @return
 	 */
-	@Test(timeout=60000)
-	public void testTupleListFuture() {
-		final TupleListFuture tupleListFuture = new TupleListFuture(2, new DoNothingDuplicateResolver(), "");
+	public static NetworkOperationFuture getReadyNetworkFuture() {
+		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 		
-		Assert.assertTrue(tupleListFuture.isCompleteResult(0));
-		Assert.assertTrue(tupleListFuture.isCompleteResult(1));
-	
-		tupleListFuture.setCompleteResult(0, false);
-		tupleListFuture.setCompleteResult(1, false);
-		
-		Assert.assertFalse(tupleListFuture.isCompleteResult(0));
-		Assert.assertFalse(tupleListFuture.isCompleteResult(1));
+		return new NetworkOperationFuture(MOCKED_CONNECTION, supplier) {
+			public void execute() {		
+				super.execute();
+				fireCompleteEvent();
+			};
+		};		
 	}
 }

@@ -19,13 +19,10 @@ package org.bboxdb.network.client.future;
 
 import org.bboxdb.network.packages.response.HelloResponse;
 
-public class HelloFuture extends OperationFutureImpl<HelloResponse>{
+public class HelloFuture extends OperationFutureImpl<HelloResponse> {
 
-	public HelloFuture() {
-		super();
+	public HelloFuture(final NetworkOperationFuture future) {
+		super(future);
 	}
 
-	public HelloFuture(final int numberOfFutures) {
-		super(numberOfFutures);
-	}
 }

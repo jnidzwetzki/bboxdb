@@ -82,7 +82,7 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 					return operator;
 				}
 			};
-			
+						
 			final StreamClientQuery clientQuery = new StreamClientQuery(operatorTreeBuilder, queryRequest.isPagingEnabled(), 
 					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, Arrays.asList(requestTable));
 			

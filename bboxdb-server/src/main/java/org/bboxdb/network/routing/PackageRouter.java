@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -147,14 +146,12 @@ public class PackageRouter {
 			logger.error("Unable to get a connection to system: {}", receiverInstance);
 			return false;
 		} 
-		
-		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
-		
+				
 		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
 		final EmptyResultFuture insertFuture = bboxDBClient.insertTuple(
 				insertTupleRequest.getTable().getFullname(), 
 				insertTupleRequest.getTuple(), 
-				routingHeaderSupplier);
+				routingHeader);
 		
 		try {
 			insertFuture.waitForAll(ROUTING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);

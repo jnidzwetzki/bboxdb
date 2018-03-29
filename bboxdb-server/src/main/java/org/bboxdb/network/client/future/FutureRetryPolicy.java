@@ -15,21 +15,10 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network;
+package org.bboxdb.network.client.future;
 
-import org.bboxdb.network.client.future.FutureHelper;
-import org.junit.Assert;
-import org.junit.Test;
-
-public class TestFutureHelper {
-
-	/**
-	 * Test the future helper
-	 */
-	@Test(timeout=60000)
-	public void testFutureHelper() {
-		Assert.assertTrue(FutureHelper.getFailedEmptyResultFuture("failed").isFailed());
-		Assert.assertTrue(FutureHelper.getFailedJoinedTupleListFuture("failed").isFailed());
-		Assert.assertTrue(FutureHelper.getFailedTupleListFuture("failed", "table").isFailed());
-	}
+public enum FutureRetryPolicy {
+	RETRY_POLICY_NONE,
+	RETRY_POLICY_ONE_FUTURE,
+	RETRY_POLICY_ALL_FUTURES;
 }

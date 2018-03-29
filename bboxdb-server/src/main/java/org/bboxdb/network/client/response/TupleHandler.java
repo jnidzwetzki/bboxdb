@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.OperationFuture;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
@@ -44,14 +43,13 @@ public class TupleHandler implements ServerResponseHandler {
 	 */
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
-			final ByteBuffer encodedPackage, final OperationFuture future)
+			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle tuple package");
 		}
 		
-		final TupleListFuture pendingCall = (TupleListFuture) future;
 		final TupleResponse singleTupleResponse = TupleResponse.decodePackage(encodedPackage);
 		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
 		
@@ -59,7 +57,9 @@ public class TupleHandler implements ServerResponseHandler {
 		final Map<Short, List<PagedTransferableEntity>> resultBuffer = bBoxDBConnection.getResultBuffer();
 		
 		if(resultBuffer.containsKey(sequenceNumber)) {
-			resultBuffer.get(sequenceNumber).add(singleTupleResponse.getTuple());
+			
+			final List<PagedTransferableEntity> packageResult = resultBuffer.get(sequenceNumber);
+			packageResult.add(singleTupleResponse.getTuple());
 			
 			// The removal of the future depends, if this is a one
 			// tuple result or a multiple tuple result
@@ -67,9 +67,9 @@ public class TupleHandler implements ServerResponseHandler {
 		}
 		
 		// Single tuple is returned
-		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, Arrays.asList(singleTupleResponse.getTuple()));
-			pendingCall.fireCompleteEvent();
+		if(future != null) {
+			future.setOperationResult(Arrays.asList(singleTupleResponse.getTuple()));
+			future.fireCompleteEvent();
 		}
 		
 		return true;

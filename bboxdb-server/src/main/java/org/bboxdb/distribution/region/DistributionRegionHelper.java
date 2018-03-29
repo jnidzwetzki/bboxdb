@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -82,7 +83,7 @@ public class DistributionRegionHelper {
 	 * @param systems
 	 * @return 
 	 */
-	public static Collection<RoutingHop> getRegionsForPredicateAndBox(
+	public static List<RoutingHop> getRegionsForPredicateAndBox(
 			final DistributionRegion rootRegion, final BoundingBox boundingBox, 
 			final Predicate<DistributionRegionState> statePredicate) {
 	
@@ -111,7 +112,7 @@ public class DistributionRegionHelper {
 			}
 		}
 		
-		return hops.values();
+		return new ArrayList<>(hops.values());
 	}
 		
 	/**
@@ -139,7 +140,7 @@ public class DistributionRegionHelper {
 			}
 		};
 		
-		// Retry the operation if neeed
+		// Retry the operation if needed
 		final Retryer<DistributionRegion> retyer = new Retryer<>(Const.OPERATION_RETRY, 
 				250, 
 				getDistributionRegion);
@@ -237,16 +238,16 @@ public class DistributionRegionHelper {
 					+ distributedInstance + " / "+ regionToInspect);
 		}
 		
-		final Entry<BBoxDBInstance, Long> newestInstance = versions.entrySet()
+		final Optional<Entry<BBoxDBInstance, Long>> newestInstanceOptional = versions.entrySet()
 				.stream()
-				.reduce((a, b) -> a.getValue() > b.getValue() ? a : b)
-				.orElse(null);
+				.reduce((a, b) -> a.getValue() > b.getValue() ? a : b);
 		
-		if(newestInstance == null) {
+		if(! newestInstanceOptional.isPresent()) {
 			return null;
 		}
 		
 		final long localVersion = versions.get(distributedInstance);
+		final Entry<BBoxDBInstance, Long> newestInstance = newestInstanceOptional.get();
 		
 		if(! newestInstance.getKey().equals(distributedInstance)) {
 			return new OutdatedDistributionRegion(regionToInspect, newestInstance.getKey(), localVersion);

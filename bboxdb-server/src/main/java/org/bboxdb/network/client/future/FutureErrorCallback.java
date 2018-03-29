@@ -15,24 +15,17 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client.response;
+package org.bboxdb.network.client.future;
 
-import java.nio.ByteBuffer;
-
-import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
-import org.bboxdb.network.packages.PackageEncodeException;
-
-public interface ServerResponseHandler {
+@FunctionalInterface
+public interface FutureErrorCallback {
 
 	/**
-	 * Handle a server result
-	 * @param encodedPackage
-	 * @param future
-	 * @return Remove the result future or not
-	 * @throws PackageEncodeException
+	 * Handle the failure of a network operation future
+	 * 
+	 * The result determines, whether the future should be retried 
+	 * or should be fail
+	 * @return
 	 */
-	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
-			final ByteBuffer encodedPackage,final NetworkOperationFuture future) 
-					throws PackageEncodeException;
+	public boolean handleError(final NetworkOperationFuture future);
 }

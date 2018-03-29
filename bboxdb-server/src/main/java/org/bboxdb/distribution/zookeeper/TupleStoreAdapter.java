@@ -81,9 +81,8 @@ public class TupleStoreAdapter {
 			final TupleStoreConfiguration tupleStoreConfiguration) throws ZookeeperException {
 		
 		final String tablePath = getTablePath(tupleStoreName);
-
 		zookeeperClient.createDirectoryStructureRecursive(tablePath);
-		
+				
 		final String spatialIndexReader = tupleStoreConfiguration.getSpatialIndexReader();
 		zookeeperClient.createPersistentNode(getIndexReaderPath(tupleStoreName), 
 				spatialIndexReader.getBytes());
@@ -113,8 +112,21 @@ public class TupleStoreAdapter {
 		
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, tablePath);
 		
-		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, getAllTablesPath( 
-				tupleStoreName.getDistributionGroup()));
+		final String allTablesPath = getAllTablesPath(tupleStoreName.getDistributionGroup());
+		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, allTablesPath);
+	}
+
+	/**
+	 * Create the tuple store dir
+	 * 
+	 * @param tupleStoreName
+	 * @throws ZookeeperException
+	 */
+	public void createTupleStoreConfigNode(final String distributionGroup) throws ZookeeperException {
+		final String allTablesPath = getAllTablesPath(distributionGroup);
+		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, allTablesPath);
+		zookeeperClient.createDirectoryStructureRecursive(allTablesPath);
+		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, allTablesPath);
 	}
 
 	/**

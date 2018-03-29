@@ -41,9 +41,8 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
-import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.HelloFuture;
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.response.CompressionHandler;
 import org.bboxdb.network.client.response.ErrorHandler;
 import org.bboxdb.network.client.response.HelloHandler;
@@ -66,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 
 public class BBoxDBConnection {
@@ -93,17 +93,12 @@ public class BBoxDBConnection {
 	/**
 	 * The pending calls
 	 */
-	private final Map<Short, OperationFuture> pendingCalls = new HashMap<>();
+	private final Map<Short, NetworkOperationFuture> pendingCalls = new HashMap<>();
 
 	/**
 	 * The result buffer
 	 */
 	private final Map<Short, List<PagedTransferableEntity>> resultBuffer = new HashMap<>();
-
-	/**
-	 * The retryer
-	 */
-	private final NetworkOperationRetryer networkOperationRetryer;
 
 	/**
 	 * The server response reader
@@ -223,8 +218,6 @@ public class BBoxDBConnection {
 		this.pendingCompressionPackages = new ArrayList<>();
 		this.serverResponseHandler = new HashMap<>();
 
-		this.networkOperationRetryer = new NetworkOperationRetryer((p, f) -> {sendPackageToServer(p, f);});
-
 		initResponseHandler();
 	}
 
@@ -319,27 +312,27 @@ public class BBoxDBConnection {
 	 */
 	private void runHandshake() throws Exception {
 
-		final HelloFuture operationFuture = new HelloFuture(1);
-
 		if(! connectionState.isInStartingState()) {
 			logger.error("Handshaking called in wrong state: {}", connectionState);
 		}
 
 		// Capabilities are reported to server; now freeze client capabilities. 
 		clientCapabilities.freeze();
-		final HelloRequest requestPackage = new HelloRequest(getNextSequenceNumber(), 
-				NetworkConst.PROTOCOL_VERSION, clientCapabilities);
+	
 
-		registerPackageCallback(requestPackage, operationFuture);
-		sendPackageToServer(requestPackage, operationFuture);
-
-		operationFuture.waitForAll();
+		final NetworkOperationFuture operationFuture = new NetworkOperationFuture(this, () -> {
+			return new HelloRequest(getNextSequenceNumber(), 
+					NetworkConst.PROTOCOL_VERSION, clientCapabilities);
+		});
+		
+		final HelloFuture helloFuture = new HelloFuture(operationFuture);
+		helloFuture.waitForAll();
 
 		if(operationFuture.isFailed()) {
 			throw new Exception("Got an error during handshake");
 		}
 
-		final HelloResponse helloResponse = operationFuture.get(0);
+		final HelloResponse helloResponse = helloFuture.get(0);
 		connectionCapabilities = helloResponse.getPeerCapabilities();
 
 		connectionState.dispatchToRunning();
@@ -370,11 +363,11 @@ public class BBoxDBConnection {
 			logger.info("Disconnecting from server: {}", getConnectionName());
 			connectionState.dispatchToStopping();
 
-			final DisconnectRequest requestPackage = new DisconnectRequest(getNextSequenceNumber());
-			final EmptyResultFuture operationFuture = new EmptyResultFuture(1);
-
-			registerPackageCallback(requestPackage, operationFuture);
-			sendPackageToServer(requestPackage, operationFuture);
+			final NetworkOperationFuture future = new NetworkOperationFuture(this, () -> {
+				return new DisconnectRequest(getNextSequenceNumber());
+			});
+			
+			future.execute();
 		}
 
 		settlePendingCalls(DEFAULT_TIMEOUT_MILLIS);
@@ -386,17 +379,15 @@ public class BBoxDBConnection {
 	 * Settle all pending calls
 	 */
 	public void settlePendingCalls(final long shutdownTimeMillis) {
-
-		final long shutdownStarted = System.currentTimeMillis();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
 			
 			while(getInFlightCalls() > 0) {
-				final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
-				final long timeoutLeft = shutdownTimeMillis - shutdownDuration;
-
-				if(timeoutLeft <= 0) {
+				final long timeLeft = shutdownTimeMillis - stopwatch.elapsed(TimeUnit.MILLISECONDS);
+				
+				if (timeLeft <= 0) {
 					break;
 				}
 				
@@ -407,12 +398,12 @@ public class BBoxDBConnection {
 				}
 				
 				logger.info("Waiting up to {} seconds for pending requests to settle "
-						+ "(pending {} / server {})", TimeUnit.MILLISECONDS.toSeconds(timeoutLeft), 
+						+ "(pending {} / server {})", timeLeft, 
 						getInFlightCalls(), getConnectionName());
 				
 				try {
 					// Recheck connection state all 5 seconds
-					final long maxWaitTime = Math.min(timeoutLeft, TimeUnit.SECONDS.toMillis(5));
+					final long maxWaitTime = Math.min(timeLeft, TimeUnit.SECONDS.toMillis(5));
 					pendingCalls.wait(maxWaitTime);
 				} catch (InterruptedException e) {
 					logger.debug("Got an InterruptedException during pending calls wait.");
@@ -436,7 +427,7 @@ public class BBoxDBConnection {
 				logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
 
 				for(final short requestId : pendingCalls.keySet()) {
-					final OperationFuture future = pendingCalls.get(requestId);
+					final NetworkOperationFuture future = pendingCalls.get(requestId);
 					future.setFailedState();
 					future.fireCompleteEvent();
 				}
@@ -464,7 +455,6 @@ public class BBoxDBConnection {
 		logger.info("Disconnected from server: {}", getConnectionName());
 		connectionState.forceDispatchToTerminated();
 		mainteinanceThread.interrupt();
-		networkOperationRetryer.close();
 	}
 
 	/* (non-Javadoc)
@@ -515,24 +505,17 @@ public class BBoxDBConnection {
 	 * @throws IOException 
 	 */
 	public void sendPackageToServer(final NetworkRequestPackage requestPackage, 
-			final OperationFuture future) {
-
-		future.setConnection(0, this);
+			final NetworkOperationFuture future) {
 		
 		final short sequenceNumber = requestPackage.getSequenceNumber();
-		final boolean result = recalculateRoutingHeader(requestPackage, future);
+		final boolean result = testPackageSend(requestPackage, future);
 		
 		// Package don't need to be send
 		if(result == false) {
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
 			return;
 		}
-		
-		if(! networkOperationRetryer.isPackageIdKnown(sequenceNumber)) {
-			networkOperationRetryer.registerOperation(sequenceNumber, 
-				requestPackage, future);
-		}
-
+				
 		if(connectionCapabilities.hasGZipCompression()) {
 			writePackageWithCompression(requestPackage, future);
 		} else {
@@ -546,17 +529,16 @@ public class BBoxDBConnection {
 	 * @param future
 	 * @return 
 	 */
-	private boolean recalculateRoutingHeader(final NetworkRequestPackage requestPackage, final OperationFuture future) {
+	private boolean testPackageSend(final NetworkRequestPackage requestPackage, 
+			final NetworkOperationFuture future) {
 		
-		try {
-			requestPackage.recalculateRoutingHeaderIfSupported();
-			
+		try {			
 			// Check if package needs to be send
 			final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
 			
 			if(routingHeader.isRoutedPackage()) {
 				if(routingHeader.getHopCount() == 0) {
-					future.setMessage(0, "No distribution regions in next hop, not sending to server");
+					future.setMessage("No distribution regions in next hop, not sending to server");
 					future.fireCompleteEvent();
 					return false;
 				}
@@ -565,7 +547,7 @@ public class BBoxDBConnection {
 		} catch (PackageEncodeException e) {
 			final String message = "Got a exception during package encoding";
 			logger.error(message);
-			future.setMessage(0, message);
+			future.setMessage(message);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return false;
@@ -580,7 +562,7 @@ public class BBoxDBConnection {
 	 * @param future
 	 */
 	private void writePackageUncompressed(final NetworkRequestPackage requestPackage, 
-			final OperationFuture future) {
+			final NetworkOperationFuture future) {
 
 		try {	
 			writePackageToSocket(requestPackage);
@@ -597,7 +579,8 @@ public class BBoxDBConnection {
 	 * @param requestPackage
 	 * @param future
 	 */
-	private void writePackageWithCompression(NetworkRequestPackage requestPackage, OperationFuture future) {
+	private void writePackageWithCompression(NetworkRequestPackage requestPackage, 
+			NetworkOperationFuture future) {
 
 		boolean queueFull = false;
 
@@ -670,10 +653,9 @@ public class BBoxDBConnection {
 	 * @return
 	 */
 	public short registerPackageCallback(final NetworkRequestPackage requestPackage, 
-			final OperationFuture future) {
+			final NetworkOperationFuture future) {
 		
 		final short sequenceNumber = requestPackage.getSequenceNumber();
-		future.setRequestId(0, sequenceNumber);
 
 		synchronized (pendingCalls) {
 			assert (! pendingCalls.containsKey(sequenceNumber)) 
@@ -707,12 +689,12 @@ public class BBoxDBConnection {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
-		OperationFuture future = null;
+		NetworkOperationFuture future = null;
 
 		synchronized (pendingCalls) {
 			future = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}
-
+		
 		if(! serverResponseHandler.containsKey(packageType)) {
 			logger.error("Unknown respose package type: {}", packageType);
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
@@ -722,7 +704,7 @@ public class BBoxDBConnection {
 				future.fireCompleteEvent();
 			}
 
-		} else {
+		} else {			
 			final ServerResponseHandler handler = serverResponseHandler.get(packageType);
 			final boolean removeFuture = handler.handleServerResult(this, encodedPackage, future);
 
@@ -798,14 +780,6 @@ public class BBoxDBConnection {
 		return resultBuffer;
 	}
 
-	/**
-	 * Get the network operation retryer
-	 * @return
-	 */
-	public NetworkOperationRetryer getNetworkOperationRetryer() {
-		return networkOperationRetryer;
-	}
-	
 	/**
 	 * Get the server response reader
 	 * @return

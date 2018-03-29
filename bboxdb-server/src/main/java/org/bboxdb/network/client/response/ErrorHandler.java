@@ -20,8 +20,7 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.NetworkOperationRetryer;
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.AbstractBodyResponse;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -41,7 +40,7 @@ public class ErrorHandler implements ServerResponseHandler {
 	 */
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
-			final ByteBuffer encodedPackage, final OperationFuture future)
+			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
@@ -50,21 +49,8 @@ public class ErrorHandler implements ServerResponseHandler {
 		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
-		final NetworkOperationRetryer networkOperationRetryer = bBoxDBConnection.getNetworkOperationRetryer();
-		
-		final short sequenceNumber = result.getSequenceNumber();
-		
-		if(networkOperationRetryer.isPackageIdKnown(sequenceNumber)) {
-			final boolean ableToRetryOperation = networkOperationRetryer.handleFailure(sequenceNumber, result.getBody());
-			
-			if(ableToRetryOperation) {
-				// Let future active
-				return false;
-			}
-		}
-		
 		if(future != null) {
-			future.setMessage(0, result.getBody());
+			future.setMessage(result.getBody());
 			future.setFailedState();
 			future.fireCompleteEvent();
 		}

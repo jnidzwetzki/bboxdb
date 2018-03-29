@@ -24,12 +24,11 @@ import java.util.concurrent.TimeoutException;
 import org.bboxdb.network.client.BBoxDBConnection;
 
 public interface OperationFuture {
-
+		
 	/**
-	 * Set the request id of the operation
-	 * @return
+	 * The number of retries
 	 */
-	public void setRequestId(final int resultId, final short requestId);
+	public static final int TOTAL_RETRIES = 5;
 
 	/**
 	 * Get the request id of the operation
@@ -50,14 +49,7 @@ public interface OperationFuture {
 	 * @return 
 	 */
 	public String getMessage(final int resultId);
-	
-	/**
-	 * Set the connection for the future
-	 * @param resultId
-	 * @param connectionId
-	 */
-	public void setConnection(final int resultId, final BBoxDBConnection bBoxDBConnection);
-	
+
 	/**
 	 * Is the result complete?
 	 * @param resultId
@@ -88,12 +80,7 @@ public interface OperationFuture {
 	 * @return
 	 */
 	public boolean isFailed();
-
-	/**
-	 * Set the failed state
-	 */
-	public void setFailedState();
-
+	
 	/**
 	 * Is the future done
 	 */
@@ -111,7 +98,7 @@ public interface OperationFuture {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public boolean waitForAll() throws InterruptedException;
+	public void waitForAll() throws InterruptedException;
 	
 	/**
 	 * Wait for the future to complete (with timeout)
@@ -122,17 +109,12 @@ public interface OperationFuture {
 	 * @throws ExecutionException
 	 * @throws TimeoutException 
 	 */
-	public boolean waitForAll(final long timeout, final TimeUnit unit) 
+	public void waitForAll(final long timeout, final TimeUnit unit) 
 			throws InterruptedException, TimeoutException;
 	
 	/**
 	 * Get the time for completing the task
 	 */
-	public long getCompletionTime();
-
-	/**
-	 * Fire the completion event
-	 */
-	public void fireCompleteEvent();
+	public long getCompletionTime(final TimeUnit timeUnit);
 
 }
