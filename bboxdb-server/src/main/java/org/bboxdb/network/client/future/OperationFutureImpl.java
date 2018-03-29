@@ -310,6 +310,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 			return;
 		}
 		
+		// Only successfull futures needs to be canceled
 		if(future.isFailed()) {
 			return;
 		}
