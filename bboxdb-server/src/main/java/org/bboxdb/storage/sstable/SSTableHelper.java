@@ -103,9 +103,10 @@ public class SSTableHelper {
 	public static String getSSTableDir(final String directory, final TupleStoreName name) {
 		
 		final StringBuilder regionSuffix = new StringBuilder();
-		if(name.getRegionId() != TupleStoreName.INVALID_REGIONID) {
+		
+		if(name.getRegionId().isPresent()) {
 			regionSuffix.append("_");
-			regionSuffix.append(name.getRegionId());
+			regionSuffix.append(name.getRegionId().getAsLong());
 		}
 		
 		return getDistributionGroupDir(directory, name)

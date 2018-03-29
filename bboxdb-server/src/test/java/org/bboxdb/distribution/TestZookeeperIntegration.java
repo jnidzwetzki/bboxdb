@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -263,8 +264,8 @@ public class TestZookeeperIntegration {
 
 		final DistributionRegion region = getSpacePartitioner().getRootNode();
 
-		final double size1 = StatisticsHelper.updateStatistics(region);
-		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, size1, DELTA);
+		final OptionalDouble size1 = StatisticsHelper.getAndUpdateStatistics(region);
+		Assert.assertFalse(size1.isPresent());
 		
 		final Map<BBoxDBInstance, Map<String, Long>> statistics1 = distributionRegionAdapter.getRegionStatistics(region);
 		Assert.assertTrue(statistics1.isEmpty());
@@ -274,8 +275,8 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(1, statistics2.size());
 		Assert.assertEquals(12, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(999, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
-		final double size2 = StatisticsHelper.updateStatistics(region);
-		Assert.assertEquals(12, size2, DELTA);
+		final OptionalDouble size2 = StatisticsHelper.getAndUpdateStatistics(region);
+		Assert.assertEquals(12, size2.getAsDouble(), DELTA);
 		
 		distributionRegionAdapter.updateRegionStatistics(region, system2, 33, 1234);
 		final Map<BBoxDBInstance, Map<String, Long>> statistics3 = distributionRegionAdapter.getRegionStatistics(region);
@@ -284,8 +285,8 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(999, statistics3.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
 		Assert.assertEquals(33, statistics3.get(system2).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(1234, statistics3.get(system2).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
-		final double size3 = StatisticsHelper.updateStatistics(region);
-		Assert.assertEquals(33, size3, DELTA);
+		final OptionalDouble size3 = StatisticsHelper.getAndUpdateStatistics(region);
+		Assert.assertEquals(33, size3.getAsDouble(), DELTA);
 	}
 	
 	/**
@@ -299,8 +300,8 @@ public class TestZookeeperIntegration {
 		final KDtreeSpacePartitioner spaceparitioner = (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion region = spaceparitioner.getRootNode();
 
-		final double totalSize1 = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
-		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSize1, DELTA);
+		final OptionalDouble totalSize1 = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
+		Assert.assertFalse(totalSize1.isPresent());
 		
 		spaceparitioner.splitNode(region, 12);
 		spaceparitioner.waitForSplitCompleteZookeeperCallback(region, 2);
@@ -309,16 +310,16 @@ public class TestZookeeperIntegration {
 		distributionRegionAdapter.updateRegionStatistics(region.getDirectChildren().get(1), system1, 33, 999);
 
 		StatisticsHelper.clearHistory();
-		final double totalSizeAfterClear = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
-		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSizeAfterClear, DELTA);
+		final OptionalDouble totalSizeAfterClear = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
+		Assert.assertFalse(totalSizeAfterClear.isPresent());
 
 		// Update complete history
 		for(int i = 0; i < StatisticsHelper.HISTORY_LENGTH; i++) {
 			RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
 		}
 		
-		final double totalSize2 = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
-		Assert.assertEquals(45, totalSize2, DELTA);
+		final OptionalDouble totalSize2 = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
+		Assert.assertEquals(45, totalSize2.getAsDouble(), DELTA);
 	}
 	
 	/**

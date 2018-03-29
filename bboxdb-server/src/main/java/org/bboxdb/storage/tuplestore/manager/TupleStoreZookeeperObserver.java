@@ -185,10 +185,14 @@ public class TupleStoreZookeeperObserver {
 	 */
 	public void registerTable(final TupleStoreName tupleStoreName) {
 		
+		if(! tupleStoreName.isDistributedTable()) {
+			return; 
+		}
+		
 		final String distributionGroup = tupleStoreName.getDistributionGroup();
 		
 		final DistributionRegionEntity tableEntity = new DistributionRegionEntity(
-				distributionGroup, tupleStoreName.getRegionId());
+				distributionGroup, tupleStoreName.getRegionId().getAsLong());
 		
 		synchronized (knownRegions) {
 			if(knownRegions.contains(tableEntity)) {

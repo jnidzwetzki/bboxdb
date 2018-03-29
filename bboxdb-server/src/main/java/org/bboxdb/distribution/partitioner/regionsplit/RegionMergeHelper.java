@@ -20,6 +20,7 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
@@ -93,8 +94,9 @@ public class RegionMergeHelper {
 			return false;
 		}
 		
-		final double childRegionSize = getTotalRegionSize(sources);
-		if(childRegionSize == StatisticsHelper.INVALID_STATISTICS) {
+		final OptionalDouble childRegionSize = getTotalRegionSize(sources);
+		
+		if(! childRegionSize.isPresent()) {
 			logger.info("Got invalid statistics for {}", sourceIds);
 			return false;
 		}
@@ -103,10 +105,12 @@ public class RegionMergeHelper {
 			final String fullname = sources.get(0).getDistributionGroupName();
 			final long minSize = getConfiguredRegionMinSizeInMB(fullname);
 			
-			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
-				sourceIds, childRegionSize, minSize);
+			final double childDoubleSize = childRegionSize.getAsDouble();
 			
-			return (childRegionSize < minSize);
+			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
+				sourceIds, childDoubleSize, minSize);
+			
+			return (childDoubleSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
@@ -128,27 +132,29 @@ public class RegionMergeHelper {
 	 * @param region
 	 * @return
 	 */
-	public static double getTotalRegionSize(final List<DistributionRegion> sources) {
+	public static OptionalDouble getTotalRegionSize(final List<DistributionRegion> sources) {
 		
 		if(sources.isEmpty()) {
-			return StatisticsHelper.INVALID_STATISTICS;
+			return OptionalDouble.empty();
 		}
 		
 		// Update statistics
-		sources.forEach(r -> StatisticsHelper.updateAverageStatistics(r));
+		sources.forEach(r -> StatisticsHelper.getAndUpdateStatistics(r));
 		
 		for(final DistributionRegion region : sources) {			
 			if(! StatisticsHelper.isEnoughHistoryDataAvailable(region.getIdentifier())) {
-				return StatisticsHelper.INVALID_STATISTICS;
+				return OptionalDouble.empty();
 			}
 		}
 		
 		// Get statistics
-		return sources
+		final double value = sources
 				.stream()
 				.filter(Objects::nonNull)
 				.mapToDouble(r -> StatisticsHelper.getAverageStatistics(r.getIdentifier()))
 				.sum();
+		
+		return OptionalDouble.of(value);
 	}
 	
 	/**
