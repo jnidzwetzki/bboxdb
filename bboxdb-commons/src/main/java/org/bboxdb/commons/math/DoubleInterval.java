@@ -26,22 +26,22 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	/**
 	 * The begin of the interval
 	 */
-	protected final double begin;
+	private final double begin;
 	
 	/**
 	 * The end of the interval
 	 */
-	protected final double end;
+	private final double end;
 	
 	/**
 	 * Begin point included
 	 */
-	protected final boolean beginIncluded;
+	private final boolean beginIncluded;
 	
 	/**
 	 * End point included
 	 */
-	protected final boolean endIncluded;
+	private final boolean endIncluded;
 	
 	/**
 	 * The min value
