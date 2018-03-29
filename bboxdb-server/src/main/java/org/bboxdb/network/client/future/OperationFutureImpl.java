@@ -114,6 +114,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	private void handleNetworkFutureSuccess() {
 		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
 		
+		// If some futures are failed, cancel the successfull ones
+		if(isFailed()) {
+			cancelAllFutures();
+		}
+		
 		if(allDone) {
 			readyLatch.countDown();
 		}
@@ -286,7 +291,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * Cancel all old queries
 	 */
-	private void cancelOldFutures() {	
+	public void cancelAllFutures() {	
 		futures.forEach(f -> cancelOldFuture(f));
 	}
 
@@ -302,6 +307,10 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 		
 		if(! transmittedPackage.needsToBeCanceled()) {
+			return;
+		}
+		
+		if(future.isFailed()) {
 			return;
 		}
 	
@@ -372,7 +381,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		globalRetryCounter++;
 		
 		final Runnable futureTask = () -> {
-			cancelOldFutures();			
+			cancelAllFutures();			
 			futures = futureSupplier.get();
 			execute();
 		};
