@@ -67,7 +67,7 @@ public class SequenceNumberGenerator {
 	}
 	
 	/**
-	 * Get the curent sequence number
+	 * Get the current sequence number
 	 * 
 	 * @return The sequence number
 	 */
