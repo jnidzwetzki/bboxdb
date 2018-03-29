@@ -139,7 +139,7 @@ public class DistributionRegionHelper {
 			}
 		};
 		
-		// Retry the operation if neeed
+		// Retry the operation if needed
 		final Retryer<DistributionRegion> retyer = new Retryer<>(Const.OPERATION_RETRY, 
 				250, 
 				getDistributionRegion);
