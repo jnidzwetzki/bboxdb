@@ -15,8 +15,10 @@ order: 1
 - Improvement: Added the ability to display generic trees in GUI (closes #84) 
 - Improvement: The delete distribution group call needs only to be send to one node
 - Improvement: The table deletion call needs only to be send to one node
+- Improvement: Reimplemented the futures and the BBoxDBCluster to increase fault tolerance (closes #79)
 - Bugfix: Fixed the Quadtree space partitioner
 - Bugfix: Execute the pending table deletes immediately on distribution group delete
+- Bugfix: Fixed a race condition in the FixedFutureStore
 
 ### Version 0.5.0 - 14.03.2018
 - New Feature: Added initial partitioning helper program (closes #78)
