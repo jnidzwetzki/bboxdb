@@ -151,34 +151,29 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
-		try {
-			final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = getRootNode(table);
 
-			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, 
-					tuple.getBoundingBox());
-			
-			final RoutingHeader routingHeader = new RoutingHeader((short) -1, hops);	
-					
-			if(hops.isEmpty()) {
-				final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
-						+ tuple.getBoundingBox(); 
-				throw new BBoxDBException(errorMessage);
-			}
-
-			// Determine the first system, it will route the request to the remaining systems
-			final BBoxDBInstance system = hops.get(0).getDistributedInstance();
-			final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(system);
-
-			if(connection == null) {
-				final String errorMessage = "Unable to insert tuple, no connection to system: " + system; 
-				throw new BBoxDBException(errorMessage);
-			}
-
-			return connection.getBboxDBClient().insertTuple(table, tuple, routingHeader);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new BBoxDBException(e);
+		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, 
+				tuple.getBoundingBox());
+		
+		final RoutingHeader routingHeader = new RoutingHeader((short) -1, hops);	
+				
+		if(hops.isEmpty()) {
+			final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
+					+ tuple.getBoundingBox(); 
+			throw new BBoxDBException(errorMessage);
 		}
+
+		// Determine the first system, it will route the request to the remaining systems
+		final BBoxDBInstance system = hops.get(0).getDistributedInstance();
+		final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(system);
+
+		if(connection == null) {
+			final String errorMessage = "Unable to insert tuple, no connection to system: " + system; 
+			throw new BBoxDBException(errorMessage);
+		}
+
+		return connection.getBboxDBClient().insertTuple(table, tuple, routingHeader);
 	}
 
 	@Override

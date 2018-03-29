@@ -17,79 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.routing;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
-import org.bboxdb.misc.Const;
 
 public class RoutingHopHelper {
-
-	/**
-	 * Get a non empty routing list for write
-	 * @param distributionRegion
-	 * @param tuple
-	 * @return
-	 * @throws InterruptedException
-	 */
-	public static List<RoutingHop> getRoutingHopsForWriteWithRetry(final DistributionRegion distributionRegion,
-			final BoundingBox boundingBox) throws InterruptedException {
-		
-		final Callable<List<RoutingHop>> getHops = new Callable<List<RoutingHop>>() {
-
-			@Override
-			public List<RoutingHop> call() throws Exception {
-				final Collection<RoutingHop> hopCollection 
-					= getRoutingHopsForWrite(distributionRegion, boundingBox);
-				
-				if(hopCollection.isEmpty()) {
-					throw new Exception("Hop collection is empty");
-				}
-
-				return new ArrayList<>(hopCollection);
-			}
-		};
-		
-		final Retryer<List<RoutingHop>> retryer = new Retryer<>(Const.OPERATION_RETRY, 20, getHops);
-		retryer.execute();
-		return retryer.getResult();
-	}
-	
-	/**
-	 * Get a non empty routing list for read
-	 * @param distributionRegion
-	 * @param tuple
-	 * @return
-	 * @throws InterruptedException
-	 */
-	public static List<RoutingHop> getRoutingHopsForReadWithRetry(final DistributionRegion distributionRegion,
-			final BoundingBox boundingBox) throws InterruptedException {
-		
-		final Callable<List<RoutingHop>> getHops = new Callable<List<RoutingHop>>() {
-
-			@Override
-			public List<RoutingHop> call() throws Exception {
-				final Collection<RoutingHop> hopCollection 
-					= getRoutingHopsForRead(distributionRegion, boundingBox);
-				
-				if(hopCollection.isEmpty()) {
-					throw new Exception("Hop collection is empty");
-				}
-
-				return new ArrayList<>(hopCollection);
-			}
-		};
-		
-		final Retryer<List<RoutingHop>> retryer = new Retryer<>(Const.OPERATION_RETRY, 20, getHops);
-		retryer.execute();
-		return retryer.getResult();
-	}
-	
 
 	/**
 	 * Get the a list of systems for the bounding box
