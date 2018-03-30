@@ -33,7 +33,7 @@ public class DeleteTableRequest extends NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final TupleStoreName table;
+	private final TupleStoreName table;
 
 	public DeleteTableRequest(final short sequenceNumber, final String table) {
 		super(sequenceNumber);

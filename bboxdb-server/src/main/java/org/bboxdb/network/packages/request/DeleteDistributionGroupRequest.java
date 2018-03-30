@@ -32,7 +32,7 @@ public class DeleteDistributionGroupRequest extends NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final String distributionGroup;
+	private final String distributionGroup;
 
 	public DeleteDistributionGroupRequest(final short sequenceNumber, final String distributionGroup) {
 		super(sequenceNumber);

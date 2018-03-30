@@ -38,12 +38,12 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 	/**
 	 * The compression type
 	 */
-	protected byte compressionType;
+	private byte compressionType;
 
 	/**
 	 * The packages to encode
 	 */
-	protected List<NetworkRequestPackage> networkRequestPackages;
+	private List<NetworkRequestPackage> networkRequestPackages;
 
 	public CompressionEnvelopeRequest(final byte compressionType, 
 			final List<NetworkRequestPackage> networkRequestPackages) {

@@ -34,12 +34,12 @@ public class CreateTableRequest extends NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final TupleStoreName table;
+	private final TupleStoreName table;
 	
 	/**
 	 * The configuration of the SSTable
 	 */
-	protected final TupleStoreConfiguration ssTableConfiguration;
+	private final TupleStoreConfiguration ssTableConfiguration;
 
 	public CreateTableRequest(final short sequenceNumber, final String table, 
 			final TupleStoreConfiguration ssTableConfiguration) {

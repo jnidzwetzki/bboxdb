@@ -34,12 +34,12 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final String distributionGroup;
+	private final String distributionGroup;
 	
 	/**
 	 * The distribution group configuration
 	 */
-	protected final DistributionGroupConfiguration distributionGroupConfiguration;
+	private final DistributionGroupConfiguration distributionGroupConfiguration;
 
 	public CreateDistributionGroupRequest(final short sequencNumber,
 			final String distributionGroup, 

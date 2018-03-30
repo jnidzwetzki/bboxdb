@@ -31,7 +31,7 @@ public class CancelQueryRequest extends NetworkRequestPackage {
 	/**
 	 * The sequence of the query
 	 */
-	protected final short querySequenceNumber;
+	private final short querySequenceNumber;
 	
 	public CancelQueryRequest(final short sequenceNumber, final short querySequenceNumber) {
 		super(sequenceNumber);
