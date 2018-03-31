@@ -65,11 +65,6 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	protected List<List<SerializableNode>> pendingWriteQueues = new ArrayList<>();
 	
 	/**
-	 * The pending reads
-	 */
-	protected List<List<Long>> pendingReadQueue = new ArrayList<>();
-	
-	/**
 	 * Max elements per pending write queue
 	 */
 	protected final static int MAX_ELEMENTS_PER_QUEUE = 200;
