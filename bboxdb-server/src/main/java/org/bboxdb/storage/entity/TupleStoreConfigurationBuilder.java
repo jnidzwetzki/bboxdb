@@ -19,8 +19,6 @@ package org.bboxdb.storage.entity;
 
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.storage.util.UpdateAnomalyResolver;
-
 public class TupleStoreConfigurationBuilder {
 
 	protected final TupleStoreConfiguration ssTableConfiguration;
@@ -84,18 +82,6 @@ public class TupleStoreConfigurationBuilder {
 	 */
 	public TupleStoreConfigurationBuilder withSpatialIndexWriter(final String spatialIndexWriter) {
 		ssTableConfiguration.setSpatialIndexWriter(spatialIndexWriter);
-		return this;
-	}
-
-	/**
-	 * The update anomaly resolver
-	 * @param updateAnomalyResolver
-	 * @return
-	 */
-	public TupleStoreConfigurationBuilder withUpdateAnomalyResolver(
-			final UpdateAnomalyResolver updateAnomalyResolver) {
-		
-		ssTableConfiguration.setUpdateAnomalyResolver(updateAnomalyResolver);
 		return this;
 	}
 	

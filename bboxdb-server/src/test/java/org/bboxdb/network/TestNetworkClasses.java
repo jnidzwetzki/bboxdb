@@ -68,7 +68,6 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.util.TupleHelper;
-import org.bboxdb.storage.util.UpdateAnomalyResolver;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -433,7 +432,6 @@ public class TestNetworkClasses {
 				.withVersions(666)
 				.withSpatialIndexReader("reader")
 				.withSpatialIndexWriter("writer")
-				.withUpdateAnomalyResolver(UpdateAnomalyResolver.RESOLVE_ON_READ)
 				.build();
 		
 		final CreateTableRequest createPackage = new CreateTableRequest(sequenceNumber, "test", ssTableConfiguration);

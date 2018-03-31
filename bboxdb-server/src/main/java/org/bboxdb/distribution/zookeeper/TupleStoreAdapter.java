@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.util.UpdateAnomalyResolver;
 
 public class TupleStoreAdapter {
 	
@@ -90,10 +89,6 @@ public class TupleStoreAdapter {
 		final String spatialIndexWriter = tupleStoreConfiguration.getSpatialIndexWriter();
 		zookeeperClient.createPersistentNode(getIndexWriterPath(tupleStoreName), 
 				spatialIndexWriter.getBytes());
-		
-		final byte updateAnomalyResolver = tupleStoreConfiguration.getUpdateAnomalyResolver().getValue();
-		zookeeperClient.createPersistentNode(getUpdateResolverPath(tupleStoreName), 
-				new byte[] {updateAnomalyResolver});
 		
 		final boolean allowDuplicates = tupleStoreConfiguration.isAllowDuplicates();
 		final String allowDuplicatesString = Boolean.toString(allowDuplicates);
@@ -196,10 +191,6 @@ public class TupleStoreAdapter {
 					zookeeperClient.readPathAndReturnString(getIndexWriterPath(tupleStoreName));
 			tupleStoreConfiguration.setSpatialIndexWriter(spatialIndexWriter);
 			
-			final String updateAnomalyResolver = 
-					zookeeperClient.readPathAndReturnString(getUpdateResolverPath(tupleStoreName));
-			tupleStoreConfiguration.setUpdateAnomalyResolver(UpdateAnomalyResolver.buildFromByte(updateAnomalyResolver.getBytes()[0]));
-			
 			final String duplicatesAllowed = 
 					zookeeperClient.readPathAndReturnString(getDuplicatesAllowedPath(tupleStoreName));
 			final boolean duplicatesAllowedBoolean = Boolean.parseBoolean(duplicatesAllowed);
@@ -273,16 +264,6 @@ public class TupleStoreAdapter {
 	private String getDuplicatesAllowedPath(final TupleStoreName tupleStoreName) {
 		final String tablePath = getTablePath(tupleStoreName);
 		return tablePath + "/" + ZOOKEEPER_DUPLICATES_ALLOWED;
-	}
-
-	/**
-	 * The update resolver path
-	 * @param tupleStoreName
-	 * @return
-	 */
-	private String getUpdateResolverPath(final TupleStoreName tupleStoreName) {
-		final String tablePath = getTablePath(tupleStoreName);
-		return tablePath + "/" + ZOOKEEPER_UPDATE_ANOMALY_RESOLVER;
 	}
 
 	/**

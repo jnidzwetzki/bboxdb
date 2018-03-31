@@ -27,7 +27,6 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.util.UpdateAnomalyResolver;
 
 public class CreateTableRequest extends NetworkRequestPackage {
 	
@@ -63,8 +62,8 @@ public class CreateTableRequest extends NetworkRequestPackage {
 				bb.put((byte) 0x00);
 			}
 			
-			// Update anomaly resolver
-			bb.put(ssTableConfiguration.getUpdateAnomalyResolver().getValue());
+			// Unused
+			bb.put((byte) 0x00);
 			
 			// TTL
 			bb.putLong(ssTableConfiguration.getTTL());
@@ -123,8 +122,8 @@ public class CreateTableRequest extends NetworkRequestPackage {
 			allowDuplicates = true;
 		}
 		
-		// Update anomyly resolver
-		final byte updateAnomalyResolver = encodedPackage.get();
+		//Unused
+		encodedPackage.get();
 		
 		// TTL
 		final long ttl = encodedPackage.getLong();
@@ -159,10 +158,6 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		tupleStoreConfiguration.setVersions(versions);
 		tupleStoreConfiguration.setSpatialIndexReader(spatialIndexReader);
 		tupleStoreConfiguration.setSpatialIndexWriter(spatialIndexWriter);
-		
-		final UpdateAnomalyResolver updateAnomalyResolverEnum 
-			= UpdateAnomalyResolver.buildFromByte(updateAnomalyResolver);
-		tupleStoreConfiguration.setUpdateAnomalyResolver(updateAnomalyResolverEnum);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());

@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
-import org.bboxdb.storage.util.UpdateAnomalyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -57,12 +56,7 @@ public class TupleStoreConfiguration {
 	 * The spatial index reader
 	 */
 	protected String spatialIndexReader = "org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader";
-	
-	/**
-	 * The update anomaly resolver
-	 */
-	protected UpdateAnomalyResolver updateAnomalyResolver = UpdateAnomalyResolver.NONE;
-	
+
 	/**
 	 * The logger
 	 */
@@ -114,14 +108,6 @@ public class TupleStoreConfiguration {
 	public void setSpatialIndexReader(final String spatialIndexReader) {
 		this.spatialIndexReader = spatialIndexReader;
 	}
-	
-	public UpdateAnomalyResolver getUpdateAnomalyResolver() {
-		return updateAnomalyResolver;
-	}
-	
-	public void setUpdateAnomalyResolver(final UpdateAnomalyResolver updateAnomalyResolver) {
-		this.updateAnomalyResolver = updateAnomalyResolver;
-	}
 
 	@Override
 	public int hashCode() {
@@ -131,7 +117,6 @@ public class TupleStoreConfiguration {
 		result = prime * result + ((spatialIndexReader == null) ? 0 : spatialIndexReader.hashCode());
 		result = prime * result + ((spatialIndexWriter == null) ? 0 : spatialIndexWriter.hashCode());
 		result = prime * result + (int) (ttl ^ (ttl >>> 32));
-		result = prime * result + ((updateAnomalyResolver == null) ? 0 : updateAnomalyResolver.hashCode());
 		result = prime * result + versions;
 		return result;
 	}
@@ -159,11 +144,6 @@ public class TupleStoreConfiguration {
 			return false;
 		if (ttl != other.ttl)
 			return false;
-		if (updateAnomalyResolver == null) {
-			if (other.updateAnomalyResolver != null)
-				return false;
-		} else if (!updateAnomalyResolver.equals(other.updateAnomalyResolver))
-			return false;
 		if (versions != other.versions)
 			return false;
 		return true;
@@ -173,7 +153,7 @@ public class TupleStoreConfiguration {
 	public String toString() {
 		return "TupleStoreConfiguration [allowDuplicates=" + allowDuplicates + ", ttl=" + ttl + ", versions=" + versions
 				+ ", spatialIndexWriter=" + spatialIndexWriter + ", spatialIndexReader=" + spatialIndexReader
-				+ ", updateAnomalyResolver=" + updateAnomalyResolver + "]";
+				+ "]";
 	}
 
 	/**
@@ -214,7 +194,6 @@ public class TupleStoreConfiguration {
 	    data.put("spatialIndexWriter", spatialIndexWriter);
 	    data.put("ttl", ttl);
 		data.put("versions", versions);
-		data.put("updateAnomalyResolver", updateAnomalyResolver);
 		return data;
 	}
 	
