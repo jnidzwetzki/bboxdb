@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -196,7 +195,6 @@ public class DetermineSamplingSize implements Runnable {
 			final long numberOfElements) throws ClassNotFoundException, IOException {
 		
 		final Set<Long> takenSamples = new HashSet<>();
-		final Random random = new Random(System.currentTimeMillis());
 		final List<BoundingBox> samples = new ArrayList<>();
 		
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
