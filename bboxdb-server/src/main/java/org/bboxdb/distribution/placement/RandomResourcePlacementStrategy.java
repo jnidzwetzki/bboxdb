@@ -20,28 +20,12 @@ package org.bboxdb.distribution.placement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 
-	/**
-	 * The random generator
-	 */
-	protected final Random randomGenerator;
-	
-	/**
-	 * The Logger
-	 */
-	protected final static Logger logger = LoggerFactory.getLogger(RandomResourcePlacementStrategy.class);
-	
-	public RandomResourcePlacementStrategy() {
-		randomGenerator = new Random();
-	}
-	
 	@Override
 	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
 			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException {
@@ -58,7 +42,7 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 			throw new ResourceAllocationException("Unable to choose a system, all systems are blacklisted. Blacklisted: " + blacklist + " / All: " + systems);
 		}
 		
-		final int element = Math.abs(randomGenerator.nextInt()) % availableSystems.size();
+		final int element = ThreadLocalRandom.current().nextInt(availableSystems.size());
 		return availableSystems.get(element);
 	}
 }
