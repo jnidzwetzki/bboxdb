@@ -39,7 +39,7 @@ public class SSTableConst {
 	/**
 	 * The current version of the SSTable layout format
 	 */
-	public final short SST_VERSION = 1;
+	public final static short SST_VERSION = 1;
 	
 	/**
 	 * The prefix for every SSTable file
