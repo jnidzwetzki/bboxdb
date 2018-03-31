@@ -84,7 +84,7 @@ public class TestCompressionRatio implements Runnable {
 				final float pDiff = diff / (float) baseSize * 100;
 				
 				final double ratio = (float) experimentSize / (float) baseSize * 100.0;
-				System.out.format("%d\t%d\t%f\t%%%n", batchSize, experimentSize, ratio, pDiff);
+				System.out.format("%d\t%d\t%f\t%f%n", batchSize, experimentSize, ratio, pDiff);
 
 			} catch (ClassNotFoundException | IOException | PackageEncodeException e) {
 				logger.error("Exception while running experiment", e);
