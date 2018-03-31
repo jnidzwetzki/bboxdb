@@ -170,9 +170,14 @@ public class NetworkConst {
 	public static final short RESPONSE_TYPE_PAGE_END = 0x07;
 	
 	/**
-	 * Page has ended
+	 * Joined tuple
 	 */
 	public static final short RESPONSE_TYPE_JOINED_TUPLE = 0x08;
+	
+	/**
+	 * Tuple lock success
+	 */
+	public static final short RESPONSE_TYPE_TUPLE_LOCK_SUCCESS = 0x09;
 	
 	/**
 	 * Compression envelope request

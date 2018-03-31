@@ -57,6 +57,7 @@ import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.packages.response.JoinedTupleResponse;
 import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packages.response.TupleLockedResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
@@ -878,6 +879,23 @@ public class TestNetworkClasses {
 		final long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
+	}
+	
+	/**
+	 * Get the package type from the response
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
+	 */
+	@Test(timeout=60000)
+	public void getPackageTypeLockedTupleSuccess() throws PackageEncodeException, IOException {
+		final TupleLockedResponse response = new TupleLockedResponse((short) 2);
+		final byte[] encodedPackage = networkPackageToByte(response);
+
+		Assert.assertNotNull(encodedPackage);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		Assert.assertEquals(NetworkConst.RESPONSE_TYPE_TUPLE_LOCK_SUCCESS, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
+	
+		TupleLockedResponse.decodePackage(bb);
 	}
 	
 	/**
