@@ -128,7 +128,7 @@ public class DetermineSamplingSize implements Runnable {
 			System.out.println("\n\n");
 			
 		} catch (ClassNotFoundException | IOException e) {
-			System.err.println(e.getStackTrace());
+			e.printStackTrace();
 		}
 	}
 
