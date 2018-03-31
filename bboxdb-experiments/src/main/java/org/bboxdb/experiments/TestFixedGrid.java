@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -122,10 +123,9 @@ public class TestFixedGrid implements Runnable {
 			boxesPerNode[i] = 0;
 		}
 		
-		for(final BoundingBox key : bboxes.keySet()) {
-			final int value = bboxes.get(key);
-			int pos = Math.abs(key.hashCode() % NODES);
-			boxesPerNode[pos] += value; 
+		for(final Entry<BoundingBox, Integer> entry : bboxes.entrySet()) {
+			final int pos = Math.abs(entry.getKey().hashCode() % NODES);
+			boxesPerNode[pos] += entry.getValue(); 
 		}
 		
 		System.out.println("#Node\tValues");
