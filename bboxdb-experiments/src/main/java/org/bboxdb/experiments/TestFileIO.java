@@ -90,7 +90,7 @@ public class TestFileIO implements Runnable {
 					
 					final int timeMemory = (int) (stopwatch.elapsed().toMillis() / RETRY);
 	
-					System.out.printf("%d\t%d\t%d\n", readRequsts, timeRandom, timeMemory);
+					System.out.printf("%d\t%d\t%d%n", readRequsts, timeRandom, timeMemory);
 				}
 			}
 		} catch (Exception e) {

@@ -186,7 +186,7 @@ public class CreateInitialPartitioning implements Runnable {
 		final List<String> knownGroups = adapter.getDistributionGroups();
 		
 		if(! knownGroups.contains(distributionGroup)) {
-			System.err.format("Distribution group %s does not exist\n", distributionGroup);
+			System.err.format("Distribution group %s does not exist%n", distributionGroup);
 			System.exit(-1);
 		}
 	}

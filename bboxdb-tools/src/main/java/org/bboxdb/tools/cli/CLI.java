@@ -150,7 +150,7 @@ public class CLI implements Runnable, AutoCloseable {
 			System.err.println("\n\n");
 			System.err.println("Error: Unable to connect to the BBoxDB cluster.");
 			System.err.format("Error: Did you specified the correct Zookeeper host (-%s=%s) "
-					+ "and cluster (-%s=%s)?\n", CLIParameter.ZOOKEEPER_HOST, zookeeperHost, 
+					+ "and cluster (-%s=%s)?%n", CLIParameter.ZOOKEEPER_HOST, zookeeperHost, 
 					CLIParameter.ZOOKEEPER_CLUSTER_NAME, zookeeperClustername);
 			
 			System.exit(-1);
@@ -675,7 +675,7 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 			
 			if(tupleFile.getProcessedLines() % 1000 == 0) {
-				System.out.format("Read %d lines\n", tupleFile.getProcessedLines());
+				System.out.format("Read %d lines%n", tupleFile.getProcessedLines());
 			}
 			
 			try {
@@ -690,7 +690,7 @@ public class CLI implements Runnable, AutoCloseable {
 		try {
 			tupleFile.processFile();
 			pendingFutures.waitForCompletion();
-			System.out.format("Successfully imported %d lines\n", tupleFile.getProcessedLines());
+			System.out.format("Successfully imported %d lines%n", tupleFile.getProcessedLines());
 		} catch (IOException e) {
 			logger.error("Got IO Exception while reading data", e);
 			System.exit(-1);
@@ -805,7 +805,7 @@ public class CLI implements Runnable, AutoCloseable {
 				.stream().map(s -> s.getIp() + ":" + s.getPort())
 			.collect(Collectors.joining(", ", "[", "]"));	
 		
-		System.out.format("Region %d, Bounding Box=%s, State=%s, Systems=%s\n",
+		System.out.format("Region %d, Bounding Box=%s, State=%s, Systems=%s%n",
 				distributionRegion.getRegionId(), bboxString,
 				distributionRegion.getState(), systemsString);
 		

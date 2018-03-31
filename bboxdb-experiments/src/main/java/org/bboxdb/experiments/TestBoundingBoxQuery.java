@@ -96,7 +96,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	
 	@Override
 	public void run() {
-		System.out.format("# Reading %s\n", filename);
+		System.out.format("# Reading %s%n", filename);
 		final BoundingBox boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
 		
 		System.out.println("Connecting to BBoxDB cluster");

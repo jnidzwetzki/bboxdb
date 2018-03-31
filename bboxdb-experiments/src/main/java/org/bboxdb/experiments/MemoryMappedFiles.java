@@ -70,7 +70,7 @@ public class MemoryMappedFiles {
 	 */
 	private static void printMappedStatistics() throws Exception {
 
-		System.out.format("Number of mmaps %d number of mmap memory %d\n", 
+		System.out.format("Number of mmaps %d number of mmap memory %d%n", 
 				UnsafeMemoryHelper.getMappedSegments(),
 				UnsafeMemoryHelper.getMappedBytes());
 		

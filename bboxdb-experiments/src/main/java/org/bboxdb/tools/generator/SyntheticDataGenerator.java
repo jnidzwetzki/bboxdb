@@ -196,7 +196,7 @@ public class SyntheticDataGenerator implements Runnable {
 			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
 			final BBoxType bboxType = getBBoxType();
 			
-			System.out.format("Generating %d lines with %d bytes and %d dimensions\n", lines, size, dimension);
+			System.out.format("Generating %d lines with %d bytes and %d dimensions%n", lines, size, dimension);
 
 			final File file = new File(outputFile);
 			if(file.exists()) {
@@ -250,7 +250,7 @@ public class SyntheticDataGenerator implements Runnable {
 		try {
 			final String randomBBox = getRandomBoundingBox(dimension, bboxType);
 			final String randomData = getRandomString(size);
-			final String line = String.format("%s %s\n", randomBBox, randomData);
+			final String line = String.format("%s %s%n", randomBBox, randomData);
 			writer.write(line);
 		} catch (IOException e) {
 			System.err.println("Got IO exception while writing data" + e);

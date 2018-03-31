@@ -76,7 +76,7 @@ public class OSMConverterStatistics extends ExceptionSafeRunnable {
 	public void stop() {
 		thread.interrupt();
 		
-		System.out.format("Imported %.0f nodes and %.0f ways\n", 
+		System.out.format("Imported %.0f nodes and %.0f ways%n", 
 				getProcessedNodes(), getProcessedWays());
 	}
 	

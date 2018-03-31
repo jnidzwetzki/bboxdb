@@ -169,7 +169,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		bboxdbClient.disconnect();
 		executorService.shutdown();
 		
-		System.out.format("Done in %d ms\n", stopWatch.elapsed(TimeUnit.MILLISECONDS));
+		System.out.format("Done in %d ms%n", stopWatch.elapsed(TimeUnit.MILLISECONDS));
 		
 		// Set the benchmark flag to finish
 		benchmarkActive = false;

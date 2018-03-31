@@ -220,7 +220,7 @@ public class OSMDataConverter {
 				writerMap.put(osmType, bw);
 			}
 			
-			System.out.format("Importing %s\n", filename);
+			System.out.format("Importing %s%n", filename);
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			reader.setSink(new Sink() {
 				

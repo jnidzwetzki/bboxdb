@@ -62,7 +62,7 @@ public class TestFixedGrid implements Runnable {
 	
 	@Override
 	public void run() {
-		System.out.format("Reading %s\n", filename);
+		System.out.format("Reading %s%n", filename);
 		final BoundingBox boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
 		
 		for(final Integer cellsPerDimension: cellSizes) {
@@ -130,7 +130,7 @@ public class TestFixedGrid implements Runnable {
 		
 		System.out.println("#Node\tValues");
 		for(int i = 0; i < boxesPerNode.length; i++) {
-			System.out.format("%d\t%d\n", i, boxesPerNode[i]);
+			System.out.format("%d\t%d%n", i, boxesPerNode[i]);
 		}
 	}
 	

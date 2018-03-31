@@ -104,7 +104,7 @@ public class TestSSTableCache implements Runnable {
 					timeReadRandom += readTuplesRandom(tupleStore);
 				}
 				
-				System.out.format("%d\t%d\t%d\n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
+				System.out.format("%d\t%d\t%d%n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
