@@ -43,6 +43,7 @@ import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
+import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
@@ -392,6 +393,30 @@ public class TestNetworkClasses {
 		Assert.assertEquals(decodedPackage.getQuerySequence(), querySequence);
 		Assert.assertEquals(cancelQueryRequest.hashCode(), decodedPackage.hashCode());
 		Assert.assertEquals(cancelQueryRequest.toString(), decodedPackage.toString());
+	}
+	
+	/**
+	 * The  encoding and decoding of an cancel query package
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void encodeAndDecodeLockTuple() throws IOException, PackageEncodeException {
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final LockTupleRequest request = new LockTupleRequest(sequenceNumber, "abc", "key1", 12);
+		
+		byte[] encodedVersion = networkPackageToByte(request);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final LockTupleRequest decodedPackage = LockTupleRequest.decodeTuple(bb);
+		
+		Assert.assertEquals(request.getKey(), decodedPackage.getKey());
+		Assert.assertEquals(request.getTablename(), decodedPackage.getTablename());
+		Assert.assertEquals(request.getVersion(), decodedPackage.getVersion());
+		Assert.assertEquals(request.hashCode(), decodedPackage.hashCode());
+		Assert.assertEquals(request.toString(), decodedPackage.toString());
 	}
 	
 	/**

@@ -50,6 +50,11 @@ public class NetworkConst {
 	public static final short REQUEST_TYPE_DELETE_TABLE = 0x04;
 	
 	/**
+	 * Request type lock tuple
+	 */
+	public static final short REQUEST_TYPE_LOCK_TUPLE = 0x05;
+	
+	/**
 	 * Request type disconnect
 	 */
 	public static final short REQUEST_TYPE_DISCONNECT = 0x06;
