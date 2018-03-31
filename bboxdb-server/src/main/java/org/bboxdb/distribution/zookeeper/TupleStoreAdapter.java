@@ -34,11 +34,6 @@ public class TupleStoreAdapter {
 	 * The spatial index reader
 	 */
 	public static final String ZOOKEEPER_SPATIAL_INDEX_READER = "sindex_reader";
-	
-	/**
-	 * The update anomaly resolver
-	 */
-	public static final String ZOOKEEPER_UPDATE_ANOMALY_RESOLVER = "update_resolver";
 
 	/**
 	 * The duplicate allowed
