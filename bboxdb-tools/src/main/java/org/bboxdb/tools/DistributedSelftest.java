@@ -19,8 +19,8 @@ package org.bboxdb.tools;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.BBoxDBException;
@@ -136,13 +136,12 @@ public class DistributedSelftest {
 	 * @throws BBoxDBException 
 	 */
 	private static void executeSelftest(final BBoxDBCluster bboxdbClient) throws InterruptedException, ExecutionException, BBoxDBException {
-		final Random random = new Random();
 		long iteration = 1;
 		
 		while(true) {
 			logger.info("Starting new iteration: " + iteration);
 			insertNewTuples(bboxdbClient);
-			queryForExistingTuplesByKey(bboxdbClient, random);
+			queryForExistingTuplesByKey(bboxdbClient);
 			queryForExistingTuplesByTime(bboxdbClient);
 			deleteTuples(bboxdbClient);
 			queryForNonExistingTuples(bboxdbClient);
@@ -210,10 +209,11 @@ public class DistributedSelftest {
 	 * @throws ExecutionException
 	 * @throws BBoxDBException 
 	 */
-	private static void queryForExistingTuplesByKey(final BBoxDBCluster bboxdbClient, final Random random) throws InterruptedException, ExecutionException, BBoxDBException {
+	private static void queryForExistingTuplesByKey(final BBoxDBCluster bboxdbClient) throws InterruptedException, ExecutionException, BBoxDBException {
 		logger.info("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
-			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
+			final int nextInt = ThreadLocalRandom.current().nextInt(NUMBER_OF_OPERATIONS);
+			final String key = Integer.toString(nextInt);
 			final TupleListFuture queryResult = bboxdbClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			

@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -59,11 +59,6 @@ public class TestKDTreeSplit implements Runnable {
 	protected final static double SAMPLING_SIZE = 1d;
 
 	/**
-	 * The random for our samples
-	 */
-	protected final Random random;
-
-	/**
 	 * The dimension of the input data
 	 */
 	protected int dataDimension = -1;
@@ -78,7 +73,6 @@ public class TestKDTreeSplit implements Runnable {
 		this.experimentSize = experimentSize;
 		this.elements = new HashMap<>();
 		this.boxDimension = new HashMap<>();
-		this.random = new Random(System.currentTimeMillis());
 	}
 
 	@Override
@@ -222,7 +216,7 @@ public class TestKDTreeSplit implements Runnable {
 		// Try to find n samples (= 2n points)
 		while(pointSamples.size() < (2 * numberOfSamples)) {
 			sample++;
-			final int sampleId = Math.abs(random.nextInt()) % numberOfElements;
+			final int sampleId = ThreadLocalRandom.current().nextInt(numberOfElements);
 			
 			if(takenSamples.contains(sampleId)) {
 				continue;
