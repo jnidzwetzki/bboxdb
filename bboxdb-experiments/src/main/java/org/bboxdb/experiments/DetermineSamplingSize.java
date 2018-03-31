@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
@@ -204,8 +205,8 @@ public class DetermineSamplingSize implements Runnable {
 			) {
 
 			while(takenSamples.size() < sampleSize) {
-				final long sampleId = Math.abs(random.nextLong()) % numberOfElements;
-				
+				final long sampleId = ThreadLocalRandom.current().nextLong(numberOfElements);
+							
 				if(takenSamples.contains(sampleId)) {
 					continue;
 				}
