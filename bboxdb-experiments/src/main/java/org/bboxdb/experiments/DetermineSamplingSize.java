@@ -81,10 +81,10 @@ public class DetermineSamplingSize implements Runnable {
 	@Override
 	public void run() {
 		try {
-			System.out.format("Indexing %s\n", filename);
+			System.out.format("Indexing %s%n", filename);
 			fli = new FileLineIndex(filename);
 			fli.indexFile();
-			System.out.format("Indexing %s done\n", filename);
+			System.out.format("Indexing %s done%n", filename);
 
 			final List<Double> sampleSizes = Arrays.asList(
 					0.01d, 0.02d, 0.03d, 0.04d, 0.05d,
@@ -276,7 +276,7 @@ class ExperimentSeriesStatistics {
 		final double pMaxDiff = (maxDiff / (double) totalElements) * 100.0;
 		final double pMinDiff = (minDiff / (double) totalElements) * 100.0;
 		
-		System.out.format("%d\t%d\t%d\t%f\t%f\t%f\n", minDiff, maxDiff, avgDiff, pMinDiff, pMaxDiff, pAvgDiff);
+		System.out.format("%d\t%d\t%d\t%f\t%f\t%f%n", minDiff, maxDiff, avgDiff, pMinDiff, pMaxDiff, pAvgDiff);
 	}
 }
 
@@ -304,7 +304,7 @@ class ExperimentStatistics {
 	public void printExperimentResult(final int experiment) {
 		final long diff = getDiff();
 		final double pDiff = ((left - right) / (double) total) * 100.0;
-		System.out.format("%d\t%d\t%d\t%d\t%d\t%f\n", experiment, total, left, right, diff, pDiff);
+		System.out.format("%d\t%d\t%d\t%d\t%d\t%f%n", experiment, total, left, right, diff, pDiff);
 	}
 
 	protected long getDiff() {
@@ -317,6 +317,6 @@ class ExperimentStatistics {
 
 	@Override
 	public String toString() {
-		return String.format("Total %d, left %d, right %d, diff %d\n", total, left, right, getDiff());
+		return String.format("Total %d, left %d, right %d, diff %d%n", total, left, right, getDiff());
 	}
 }
