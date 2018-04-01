@@ -26,6 +26,7 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.routing.RoutingHeader;
 
 public class LockTupleRequest extends NetworkRequestPackage {
 	
@@ -44,15 +45,16 @@ public class LockTupleRequest extends NetworkRequestPackage {
 	 */
 	private final long version;
 
-	public LockTupleRequest(final short sequenceNumber,
+	public LockTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
 			final String tablename, final String key, final long version) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		this.tablename = tablename;
 		this.key = key;
 		this.version = version;		
 	}
 	
+
 	@Override
 	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
@@ -89,8 +91,11 @@ public class LockTupleRequest extends NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public static LockTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static LockTupleRequest decodeTuple(final ByteBuffer encodedPackage) 
+			throws PackageEncodeException, IOException {
+		
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_LOCK_TUPLE);
@@ -117,7 +122,9 @@ public class LockTupleRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new LockTupleRequest(sequenceNumber, tablename, key, version);
+		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+		
+		return new LockTupleRequest(sequenceNumber, routingHeader, tablename, key, version);
 	}
 
 	@Override

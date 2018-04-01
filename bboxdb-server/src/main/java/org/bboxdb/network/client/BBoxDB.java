@@ -66,6 +66,14 @@ public interface BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException;
 
 	/**
+	 * Lock tuple
+	 * @param table
+	 * @param tuple
+	 * @return
+	 */
+	public EmptyResultFuture lockTuple(final String table, final Tuple tuple) throws BBoxDBException;
+
+	/**
 	 * Delete the given key from a table
 	 * @param table
 	 * @param key

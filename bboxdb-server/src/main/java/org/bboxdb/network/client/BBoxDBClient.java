@@ -40,6 +40,7 @@ import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
+import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
@@ -150,6 +151,37 @@ public class BBoxDBClient implements BBoxDB {
 		final NetworkOperationFuture future = getInsertTupleFuture(table, tuple, routingHeader);
 		
 		return new EmptyResultFuture(future);
+	}
+
+	@Override
+	public EmptyResultFuture lockTuple(final String table, final Tuple tuple) throws BBoxDBException {
+		
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+	
+		final NetworkOperationFuture future = createLockTupleFuture(table, tuple, routingHeader);
+
+		// When version locking fails, try again with another version
+		return new EmptyResultFuture(future, FutureRetryPolicy.RETRY_POLICY_NONE);
+	}
+	
+	/**
+	 * Create the lock tuple future
+	 * @param table
+	 * @param key
+	 * @param version
+	 * @param routingHeader
+	 * @return
+	 */
+	public NetworkOperationFuture createLockTupleFuture(final String table, final Tuple tuple, 
+			final RoutingHeader routingHeader) {
+		
+		return new NetworkOperationFuture(connection, () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+
+			return new LockTupleRequest(
+					nextSequenceNumber, routingHeader, table, tuple.getKey(), tuple.getVersionTimestamp()); 
+		});
 	}
 
 	/**

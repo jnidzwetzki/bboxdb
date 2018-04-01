@@ -39,6 +39,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -208,6 +209,33 @@ public class BBoxDBCluster implements BBoxDB {
 		};
 
 		return new EmptyResultFuture(supplier);
+	}
+	
+	@Override
+	public EmptyResultFuture lockTuple(final String table, final Tuple tuple) throws BBoxDBException {
+		
+		final DistributionRegion distributionRegion = getRootNode(table);
+
+		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
+			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, 
+					tuple.getBoundingBox());
+		
+			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			for(final RoutingHop hop : hops) {
+				final BBoxDBInstance instance = hop.getDistributedInstance();
+				final BBoxDBConnection connection 
+					= membershipConnectionService.getConnectionForInstance(instance);
+				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
+				final NetworkOperationFuture future 
+					= connection.getBboxDBClient().createLockTupleFuture(table, tuple, routingHeader);
+				futures.add(future);
+			}
+			
+			return futures;
+		};
+	
+		// When version locking fails, try again with another version
+		return new EmptyResultFuture(supplier, FutureRetryPolicy.RETRY_POLICY_NONE);
 	}
 
 	@Override

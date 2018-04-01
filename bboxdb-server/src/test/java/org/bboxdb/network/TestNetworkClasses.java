@@ -405,7 +405,8 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeLockTuple() throws IOException, PackageEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final LockTupleRequest request = new LockTupleRequest(sequenceNumber, "abc", "key1", 12);
+		final LockTupleRequest request = new LockTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, 
+				"abc", "key1", 12);
 		
 		byte[] encodedVersion = networkPackageToByte(request);
 		Assert.assertNotNull(encodedVersion);

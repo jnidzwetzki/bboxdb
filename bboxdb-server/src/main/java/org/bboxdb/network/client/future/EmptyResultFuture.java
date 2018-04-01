@@ -36,6 +36,11 @@ public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 		super(future, retryPolicyNone);
 	}
 
+	public EmptyResultFuture(final Supplier<List<NetworkOperationFuture>> futureSupplier, 
+			final FutureRetryPolicy retryPolicy) {
+		super(futureSupplier, retryPolicy);
+	}
+
 	@Override
 	public Boolean get(int resultId) throws InterruptedException {
 		
