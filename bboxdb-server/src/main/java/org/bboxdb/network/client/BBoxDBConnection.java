@@ -47,6 +47,7 @@ import org.bboxdb.network.client.response.CompressionHandler;
 import org.bboxdb.network.client.response.ErrorHandler;
 import org.bboxdb.network.client.response.HelloHandler;
 import org.bboxdb.network.client.response.JoinedTupleHandler;
+import org.bboxdb.network.client.response.LockedTupleHandler;
 import org.bboxdb.network.client.response.MultipleTupleEndHandler;
 import org.bboxdb.network.client.response.MultipleTupleStartHandler;
 import org.bboxdb.network.client.response.PageEndHandler;
@@ -234,6 +235,7 @@ public class BBoxDBConnection {
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END, new MultipleTupleEndHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_PAGE_END, new PageEndHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_JOINED_TUPLE, new JoinedTupleHandler());
+		serverResponseHandler.put(NetworkConst.REQUEST_TYPE_LOCK_TUPLE, new LockedTupleHandler());
 	}
 
 	/* (non-Javadoc)
