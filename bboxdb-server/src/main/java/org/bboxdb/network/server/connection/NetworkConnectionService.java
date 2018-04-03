@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server;
+package org.bboxdb.network.server.connection;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

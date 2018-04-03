@@ -1,4 +1,4 @@
-package org.bboxdb.network.server;
+package org.bboxdb.network.server.connection;
 
 import java.io.IOException;
 import java.net.ServerSocket;

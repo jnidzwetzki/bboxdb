@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.server.ClientConnectionHandler;
+import org.bboxdb.network.server.connection.ClientConnectionHandler;
 
 public interface RequestHandler {
 

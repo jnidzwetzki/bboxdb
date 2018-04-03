@@ -35,7 +35,7 @@ import org.bboxdb.jmx.JMXService;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.server.NetworkConnectionService;
+import org.bboxdb.network.server.connection.NetworkConnectionService;
 import org.bboxdb.performance.PerformanceCounterService;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;

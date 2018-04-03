@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server;
+package org.bboxdb.network.server.connection;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -47,6 +47,8 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
+import org.bboxdb.network.server.ClientQuery;
+import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.handler.query.HandleBoundingBoxQuery;
 import org.bboxdb.network.server.handler.query.HandleBoundingBoxTimeQuery;
 import org.bboxdb.network.server.handler.query.HandleContinuousBoundingBoxQuery;
@@ -253,7 +255,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Write all pending compression packages to server, called by the maintainance thread
 	 * 
 	 */
-	protected void flushPendingCompressionPackages() {
+	public void flushPendingCompressionPackages() {
 		
 		final List<NetworkResponsePackage> packagesToWrite = new ArrayList<>();
 		

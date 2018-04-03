@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.SuccessResponse;
-import org.bboxdb.network.server.ClientConnectionHandler;
+import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -24,6 +24,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
