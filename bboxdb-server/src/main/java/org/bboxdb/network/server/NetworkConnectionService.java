@@ -95,7 +95,7 @@ public class NetworkConnectionService implements BBoxDBService {
 				threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
 			}
 			
-			serverSocketDispatcher = new ConnectionDispatcher(port);
+			serverSocketDispatcher = new ConnectionDispatcher(port, threadPool);
 			serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 			serverSocketDispatchThread.start();
 			serverSocketDispatchThread.setName("Connection dispatcher thread");
@@ -152,9 +152,15 @@ public class NetworkConnectionService implements BBoxDBService {
 		 * The listen port
 		 */
 		private final int port;
+
+		/**
+		 * The thread pool for handling connections
+		 */
+		private final ExecutorService threadPool;
 		
-		public ConnectionDispatcher(final int port) {
+		public ConnectionDispatcher(final int port, final ExecutorService threadPool) {
 			this.port = port;
+			this.threadPool = threadPool;
 		}
 
 		@Override
