@@ -88,13 +88,14 @@ public class NetworkConnectionService implements BBoxDBService {
 		try {
 			state.dipatchToStarting();
 			
-			logger.info("Start the network connection handler on port: {}", configuration.getNetworkListenPort());
+			final int port = configuration.getNetworkListenPort();
+			logger.info("Start the network connection handler on port: {}", port);
 			
 			if(threadPool == null) {
 				threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
 			}
 			
-			serverSocketDispatcher = new ConnectionDispatcher();
+			serverSocketDispatcher = new ConnectionDispatcher(port);
 			serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 			serverSocketDispatchThread.start();
 			serverSocketDispatchThread.setName("Connection dispatcher thread");
@@ -152,8 +153,8 @@ public class NetworkConnectionService implements BBoxDBService {
 		 */
 		private final int port;
 		
-		public ConnectionDispatcher() {
-			this.port = configuration.getNetworkListenPort();
+		public ConnectionDispatcher(final int port) {
+			this.port = port;
 		}
 
 		@Override
