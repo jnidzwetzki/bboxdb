@@ -89,22 +89,22 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * The output stream of the socket
 	 */
-	protected BufferedOutputStream outputStream;
+	private BufferedOutputStream outputStream;
 	
 	/**
 	 * The input stream of the socket
 	 */
-	protected InputStream inputStream;
+	private InputStream inputStream;
 	
 	/**
 	 * The connection state
 	 */
-	protected final ServiceState serviceState;
+	private final ServiceState serviceState;
 
 	/**
 	 * The capabilities of the connection
 	 */
-	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
+	private PeerCapabilities connectionCapabilities = new PeerCapabilities();
 	
 	/**
 	 * The open query iterators, i.e., the queries that are not finished and waiting
@@ -125,56 +125,56 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * The pending packages for compression
 	 */
-	protected final List<NetworkResponsePackage> pendingCompressionPackages;
+	private final List<NetworkResponsePackage> pendingCompressionPackages;
 
 	/**
 	 * Number of pending requests
 	 */
-	protected final static int MAX_PENDING_REQUESTS = 25;
+	private final static int MAX_PENDING_REQUESTS = 25;
 
 	/**
 	 * Number of maximal running queries
 	 */
-	protected final static int MAX_RUNNING_QUERIES = 25;
+	private final static int MAX_RUNNING_QUERIES = 25;
 	
 	/**
 	 * The request handlers
 	 */
-	protected Map<Short, RequestHandler> requestHandlers;
+	private Map<Short, RequestHandler> requestHandlers;
 
 	/**
 	 * The query handlers
 	 */
-	protected Map<Byte, QueryHandler> queryHandlerList;
+	private Map<Byte, QueryHandler> queryHandlerList;
 	
 	/**
 	 * The connection maintenance thread
 	 */
-	protected ConnectionMaintenanceRunnable maintenanceThread;
+	private ConnectionMaintenanceRunnable maintenanceThread;
 	
 	/**
 	 * The storage reference
 	 */
-	protected final TupleStoreManagerRegistry storageRegistry;
+	private final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The read bytes counter
 	 */
-	protected final static Gauge readBytesCounter = Gauge.build()
+	private final static Gauge readBytesCounter = Gauge.build()
 			.name("bboxdb_network_read_bytes")
 			.help("Total read bytes from network").register();
 	
 	/**
 	 * The written bytes counter
 	 */
-	protected final static Gauge writtenBytesCounter = Gauge.build()
+	private final static Gauge writtenBytesCounter = Gauge.build()
 			.name("bboxdb_network_write_bytes")
 			.help("Total written bytes to network").register();
 	
 	/**
 	 * The active connections counter
 	 */
-	protected final static Gauge activeConnectionsTotal = Gauge.build()
+	private final static Gauge activeConnectionsTotal = Gauge.build()
 			.name("bboxdb_network_connections_total")
 			.help("Total amount of active network connections").register();
 	
@@ -237,7 +237,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @throws IOException
 	 * @throws PackageEncodeException 
 	 */
-	protected ByteBuffer readNextPackageHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
+	private ByteBuffer readNextPackageHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
 		ByteStreams.readFully(inputStream, bb.array(), 0, bb.limit());
 		
@@ -327,7 +327,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	protected void writePackageToSocket(final NetworkResponsePackage responsePackage) 
+	private void writePackageToSocket(final NetworkResponsePackage responsePackage) 
 			throws IOException, PackageEncodeException {
 		
 		synchronized (outputStream) {
@@ -383,7 +383,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @return
 	 * @throws IOException 
 	 */
-	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader, 
+	private ByteBuffer readFullPackage(final ByteBuffer packageHeader, 
 			final InputStream inputStream) throws IOException {
 		
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
@@ -469,7 +469,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) 
+	private boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) 
 			throws IOException, PackageEncodeException {
 	
 		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
@@ -507,7 +507,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @throws IOException
 	 * @throws PackageEncodeException 
 	 */
-	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, 
+	private boolean handleBufferedPackage(final ByteBuffer encodedPackage, 
 			final short packageSequence, 
 			final short packageType) throws PackageEncodeException, IOException {
 				
@@ -542,7 +542,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Init the map with the package handlers
 	 * @return
 	 */
-	protected void initRequestHandlerMap() {
+	private void initRequestHandlerMap() {
 		requestHandlers = new HashMap<>();
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_HELLO, new HandshakeHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_COMPRESSION, new CompressionHandler());
@@ -561,7 +561,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * Init the query handler map
 	 */
-	protected void initQueryHandlerMap() {
+	private void initQueryHandlerMap() {
 		queryHandlerList = new HashMap<>();
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_KEY, new HandleKeyQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX, new HandleBoundingBoxQuery());
