@@ -43,23 +43,23 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * The connection handler state
 	 */
-	private final ServiceState state = new ServiceState();
+	private final ServiceState state;
 	
 	/**
 	 * The connection dispatcher runnable
 	 */
-	private ConnectionDispatcherRunable serverSocketDispatcher = null;
+	private ConnectionDispatcherRunable serverSocketDispatcher;
 	
 	/**
 	 * The thread that listens on the server socket and dispatches
 	 * incoming requests to the thread pool
 	 */
-	private Thread serverSocketDispatchThread = null;
+	private Thread serverSocketDispatchThread;
 	
 	/**
 	 * The storage reference
 	 */
-	final TupleStoreManagerRegistry storageRegistry;
+	private final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
@@ -67,6 +67,7 @@ public class NetworkConnectionService implements BBoxDBService {
 	final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
 	
 	public NetworkConnectionService(final TupleStoreManagerRegistry storageRegistry) {
+		this.state = new ServiceState();
 		this.storageRegistry = storageRegistry;
 	}
 	
