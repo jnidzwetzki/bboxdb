@@ -23,6 +23,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.misc.BBoxDBConfiguration;
@@ -179,13 +180,8 @@ public class NetworkConnectionService implements BBoxDBService {
 		 */
 		public void closeSocketNE() {
 			if(serverSocket != null) {
-				try {
-					logger.info("Close server socket on port: {}", serverSocket.getLocalPort());
-					serverSocket.close();
-					serverSocket = null;
-				} catch (IOException e) {
-					// Ignore close exception
-				}
+				logger.info("Close server socket on port: {}", serverSocket.getLocalPort());
+				CloseableHelper.closeWithoutException(serverSocket);
 			}
 		}
 		
