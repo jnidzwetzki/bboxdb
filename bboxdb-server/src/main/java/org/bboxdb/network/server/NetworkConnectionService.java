@@ -17,15 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.network.server;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
@@ -53,7 +48,7 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * The connection dispatcher runnable
 	 */
-	private ConnectionDispatcher serverSocketDispatcher = null;
+	private ConnectionDispatcherRunable serverSocketDispatcher = null;
 	
 	/**
 	 * The thread that listens on the server socket and dispatches
@@ -64,12 +59,12 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * The storage reference
 	 */
-	private final TupleStoreManagerRegistry storageRegistry;
+	final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
+	final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
 	
 	public NetworkConnectionService(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
@@ -95,7 +90,7 @@ public class NetworkConnectionService implements BBoxDBService {
 				threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
 			}
 			
-			serverSocketDispatcher = new ConnectionDispatcher(port, threadPool);
+			serverSocketDispatcher = new ConnectionDispatcherRunable(port, threadPool, storageRegistry);
 			serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 			serverSocketDispatchThread.start();
 			serverSocketDispatchThread.setName("Connection dispatcher thread");
@@ -137,100 +132,6 @@ public class NetworkConnectionService implements BBoxDBService {
 		state.dispatchToTerminated();
 	}
 	
-	/**
-	 * The connection dispatcher
-	 *
-	 */
-	class ConnectionDispatcher extends ExceptionSafeRunnable {
-
-		/**
-		 * The server socket
-		 */
-		private ServerSocket serverSocket;
-		
-		/**
-		 * The listen port
-		 */
-		private final int port;
-
-		/**
-		 * The thread pool for handling connections
-		 */
-		private final ExecutorService threadPool;
-		
-		public ConnectionDispatcher(final int port, final ExecutorService threadPool) {
-			this.port = port;
-			this.threadPool = threadPool;
-		}
-
-		@Override
-		protected void beginHook() {
-			logger.info("Starting new connection dispatcher");
-		}
-
-		@Override
-		protected void endHook() {
-			logger.info("Shutting down the connection dispatcher");
-		}
-		
-		@Override
-		public void runThread() {			
-			try {
-				serverSocket = new ServerSocket(port);
-				serverSocket.setReuseAddress(true);
-				
-				while(isThreadActive()) {
-					final Socket clientSocket = serverSocket.accept();
-					handleConnection(clientSocket);
-				}
-				
-			} catch(IOException e) {
-				
-				// Print exception only if the exception is really unexpected
-				if(Thread.currentThread().isInterrupted() != true) {
-					logger.error("Got an IO exception while reading from server socket ", e);
-				}
-
-			} finally {
-				closeSocketNE();
-			}
-		}
-
-		/**
-		 * Is the server socket dispatcher active?
-		 * @return
-		 */
-		private boolean isThreadActive() {
-			
-			if(Thread.currentThread().isInterrupted()) {
-				return false;
-			}
-			
-			if(serverSocket == null) {
-				return false;
-			}
-			
-			return true;
-		}
-
-		/**
-		 * Close socket without an exception
-		 */
-		public void closeSocketNE() {
-			logger.info("Close server socket on port: {}", port);
-			CloseableHelper.closeWithoutException(serverSocket);
-		}
-		
-		/**
-		 * Dispatch the connection to the thread pool
-		 * @param clientSocket
-		 */
-		private void handleConnection(final Socket clientSocket) {
-			logger.debug("Got new connection from: {}", clientSocket.getInetAddress());
-			threadPool.submit(new ClientConnectionHandler(storageRegistry, clientSocket));
-		}
-	}
-
 	@Override
 	public String getServicename() {
 		return "Network connection handler";
