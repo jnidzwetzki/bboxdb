@@ -340,7 +340,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	@Override
 	public void runThread() {
 		try {
-			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
+			logger.debug("Handling new connection from: {}", clientSocket.getInetAddress());
 
 			while(serviceState.isInRunningState() || serviceState.isInStartingState()) {
 				handleNextPackage(inputStream);
