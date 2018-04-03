@@ -38,33 +38,33 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * The configuration
 	 */
-	protected final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+	private final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 
 	/**
 	 * Our thread pool to handle connections
 	 */
-	protected ExecutorService threadPool;
+	private ExecutorService threadPool;
 	
 	/**
 	 * The connection handler state
 	 */
-	protected final ServiceState state = new ServiceState();
+	private final ServiceState state = new ServiceState();
 	
 	/**
 	 * The connection dispatcher runnable
 	 */
-	protected ConnectionDispatcher serverSocketDispatcher = null;
+	private ConnectionDispatcher serverSocketDispatcher = null;
 	
 	/**
 	 * The thread that listens on the server socket and dispatches
 	 * incoming requests to the thread pool
 	 */
-	protected Thread serverSocketDispatchThread = null;
+	private Thread serverSocketDispatchThread = null;
 	
 	/**
 	 * The storage reference
 	 */
-	protected final TupleStoreManagerRegistry storageRegistry;
+	private final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
@@ -189,7 +189,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		 * Dispatch the connection to the thread pool
 		 * @param clientSocket
 		 */
-		protected void handleConnection(final Socket clientSocket) {
+		private void handleConnection(final Socket clientSocket) {
 			logger.debug("Got new connection from: {}", clientSocket.getInetAddress());
 			threadPool.submit(new ClientConnectionHandler(storageRegistry, clientSocket));
 		}
