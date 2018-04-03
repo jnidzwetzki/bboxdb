@@ -180,7 +180,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		public void closeSocketNE() {
 			if(serverSocket != null) {
 				try {
-					logger.info("Close server socket on port: " + serverSocket.getLocalPort());
+					logger.info("Close server socket on port: {}", serverSocket.getLocalPort());
 					serverSocket.close();
 					serverSocket = null;
 				} catch (IOException e) {
