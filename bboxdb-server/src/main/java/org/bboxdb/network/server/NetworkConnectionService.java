@@ -146,17 +146,33 @@ public class NetworkConnectionService implements BBoxDBService {
 		 * The server socket
 		 */
 		private ServerSocket serverSocket;
+		
+		/**
+		 * The listen port
+		 */
+		private final int port;
+		
+		public ConnectionDispatcher() {
+			this.port = configuration.getNetworkListenPort();
+		}
 
 		@Override
-		public void runThread() {
-			
+		protected void beginHook() {
 			logger.info("Starting new connection dispatcher");
-			
+		}
+
+		@Override
+		protected void endHook() {
+			logger.info("Shutting down the connection dispatcher");
+		}
+		
+		@Override
+		public void runThread() {			
 			try {
-				serverSocket = new ServerSocket(configuration.getNetworkListenPort());
+				serverSocket = new ServerSocket(port);
 				serverSocket.setReuseAddress(true);
 				
-				while(! Thread.currentThread().isInterrupted()) {
+				while(isThreadActive()) {
 					final Socket clientSocket = serverSocket.accept();
 					handleConnection(clientSocket);
 				}
@@ -171,18 +187,31 @@ public class NetworkConnectionService implements BBoxDBService {
 			} finally {
 				closeSocketNE();
 			}
+		}
+
+		/**
+		 * Is the server socket dispatcher active?
+		 * @return
+		 */
+		private boolean isThreadActive() {
 			
-			logger.info("Shutting down the connection dispatcher");
+			if(Thread.currentThread().isInterrupted()) {
+				return false;
+			}
+			
+			if(serverSocket == null) {
+				return false;
+			}
+			
+			return true;
 		}
 
 		/**
 		 * Close socket without an exception
 		 */
 		public void closeSocketNE() {
-			if(serverSocket != null) {
-				logger.info("Close server socket on port: {}", serverSocket.getLocalPort());
-				CloseableHelper.closeWithoutException(serverSocket);
-			}
+			logger.info("Close server socket on port: {}", port);
+			CloseableHelper.closeWithoutException(serverSocket);
 		}
 		
 		/**
