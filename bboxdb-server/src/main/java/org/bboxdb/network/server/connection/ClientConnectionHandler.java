@@ -349,7 +349,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			// Flush all pending results to client
 			flushPendingCompressionPackages();
 			
-			// Conenction is down
+			// Connection is down
 			if(! serviceState.isInStoppingState()) {
 				serviceState.dispatchToStopping();
 			}
