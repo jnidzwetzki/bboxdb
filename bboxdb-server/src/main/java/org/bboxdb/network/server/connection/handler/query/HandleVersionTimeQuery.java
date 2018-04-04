@@ -15,15 +15,15 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.query;
+package org.bboxdb.network.server.connection.handler.query;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryJoinRequest;
+import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.QueryHelper;
@@ -31,43 +31,40 @@ import org.bboxdb.network.server.StreamClientQuery;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
-import org.bboxdb.storage.queryprocessor.operator.IndexedSpatialJoinOperator;
+import org.bboxdb.storage.queryprocessor.operator.FullTablescanOperator;
+import org.bboxdb.storage.queryprocessor.operator.NewerAsVersionTimeSelectionOperator;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
-import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleJoinQuery implements QueryHandler {
+public class HandleVersionTimeQuery implements QueryHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleJoinQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(HandleVersionTimeQuery.class);
 	
 
 	@Override
 	/**
-	 * Handle a bounding box query
+	 * Handle a time query
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
-		
+				
 		try {
 			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
 				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
 				return;
 			}
 			
-			final QueryJoinRequest queryRequest = QueryJoinRequest.decodeTuple(encodedPackage);
-			final List<TupleStoreName> requestTables = queryRequest.getTables();
-			final BoundingBox boundingBox = queryRequest.getBoundingBox();
+			final QueryVersionTimeRequest queryRequest = QueryVersionTimeRequest.decodeTuple(encodedPackage);
+			final TupleStoreName requestTable = queryRequest.getTable();
 			
-			for(final TupleStoreName requestTable : requestTables) {
-				if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
-					return;
-				}
+			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
+				return;
 			}
 			
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
@@ -75,31 +72,30 @@ public class HandleJoinQuery implements QueryHandler {
 				@Override
 				public Operator buildOperatorTree(final List<TupleStoreManager> storageManager) {
 					
-					if(storageManager.size() <= 1) {
-						throw new IllegalArgumentException("This operator tree needs more than one storage manager");
+					if(storageManager.size() != 1) {
+						throw new IllegalArgumentException("This operator tree needs 1 storage manager");
 					}
+				
+					final FullTablescanOperator tablescanOperator = new FullTablescanOperator(storageManager.get(0));
+					final long timestamp = queryRequest.getTimestamp();
+										
+					final Operator opeator = new NewerAsVersionTimeSelectionOperator(timestamp, 
+							tablescanOperator);
 					
-					Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
-					SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1));
-					operator1 = new IndexedSpatialJoinOperator(operator1, indexReader);
-					
-					for(int i = 3; i < storageManager.size(); i++) {
-						indexReader = new SpatialIndexReadOperator(storageManager.get(i));
-						operator1 = new IndexedSpatialJoinOperator(operator1, indexReader);
-					}
-					
-					return operator1;
+					return opeator;
 				}
 			};
-					
+			
 			final StreamClientQuery clientQuery = new StreamClientQuery(operatorTreeBuilder, queryRequest.isPagingEnabled(), 
-					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTables);
+					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, Arrays.asList(requestTable));
 			
 			clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
-		}		
+		}
+		
+		return;
 	}
 }

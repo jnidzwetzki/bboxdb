@@ -55,17 +55,22 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 	private TupleStoreManagerRegistry storageRegistry;
 	
 	/**
+	 * The lock manager
+	 */
+	private final LockManager lockManager;
+	
+	/**
 	 * The Logger
 	 */
 	final static Logger logger = LoggerFactory.getLogger(ConnectionDispatcherRunable.class);
-	
-	
+
 	public ConnectionDispatcherRunable(final int port, final ExecutorService threadPool, 
-			final TupleStoreManagerRegistry storageRegistry) {
+			final TupleStoreManagerRegistry storageRegistry, final LockManager lockManager) {
 		
 		this.port = port;
 		this.threadPool = threadPool;
 		this.storageRegistry = storageRegistry;
+		this.lockManager = lockManager;
 	}
 
 	@Override
@@ -132,7 +137,10 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 	 */
 	private void handleConnection(final Socket clientSocket) {
 		logger.debug("Got new connection from: {}", clientSocket.getInetAddress());
-		final ClientConnectionHandler task = new ClientConnectionHandler(storageRegistry, clientSocket);
+		
+		final ClientConnectionHandler task = new ClientConnectionHandler(storageRegistry, 
+				clientSocket, lockManager);
+		
 		threadPool.submit(task);
 	}
 }

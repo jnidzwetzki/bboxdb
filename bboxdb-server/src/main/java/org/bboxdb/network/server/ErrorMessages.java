@@ -73,4 +73,14 @@ public class ErrorMessages {
 	 * Local operation is rejected, retry 
 	 */
 	public final static String ERROR_LOCAL_OPERATION_REJECTED_RETRY = "Local operation rejected, please retry";
+
+	/**
+	 * The locked tuple is outdated
+	 */
+	public final static String ERROR_LOCK_FAILED_OUTDATED = "Tuple for locking is outdated";
+
+	/**
+	 * The tuple is already locked
+	 */
+	public final static String ERROR_LOCK_FAILED_ALREADY_LOCKED = "Tuple is already locked";
 }

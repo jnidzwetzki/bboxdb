@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.query;
+package org.bboxdb.network.server.connection.handler.query;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
+import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.QueryHelper;
@@ -32,41 +32,41 @@ import org.bboxdb.network.server.StreamClientQuery;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
+import org.bboxdb.storage.queryprocessor.operator.NewerAsInsertTimeSeclectionOperator;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleBoundingBoxQuery implements QueryHandler {
+public class HandleBoundingBoxTimeQuery implements QueryHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleBoundingBoxQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(HandleBoundingBoxTimeQuery.class);
 	
 
 	@Override
 	/**
-	 * Handle a bounding box query
+	 * Handle the bounding box time query
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException {
 		
 		try {
 			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
-				logger.error("Query sequence {} is already known, please close old query first", packageSequence);
-				return;
+				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
 			}
 			
-			final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
+			final QueryBoundingBoxTimeRequest queryRequest = QueryBoundingBoxTimeRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = queryRequest.getTable();
 			
 			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
 				return;
 			}
-			
+	
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
 				
 				@Override
@@ -79,10 +79,13 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 					final BoundingBox boundingBox = queryRequest.getBoundingBox();
 					final SpatialIndexReadOperator operator = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
 					
-					return operator;
+					final Operator operator1 = new NewerAsInsertTimeSeclectionOperator(queryRequest.getTimestamp(), 
+							operator);
+					
+					return operator1;
 				}
 			};
-						
+			
 			final StreamClientQuery clientQuery = new StreamClientQuery(operatorTreeBuilder, queryRequest.isPagingEnabled(), 
 					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, Arrays.asList(requestTable));
 			
@@ -90,7 +93,7 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
-			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
+			clientConnectionHandler.writeResultPackageNE(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}		
 	}
 }

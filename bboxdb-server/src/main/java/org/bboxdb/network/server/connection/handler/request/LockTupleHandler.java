@@ -15,61 +15,56 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.request;
+package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.distribution.TupleStoreConfigurationCache;
-import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
+import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
+import org.bboxdb.network.server.connection.LockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DeleteDistributionGroupHandler implements RequestHandler {
+public class LockTupleHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DeleteDistributionGroupHandler.class);
-	
+	private final static Logger logger = LoggerFactory.getLogger(LockTupleHandler.class);
 
 	@Override
 	/**
-	 * Delete an existing distribution group
+	 * Lock the given tuple
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
-
+		
 		try {
-			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
-			final String distributionGroup = deletePackage.getDistributionGroup();
+			final LockTupleRequest request = LockTupleRequest.decodeTuple(encodedPackage);
+			final String table = request.getTablename();
+			final String key = request.getKey();
+			final long version = request.getVersion();
 			
-			logger.info("Delete distribution group: {}", distributionGroup);
+			logger.debug("Lock tuple {}, {}, {} requested", table, key, version);
 			
-			// Delete in Zookeeper
-			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
-				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
-			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
-
-			// Delete local stored data
-			logger.info("Delete distribution group, delete local stored data");
-			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroup);
+			final LockManager lockManager = clientConnectionHandler.getLockManager();
 			
-			// Clear cached data
-			TupleStoreConfigurationCache.getInstance().clear();
+			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, table, key, version);
 			
-			logger.info("Delete distribution group - DONE");
-			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (Exception e) {
-			logger.warn("Error while delete distribution group", e);
+			logger.debug("Locking tuple {} in table {} with version {}", key, table, version);
 			
+			if(lockResult) {
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_ALREADY_LOCKED);
+				clientConnectionHandler.writeResultPackage(responsePackage);
+				return true;
+			}
+			
+		} catch (PackageEncodeException e) {
+			logger.warn("Error while locking tuple", e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		}

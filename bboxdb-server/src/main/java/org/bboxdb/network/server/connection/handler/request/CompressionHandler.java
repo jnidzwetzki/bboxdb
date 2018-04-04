@@ -15,50 +15,43 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.request;
+package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NextPageHandler implements RequestHandler {
+public class CompressionHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(NextPageHandler.class);
+	private final static Logger logger = LoggerFactory.getLogger(CompressionHandler.class);
 	
-
 	@Override
 	/**
-	 * Handle the next page package
+	 * Handle compressed packages. Uncompress envelope and handle package
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+		
 		try {
-			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
-			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());
+			final InputStream compressedDataStream = CompressionEnvelopeRequest.decodePackage(encodedPackage);
+						
+			while(compressedDataStream.available() > 0) {
+				clientConnectionHandler.handleNextPackage(compressedDataStream);
+			}
 			
-			// Send tuples as result for original query
-			clientConnectionHandler.sendNextResultsForQuery(packageSequence, nextPagePackage.getQuerySequence());
-
-		} catch (PackageEncodeException e) {
-			logger.warn("Error getting next page for a query", e);
-			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
-			clientConnectionHandler.writeResultPackage(errorResponse);	
-		}
+		} catch (IOException | PackageEncodeException e) {
+			logger.error("Got an exception while handling compression", e);
+		} 
 		
 		return true;
-		
 	}
-	
-	
 }

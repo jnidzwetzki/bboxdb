@@ -15,49 +15,54 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.request;
+package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.LockTupleRequest;
+import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LockTupleHandler implements RequestHandler {
+public class HandshakeHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(LockTupleHandler.class);
-
-	@Override
+	private final static Logger logger = LoggerFactory.getLogger(HandshakeHandler.class);
+	
 	/**
-	 * Lock the given tuple
+	 * Handle the handshake request
 	 */
+	@Override
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
-		try {
-			final LockTupleRequest request = LockTupleRequest.decodeTuple(encodedPackage);
-			final String table = request.getTablename();
-			final String key = request.getKey();
-			final long version = request.getVersion();
+		logger.info("Handshaking with: {}", clientConnectionHandler.clientSocket.getInetAddress());
+		
+		try {	
+			final HelloRequest heloRequest = HelloRequest.decodeRequest(encodedPackage);
+			clientConnectionHandler.setConnectionCapabilities(heloRequest.getPeerCapabilities());
+
+			final HelloResponse responsePackage = new HelloResponse(packageSequence, 
+					NetworkConst.PROTOCOL_VERSION, clientConnectionHandler.getConnectionCapabilities());
 			
-			logger.debug("Lock tuple {}, {}, {} requested", table, key, version);
-			
-			
-		} catch (PackageEncodeException e) {
-			logger.warn("Error while locing tuple", e);
+			clientConnectionHandler.writeResultPackage(responsePackage);
+
+			clientConnectionHandler.setConnectionStateToOpen();
+			return true;
+		} catch(Exception e) {
+			logger.warn("Error while reading network package", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
+			return false;
 		}
-		
-		return true;
 	}
 }

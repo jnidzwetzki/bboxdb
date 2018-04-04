@@ -15,57 +15,61 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.request;
+package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CancelQueryRequest;
+import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
-import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CancelQueryHandler implements RequestHandler {
+public class DeleteDistributionGroupHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(CancelQueryHandler.class);
+	private final static Logger logger = LoggerFactory.getLogger(DeleteDistributionGroupHandler.class);
+	
 
 	@Override
 	/**
-	 * Cancel the given query
+	 * Delete an existing distribution group
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
-		
-		try {
-			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
-			final short queryToCancel = nextPagePackage.getQuerySequence();
-			
-			logger.debug("Cancel query {} requested", queryToCancel);
-			
-			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
-			
-			if(! activeQueries.containsKey(queryToCancel)) {
-				logger.error("Unable to cancel query {} - not found", queryToCancel);
-				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
-			} else {
-				final ClientQuery clientQuery = activeQueries.remove(queryToCancel);
-				clientQuery.close();
-				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-				logger.info("Sending success for canceling query {} (request package {})", 
-						queryToCancel, packageSequence);
-			}
-		} catch (PackageEncodeException e) {
-			logger.warn("Error getting next page for a query", e);
 
+		try {
+			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
+			final String distributionGroup = deletePackage.getDistributionGroup();
+			
+			logger.info("Delete distribution group: {}", distributionGroup);
+			
+			// Delete in Zookeeper
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
+
+			// Delete local stored data
+			logger.info("Delete distribution group, delete local stored data");
+			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroup);
+			
+			// Clear cached data
+			TupleStoreConfigurationCache.getInstance().clear();
+			
+			logger.info("Delete distribution group - DONE");
+			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+		} catch (Exception e) {
+			logger.warn("Error while delete distribution group", e);
+			
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		}

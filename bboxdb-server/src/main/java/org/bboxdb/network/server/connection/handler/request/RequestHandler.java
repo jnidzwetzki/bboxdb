@@ -15,37 +15,26 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.request;
+package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class DisconnectHandler implements RequestHandler {
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(DisconnectHandler.class);
-	
+public interface RequestHandler {
 
-	@Override
 	/**
-	 * Handle the disconnect request
+	 * Handle a request
+	 * @param encodedPackage
+	 * @param packageSequence
+	 * @param packageHandler
+	 * @return - Read additional packages or not
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
-		
-		logger.info("Got disconnect package, preparing for connection close: "  
-				+ clientConnectionHandler.clientSocket.getInetAddress());
-		
-		clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		return false;
-	}
+					throws IOException, PackageEncodeException;
 }

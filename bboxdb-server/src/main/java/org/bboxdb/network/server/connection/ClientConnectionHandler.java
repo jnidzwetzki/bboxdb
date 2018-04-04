@@ -49,27 +49,27 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.network.server.handler.query.HandleBoundingBoxQuery;
-import org.bboxdb.network.server.handler.query.HandleBoundingBoxTimeQuery;
-import org.bboxdb.network.server.handler.query.HandleContinuousBoundingBoxQuery;
-import org.bboxdb.network.server.handler.query.HandleInsertTimeQuery;
-import org.bboxdb.network.server.handler.query.HandleJoinQuery;
-import org.bboxdb.network.server.handler.query.HandleKeyQuery;
-import org.bboxdb.network.server.handler.query.HandleVersionTimeQuery;
-import org.bboxdb.network.server.handler.query.QueryHandler;
-import org.bboxdb.network.server.handler.request.CancelQueryHandler;
-import org.bboxdb.network.server.handler.request.CompressionHandler;
-import org.bboxdb.network.server.handler.request.CreateDistributionGroupHandler;
-import org.bboxdb.network.server.handler.request.CreateTableHandler;
-import org.bboxdb.network.server.handler.request.DeleteDistributionGroupHandler;
-import org.bboxdb.network.server.handler.request.DeleteTableHandler;
-import org.bboxdb.network.server.handler.request.DisconnectHandler;
-import org.bboxdb.network.server.handler.request.HandshakeHandler;
-import org.bboxdb.network.server.handler.request.InsertTupleHandler;
-import org.bboxdb.network.server.handler.request.KeepAliveHandler;
-import org.bboxdb.network.server.handler.request.LockTupleHandler;
-import org.bboxdb.network.server.handler.request.NextPageHandler;
-import org.bboxdb.network.server.handler.request.RequestHandler;
+import org.bboxdb.network.server.connection.handler.query.HandleBoundingBoxQuery;
+import org.bboxdb.network.server.connection.handler.query.HandleBoundingBoxTimeQuery;
+import org.bboxdb.network.server.connection.handler.query.HandleContinuousBoundingBoxQuery;
+import org.bboxdb.network.server.connection.handler.query.HandleInsertTimeQuery;
+import org.bboxdb.network.server.connection.handler.query.HandleJoinQuery;
+import org.bboxdb.network.server.connection.handler.query.HandleKeyQuery;
+import org.bboxdb.network.server.connection.handler.query.HandleVersionTimeQuery;
+import org.bboxdb.network.server.connection.handler.query.QueryHandler;
+import org.bboxdb.network.server.connection.handler.request.CancelQueryHandler;
+import org.bboxdb.network.server.connection.handler.request.CompressionHandler;
+import org.bboxdb.network.server.connection.handler.request.CreateDistributionGroupHandler;
+import org.bboxdb.network.server.connection.handler.request.CreateTableHandler;
+import org.bboxdb.network.server.connection.handler.request.DeleteDistributionGroupHandler;
+import org.bboxdb.network.server.connection.handler.request.DeleteTableHandler;
+import org.bboxdb.network.server.connection.handler.request.DisconnectHandler;
+import org.bboxdb.network.server.connection.handler.request.HandshakeHandler;
+import org.bboxdb.network.server.connection.handler.request.InsertTupleHandler;
+import org.bboxdb.network.server.connection.handler.request.KeepAliveHandler;
+import org.bboxdb.network.server.connection.handler.request.LockTupleHandler;
+import org.bboxdb.network.server.connection.handler.request.NextPageHandler;
+import org.bboxdb.network.server.connection.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
@@ -156,6 +156,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * The storage reference
 	 */
 	private final TupleStoreManagerRegistry storageRegistry;
+
+	/**
+	 * The lock manager
+	 */
+	private final LockManager lockManager;
 	
 	/**
 	 * The read bytes counter
@@ -183,7 +188,8 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
-	public ClientConnectionHandler(final TupleStoreManagerRegistry storageRegistry, final Socket clientSocket) {
+	public ClientConnectionHandler(final TupleStoreManagerRegistry storageRegistry, 
+			final Socket clientSocket, final LockManager lockManager) {
 		
 		// Client socket
 		this.clientSocket = clientSocket;
@@ -191,10 +197,14 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		// The storage reference
 		this.storageRegistry = storageRegistry;
 		
+		// The lock manager
+		this.lockManager = lockManager;
+		
 		// Connection state set to starting until handshake is ready
 		this.serviceState = new ServiceState();
 		serviceState.registerCallback((s) -> { if(s.isInStartingState()) { activeConnectionsTotal.inc(); }});
 		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { activeConnectionsTotal.dec(); }});
+		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { lockManager.removeAllLocksForConnection(this); }});
 
 		serviceState.dipatchToStarting();
 		
@@ -713,7 +723,6 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 				}
 			}
 		}
-		
 	};
 	
 	/**
@@ -725,16 +734,22 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	}
 	
 	/**
+	 * Get the lock manager
+	 * @return
+	 */
+	public LockManager getLockManager() {
+		return lockManager;
+	}
+	
+	/**
 	 * The connection shutdown handler
 	 * @param handler
 	 */
 	public void addConnectionClosedHandler(final Consumer<ClientConnectionHandler> handler) {
-		
 		serviceState.registerCallback(c -> {
 			if(c.isInFinishedState()) { 
 				handler.accept(this); 
 			}
 		});
-		
 	}
 }

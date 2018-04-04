@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.request;
+package org.bboxdb.network.server.connection.handler.query;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,18 +23,17 @@ import java.nio.ByteBuffer;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 
-public interface RequestHandler {
+public interface QueryHandler {
 
 	/**
 	 * Handle a request
 	 * @param encodedPackage
 	 * @param packageSequence
 	 * @param packageHandler
-	 * @return - Read additional packages or not
-	 * @throws PackageEncodeException 
 	 * @throws IOException 
+	 * @throws PackageEncodeException 
 	 */
-	public boolean handleRequest(final ByteBuffer encodedPackage, 
+	public void handleQuery(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException;
 }

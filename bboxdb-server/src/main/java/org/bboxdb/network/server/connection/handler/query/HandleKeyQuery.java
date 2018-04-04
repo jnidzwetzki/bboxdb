@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.query;
+package org.bboxdb.network.server.connection.handler.query;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

@@ -15,59 +15,56 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.handler.request;
+package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
-import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CreateTableRequest;
+import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateTableHandler implements RequestHandler {
+public class CancelQueryHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(CreateTableHandler.class);
-	
+	private final static Logger logger = LoggerFactory.getLogger(CancelQueryHandler.class);
 
 	@Override
 	/**
-	 * Handle the create table call
+	 * Cancel the given query
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
-		try {			
-			final CreateTableRequest createPackage = CreateTableRequest.decodeTuple(encodedPackage);
-			final TupleStoreName requestTable = createPackage.getTable();
-			logger.info("Got create call for table: {}", requestTable.getFullname());
+		try {
+			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
+			final short queryToCancel = nextPagePackage.getQuerySequence();
 			
-			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
-					.getZookeeperClient().getTupleStoreAdapter();
+			logger.debug("Cancel query {} requested", queryToCancel);
 			
-			if(tupleStoreAdapter.isTableKnown(requestTable)) {
-				logger.warn("Table name is already known {}", requestTable.getFullname());
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_TABLE_EXISTS);
-				clientConnectionHandler.writeResultPackage(responsePackage);
+			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
+			
+			if(! activeQueries.containsKey(queryToCancel)) {
+				logger.error("Unable to cancel query {} - not found", queryToCancel);
+				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			} else {
-				tupleStoreAdapter.writeTuplestoreConfiguration(requestTable, 
-						createPackage.getTupleStoreConfiguration());
-				
+				final ClientQuery clientQuery = activeQueries.remove(queryToCancel);
+				clientQuery.close();
 				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+				logger.info("Sending success for canceling query {} (request package {})", 
+						queryToCancel, packageSequence);
 			}
-		} catch (Exception e) {
-			logger.warn("Error while delete tuple", e);
+		} catch (PackageEncodeException e) {
+			logger.warn("Error getting next page for a query", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
