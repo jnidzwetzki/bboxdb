@@ -38,6 +38,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
+import org.bboxdb.network.server.connection.LockManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -130,6 +131,12 @@ public class InsertTupleHandler implements RequestHandler {
 		final RoutingHop localHop = routingHeader.getRoutingHop();
 		
 		PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);		
+		
+		// Remove old locks
+		final LockManager lockManager = clientConnectionHandler.getLockManager();
+		final String table = insertTupleRequest.getTable().getFullnameWithoutPrefix();
+		final String key = insertTupleRequest.getTuple().getKey();
+		lockManager.removeLockForConnectionAndKey(clientConnectionHandler, table, key);
 		
 		final List<Long> distributionRegions = localHop.getDistributionRegions();
 		processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);

@@ -18,6 +18,8 @@
 package org.bboxdb.network.server.connection;
 
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LockManager {
@@ -61,6 +63,22 @@ public class LockManager {
 	 */
 	public void removeAllLocksForConnection(final ClientConnectionHandler connection) {
 		locks.entrySet().removeIf(e -> e.getValue().equals(connection));
+	}
+	
+	/**
+	 * Remove locks for the given values 
+	 * @param connection
+	 * @param key
+	 * @return 
+	 */
+	public boolean removeLockForConnectionAndKey(final ClientConnectionHandler connection, 
+			final String table, final String key) {
+		
+		final Set<Entry<LockEntry, ClientConnectionHandler>> entrySet = locks.entrySet();
+		
+		return entrySet.removeIf(
+				e -> e.getValue().equals(connection) 
+				&& e.getKey().tableAndKeyMatches(table, key));
 	}
 
 	class LockEntry {
@@ -120,5 +138,18 @@ public class LockManager {
 			return true;
 		}
 		
+		public String getKey() {
+			return key;
+		}
+		
+		/**
+		 * Compare on table and key
+		 * @param table
+		 * @param key
+		 * @return
+		 */
+		public boolean tableAndKeyMatches(final String table, final String key) {
+			return this.table.equals(table) && this.key.equals(key);
+		}
 	}
 }
