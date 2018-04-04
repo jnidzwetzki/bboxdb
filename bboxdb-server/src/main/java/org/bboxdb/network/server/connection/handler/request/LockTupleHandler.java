@@ -48,14 +48,14 @@ public class LockTupleHandler implements RequestHandler {
 			final String table = request.getTablename();
 			final String key = request.getKey();
 			final long version = request.getVersion();
-			
-			logger.debug("Lock tuple {}, {}, {} requested", table, key, version);
-			
+						
 			final LockManager lockManager = clientConnectionHandler.getLockManager();
 			
 			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, table, key, version);
 			
-			logger.debug("Locking tuple {} in table {} with version {}", key, table, version);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Locking tuple {} in table {} with version {}", key, table, version);
+			}
 			
 			if(lockResult) {
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_ALREADY_LOCKED);
