@@ -130,7 +130,7 @@ public class NetworkConst {
 	public static final byte REQUEST_QUERY_JOIN = 0x07;
 	
 	/**
-	 * Response type helo
+	 * Response type hello
 	 */
 	public static final short RESPONSE_TYPE_HELLO = 0x00;
 	
