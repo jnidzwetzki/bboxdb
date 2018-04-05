@@ -204,7 +204,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		this.serviceState = new ServiceState();
 		serviceState.registerCallback((s) -> { if(s.isInStartingState()) { activeConnectionsTotal.inc(); }});
 		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { activeConnectionsTotal.dec(); }});
-		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { lockManager.removeAllLocksForConnection(this); }});
+		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { lockManager.removeAllLocksForObject(this); }});
 
 		serviceState.dipatchToStarting();
 		

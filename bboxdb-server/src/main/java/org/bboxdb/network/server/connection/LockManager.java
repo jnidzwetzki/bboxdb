@@ -27,7 +27,7 @@ public class LockManager {
 	/**
 	 * The hold locks
 	 */
-	private final Map<LockEntry, ClientConnectionHandler> locks;
+	private final Map<LockEntry, Object> locks;
 	
 	public LockManager() {
 		this.locks = new ConcurrentHashMap<>();
@@ -35,13 +35,13 @@ public class LockManager {
 	
 	/**
 	 * Lock a tuple
-	 * @param connection
+	 * @param lockObject
 	 * @param table
 	 * @param key
 	 * @param version
 	 * @return
 	 */
-	public boolean lockTuple(final ClientConnectionHandler connection, final String table, final String key, 
+	public boolean lockTuple(final Object lockObject, final String table, final String key, 
 			final long version) {
 		
 		final LockEntry lockEntry = new LockEntry(table, key, version);
@@ -51,7 +51,7 @@ public class LockManager {
 				return false;
 			}
 			
-			locks.put(lockEntry, connection);
+			locks.put(lockEntry, lockObject);
 		}
 		
 		return true;
@@ -59,25 +59,25 @@ public class LockManager {
 	
 	/**
 	 * Remove all locks for the given connection
-	 * @param connection
+	 * @param lockObject
 	 */
-	public void removeAllLocksForConnection(final ClientConnectionHandler connection) {
-		locks.entrySet().removeIf(e -> e.getValue().equals(connection));
+	public void removeAllLocksForObject(final Object lockObject) {
+		locks.entrySet().removeIf(e -> e.getValue().equals(lockObject));
 	}
 	
 	/**
 	 * Remove locks for the given values 
-	 * @param connection
+	 * @param lockObject
 	 * @param key
 	 * @return 
 	 */
-	public boolean removeLockForConnectionAndKey(final ClientConnectionHandler connection, 
+	public boolean removeLockForConnectionAndKey(final Object lockObject, 
 			final String table, final String key) {
 		
-		final Set<Entry<LockEntry, ClientConnectionHandler>> entrySet = locks.entrySet();
+		final Set<Entry<LockEntry, Object>> entrySet = locks.entrySet();
 		
 		return entrySet.removeIf(
-				e -> e.getValue().equals(connection) 
+				e -> e.getValue().equals(lockObject) 
 				&& e.getKey().tableAndKeyMatches(table, key));
 	}
 
@@ -93,26 +93,21 @@ public class LockManager {
 		 */
 		private String key;
 		
-		/**
-		 * The version
-		 */
-		private long version;
-
 		public LockEntry(final String table, final String key, final long version) {
 			this.table = table;
 			this.key = key;
-			this.version = version;
 		}
-
+		
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + getOuterType().hashCode();
 			result = prime * result + ((key == null) ? 0 : key.hashCode());
 			result = prime * result + ((table == null) ? 0 : table.hashCode());
-			result = prime * result + (int) (version ^ (version >>> 32));
 			return result;
 		}
+
 
 		@Override
 		public boolean equals(Object obj) {
@@ -123,6 +118,8 @@ public class LockManager {
 			if (getClass() != obj.getClass())
 				return false;
 			LockEntry other = (LockEntry) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
 			if (key == null) {
 				if (other.key != null)
 					return false;
@@ -133,13 +130,17 @@ public class LockManager {
 					return false;
 			} else if (!table.equals(other.table))
 				return false;
-			if (version != other.version)
-				return false;
 			return true;
 		}
-		
+
+
 		public String getKey() {
 			return key;
+		}
+
+
+		private LockManager getOuterType() {
+			return LockManager.this;
 		}
 		
 		/**
@@ -151,5 +152,6 @@ public class LockManager {
 		public boolean tableAndKeyMatches(final String table, final String key) {
 			return this.table.equals(table) && this.key.equals(key);
 		}
+	
 	}
 }
