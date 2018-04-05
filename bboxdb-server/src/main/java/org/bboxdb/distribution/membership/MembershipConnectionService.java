@@ -179,7 +179,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 */
 	@Override
 	public String getServicename() {
-		return "Mambership Connection Service";
+		return "Membership Connection Service";
 	}
 	
 	/**
