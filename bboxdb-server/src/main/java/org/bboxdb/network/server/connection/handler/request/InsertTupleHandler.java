@@ -81,20 +81,7 @@ public class InsertTupleHandler implements RequestHandler {
 				return true;
 			} 
 			
-			// Needs to be rerouted?
-			if(routingHeader.getHop() == -1) {
-				routingHeader.dispatchToNextHop();
-				final RoutingHop localHop = routingHeader.getRoutingHop();
-				
-				if(PackageRouter.checkLocalSystemNameMatches(localHop)) {
-					processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
-				} else {
-					logger.debug("Rerouting package {}", packageSequence);
-					forwardRoutedPackage(packageSequence, clientConnectionHandler, insertTupleRequest);
-				}
-			} else {
-				processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
-			}
+			processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
 			
 		} catch(RejectedException e) {
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
