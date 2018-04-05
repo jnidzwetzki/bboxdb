@@ -40,6 +40,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,12 +142,7 @@ public class LockTupleHandler implements RequestHandler {
 		final String key = request.getKey();
 		
 		final TupleStoreName requestTable = new TupleStoreName(table);
-		final String fullname = requestTable.getDistributionGroup();
-		final SpacePartitioner spacePartitioner = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(fullname);
-		
-		final DistributionRegionIdMapper regionIdMapper = spacePartitioner
-				.getDistributionRegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = getRegionIdMapper(requestTable);
 		
 		final RoutingHeader routingHeader = request.getRoutingHeader();
 		final RoutingHop localHop = routingHeader.getRoutingHop();
@@ -160,8 +156,16 @@ public class LockTupleHandler implements RequestHandler {
 				requestTable, distributionRegions);
 		
 		for(final TupleStoreName tupleStoreName : localTables) {
-			final TupleStoreManager storageManager = clientConnectionHandler
-					.getStorageRegistry()
+			
+			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler
+					.getStorageRegistry();
+			
+			// Ignore non existing tables
+			if(! storageRegistry.isStorageManagerKnown(tupleStoreName)) {
+				continue;
+			}
+
+			final TupleStoreManager storageManager = storageRegistry
 					.getTupleStoreManager(tupleStoreName);
 			
 			final List<Tuple> tuplesInTable = storageManager.get(key);
@@ -169,5 +173,19 @@ public class LockTupleHandler implements RequestHandler {
 		}
 		
 		return tuplesForKey;
+	}
+
+	/**
+	 * Get the region ID mapper
+	 * @param requestTable
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	private DistributionRegionIdMapper getRegionIdMapper(final TupleStoreName requestTable) throws BBoxDBException {
+		final String fullname = requestTable.getDistributionGroup();
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(fullname);
+		
+		return spacePartitioner.getDistributionRegionIdMapper();
 	}
 }
