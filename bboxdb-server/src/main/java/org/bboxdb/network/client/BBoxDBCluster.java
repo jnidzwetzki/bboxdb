@@ -187,7 +187,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
 			throws BBoxDBException {
 		
-		final DeletedTuple tuple = new DeletedTuple(key);
+		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
 		final DistributionRegion distributionRegion = getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
