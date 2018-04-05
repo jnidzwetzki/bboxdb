@@ -44,13 +44,13 @@ public class TestLockManager {
 		this.lockManager = new LockManager();
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLockManager1() {
 		final boolean result = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
 		Assert.assertTrue(result);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLockManager2() {
 		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
 		Assert.assertTrue(result1);
@@ -62,7 +62,7 @@ public class TestLockManager {
 		Assert.assertFalse(result3);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLockManager3() {
 		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
 		Assert.assertTrue(result1);
@@ -74,7 +74,7 @@ public class TestLockManager {
 		Assert.assertFalse(result3);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLockManager4() {
 		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
 		Assert.assertTrue(result1);
@@ -91,7 +91,7 @@ public class TestLockManager {
 		Assert.assertTrue(result4);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLockManager5() {
 		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
 		Assert.assertTrue(result1);
@@ -109,7 +109,7 @@ public class TestLockManager {
 		Assert.assertTrue(result4);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLockManager6() {
 		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
 		Assert.assertTrue(result1);
@@ -127,7 +127,7 @@ public class TestLockManager {
 		Assert.assertFalse(result4);
 	}
 	
-	@Test
+	@Test(timeout=60000)
 	public void testLockManager7() {
 		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
 		Assert.assertTrue(result1);
