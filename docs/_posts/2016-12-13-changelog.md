@@ -18,6 +18,7 @@ order: 1
 - Improvement: Reimplemented the futures and the BBoxDBCluster to increase fault tolerance (closes #79)
 - Improvement: Removed the unused update anomaly resolver config
 - Improvement: Fixed a lot of bugs found by 'findbugs'
+- Improvement: Removed the obsolete insert package re-routing feature
 - Bugfix: Fixed the Quadtree space partitioner
 - Bugfix: Execute the pending table deletes immediately on distribution group delete
 - Bugfix: Fixed a race condition in the FixedFutureStore
