@@ -154,12 +154,14 @@ public class BBoxDBClient implements BBoxDB {
 	}
 
 	@Override
-	public EmptyResultFuture lockTuple(final String table, final Tuple tuple) throws BBoxDBException {
+	public EmptyResultFuture lockTuple(final String table, final Tuple tuple, 
+			final boolean deleteOnTimeout) throws BBoxDBException {
 		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
 	
-		final NetworkOperationFuture future = createLockTupleFuture(table, tuple, routingHeader);
+		final NetworkOperationFuture future = createLockTupleFuture(table, tuple, deleteOnTimeout, 
+				routingHeader);
 
 		// When version locking fails, try again with another version
 		return new EmptyResultFuture(future, FutureRetryPolicy.RETRY_POLICY_NONE);
@@ -168,19 +170,23 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * Create the lock tuple future
 	 * @param table
+	 * @param deleteOnTimeout 
 	 * @param key
 	 * @param version
 	 * @param routingHeader
 	 * @return
 	 */
 	public NetworkOperationFuture createLockTupleFuture(final String table, final Tuple tuple, 
-			final RoutingHeader routingHeader) {
+			final boolean deleteOnTimeout, final RoutingHeader routingHeader) {
 		
 		return new NetworkOperationFuture(connection, () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
+			final String key = tuple.getKey();
+			final long timestamp = tuple.getVersionTimestamp();
+			
 			return new LockTupleRequest(
-					nextSequenceNumber, routingHeader, table, tuple.getKey(), tuple.getVersionTimestamp()); 
+					nextSequenceNumber, routingHeader, table, key, timestamp, deleteOnTimeout); 
 		});
 	}
 

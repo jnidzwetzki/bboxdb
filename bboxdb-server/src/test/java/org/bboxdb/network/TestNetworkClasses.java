@@ -406,7 +406,7 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final LockTupleRequest request = new LockTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, 
-				"abc", "key1", 12);
+				"abc", "key1", 12, true);
 		
 		byte[] encodedVersion = networkPackageToByte(request);
 		Assert.assertNotNull(encodedVersion);

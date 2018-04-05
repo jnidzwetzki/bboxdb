@@ -215,7 +215,8 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 	
 	@Override
-	public EmptyResultFuture lockTuple(final String table, final Tuple tuple) throws BBoxDBException {
+	public EmptyResultFuture lockTuple(final String table, final Tuple tuple, 
+			final boolean deleteOnTimeout) throws BBoxDBException {
 		
 		final DistributionRegion distributionRegion = getRootNode(table);
 
@@ -224,13 +225,19 @@ public class BBoxDBCluster implements BBoxDB {
 					tuple.getBoundingBox());
 		
 			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
+				
 				final BBoxDBConnection connection 
 					= membershipConnectionService.getConnectionForInstance(instance);
+				
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
+				
 				final NetworkOperationFuture future 
-					= connection.getBboxDBClient().createLockTupleFuture(table, tuple, routingHeader);
+					= connection.getBboxDBClient().createLockTupleFuture(
+							table, tuple, deleteOnTimeout, routingHeader);
+				
 				futures.add(future);
 			}
 			

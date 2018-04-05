@@ -69,9 +69,11 @@ public interface BBoxDB {
 	 * Lock tuple
 	 * @param table
 	 * @param tuple
+	 * @param deleteOnTimeout
 	 * @return
 	 */
-	public EmptyResultFuture lockTuple(final String table, final Tuple tuple) throws BBoxDBException;
+	public EmptyResultFuture lockTuple(final String table, final Tuple tuple, 
+			final boolean deleteOnTimeout) throws BBoxDBException;
 
 	/**
 	 * Delete the given key from a table
