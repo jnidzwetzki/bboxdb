@@ -158,18 +158,23 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, 
 					tuple.getBoundingBox());
-		
-			final BBoxDBInstance instance = hops.get(0).getDistributedInstance();
 			
-			final RoutingHeader routingHeader = new RoutingHeader((short) 0, hops);	
-
-			final BBoxDBConnection connection 
-				= membershipConnectionService.getConnectionForInstance(instance);
-			
-			final NetworkOperationFuture future 
-				= connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
-			
-			return Arrays.asList(future);
+			if(hops.isEmpty()) {
+				logger.error("Got no hops for bbox {}", tuple.getBoundingBox());
+				return new ArrayList<>();
+			} else {
+				final BBoxDBInstance instance = hops.get(0).getDistributedInstance();
+				
+				final RoutingHeader routingHeader = new RoutingHeader((short) 0, hops);	
+	
+				final BBoxDBConnection connection 
+					= membershipConnectionService.getConnectionForInstance(instance);
+				
+				final NetworkOperationFuture future 
+					= connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
+				
+				return Arrays.asList(future);
+			}
 		};
 		
 		return new EmptyResultFuture(supplier);
