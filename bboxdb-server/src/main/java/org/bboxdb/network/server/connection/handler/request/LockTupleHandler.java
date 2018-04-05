@@ -19,18 +19,37 @@ package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.routing.PackageRouter;
+import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.LockManager;
+import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LockTupleHandler implements RequestHandler {
 	
+	/**
+	 * There is no old version known
+	 */
+	public final static int NO_VERSION_KNOWN = -1;
+
 	/**
 	 * The Logger
 	 */
@@ -48,14 +67,21 @@ public class LockTupleHandler implements RequestHandler {
 			final String table = request.getTablename();
 			final String key = request.getKey();
 			final long version = request.getVersion();
-						
-			final LockManager lockManager = clientConnectionHandler.getLockManager();
-			
-			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, table, key, version);
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Locking tuple {} in table {} with version {}", key, table, version);
 			}
+			
+			final long localVersion = getLocalTupleVersion(clientConnectionHandler, request);
+			
+			if(localVersion != version) {
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_OUTDATED);
+				clientConnectionHandler.writeResultPackage(responsePackage);
+				return true;
+			}
+			
+			final LockManager lockManager = clientConnectionHandler.getLockManager();
+			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, table, key, version);
 			
 			if(lockResult) {
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_ALREADY_LOCKED);
@@ -63,12 +89,84 @@ public class LockTupleHandler implements RequestHandler {
 				return true;
 			}
 			
-		} catch (PackageEncodeException e) {
+		} catch (Exception e) {
 			logger.warn("Error while locking tuple", e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Get the local tuple version
+	 * 
+	 * @param clientConnectionHandler
+	 * @param request
+	 * @return
+	 * @throws BBoxDBException
+	 * @throws PackageEncodeException
+	 * @throws StorageManagerException
+	 */
+	private long getLocalTupleVersion(final ClientConnectionHandler clientConnectionHandler,
+			final LockTupleRequest request) throws BBoxDBException, PackageEncodeException, StorageManagerException {
+		
+		final List<Tuple> tuplesForKey = getAllTuplesForKey(clientConnectionHandler, request);
+		
+		return tuplesForKey
+				.stream()
+				.mapToLong(t -> t.getVersionTimestamp())
+				.max()
+				.orElse(NO_VERSION_KNOWN);
+	}
+
+	/**
+	 * Get all tuples for the given key
+	 * 
+	 * @param clientConnectionHandler
+	 * @param request
+	 * @param table
+	 * @param key
+	 * @return
+	 * @throws BBoxDBException
+	 * @throws PackageEncodeException
+	 * @throws StorageManagerException
+	 */
+	private List<Tuple> getAllTuplesForKey(final ClientConnectionHandler clientConnectionHandler,
+			final LockTupleRequest request) throws BBoxDBException, PackageEncodeException, 
+			StorageManagerException {
+		
+		final String table = request.getTablename();
+		final String key = request.getKey();
+		
+		final TupleStoreName requestTable = new TupleStoreName(table);
+		final String fullname = requestTable.getDistributionGroup();
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(fullname);
+		
+		final DistributionRegionIdMapper regionIdMapper = spacePartitioner
+				.getDistributionRegionIdMapper();
+		
+		final RoutingHeader routingHeader = request.getRoutingHeader();
+		final RoutingHop localHop = routingHeader.getRoutingHop();
+		
+		PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);		
+		
+		final List<Long> distributionRegions = localHop.getDistributionRegions();
+		final List<Tuple> tuplesForKey = new ArrayList<>();
+
+		final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
+				requestTable, distributionRegions);
+		
+		for(final TupleStoreName tupleStoreName : localTables) {
+			final TupleStoreManager storageManager = clientConnectionHandler
+					.getStorageRegistry()
+					.getTupleStoreManager(tupleStoreName);
+			
+			final List<Tuple> tuplesInTable = storageManager.get(key);
+			tuplesForKey.addAll(tuplesInTable);
+		}
+		
+		return tuplesForKey;
 	}
 }
