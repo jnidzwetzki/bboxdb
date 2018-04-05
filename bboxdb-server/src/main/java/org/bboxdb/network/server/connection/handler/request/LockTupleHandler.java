@@ -75,6 +75,7 @@ public class LockTupleHandler implements RequestHandler {
 			final long localVersion = getLocalTupleVersion(clientConnectionHandler, request);
 			
 			if(localVersion != version) {
+				logger.info("Locking {} in table {} outdated. Local {} requested {}", key, table, version, localVersion);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_OUTDATED);
 				clientConnectionHandler.writeResultPackage(responsePackage);
 				return true;
