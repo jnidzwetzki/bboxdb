@@ -45,13 +45,19 @@ public class LockTupleRequest extends NetworkRequestPackage {
 	 */
 	private final long version;
 
+	/**
+	 * Delete on timeout
+	 */
+	private final boolean delete;
+
 	public LockTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
-			final String tablename, final String key, final long version) {
+			final String tablename, final String key, final long version, final boolean delete) {
 		
 		super(sequenceNumber, routingHeader);
 		this.tablename = tablename;
 		this.key = key;
-		this.version = version;		
+		this.version = version;
+		this.delete = delete;		
 	}
 	
 
@@ -62,10 +68,22 @@ public class LockTupleRequest extends NetworkRequestPackage {
 			final byte[] tablenameBytes = tablename.getBytes();
 			final byte[] keyBytes = key.getBytes();
 
-			final ByteBuffer bb = ByteBuffer.allocate(12);
+			final ByteBuffer bb = ByteBuffer.allocate(16);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort((short) tablenameBytes.length);
 			bb.putShort((short) keyBytes.length);
+			
+			if(delete) {
+				bb.put((byte) 1);
+			} else {
+				bb.put((byte) 0);
+			}
+			
+			// Three unused bytes
+			bb.put((byte) 0);
+			bb.put((byte) 0);
+			bb.put((byte) 0);
+
 			bb.putLong(version);
 
 			// Body length
@@ -106,8 +124,15 @@ public class LockTupleRequest extends NetworkRequestPackage {
 		
 		final short tablenameLength = encodedPackage.getShort();
 		final short keyLength = encodedPackage.getShort();
+		final boolean delete = encodedPackage.get() == 1 ? true : false;
+		
+		// 3 unused bytes
+		encodedPackage.get();
+		encodedPackage.get();
+		encodedPackage.get();
+		
 		final long version = encodedPackage.getLong();
-
+		
 		// Tablename
 		final byte[] tableBytes = new byte[tablenameLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
@@ -124,7 +149,7 @@ public class LockTupleRequest extends NetworkRequestPackage {
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 		
-		return new LockTupleRequest(sequenceNumber, routingHeader, tablename, key, version);
+		return new LockTupleRequest(sequenceNumber, routingHeader, tablename, key, version, delete);
 	}
 
 	@Override
