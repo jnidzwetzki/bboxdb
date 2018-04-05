@@ -139,6 +139,9 @@ public class TupleStoreZookeeperObserver {
 			TupleStoreConfigurationCache.getInstance().clear();
 
 			deleteAllDeletedTables(distributionGroup, allZookeeperTables);
+		} catch(ZookeeperNotFoundException e1) {
+			// Ignore not found exceptions during deletion
+			logger.debug("Got exception during delete", e);
 		} catch (Throwable e1) {
 			logger.error("Got exception while deleting tuple", e1);
 		}
