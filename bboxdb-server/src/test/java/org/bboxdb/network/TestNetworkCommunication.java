@@ -688,6 +688,50 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Test the tuple locking
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testLockTuple1() throws BBoxDBException, InterruptedException {
+		final BBoxDBClient bboxDBClient = connectToServer().getBboxDBClient();
+		
+		final String table = DISTRIBUTION_GROUP + "_mytable";
+		
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForAll();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
+		final Tuple nonExstingTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), -1);
+
+		// Lock a non exsting tuple
+		final EmptyResultFuture lockTupleResult1 = bboxDBClient.lockTuple(table, newTuple, false);
+		lockTupleResult1.waitForAll();
+		Assert.assertTrue(lockTupleResult1.isDone());
+		Assert.assertTrue(lockTupleResult1.isFailed());
+		
+		// Lock the non existing tuple
+		final EmptyResultFuture lockTupleResult2 = bboxDBClient.lockTuple(table, nonExstingTuple, false);
+		lockTupleResult2.waitForAll();
+		Assert.assertTrue(lockTupleResult2.isDone());
+		Assert.assertFalse(lockTupleResult2.isFailed());
+		
+		// Insert a tuple
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, newTuple);
+		Assert.assertTrue(insertResult.isDone());
+		Assert.assertFalse(insertResult.isFailed());
+		
+		// Lock the inserted tuple
+		final EmptyResultFuture lockTupleResult3 = bboxDBClient.lockTuple(table, newTuple, false);
+		lockTupleResult3.waitForAll();
+		Assert.assertTrue(lockTupleResult3.isDone());
+		Assert.assertFalse(lockTupleResult3.isFailed());
+		
+		disconnect(bboxDBClient);
+	}
+	
+	/**
 	 * Should the packages be compressed or not
 	 * @return
 	 */
