@@ -46,102 +46,102 @@ public class TestLockManager {
 	
 	@Test(timeout=60000)
 	public void testLockManager1() {
-		final boolean result = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result);
 	}
 	
 	@Test(timeout=60000)
 	public void testLockManager2() {
-		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result1);
 		
-		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertTrue(result2);
 		
-		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 222);
+		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 222, false);
 		Assert.assertFalse(result3);
 	}
 	
 	@Test(timeout=60000)
 	public void testLockManager3() {
-		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result1);
 		
-		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertFalse(result2);
 		
-		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_2, "abc", "1234", 12);
+		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_2, "abc", "1234", 12, false);
 		Assert.assertFalse(result3);
 	}
 	
 	@Test(timeout=60000)
 	public void testLockManager4() {
-		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result1);
 		
-		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertTrue(result2);
 		
 		lockManager.removeAllLocksForObject(LOCK_OBJECT_1);
 		
-		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_2, "abc", "1234", 12);
+		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_2, "abc", "1234", 12, false);
 		Assert.assertTrue(result3);
 		
-		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_2, "def", "1234", 12);
+		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_2, "def", "1234", 12, false);
 		Assert.assertTrue(result4);
 	}
 	
 	@Test(timeout=60000)
 	public void testLockManager5() {
-		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result1);
 		
-		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertTrue(result2);
 		
 		lockManager.removeLockForConnectionAndKey(LOCK_OBJECT_1, "abc", "1234");
 		lockManager.removeLockForConnectionAndKey(LOCK_OBJECT_1, "def", "1234");
 		
-		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result3);
 		
-		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertTrue(result4);
 	}
 	
 	@Test(timeout=60000)
 	public void testLockManager6() {
-		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result1);
 		
-		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertTrue(result2);
 		
 		lockManager.removeLockForConnectionAndKey(LOCK_OBJECT_2, "abc", "1234");
 		lockManager.removeLockForConnectionAndKey(LOCK_OBJECT_2, "def", "1234");
 		
-		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertFalse(result3);
 		
-		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertFalse(result4);
 	}
 	
 	@Test(timeout=60000)
 	public void testLockManager7() {
-		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertTrue(result1);
 		
-		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertTrue(result2);
 		
 		lockManager.removeLockForConnectionAndKey(LOCK_OBJECT_1, "abc", "4567");
 		lockManager.removeLockForConnectionAndKey(LOCK_OBJECT_1, "def", "4567");
 		
-		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12);
+		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_1, "abc", "1234", 12, false);
 		Assert.assertFalse(result3);
 		
-		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12);
+		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_1, "def", "1234", 12, false);
 		Assert.assertFalse(result4);
 	}
 }
