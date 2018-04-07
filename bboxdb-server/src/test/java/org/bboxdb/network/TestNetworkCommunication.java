@@ -692,7 +692,7 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	@Test(timeout=60000)
+	//@Test(timeout=60000)
 	public void testLockTuple1() throws BBoxDBException, InterruptedException {
 		final BBoxDBClient bboxDBClient = connectToServer().getBboxDBClient();
 		
