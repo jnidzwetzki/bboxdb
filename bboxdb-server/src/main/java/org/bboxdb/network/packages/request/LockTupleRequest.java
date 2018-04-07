@@ -48,16 +48,16 @@ public class LockTupleRequest extends NetworkRequestPackage {
 	/**
 	 * Delete on timeout
 	 */
-	private final boolean delete;
+	private final boolean deleteOnTimeout;
 
 	public LockTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
-			final String tablename, final String key, final long version, final boolean delete) {
+			final String tablename, final String key, final long version, final boolean deleteOnTimeout) {
 		
 		super(sequenceNumber, routingHeader);
 		this.tablename = tablename;
 		this.key = key;
 		this.version = version;
-		this.delete = delete;		
+		this.deleteOnTimeout = deleteOnTimeout;		
 	}
 	
 
@@ -73,7 +73,7 @@ public class LockTupleRequest extends NetworkRequestPackage {
 			bb.putShort((short) tablenameBytes.length);
 			bb.putShort((short) keyBytes.length);
 			
-			if(delete) {
+			if(deleteOnTimeout) {
 				bb.put((byte) 1);
 			} else {
 				bb.put((byte) 0);
@@ -124,7 +124,7 @@ public class LockTupleRequest extends NetworkRequestPackage {
 		
 		final short tablenameLength = encodedPackage.getShort();
 		final short keyLength = encodedPackage.getShort();
-		final boolean delete = encodedPackage.get() == 1 ? true : false;
+		final boolean deleteOnTimeout = encodedPackage.get() == 1 ? true : false;
 		
 		// 3 unused bytes
 		encodedPackage.get();
@@ -149,7 +149,7 @@ public class LockTupleRequest extends NetworkRequestPackage {
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 		
-		return new LockTupleRequest(sequenceNumber, routingHeader, tablename, key, version, delete);
+		return new LockTupleRequest(sequenceNumber, routingHeader, tablename, key, version, deleteOnTimeout);
 	}
 
 	@Override
@@ -167,6 +167,10 @@ public class LockTupleRequest extends NetworkRequestPackage {
 
 	public long getVersion() {
 		return version;
+	}
+
+	public boolean isDeleteOnTimeout() {
+		return deleteOnTimeout;
 	}
 
 	@Override

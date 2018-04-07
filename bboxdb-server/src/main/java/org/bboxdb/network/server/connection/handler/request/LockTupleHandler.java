@@ -68,6 +68,7 @@ public class LockTupleHandler implements RequestHandler {
 			final String table = request.getTablename();
 			final String key = request.getKey();
 			final long version = request.getVersion();
+			final boolean deleteOnTimeout = request.isDeleteOnTimeout();
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Locking tuple {} in table {} with version {}", key, table, version);
@@ -83,7 +84,7 @@ public class LockTupleHandler implements RequestHandler {
 			}
 			
 			final LockManager lockManager = clientConnectionHandler.getLockManager();
-			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, table, key, version);
+			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, table, key, version, deleteOnTimeout);
 			
 			if(lockResult) {
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_ALREADY_LOCKED);

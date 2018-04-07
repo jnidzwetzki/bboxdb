@@ -39,12 +39,13 @@ public class LockManager {
 	 * @param table
 	 * @param key
 	 * @param version
+	 * @param deleteOnTimeout 
 	 * @return
 	 */
 	public boolean lockTuple(final Object lockObject, final String table, final String key, 
-			final long version) {
+			final long version, final boolean deleteOnTimeout) {
 		
-		final LockEntry lockEntry = new LockEntry(table, key, version);
+		final LockEntry lockEntry = new LockEntry(table, key, version, deleteOnTimeout);
 		
 		synchronized (this) {
 			if(locks.containsKey(lockEntry)) {
@@ -92,22 +93,28 @@ public class LockManager {
 		 * The key
 		 */
 		private String key;
+
+		/**
+		 * Delete on timeout flag
+		 */
+		private boolean deleteOnTimeout;
 		
-		public LockEntry(final String table, final String key, final long version) {
+		public LockEntry(final String table, final String key, final long version, 
+				final boolean deleteOnTimeout) {
+			
 			this.table = table;
 			this.key = key;
+			this.deleteOnTimeout = deleteOnTimeout;
 		}
 		
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + getOuterType().hashCode();
 			result = prime * result + ((key == null) ? 0 : key.hashCode());
 			result = prime * result + ((table == null) ? 0 : table.hashCode());
 			return result;
 		}
-
 
 		@Override
 		public boolean equals(Object obj) {
@@ -118,8 +125,6 @@ public class LockManager {
 			if (getClass() != obj.getClass())
 				return false;
 			LockEntry other = (LockEntry) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
 			if (key == null) {
 				if (other.key != null)
 					return false;
@@ -133,14 +138,20 @@ public class LockManager {
 			return true;
 		}
 
-
+		/**
+		 * Get the key
+		 * @return
+		 */
 		public String getKey() {
 			return key;
 		}
-
-
-		private LockManager getOuterType() {
-			return LockManager.this;
+		
+		/**
+		 * Get the delete on timeout flag
+		 * @return
+		 */
+		public boolean isDeleteOnTimeout() {
+			return deleteOnTimeout;
 		}
 		
 		/**
