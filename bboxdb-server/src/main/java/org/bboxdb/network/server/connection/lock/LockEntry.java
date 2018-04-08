@@ -22,23 +22,28 @@ public class LockEntry {
 	/**
 	 * The lock object
 	 */
-	private Object lockObject;
+	private final Object lockObject;
 
 	/**
 	 * The sequence number
 	 */
-	private short sequenceNumber;
+	private final short sequenceNumber;
 	
 	/**
 	 * The table
 	 */
-	private String table;
+	private final String table;
 	
 	/**
 	 * The key
 	 */
-	private String key;
+	private final String key;
 
+	/**
+	 * The version to lock
+	 */
+	private final long version;
+	
 	/**
 	 * Delete on timeout flag
 	 */
@@ -51,6 +56,7 @@ public class LockEntry {
 		this.sequenceNumber = sequenceNumber;
 		this.table = table;
 		this.key = key;
+		this.version = version;
 		this.deleteOnTimeout = deleteOnTimeout;
 	}
 	
@@ -95,6 +101,14 @@ public class LockEntry {
 	}
 	
 	/**
+	 * Get the lock version
+	 * @return
+	 */
+	public long getVersion() {
+		return version;
+	}
+	
+	/**
 	 * Compare on table and key
 	 * @param table
 	 * @param key
@@ -117,7 +131,7 @@ public class LockEntry {
 	@Override
 	public String toString() {
 		return "LockEntry [lockObject=" + lockObject + ", sequenceNumber=" + sequenceNumber + ", table=" + table
-				+ ", key=" + key + ", deleteOnTimeout=" + deleteOnTimeout + "]";
+				+ ", key=" + key + ", version=" + version + ", deleteOnTimeout=" + deleteOnTimeout + "]";
 	}
 
 }
