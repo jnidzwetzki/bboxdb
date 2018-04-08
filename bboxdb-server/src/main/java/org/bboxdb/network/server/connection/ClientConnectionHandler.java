@@ -210,28 +210,28 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		serviceState.dipatchToStarting();
 		
 		try {
-			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
-			inputStream = new BufferedInputStream(clientSocket.getInputStream());
+			this.outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
+			this.inputStream = new BufferedInputStream(clientSocket.getInputStream());
 		} catch (IOException e) {
-			inputStream = null;
-			outputStream = null;
+			this.inputStream = null;
+			this.outputStream = null;
 			serviceState.dispatchToFailed(e);
 			logger.error("Exception while creating IO stream", e);
 		}
 		
 		// The active queries
-		activeQueries = new HashMap<>();
+		this.activeQueries = new HashMap<>();
 		
 		// Create a thread pool that blocks after submitting more than MAX_PENDING_REQUESTS
-		threadPool = ExecutorUtil.getBoundThreadPoolExecutor(25, MAX_PENDING_REQUESTS);
+		this.threadPool = ExecutorUtil.getBoundThreadPoolExecutor(25, MAX_PENDING_REQUESTS);
 
 		// The package router
-		packageRouter = new PackageRouter(threadPool, this);
+		this.packageRouter = new PackageRouter(threadPool, this);
 		
 		// The pending packages for compression 
-		pendingCompressionPackages = new ArrayList<>();
-
-		maintenanceThread = new ConnectionMaintenanceRunnable();
+		this.pendingCompressionPackages = new ArrayList<>();
+		this.maintenanceThread = new ConnectionMaintenanceRunnable();
+		
 		final Thread thread = new Thread(maintenanceThread);
 		thread.start();
 
