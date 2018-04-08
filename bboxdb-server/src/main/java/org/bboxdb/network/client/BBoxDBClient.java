@@ -90,7 +90,8 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException {
+	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) 
+			throws BBoxDBException {
 
 		final NetworkOperationFuture future = getCreateTableFugure(table, configuration);
 		
