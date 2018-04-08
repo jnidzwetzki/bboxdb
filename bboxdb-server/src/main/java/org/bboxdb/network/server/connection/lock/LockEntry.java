@@ -113,4 +113,11 @@ public class LockEntry {
 	public boolean lockObjectAndSequenceMatches(final Object lockObject, final short sequence) {
 		return this.lockObject.equals(lockObject)  && this.sequenceNumber == sequence;
 	}
+
+	@Override
+	public String toString() {
+		return "LockEntry [lockObject=" + lockObject + ", sequenceNumber=" + sequenceNumber + ", table=" + table
+				+ ", key=" + key + ", deleteOnTimeout=" + deleteOnTimeout + "]";
+	}
+
 }
