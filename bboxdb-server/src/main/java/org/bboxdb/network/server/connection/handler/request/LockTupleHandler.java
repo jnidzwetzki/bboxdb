@@ -65,6 +65,7 @@ public class LockTupleHandler implements RequestHandler {
 		
 		try {
 			final LockTupleRequest request = LockTupleRequest.decodeTuple(encodedPackage);
+			final short sequenceNumber = request.getSequenceNumber();
 			final String table = request.getTablename();
 			final String key = request.getKey();
 			final long version = request.getVersion();
@@ -84,7 +85,8 @@ public class LockTupleHandler implements RequestHandler {
 			}
 			
 			final LockManager lockManager = clientConnectionHandler.getLockManager();
-			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, table, key, version, deleteOnTimeout);
+			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, sequenceNumber, 
+					table, key, version, deleteOnTimeout);
 			
 			if(lockResult) {
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_ALREADY_LOCKED);

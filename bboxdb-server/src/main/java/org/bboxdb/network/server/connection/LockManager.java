@@ -17,20 +17,21 @@
  *******************************************************************************/
 package org.bboxdb.network.server.connection;
 
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Sets;
 
 public class LockManager {
 	
 	/**
 	 * The hold locks
 	 */
-	private final Map<LockEntry, Object> locks;
+	private final Set<LockEntry> locks;
 	
 	public LockManager() {
-		this.locks = new ConcurrentHashMap<>();
+		this.locks = Sets.newConcurrentHashSet(); 
 	}
 	
 	/**
@@ -42,17 +43,18 @@ public class LockManager {
 	 * @param deleteOnTimeout 
 	 * @return
 	 */
-	public boolean lockTuple(final Object lockObject, final String table, final String key, 
-			final long version, final boolean deleteOnTimeout) {
+	public boolean lockTuple(final Object lockObject, final short sequenceNumber, final String table,
+			final String key, final long version, final boolean deleteOnTimeout) {
 		
-		final LockEntry lockEntry = new LockEntry(table, key, version, deleteOnTimeout);
+		final LockEntry lockEntry = new LockEntry(lockObject, sequenceNumber, table, key, 
+				version, deleteOnTimeout);
 		
 		synchronized (this) {
-			if(locks.containsKey(lockEntry)) {
+			if(locks.stream().anyMatch(e -> e.tableAndKeyMatches(table, key))) {
 				return false;
 			}
 			
-			locks.put(lockEntry, lockObject);
+			locks.add(lockEntry);
 		}
 		
 		return true;
@@ -61,9 +63,28 @@ public class LockManager {
 	/**
 	 * Remove all locks for the given connection
 	 * @param lockObject
+	 * @return 
 	 */
-	public void removeAllLocksForObject(final Object lockObject) {
-		locks.entrySet().removeIf(e -> e.getValue().equals(lockObject));
+	public Set<LockEntry> removeAllLocksForObject(final Object lockObject) {
+		final Predicate<? super LockEntry> removePredicate = e -> e.getLockObject().equals(lockObject);
+		return removeForPredicate(removePredicate);
+	}
+
+	/**
+	 * Remove and return all elements for the given prediate from the
+	 * locks data structure
+	 * @param removePredicate
+	 * @return
+	 */
+	private Set<LockEntry> removeForPredicate(final Predicate<? super LockEntry> removePredicate) {
+		
+		final Set<LockEntry> elementsToRemove = locks.stream()
+				.filter(removePredicate)
+				.collect(Collectors.toSet());
+		
+		locks.removeAll(elementsToRemove);
+		
+		return elementsToRemove;
 	}
 	
 	/**
@@ -74,16 +95,24 @@ public class LockManager {
 	 */
 	public boolean removeLockForConnectionAndKey(final Object lockObject, 
 			final String table, final String key) {
-		
-		final Set<Entry<LockEntry, Object>> entrySet = locks.entrySet();
-		
-		return entrySet.removeIf(
-				e -> e.getValue().equals(lockObject) 
-				&& e.getKey().tableAndKeyMatches(table, key));
+				
+		return locks.removeIf(
+				e -> e.getLockObject().equals(lockObject) 
+				&& e.tableAndKeyMatches(table, key));
 	}
 
 	class LockEntry {
 
+		/**
+		 * The lock object
+		 */
+		private Object lockObject;
+
+		/**
+		 * The sequence number
+		 */
+		private short sequenceNumber;
+		
 		/**
 		 * The table
 		 */
@@ -99,51 +128,38 @@ public class LockManager {
 		 */
 		private boolean deleteOnTimeout;
 		
-		public LockEntry(final String table, final String key, final long version, 
-				final boolean deleteOnTimeout) {
+		public LockEntry(final Object lockObject, final short sequenceNumber, final String table, 
+				final String key, final long version, final boolean deleteOnTimeout) {
 			
+			this.lockObject = lockObject;
+			this.sequenceNumber = sequenceNumber;
 			this.table = table;
 			this.key = key;
 			this.deleteOnTimeout = deleteOnTimeout;
 		}
 		
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((key == null) ? 0 : key.hashCode());
-			result = prime * result + ((table == null) ? 0 : table.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			LockEntry other = (LockEntry) obj;
-			if (key == null) {
-				if (other.key != null)
-					return false;
-			} else if (!key.equals(other.key))
-				return false;
-			if (table == null) {
-				if (other.table != null)
-					return false;
-			} else if (!table.equals(other.table))
-				return false;
-			return true;
-		}
-
 		/**
 		 * Get the key
 		 * @return
 		 */
 		public String getKey() {
 			return key;
+		}
+		
+		/**
+		 * Get the lock object
+		 * @return
+		 */
+		public Object getLockObject() {
+			return lockObject;
+		}
+		
+		/**
+		 * Get the sequence number
+		 * @return
+		 */
+		public short getSequenceNumber() {
+			return sequenceNumber;
 		}
 		
 		/**
@@ -163,6 +179,15 @@ public class LockManager {
 		public boolean tableAndKeyMatches(final String table, final String key) {
 			return this.table.equals(table) && this.key.equals(key);
 		}
-	
+		
+		/**
+		 * Compare lock object and sequence
+		 * @param lockObject
+		 * @param sequence
+		 * @return
+		 */
+		public boolean lockObjectAndSequenceMathces(final Object lockObject, final short sequence) {
+			return this.lockObject.equals(lockObject)  && this.sequenceNumber == sequence;
+		}
 	}
 }
