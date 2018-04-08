@@ -32,7 +32,7 @@ public class LockManager {
 	 * The active locks counter
 	 */
 	private final static Gauge activeLocksTotal = Gauge.build()
-			.name("bboxdb_network_locks_total")
+			.name("bboxdb_network_tuple_locks_total")
 			.help("Total amount of active tuple locks").register();
 	
 	/**
