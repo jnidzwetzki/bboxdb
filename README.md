@@ -18,6 +18,8 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
 </a>
 
+__Please Note:__ The master branch may be in an unstable state during development. Please use our releases for productive envirionments.
+
 ## What is the difference to traditional key-value-stores?
 
 [NoSQL databases](https://en.wikipedia.org/wiki/NoSQL) and especially [key-value stores](https://en.wikipedia.org/wiki/Key-value_database) are very popular these days. They have a simple data model and can be easily implemented as a distributed system to handle big data. Techniques like _hash-_ or _range-partitioning_ are used to spread the data across a cluster of nodes. Each node stores only a small part of the whole dataset. 
