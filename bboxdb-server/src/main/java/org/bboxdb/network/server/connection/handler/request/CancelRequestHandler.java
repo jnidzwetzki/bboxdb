@@ -52,19 +52,19 @@ public class CancelRequestHandler implements RequestHandler {
 			final CancelRequest cancelPackage = CancelRequest.decodeTuple(encodedPackage);
 			final short queryToCancel = cancelPackage.getQuerySequence();
 			
-			logger.debug("Cancel request {} requested", queryToCancel);
-			
 			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
 			
 			if(activeQueries.containsKey(queryToCancel)) {
 				final ClientQuery clientQuery = activeQueries.remove(queryToCancel);
 				clientQuery.close();
-				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-				logger.info("Sending success for canceling query {} (request package {})", 
-						queryToCancel, packageSequence);
-			} else {
-				removeLocks(packageSequence, clientConnectionHandler, queryToCancel);
-			}
+			} 
+			
+			removeLocks(packageSequence, clientConnectionHandler, queryToCancel);
+			
+			logger.info("Sending success for canceling query {} (request package {})", 
+					queryToCancel, packageSequence);
+			
+			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
 
@@ -79,24 +79,18 @@ public class CancelRequestHandler implements RequestHandler {
 	 * Remove the locks for the given sequence
 	 * @param packageSequence
 	 * @param clientConnectionHandler
-	 * @param queryToCancel
+	 * @param requestPackage
 	 * @throws IOException
 	 * @throws PackageEncodeException
 	 */
 	private void removeLocks(final short packageSequence, final ClientConnectionHandler clientConnectionHandler,
-			final short queryToCancel) throws IOException, PackageEncodeException {
+			final short requestPackage) throws IOException, PackageEncodeException {
 		
 		final LockManager lockManager = clientConnectionHandler.getLockManager();
 		
 		final List<LockEntry> removedLocks = lockManager.removeAllForLocksForObjectAndSequence(
-				clientConnectionHandler, queryToCancel);
+				clientConnectionHandler, requestPackage);
 		
-		if(removedLocks.isEmpty()) {
-			logger.error("Unable to cancel query {} - not found", queryToCancel);
-			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
-		} else {
-			logger.info("Removed {} locks for query {}", removedLocks.size(), queryToCancel);
-			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		}
+		logger.info("Removed {} locks for query {}", removedLocks.size(), requestPackage);
 	}
 }
