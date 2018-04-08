@@ -70,6 +70,7 @@ import org.bboxdb.network.server.connection.handler.request.KeepAliveHandler;
 import org.bboxdb.network.server.connection.handler.request.LockTupleHandler;
 import org.bboxdb.network.server.connection.handler.request.NextPageHandler;
 import org.bboxdb.network.server.connection.handler.request.RequestHandler;
+import org.bboxdb.network.server.connection.lock.LockHelper;
 import org.bboxdb.network.server.connection.lock.LockManager;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -205,7 +206,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		this.serviceState = new ServiceState();
 		serviceState.registerCallback((s) -> { if(s.isInStartingState()) { activeConnectionsTotal.inc(); }});
 		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { activeConnectionsTotal.dec(); }});
-		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { lockManager.removeAllLocksForObject(this); }});
+		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { LockHelper.handleLockRemove(this); }});
 
 		serviceState.dipatchToStarting();
 		
