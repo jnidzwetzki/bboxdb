@@ -15,8 +15,9 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server.connection;
+package org.bboxdb.network.server.connection.lock;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -65,8 +66,21 @@ public class LockManager {
 	 * @param lockObject
 	 * @return 
 	 */
-	public Set<LockEntry> removeAllLocksForObject(final Object lockObject) {
+	public List<LockEntry> removeAllLocksForObject(final Object lockObject) {
 		final Predicate<? super LockEntry> removePredicate = e -> e.getLockObject().equals(lockObject);
+		return removeForPredicate(removePredicate);
+	}
+	
+	/**
+	 * Remove all elements for lock and sequence
+	 * @param lockObject
+	 * @param sequence
+	 * @return
+	 */
+	public List<LockEntry> removeAllForLocksForObjectAndSequence(final Object lockObject, final short sequence) {
+		final Predicate<? super LockEntry> removePredicate = e -> e.lockObjectAndSequenceMatches(lockObject, 
+				sequence);
+		
 		return removeForPredicate(removePredicate);
 	}
 
@@ -76,11 +90,11 @@ public class LockManager {
 	 * @param removePredicate
 	 * @return
 	 */
-	private Set<LockEntry> removeForPredicate(final Predicate<? super LockEntry> removePredicate) {
+	private List<LockEntry> removeForPredicate(final Predicate<? super LockEntry> removePredicate) {
 		
-		final Set<LockEntry> elementsToRemove = locks.stream()
+		final List<LockEntry> elementsToRemove = locks.stream()
 				.filter(removePredicate)
-				.collect(Collectors.toSet());
+				.collect(Collectors.toList());
 		
 		locks.removeAll(elementsToRemove);
 		
@@ -99,95 +113,5 @@ public class LockManager {
 		return locks.removeIf(
 				e -> e.getLockObject().equals(lockObject) 
 				&& e.tableAndKeyMatches(table, key));
-	}
-
-	class LockEntry {
-
-		/**
-		 * The lock object
-		 */
-		private Object lockObject;
-
-		/**
-		 * The sequence number
-		 */
-		private short sequenceNumber;
-		
-		/**
-		 * The table
-		 */
-		private String table;
-		
-		/**
-		 * The key
-		 */
-		private String key;
-
-		/**
-		 * Delete on timeout flag
-		 */
-		private boolean deleteOnTimeout;
-		
-		public LockEntry(final Object lockObject, final short sequenceNumber, final String table, 
-				final String key, final long version, final boolean deleteOnTimeout) {
-			
-			this.lockObject = lockObject;
-			this.sequenceNumber = sequenceNumber;
-			this.table = table;
-			this.key = key;
-			this.deleteOnTimeout = deleteOnTimeout;
-		}
-		
-		/**
-		 * Get the key
-		 * @return
-		 */
-		public String getKey() {
-			return key;
-		}
-		
-		/**
-		 * Get the lock object
-		 * @return
-		 */
-		public Object getLockObject() {
-			return lockObject;
-		}
-		
-		/**
-		 * Get the sequence number
-		 * @return
-		 */
-		public short getSequenceNumber() {
-			return sequenceNumber;
-		}
-		
-		/**
-		 * Get the delete on timeout flag
-		 * @return
-		 */
-		public boolean isDeleteOnTimeout() {
-			return deleteOnTimeout;
-		}
-		
-		/**
-		 * Compare on table and key
-		 * @param table
-		 * @param key
-		 * @return
-		 */
-		public boolean tableAndKeyMatches(final String table, final String key) {
-			return this.table.equals(table) && this.key.equals(key);
-		}
-		
-		/**
-		 * Compare lock object and sequence
-		 * @param lockObject
-		 * @param sequence
-		 * @return
-		 */
-		public boolean lockObjectAndSequenceMathces(final Object lockObject, final short sequence) {
-			return this.lockObject.equals(lockObject)  && this.sequenceNumber == sequence;
-		}
 	}
 }

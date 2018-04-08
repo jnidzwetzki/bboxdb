@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
-import org.bboxdb.network.server.connection.LockManager;
+import java.util.List;
+
+import org.bboxdb.network.server.connection.lock.LockEntry;
+import org.bboxdb.network.server.connection.lock.LockManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -143,5 +146,26 @@ public class TestLockManager {
 		
 		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_1, (short) 1, "def", "1234", 12, false);
 		Assert.assertFalse(result4);
+	}
+	
+	@Test(timeout=60000)
+	public void testLockManager8() {
+		final boolean result1 = lockManager.lockTuple(LOCK_OBJECT_1, (short) 1, "abc", "1234", 12, false);
+		Assert.assertTrue(result1);
+		
+		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, (short) 2, "def", "5678", 12, false);
+		Assert.assertTrue(result2);
+		
+		final List<LockEntry> removeResult1 
+			= lockManager.removeAllForLocksForObjectAndSequence(LOCK_OBJECT_1, (short) 2);
+		
+		Assert.assertFalse(removeResult1.isEmpty());
+		Assert.assertEquals("def", removeResult1.get(0).getTable());
+		Assert.assertEquals("5678", removeResult1.get(0).getKey());
+		
+		final List<LockEntry> removeResult2 
+			= lockManager.removeAllForLocksForObjectAndSequence(LOCK_OBJECT_1, (short) 2);
+	
+		Assert.assertTrue(removeResult2.isEmpty());
 	}
 }

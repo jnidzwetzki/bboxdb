@@ -70,6 +70,7 @@ import org.bboxdb.network.server.connection.handler.request.KeepAliveHandler;
 import org.bboxdb.network.server.connection.handler.request.LockTupleHandler;
 import org.bboxdb.network.server.connection.handler.request.NextPageHandler;
 import org.bboxdb.network.server.connection.handler.request.RequestHandler;
+import org.bboxdb.network.server.connection.lock.LockManager;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;

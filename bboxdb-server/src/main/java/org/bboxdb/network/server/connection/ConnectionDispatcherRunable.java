@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
+import org.bboxdb.network.server.connection.lock.LockManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
