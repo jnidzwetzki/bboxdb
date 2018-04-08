@@ -24,7 +24,16 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
+import io.prometheus.client.Gauge;
+
 public class LockManager {
+	
+	/**
+	 * The active locks counter
+	 */
+	private final static Gauge activeLocksTotal = Gauge.build()
+			.name("bboxdb_network_locks_total")
+			.help("Total amount of active tuple locks").register();
 	
 	/**
 	 * The hold locks
@@ -56,6 +65,7 @@ public class LockManager {
 			}
 			
 			locks.add(lockEntry);
+			activeLocksTotal.set(locks.size());
 		}
 		
 		return true;
@@ -68,6 +78,7 @@ public class LockManager {
 	 */
 	public List<LockEntry> removeAllLocksForObject(final Object lockObject) {
 		final Predicate<? super LockEntry> removePredicate = e -> e.getLockObject().equals(lockObject);
+		
 		return removeForPredicate(removePredicate);
 	}
 	
@@ -97,7 +108,8 @@ public class LockManager {
 				.collect(Collectors.toList());
 		
 		locks.removeAll(elementsToRemove);
-		
+		activeLocksTotal.set(locks.size());
+
 		return elementsToRemove;
 	}
 	
@@ -110,8 +122,12 @@ public class LockManager {
 	public boolean removeLockForConnectionAndKey(final Object lockObject, 
 			final String table, final String key) {
 				
-		return locks.removeIf(
+		final boolean elementRemoved = locks.removeIf(
 				e -> e.getLockObject().equals(lockObject) 
 				&& e.tableAndKeyMatches(table, key));
+		
+		activeLocksTotal.set(locks.size());
+
+		return elementRemoved;
 	}
 }
