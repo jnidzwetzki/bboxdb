@@ -57,7 +57,7 @@ import org.bboxdb.network.server.connection.handler.query.HandleJoinQuery;
 import org.bboxdb.network.server.connection.handler.query.HandleKeyQuery;
 import org.bboxdb.network.server.connection.handler.query.HandleVersionTimeQuery;
 import org.bboxdb.network.server.connection.handler.query.QueryHandler;
-import org.bboxdb.network.server.connection.handler.request.CancelQueryHandler;
+import org.bboxdb.network.server.connection.handler.request.CancelRequestHandler;
 import org.bboxdb.network.server.connection.handler.request.CompressionHandler;
 import org.bboxdb.network.server.connection.handler.request.CreateDistributionGroupHandler;
 import org.bboxdb.network.server.connection.handler.request.CreateTableHandler;
@@ -565,7 +565,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP, new DeleteDistributionGroupHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_KEEP_ALIVE, new KeepAliveHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_NEXT_PAGE, new NextPageHandler());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_CANCEL_QUERY, new CancelQueryHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_CANCEL_QUERY, new CancelRequestHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_LOCK_TUPLE, new LockTupleHandler());
 	}
 	

@@ -19,24 +19,27 @@ package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CancelQueryRequest;
+import org.bboxdb.network.packages.request.CancelRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
+import org.bboxdb.network.server.connection.lock.LockEntry;
+import org.bboxdb.network.server.connection.lock.LockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CancelQueryHandler implements RequestHandler {
+public class CancelRequestHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(CancelQueryHandler.class);
+	private final static Logger logger = LoggerFactory.getLogger(CancelRequestHandler.class);
 
 	@Override
 	/**
@@ -46,22 +49,21 @@ public class CancelQueryHandler implements RequestHandler {
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		try {
-			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
-			final short queryToCancel = nextPagePackage.getQuerySequence();
+			final CancelRequest cancelPackage = CancelRequest.decodeTuple(encodedPackage);
+			final short queryToCancel = cancelPackage.getQuerySequence();
 			
-			logger.debug("Cancel query {} requested", queryToCancel);
+			logger.debug("Cancel request {} requested", queryToCancel);
 			
 			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
 			
-			if(! activeQueries.containsKey(queryToCancel)) {
-				logger.error("Unable to cancel query {} - not found", queryToCancel);
-				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
-			} else {
+			if(activeQueries.containsKey(queryToCancel)) {
 				final ClientQuery clientQuery = activeQueries.remove(queryToCancel);
 				clientQuery.close();
 				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 				logger.info("Sending success for canceling query {} (request package {})", 
 						queryToCancel, packageSequence);
+			} else {
+				removeLocks(packageSequence, clientConnectionHandler, queryToCancel);
 			}
 		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
@@ -71,5 +73,30 @@ public class CancelQueryHandler implements RequestHandler {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Remove the locks for the given sequence
+	 * @param packageSequence
+	 * @param clientConnectionHandler
+	 * @param queryToCancel
+	 * @throws IOException
+	 * @throws PackageEncodeException
+	 */
+	private void removeLocks(final short packageSequence, final ClientConnectionHandler clientConnectionHandler,
+			final short queryToCancel) throws IOException, PackageEncodeException {
+		
+		final LockManager lockManager = clientConnectionHandler.getLockManager();
+		
+		final List<LockEntry> removedLocks = lockManager.removeAllForLocksForObjectAndSequence(
+				clientConnectionHandler, queryToCancel);
+		
+		if(removedLocks.isEmpty()) {
+			logger.error("Unable to cancel query {} - not found", queryToCancel);
+			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
+		} else {
+			logger.info("Removed {} locks for query {}", removedLocks.size(), queryToCancel);
+			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+		}
 	}
 }

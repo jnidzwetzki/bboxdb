@@ -33,7 +33,7 @@ import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.SequenceNumberGenerator;
 import org.bboxdb.network.packages.NetworkPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CancelQueryRequest;
+import org.bboxdb.network.packages.request.CancelRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
@@ -383,13 +383,13 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final short querySequence = 12;
-		final CancelQueryRequest cancelQueryRequest = new CancelQueryRequest(sequenceNumber, querySequence);
+		final CancelRequest cancelQueryRequest = new CancelRequest(sequenceNumber, querySequence);
 		
 		byte[] encodedVersion = networkPackageToByte(cancelQueryRequest);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final CancelQueryRequest decodedPackage = CancelQueryRequest.decodeTuple(bb);
+		final CancelRequest decodedPackage = CancelRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(decodedPackage.getQuerySequence(), querySequence);
 		Assert.assertEquals(cancelQueryRequest.hashCode(), decodedPackage.hashCode());

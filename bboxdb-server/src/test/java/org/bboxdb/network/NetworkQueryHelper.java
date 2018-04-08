@@ -185,7 +185,7 @@ public class NetworkQueryHelper {
 		
 		final short queryId = future.getRequestId(0);
 		System.out.println("Canceling query: " + queryId);
-		final EmptyResultFuture cancelResult = bboxDBClient.cancelQuery(queryId);
+		final EmptyResultFuture cancelResult = bboxDBClient.cancelRequenst(queryId);
 		
 		cancelResult.waitForAll();
 		

@@ -33,7 +33,7 @@ import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.network.packages.request.CancelQueryRequest;
+import org.bboxdb.network.packages.request.CancelRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
@@ -548,11 +548,11 @@ public class BBoxDBClient implements BBoxDB {
 	}
 
 	/**
-	 * Cancel the given query on the server
+	 * Cancel the given request on the server
 	 * @param queryPackageId
 	 * @return
 	 */
-	public EmptyResultFuture cancelQuery(final short queryPackageId) {
+	public EmptyResultFuture cancelRequenst(final short queryPackageId) {
 		final NetworkOperationFuture future = getCancelQueryFuture(queryPackageId);
 		return new EmptyResultFuture(future, FutureRetryPolicy.RETRY_POLICY_NONE);
 	}
@@ -564,7 +564,7 @@ public class BBoxDBClient implements BBoxDB {
 	public NetworkOperationFuture getCancelQueryFuture(final short queryPackageId) {
 		return new NetworkOperationFuture(connection, () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
-			return new CancelQueryRequest(nextSequenceNumber, queryPackageId);
+			return new CancelRequest(nextSequenceNumber, queryPackageId);
 		});
 	}
 

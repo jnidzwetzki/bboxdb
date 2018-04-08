@@ -26,14 +26,14 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 
-public class CancelQueryRequest extends NetworkRequestPackage {
+public class CancelRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The sequence of the query
 	 */
 	private final short querySequenceNumber;
 	
-	public CancelQueryRequest(final short sequenceNumber, final short querySequenceNumber) {
+	public CancelRequest(final short sequenceNumber, final short querySequenceNumber) {
 		super(sequenceNumber);
 		this.querySequenceNumber = querySequenceNumber;
 	}
@@ -67,7 +67,7 @@ public class CancelQueryRequest extends NetworkRequestPackage {
 	 * @return
 	 * @throws PackageEncodeException 
 	 */
-	public static CancelQueryRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static CancelRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_CANCEL_QUERY);
@@ -82,7 +82,7 @@ public class CancelQueryRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new CancelQueryRequest(sequenceNumber, packageSequence);
+		return new CancelRequest(sequenceNumber, packageSequence);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class CancelQueryRequest extends NetworkRequestPackage {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CancelQueryRequest other = (CancelQueryRequest) obj;
+		CancelRequest other = (CancelRequest) obj;
 		if (querySequenceNumber != other.querySequenceNumber)
 			return false;
 		return true;
