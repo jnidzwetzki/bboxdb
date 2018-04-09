@@ -5,6 +5,7 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+### Version 0.7.0 - TBA
 
 ### Version 0.6.0 - 09.04.2018
 - New Feature: Implement key secondary index (closes #66)
