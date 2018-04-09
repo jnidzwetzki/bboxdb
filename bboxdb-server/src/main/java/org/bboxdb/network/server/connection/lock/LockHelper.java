@@ -85,7 +85,10 @@ public class LockHelper {
 			for(final TupleStoreName localTable : localTables) {
 				final long deletionVersion = lockEntry.getVersion() + 1;
 				final String key = lockEntry.getKey();
-				storageRegistry.getTupleStoreManager(localTable).delete(key, deletionVersion);
+				
+				if(storageRegistry.isStorageManagerKnown(localTable)) {
+					storageRegistry.getTupleStoreManager(localTable).delete(key, deletionVersion);
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Got exception while deleting tuple", e);
