@@ -111,6 +111,11 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 
 			zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
 		} catch (ZookeeperException e) {
+			
+			if(Thread.currentThread().isInterrupted()) {
+				return;
+			}
+			
 			logger.error("Got exception while updating local node stats", e);
 		}
 	}
