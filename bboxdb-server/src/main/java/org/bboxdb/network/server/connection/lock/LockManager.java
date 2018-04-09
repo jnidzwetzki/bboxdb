@@ -83,6 +83,19 @@ public class LockManager {
 	}
 	
 	/**
+	 * Get all locks an lock object
+	 * @param lockObject
+	 * @return
+	 */
+	public List<LockEntry> getAllLocksForObject(final Object lockObject) {
+		final Predicate<? super LockEntry> predicate = e -> e.getLockObject().equals(lockObject);
+		
+		return locks.stream()
+				.filter(e -> predicate.test(e))
+				.collect(Collectors.toList());
+	}
+	
+	/**
 	 * Remove all elements for lock and sequence
 	 * @param lockObject
 	 * @param sequence

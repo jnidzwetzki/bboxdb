@@ -85,6 +85,9 @@ public class TestLockManager {
 		final boolean result2 = lockManager.lockTuple(LOCK_OBJECT_1, (short) 1, "def", "1234", 12, false);
 		Assert.assertTrue(result2);
 		
+		Assert.assertEquals(2, lockManager.getAllLocksForObject(LOCK_OBJECT_1).size());
+		Assert.assertEquals(0, lockManager.getAllLocksForObject(LOCK_OBJECT_2).size());
+
 		lockManager.removeAllLocksForObject(LOCK_OBJECT_1);
 		
 		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_2, (short) 1, "abc", "1234", 12, false);
@@ -92,6 +95,9 @@ public class TestLockManager {
 		
 		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_2, (short) 1, "def", "1234", 12, false);
 		Assert.assertTrue(result4);
+		
+		Assert.assertEquals(0, lockManager.getAllLocksForObject(LOCK_OBJECT_1).size());
+		Assert.assertEquals(2, lockManager.getAllLocksForObject(LOCK_OBJECT_2).size());
 	}
 	
 	@Test(timeout=60000)
