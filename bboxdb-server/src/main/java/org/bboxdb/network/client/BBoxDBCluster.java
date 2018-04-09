@@ -614,4 +614,11 @@ public class BBoxDBCluster implements BBoxDB {
 				.sum();
 	}
 
+	/**
+	 * Get the zookeeper client
+	 * @return
+	 */
+	public ZookeeperClient getZookeeperClient() {
+		return zookeeperClient;
+	}
 }
