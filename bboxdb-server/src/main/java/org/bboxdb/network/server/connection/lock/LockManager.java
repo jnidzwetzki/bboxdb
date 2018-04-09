@@ -63,9 +63,7 @@ public class LockManager {
 			if(locks.stream().anyMatch(e -> e.tableAndKeyMatches(table, key))) {
 				return false;
 			}
-			
-			System.out.println("---> Adding lock: " + lockEntry);
-			
+						
 			locks.add(lockEntry);
 			activeLocksTotal.set(locks.size());
 		}
@@ -121,9 +119,7 @@ public class LockManager {
 		final List<LockEntry> elementsToRemove = locks.stream()
 				.filter(removePredicate)
 				.collect(Collectors.toList());
-		
-		System.out.println("----> Removing locks: " + elementsToRemove);
-		
+				
 		locks.removeAll(elementsToRemove);
 		activeLocksTotal.set(locks.size());
 
@@ -146,8 +142,6 @@ public class LockManager {
 		locks.removeAll(locksToRemove);
 		activeLocksTotal.set(locks.size());
 		
-		System.out.println("---> Remove locks" + locksToRemove);
-
 		return locksToRemove;
 	}
 }
