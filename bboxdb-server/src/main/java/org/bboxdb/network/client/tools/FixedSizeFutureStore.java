@@ -20,6 +20,7 @@ package org.bboxdb.network.client.tools;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.future.OperationFuture;
@@ -39,7 +40,7 @@ public class FixedSizeFutureStore {
 	/**
 	 * The failed future callback
 	 */
-	private final List<FailedFutureCallback> failedFutureCallbacks;
+	private final List<Consumer<OperationFuture>> failedFutureCallbacks;
 	
 	public FixedSizeFutureStore(final long maxPendingFutures) {
 		this.maxPendingFutures = maxPendingFutures;
@@ -107,7 +108,7 @@ public class FixedSizeFutureStore {
 	 * @param future
 	 */
 	private void handleFailedFuture(final OperationFuture future) {		
-		failedFutureCallbacks.forEach(c -> c.handleFailedFuture(future));
+		failedFutureCallbacks.forEach(c -> c.accept(future));
 	}
 
 	/**
@@ -137,7 +138,7 @@ public class FixedSizeFutureStore {
 	/** 
 	 * Add a new failed future callback
 	 */
-	public void addFailedFutureCallback(final FailedFutureCallback callback) {
+	public void addFailedFutureCallback(final Consumer<OperationFuture> callback) {
 		failedFutureCallbacks.add(callback);
 	}
 	
