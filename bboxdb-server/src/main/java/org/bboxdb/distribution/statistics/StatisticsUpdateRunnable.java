@@ -142,6 +142,11 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 			}
 
 		} catch (Exception e) {
+			
+			if(Thread.currentThread().isInterrupted()) {
+				return;
+			}
+			
 			logger.error("Got exception while updating statistics", e);
 		}
 	}
