@@ -241,19 +241,21 @@ public class IndexedTupleUpdateHelper {
 		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 		final List<String> allTables = tupleStoreAdapter.getAllTables(distributionGroup);
 		
-		if(! allTables.contains(tablename)) {
-			logger.info("Table {} not found, creating", tablename);
-			final TupleStoreConfiguration tableconfig = TupleStoreConfigurationBuilder
-					.create()
-					.allowDuplicates(false)
-					.build();
-			
-			final EmptyResultFuture createResult = cluster.createTable(tablename, tableconfig);
-			createResult.waitForAll();
-			
-			if(createResult.isFailed()) {
-				throw new BBoxDBException("Got an exception while creating table " + createResult.getAllMessages());
-			}
+		if(allTables.contains(tablename)) {
+			return;
+		}
+		
+		logger.info("Table {} not found, creating", tablename);
+		final TupleStoreConfiguration tableconfig = TupleStoreConfigurationBuilder
+				.create()
+				.allowDuplicates(false)
+				.build();
+		
+		final EmptyResultFuture createResult = cluster.createTable(tablename, tableconfig);
+		createResult.waitForAll();
+		
+		if(createResult.isFailed()) {
+			throw new BBoxDBException("Got an exception while creating table " + createResult.getAllMessages());
 		}
 	}
 
@@ -277,19 +279,21 @@ public class IndexedTupleUpdateHelper {
 		
 		final List<String> allGroups = distributionGroupAdapter.getDistributionGroups();
 		
-		if(! allGroups.contains(distributionGroup)) {
-			logger.info("Distribution group {} not found, creating", distributionGroup);
-			final DistributionGroupConfiguration dgroupConfig = DistributionGroupConfigurationBuilder
-					.create(1)
-					.withReplicationFactor(DEFAULT_REPLIATION_FACTOR)
-					.build();
-			
-			final EmptyResultFuture dgroupFuture = cluster.createDistributionGroup(distributionGroup, dgroupConfig);
-			dgroupFuture.waitForAll();
-			
-			if(dgroupFuture.isFailed()) {
-				throw new BBoxDBException("Unable to create distribution group: " + dgroupFuture.getAllMessages());
-			}
+		if(allGroups.contains(distributionGroup)) {
+			return;
+		}
+		
+		logger.info("Distribution group {} not found, creating", distributionGroup);
+		final DistributionGroupConfiguration dgroupConfig = DistributionGroupConfigurationBuilder
+				.create(1)
+				.withReplicationFactor(DEFAULT_REPLIATION_FACTOR)
+				.build();
+		
+		final EmptyResultFuture dgroupFuture = cluster.createDistributionGroup(distributionGroup, dgroupConfig);
+		dgroupFuture.waitForAll();
+		
+		if(dgroupFuture.isFailed()) {
+			throw new BBoxDBException("Unable to create distribution group: " + dgroupFuture.getAllMessages());
 		}
 	}
 
