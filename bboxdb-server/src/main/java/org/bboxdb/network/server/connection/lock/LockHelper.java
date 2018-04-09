@@ -44,7 +44,7 @@ public class LockHelper {
 	public static void handleLockRemove(final ClientConnectionHandler clientConnectionHandler) {
 		final LockManager lockManager = clientConnectionHandler.getLockManager();
 		
-		final List<LockEntry> removedLocks = lockManager.removeAllLocksForObject(clientConnectionHandler);
+		final List<LockEntry> removedLocks = lockManager.getAllLocksForObject(clientConnectionHandler);
 		
 		final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 		
@@ -55,6 +55,9 @@ public class LockHelper {
 			
 			deleteLocalStoredTuple(storageRegistry, lockEntry); 				
 		}
+		
+		// Now the tuple to delete might be cleared and the locks an be removed
+		lockManager.removeAllLocksForObject(clientConnectionHandler);
 	}
 
 	/**
