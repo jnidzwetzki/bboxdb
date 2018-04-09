@@ -31,6 +31,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
@@ -124,7 +125,7 @@ public class CLI implements Runnable, AutoCloseable {
 			System.err.println("Unable to parse commandline arguments: " + e);
 			System.exit(-1);
 		} finally {
-			cli.close();
+			CloseableHelper.closeWithoutException(cli);
 		}
 	}
 	
