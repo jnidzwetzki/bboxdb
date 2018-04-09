@@ -553,7 +553,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param queryPackageId
 	 * @return
 	 */
-	public EmptyResultFuture cancelRequenst(final short queryPackageId) {
+	public EmptyResultFuture cancelRequest(final short queryPackageId) {
 		final NetworkOperationFuture future = getCancelQueryFuture(queryPackageId);
 		return new EmptyResultFuture(future, FutureRetryPolicy.RETRY_POLICY_NONE);
 	}

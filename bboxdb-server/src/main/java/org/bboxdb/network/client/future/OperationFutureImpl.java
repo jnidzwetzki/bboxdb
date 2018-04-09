@@ -317,7 +317,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	
 		final BBoxDBConnection connection = future.getConnection();
 		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-		bboxDBClient.cancelRequenst(transmittedPackage.getSequenceNumber());
+		bboxDBClient.cancelRequest(transmittedPackage.getSequenceNumber());
 	}
 
 	/**

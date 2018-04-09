@@ -733,6 +733,117 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Test the tuple locking
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testLockTuple2() throws BBoxDBException, InterruptedException {
+		final BBoxDBClient bboxDBClient1 = connectToServer().getBboxDBClient();
+		final BBoxDBClient bboxDBClient2 = connectToServer().getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_mytable";
+		
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient1.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForAll();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
+		final Tuple newTuple2 = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1235);
+
+		// Insert a tuple
+		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
+		insertResult.waitForAll();
+		Assert.assertTrue(insertResult.isDone());
+		Assert.assertFalse(insertResult.isFailed());
+		
+		// Lock tuple in connection 1
+		final EmptyResultFuture lockTupleResult1 = bboxDBClient1.lockTuple(table, newTuple, false);
+		lockTupleResult1.waitForAll();
+		Assert.assertTrue(lockTupleResult1.isDone());
+		Assert.assertFalse(lockTupleResult1.isFailed());
+		
+		// Try to lock the same tuple in connection 2
+		final EmptyResultFuture lockTupleResult2 = bboxDBClient2.lockTuple(table, newTuple, false);
+		lockTupleResult2.waitForAll();
+		Assert.assertTrue(lockTupleResult2.isDone());
+		Assert.assertTrue(lockTupleResult2.isFailed());
+		
+		// Unlock the tuple in connection 1
+		final EmptyResultFuture insertResult2 = bboxDBClient1.insertTuple(table, newTuple2);
+		insertResult2.waitForAll();
+		Assert.assertTrue(insertResult2.isDone());
+		Assert.assertFalse(insertResult2.isFailed());
+		
+		// Try to lock the old tuple in connection 2
+		final EmptyResultFuture lockTupleResult4 = bboxDBClient2.lockTuple(table, newTuple, false);
+		lockTupleResult4.waitForAll();
+		Assert.assertTrue(lockTupleResult4.isDone());
+		Assert.assertTrue(lockTupleResult4.isFailed());
+		
+		// Try to lock the new tuple in connection 2
+		final EmptyResultFuture lockTupleResult5 = bboxDBClient2.lockTuple(table, newTuple2, false);
+		lockTupleResult5.waitForAll();
+		Assert.assertTrue(lockTupleResult5.isDone());
+		Assert.assertFalse(lockTupleResult5.isFailed());
+		
+		disconnect(bboxDBClient1);
+		disconnect(bboxDBClient2);
+	}
+	
+	/**
+	 * Test the tuple locking
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testLockTuple3() throws BBoxDBException, InterruptedException {
+		final BBoxDBClient bboxDBClient1 = connectToServer().getBboxDBClient();
+		final BBoxDBClient bboxDBClient2 = connectToServer().getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_mytable";
+		
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient1.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForAll();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
+
+		// Insert a tuple
+		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
+		insertResult.waitForAll();
+		Assert.assertTrue(insertResult.isDone());
+		Assert.assertFalse(insertResult.isFailed());
+		
+		// Lock tuple in connection 1
+		final EmptyResultFuture lockTupleResult1 = bboxDBClient1.lockTuple(table, newTuple, false);
+		lockTupleResult1.waitForAll();
+		Assert.assertTrue(lockTupleResult1.isDone());
+		Assert.assertFalse(lockTupleResult1.isFailed());
+		
+		// Try to lock the same tuple in connection 2
+		final EmptyResultFuture lockTupleResult2 = bboxDBClient2.lockTuple(table, newTuple, false);
+		lockTupleResult2.waitForAll();
+		Assert.assertTrue(lockTupleResult2.isDone());
+		Assert.assertTrue(lockTupleResult2.isFailed());
+		
+		// Unlock the tuple in connection 1
+		final EmptyResultFuture cancelResultFuture = bboxDBClient1.cancelRequest(lockTupleResult1.getRequestId(0));
+		cancelResultFuture.waitForAll();
+		Assert.assertTrue(cancelResultFuture.isDone());
+		Assert.assertFalse(cancelResultFuture.isFailed());
+		
+		// Try to lock the same tuple in connection 2
+		final EmptyResultFuture lockTupleResult4 = bboxDBClient2.lockTuple(table, newTuple, false);
+		lockTupleResult4.waitForAll();
+		Assert.assertTrue(lockTupleResult4.isDone());
+		Assert.assertFalse(lockTupleResult4.isFailed());
+		
+		disconnect(bboxDBClient1);
+		disconnect(bboxDBClient2);
+	}
+	
+	/**
 	 * Should the packages be compressed or not
 	 * @return
 	 */
