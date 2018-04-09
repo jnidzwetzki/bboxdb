@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.6.0 - TBA
+- New Feature: Implement key secondary index (closes #66)
 - New Feature: Added the tuple locking feature (closes #64)
 - Improvement: The screenshot mode in the GUI can be toggled at runtime
 - Improvement: Added zoom function in the GUI tree view (closes #83)
