@@ -206,6 +206,20 @@ public class BBoxDBClient implements BBoxDB {
 
 			return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tuple);
 		});
+		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp, 
+			final BoundingBox boundingBox) {
+		
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+				table, boundingBox, true, connection.getServerAddress());
+		
+		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
 	}
 
 	/* (non-Javadoc)
@@ -213,10 +227,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
-		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
-		
-		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
+		return deleteTuple(table, key, timestamp, BoundingBox.FULL_SPACE);
 	}
 
 	/* (non-Javadoc)

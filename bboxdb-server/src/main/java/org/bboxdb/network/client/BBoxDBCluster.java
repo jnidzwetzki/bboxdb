@@ -185,17 +185,24 @@ public class BBoxDBCluster implements BBoxDB {
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
 		return deleteTuple(table, key, timestamp);
 	}
-
+	
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
 			throws BBoxDBException {
+	
+		return deleteTuple(table, key, timestamp, BoundingBox.FULL_SPACE);
+	}
+
+	@Override
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp, 
+			final BoundingBox boundingBox) throws BBoxDBException {
 		
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
 		final DistributionRegion distributionRegion = getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, 
-					tuple.getBoundingBox());
+					boundingBox);
 		
 			final List<NetworkOperationFuture> futures = new ArrayList<>();
 			for(final RoutingHop hop : hops) {
