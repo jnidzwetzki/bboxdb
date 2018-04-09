@@ -30,6 +30,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
@@ -78,7 +79,7 @@ public class LockTupleHandler implements RequestHandler {
 			final long localVersion = getLocalTupleVersion(clientConnectionHandler, request);
 			
 			if(localVersion != version) {
-				logger.info("Locking {} in table {} outdated. Local {} requested {}", key, table, version, localVersion);
+				logger.info("Locking {} in table {} outdated. Local {} requested {}", key, table, localVersion, version);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_OUTDATED);
 				clientConnectionHandler.writeResultPackage(responsePackage);
 				return true;
@@ -88,12 +89,15 @@ public class LockTupleHandler implements RequestHandler {
 			final boolean lockResult = lockManager.lockTuple(clientConnectionHandler, sequenceNumber, 
 					table, key, version, deleteOnTimeout);
 			
-			if(lockResult) {
+			if(lockResult == false) {
+				logger.info("Lock tuple failed, pair {} / {} already locked", key, table);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_LOCK_FAILED_ALREADY_LOCKED);
 				clientConnectionHandler.writeResultPackage(responsePackage);
 				return true;
 			}
 			
+			// Lock was successfully
+			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while locking tuple", e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
@@ -117,7 +121,7 @@ public class LockTupleHandler implements RequestHandler {
 			final LockTupleRequest request) throws BBoxDBException, PackageEncodeException, StorageManagerException {
 		
 		final List<Tuple> tuplesForKey = getAllTuplesForKey(clientConnectionHandler, request);
-		
+				
 		return tuplesForKey
 				.stream()
 				.mapToLong(t -> t.getVersionTimestamp())
