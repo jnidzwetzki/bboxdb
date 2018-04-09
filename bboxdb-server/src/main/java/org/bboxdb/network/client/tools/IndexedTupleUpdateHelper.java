@@ -156,6 +156,23 @@ public class IndexedTupleUpdateHelper {
 	private BoundingBox getAndLockOldBundingBoxForTuple(final String table, final Tuple tuple) 
 			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, InterruptedException {
 		
+		final String indexTableName = createMissingTables(table);
+		
+		return tryToGetIndexEntry(indexTableName, tuple);	
+	}
+
+	/**
+	 * @param table
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	@VisibleForTesting
+	public String createMissingTables(final String table)
+			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, InterruptedException {
+		
 		final ZookeeperClient zookeeperClient = cluster.getZookeeperClient();
 		
 		final String indexTableName = convertTablenameToIndexTablename(table);
@@ -163,8 +180,7 @@ public class IndexedTupleUpdateHelper {
 		
 		createDistributionGroupIfMissing(zookeeperClient, tupleStoreName);
 		createTableIfMissing(zookeeperClient, indexTableName, tupleStoreName);
-		
-		return tryToGetIndexEntry(indexTableName, tuple);	
+		return indexTableName;
 	}
 
 	/**

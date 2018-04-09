@@ -153,6 +153,8 @@ public class TestIndexedTupleUpdate {
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(4d, 5d, 4d, 5d), "value1".getBytes());
 		
 		final IndexedTupleUpdateHelper indexedTupleUpdateHelper = new IndexedTupleUpdateHelper(cluster);
+		indexedTupleUpdateHelper.createMissingTables(TABLENAME);
+		
 		final Optional<Tuple> oldIndexEntry = indexedTupleUpdateHelper.getOldIndexEntry(TABLENAME_INDEX, tuple1.getKey());
 		final byte[] boundingBoxData1 = oldIndexEntry.get().getDataBytes();
 		final BoundingBox boundingBox1 = new BoundingBox(new String(boundingBoxData1));

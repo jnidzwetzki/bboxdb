@@ -91,7 +91,7 @@ public class TestLockManager {
 		lockManager.removeAllLocksForObject(LOCK_OBJECT_1);
 		
 		final boolean result3 = lockManager.lockTuple(LOCK_OBJECT_2, (short) 1, "abc", "1234", 12, false);
-		Assert.assertTrue(result3);
+		Assert.assertTrue(result3);	
 		
 		final boolean result4 = lockManager.lockTuple(LOCK_OBJECT_2, (short) 1, "def", "1234", 12, false);
 		Assert.assertTrue(result4);
