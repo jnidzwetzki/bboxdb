@@ -44,9 +44,9 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 		
 		// Fetch the local instance
 		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
-	
+		final String distributionGroup = ssTableName.getDistributionGroup();
+
 		try {			
-			final String distributionGroup = ssTableName.getDistributionGroup();
 			final SpacePartitioner spacepartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
 
@@ -76,7 +76,8 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 				return;
 			}
 			
-			logger.warn("Unable to find distribution region: " , e);
+			logger.warn("Got an error while writing data to zookeeper for: " + distributionGroup);
+			logger.debug("Full exception is", e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return;
