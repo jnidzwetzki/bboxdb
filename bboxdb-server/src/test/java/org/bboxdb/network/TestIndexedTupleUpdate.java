@@ -52,7 +52,7 @@ public class TestIndexedTupleUpdate {
 	/**
 	 * The cluster contact point
 	 */
-	private static final String CLUSTER_CONTACT_POINT = "node1:2181";
+	private static final String CLUSTER_CONTACT_POINT = "localhost:2181";
 
 	/**
 	 * The distribution group
