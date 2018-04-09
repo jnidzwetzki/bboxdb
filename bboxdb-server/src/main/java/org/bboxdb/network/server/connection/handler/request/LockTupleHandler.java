@@ -97,6 +97,7 @@ public class LockTupleHandler implements RequestHandler {
 			}
 			
 			// Lock was successfully
+			logger.debug("Lock for {} / {} was successfully", key, table);
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while locking tuple", e);

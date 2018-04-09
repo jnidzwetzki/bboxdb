@@ -64,6 +64,8 @@ public class LockManager {
 				return false;
 			}
 			
+			System.out.println("---> Adding lock: " + lockEntry);
+			
 			locks.add(lockEntry);
 			activeLocksTotal.set(locks.size());
 		}
@@ -120,6 +122,8 @@ public class LockManager {
 				.filter(removePredicate)
 				.collect(Collectors.toList());
 		
+		System.out.println("----> Removing locks: " + elementsToRemove);
+		
 		locks.removeAll(elementsToRemove);
 		activeLocksTotal.set(locks.size());
 
@@ -132,15 +136,18 @@ public class LockManager {
 	 * @param key
 	 * @return 
 	 */
-	public boolean removeLockForConnectionAndKey(final Object lockObject, 
+	public List<LockEntry> removeLockForConnectionAndKey(final Object lockObject, 
 			final String table, final String key) {
-				
-		final boolean elementRemoved = locks.removeIf(
-				e -> e.getLockObject().equals(lockObject) 
-				&& e.tableAndKeyMatches(table, key));
 		
+		final List<LockEntry> locksToRemove = locks.stream()
+				.filter(e -> e.getLockObject().equals(lockObject) && e.tableAndKeyMatches(table, key))
+				.collect(Collectors.toList());
+		
+		locks.removeAll(locksToRemove);
 		activeLocksTotal.set(locks.size());
+		
+		System.out.println("---> Remove locks" + locksToRemove);
 
-		return elementRemoved;
+		return locksToRemove;
 	}
 }

@@ -57,7 +57,7 @@ public class IndexedTupleUpdateHelper {
 	/**
 	 * The suffix for the index table
 	 */
-	public final static String IDX_DGROUP_PREFIX ="#idx";
+	public final static String IDX_DGROUP_PREFIX ="#idx#";
 	
 	/**
 	 * The default replication factor
@@ -86,15 +86,16 @@ public class IndexedTupleUpdateHelper {
 	/**
 	 * Handle the tuple update (supported by indices)
 	 * @param deletedTuple
+	 * @return 
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	public void handleTupleUpdate(final String table, final Tuple tuple) throws BBoxDBException, 
-		InterruptedException {
+	public EmptyResultFuture handleTupleUpdate(final String table, final Tuple tuple) 
+			throws BBoxDBException, InterruptedException {
 		
 		try {
 			// Might be full space covering box when index entry not found
-			final BoundingBox oldBoundingBox = getOldBundingBoxForTuple(table, tuple);
+			final BoundingBox oldBoundingBox = getAndLockOldBundingBoxForTuple(table, tuple);
 			
 			// Delete old tuple
 			final String key = tuple.getKey();
@@ -107,9 +108,10 @@ public class IndexedTupleUpdateHelper {
 			final EmptyResultFuture insertFuture = cluster.insertTuple(table, tuple);
 			futureStore.put(insertFuture);
 
-			// Update index (and remove locks)
-			updateBoundingBoxIndex(table, tuple);
+			// Update index (and remove index locks)
+			updateIndexEntry(table, tuple);
 			
+			return insertFuture;
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
@@ -120,7 +122,7 @@ public class IndexedTupleUpdateHelper {
 	 * @param tuple
 	 * @throws BBoxDBException 
 	 */
-	private void updateBoundingBoxIndex(final String table, final Tuple tuple) throws BBoxDBException {
+	private void updateIndexEntry(final String table, final Tuple tuple) throws BBoxDBException {
 		final String boundingBoxValue = tuple.getBoundingBox().toCompactString();
 		final String tablename = convertTablenameToIndexTablename(table);
 		
@@ -151,8 +153,7 @@ public class IndexedTupleUpdateHelper {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	@VisibleForTesting
-	public BoundingBox getOldBundingBoxForTuple(final String table, final Tuple tuple) 
+	private BoundingBox getAndLockOldBundingBoxForTuple(final String table, final Tuple tuple) 
 			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, InterruptedException {
 		
 		final ZookeeperClient zookeeperClient = cluster.getZookeeperClient();
@@ -163,9 +164,45 @@ public class IndexedTupleUpdateHelper {
 		createDistributionGroupIfMissing(zookeeperClient, tupleStoreName);
 		createTableIfMissing(zookeeperClient, indexTableName, tupleStoreName);
 		
-		return tryToGetIndexEntry(tuple, indexTableName);	
+		return tryToGetIndexEntry(indexTableName, tuple);	
 	}
 
+	/**
+	 * Get the old index entry
+	 * @param tuple
+	 * @param indexTableName
+	 * @return 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@VisibleForTesting
+	public Optional<Tuple> getOldIndexEntry(final String indexTableName, final String key) 
+			throws InterruptedException, BBoxDBException {
+		
+		final BoundingBox boundingBox = getBoundingBoxForKey(key);
+		final TupleListFuture resultFuture = cluster.queryBoundingBox(indexTableName, boundingBox);
+		resultFuture.waitForAll();
+		
+		if(resultFuture.isFailed()) {
+			logger.error("Index query future failed {}", resultFuture.getAllMessages());
+			return Optional.empty();
+		} else {
+			final List<Tuple> resultList = Lists.newArrayList(resultFuture.iterator());
+			
+			final Optional<Tuple> indexEntry = resultList.stream()
+					.filter(t -> t.getKey().equals(key))
+					.findAny();
+								
+			if(indexEntry.isPresent()) {
+				return indexEntry;
+			} else {
+				final BoundingBox fullSpace = BoundingBox.FULL_SPACE;
+				final String fullSpaceString = fullSpace.toCompactString();
+				return Optional.of(new Tuple(key, fullSpace, fullSpaceString.getBytes(), -1));
+			}
+		}
+	}
+	
 	/**
 	 * Try to get the index entry
 	 * @param tuple
@@ -174,52 +211,33 @@ public class IndexedTupleUpdateHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	private BoundingBox tryToGetIndexEntry(final Tuple tuple, final String indexTableName)
+	private BoundingBox tryToGetIndexEntry(final String indexTableName, final Tuple tuple)
 			throws BBoxDBException, InterruptedException {
-		
+				
 		for(int i = 0; i < TOTAL_RETRIES; i++) {
-			final BoundingBox boundingBox = getBoundingBoxForKey(tuple.getKey());
-			final TupleListFuture resultFuture = cluster.queryBoundingBox(indexTableName, boundingBox);
-			resultFuture.waitForAll();
 			
-			if(resultFuture.isFailed()) {
-				logger.error("Index query future failed {}", resultFuture.getAllMessages());
+			final Optional<Tuple> oldIndexEntryOpt = getOldIndexEntry(indexTableName, tuple.getKey());
+			
+			if(! oldIndexEntryOpt.isPresent()) {
+				Thread.sleep(100);
 				continue;
 			}
 			
-			final List<Tuple> resultList = Lists.newArrayList(resultFuture.iterator());
-			
-			final Optional<Tuple> indexEntry = resultList.stream()
-					.filter(t -> t.getKey().equals(tuple.getKey()))
-					.findAny();
-		
-			final Tuple tupleToLock = getOldTuple(tuple, indexEntry);	
-			
-			final EmptyResultFuture lockResult = cluster.lockTuple(indexTableName, tupleToLock, true);
+			final Tuple oldIndexEntry = oldIndexEntryOpt.get();
+				
+			final EmptyResultFuture lockResult = cluster.lockTuple(indexTableName, oldIndexEntry, true);
 			lockResult.waitForAll();
 			
 			// Lock successfull
 			if(! lockResult.isFailed()) {
-				return tupleToLock.getBoundingBox();
+				final byte[] boundingBoxData = oldIndexEntry.getDataBytes();
+				return new BoundingBox(new String(boundingBoxData));
 			}
 		}
 		
 		throw new BBoxDBException("Unable to lock index entry in " + TOTAL_RETRIES + " rounds");
 	}
 
-	/**
-	 * Get the old tuple to lock
-	 * @param tuple
-	 * @param indexEntry
-	 * @return
-	 */
-	private Tuple getOldTuple(final Tuple tuple, final Optional<Tuple> indexEntry) {
-		if(indexEntry.isPresent()) {
-			return indexEntry.get();
-		} else {
-			return new Tuple(tuple.getKey(), BoundingBox.FULL_SPACE, "".getBytes(), -1);
-		}		
-	}
 
 	/**
 	 * Create the index table if missing
@@ -303,7 +321,8 @@ public class IndexedTupleUpdateHelper {
 	 * @param table
 	 * @return
 	 */
-	private String convertTablenameToIndexTablename(final String table) {
+	@VisibleForTesting
+	public static String convertTablenameToIndexTablename(final String table) {
 		return IDX_DGROUP_PREFIX + table;
 	}
 	
