@@ -692,7 +692,7 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	//@Test(timeout=60000)
+	@Test(timeout=60000)
 	public void testLockTuple1() throws BBoxDBException, InterruptedException {
 		final BBoxDBClient bboxDBClient = connectToServer().getBboxDBClient();
 		
@@ -719,6 +719,7 @@ public class TestNetworkCommunication {
 		
 		// Insert a tuple
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, newTuple);
+		insertResult.waitForAll();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
 		
