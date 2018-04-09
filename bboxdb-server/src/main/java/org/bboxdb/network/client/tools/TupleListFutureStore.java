@@ -36,32 +36,32 @@ public class TupleListFutureStore {
 	/**
 	 * The number of request worker
 	 */
-	protected final int requestWorker; 
+	private final int requestWorker; 
 	
 	/**
 	 * The maximal amount of unfinished worker
 	 */
-	protected final int maxQueueSize;
+	private final int maxQueueSize;
 	
 	/**
 	 * The unfinished future queue
 	 */
-	protected final BlockingQueue<TupleListFuture> futureQueue;
+	private final BlockingQueue<TupleListFuture> futureQueue;
 	
 	/**
 	 * The list of running threads
 	 */
-	protected final List<Thread> runningThreads;
+	private final List<Thread> runningThreads;
 	
 	/**
 	 * The amount of active worker
 	 */
-	protected final AtomicInteger activeWorker;
+	private final AtomicInteger activeWorker;
 	
 	/**
 	 * The service state
 	 */
-	protected final ServiceState serviceState;
+	private final ServiceState serviceState;
 	
 	/**
 	 * The default amount of worker
