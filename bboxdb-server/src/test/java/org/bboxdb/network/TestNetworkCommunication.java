@@ -36,6 +36,7 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
@@ -840,6 +841,48 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(lockTupleResult4.isFailed());
 		
 		disconnect(bboxDBClient1);
+		disconnect(bboxDBClient2);
+	}
+	
+	/**
+	 * Test the tuple locking - with deletion
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=60000)
+	public void testLockTuple4() throws BBoxDBException, InterruptedException {
+		final BBoxDBClient bboxDBClient1 = connectToServer().getBboxDBClient();
+		final BBoxDBClient bboxDBClient2 = connectToServer().getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_mytable";
+		
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient1.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForAll();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
+
+		// Insert a tuple
+		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
+		insertResult.waitForAll();
+		Assert.assertTrue(insertResult.isDone());
+		Assert.assertFalse(insertResult.isFailed());
+
+		// Lock tuple in connection 1 - delete on connection shutdown
+		final EmptyResultFuture lockTupleResult1 = bboxDBClient1.lockTuple(table, newTuple, true);
+		lockTupleResult1.waitForAll();
+		Assert.assertTrue(lockTupleResult1.isDone());
+		Assert.assertFalse(lockTupleResult1.isFailed());
+		disconnect(bboxDBClient1);
+		
+		// Get the tuple in connection2
+		Thread.sleep(2000);
+		final TupleListFuture queryResult = bboxDBClient2.queryKey(table, newTuple.getKey());
+		queryResult.waitForAll();
+		final List<Tuple> resultList = Lists.newArrayList(queryResult.iterator());
+		Assert.assertEquals(1, resultList.size());
+		Assert.assertTrue(resultList.get(0) instanceof DeletedTuple);
+		
 		disconnect(bboxDBClient2);
 	}
 	
