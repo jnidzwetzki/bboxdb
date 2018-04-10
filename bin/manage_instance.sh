@@ -127,18 +127,22 @@ bboxdb_start() {
 
     cd $BBOXDB_HOME/misc
     
-    # Start zookeeper
-    nohup java $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain > $logdir/bboxdb.out.log 2>&1 < /dev/null &
+    if [ ! -z "$BBOXDB_FOREGROUND" ]; then
+       # Start BBoxDB server in foreground (e.g., needed for docker)
+       java $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain
+    else 
+       # Start BBoxDB server as daemon
+       nohup java $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain > $logdir/bboxdb.out.log 2>&1 < /dev/null &
     
-    if [ $? -eq 0 ]; then
-       # Dump PID into file
-       echo -n $! > $bboxdb_pid
-    else
-       echo -e "Unable to start BBoxDB, check the logfiles for further information $failed"
-       exit -1
+       if [ $? -eq 0 ]; then
+          # Dump PID into file
+          echo -n $! > $bboxdb_pid
+       else
+          echo -e "Unable to start BBoxDB, check the logfiles for further information $failed"
+          exit -1
+       fi
+       echo -e "BBoxDB is successfully started $done"
     fi
-    
-	echo -e "BBoxDB is successfully started $done"
 }
 
 ###
