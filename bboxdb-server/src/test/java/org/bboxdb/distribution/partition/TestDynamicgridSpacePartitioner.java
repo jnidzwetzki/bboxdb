@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partition;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -96,7 +97,35 @@ public class TestDynamicgridSpacePartitioner {
 		Assert.assertEquals(12, regions);
 	}
 	
-
+	/**
+	 * Get the merge candidates
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
+	 */
+	@Test
+	public void getMergeCandidates() throws ZookeeperException, 
+		ZookeeperNotFoundException, BBoxDBException {
+		
+		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
+		final DistributionRegion rootElement = spacePartitioner.getRootNode();
+		
+		// Unsplitted parent region
+		final DistributionRegion regionToMerge1 = rootElement.getChildNumber(0);
+		final List<List<DistributionRegion>> candidates1 = spacePartitioner.getMergeCandidates(regionToMerge1);
+		Assert.assertEquals(1, candidates1.size());
+		
+		// Unmergeable child regin
+		final DistributionRegion regionToMerge2 = rootElement.getChildNumber(0).getChildNumber(0);
+		final List<List<DistributionRegion>> candidates2 = spacePartitioner.getMergeCandidates(regionToMerge2);
+		Assert.assertEquals(0, candidates2.size());
+		
+		// Split root element
+		final DistributionRegion regionToMerge3 = rootElement;
+		final List<List<DistributionRegion>> candidates3 = spacePartitioner.getMergeCandidates(regionToMerge3);
+		Assert.assertEquals(0, candidates3.size());
+	}
+	
 	/**
 	 * Get the space partitioner
 	 * @return

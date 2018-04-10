@@ -214,6 +214,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		}
 		
 		final List<DistributionRegion> children = distributionRegion.getParent().getDirectChildren();
+		
 		children.sort((e1, e2) -> 
 			e1.getConveringBox().getIntervalForDimension(0)
 			.compareTo(e2.getConveringBox().getIntervalForDimension(0)));
