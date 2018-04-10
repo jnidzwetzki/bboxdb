@@ -8,6 +8,7 @@ order: 1
 ### Version 0.7.0 - TBA
 - New Feature: BBoxDB can now be started in foreground
 - New Feature: BBoxDB can now be run in a Docker container
+- Bugfix: Fixed NPE in distributed grid space partitioner
 
 ### Version 0.6.0 - 09.04.2018
 - New Feature: Implement key secondary index (closes #66)
