@@ -338,6 +338,74 @@ public class TestRegionSyncer {
 		Assert.assertEquals(0, root.getAllChildren().size());
 	}
 	
+	@Test(timeout=10000)
+	public void testDeleteAndAdd() throws ZookeeperException, InterruptedException {
+		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
+		final DistributionRegion root = distributionRegionSyncer.getRootNode();
+		
+		createSplittedRoot(distributionRegionSyncer, root);
+		Assert.assertEquals(2, root.getAllChildren().size());
+		
+		// Delete child 1
+		System.out.println("=== Delete child 1");
+		final CountDownLatch deleteLatch1 = new CountDownLatch(1);
+		
+		final DistributionRegionCallback callback1 = (e, r) -> { 
+			if(root.getAllChildren().size() == 1) { 
+				deleteLatch1.countDown(); 
+			}
+		};
+		
+		distributionRegionSyncer.registerCallback(callback1);
+		distributionRegionAdapter.deleteChild(root.getChildNumber(0));
+		deleteLatch1.await();
+		distributionRegionSyncer.unregisterCallback(callback1);
+
+		Assert.assertEquals(1, root.getAllChildren().size());
+		
+		// Add new child
+		System.out.println("=== Add new child");
+		final CountDownLatch addLatch1 = new CountDownLatch(1);
+
+		final DistributionRegionCallback callback2 = (e, r) -> { 
+			if(root.getAllChildren().size() == 2) { 
+				addLatch1.countDown(); 
+			}
+		};
+		
+		distributionRegionSyncer.registerCallback(callback2);
+		final String regionPath = distributionRegionAdapter.getZookeeperPathForDistributionRegion(root);
+		final int number = (int) root.getHighestChildNumber() + 1;
+		distributionRegionAdapter.createNewChild(regionPath, number, new BoundingBox(1d, 2d), GROUP);
+		
+		addLatch1.await();
+		distributionRegionSyncer.unregisterCallback(callback2);
+		
+		System.out.println("=== Changing state");
+		
+		final CountDownLatch changeLatch = new CountDownLatch(1);
+		final DistributionRegionCallback callback3 = (e, r) -> { 
+			final boolean notAllChanged = root.getThisAndChildRegions()
+				.stream()
+				.anyMatch(a -> a.getState() != DistributionRegionState.ACTIVE_FULL);
+			
+			if(! notAllChanged) {
+				changeLatch.countDown();
+			}
+		};
+		distributionRegionSyncer.registerCallback(callback3);
+
+		for(final DistributionRegion region : root.getThisAndChildRegions()) {
+			distributionRegionAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE_FULL);
+		}
+		
+		changeLatch.await();
+		
+		distributionRegionSyncer.unregisterCallback(callback3);
+
+		Assert.assertEquals(2, root.getAllChildren().size());
+	}
+	
 	/**
 	 * Build a new syncer
 	 */

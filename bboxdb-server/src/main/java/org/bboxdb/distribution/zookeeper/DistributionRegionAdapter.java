@@ -278,11 +278,13 @@ public class DistributionRegionAdapter {
 			final String split[] = token.split("-");
 			final int childNumber = Integer.parseInt(split[1]);
 			
-			if(resultElement.getDirectChildren().size() <= childNumber) {
+			final DistributionRegion nextChild = resultElement.getChildNumber(childNumber);
+			
+			if(nextChild == null) {
 				return null;
 			}
 			
-			resultElement = resultElement.getDirectChildren().get(childNumber);
+			resultElement = nextChild;
 		}
 		
 		return resultElement;
