@@ -66,7 +66,8 @@ public class RegionMergeHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public static boolean isRegionUnderflow(final List<DistributionRegion> sources) throws BBoxDBException {
+	public static boolean isRegionUnderflow(final List<DistributionRegion> sources, 
+			final BBoxDBInstance localInstanceName) throws BBoxDBException {
 		
 		assert(! sources.isEmpty()) : "Sources can not be empty";
 
@@ -81,9 +82,6 @@ public class RegionMergeHelper {
 			logger.info("Not all children ready, skip merge test for {}", sourceIds);
 			return false;
 		}
-		
-		// We are not responsible to this region
-		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
 		
 		final boolean localSystemContained = sources
 				.stream()

@@ -364,10 +364,11 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 			final DistributionRegion oneSourceNode) throws BBoxDBException {
 				
 		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(oneSourceNode);
-	
+		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
+		
 		for(final List<DistributionRegion> sources : candidates) {
 		
-			if(RegionMergeHelper.isRegionUnderflow(sources)) {
+			if(RegionMergeHelper.isRegionUnderflow(sources, localInstanceName)) {
 				final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
 				final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
 				regionMerger.mergeRegion(sources, spacePartitioner, tupleStoreManagerRegistry);	

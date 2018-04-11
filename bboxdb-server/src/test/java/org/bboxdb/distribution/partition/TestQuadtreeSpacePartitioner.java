@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
@@ -190,7 +191,11 @@ public class TestQuadtreeSpacePartitioner {
 		changeLatch.await();
 		distributionRegionSyncer.unregisterCallback(callback);
 		
-		Assert.assertFalse(RegionMergeHelper.isRegionUnderflow(destination));
+		final BBoxDBInstance system = rootNode.getSystems().get(0);
+		Assert.assertFalse(RegionMergeHelper.isRegionUnderflow(destination, system));
+		
+		final BBoxDBInstance localName = ZookeeperClientFactory.getLocalInstanceName();
+		Assert.assertFalse(RegionMergeHelper.isRegionUnderflow(destination, localName));
 	}
 	
 	/**
