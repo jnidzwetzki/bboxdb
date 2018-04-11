@@ -375,7 +375,7 @@ public class TestRegionSyncer {
 		
 		distributionRegionSyncer.registerCallback(callback2);
 		final String regionPath = distributionRegionAdapter.getZookeeperPathForDistributionRegion(root);
-		final int number = (int) root.getHighestChildNumber() + 1;
+		final long number = root.getHighestChildNumber() + 1;
 		distributionRegionAdapter.createNewChild(regionPath, number, new BoundingBox(1d, 2d), GROUP);
 		
 		addLatch1.await();

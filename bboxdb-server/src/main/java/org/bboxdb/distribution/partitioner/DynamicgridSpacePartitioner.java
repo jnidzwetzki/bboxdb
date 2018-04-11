@@ -93,10 +93,10 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final long childNumber = parent.getHighestChildNumber();
 			
 			final String child1Path = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
-					(int) childNumber + 1, leftBoundingBox, fullname);
+					childNumber + 1, leftBoundingBox, fullname);
 			
 			final String child2Path = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
-					(int) childNumber + 2, rightBoundingBox, fullname);
+					childNumber + 2, rightBoundingBox, fullname);
 
 			// Update state
 			distributionRegionZookeeperAdapter.setStateForDistributionGroup(sourcePath, DistributionRegionState.SPLITTING);
@@ -159,7 +159,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			
 			final String parentPath = distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(parent);
 			
-			final int childNumber = (int) parent.getHighestChildNumber();
+			final long childNumber = parent.getHighestChildNumber();
 			
 			final String childPath = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					childNumber, bbox, distributionGroupName);

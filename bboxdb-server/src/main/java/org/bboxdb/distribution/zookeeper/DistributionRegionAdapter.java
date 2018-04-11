@@ -654,7 +654,7 @@ public class DistributionRegionAdapter {
 	 * @return 
 	 * @throws ZookeeperException
 	 */
-	public String createNewChild(final String parentPath, final int childNumber, 
+	public String createNewChild(final String parentPath, final long childNumber, 
 			final BoundingBox boundingBox, final String distributionGroupName) throws ZookeeperException {
 
 		final String childPath = parentPath + "/" + ZookeeperNodeNames.NAME_CHILDREN + childNumber;
