@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partition;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -103,8 +104,8 @@ public class TestDynamicgridSpacePartitioner {
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
 	 */
-	@Test
-	public void getMergeCandidates() throws ZookeeperException, 
+	@Test(timeout=60000)
+	public void testGetMergeCandidates() throws ZookeeperException, 
 		ZookeeperNotFoundException, BBoxDBException {
 		
 		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
@@ -115,7 +116,7 @@ public class TestDynamicgridSpacePartitioner {
 		final List<List<DistributionRegion>> candidates1 = spacePartitioner.getMergeCandidates(regionToMerge1);
 		Assert.assertEquals(1, candidates1.size());
 		
-		// Unmergeable child regin
+		// Unmergeable child region
 		final DistributionRegion regionToMerge2 = rootElement.getChildNumber(0).getChildNumber(0);
 		final List<List<DistributionRegion>> candidates2 = spacePartitioner.getMergeCandidates(regionToMerge2);
 		Assert.assertEquals(0, candidates2.size());
@@ -124,6 +125,45 @@ public class TestDynamicgridSpacePartitioner {
 		final DistributionRegion regionToMerge3 = rootElement;
 		final List<List<DistributionRegion>> candidates3 = spacePartitioner.getMergeCandidates(regionToMerge3);
 		Assert.assertEquals(0, candidates3.size());
+	}
+	
+	/**
+	 * Is the region splitable
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
+	 */
+	@Test(timeout=60000)
+	public void testIsSplitable() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
+		
+		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
+		final DistributionRegion rootElement = spacePartitioner.getRootNode();
+		
+		final DistributionRegion regionToSplit = rootElement.getChildNumber(0).getChildNumber(0);
+		
+		Assert.assertTrue(spacePartitioner.isSplitable(regionToSplit));
+	}
+	
+	/**
+	 * Split the given region
+	 * @throws BBoxDBException 
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	@Test(timeout=60000)
+	public void testSplitRegion() throws BBoxDBException, ZookeeperException, ZookeeperNotFoundException {
+		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
+		final DistributionRegion rootElement = spacePartitioner.getRootNode();
+		
+		final DistributionRegion regionToSplit = rootElement.getChildNumber(0).getChildNumber(0);
+		
+		final int oldChildren = regionToSplit.getParent().getThisAndChildRegions().size();
+		
+		spacePartitioner.splitRegion(regionToSplit, Arrays.asList(new BoundingBox(1d, 2d, 1d, 2d)));
+		
+		final int newChilden = regionToSplit.getParent().getThisAndChildRegions().size();
+		
+		Assert.assertTrue(oldChildren + 2 == newChilden);
 	}
 	
 	/**
