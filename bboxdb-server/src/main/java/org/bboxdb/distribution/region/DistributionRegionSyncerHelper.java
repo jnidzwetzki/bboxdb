@@ -55,7 +55,8 @@ public class DistributionRegionSyncerHelper {
 					MUTEX.wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
-					logger.warn("Unable to wait for predicate for: {}", region);
+					logger.warn("Got interrupt exception, unable to wait for predicate for: {}", region);
+					return;
 				}
 			}
 		}
