@@ -159,11 +159,17 @@ public class TestDynamicgridSpacePartitioner {
 		
 		final int oldChildren = regionToSplit.getParent().getThisAndChildRegions().size();
 		
-		spacePartitioner.splitRegion(regionToSplit, Arrays.asList(new BoundingBox(1d, 2d, 1d, 2d)));
+		final List<BoundingBox> samples = Arrays.asList(new BoundingBox(1d, 2d, 1d, 2d));
+		final List<DistributionRegion> newRegions = spacePartitioner.splitRegion(regionToSplit, samples);
+		Assert.assertEquals(2, newRegions.size());
 		
-		final int newChilden = regionToSplit.getParent().getThisAndChildRegions().size();
+		final int newChilden1 = regionToSplit.getParent().getThisAndChildRegions().size();
+		Assert.assertTrue(oldChildren + 2 == newChilden1);
 		
-		Assert.assertTrue(oldChildren + 2 == newChilden);
+		spacePartitioner.splitComplete(regionToSplit, newRegions);
+		
+		final int newChilden2 = regionToSplit.getParent().getThisAndChildRegions().size();
+		Assert.assertTrue(oldChildren + 1 == newChilden2);
 	}
 	
 	/**

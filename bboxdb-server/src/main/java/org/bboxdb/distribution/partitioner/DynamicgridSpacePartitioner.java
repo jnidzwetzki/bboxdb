@@ -54,9 +54,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final BoundingBox regionBox = regionToSplit.getConveringBox();
 			final double splitPosition = splitpointStrategy.getSplitPoint(0, regionBox);
 			
-			splitNode(regionToSplit, splitPosition);
-			
-			return regionToSplit.getDirectChildren();
+			return splitNode(regionToSplit, splitPosition);			
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		} 	
@@ -66,10 +64,11 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 	 * Split the node at the given split point
 	 * @param regionToSplit
 	 * @param splitPosition
+	 * @return 
 	 * @throws BBoxDBException
 	 * @throws ResourceAllocationException 
 	 */
-	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition)
+	public List<DistributionRegion> splitNode(final DistributionRegion regionToSplit, final double splitPosition)
 			throws BBoxDBException, ResourceAllocationException {
 		
 		try {
@@ -113,6 +112,11 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			SpacePartitionerHelper.allocateSystemsToRegion(child2Path, fullname, 
 					blacklistSystems, zookeeperClient);
 
+			final DistributionRegion root = regionToSplit.getRootRegion();
+			final DistributionRegion region1 = distributionRegionZookeeperAdapter.getNodeForPath(root, child1Path);
+			final DistributionRegion region2 = distributionRegionZookeeperAdapter.getNodeForPath(root, child2Path);
+
+			return Arrays.asList(region1, region2);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} catch (InterruptedException e) {
