@@ -120,9 +120,12 @@ public class TestKDtreeSpacePartitioner {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ResourceAllocationException 
+	 * @throws InterruptedException 
 	 */
 	@Test(timeout=60000)
-	public void testGetMergeCandidates() throws ZookeeperException, BBoxDBException, ZookeeperNotFoundException, ResourceAllocationException {
+	public void testGetMergeCandidates() throws ZookeeperException, BBoxDBException, 
+		ZookeeperNotFoundException, ResourceAllocationException, InterruptedException {
+		
 		createNewDistributionGroup(2); 
 		
 		final KDtreeSpacePartitioner spacepartitionier = getSpacePartitioner();

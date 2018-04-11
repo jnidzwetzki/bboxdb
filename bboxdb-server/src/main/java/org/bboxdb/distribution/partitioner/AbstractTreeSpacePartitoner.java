@@ -180,9 +180,10 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	/**
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
+	 * @throws InterruptedException 
 	 */
 	protected void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit, 
-			final int noOfChildren) {
+			final int noOfChildren) throws InterruptedException {
 		
 		final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == noOfChildren;
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);		
@@ -191,10 +192,11 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	/**
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
+	 * @throws InterruptedException 
 	 */
 	@VisibleForTesting
 	public void waitForSplitCompleteZookeeperCallback(final DistributionRegion regionToSplit, 
-			final int noOfChildren) {
+			final int noOfChildren) throws InterruptedException {
 		
 		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r, noOfChildren);
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
@@ -204,9 +206,10 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * Wait until the node state is
 	 * @param region
 	 * @param state
+	 * @throws InterruptedException 
 	 */
 	@VisibleForTesting
-	public void waitUntilNodeStateIs(final DistributionRegion region, final DistributionRegionState state) {
+	public void waitUntilNodeStateIs(final DistributionRegion region, final DistributionRegionState state) throws InterruptedException {
 		final Predicate<DistributionRegion> predicate = (r) -> r.getState() == state;
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, region, distributionRegionSyncer);
 	}
@@ -232,9 +235,10 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	/**
 	 * Set children to active and wait
 	 * @param numberOfChilden2 
+	 * @throws InterruptedException 
 	 */
 	protected void setStateToRedistributionActiveAndWait(final DistributionRegion regionToSplit, final int numberOfChilden) 
-			throws ZookeeperException {
+			throws ZookeeperException, InterruptedException {
 		
 		// update state
 		for (final DistributionRegion region : regionToSplit.getAllChildren()) {

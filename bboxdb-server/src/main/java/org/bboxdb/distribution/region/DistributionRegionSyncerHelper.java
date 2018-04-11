@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.region;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -33,32 +34,28 @@ public class DistributionRegionSyncerHelper {
 	 * Wait for predicate
 	 * @param predicate
 	 * @param region
+	 * @throws InterruptedException 
 	 */
 	public static void waitForPredicate(final Predicate<DistributionRegion> predicate, 
-			final DistributionRegion region, final DistributionRegionSyncer syncer) {
+			final DistributionRegion region, final DistributionRegionSyncer syncer) 
+					throws InterruptedException {
 		
-		final Object MUTEX = new Object();
+		final CountDownLatch latch = new CountDownLatch(1);
 		
 		final DistributionRegionCallback callback = (e, r) -> {
-			synchronized (MUTEX) {
-				MUTEX.notifyAll();
+			if(predicate.test(region)) {
+				logger.debug("Predicate {} is true, wake up latch", predicate);
+				latch.countDown();
 			}
 		};
 		
 		syncer.registerCallback(callback);
 		
-		// Wait for zookeeper callback
-		synchronized (MUTEX) {
-			while(! predicate.test(region)) {
-				logger.debug("Wait for zookeeper callback for predicate for: {}", region);
-				try {
-					MUTEX.wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					logger.warn("Got interrupt exception, unable to wait for predicate for: {}", region);
-					return;
-				}
-			}
+		// Test if predicate is already true (condition was true, when we were called)
+		// In this case, we don't need to wait
+		if(! predicate.test(region)) {
+			logger.debug("Wait for predicate {}", predicate);
+			latch.await();
 		}
 		
 		syncer.unregisterCallback(callback);

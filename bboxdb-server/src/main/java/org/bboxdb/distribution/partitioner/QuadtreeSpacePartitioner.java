@@ -71,6 +71,9 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			return regionToSplit.getDirectChildren();
 		} catch (ZookeeperException | ZookeeperNotFoundException | ResourceAllocationException e) {
 			throw new BBoxDBException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new BBoxDBException(e);
 		} 
 	}
 

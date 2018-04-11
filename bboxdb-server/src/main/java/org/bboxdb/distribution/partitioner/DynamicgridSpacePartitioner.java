@@ -115,6 +115,9 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new BBoxDBException(e);
 		} 
 	}
 
