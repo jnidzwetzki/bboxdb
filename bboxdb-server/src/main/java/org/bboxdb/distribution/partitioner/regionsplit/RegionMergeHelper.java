@@ -76,7 +76,7 @@ public class RegionMergeHelper {
 		
 		final boolean inactiveChilds = sources.stream()
 				.anyMatch(c -> c.getState() != DistributionRegionState.ACTIVE);
-		
+				
 		if(inactiveChilds) {
 			logger.info("Not all children ready, skip merge test for {}", sourceIds);
 			return false;

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
@@ -89,7 +90,6 @@ public class TestQuadtreeSpacePartitioner {
 		BBoxDBException, ResourceAllocationException, InterruptedException {
 		
 		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
-		
 		final DistributionRegion rootNode = spacepartitionier.getRootNode();
 		
 		Assert.assertEquals(0, rootNode.getDirectChildren().size());
@@ -98,7 +98,7 @@ public class TestQuadtreeSpacePartitioner {
 		
 		System.out.println("=== Split region");
 		final DistributionRegion child1 = rootNode.getChildNumber(1);
-		final List<DistributionRegion> destination =  spacepartitionier.splitRegion(child1, new HashSet<>());
+		final List<DistributionRegion> destination = spacepartitionier.splitRegion(child1, new HashSet<>());
 		Assert.assertEquals(4, child1.getDirectChildren().size());
 		Assert.assertEquals(8, rootNode.getAllChildren().size());		
 		
@@ -145,10 +145,11 @@ public class TestQuadtreeSpacePartitioner {
 	 * @throws BBoxDBException
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
+	 * @throws InterruptedException 
 	 */
 	@Test(timeout=60000)
 	public void testOverflowUnderflow() throws BBoxDBException, 
-		ZookeeperException, ZookeeperNotFoundException {
+		ZookeeperException, ZookeeperNotFoundException, InterruptedException {
 		
 		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
 		
@@ -168,6 +169,26 @@ public class TestQuadtreeSpacePartitioner {
 
 		Assert.assertTrue(RegionMergeHelper.isMergingBySpacePartitionerAllowed(rootNode));
 		Assert.assertTrue(RegionMergeHelper.isMergingByZookeeperAllowed(rootNode));
+		
+		final CountDownLatch changeLatch = new CountDownLatch(1);
+		
+		final DistributionRegionCallback callback = (e, r) -> { 
+			final boolean notAllReady = rootNode
+					.getAllChildren()
+					.stream()
+					.anyMatch(a -> a.getState() != DistributionRegionState.ACTIVE);
+			
+			if(! notAllReady) {
+				changeLatch.countDown();
+			}
+		};
+		
+		final DistributionRegionSyncer distributionRegionSyncer 
+			= spacepartitionier.getDistributionRegionSyncer();
+		
+		distributionRegionSyncer.registerCallback(callback);
+		changeLatch.await();
+		distributionRegionSyncer.unregisterCallback(callback);
 		
 		Assert.assertFalse(RegionMergeHelper.isRegionUnderflow(destination));
 	}
