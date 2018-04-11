@@ -268,8 +268,8 @@ public class DistributionRegionIdMapper {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		final long waitTimeInMilis = timeUnit.toMillis(maxWaitTime);
 
-		synchronized (MUTEX) {
-			while(! predicate.test(getAllRegionIds())) {
+		while(! predicate.test(getAllRegionIds())) {
+			synchronized (MUTEX) {
 				MUTEX.wait(waitTimeInMilis);
 				
 				final long passedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
