@@ -18,12 +18,16 @@
 package org.bboxdb.distribution.partition;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -79,7 +83,8 @@ public class TestQuadtreeSpacePartitioner {
 	}
 	
 	@Test(timeout=60000)
-	public void testSplit1() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, ResourceAllocationException {
+	public void testSplit1() throws ZookeeperException, ZookeeperNotFoundException, 
+		BBoxDBException, ResourceAllocationException, InterruptedException {
 		
 		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
 		
@@ -89,10 +94,48 @@ public class TestQuadtreeSpacePartitioner {
 		spacepartitionier.splitRegion(rootNode, new HashSet<>());
 		Assert.assertEquals(4, rootNode.getDirectChildren().size());
 		
+		System.out.println("=== Split region");
 		final DistributionRegion child1 = rootNode.getChildNumber(1);
-		spacepartitionier.splitRegion(child1, new HashSet<>());
+		final List<DistributionRegion> destination =  spacepartitionier.splitRegion(child1, new HashSet<>());
 		Assert.assertEquals(4, child1.getDirectChildren().size());
 		Assert.assertEquals(8, rootNode.getAllChildren().size());		
+		
+		final DistributionRegionSyncer distributionRegionSyncer 
+			= spacepartitionier.getDistributionRegionSyncer();
+		
+		System.out.println("=== Split failed");
+		final CountDownLatch changeLatch = new CountDownLatch(1);
+		
+		final DistributionRegionCallback callback = (e, r) -> { 
+			if(rootNode.getAllChildren().size() == 4) {
+				changeLatch.countDown();
+			}
+		};
+		
+		distributionRegionSyncer.registerCallback(callback);
+		spacepartitionier.splitFailed(child1, destination);
+		changeLatch.await();
+		distributionRegionSyncer.unregisterCallback(callback);
+		
+		Assert.assertEquals(4, rootNode.getAllChildren().size());
+	}
+	
+	@Test(timeout=60000)
+	public void testMerge() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
+		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
+		
+		final DistributionRegion rootNode = spacepartitionier.getRootNode();
+		
+		Assert.assertEquals(0, rootNode.getDirectChildren().size());
+		spacepartitionier.splitRegion(rootNode, new HashSet<>());
+		Assert.assertEquals(4, rootNode.getDirectChildren().size());
+		
+		final DistributionRegion mergeRegion = spacepartitionier.getDestinationForMerge(
+				rootNode.getDirectChildren());
+		
+		Assert.assertEquals(rootNode, mergeRegion);
+		
+		spacepartitionier.mergeFailed(rootNode.getDirectChildren(), mergeRegion);
 	}
 	
 	/**
