@@ -37,6 +37,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
@@ -196,6 +197,14 @@ public class TestQuadtreeSpacePartitioner {
 		
 		final BBoxDBInstance localName = ZookeeperClientFactory.getLocalInstanceName();
 		Assert.assertFalse(RegionMergeHelper.isRegionUnderflow(destination, localName));
+	}
+	
+	@Test(timeout=60000)
+	public void testConfiguredRegionSize() throws ZookeeperException, 
+		ZookeeperNotFoundException, BBoxDBException {
+						
+		final long regionSize = RegionMergeHelper.getConfiguredRegionMinSizeInMB(TEST_GROUP);
+		Assert.assertEquals(Const.DEFAULT_MIN_REGION_SIZE, regionSize);
 	}
 	
 	/**

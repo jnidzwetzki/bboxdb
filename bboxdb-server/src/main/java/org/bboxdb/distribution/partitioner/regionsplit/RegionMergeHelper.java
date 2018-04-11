@@ -51,7 +51,7 @@ public class RegionMergeHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	private static long getConfiguredRegionMinSizeInMB(final String fullname) 
+	public static long getConfiguredRegionMinSizeInMB(final String fullname) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 				
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
