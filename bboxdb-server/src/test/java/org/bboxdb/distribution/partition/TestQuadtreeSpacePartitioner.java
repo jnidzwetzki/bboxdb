@@ -23,6 +23,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
@@ -136,6 +138,38 @@ public class TestQuadtreeSpacePartitioner {
 		Assert.assertEquals(rootNode, mergeRegion);
 		
 		spacepartitionier.mergeFailed(rootNode.getDirectChildren(), mergeRegion);
+	}
+	
+	/**
+	 * Test region underflow and overflow
+	 * @throws BBoxDBException
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	@Test(timeout=60000)
+	public void testOverflowUnderflow() throws BBoxDBException, 
+		ZookeeperException, ZookeeperNotFoundException {
+		
+		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
+		
+		final DistributionRegion rootNode = spacepartitionier.getRootNode();
+		Assert.assertTrue(RegionSplitHelper.isSplittingSupported(rootNode));
+
+		Assert.assertEquals(0, rootNode.getDirectChildren().size());
+		Assert.assertTrue(RegionSplitHelper.isSplittingSupported(rootNode));
+		Assert.assertFalse(RegionSplitHelper.isRegionOverflow(rootNode));
+		
+		final List<DistributionRegion> destination = spacepartitionier.splitRegion(rootNode, new HashSet<>());
+		spacepartitionier.splitComplete(rootNode, destination);
+		Assert.assertEquals(4, rootNode.getDirectChildren().size());
+		
+		Assert.assertEquals(1, RegionMergeHelper.getMergingCandidates(rootNode).size());
+		Assert.assertEquals(4, RegionMergeHelper.getMergingCandidates(rootNode).get(0).size());
+
+		Assert.assertTrue(RegionMergeHelper.isMergingBySpacePartitionerAllowed(rootNode));
+		Assert.assertTrue(RegionMergeHelper.isMergingByZookeeperAllowed(rootNode));
+		
+		Assert.assertFalse(RegionMergeHelper.isRegionUnderflow(destination));
 	}
 	
 	/**
