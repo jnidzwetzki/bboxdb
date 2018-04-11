@@ -151,7 +151,7 @@ public class TestDynamicgridSpacePartitioner {
 	 * @throws ZookeeperException 
 	 */
 	@Test(timeout=60000)
-	public void testSplitRegion() throws BBoxDBException, ZookeeperException, ZookeeperNotFoundException {
+	public void testSplitAndMergeRegion() throws BBoxDBException, ZookeeperException, ZookeeperNotFoundException {
 		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
 		
@@ -170,6 +170,16 @@ public class TestDynamicgridSpacePartitioner {
 		
 		final int newChilden2 = regionToSplit.getParent().getThisAndChildRegions().size();
 		Assert.assertTrue(oldChildren + 1 == newChilden2);
+		
+		// Merge failed
+		final DistributionRegion mergeRegion1 = spacePartitioner.getDestinationForMerge(newRegions);
+		Assert.assertTrue(mergeRegion1 != null);
+		spacePartitioner.mergeFailed(newRegions, mergeRegion1);
+		
+		// Merge successfully
+		final DistributionRegion mergeRegion2 = spacePartitioner.getDestinationForMerge(newRegions);
+		Assert.assertTrue(mergeRegion2 != null);
+		spacePartitioner.mergeComplete(newRegions, mergeRegion2);
 	}
 	
 	/**

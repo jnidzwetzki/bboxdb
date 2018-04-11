@@ -160,16 +160,21 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final String parentPath = distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(parent);
 			
 			final long childNumber = parent.getHighestChildNumber();
+			final int oldNumberOfhildren = parent.getDirectChildren().size();
 			
 			final String childPath = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
-					childNumber, bbox, distributionGroupName);
+					childNumber + 1, bbox, distributionGroupName);
+			
+			final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == oldNumberOfhildren + 1;
+			DistributionRegionSyncerHelper.waitForPredicate(predicate, parent, distributionRegionSyncer);
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
 					new ArrayList<>(), zookeeperClient);
 			
 			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
 	
-			return distributionRegionZookeeperAdapter.getNodeForPath(source.get(0).getRootRegion(), childPath);
+			final DistributionRegion rootRegion = source.get(0).getRootRegion();
+			return distributionRegionZookeeperAdapter.getNodeForPath(rootRegion, childPath);
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		}
