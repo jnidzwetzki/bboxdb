@@ -10,7 +10,7 @@ order: 1
 - New Feature: BBoxDB can now be run in a Docker container
 - Improvement: Updated dependencies (snakeyaml 1.19 -> 1.20, mockito 2.15 -> 2.18)
 - Bugfix: Fixed NPE in dynamic grid space partitioner
-- Bugfix: Fixed some bugs in the dynamic grid space partitioner
+- Bugfix: Fixed several bugs in the dynamic grid space partitioner
 - Bugfix: Fixed a bug in the path decoding when a region is deleted
 
 ### Version 0.6.0 - 09.04.2018
