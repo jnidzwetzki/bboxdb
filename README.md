@@ -30,7 +30,9 @@ Using the key to locate the data works well with one-dimensional data, but it be
 
 <img src="docs/images/key_example.jpg" width="400">
 
-_Example with one-dimensional data:_ The records of your customers could be efficiently stored using the _customer id_, if the customer id is always known when the data is accessed. When the customer logs in to your online shop with his customer id and his password, you can simply retrieve the customer record from the key-value store.
+_Example with one-dimensional data:_ Imagine that you have an online shop and you want to store all of your customers in a key-value store. A customer has attributes like a _customer id_, a _first name_ and a _last name_. To keep the example simple, we imagine that the records are only accessed using the _customer id_ attribute. Therefore, the records of the customers could be stored and retrieved efficiently using the _customer id_ attribute. 
+
+When the customer logs in to your online shop with his customer id, you can simply retrieve the full customer record from the key-value store by knowing the customer id.
 
 _Example with two-dimensional data:_ When you store the geographical information about a road, which key should you choose for the record? You can use the name of the road (e.g., _road 66_). However, this type of key does not help you to retrieve the road by knowing its coordinates. If you have a certain point in space and want to know which roads are located there, you have to perform a full data scan. 
 
