@@ -30,7 +30,7 @@ Using the key to locate the data works well with one-dimensional data, but it be
 
 <img src="docs/images/key_example.jpg" width="400">
 
-_Example with one-dimensional data:_ Imagine that you have an online shop and you want to store all of your customers in a key-value store. A customer has attributes like a _customer id_, a _first name_ and a _last name_. To keep the example simple, we imagine that the records are only accessed using the _customer id_ attribute. Therefore, the records of the customers could be stored and retrieved efficiently using the _customer id_ attribute. 
+_Example with one-dimensional data:_ Imagine that you have an online shop and you want to store all of your customers in a key-value store. A customer record has attributes like a _customer id_, a _first name_ and a _last name_. To keep the example simple, we assume that the customer records are only accessed using the _customer id_ attribute. Therefore, the records of the customers could be managed efficiently in a key-value store using the _customer id_ attribute as key and the full customer record as value. 
 
 When the customer logs in to your online shop with his customer id, you can simply retrieve the full customer record from the key-value store by knowing the customer id.
 
