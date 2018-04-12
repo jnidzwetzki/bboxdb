@@ -43,7 +43,7 @@ public class RegionMergeHelper {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(RegionMergeHelper.class);
+	private final static Logger logger = LoggerFactory.getLogger(RegionMergeHelper.class);
 	
 	/**
 	 * Get minimal size of a region

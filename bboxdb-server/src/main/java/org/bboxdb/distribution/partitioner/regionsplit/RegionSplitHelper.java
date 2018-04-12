@@ -37,7 +37,7 @@ public class RegionSplitHelper {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitHelper.class);
+	private final static Logger logger = LoggerFactory.getLogger(RegionSplitHelper.class);
 	
 	/**
 	 * Needs the region a split?

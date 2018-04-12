@@ -27,7 +27,7 @@ public class SimpleSplitStrategy implements SplitpointStrategy {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(SimpleSplitStrategy.class);
+	private final static Logger logger = LoggerFactory.getLogger(SimpleSplitStrategy.class);
 
 	/**
 	 * Perform a split of the given distribution region
@@ -38,7 +38,7 @@ public class SimpleSplitStrategy implements SplitpointStrategy {
 		// Split region
 		final DoubleInterval interval = coveringBox.getIntervalForDimension(splitDimension);
 		
-		logger.info("Split at dimension:" + splitDimension + " interval: " + interval);
+		logger.info("Split at dimension: {} interval: {}", splitDimension, interval);
 		return interval.getMidpoint();
 	}
 }

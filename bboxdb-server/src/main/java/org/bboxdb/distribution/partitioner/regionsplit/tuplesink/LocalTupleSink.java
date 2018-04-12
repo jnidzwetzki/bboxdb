@@ -24,10 +24,11 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
 public class LocalTupleSink extends AbstractTupleSink {
+	
 	/**
 	 * The storage manager to store the tuple
 	 */
-	protected final TupleStoreManager storageManager;
+	private final TupleStoreManager storageManager;
 	
 	public LocalTupleSink(final TupleStoreName tablename, final TupleStoreManager storageManager) {
 		super(tablename);

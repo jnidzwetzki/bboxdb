@@ -24,10 +24,11 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 
 public class NetworkTupleSink extends AbstractTupleSink {
+	
 	/**
 	 * The connection to spread data too
 	 */
-	protected final BBoxDBConnection connection;
+	private final BBoxDBConnection connection;
 
 	public NetworkTupleSink(final TupleStoreName tablename, final BBoxDBConnection connection) {
 		super(tablename);
