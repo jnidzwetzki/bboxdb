@@ -2,7 +2,9 @@
 
 # What is BBoxDB?
 
-BBoxDB is a highly available distributed storage manager, designed to handle multi-dimensional big data. BBoxDB uses SSTables (String Sorted Tables) for a high throughput of read and write operations. Primarily, the software is a research project to explore new ways to handle multi-dimensional data in a distributed environment.
+BBoxDB is a highly available distributed storage manager, designed to handle multi-dimensional big data.  Primarily, the software is a research project to explore new ways to handle multi-dimensional data in a distributed environment. 
+
+In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (e.g., regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
 
 <a href="https://travis-ci.org/jnidzwetzki/bboxdb">
   <img alt="Build Status" src="https://travis-ci.org/jnidzwetzki/bboxdb.svg?branch=master">
@@ -18,7 +20,7 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
 </a>
 
-__Please Note:__ The master branch may be in an unstable state during development. Please use our releases for productive envirionments.
+__Please Note:__ The master branch may be in an unstable state during development. Please use our releases for productive environments.
 
 ## What is the difference to traditional key-value-stores?
 
