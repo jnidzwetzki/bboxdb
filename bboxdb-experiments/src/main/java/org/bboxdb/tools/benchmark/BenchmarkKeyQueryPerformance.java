@@ -72,7 +72,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		
 		// Remove old data
 		final EmptyResultFuture deleteResult = bboxdbClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		deleteResult.waitForAll();
+		deleteResult.waitForCompletion();
 		
 		// Create a new distribution group
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create(3)
@@ -82,7 +82,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
 				config);
 		
-		createResult.waitForAll();
+		createResult.waitForCompletion();
 		
 		logger.info("Inserting {} tuples", tuplesToInsert);
 	
@@ -114,7 +114,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 			final long start = System.nanoTime();
 			final TupleListFuture result = bboxdbClient.queryKey(TABLE, Integer.toString(40));
 			
-			result.waitForAll();
+			result.waitForCompletion();
 
 			if(result.isFailed()) {
 				logger.warn("Query failed: {}", result.getAllMessages());

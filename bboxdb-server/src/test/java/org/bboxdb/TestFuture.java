@@ -42,7 +42,7 @@ public class TestFuture {
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(networkFuture, 
 				FutureRetryPolicy.RETRY_POLICY_NONE);
 		
-		future.waitForAll();
+		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 		Assert.assertEquals(1, networkFuture.getExecutions());
@@ -59,7 +59,7 @@ public class TestFuture {
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
 				FutureRetryPolicy.RETRY_POLICY_NONE);
 		
-		future.waitForAll();
+		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 		Assert.assertEquals(1, networkFuture1.getExecutions());
@@ -73,7 +73,7 @@ public class TestFuture {
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(networkFuture, 
 				FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
 		
-		future.waitForAll();
+		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
@@ -90,7 +90,7 @@ public class TestFuture {
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
 				FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
 		
-		future.waitForAll();
+		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture1.getExecutions());
@@ -108,7 +108,7 @@ public class TestFuture {
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
 				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
 		
-		future.waitForAll();
+		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
@@ -125,7 +125,7 @@ public class TestFuture {
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier, 
 				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
 		
-		future.waitForAll();
+		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 		

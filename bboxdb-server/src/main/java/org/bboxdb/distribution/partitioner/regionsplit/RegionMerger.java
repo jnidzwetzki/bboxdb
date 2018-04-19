@@ -269,7 +269,7 @@ public class RegionMerger {
 		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
 		final TupleListFuture result = bboxDBClient.queryBoundingBox(fullname, bbox);
 
-		result.waitForAll();
+		result.waitForCompletion();
 
 		if(result.isFailed()) {
 			throw new StorageManagerException("Exception while fetching tuples: " 

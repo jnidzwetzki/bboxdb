@@ -98,7 +98,7 @@ public interface OperationFuture {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public void waitForAll() throws InterruptedException;
+	public void waitForCompletion() throws InterruptedException;
 	
 	/**
 	 * Wait for the future to complete (with timeout)
@@ -109,7 +109,7 @@ public interface OperationFuture {
 	 * @throws ExecutionException
 	 * @throws TimeoutException 
 	 */
-	public void waitForAll(final long timeout, final TimeUnit unit) 
+	public void waitForCompletion(final long timeout, final TimeUnit unit) 
 			throws InterruptedException, TimeoutException;
 	
 	/**

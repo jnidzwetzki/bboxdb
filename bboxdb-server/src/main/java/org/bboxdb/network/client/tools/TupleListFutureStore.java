@@ -200,7 +200,7 @@ class RequestWorker extends ExceptionSafeRunnable {
 				}
 
 				if(future != null) {
-					future.waitForAll();
+					future.waitForCompletion();
 					final Iterator<Tuple> iter = future.iterator();
 					while(iter.hasNext()) {
 						iter.next();

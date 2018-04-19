@@ -154,7 +154,7 @@ public class PackageRouter {
 				routingHeader);
 		
 		try {
-			insertFuture.waitForAll(ROUTING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
+			insertFuture.waitForCompletion(ROUTING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 		} catch (TimeoutException e) {
 			logger.warn("Routing timeout, retry routing: {}", connection);
 			return false;

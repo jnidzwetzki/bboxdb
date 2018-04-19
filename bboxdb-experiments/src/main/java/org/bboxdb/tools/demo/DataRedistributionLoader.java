@@ -169,7 +169,7 @@ public class DataRedistributionLoader implements Runnable {
 			// Delete old distribution group
 			System.out.println("Delete old distribution group");
 			final EmptyResultFuture dgroupDeleteResult = bboxDBCluster.deleteDistributionGroup(DGROUP);
-			dgroupDeleteResult.waitForAll();
+			dgroupDeleteResult.waitForCompletion();
 			
 			if(dgroupDeleteResult.isFailed()) {
 				System.err.println(dgroupDeleteResult.getAllMessages());
@@ -187,7 +187,7 @@ public class DataRedistributionLoader implements Runnable {
 					.build();
 			
 			final EmptyResultFuture dgroupCreateResult = bboxDBCluster.createDistributionGroup(DGROUP, dgroupConfig);
-			dgroupCreateResult.waitForAll();
+			dgroupCreateResult.waitForCompletion();
 			
 			if(dgroupCreateResult.isFailed()) {
 				System.err.println(dgroupCreateResult.getAllMessages());
@@ -200,7 +200,7 @@ public class DataRedistributionLoader implements Runnable {
 				= TupleStoreConfigurationBuilder.create().allowDuplicates(false).build();
 			
 			final EmptyResultFuture tableCreateResult = bboxDBCluster.createTable(TABLE, storeConfiguration);
-			tableCreateResult.waitForAll();
+			tableCreateResult.waitForCompletion();
 			
 			if(tableCreateResult.isFailed()) {
 				System.err.println(tableCreateResult.getAllMessages());

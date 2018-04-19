@@ -328,7 +328,7 @@ public class BBoxDBConnection {
 		});
 		
 		final HelloFuture helloFuture = new HelloFuture(operationFuture);
-		helloFuture.waitForAll();
+		helloFuture.waitForCompletion();
 
 		if(operationFuture.isFailed()) {
 			throw new Exception("Got an error during handshake");

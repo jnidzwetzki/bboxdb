@@ -67,7 +67,7 @@ public class BBoxDBClientExample {
 		
 		// Clean the old content of the distribution group
 		final EmptyResultFuture deleteGroupResult = bboxdbClient.deleteDistributionGroup(distributionGroup);
-		deleteGroupResult.waitForAll();
+		deleteGroupResult.waitForCompletion();
 		if(deleteGroupResult.isFailed()) {
 			System.err.println("Unable to delete distribution group: " + distributionGroup);
 			System.err.println(deleteGroupResult.getAllMessages());
@@ -82,7 +82,7 @@ public class BBoxDBClientExample {
 		final EmptyResultFuture createGroupResult = bboxdbClient.createDistributionGroup(distributionGroup, 
 				configuration);
 		
-		createGroupResult.waitForAll();
+		createGroupResult.waitForCompletion();
 		if(createGroupResult.isFailed()) {
 			System.err.println("Unable to create distribution group: " + distributionGroup);
 			System.err.println(createGroupResult.getAllMessages());
@@ -96,7 +96,7 @@ public class BBoxDBClientExample {
 		
 		final EmptyResultFuture createTableResult = bboxdbClient.createTable(mytable, tableConfig);
 		
-		createTableResult.waitForAll();
+		createTableResult.waitForCompletion();
 		if(createTableResult.isFailed()) {
 			System.err.println("Unable to create table group: " + mytable);
 			System.err.println(createTableResult.getAllMessages());
@@ -111,8 +111,8 @@ public class BBoxDBClientExample {
 		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(mytable, tuple2);
 		
 		// Wait for the insert operations to complete
-		insertResult1.waitForAll();
-		insertResult2.waitForAll();
+		insertResult1.waitForCompletion();
+		insertResult2.waitForCompletion();
 		
 		if(insertResult1.isFailed()) {
 			System.err.println("Unable to insert tuple: " + insertResult1.getAllMessages());
@@ -129,7 +129,7 @@ public class BBoxDBClientExample {
 		
 		// We got a future object, the search is performed asynchronous
 		// Wait for the result
-		resultFuture1.waitForAll();
+		resultFuture1.waitForCompletion();
 		
 		if(resultFuture1.isFailed()) {
 			System.err.println("NetworkOperationFuture is failed: " + resultFuture1.getAllMessages());
@@ -145,7 +145,7 @@ public class BBoxDBClientExample {
 		final TupleListFuture resultFuture2 = bboxdbClient.queryBoundingBox(mytable, new BoundingBox(-0.5d, 1d, -0.5d, 1d));
 		
 		// Again, we got a future object, the search is performed asynchronous
-		resultFuture2.waitForAll();
+		resultFuture2.waitForCompletion();
 		
 		if(resultFuture2.isFailed()) {
 			System.err.println("NetworkOperationFuture is failed: " + resultFuture2.getAllMessages());

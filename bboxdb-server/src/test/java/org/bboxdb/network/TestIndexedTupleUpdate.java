@@ -106,7 +106,7 @@ public class TestIndexedTupleUpdate {
 		
 		final String indexGroupName = IndexedTupleUpdateHelper.IDX_DGROUP_PREFIX + DISTRIBUTION_GROUP;
 		final EmptyResultFuture resultDelete = bboxdbConnection.deleteDistributionGroup(indexGroupName);
-		resultDelete.waitForAll();
+		resultDelete.waitForCompletion();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		bboxdbConnection.createTable(TABLENAME, TupleStoreConfigurationBuilder.create().build());
@@ -175,7 +175,7 @@ public class TestIndexedTupleUpdate {
 		final IndexedTupleUpdateHelper indexedTupleUpdateHelper = new IndexedTupleUpdateHelper(cluster);
 		
 		final EmptyResultFuture update1Future = indexedTupleUpdateHelper.handleTupleUpdate(TABLENAME, tuple1);
-		update1Future.waitForAll();
+		update1Future.waitForCompletion();
 		Assert.assertFalse(update1Future.isFailed());
 		indexedTupleUpdateHelper.waitForCompletion();
 		
@@ -187,7 +187,7 @@ public class TestIndexedTupleUpdate {
 		final Tuple tuple2 = new Tuple("abc", new BoundingBox(7d, 9d, 4d, 50d), "value2".getBytes());
 
 		final EmptyResultFuture update2Future = indexedTupleUpdateHelper.handleTupleUpdate(TABLENAME, tuple2);
-		update2Future.waitForAll();
+		update2Future.waitForCompletion();
 		Assert.assertFalse(update2Future.isFailed());
 		indexedTupleUpdateHelper.waitForCompletion();
 

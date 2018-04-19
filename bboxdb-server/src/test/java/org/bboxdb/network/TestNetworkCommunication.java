@@ -121,7 +121,7 @@ public class TestNetworkCommunication {
 		// Prevent retries
 		resultCreate.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		
-		resultCreate.waitForAll();
+		resultCreate.waitForCompletion();
 		Assert.assertTrue(resultCreate.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_EXISTS, resultCreate.getMessage(0));
 		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
@@ -142,7 +142,7 @@ public class TestNetworkCommunication {
 		final String table = DISTRIBUTION_GROUP + "_mytable";
 		
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable1.waitForAll();
+		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
@@ -150,7 +150,7 @@ public class TestNetworkCommunication {
 		// Prevent retries
 		resultCreateTable2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		
-		resultCreateTable2.waitForAll();
+		resultCreateTable2.waitForCompletion();
 		Assert.assertTrue(resultCreateTable2.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_EXISTS, resultCreateTable2.getMessage(0));
 		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
@@ -228,14 +228,14 @@ public class TestNetworkCommunication {
 		// Create table
 		final TupleStoreConfiguration configuration = TupleStoreConfigurationBuilder.create().build();
 		final EmptyResultFuture createFuture = bboxDBClient.createTable(tableName, configuration);
-		createFuture.waitForAll();
+		createFuture.waitForCompletion();
 		Assert.assertTrue(createFuture.isDone());
 		Assert.assertFalse(createFuture.isFailed());
 		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
 		// Delete table
 		final EmptyResultFuture deleteResult1 = bboxDBClient.deleteTable(tableName);
-		deleteResult1.waitForAll();
+		deleteResult1.waitForCompletion();
 		Assert.assertTrue(deleteResult1.isDone());
 		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
@@ -243,7 +243,7 @@ public class TestNetworkCommunication {
 		
 		// Second call
 		final EmptyResultFuture deleteResult2 = bboxDBClient.deleteTable(tableName);
-		deleteResult2.waitForAll();
+		deleteResult2.waitForCompletion();
 		Assert.assertTrue(deleteResult2.isDone());
 		Assert.assertFalse(deleteResult2.isFailed());
 		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
@@ -313,7 +313,7 @@ public class TestNetworkCommunication {
 		// Prevent retries
 		insertResult.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 		
@@ -377,35 +377,35 @@ public class TestNetworkCommunication {
 		final BoundingBox boundingBox = new BoundingBox(-1d, 2d, -1d, 2d);
 		final TupleListFuture result1 = bboxDBClient.queryBoundingBox(table, boundingBox);
 		result1.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
-		result1.waitForAll();
+		result1.waitForCompletion();
 		Assert.assertTrue(result1.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result1.getMessage(0));
 		
 		System.out.println("== Waiting for queryKey");
 		final TupleListFuture result2 = bboxDBClient.queryKey(table, "abc");
 		result2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
-		result2.waitForAll();
+		result2.waitForCompletion();
 		Assert.assertTrue(result2.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result2.getMessage(0));
 		
 		System.out.println("== Waiting for queryInsertedTime");
 		final TupleListFuture result3 = bboxDBClient.queryInsertedTime(table, 1234);
 		result3.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
-		result3.waitForAll();
+		result3.waitForCompletion();
 		Assert.assertTrue(result3.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result3.getMessage(0));
 		
 		System.out.println("== Waiting for queryVersionTime");
 		final TupleListFuture result4 = bboxDBClient.queryVersionTime(table, 1234);
 		result4.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
-		result4.waitForAll();
+		result4.waitForCompletion();
 		Assert.assertTrue(result4.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result4.getMessage(0));
 		
 		System.out.println("== Waiting for queryBoundingBoxAndTime");
 		final TupleListFuture result5 = bboxDBClient.queryBoundingBoxAndTime(table, boundingBox, 1234);
 		result5.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
-		result5.waitForAll();
+		result5.waitForCompletion();
 		Assert.assertTrue(result5.isFailed());
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result5.getMessage(0));
 		
@@ -490,7 +490,7 @@ public class TestNetworkCommunication {
 				
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Inside our bbox query
@@ -509,18 +509,18 @@ public class TestNetworkCommunication {
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1d, 2d, 1d, 2d), "lmn".getBytes());
 		final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
 		
-		result1.waitForAll();
-		result2.waitForAll();
-		result3.waitForAll();
-		result4.waitForAll();
-		result5.waitForAll();
+		result1.waitForCompletion();
+		result2.waitForCompletion();
+		result3.waitForCompletion();
+		result4.waitForCompletion();
+		result5.waitForCompletion();
 
 		// Without paging
 		System.out.println("Pages = unlimited");
 		bboxDBClient.setPagingEnabled(false);
 		bboxDBClient.setTuplesPerPage((short) 0);
 		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		future.waitForAll();
+		future.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());		
 		Assert.assertEquals(5, resultList.size());
 		
@@ -529,7 +529,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 10);
 		final TupleListFuture future2 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		future2.waitForAll();
+		future2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(future2.iterator());		
 		Assert.assertEquals(5, resultList2.size());
 		
@@ -538,7 +538,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 5);
 		final TupleListFuture future3 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		future3.waitForAll();
+		future3.waitForCompletion();
 		final List<Tuple> resultList3 = Lists.newArrayList(future3.iterator());		
 		Assert.assertEquals(5, resultList3.size());
 		
@@ -548,7 +548,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setTuplesPerPage((short) 2);
 		final TupleListFuture future4 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		System.out.println("Client is waiting on: " + future4);
-		future4.waitForAll();
+		future4.waitForCompletion();
 		final List<Tuple> resultList4 = Lists.newArrayList(future4.iterator());		
 		Assert.assertEquals(5, resultList4.size());
 		
@@ -557,7 +557,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 1);
 		final TupleListFuture future5 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		future5.waitForAll();
+		future5.waitForCompletion();
 		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());		
 		Assert.assertEquals(5, resultList5.size());
 		
@@ -581,17 +581,17 @@ public class TestNetworkCommunication {
 				
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
 		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
 		
-		result1.waitForAll();
+		result1.waitForCompletion();
 
 		final TupleListFuture future = bboxDBClient.queryKey(table, "abc");
-		future.waitForAll();
+		future.waitForCompletion();
 		
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());		
 		Assert.assertEquals(1, resultList.size());
@@ -632,7 +632,7 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 		
 		final EmptyResultFuture result = bboxDBClient.sendKeepAlivePackage();
-		result.waitForAll();
+		result.waitForCompletion();
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
@@ -700,7 +700,7 @@ public class TestNetworkCommunication {
 		final String table = DISTRIBUTION_GROUP + "_mytable";
 		
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable1.waitForAll();
+		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
@@ -708,25 +708,25 @@ public class TestNetworkCommunication {
 
 		// Lock a non exsting tuple
 		final EmptyResultFuture lockTupleResult1 = bboxDBClient.lockTuple(table, newTuple, false);
-		lockTupleResult1.waitForAll();
+		lockTupleResult1.waitForCompletion();
 		Assert.assertTrue(lockTupleResult1.isDone());
 		Assert.assertTrue(lockTupleResult1.isFailed());
 		
 		// Lock the non existing tuple
 		final EmptyResultFuture lockTupleResult2 = bboxDBClient.lockTuple(table, nonExstingTuple, false);
-		lockTupleResult2.waitForAll();
+		lockTupleResult2.waitForCompletion();
 		Assert.assertTrue(lockTupleResult2.isDone());
 		Assert.assertFalse(lockTupleResult2.isFailed());
 		
 		// Insert a tuple
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, newTuple);
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
 		
 		// Lock the inserted tuple
 		final EmptyResultFuture lockTupleResult3 = bboxDBClient.lockTuple(table, newTuple, false);
-		lockTupleResult3.waitForAll();
+		lockTupleResult3.waitForCompletion();
 		Assert.assertTrue(lockTupleResult3.isDone());
 		Assert.assertFalse(lockTupleResult3.isFailed());
 		
@@ -746,7 +746,7 @@ public class TestNetworkCommunication {
 		final String table = DISTRIBUTION_GROUP + "_mytable";
 		
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient1.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable1.waitForAll();
+		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
@@ -754,37 +754,37 @@ public class TestNetworkCommunication {
 
 		// Insert a tuple
 		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
 		
 		// Lock tuple in connection 1
 		final EmptyResultFuture lockTupleResult1 = bboxDBClient1.lockTuple(table, newTuple, false);
-		lockTupleResult1.waitForAll();
+		lockTupleResult1.waitForCompletion();
 		Assert.assertTrue(lockTupleResult1.isDone());
 		Assert.assertFalse(lockTupleResult1.isFailed());
 		
 		// Try to lock the same tuple in connection 2
 		final EmptyResultFuture lockTupleResult2 = bboxDBClient2.lockTuple(table, newTuple, false);
-		lockTupleResult2.waitForAll();
+		lockTupleResult2.waitForCompletion();
 		Assert.assertTrue(lockTupleResult2.isDone());
 		Assert.assertTrue(lockTupleResult2.isFailed());
 		
 		// Unlock the tuple in connection 1
 		final EmptyResultFuture insertResult2 = bboxDBClient1.insertTuple(table, newTuple2);
-		insertResult2.waitForAll();
+		insertResult2.waitForCompletion();
 		Assert.assertTrue(insertResult2.isDone());
 		Assert.assertFalse(insertResult2.isFailed());
 		
 		// Try to lock the old tuple in connection 2
 		final EmptyResultFuture lockTupleResult4 = bboxDBClient2.lockTuple(table, newTuple, false);
-		lockTupleResult4.waitForAll();
+		lockTupleResult4.waitForCompletion();
 		Assert.assertTrue(lockTupleResult4.isDone());
 		Assert.assertTrue(lockTupleResult4.isFailed());
 		
 		// Try to lock the new tuple in connection 2
 		final EmptyResultFuture lockTupleResult5 = bboxDBClient2.lockTuple(table, newTuple2, false);
-		lockTupleResult5.waitForAll();
+		lockTupleResult5.waitForCompletion();
 		Assert.assertTrue(lockTupleResult5.isDone());
 		Assert.assertFalse(lockTupleResult5.isFailed());
 		
@@ -805,38 +805,38 @@ public class TestNetworkCommunication {
 		final String table = DISTRIBUTION_GROUP + "_mytable";
 		
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient1.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable1.waitForAll();
+		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
 
 		// Insert a tuple
 		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
 		
 		// Lock tuple in connection 1
 		final EmptyResultFuture lockTupleResult1 = bboxDBClient1.lockTuple(table, newTuple, false);
-		lockTupleResult1.waitForAll();
+		lockTupleResult1.waitForCompletion();
 		Assert.assertTrue(lockTupleResult1.isDone());
 		Assert.assertFalse(lockTupleResult1.isFailed());
 		
 		// Try to lock the same tuple in connection 2
 		final EmptyResultFuture lockTupleResult2 = bboxDBClient2.lockTuple(table, newTuple, false);
-		lockTupleResult2.waitForAll();
+		lockTupleResult2.waitForCompletion();
 		Assert.assertTrue(lockTupleResult2.isDone());
 		Assert.assertTrue(lockTupleResult2.isFailed());
 		
 		// Unlock the tuple in connection 1
 		final EmptyResultFuture cancelResultFuture = bboxDBClient1.cancelRequest(lockTupleResult1.getRequestId(0));
-		cancelResultFuture.waitForAll();
+		cancelResultFuture.waitForCompletion();
 		Assert.assertTrue(cancelResultFuture.isDone());
 		Assert.assertFalse(cancelResultFuture.isFailed());
 		
 		// Try to lock the same tuple in connection 2
 		final EmptyResultFuture lockTupleResult4 = bboxDBClient2.lockTuple(table, newTuple, false);
-		lockTupleResult4.waitForAll();
+		lockTupleResult4.waitForCompletion();
 		Assert.assertTrue(lockTupleResult4.isDone());
 		Assert.assertFalse(lockTupleResult4.isFailed());
 		
@@ -857,20 +857,20 @@ public class TestNetworkCommunication {
 		final String table = DISTRIBUTION_GROUP + "_mytable";
 		
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient1.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable1.waitForAll();
+		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		final Tuple newTuple = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes(), 1234);
 
 		// Insert a tuple
 		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
 
 		// Lock tuple in connection 1 - delete on connection shutdown
 		final EmptyResultFuture lockTupleResult1 = bboxDBClient1.lockTuple(table, newTuple, true);
-		lockTupleResult1.waitForAll();
+		lockTupleResult1.waitForCompletion();
 		Assert.assertTrue(lockTupleResult1.isDone());
 		Assert.assertFalse(lockTupleResult1.isFailed());
 		disconnect(bboxDBClient1);
@@ -878,7 +878,7 @@ public class TestNetworkCommunication {
 		// Get the tuple in connection2
 		Thread.sleep(2000);
 		final TupleListFuture queryResult = bboxDBClient2.queryKey(table, newTuple.getKey());
-		queryResult.waitForAll();
+		queryResult.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(queryResult.iterator());
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertTrue(resultList.get(0) instanceof DeletedTuple);

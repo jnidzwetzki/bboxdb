@@ -152,7 +152,7 @@ public class FixedSizeFutureStore {
 		while(! pendingFutures.isEmpty()) {
 			
 			for(final OperationFuture future : pendingFutures) {
-				future.waitForAll();
+				future.waitForCompletion();
 			}
 			
 			removeCompleteFutures();

@@ -112,7 +112,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 
 		// Remove old data
 		final EmptyResultFuture deleteResult = bboxdbClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		deleteResult.waitForAll();
+		deleteResult.waitForCompletion();
 		
 		// Create a new distribution group
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create(2)
@@ -122,7 +122,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
 				config);
 		
-		createResult.waitForAll();
+		createResult.waitForCompletion();
 	}
 	
 	@Override

@@ -99,7 +99,7 @@ public class DistributedSelftest {
 	private static void recreateDistributionGroup(final BBoxDBCluster bboxdbCluster) throws BBoxDBException, InterruptedException, ExecutionException {
 		logger.info("Delete old distribution group: " + DISTRIBUTION_GROUP);
 		final EmptyResultFuture deleteFuture = bboxdbCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		deleteFuture.waitForAll();
+		deleteFuture.waitForCompletion();
 		if(deleteFuture.isFailed()) {
 			logger.error("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
 			logger.error(deleteFuture.getAllMessages());
@@ -117,7 +117,7 @@ public class DistributedSelftest {
 		final EmptyResultFuture createFuture = bboxdbCluster.createDistributionGroup(DISTRIBUTION_GROUP, 
 				configuration);
 		
-		createFuture.waitForAll();
+		createFuture.waitForCompletion();
 		if(createFuture.isFailed()) {
 			logger.error("Unable to create distribution group: " + DISTRIBUTION_GROUP);
 			logger.error(createFuture.getAllMessages());
@@ -163,7 +163,7 @@ public class DistributedSelftest {
 		logger.info("Executing time query");
 		
 		final TupleListFuture queryResult = bboxdbClient.queryVersionTime(TABLE, 0);
-		queryResult.waitForAll();
+		queryResult.waitForCompletion();
 		
 		if(queryResult.isFailed()) {
 			logger.error("Time query result is failed");
@@ -191,7 +191,7 @@ public class DistributedSelftest {
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 			final EmptyResultFuture deletionResult = bboxdbClient.deleteTuple(TABLE, key);
-			deletionResult.waitForAll();
+			deletionResult.waitForCompletion();
 			
 			if(deletionResult.isFailed() ) {
 				logger.error("Got an error while deleting: {} ", key);
@@ -215,7 +215,7 @@ public class DistributedSelftest {
 			final int nextInt = ThreadLocalRandom.current().nextInt(NUMBER_OF_OPERATIONS);
 			final String key = Integer.toString(nextInt);
 			final TupleListFuture queryResult = bboxdbClient.queryKey(TABLE, key);
-			queryResult.waitForAll();
+			queryResult.waitForCompletion();
 			
 			if(queryResult.isFailed()) {
 				logger.error("Query {} : Got failed future, when query for: {}", i, key);
@@ -256,7 +256,7 @@ public class DistributedSelftest {
 			final String key = Integer.toString(i);
 	
 			final TupleListFuture queryResult = bboxdbClient.queryKey(TABLE, key);
-			queryResult.waitForAll();
+			queryResult.waitForCompletion();
 			
 			if(queryResult.isFailed()) {
 				logger.error("Query {}: Got failed future, when query for: {}", i, key);
@@ -285,7 +285,7 @@ public class DistributedSelftest {
 			final String key = Integer.toString(i);
 			final Tuple myTuple = new Tuple(key, new BoundingBox(1.0d, 2.0d, 1.0d, 2.0d), "test".getBytes());
 			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(TABLE, myTuple);
-			insertResult.waitForAll();
+			insertResult.waitForCompletion();
 			
 			if(insertResult.isFailed()) {
 				logger.error("Got an error during tuple insert: ", insertResult.getAllMessages());

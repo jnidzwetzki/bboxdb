@@ -192,7 +192,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	private void waitForResult(final EmptyResultFuture resultFuture) throws InterruptedException {
 		
 		// Wait for our keep alive to be processed
-		resultFuture.waitForAll();
+		resultFuture.waitForCompletion();
 		
 		// Gossip has detected an outdated version
 		if(resultFuture.isFailed()) {

@@ -53,7 +53,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 				
 		// Remove old data
 		final EmptyResultFuture deleteResult = bboxdbClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		deleteResult.waitForAll();
+		deleteResult.waitForCompletion();
 		
 		// Create a new distribution group
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create(3)
@@ -63,7 +63,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
 				config);
 		
-		createResult.waitForAll();
+		createResult.waitForCompletion();
 		
 		final Random bbBoxRandom = new Random();
 	

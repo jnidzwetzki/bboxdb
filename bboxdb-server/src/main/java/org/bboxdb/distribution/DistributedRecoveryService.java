@@ -237,7 +237,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 		final TupleListFuture result = connection.queryInsertedTime
 				(sstableName, requestTupleTimestamp);
 		
-		result.waitForAll();
+		result.waitForCompletion();
 		
 		if(result.isFailed()) {
 			logger.warn("Recovery: Failed result for table {} - Some tuples could not be received!", 

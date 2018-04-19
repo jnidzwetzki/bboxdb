@@ -197,7 +197,7 @@ public class IndexedTupleUpdateHelper {
 		
 		final BoundingBox boundingBox = getBoundingBoxForKey(key);
 		final TupleListFuture resultFuture = cluster.queryBoundingBox(indexTableName, boundingBox);
-		resultFuture.waitForAll();
+		resultFuture.waitForCompletion();
 		
 		if(resultFuture.isFailed()) {
 			logger.error("Index query future failed {}", resultFuture.getAllMessages());
@@ -242,7 +242,7 @@ public class IndexedTupleUpdateHelper {
 			final Tuple oldIndexEntry = oldIndexEntryOpt.get();
 				
 			final EmptyResultFuture lockResult = cluster.lockTuple(indexTableName, oldIndexEntry, true);
-			lockResult.waitForAll();
+			lockResult.waitForCompletion();
 			
 			// Lock successfull
 			if(! lockResult.isFailed()) {
@@ -286,7 +286,7 @@ public class IndexedTupleUpdateHelper {
 				.build();
 		
 		final EmptyResultFuture createResult = cluster.createTable(tablename, tableconfig);
-		createResult.waitForAll();
+		createResult.waitForCompletion();
 		
 		if(createResult.isFailed()) {
 			throw new BBoxDBException("Got an exception while creating table " + createResult.getAllMessages());
@@ -324,7 +324,7 @@ public class IndexedTupleUpdateHelper {
 				.build();
 		
 		final EmptyResultFuture dgroupFuture = cluster.createDistributionGroup(distributionGroup, dgroupConfig);
-		dgroupFuture.waitForAll();
+		dgroupFuture.waitForCompletion();
 		
 		if(dgroupFuture.isFailed()) {
 			throw new BBoxDBException("Unable to create distribution group: " + dgroupFuture.getAllMessages());

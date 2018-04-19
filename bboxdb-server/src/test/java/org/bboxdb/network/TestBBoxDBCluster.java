@@ -235,7 +235,7 @@ public class TestBBoxDBCluster {
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Execute query

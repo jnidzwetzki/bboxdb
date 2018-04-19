@@ -49,7 +49,7 @@ public class NetworkQueryHelper {
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Inside our bbox query
@@ -66,14 +66,14 @@ public class NetworkQueryHelper {
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
 		final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
 		
-		result1.waitForAll();
-		result2.waitForAll();
-		result3.waitForAll();
-		result4.waitForAll();
-		result5.waitForAll();
+		result1.waitForCompletion();
+		result2.waitForCompletion();
+		result3.waitForCompletion();
+		result4.waitForCompletion();
+		result5.waitForCompletion();
 
 		final TupleListFuture future = bboxDBClient.queryBoundingBoxAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
-		future.waitForAll();
+		future.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 				
 		Assert.assertEquals(3, resultList.size());
@@ -99,7 +99,7 @@ public class NetworkQueryHelper {
 	
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 
 		// Inside our bbox query
@@ -118,16 +118,16 @@ public class NetworkQueryHelper {
 			final EmptyResultFuture result4 = bboxDBClient.insertTuple(table, tuple4);
 			final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
 	
-			result1.waitForAll();
-			result2.waitForAll();
-			result3.waitForAll();
-			result4.waitForAll();
-			result5.waitForAll();
+			result1.waitForCompletion();
+			result2.waitForCompletion();
+			result3.waitForCompletion();
+			result4.waitForCompletion();
+			result5.waitForCompletion();
 		}
 		
 		System.out.println("=== Executing query");
 		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
-		future.waitForAll();
+		future.waitForCompletion();
 		System.out.println("=== Query DONE");
 
 		Assert.assertFalse(future.isFailed());
@@ -164,7 +164,7 @@ public class NetworkQueryHelper {
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		final TupleListFuture future = bboxDBClient.queryBoundingBoxContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
@@ -179,7 +179,7 @@ public class NetworkQueryHelper {
 		}
 		
 		System.out.println("=== Wait for query result");
-		future.waitForAll();
+		future.waitForCompletion();
 		
 		Assert.assertTrue(future.iterator().hasNext());
 		
@@ -187,7 +187,7 @@ public class NetworkQueryHelper {
 		System.out.println("Canceling query: " + queryId);
 		final EmptyResultFuture cancelResult = bboxDBClient.cancelRequest(queryId);
 		
-		cancelResult.waitForAll();
+		cancelResult.waitForCompletion();
 		
 		Assert.assertTrue(cancelResult.isDone());
 		Assert.assertFalse(cancelResult.isFailed());
@@ -211,43 +211,43 @@ public class NetworkQueryHelper {
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		System.out.println("Delete tuple");
 		final EmptyResultFuture deleteResult1 = bboxDBClient.deleteTuple(table, key);
-		deleteResult1.waitForAll();
+		deleteResult1.waitForCompletion();
 		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(deleteResult1.isDone());
 		
 		System.out.println("Query key");
 		final TupleListFuture getResult = bboxDBClient.queryKey(table, key);
-		getResult.waitForAll();
+		getResult.waitForCompletion();
 		Assert.assertFalse(getResult.isFailed());
 		Assert.assertTrue(getResult.isDone());
 		
 		System.out.println("Insert tuple");
 		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertFalse(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 
 		System.out.println("Query key 2");
 		final TupleListFuture getResult2 = bboxDBClient.queryKey(table, key);
-		getResult2.waitForAll();
+		getResult2.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(getResult2.iterator());
 		Assert.assertEquals(tuple, resultList.get(0));
 
 		System.out.println("Delete tuple 2");
 		final EmptyResultFuture deleteResult2 = bboxDBClient.deleteTuple(table, key, System.currentTimeMillis());
-		deleteResult2.waitForAll();
+		deleteResult2.waitForCompletion();
 		Assert.assertFalse(deleteResult2.isFailed());
 		Assert.assertTrue(deleteResult2.isDone());
 		
 		System.out.println("Query key 3");
 		final TupleListFuture getResult3 = bboxDBClient.queryKey(table, key);
-		getResult3.waitForAll();
+		getResult3.waitForCompletion();
 		Assert.assertFalse(getResult3.isFailed());
 		Assert.assertTrue(getResult3.isDone());
 		
@@ -273,39 +273,39 @@ public class NetworkQueryHelper {
 		// Create table1
 		System.out.println("Create table 1");
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table1, new TupleStoreConfiguration());
-		resultCreateTable1.waitForAll();
+		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		System.out.println("Create table 2");
 		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table2, new TupleStoreConfiguration());
-		resultCreateTable2.waitForAll();
+		resultCreateTable2.waitForCompletion();
 		Assert.assertFalse(resultCreateTable2.isFailed());
 				
 		// Insert tuples
 		System.out.println("Insert tuple 1");
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1.0, 2.0, 1.0, 2.0), "abc".getBytes());
 		final EmptyResultFuture insertResult1 = bboxDBClient.insertTuple(table1, tuple1);
-		insertResult1.waitForAll();
+		insertResult1.waitForCompletion();
 		Assert.assertFalse(insertResult1.isFailed());
 		Assert.assertTrue(insertResult1.isDone());
 
 		System.out.println("Insert tuple 2");
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(1.5, 2.5, 1.5, 2.5), "abc".getBytes());
 		final EmptyResultFuture insertResult2 = bboxDBClient.insertTuple(table1, tuple2);
-		insertResult2.waitForAll();
+		insertResult2.waitForCompletion();
 		Assert.assertFalse(insertResult2.isFailed());
 		Assert.assertTrue(insertResult2.isDone());
 
 		System.out.println("Insert tuple 3");
 		final Tuple tuple3 = new Tuple("123", new BoundingBox(0.0, 5.0, 0.0, 5.0), "abc".getBytes());
 		final EmptyResultFuture insertResult3 = bboxDBClient.insertTuple(table2, tuple3);
-		insertResult3.waitForAll();
+		insertResult3.waitForCompletion();
 		Assert.assertFalse(insertResult3.isFailed());
 		Assert.assertTrue(insertResult3.isDone());
 				
 		// Execute the join
 		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), new BoundingBox(0.0, 10.0, 0.0, 10.0));
-		joinResult.waitForAll();
+		joinResult.waitForCompletion();
 		final List<JoinedTuple> resultList = Lists.newArrayList(joinResult.iterator());
 
 		System.out.println(resultList);
@@ -340,25 +340,25 @@ public class NetworkQueryHelper {
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertFalse(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 
 		System.out.println("Query all versions");
 		final TupleListFuture getResult1 = bboxDBClient.queryVersionTime(table, 0);
-		getResult1.waitForAll();
+		getResult1.waitForCompletion();
 		final List<Tuple> resultList1 = Lists.newArrayList(getResult1.iterator());
 		Assert.assertEquals(1, resultList1.size());
 		Assert.assertEquals(tuple, resultList1.get(0));
 		
 		System.out.println("Query newest versions");
 		final TupleListFuture getResult2 = bboxDBClient.queryVersionTime(table, Long.MAX_VALUE);
-		getResult2.waitForAll();
+		getResult2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(getResult2.iterator());
 		Assert.assertTrue(resultList2.isEmpty());
 	}
@@ -380,25 +380,25 @@ public class NetworkQueryHelper {
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForAll();
+		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
-		insertResult.waitForAll();
+		insertResult.waitForCompletion();
 		Assert.assertFalse(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 
 		System.out.println("Query all versions");
 		final TupleListFuture getResult1 = bboxDBClient.queryInsertedTime(table, 0);
-		getResult1.waitForAll();
+		getResult1.waitForCompletion();
 		final List<Tuple> resultList1 = Lists.newArrayList(getResult1.iterator());
 		Assert.assertEquals(1, resultList1.size());
 		Assert.assertEquals(tuple, resultList1.get(0));
 		
 		System.out.println("Query newest versions");
 		final TupleListFuture getResult2 = bboxDBClient.queryInsertedTime(table, Long.MAX_VALUE);
-		getResult2.waitForAll();
+		getResult2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(getResult2.iterator());
 		Assert.assertTrue(resultList2.isEmpty());
 	}

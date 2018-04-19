@@ -20,7 +20,7 @@ public class TestHelper {
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = client.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		resultDelete.waitForAll();
+		resultDelete.waitForCompletion();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
@@ -31,7 +31,7 @@ public class TestHelper {
 		final EmptyResultFuture resultCreate = client.createDistributionGroup(DISTRIBUTION_GROUP, 
 				configuration);
 		
-		resultCreate.waitForAll();
+		resultCreate.waitForCompletion();
 		Assert.assertFalse(resultCreate.isFailed());
 	}
 }

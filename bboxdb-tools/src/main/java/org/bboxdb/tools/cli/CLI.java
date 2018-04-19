@@ -288,7 +288,7 @@ public class CLI implements Runnable, AutoCloseable {
 	
 			final EmptyResultFuture resultFuture = bboxDbConnection.createTable(table, configuration);
 	
-			resultFuture.waitForAll();
+			resultFuture.waitForCompletion();
 	
 			if(resultFuture.isFailed()) {
 				System.err.println("Unable to create table: " + resultFuture.getAllMessages());
@@ -320,7 +320,7 @@ public class CLI implements Runnable, AutoCloseable {
 	
 			final EmptyResultFuture resultFuture = bboxDbConnection.deleteTable(table);
 	
-			resultFuture.waitForAll();
+			resultFuture.waitForCompletion();
 	
 			if(resultFuture.isFailed()) {
 				System.err.println("Unable to delete table: " + resultFuture.getAllMessages());
@@ -354,7 +354,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
-			resultFuture.waitForAll();
+			resultFuture.waitForCompletion();
 			
 			if(resultFuture.isFailed()) {
 				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
@@ -403,7 +403,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
-			resultFuture.waitForAll();
+			resultFuture.waitForCompletion();
 			
 			if(resultFuture.isFailed()) {
 				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
@@ -453,7 +453,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
-			resultFuture.waitForAll();
+			resultFuture.waitForCompletion();
 			
 			if(resultFuture.isFailed()) {
 				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
@@ -719,7 +719,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final EmptyResultFuture future 
 				= bboxDbConnection.deleteDistributionGroup(distributionGroup);
 			
-			future.waitForAll();
+			future.waitForCompletion();
 			
 			if(future.isFailed()) {
 				System.err.println("Got an error during distribution group deletion: " 
@@ -877,7 +877,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final EmptyResultFuture future = bboxDbConnection.createDistributionGroup(
 					distributionGroup, configuration);
 			
-			future.waitForAll();
+			future.waitForCompletion();
 			
 			if(future.isFailed()) {
 				System.err.println("Got an error during distribution group creation: " 

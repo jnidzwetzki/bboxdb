@@ -261,7 +261,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
-	public void waitForAll() throws InterruptedException {
+	public void waitForCompletion() throws InterruptedException {
 		readyLatch.await();
 	}
 	
@@ -269,7 +269,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
-	public void waitForAll(final long timeout, final TimeUnit unit) 
+	public void waitForCompletion(final long timeout, final TimeUnit unit) 
 			throws InterruptedException, TimeoutException {
 		
 		readyLatch.await(timeout, unit);
