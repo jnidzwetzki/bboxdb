@@ -44,67 +44,67 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * The name of the corresponding table
 	 */
-	protected final TupleStoreName table;
+	private final TupleStoreName table;
 	
 	/**
 	 * The memtable
 	 */
-	protected final Tuple[] data;
+	private final Tuple[] data;
 	
 	/**
 	 * The bloom filter
 	 */
-	protected final BloomFilter<String> bloomFilter;
+	private final BloomFilter<String> bloomFilter;
 	
 	/**
 	 * The spatial index
 	 */
-	protected final SpatialIndexBuilder spatialIndex;
+	private final SpatialIndexBuilder spatialIndex;
 	
 	/**
 	 * The next free position in the data array
 	 */
-	protected int freePos;
+	private int freePos;
 	
 	/**
 	 * Maximal number of entries keep in memory
 	 */
-	protected final int maxEntries;
+	private final int maxEntries;
 	
 	/**
 	 * Maximal size of memtable in bytes
 	 */
-	protected final long maxSizeInMemory;
+	private final long maxSizeInMemory;
 	
 	/**
 	 * Current memory size in bytes
 	 */
-	protected long sizeInMemory;
+	private long sizeInMemory;
 	
 	/**
 	 * The timestamp when the memtable is created
 	 */
-	protected long createdTimestamp;
+	private long createdTimestamp;
 	
 	/**
 	 * The oldest tuple
 	 */
-	protected long oldestTupleTimestamp;
+	private long oldestTupleTimestamp;
 	
 	/**
 	 * The newest tuple
 	 */
-	protected long newestTupleTimestamp;
+	private long newestTupleTimestamp;
 	
 	/**
 	 * The reference counter
 	 */
-	protected final AtomicInteger usage;
+	private final AtomicInteger usage;
 	
 	/**
 	 * Is a deletion performed after (usage == 0)
 	 */
-	protected boolean pendingDelete;
+	private boolean pendingDelete;
 	
 	/**
 	 * The Logger
@@ -319,8 +319,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 		return new Iterator<Tuple>() {
 
-			protected int entry = 0;
-			protected int lastEntry = freePos;
+			private int entry = 0;
+			private int lastEntry = freePos;
 			
 			@Override
 			public boolean hasNext() {
