@@ -39,6 +39,11 @@ public class WalReader implements Closeable, Iterable<Tuple> {
 	 */
 	private BufferedInputStream inputStream;
 
+	/** 
+	 * The file
+	 */
+	private final File file;
+
 	/**
 	 * The Logger
 	 */
@@ -92,12 +97,18 @@ public class WalReader implements Closeable, Iterable<Tuple> {
 		}
 	}
 	
+	public WalReader(final File basedir, final int memtableNumber) throws IOException, StorageManagerException {
+		this(new File(basedir.getAbsolutePath() + "/" 
+				+ "wal_" + memtableNumber + SSTableConst.MEMTABLE_WAL_SUFFIX));
+	}
+	
 	public WalReader(final File file) throws IOException, StorageManagerException {
 		
 		if(! file.exists()) {
 			throw new IOException("File " + file + " does not exist");
 		}
 		
+		this.file = file;
 		this.inputStream = new BufferedInputStream(new FileInputStream(file));
 				
 		// Validate file - read the magic from the beginning
@@ -125,5 +136,17 @@ public class WalReader implements Closeable, Iterable<Tuple> {
 	@Override
 	public Iterator<Tuple> iterator() {
 		return new TupleIterator();
+	}
+	
+	/**
+	 * Delete the base file
+	 * @throws IOException
+	 */
+	public void deleteFile() throws IOException {
+		close();
+		
+		if(file.exists()) {
+			file.delete();
+		}
 	}
 }

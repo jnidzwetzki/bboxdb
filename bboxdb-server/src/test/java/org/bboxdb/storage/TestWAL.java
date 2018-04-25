@@ -167,4 +167,40 @@ public class TestWAL {
 		
 		reader.close();
 	}
+	
+	@Test
+	public void testDeleteFile() throws IOException, StorageManagerException {
+		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
+		walWriter.addTuple(new DeletedTuple("abc"));
+
+		walWriter.close();
+		
+		final File writtenFile = walWriter.getFile();
+		Assert.assertTrue(writtenFile.exists());
+
+		final WalReader reader = new WalReader(writtenFile);
+		reader.deleteFile();
+		Assert.assertFalse(writtenFile.exists());
+		
+		reader.close();
+	}
+	
+	@Test
+	public void testConstructor() throws IOException, StorageManagerException {
+		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
+		walWriter.addTuple(new DeletedTuple("abc"));
+
+		walWriter.close();
+		
+		final File writtenFile = walWriter.getFile();
+		Assert.assertTrue(writtenFile.exists());
+
+		final WalReader reader = new WalReader(tempDir, 1);
+		reader.deleteFile();
+		Assert.assertFalse(writtenFile.exists());
+		
+		reader.close();
+	}
 }
