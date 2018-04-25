@@ -76,6 +76,11 @@
 # The amount of cached index entries per SSTable
 # sstableKeyCacheEntries: 1000
 
+# The write ahead log for memtables
+# Possible values: true, false
+# Default value: false
+# storageWriteAheadLog: false
+
 ###
 # Network
 ###

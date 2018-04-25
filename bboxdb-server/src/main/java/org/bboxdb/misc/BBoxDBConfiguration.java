@@ -64,6 +64,11 @@ public class BBoxDBConfiguration {
 	protected int storageCheckpointInterval = 60;
 	
 	/**
+	 * The write ahead log
+	 */
+	protected boolean storageWriteAheadLog = false;
+	
+	/**
 	 * The port for client requests
 	 */
 	protected int networkListenPort = 50505;
@@ -221,6 +226,14 @@ public class BBoxDBConfiguration {
 
 	public void setPerformanceCounterPort(final int performanceCounterPort) {
 		this.performanceCounterPort = performanceCounterPort;
+	}
+
+	public boolean isStorageWriteAheadLog() {
+		return storageWriteAheadLog;
+	}
+
+	public void setStorageWriteAheadLog(final boolean storageWriteAheadLog) {
+		this.storageWriteAheadLog = storageWriteAheadLog;
 	}
 	
 }
