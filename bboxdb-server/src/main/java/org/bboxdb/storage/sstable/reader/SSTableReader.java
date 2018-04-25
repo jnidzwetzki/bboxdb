@@ -185,6 +185,6 @@ public class SSTableReader extends AbstractTableReader {
 
 	@Override
 	protected byte[] getMagicBytes() {
-		return SSTableConst.MAGIC_BYTES;
+		return SSTableConst.MAGIC_BYTES_SSTABLE;
 	}
 }

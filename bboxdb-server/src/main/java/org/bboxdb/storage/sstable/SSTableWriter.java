@@ -200,7 +200,7 @@ public class SSTableWriter implements AutoCloseable {
 			logger.info("Writing new SSTable for relation: {} file: {}", name.getFullname(), sstableOutputFileName);
 			final BufferedOutputStream sstableFileOutputStream = new BufferedOutputStream(new FileOutputStream(sstableFile));
 			sstableOutputStream = new CountingOutputStream(sstableFileOutputStream);
-			sstableOutputStream.write(SSTableConst.MAGIC_BYTES);
+			sstableOutputStream.write(SSTableConst.MAGIC_BYTES_SSTABLE);
 			
 			sstableIndexOutputStream = new BufferedOutputStream(new FileOutputStream(sstableIndexFile));
 			sstableIndexOutputStream.write(SSTableConst.MAGIC_BYTES_INDEX);

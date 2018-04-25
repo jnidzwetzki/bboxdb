@@ -24,7 +24,12 @@ public class SSTableConst {
 	/**
 	 * The magic bytes at the beginning of every SSTable file
 	 */
-	public final static byte[] MAGIC_BYTES = "bboxdb".getBytes();
+	public final static byte[] MAGIC_BYTES_SSTABLE = "bboxdb".getBytes();
+	
+	/**
+	 * The magic bytes at the beginning of every write ahead log file
+	 */
+	public final static byte[] MAGIC_BYTES_WAL = "bboxdb-wal".getBytes();
 	
 	/**
 	 * The magic bytes at the beginning of every SSTable index file
@@ -70,6 +75,11 @@ public class SSTableConst {
 	 * The suffix for the meta files
 	 */
 	public final static String SST_META_SUFFIX = ".meta";
+	
+	/**
+	 * The suffix for the write ahead log
+	 */
+	public final static String MEMTABLE_WAL_SUFFIX = ".wal";
 	
 	/**
 	 * Distribution group medata data file
