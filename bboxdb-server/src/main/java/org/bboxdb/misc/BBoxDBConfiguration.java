@@ -31,77 +31,77 @@ public class BBoxDBConfiguration {
 	/**
 	 *  The directories to store data
 	 */
-	protected List<String> storageDirectories = Arrays.asList("/tmp/bboxdb");
+	private List<String> storageDirectories = Arrays.asList("/tmp/bboxdb");
 
 	/**
 	 *  Number of entries per memtable
 	 */
-	protected int memtableEntriesMax = 50000;
+	private int memtableEntriesMax = 50000;
 	
 	/**
 	 * Size of the memtable in bytes
 	 */
-	protected long memtableSizeMax = 128 * 1024 * 1014;
+	private long memtableSizeMax = 128 * 1024 * 1014;
 
 	/**
 	 * Number of memtable flush threads per storage
 	 */
-	protected int memtableFlushThreadsPerStorage = 2;
+	private int memtableFlushThreadsPerStorage = 2;
 	
 	/**
 	 * The classname of the spatial index builder
 	 */
-	protected String storageSpatialIndexBuilder = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder";
+	private String storageSpatialIndexBuilder = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder";
 	
 	/**
 	 * The classname of the spatial index reader
 	 */
-	protected String storageSpatialIndexReader = "org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader";
+	private String storageSpatialIndexReader = "org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader";
 	
 	/**
 	 * The checkpoint interval
 	 */
-	protected int storageCheckpointInterval = 60;
+	private int storageCheckpointInterval = 60;
 	
 	/**
 	 * The write ahead log
 	 */
-	protected boolean storageWriteAheadLog = false;
+	private boolean storageWriteAheadLog = false;
 	
 	/**
 	 * The port for client requests
 	 */
-	protected int networkListenPort = 50505;
+	private int networkListenPort = 50505;
 
 	/**
 	 *  The amount of threads to handle client connections
 	 */
-	protected int networkConnectionThreads = 25;
+	private int networkConnectionThreads = 25;
 	
 	/**
 	 * The name of the cluster
 	 */
-	protected String clustername;
+	private String clustername;
 	
 	/**
 	 * The list of zookeeper nodes 
 	 */
-	protected Collection<String> zookeepernodes;
+	private Collection<String> zookeepernodes;
 	
 	/**
 	 * The local IP address of this node. The default value is set in the constructor.
 	 */
-	protected String localip = null;
+	private String localip = null;
 	
 	/**
 	 * The number of entries in the key cache per SSTable
 	 */
-	protected int sstableKeyCacheEntries = 1000;
+	private int sstableKeyCacheEntries = 1000;
 	
 	/**
 	 * The port where the performance counter will be exposed
 	 */
-	protected int performanceCounterPort = 10085;
+	private int performanceCounterPort = 10085;
 	
 	/**
 	 * The Logger
