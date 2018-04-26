@@ -22,7 +22,7 @@ Key-value stores are using the key to retrieve the data. When the key is known, 
 
 Using the key to locate the data works well with one-dimensional data, but it becomes problematic when multi-dimensional data has to be stored. Its hard to find a proper key for a multi-dimensional value. 
 
-<img src="docs/images/key_example.jpg" width="400">
+<img src="images/key_example.jpg" width="400">
 
 _Example with one-dimensional data:_ Imagine that you have an online shop and you want to store all of your customers in a key-value store. A customer record has attributes like a _customer id_, a _first name_ and a _last name_. To keep the example simple, we assume that the customer records are only accessed using the _customer id_ attribute. Therefore, the records of the customers could be managed efficiently in a key-value store using the _customer id_ attribute as key and the full customer record as value. 
 
