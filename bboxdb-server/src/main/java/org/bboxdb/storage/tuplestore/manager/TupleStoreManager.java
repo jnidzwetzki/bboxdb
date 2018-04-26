@@ -504,6 +504,9 @@ public class TupleStoreManager implements BBoxDBService {
 		} else if(SSTableHelper.isFileNameSpatialIndex(filename)) {
 			logger.info("Deleting spatial index file: {}", file);
 			file.delete();
+		} else if(SSTableHelper.isFileNameWAL(filename)) {
+			logger.info("Deleting WAL file: {}", file);
+			file.delete();
 		} else {
 			logger.warn("NOT deleting unknown file: {}", file);
 		}

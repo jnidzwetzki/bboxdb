@@ -33,4 +33,6 @@ public class WalManager {
 		return new File(basedir.getAbsolutePath() + "/" + "wal_" 
 				+ memtableNumber + SSTableConst.MEMTABLE_WAL_SUFFIX);
 	}
+	
+	
 }

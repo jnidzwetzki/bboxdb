@@ -255,4 +255,13 @@ public class SSTableHelper {
 	public static boolean isFileNameMetadata(final String filename) {
 		return filename.endsWith(SSTableConst.SST_META_SUFFIX);
 	}
+	
+	/**
+	 * Belongs the given filename to a WAL file
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameWAL(final String filename) {
+		return filename.endsWith(SSTableConst.MEMTABLE_WAL_SUFFIX);
+	}
 }
