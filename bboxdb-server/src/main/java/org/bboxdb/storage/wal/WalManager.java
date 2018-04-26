@@ -32,7 +32,7 @@ public class WalManager {
 	 * @param memtableNumber
 	 * @return
 	 */
-	public static File getFileForWal(final File basedir, final int memtableNumber) {
+	public static File getFileForWal(final File basedir, final long memtableNumber) {
 		return new File(basedir.getAbsolutePath() + "/" + "wal_" 
 				+ memtableNumber + SSTableConst.MEMTABLE_WAL_SUFFIX);
 	}

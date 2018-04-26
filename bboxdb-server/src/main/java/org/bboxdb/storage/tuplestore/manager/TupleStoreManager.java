@@ -55,6 +55,7 @@ import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.wal.WalManager;
 import org.bboxdb.storage.wal.WalReader;
+import org.bboxdb.storage.wal.WalWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -679,9 +680,12 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public synchronized void initNewMemtable() {
+		
+		final WalWriter walWriter = getWriteAheadLogWriter();
+		
 		final Memtable memtable = new Memtable(tupleStoreName, 
 				configuration.getMemtableEntriesMax(), 
-				configuration.getMemtableSizeMax());
+				configuration.getMemtableSizeMax(), walWriter);
 
 		memtable.acquire();
 		memtable.init();
@@ -690,12 +694,33 @@ public class TupleStoreManager implements BBoxDBService {
 
 		if(oldMemtable != null) {
 			final MemtableAndTupleStoreManagerPair memtableTask 
-			= new MemtableAndTupleStoreManagerPair(oldMemtable, this);
+				= new MemtableAndTupleStoreManagerPair(oldMemtable, this);
 
 			storage.scheduleMemtableFlush(memtableTask);
 		}
 
 		logger.debug("Activated a new memtable: {}", memtable.getInternalName());
+	}
+
+	/**
+	 * Get the write ahead log writer
+	 * 
+	 * @return
+	 */
+	private WalWriter getWriteAheadLogWriter() {		
+		if(! configuration.isStorageWriteAheadLog()) {
+			return null;
+		}
+		
+		final String storageDir = storage.getBasedir().getAbsolutePath();
+		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, tupleStoreName);
+		
+		try {
+			return new WalWriter(new File(ssTableDir), System.currentTimeMillis());
+		} catch (IOException e) {
+			logger.error("Unable to create write ahead log writer", e);
+			return null;
+		}
 	}
 
 	/**

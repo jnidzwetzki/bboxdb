@@ -63,7 +63,7 @@ public class TestMemtable {
 	
 	@Before
 	public void before() {
-		memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
+		memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE, null);
 		memtable.init();
 		memtable.acquire();
 	}
@@ -536,7 +536,8 @@ public class TestMemtable {
 	 */
 	@Test(timeout=60000)
 	public void testAquire1() throws StorageManagerException {
-		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
+		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, 
+				MEMTABLE_MAX_SIZE, null);
 		memtable.init();
 		
 		Assert.assertTrue(memtable.acquire());
@@ -558,7 +559,8 @@ public class TestMemtable {
 	 */
 	@Test(timeout=60000)
 	public void testAquire2() throws StorageManagerException {
-		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, MEMTABLE_MAX_SIZE);
+		final Memtable memtable = new Memtable(MEMTABLE_TABLE_NAME, MEMTABLE_MAX_ENTRIES, 
+				MEMTABLE_MAX_SIZE, null);
 		memtable.init();
 		
 		Assert.assertTrue(memtable.acquire());

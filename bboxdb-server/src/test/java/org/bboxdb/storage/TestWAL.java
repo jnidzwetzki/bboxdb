@@ -28,6 +28,8 @@ import org.bboxdb.commons.io.FileUtil;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.storage.wal.WalManager;
 import org.bboxdb.storage.wal.WalReader;
@@ -46,6 +48,17 @@ public class TestWAL {
 	 * The temp dir
 	 */
 	private File tempDir;
+
+	/**
+	 * Test tuple a
+	 */
+	private static final Tuple TUPLE_A = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
+
+	/**
+	 * Test tuple b
+	 */
+	private DeletedTuple TUPLE_B = new DeletedTuple("abc");
+
 	
 	@Before
 	public void before() {
@@ -174,9 +187,8 @@ public class TestWAL {
 		Assert.assertEquals(0, WalManager.getAllWalFiles(tempDir).size());
 
 		final WalWriter walWriter = new WalWriter(tempDir, 1);
-		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
-		walWriter.addTuple(new DeletedTuple("abc"));
-
+		walWriter.addTuple(TUPLE_A);
+		walWriter.addTuple(TUPLE_B);
 		walWriter.close();
 		
 		Assert.assertEquals(1, WalManager.getAllWalFiles(tempDir).size());
@@ -207,5 +219,34 @@ public class TestWAL {
 		Assert.assertFalse(writtenFile.exists());
 		
 		reader.close();
+	}
+	
+	@Test
+	public void testMemtableWithWAL() throws IOException, StorageManagerException {
+		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		
+		final Memtable memtable = new Memtable(new TupleStoreName("abc_def"), 100, 100, walWriter);
+		memtable.init();
+		memtable.acquire();
+		
+		memtable.put(TUPLE_A);
+		memtable.put(TUPLE_B);
+		
+		final File walFile = walWriter.getFile();
+		Assert.assertTrue(walFile.exists());
+		
+		final WalReader reader = new WalReader(walFile);
+		
+		final List<Tuple> myList = Lists.newArrayList(reader.iterator());
+		Assert.assertEquals(2, myList.size());
+		Assert.assertTrue(myList.contains(TUPLE_A));
+		Assert.assertTrue(myList.contains(TUPLE_B));
+		
+		reader.close();
+		
+		memtable.deleteOnClose();
+		memtable.release();
+		
+		Assert.assertFalse(walFile.exists());
 	}
 }

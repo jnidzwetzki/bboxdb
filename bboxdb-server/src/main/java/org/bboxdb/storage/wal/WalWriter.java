@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.util.TupleHelper;
@@ -39,7 +40,7 @@ public class WalWriter implements Closeable {
 	 */
 	private final File file;
 
-	public WalWriter(final File basedir, final int memtableNumber) throws IOException {
+	public WalWriter(final File basedir, final long memtableNumber) throws IOException {
 		
 		this.file = WalManager.getFileForWal(basedir, memtableNumber);
 		
@@ -57,10 +58,14 @@ public class WalWriter implements Closeable {
 	 * @param tuple
 	 * @throws IOException
 	 */
-	public void addTuple(final Tuple tuple) throws IOException {
-		assert (os != null) : "Writer can not be null";		
-		TupleHelper.writeTupleToStream(tuple, os);
-		os.flush();
+	public void addTuple(final Tuple tuple) throws StorageManagerException {
+		try {
+			assert (os != null) : "Writer can not be null";		
+			TupleHelper.writeTupleToStream(tuple, os);
+			os.flush();
+		} catch (IOException e) {
+			throw new StorageManagerException(e);
+		}
 	}
 
 	/**
@@ -80,5 +85,17 @@ public class WalWriter implements Closeable {
 	 */
 	public File getFile() {
 		return file;
+	}
+	
+	/**
+	 * Delete the base file
+	 * @throws IOException
+	 */
+	public void deleteFile() throws IOException {
+		close();
+		
+		if(file.exists()) {
+			file.delete();
+		}
 	}
 }

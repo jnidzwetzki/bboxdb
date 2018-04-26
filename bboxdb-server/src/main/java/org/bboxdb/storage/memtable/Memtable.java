@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.memtable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.tuplestore.ReadWriteTupleStore;
 import org.bboxdb.storage.util.TupleHelper;
+import org.bboxdb.storage.wal.WalWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,14 +109,22 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	private boolean pendingDelete;
 	
 	/**
+	 * The write ahead log writer
+	 */
+	private final WalWriter walWriter;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final TupleStoreName table, final int entries, final long maxSizeInMemory) {
+	public Memtable(final TupleStoreName table, final int entries, final long maxSizeInMemory, 
+			final WalWriter walWriter) {
+		
 		this.table = table;
 		this.maxEntries = entries;
 		this.maxSizeInMemory = maxSizeInMemory;
+		this.walWriter = walWriter;
 		
 		this.data = new Tuple[entries];
 		this.freePos = -1;
@@ -154,6 +164,10 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		
 		if(freePos >= maxEntries) {
 			throw new StorageManagerException("Unable to store a new tuple, all memtable slots are full");
+		}
+		
+		if(walWriter != null) {
+			walWriter.addTuple(value);
 		}
 
 		data[freePos] = value;
@@ -248,7 +262,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		}
 		
 		this.freePos = 0;
-		this.sizeInMemory = 0;
+		this.sizeInMemory = 0;		
 	}
 	
 	/**
@@ -412,6 +426,15 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 		if(usage.get() == 0) {
 			clear();
+		}
+		
+		try {
+			if(walWriter != null) {
+				walWriter.close();
+				walWriter.deleteFile();
+			}
+		} catch (IOException e) {
+			logger.error("Got exception while closing WAL", e);
 		}
 	}
 
