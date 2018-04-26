@@ -53,6 +53,8 @@ import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactor
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.wal.WalManager;
+import org.bboxdb.storage.wal.WalReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,6 +158,9 @@ public class TupleStoreManager implements BBoxDBService {
 
 			nextFreeTableNumber.set(getLastSequencenumberFromReader() + 1);
 			tupleStoreInstances.setReadWrite();
+			
+			// Apply WAL after write access is possible
+			applyWal();
 
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
@@ -232,6 +237,32 @@ public class TupleStoreManager implements BBoxDBService {
 		}
 
 		return true;
+	}
+	
+	/**
+	 * Apply the old write ahead logs
+	 */
+	private void applyWal() {
+		final String storageDir = storage.getBasedir().getAbsolutePath();
+		final String baseDir = SSTableHelper.getSSTableDir(storageDir, tupleStoreName);
+		
+		final List<File> walFiles = WalManager.getAllWalFiles(new File(baseDir));
+		logger.debug("Apply old WAL files {}", walFiles);
+		
+		for(final File walFile: walFiles) {
+			try {
+				final WalReader reader = new WalReader(walFile);
+				
+				for(final Tuple tuple : reader) {
+					put(tuple);
+				}
+				
+				reader.close();
+				reader.deleteFile();
+			} catch (Exception e) {
+				logger.error("Got an exception while applying WAL", e);
+			} 
+		}
 	}
 
 	/**
