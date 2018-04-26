@@ -98,8 +98,7 @@ public class WalReader implements Closeable, Iterable<Tuple> {
 	}
 	
 	public WalReader(final File basedir, final int memtableNumber) throws IOException, StorageManagerException {
-		this(new File(basedir.getAbsolutePath() + "/" 
-				+ "wal_" + memtableNumber + SSTableConst.MEMTABLE_WAL_SUFFIX));
+		this(WalManager.getFileForWal(basedir, memtableNumber));
 	}
 	
 	public WalReader(final File file) throws IOException, StorageManagerException {

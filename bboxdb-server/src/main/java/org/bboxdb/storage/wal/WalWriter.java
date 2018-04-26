@@ -41,8 +41,7 @@ public class WalWriter implements Closeable {
 
 	public WalWriter(final File basedir, final int memtableNumber) throws IOException {
 		
-		this.file = new File(basedir.getAbsolutePath() + "/" + "wal_" 
-				+ memtableNumber + SSTableConst.MEMTABLE_WAL_SUFFIX);
+		this.file = WalManager.getFileForWal(basedir, memtableNumber);
 		
 		if(file.exists()) {
 			throw new RuntimeException("File " + file + " does already exist");
