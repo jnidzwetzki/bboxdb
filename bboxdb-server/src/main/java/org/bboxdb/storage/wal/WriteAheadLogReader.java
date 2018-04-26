@@ -32,7 +32,7 @@ import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WalReader implements Closeable, Iterable<Tuple> {
+public class WriteAheadLogReader implements Closeable, Iterable<Tuple> {
 	
 	/**
 	 * The input stream
@@ -47,7 +47,7 @@ public class WalReader implements Closeable, Iterable<Tuple> {
 	/**
 	 * The Logger
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(WalReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(WriteAheadLogReader.class);
 	
 	/** 
 	 * The tuple iterator
@@ -97,11 +97,11 @@ public class WalReader implements Closeable, Iterable<Tuple> {
 		}
 	}
 	
-	public WalReader(final File basedir, final int memtableNumber) throws IOException, StorageManagerException {
-		this(WalManager.getFileForWal(basedir, memtableNumber));
+	public WriteAheadLogReader(final File basedir, final int memtableNumber) throws IOException, StorageManagerException {
+		this(WriteAheadLogManager.getFileForWal(basedir, memtableNumber));
 	}
 	
-	public WalReader(final File file) throws IOException, StorageManagerException {
+	public WriteAheadLogReader(final File file) throws IOException, StorageManagerException {
 		
 		if(! file.exists()) {
 			throw new IOException("File " + file + " does not exist");

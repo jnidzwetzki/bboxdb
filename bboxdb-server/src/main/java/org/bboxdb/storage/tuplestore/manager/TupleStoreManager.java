@@ -53,9 +53,9 @@ import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactor
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
-import org.bboxdb.storage.wal.WalManager;
-import org.bboxdb.storage.wal.WalReader;
-import org.bboxdb.storage.wal.WalWriter;
+import org.bboxdb.storage.wal.WriteAheadLogManager;
+import org.bboxdb.storage.wal.WriteAheadLogReader;
+import org.bboxdb.storage.wal.WriteAheadLogWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -247,12 +247,12 @@ public class TupleStoreManager implements BBoxDBService {
 		final String storageDir = storage.getBasedir().getAbsolutePath();
 		final String baseDir = SSTableHelper.getSSTableDir(storageDir, tupleStoreName);
 		
-		final List<File> walFiles = WalManager.getAllWalFiles(new File(baseDir));
+		final List<File> walFiles = WriteAheadLogManager.getAllWalFiles(new File(baseDir));
 		logger.debug("Apply old WAL files {}", walFiles);
 		
 		for(final File walFile: walFiles) {
 			try {
-				final WalReader reader = new WalReader(walFile);
+				final WriteAheadLogReader reader = new WriteAheadLogReader(walFile);
 				
 				for(final Tuple tuple : reader) {
 					put(tuple);
@@ -681,7 +681,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	public synchronized void initNewMemtable() {
 		
-		final WalWriter walWriter = getWriteAheadLogWriter();
+		final WriteAheadLogWriter walWriter = getWriteAheadLogWriter();
 		
 		final Memtable memtable = new Memtable(tupleStoreName, 
 				configuration.getMemtableEntriesMax(), 
@@ -707,7 +707,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * 
 	 * @return
 	 */
-	private WalWriter getWriteAheadLogWriter() {		
+	private WriteAheadLogWriter getWriteAheadLogWriter() {		
 		if(! configuration.isStorageWriteAheadLog()) {
 			return null;
 		}
@@ -716,7 +716,7 @@ public class TupleStoreManager implements BBoxDBService {
 		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, tupleStoreName);
 		
 		try {
-			return new WalWriter(new File(ssTableDir), System.currentTimeMillis());
+			return new WriteAheadLogWriter(new File(ssTableDir), System.currentTimeMillis());
 		} catch (IOException e) {
 			logger.error("Unable to create write ahead log writer", e);
 			return null;

@@ -28,7 +28,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.util.TupleHelper;
 
-public class WalWriter implements Closeable {
+public class WriteAheadLogWriter implements Closeable {
 	
 	/**
 	 * The file writer
@@ -40,9 +40,9 @@ public class WalWriter implements Closeable {
 	 */
 	private final File file;
 
-	public WalWriter(final File basedir, final long memtableNumber) throws IOException {
+	public WriteAheadLogWriter(final File basedir, final long memtableNumber) throws IOException {
 		
-		this.file = WalManager.getFileForWal(basedir, memtableNumber);
+		this.file = WriteAheadLogManager.getFileForWal(basedir, memtableNumber);
 		
 		if(file.exists()) {
 			throw new RuntimeException("File " + file + " does already exist");

@@ -31,9 +31,9 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.util.TupleHelper;
-import org.bboxdb.storage.wal.WalManager;
-import org.bboxdb.storage.wal.WalReader;
-import org.bboxdb.storage.wal.WalWriter;
+import org.bboxdb.storage.wal.WriteAheadLogManager;
+import org.bboxdb.storage.wal.WriteAheadLogReader;
+import org.bboxdb.storage.wal.WriteAheadLogWriter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +42,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
-public class TestWAL {
+public class TestWriteAheadLog {
 	
 	/**
 	 * The temp dir
@@ -75,7 +75,7 @@ public class TestWAL {
 	@Test(expected=IOException.class)
 	public void testReadNonExstingFile() throws IOException, StorageManagerException {
 		final File file = new File(tempDir + File.separator + "file");
-		final WalReader reader = new WalReader(file);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(file);
 		reader.close();
 		
 		// Should not happen
@@ -84,13 +84,13 @@ public class TestWAL {
 	
 	@Test
 	public void testWriteReadNoTuple() throws IOException, StorageManagerException {
-		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
 		walWriter.close();
 		
 		final File writtenFile = walWriter.getFile();
 		Assert.assertTrue(writtenFile.exists());
 
-		final WalReader reader = new WalReader(writtenFile);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(writtenFile);
 		
 		final List<Tuple> myList = Lists.newArrayList(reader.iterator());
 		Assert.assertEquals(0, myList.size());
@@ -100,14 +100,14 @@ public class TestWAL {
 	
 	@Test
 	public void testWriteReadOneTuple() throws IOException, StorageManagerException {
-		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
 		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
 		walWriter.close();
 		
 		final File writtenFile = walWriter.getFile();
 		Assert.assertTrue(writtenFile.exists());
 
-		final WalReader reader = new WalReader(writtenFile);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(writtenFile);
 		
 		final List<Tuple> myList = Lists.newArrayList(reader.iterator());
 		Assert.assertEquals(1, myList.size());
@@ -117,7 +117,7 @@ public class TestWAL {
 	
 	@Test
 	public void testWriteReadTwoTuple() throws IOException, StorageManagerException {
-		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
 		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
 		walWriter.addTuple(new DeletedTuple("abc"));
 
@@ -126,7 +126,7 @@ public class TestWAL {
 		final File writtenFile = walWriter.getFile();
 		Assert.assertTrue(writtenFile.exists());
 
-		final WalReader reader = new WalReader(writtenFile);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(writtenFile);
 		
 		final List<Tuple> myList = Lists.newArrayList(reader.iterator());
 		Assert.assertEquals(2, myList.size());
@@ -136,7 +136,7 @@ public class TestWAL {
 	
 	@Test
 	public void testWriteReadDefectiveTuple() throws IOException, StorageManagerException {
-		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
 		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
 		walWriter.addTuple(new DeletedTuple("abc"));
 
@@ -156,7 +156,7 @@ public class TestWAL {
 		final File writtenFile = file;
 		Assert.assertTrue(writtenFile.exists());
 
-		final WalReader reader = new WalReader(writtenFile);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(writtenFile);
 		
 		final List<Tuple> myList = Lists.newArrayList(reader.iterator());
 		Assert.assertEquals(2, myList.size());
@@ -172,7 +172,7 @@ public class TestWAL {
 		TupleHelper.writeTupleToStream(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()), os);
 		os.close();
 
-		final WalReader reader = new WalReader(writtenFile);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(writtenFile);
 		
 		Lists.newArrayList(reader.iterator());
 		
@@ -184,28 +184,28 @@ public class TestWAL {
 	
 	@Test
 	public void testDeleteFile() throws IOException, StorageManagerException {
-		Assert.assertEquals(0, WalManager.getAllWalFiles(tempDir).size());
+		Assert.assertEquals(0, WriteAheadLogManager.getAllWalFiles(tempDir).size());
 
-		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
 		walWriter.addTuple(TUPLE_A);
 		walWriter.addTuple(TUPLE_B);
 		walWriter.close();
 		
-		Assert.assertEquals(1, WalManager.getAllWalFiles(tempDir).size());
+		Assert.assertEquals(1, WriteAheadLogManager.getAllWalFiles(tempDir).size());
 		
 		final File writtenFile = walWriter.getFile();
 		Assert.assertTrue(writtenFile.exists());
 
-		final WalReader reader = new WalReader(writtenFile);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(writtenFile);
 		reader.close();
 		reader.deleteFile();
 		Assert.assertFalse(writtenFile.exists());
-		Assert.assertEquals(0, WalManager.getAllWalFiles(tempDir).size());
+		Assert.assertEquals(0, WriteAheadLogManager.getAllWalFiles(tempDir).size());
 	}
 	
 	@Test
 	public void testConstructor() throws IOException, StorageManagerException {
-		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
 		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
 		walWriter.addTuple(new DeletedTuple("abc"));
 
@@ -214,7 +214,7 @@ public class TestWAL {
 		final File writtenFile = walWriter.getFile();
 		Assert.assertTrue(writtenFile.exists());
 
-		final WalReader reader = new WalReader(tempDir, 1);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(tempDir, 1);
 		reader.deleteFile();
 		Assert.assertFalse(writtenFile.exists());
 		
@@ -223,7 +223,7 @@ public class TestWAL {
 	
 	@Test
 	public void testMemtableWithWAL() throws IOException, StorageManagerException {
-		final WalWriter walWriter = new WalWriter(tempDir, 1);
+		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
 		
 		final Memtable memtable = new Memtable(new TupleStoreName("abc_def"), 100, 100, walWriter);
 		memtable.init();
@@ -235,7 +235,7 @@ public class TestWAL {
 		final File walFile = walWriter.getFile();
 		Assert.assertTrue(walFile.exists());
 		
-		final WalReader reader = new WalReader(walFile);
+		final WriteAheadLogReader reader = new WriteAheadLogReader(walFile);
 		
 		final List<Tuple> myList = Lists.newArrayList(reader.iterator());
 		Assert.assertEquals(2, myList.size());

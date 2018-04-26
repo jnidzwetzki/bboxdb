@@ -35,7 +35,7 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.tuplestore.ReadWriteTupleStore;
 import org.bboxdb.storage.util.TupleHelper;
-import org.bboxdb.storage.wal.WalWriter;
+import org.bboxdb.storage.wal.WriteAheadLogWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +111,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * The write ahead log writer
 	 */
-	private final WalWriter walWriter;
+	private final WriteAheadLogWriter walWriter;
 	
 	/**
 	 * The Logger
@@ -119,7 +119,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
 	public Memtable(final TupleStoreName table, final int entries, final long maxSizeInMemory, 
-			final WalWriter walWriter) {
+			final WriteAheadLogWriter walWriter) {
 		
 		this.table = table;
 		this.maxEntries = entries;

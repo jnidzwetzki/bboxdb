@@ -24,7 +24,7 @@ import java.util.List;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 
-public class WalManager {
+public class WriteAheadLogManager {
 	
 	/**
 	 * Get the WAL filename
