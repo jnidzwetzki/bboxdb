@@ -7,12 +7,12 @@ title: "Documentation of the BBoxDB"
 
 # Documentation
 
-Welcome to the documentation of BBoxDB. BBoxDB is a research project to evaluate a novel storage architecture for multi-dimensional big data. BBoxDB is designed as a scalable distributed system; new nodes can be added to process larger amounts of data.
+Welcome to the documentation of BBoxDB. BBoxDB is a research project to evaluate a novel storage architecture for multi-dimensional big data. 
 
 In contrast to traditional key-value stores, BBoxDB is optimized to handle multi-dimensional data. Stored data is placed into an n-dimensional space and parts of the space are handled by different nodes. SSTables (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. The system can be accessed, using a [network protocol](/bboxdb/dev/network.html). Some special features like continuous queries or a history for tuples are also supported.
 
-Tools like a _graphical user interface_ (GUI) and a _command line interface_ (CLI) are available to work with the system. In addition, a [client](/bboxdb/doc/client.html) for the Java programming language is also available in the [Maven central repository](https://search.maven.org/#search%7Cga%7C1%7Cbboxdb).
-
+## Multi-dimensional data in traditional key-value-stores
+Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (e.g., regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
 
 ## What is the difference to traditional key-value-stores?
 
