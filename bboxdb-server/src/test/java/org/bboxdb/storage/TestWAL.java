@@ -29,6 +29,7 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.TupleHelper;
+import org.bboxdb.storage.wal.WalManager;
 import org.bboxdb.storage.wal.WalReader;
 import org.bboxdb.storage.wal.WalWriter;
 import org.junit.After;
@@ -170,20 +171,24 @@ public class TestWAL {
 	
 	@Test
 	public void testDeleteFile() throws IOException, StorageManagerException {
+		Assert.assertEquals(0, WalManager.getAllWalFiles(tempDir).size());
+
 		final WalWriter walWriter = new WalWriter(tempDir, 1);
 		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
 		walWriter.addTuple(new DeletedTuple("abc"));
 
 		walWriter.close();
 		
+		Assert.assertEquals(1, WalManager.getAllWalFiles(tempDir).size());
+		
 		final File writtenFile = walWriter.getFile();
 		Assert.assertTrue(writtenFile.exists());
 
 		final WalReader reader = new WalReader(writtenFile);
+		reader.close();
 		reader.deleteFile();
 		Assert.assertFalse(writtenFile.exists());
-		
-		reader.close();
+		Assert.assertEquals(0, WalManager.getAllWalFiles(tempDir).size());
 	}
 	
 	@Test

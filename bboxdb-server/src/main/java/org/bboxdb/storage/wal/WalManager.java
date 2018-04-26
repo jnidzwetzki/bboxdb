@@ -18,8 +18,11 @@
 package org.bboxdb.storage.wal;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import org.bboxdb.storage.sstable.SSTableConst;
+import org.bboxdb.storage.sstable.SSTableHelper;
 
 public class WalManager {
 	
@@ -34,5 +37,14 @@ public class WalManager {
 				+ memtableNumber + SSTableConst.MEMTABLE_WAL_SUFFIX);
 	}
 	
+	/**
+	 * Get all WAL files from the given basedir
+	 * @param basedir
+	 * @return
+	 */
+	public static List<File> getAllWalFiles(final File basedir) {
+		final File[] files = basedir.listFiles((d, n) -> SSTableHelper.isFileNameWAL(n));
+		return Arrays.asList(files);
+	}
 	
 }
