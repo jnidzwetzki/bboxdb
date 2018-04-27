@@ -5,6 +5,8 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+### Version 0.8.0 - TBA
+
 ### Version 0.7.0 - 27.04.2018
 - New Feature: BBoxDB can now be started in foreground
 - New Feature: BBoxDB can now be run in a Docker container
