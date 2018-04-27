@@ -5,10 +5,10 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
-### Version 0.7.0 - TBA
+### Version 0.7.0 - 27.04.2018
 - New Feature: BBoxDB can now be started in foreground
 - New Feature: BBoxDB can now be run in a Docker container
-- New Feature: Added the write ahead log
+- New Feature: Added a write ahead log for memtables
 - Improvement: Updated dependencies (snakeyaml 1.19 -> 1.20, mockito 2.15 -> 2.18)
 - Bugfix: Fixed NPE in dynamic grid space partitioner
 - Bugfix: Fixed several bugs in the dynamic grid space partitioner
