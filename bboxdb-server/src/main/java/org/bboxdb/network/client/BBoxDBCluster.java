@@ -342,7 +342,7 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) throws BBoxDBException {
+	public TupleListFuture queryRectangle(final String table, final BoundingBox boundingBox) throws BBoxDBException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
@@ -379,7 +379,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * 
 	 */
 	@Override
-	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) 
+	public TupleListFuture queryRectangleContinuous(final String table, final BoundingBox boundingBox) 
 			throws BBoxDBException {
 	
 		final DistributionRegion distributionRegion = getRootNode(table);
@@ -397,11 +397,11 @@ public class BBoxDBCluster implements BBoxDB {
 		final BBoxDBInstance firstSystem = region.getSystems().get(0);
 		final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
 
-		return connection.getBboxDBClient().queryBoundingBoxContinuous(table, boundingBox);
+		return connection.getBboxDBClient().queryRectangleContinuous(table, boundingBox);
 	}
 
 	@Override
-	public TupleListFuture queryBoundingBoxAndTime(final String table,
+	public TupleListFuture queryRectangleAndTime(final String table,
 			final BoundingBox boundingBox, final long timestamp) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {

@@ -375,7 +375,7 @@ public class TestNetworkCommunication {
 		
 		System.out.println("== Waiting for queryBoundingBox");
 		final BoundingBox boundingBox = new BoundingBox(-1d, 2d, -1d, 2d);
-		final TupleListFuture result1 = bboxDBClient.queryBoundingBox(table, boundingBox);
+		final TupleListFuture result1 = bboxDBClient.queryRectangle(table, boundingBox);
 		result1.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result1.waitForCompletion();
 		Assert.assertTrue(result1.isFailed());
@@ -403,7 +403,7 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(ErrorMessages.ERROR_TABLE_NOT_EXIST, result4.getMessage(0));
 		
 		System.out.println("== Waiting for queryBoundingBoxAndTime");
-		final TupleListFuture result5 = bboxDBClient.queryBoundingBoxAndTime(table, boundingBox, 1234);
+		final TupleListFuture result5 = bboxDBClient.queryRectangleAndTime(table, boundingBox, 1234);
 		result5.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result5.waitForCompletion();
 		Assert.assertTrue(result5.isFailed());
@@ -519,7 +519,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = unlimited");
 		bboxDBClient.setPagingEnabled(false);
 		bboxDBClient.setTuplesPerPage((short) 0);
-		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		final TupleListFuture future = bboxDBClient.queryRectangle(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());		
 		Assert.assertEquals(5, resultList.size());
@@ -528,7 +528,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 10");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 10);
-		final TupleListFuture future2 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		final TupleListFuture future2 = bboxDBClient.queryRectangle(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(future2.iterator());		
 		Assert.assertEquals(5, resultList2.size());
@@ -537,7 +537,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 5");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 5);
-		final TupleListFuture future3 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		final TupleListFuture future3 = bboxDBClient.queryRectangle(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future3.waitForCompletion();
 		final List<Tuple> resultList3 = Lists.newArrayList(future3.iterator());		
 		Assert.assertEquals(5, resultList3.size());
@@ -546,7 +546,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 2");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 2);
-		final TupleListFuture future4 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		final TupleListFuture future4 = bboxDBClient.queryRectangle(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		System.out.println("Client is waiting on: " + future4);
 		future4.waitForCompletion();
 		final List<Tuple> resultList4 = Lists.newArrayList(future4.iterator());		
@@ -556,7 +556,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 1");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 1);
-		final TupleListFuture future5 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		final TupleListFuture future5 = bboxDBClient.queryRectangle(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future5.waitForCompletion();
 		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());		
 		Assert.assertEquals(5, resultList5.size());

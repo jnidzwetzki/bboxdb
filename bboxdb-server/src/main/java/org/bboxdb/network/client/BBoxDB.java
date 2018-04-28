@@ -129,12 +129,12 @@ public interface BBoxDB {
 	public TupleListFuture queryKey(final String table, final String key) throws BBoxDBException;
 
 	/**
-	 * Execute a bounding box query on the given table
+	 * Execute a hyperrectangle query on the given table
 	 * @param table
 	 * @param boundingBox
 	 * @return
 	 */
-	public TupleListFuture queryBoundingBox(final String table,
+	public TupleListFuture queryRectangle(final String table,
 			final BoundingBox boundingBox) throws BBoxDBException;
 	
 	/**
@@ -144,7 +144,7 @@ public interface BBoxDB {
 	 * @return
 	 * @throws BBoxDBException
 	 */
-	public TupleListFuture queryBoundingBoxContinuous(final String table,
+	public TupleListFuture queryRectangleContinuous(final String table,
 			final BoundingBox boundingBox) throws BBoxDBException;
 
 	/**
@@ -169,7 +169,7 @@ public interface BBoxDB {
 	 * @param key
 	 * @return
 	 */
-	public TupleListFuture queryBoundingBoxAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws BBoxDBException;
+	public TupleListFuture queryRectangleAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws BBoxDBException;
 
 	/**
 	 * Execute a join

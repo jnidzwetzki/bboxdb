@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ContinuousBoundingBoxClientQuery;
@@ -55,8 +55,8 @@ public class HandleContinuousBoundingBoxQuery implements QueryHandler {
 				return;
 			}
 			
-			final QueryBoundingBoxContinuousRequest queryRequest 
-				= QueryBoundingBoxContinuousRequest.decodeTuple(encodedPackage);
+			final QueryHyperrectangleContinuousRequest queryRequest 
+				= QueryHyperrectangleContinuousRequest.decodeTuple(encodedPackage);
 			
 			final TupleStoreName requestTable = queryRequest.getTable();
 			

@@ -445,7 +445,7 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);
 			
-			final TupleListFuture resultFuture = bboxDbConnection.queryBoundingBoxContinuous
+			final TupleListFuture resultFuture = bboxDbConnection.queryRectangleContinuous
 					(table, boundingBox);
 			
 			if(resultFuture == null) {
@@ -510,12 +510,12 @@ public class CLI implements Runnable, AutoCloseable {
 			System.out.println("Executing bounding box and time query...");
 			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
 			final long timestamp = getTimestampFromArgs();
-			return bboxDbConnection.queryBoundingBoxAndTime(table, boundingBox, timestamp);
+			return bboxDbConnection.queryRectangleAndTime(table, boundingBox, timestamp);
 			
 		} else if(line.hasOption(CLIParameter.BOUNDING_BOX)) {
 			System.out.println("Executing bounding box query...");
 			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
-			return bboxDbConnection.queryBoundingBox(table, boundingBox);
+			return bboxDbConnection.queryRectangle(table, boundingBox);
 			
 		} else if(line.hasOption(CLIParameter.TIMESTAMP)) { 
 			System.out.println("Executing time query...");

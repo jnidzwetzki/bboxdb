@@ -172,7 +172,7 @@ public class TestBoundingBoxQuery implements Runnable {
 			}
 			
 			final BoundingBox queryBox = new BoundingBox(bboxIntervals);
-			final TupleListFuture future = bboxDBConnection.queryBoundingBox(tablename, queryBox);
+			final TupleListFuture future = bboxDBConnection.queryRectangle(tablename, queryBox);
 			pendingFutures.put(future);
 		}
 		

@@ -30,8 +30,8 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreName;
 
-public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackage {
-
+public class QueryHyperrectangleTimeRequest extends NetworkQueryRequestPackage {
+	
 	/**
 	 * The name of the table
 	 */
@@ -42,13 +42,32 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 	 */
 	protected final BoundingBox box;
 	
-	public QueryBoundingBoxContinuousRequest(final short sequenceNumber, 
-			final RoutingHeader routingHeader, final String table, final BoundingBox box) {
+	/**
+	 * The timestamp
+	 */
+	protected final long timestamp;
+	
+	/**
+	 * Paging enables
+	 */
+	protected final boolean pagingEnabled;
+	
+	/**
+	 * The max tuples per page
+	 */
+	protected final short tuplesPerPage;
+	
+	public QueryHyperrectangleTimeRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
+			final String table, final BoundingBox box, final long timestamp, final boolean pagingEnabled, 
+			final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
 		this.table = new TupleStoreName(table);
 		this.box = box;
+		this.timestamp = timestamp;
+		this.pagingEnabled = pagingEnabled;
+		this.tuplesPerPage = tuplesPerPage;
 	}
 
 	@Override
@@ -58,15 +77,26 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] bboxBytes = box.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(8);
+			final ByteBuffer bb = ByteBuffer.allocate(20);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
-			bb.put(NetworkConst.UNUSED_BYTE);
-			bb.putShort((short) tableBytes.length);
-			bb.putInt((int) bboxBytes.length);
 			
-			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
+			if(pagingEnabled) {
+				bb.put((byte) 1);
+			} else {
+				bb.put((byte) 0);
+			}
+			
+			bb.putShort(tuplesPerPage);
+			
+			bb.putShort((short) tableBytes.length);
+			bb.put(NetworkConst.UNUSED_BYTE);
+			bb.put(NetworkConst.UNUSED_BYTE);
+			bb.putInt((int) bboxBytes.length);
+			bb.putLong(timestamp);
+			
+			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;			
 			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
@@ -88,7 +118,7 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	public static QueryBoundingBoxContinuousRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
+	public static QueryHyperrectangleTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
@@ -99,14 +129,25 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 		
 	    final byte queryType = encodedPackage.get();
 	    
-	    if(queryType != NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX) {
-	    	throw new PackageEncodeException("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX);
+	    if(queryType != NetworkConst.REQUEST_QUERY_BBOX_AND_TIME) {
+	    	throw new PackageEncodeException("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX_AND_TIME);
 	    }
 	    
-	    // 1 unused byte
-	    encodedPackage.get();
+	    boolean pagingEnabled = false;
+	    if(encodedPackage.get() != 0) {
+	    	pagingEnabled = true;
+	    }
+	    
+	    final short tuplesPerPage = encodedPackage.getShort();
+
 		final short tableLength = encodedPackage.getShort();
+		
+	    // 2 unused bytes
+	    encodedPackage.get();
+	    encodedPackage.get();
+		
 	    final int bboxLength = encodedPackage.getInt();
+	    final long timestamp = encodedPackage.getLong();
 
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
@@ -122,7 +163,8 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
-		return new QueryBoundingBoxContinuousRequest(sequenceNumber, routingHeader, table, boundingBox);
+		return new QueryHyperrectangleTimeRequest(sequenceNumber, routingHeader, table, boundingBox, 
+				timestamp, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -132,7 +174,7 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 
 	@Override
 	public byte getQueryType() {
-		return NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX;
+		return NetworkConst.REQUEST_QUERY_BBOX_AND_TIME;
 	}
 	
 	public TupleStoreName getTable() {
@@ -142,5 +184,22 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 	public BoundingBox getBoundingBox() {
 		return box;
 	}
+	
+	public short getTuplesPerPage() {
+		return tuplesPerPage;
+	}
 
+	public boolean isPagingEnabled() {
+		return pagingEnabled;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	@Override
+	public String toString() {
+		return "QueryHyperrectangleTimeRequest [table=" + table + ", box=" + box + ", timestamp=" + timestamp
+				+ ", pagingEnabled=" + pagingEnabled + ", tuplesPerPage=" + tuplesPerPage + "]";
+	}
 }

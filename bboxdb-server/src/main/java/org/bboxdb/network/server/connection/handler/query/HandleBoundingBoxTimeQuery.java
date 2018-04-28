@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.QueryHelper;
@@ -60,7 +60,7 @@ public class HandleBoundingBoxTimeQuery implements QueryHandler {
 				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
 			}
 			
-			final QueryBoundingBoxTimeRequest queryRequest = QueryBoundingBoxTimeRequest.decodeTuple(encodedPackage);
+			final QueryHyperrectangleTimeRequest queryRequest = QueryHyperrectangleTimeRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = queryRequest.getTable();
 			
 			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {

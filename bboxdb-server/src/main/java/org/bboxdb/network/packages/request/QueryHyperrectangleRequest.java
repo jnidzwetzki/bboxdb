@@ -30,7 +30,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreName;
 
-public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
+public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 
 	/**
 	 * The name of the table
@@ -52,7 +52,7 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 
-	public QueryBoundingBoxRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
+	public QueryHyperrectangleRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
 			final String table,  final BoundingBox box, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
@@ -111,7 +111,7 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	public static QueryBoundingBoxRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
+	public static QueryHyperrectangleRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
@@ -154,7 +154,7 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
-		return new QueryBoundingBoxRequest(sequenceNumber, routingHeader, table, boundingBox, 
+		return new QueryHyperrectangleRequest(sequenceNumber, routingHeader, table, boundingBox, 
 				pagingEnabled, tuplesPerPage);
 	}
 
@@ -186,7 +186,7 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 
 	@Override
 	public String toString() {
-		return "QueryBoundingBoxRequest [table=" + table + ", box=" + box + ", pagingEnabled=" + pagingEnabled
+		return "QueryHyperrectangleRequest [table=" + table + ", box=" + box + ", pagingEnabled=" + pagingEnabled
 				+ ", tuplesPerPage=" + tuplesPerPage + "]";
 	}
 

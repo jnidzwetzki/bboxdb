@@ -239,7 +239,7 @@ public class TestBBoxDBCluster {
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Execute query
-		final TupleListFuture result = bboxDBClient.queryBoundingBoxContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final TupleListFuture result = bboxDBClient.queryRectangleContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
 
 		Assert.assertFalse(result.isFailed());
 		

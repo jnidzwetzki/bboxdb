@@ -72,7 +72,7 @@ public class NetworkQueryHelper {
 		result4.waitForCompletion();
 		result5.waitForCompletion();
 
-		final TupleListFuture future = bboxDBClient.queryBoundingBoxAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
+		final TupleListFuture future = bboxDBClient.queryRectangleAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
 		future.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 				
@@ -126,7 +126,7 @@ public class NetworkQueryHelper {
 		}
 		
 		System.out.println("=== Executing query");
-		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final TupleListFuture future = bboxDBClient.queryRectangle(table, new BoundingBox(-1d, 2d, -1d, 2d));
 		future.waitForCompletion();
 		System.out.println("=== Query DONE");
 
@@ -167,7 +167,7 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
-		final TupleListFuture future = bboxDBClient.queryBoundingBoxContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final TupleListFuture future = bboxDBClient.queryRectangleContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
 
 		Thread.sleep(1000);
 		

@@ -45,9 +45,9 @@ import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
-import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
-import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleContinuousRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
 import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
 import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
@@ -517,7 +517,7 @@ public class TestNetworkClasses {
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, false, (short) 10);
+		final QueryHyperrectangleRequest queryRequest = new QueryHyperrectangleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, false, (short) 10);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -525,7 +525,7 @@ public class TestNetworkClasses {
 		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
 		Assert.assertTrue(result);
 
-		final QueryBoundingBoxRequest decodedPackage = QueryBoundingBoxRequest.decodeTuple(bb);
+		final QueryHyperrectangleRequest decodedPackage = QueryHyperrectangleRequest.decodeTuple(bb);
 		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
@@ -546,7 +546,7 @@ public class TestNetworkClasses {
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryBoundingBoxContinuousRequest queryRequest = new QueryBoundingBoxContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox);
+		final QueryHyperrectangleContinuousRequest queryRequest = new QueryHyperrectangleContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -554,7 +554,7 @@ public class TestNetworkClasses {
 		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
 		Assert.assertTrue(result);
 
-		final QueryBoundingBoxContinuousRequest decodedPackage = QueryBoundingBoxContinuousRequest.decodeTuple(bb);
+		final QueryHyperrectangleContinuousRequest decodedPackage = QueryHyperrectangleContinuousRequest.decodeTuple(bb);
 		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
@@ -634,7 +634,7 @@ public class TestNetworkClasses {
 
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryBoundingBoxTimeRequest queryRequest = new QueryBoundingBoxTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, timeStamp, true, (short) 50);
+		final QueryHyperrectangleTimeRequest queryRequest = new QueryHyperrectangleTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, timeStamp, true, (short) 50);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -644,7 +644,7 @@ public class TestNetworkClasses {
 
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX_AND_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 		
-		final QueryBoundingBoxTimeRequest decodedPackage = QueryBoundingBoxTimeRequest.decodeTuple(bb);
+		final QueryHyperrectangleTimeRequest decodedPackage = QueryHyperrectangleTimeRequest.decodeTuple(bb);
 		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
 		Assert.assertEquals(queryRequest.getTimestamp(), decodedPackage.getTimestamp());
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());

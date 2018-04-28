@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.QueryHelper;
@@ -60,7 +60,7 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 				return;
 			}
 			
-			final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
+			final QueryHyperrectangleRequest queryRequest = QueryHyperrectangleRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = queryRequest.getTable();
 			
 			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {

@@ -267,7 +267,7 @@ public class RegionMerger {
 		final BoundingBox bbox = childRegion.getConveringBox();
 		final String fullname = tupleStoreName.getFullname();
 		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-		final TupleListFuture result = bboxDBClient.queryBoundingBox(fullname, bbox);
+		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox);
 
 		result.waitForCompletion();
 

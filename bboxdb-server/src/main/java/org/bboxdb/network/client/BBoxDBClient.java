@@ -42,9 +42,9 @@ import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
-import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
-import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleContinuousRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
+import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
 import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
 import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
@@ -328,7 +328,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBox(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
-	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+	public TupleListFuture queryRectangle(final String table, final BoundingBox boundingBox) {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, boundingBox, false, connection.getServerAddress());
 		final NetworkOperationFuture future = getQueryBoundingBoxFuture(table, boundingBox, routingHeader);
@@ -348,7 +348,7 @@ public class BBoxDBClient implements BBoxDB {
 		return new NetworkOperationFuture(connection, () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			
-			return new QueryBoundingBoxRequest(nextSequenceNumber, 
+			return new QueryHyperrectangleRequest(nextSequenceNumber, 
 					routingHeader, table, boundingBox, pagingEnabled, tuplesPerPage);
 		});
 	}
@@ -358,7 +358,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * 
 	 */
 	@Override
-	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) {
+	public TupleListFuture queryRectangleContinuous(final String table, final BoundingBox boundingBox) {
 		final NetworkOperationFuture future = getQueryBoundingBoxContinousFuture(table, boundingBox);
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
 	}
@@ -377,7 +377,7 @@ public class BBoxDBClient implements BBoxDB {
 
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			
-			return new QueryBoundingBoxContinuousRequest(
+			return new QueryHyperrectangleContinuousRequest(
 					nextSequenceNumber, routingHeaderSupplier, table, boundingBox);
 		});
 	}
@@ -386,7 +386,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBoxAndTime(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
-	public TupleListFuture queryBoundingBoxAndTime(final String table,
+	public TupleListFuture queryRectangleAndTime(final String table,
 			final BoundingBox boundingBox, final long timestamp) {
 		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
@@ -411,7 +411,7 @@ public class BBoxDBClient implements BBoxDB {
 		return new NetworkOperationFuture(connection, () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			
-			return new QueryBoundingBoxTimeRequest(nextSequenceNumber, 
+			return new QueryHyperrectangleTimeRequest(nextSequenceNumber, 
 					routingHeader, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
 		});
 	}

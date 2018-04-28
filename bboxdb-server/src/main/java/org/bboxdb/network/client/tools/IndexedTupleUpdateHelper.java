@@ -196,7 +196,7 @@ public class IndexedTupleUpdateHelper {
 			throws InterruptedException, BBoxDBException {
 		
 		final BoundingBox boundingBox = getBoundingBoxForKey(key);
-		final TupleListFuture resultFuture = cluster.queryBoundingBox(indexTableName, boundingBox);
+		final TupleListFuture resultFuture = cluster.queryRectangle(indexTableName, boundingBox);
 		resultFuture.waitForCompletion();
 		
 		if(resultFuture.isFailed()) {
