@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.io.FileUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.experiments.tuplestore.SSTableTupleStore;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.Tuple;
@@ -134,7 +134,7 @@ public class TestSSTableBloomFilter implements Runnable {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		
 		for(int i = 0; i < TUPLES; i++) {
-			final Tuple tuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, data.getBytes());
+			final Tuple tuple = new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, data.getBytes());
 			tupleStore.writeTuple(tuple);
 		}
 		

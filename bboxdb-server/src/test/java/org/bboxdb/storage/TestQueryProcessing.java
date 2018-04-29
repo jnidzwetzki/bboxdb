@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
@@ -103,15 +103,15 @@ public class TestQueryProcessing {
 	public void testBBoxQuery1() throws StorageManagerException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
-		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
-		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
-		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
+		final Tuple tuple2 = new Tuple("2", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
+		final Tuple tuple3 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
 		storageManager.put(tuple3);
 		
-		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
+		final Hyperrectangle queryBoundingBox = new Hyperrectangle(0.0, 5.0, 0.0, 5.0);
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
@@ -149,9 +149,9 @@ public class TestQueryProcessing {
 	public void testBBoxQuery2() throws StorageManagerException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
-		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
-		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
-		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
+		final Tuple tuple2 = new Tuple("2", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
+		final Tuple tuple3 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
 		storageManager.put(tuple1);
 		storageManager.initNewMemtable();
@@ -160,7 +160,7 @@ public class TestQueryProcessing {
 		storageManager.put(tuple3);
 		storageManager.initNewMemtable();
 		
-		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
+		final Hyperrectangle queryBoundingBox = new Hyperrectangle(0.0, 5.0, 0.0, 5.0);
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
@@ -187,9 +187,9 @@ public class TestQueryProcessing {
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
-		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
-		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
-		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
+		final Tuple tuple2 = new Tuple("2", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
+		final Tuple tuple3 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
 		storageManager.put(tuple1);
 		storageManager.flush();
@@ -200,7 +200,7 @@ public class TestQueryProcessing {
 		storageManager.put(tuple3);
 		storageManager.flush();
 		
-		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
+		final Hyperrectangle queryBoundingBox = new Hyperrectangle(0.0, 5.0, 0.0, 5.0);
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
@@ -227,9 +227,9 @@ public class TestQueryProcessing {
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
-		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
-		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
-		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
+		final Tuple tuple2 = new Tuple("2", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
+		final Tuple tuple3 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 		
 		storageManager.put(tuple1);
 		storageManager.flush();
@@ -240,7 +240,7 @@ public class TestQueryProcessing {
 		storageManager.put(tuple3);
 		storageManager.flush();
 		
-		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
+		final Hyperrectangle queryBoundingBox = new Hyperrectangle(0.0, 5.0, 0.0, 5.0);
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
@@ -266,8 +266,8 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.FULL_SPACE);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.FULL_SPACE);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, Hyperrectangle.FULL_SPACE);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, Hyperrectangle.FULL_SPACE);
 		
 		final IndexedSpatialJoinOperator joinQueryProcessor = new IndexedSpatialJoinOperator(operator1, 
 				operator2);
@@ -290,11 +290,11 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
-		final Tuple tuple1 = new Tuple("1a", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
-		final Tuple tuple2 = new Tuple("2a", new BoundingBox(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
+		final Tuple tuple1 = new Tuple("1a", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple2 = new Tuple("2a", new Hyperrectangle(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
 		
-		final Tuple tuple3 = new Tuple("1b", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
-		final Tuple tuple4 = new Tuple("2b", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
+		final Tuple tuple3 = new Tuple("1b", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
+		final Tuple tuple4 = new Tuple("2b", new Hyperrectangle(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
 
 		// Table1
 		storageManager1.put(tuple1);
@@ -304,7 +304,7 @@ public class TestQueryProcessing {
 		storageManager2.put(tuple3);
 		storageManager2.put(tuple4);
 		
-		final BoundingBox queryBox = new BoundingBox(3.0, 10.0, 3.0, 10.0);
+		final Hyperrectangle queryBox = new Hyperrectangle(3.0, 10.0, 3.0, 10.0);
 		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, queryBox);
 		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, queryBox);
 		
@@ -319,7 +319,7 @@ public class TestQueryProcessing {
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
-		Assert.assertEquals(new BoundingBox(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
 	}
 	
 	/** 
@@ -333,13 +333,13 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 		final TupleStoreManager storageManager3 = storageRegistry.getTupleStoreManager(TABLE_3);
 
-		final Tuple tuple1 = new Tuple("1a", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
-		final Tuple tuple2 = new Tuple("2a", new BoundingBox(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
+		final Tuple tuple1 = new Tuple("1a", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple2 = new Tuple("2a", new Hyperrectangle(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
 		
-		final Tuple tuple3 = new Tuple("1b", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
-		final Tuple tuple4 = new Tuple("2b", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
+		final Tuple tuple3 = new Tuple("1b", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
+		final Tuple tuple4 = new Tuple("2b", new Hyperrectangle(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
 
-		final Tuple tuple5 = new Tuple("1c", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
+		final Tuple tuple5 = new Tuple("1c", new Hyperrectangle(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
 
 		// Table1
 		storageManager1.put(tuple1);
@@ -352,9 +352,9 @@ public class TestQueryProcessing {
 		// Table3
 		storageManager3.put(tuple5);
 		
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.FULL_SPACE);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.FULL_SPACE);
-		final SpatialIndexReadOperator operator3 = new SpatialIndexReadOperator(storageManager3, BoundingBox.FULL_SPACE);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, Hyperrectangle.FULL_SPACE);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, Hyperrectangle.FULL_SPACE);
+		final SpatialIndexReadOperator operator3 = new SpatialIndexReadOperator(storageManager3, Hyperrectangle.FULL_SPACE);
 
 		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1, 
 				operator2);
@@ -373,7 +373,7 @@ public class TestQueryProcessing {
 		
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
 		
-		Assert.assertEquals(new BoundingBox(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
 	}	
 	
 	/** 
@@ -386,12 +386,12 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
-		final Tuple tuple1 = new Tuple("1a", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
-		final Tuple tuple2 = new Tuple("2a", new BoundingBox(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
+		final Tuple tuple1 = new Tuple("1a", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple2 = new Tuple("2a", new Hyperrectangle(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
 		
 		// Tuple 3 and tuple 4 have the same key
-		final Tuple tuple3 = new Tuple("1b", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
-		final Tuple tuple4 = new Tuple("1b", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
+		final Tuple tuple3 = new Tuple("1b", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
+		final Tuple tuple4 = new Tuple("1b", new Hyperrectangle(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
 		
 		// Table1
 		storageManager1.put(tuple1);
@@ -401,8 +401,8 @@ public class TestQueryProcessing {
 		storageManager2.put(tuple3);
 		storageManager2.put(tuple4);
 		
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.FULL_SPACE);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.FULL_SPACE);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, Hyperrectangle.FULL_SPACE);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, Hyperrectangle.FULL_SPACE);
 
 		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1, 
 				operator2);
@@ -416,6 +416,6 @@ public class TestQueryProcessing {
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
-		Assert.assertEquals(new BoundingBox(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
 	}
 }

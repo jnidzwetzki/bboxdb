@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -50,7 +50,7 @@ public class StaticgridSpacePartitioner extends AbstractGridSpacePartitioner {
 	 * @throws Exception
 	 */
 	protected void createCells(final String[] splitConfig, final DistributionGroupConfiguration configuration, 
-			final String rootPath, final BoundingBox rootBox) throws Exception {
+			final String rootPath, final Hyperrectangle rootBox) throws Exception {
 				
 		createGridInDimension(splitConfig, rootPath, rootBox, configuration.getDimensions() - 1);	
 	}
@@ -67,7 +67,7 @@ public class StaticgridSpacePartitioner extends AbstractGridSpacePartitioner {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	private void createGridInDimension(final String[] splitConfig, 
-			final String parentPath, final BoundingBox box, final int dimension) 
+			final String parentPath, final Hyperrectangle box, final int dimension) 
 					throws ZookeeperException, InputParseException, ZookeeperNotFoundException, ResourceAllocationException {
 		
 		logger.info("Processing dimension {}", dimension);
@@ -77,12 +77,12 @@ public class StaticgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		final double stepInterval 
 			= MathUtil.tryParseDouble(stepIntervalString, () -> "Unable to parse" + stepIntervalString);
 			
-		BoundingBox boundingBoxToSplit = box;
+		Hyperrectangle boundingBoxToSplit = box;
 		int childNumber = 0;
 		
 		while(boundingBoxToSplit != null) {
 			final double splitPos = boundingBoxToSplit.getCoordinateLow(dimension) + stepInterval;
-			BoundingBox nodeBox;
+			Hyperrectangle nodeBox;
 			
 			if(splitPos >= boundingBoxToSplit.getCoordinateHigh(dimension)) {
 				nodeBox = boundingBoxToSplit;
@@ -110,7 +110,7 @@ public class StaticgridSpacePartitioner extends AbstractGridSpacePartitioner {
 
 	@Override
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
-			final Collection<BoundingBox> samples) throws BBoxDBException {
+			final Collection<Hyperrectangle> samples) throws BBoxDBException {
 		
 		throw new BBoxDBException("Unsupported operation");
 	}

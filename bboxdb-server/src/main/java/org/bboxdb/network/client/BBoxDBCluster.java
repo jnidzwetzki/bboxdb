@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
@@ -190,12 +190,12 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
 			throws BBoxDBException {
 	
-		return deleteTuple(table, key, timestamp, BoundingBox.FULL_SPACE);
+		return deleteTuple(table, key, timestamp, Hyperrectangle.FULL_SPACE);
 	}
 
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp, 
-			final BoundingBox boundingBox) throws BBoxDBException {
+			final Hyperrectangle boundingBox) throws BBoxDBException {
 		
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
 		final DistributionRegion distributionRegion = getRootNode(table);
@@ -342,7 +342,7 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public TupleListFuture queryRectangle(final String table, final BoundingBox boundingBox) throws BBoxDBException {
+	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox) throws BBoxDBException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
@@ -379,7 +379,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * 
 	 */
 	@Override
-	public TupleListFuture queryRectangleContinuous(final String table, final BoundingBox boundingBox) 
+	public TupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox) 
 			throws BBoxDBException {
 	
 		final DistributionRegion distributionRegion = getRootNode(table);
@@ -402,7 +402,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public TupleListFuture queryRectangleAndTime(final String table,
-			final BoundingBox boundingBox, final long timestamp) throws BBoxDBException {
+			final Hyperrectangle boundingBox, final long timestamp) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryBoundingBoxAndTime called, but connection list is empty");
@@ -453,7 +453,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, 
-					BoundingBox.FULL_SPACE);
+					Hyperrectangle.FULL_SPACE);
 		
 			final List<NetworkOperationFuture> futures = new ArrayList<>();
 			
@@ -488,7 +488,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 			
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, 
-					BoundingBox.FULL_SPACE);
+					Hyperrectangle.FULL_SPACE);
 		
 			final List<NetworkOperationFuture> futures = new ArrayList<>();
 			
@@ -513,7 +513,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
 	 */
 	@Override
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) throws BBoxDBException {
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryJoin called, but connection list is empty");

@@ -27,7 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 
@@ -105,7 +105,7 @@ public class RTreeMemoryReader extends AbstractRTreeReader {
 		final int boundingBoxLength = DataEncoderHelper.readIntFromDataInput(randomAccessFile);
 		final byte[] boundingBoxBytes = new byte[boundingBoxLength];
 		randomAccessFile.readFully(boundingBoxBytes, 0, boundingBoxBytes.length);
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(boundingBoxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boundingBoxBytes);
 		node.setBoundingBox(boundingBox);
 		
 		// Read entry entries
@@ -164,7 +164,7 @@ public class RTreeMemoryReader extends AbstractRTreeReader {
 	}
 
 	@Override
-	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+	public List<SpatialIndexEntry> getEntriesForRegion(final Hyperrectangle boundingBox) {
 		return rootNode.getEntriesForRegion(boundingBox);
 	}
 	

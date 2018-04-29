@@ -19,7 +19,7 @@ package org.bboxdb.network.routing;
 
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 
@@ -30,7 +30,7 @@ public class RoutingHopHelper {
 	 * @return
 	 */
 	public static List<RoutingHop> getRoutingHopsForRead(final DistributionRegion rootRegion, 
-			final BoundingBox boundingBox) {
+			final Hyperrectangle boundingBox) {
 		
 		return DistributionRegionHelper.getRegionsForPredicateAndBox(rootRegion, boundingBox, 
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
@@ -41,7 +41,7 @@ public class RoutingHopHelper {
 	 * @return
 	 */
 	public static List<RoutingHop> getRoutingHopsForWrite(final DistributionRegion rootRegion, 
-			final BoundingBox boundingBox) {
+			final Hyperrectangle boundingBox) {
 		
 		return DistributionRegionHelper.getRegionsForPredicateAndBox(rootRegion, boundingBox, 
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE);		

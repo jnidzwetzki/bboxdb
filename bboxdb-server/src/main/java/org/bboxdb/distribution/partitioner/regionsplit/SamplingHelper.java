@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -47,7 +47,7 @@ public class SamplingHelper {
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	public static Collection<BoundingBox> getSamplesForRegion(DistributionRegion region,
+	public static Collection<Hyperrectangle> getSamplesForRegion(DistributionRegion region,
 			TupleStoreManagerRegistry tupleStoreManagerRegistry) throws StorageManagerException {
 	
 		final List<TupleStoreName> tables = TupleStoreUtil
@@ -66,11 +66,11 @@ public class SamplingHelper {
 	 * @return 
 	 * @throws StorageManagerException
 	 */
-	private static List<BoundingBox> getSamples(final BoundingBox boundingBox, 
+	private static List<Hyperrectangle> getSamples(final Hyperrectangle boundingBox, 
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry,
 			final List<TupleStoreName> tables) throws StorageManagerException {
 		
-		final List<BoundingBox> allPointSamples = new ArrayList<>();
+		final List<Hyperrectangle> allPointSamples = new ArrayList<>();
 		
 		for(final TupleStoreName ssTableName : tables) {
 			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
@@ -80,7 +80,7 @@ public class SamplingHelper {
 			
 			final List<ReadOnlyTupleStore> tupleStores = sstableManager.getAllTupleStorages();
 			
-			final List<BoundingBox> pointSamples = processTupleStores(tupleStores);
+			final List<Hyperrectangle> pointSamples = processTupleStores(tupleStores);
 			allPointSamples.addAll(pointSamples);
 			
 			logger.info("Create split samples for table: {} DONE. Got {} samples.", 
@@ -99,11 +99,11 @@ public class SamplingHelper {
 	 * @return 
 	 * @throws StorageManagerException 
 	 */
-	private static List<BoundingBox> processTupleStores(final List<ReadOnlyTupleStore> storages) 
+	private static List<Hyperrectangle> processTupleStores(final List<ReadOnlyTupleStore> storages) 
 			throws StorageManagerException {
 		
 		final int samplesPerStorage = 100;
-		final List<BoundingBox> samples = new ArrayList<>();
+		final List<Hyperrectangle> samples = new ArrayList<>();
 		
 		logger.debug("Fetching {} samples per storage", samplesPerStorage);
 		
@@ -117,10 +117,10 @@ public class SamplingHelper {
 			
 			for (long position = 0; position < numberOfTuples; position = position + sampleOffset) {
 				final Tuple tuple = storage.getTupleAtPosition(position);							
-				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
+				final Hyperrectangle tupleBoundingBox = tuple.getBoundingBox();
 			
 				// Ignore tuples with an empty box (e.g. deleted tuples)
-				if(tupleBoundingBox == null || tupleBoundingBox.equals(BoundingBox.FULL_SPACE)) {
+				if(tupleBoundingBox == null || tupleBoundingBox.equals(Hyperrectangle.FULL_SPACE)) {
 					continue;
 				}
 				

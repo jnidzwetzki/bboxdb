@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
@@ -209,7 +209,7 @@ public class DistributionRegionComponent {
 	 * @param maxChildren 
 	 * @return 
 	 */
-	public BoundingBox drawComponent(final Graphics2D g) {
+	public Hyperrectangle drawComponent(final Graphics2D g) {
 		
 		// Recalculate the offsets
 		this.xOffset = calculateXOffset(distributionRegion);
@@ -222,7 +222,7 @@ public class DistributionRegionComponent {
 		g.setColor(oldColor);
 		g.drawRect(xOffset, yOffset, WIDTH, HEIGHT);
 
-		final BoundingBox converingBox = distributionRegion.getConveringBox();
+		final Hyperrectangle converingBox = distributionRegion.getConveringBox();
 
 		final double offset = (double) 0.9 / (double) (2.0 + converingBox.getDimension());
 		
@@ -251,8 +251,8 @@ public class DistributionRegionComponent {
 	 * Returns the bounding box of the component
 	 * @return
 	 */
-	public BoundingBox getBoundingBox() {
-		final BoundingBox boundingBox = new BoundingBox((double) xOffset, 
+	public Hyperrectangle getBoundingBox() {
+		final Hyperrectangle boundingBox = new Hyperrectangle((double) xOffset, 
 				(double) xOffset + WIDTH, (double) yOffset, (double) yOffset + HEIGHT);
 				
 		return boundingBox;
@@ -317,7 +317,7 @@ public class DistributionRegionComponent {
 		try {
 			final Map<BBoxDBInstance, Map<String, Long>> statistics = addStatisticsToTooltip(sb);
 			
-			final BoundingBox boundingBox = distributionRegion.getConveringBox();
+			final Hyperrectangle boundingBox = distributionRegion.getConveringBox();
 			for(int i = 0; i < boundingBox.getDimension(); i++) {
 				final DoubleInterval floatInterval = boundingBox.getIntervalForDimension(i);
 				sb.append("Dimension: " + i + " ");

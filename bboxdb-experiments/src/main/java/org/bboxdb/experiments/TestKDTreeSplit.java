@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.tools.TupleFileReader;
 
 public class TestKDTreeSplit implements Runnable {
@@ -46,12 +46,12 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The elements
 	 */
-	protected final Map<BoundingBox, List<BoundingBox>> elements;
+	protected final Map<Hyperrectangle, List<Hyperrectangle>> elements;
 	
 	/**
 	 * Box dimensions
 	 */
-	protected final Map<BoundingBox, Integer> boxDimension;
+	protected final Map<Hyperrectangle, Integer> boxDimension;
 
 	/**
 	 * The sampling size
@@ -124,13 +124,13 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param maxRegionSize 
 	 * @param tuple
 	 */
-	protected void insertNextBoundingBox(final BoundingBox boundingBox, 
+	protected void insertNextBoundingBox(final Hyperrectangle boundingBox, 
 			final int maxRegionSize) {
 		
 		// Create first entry
 		if(elements.isEmpty()) {
 			dataDimension = boundingBox.getDimension();
-			final BoundingBox coveringBoundingBox = BoundingBox.createFullCoveringDimensionBoundingBox(dataDimension);
+			final Hyperrectangle coveringBoundingBox = Hyperrectangle.createFullCoveringDimensionBoundingBox(dataDimension);
 			elements.put(coveringBoundingBox, new ArrayList<>());
 			boxDimension.put(coveringBoundingBox, 0);
 		}
@@ -141,11 +141,11 @@ public class TestKDTreeSplit implements Runnable {
 			.filter(e -> e.getKey().overlaps(boundingBox))
 			.forEach(e -> e.getValue().add(boundingBox));
 		
-		final Predicate<Entry<BoundingBox, List<BoundingBox>>> boxFullPredicate 
+		final Predicate<Entry<Hyperrectangle, List<Hyperrectangle>>> boxFullPredicate 
 			= e -> e.getValue().size() >= maxRegionSize;
 		
 		// Split and remove full boxes
-		final List<BoundingBox> boxesToSplit = elements.entrySet()
+		final List<Hyperrectangle> boxesToSplit = elements.entrySet()
 			.stream()
 			.filter(boxFullPredicate)
 			.map(e -> e.getKey())
@@ -164,19 +164,19 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param numberOfElements 
 	 * @return 
 	 */
-	protected void splitRegion(final BoundingBox boundingBoxToSplit) {
+	protected void splitRegion(final Hyperrectangle boundingBoxToSplit) {
 		
 		final int parentBoxDimension = boxDimension.get(boundingBoxToSplit) % dataDimension;
 
 		final double splitPosition = getSplitPosition(boundingBoxToSplit, parentBoxDimension);
 		
-		final BoundingBox leftBBox = boundingBoxToSplit.splitAndGetLeft(splitPosition, 
+		final Hyperrectangle leftBBox = boundingBoxToSplit.splitAndGetLeft(splitPosition, 
 				parentBoxDimension, true);
-		final BoundingBox rightBBox = boundingBoxToSplit.splitAndGetRight(splitPosition, 
+		final Hyperrectangle rightBBox = boundingBoxToSplit.splitAndGetRight(splitPosition, 
 				parentBoxDimension, false);
 		
 		// Data to redistribute
-		final List<BoundingBox> dataToRedistribute = elements.get(boundingBoxToSplit);
+		final List<Hyperrectangle> dataToRedistribute = elements.get(boundingBoxToSplit);
 		
 		// Write the box dimension
 		boxDimension.put(leftBBox, parentBoxDimension + 1);
@@ -203,10 +203,10 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param boundingBoxToSplit
 	 * @return
 	 */
-	protected double getSplitPosition(final BoundingBox boundingBoxToSplit, final int dimension) {
+	protected double getSplitPosition(final Hyperrectangle boundingBoxToSplit, final int dimension) {
 		final List<Double> pointSamples = new ArrayList<>();
 		final Set<Integer> takenSamples = new HashSet<>();
-		final List<BoundingBox> elementsToProcess = elements.get(boundingBoxToSplit);
+		final List<Hyperrectangle> elementsToProcess = elements.get(boundingBoxToSplit);
 		
 		final int numberOfElements = elementsToProcess.size();
 		final long numberOfSamples = (long) (numberOfElements / 100.0 * SAMPLING_SIZE);
@@ -224,7 +224,7 @@ public class TestKDTreeSplit implements Runnable {
 			
 			takenSamples.add(sampleId);
 			
-			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
+			final Hyperrectangle bboxSample = elementsToProcess.get(sampleId);
 			
 			if(bboxSample.getCoordinateLow(dimension) > boundingBoxToSplit.getCoordinateLow(dimension)) {
 				pointSamples.add(bboxSample.getCoordinateLow(dimension));

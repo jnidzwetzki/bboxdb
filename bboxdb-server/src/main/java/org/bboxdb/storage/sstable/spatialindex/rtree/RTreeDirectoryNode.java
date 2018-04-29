@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 
@@ -46,7 +46,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	/**
 	 * The bounding box of the node
 	 */
-	protected BoundingBox boundingBox;
+	protected Hyperrectangle boundingBox;
 	
 	/**
 	 * The parent node
@@ -70,7 +70,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @return
 	 */
 	@Override
-	public BoundingBox getBoundingBox() {
+	public Hyperrectangle getBoundingBox() {
 		return boundingBox;
 	}
 	
@@ -78,7 +78,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * Set the bounding box
 	 * @param boundingBox
 	 */
-	public void setBoundingBox(BoundingBox boundingBox) {
+	public void setBoundingBox(Hyperrectangle boundingBox) {
 		this.boundingBox = boundingBox;
 	}
 	
@@ -141,17 +141,17 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * Recalculate the bounding box of all entries
 	 */
 	public void updateBoundingBox() {
-		final List<BoundingBox> boundingBoxes = getAllChildBoundingBoxes();
+		final List<Hyperrectangle> boundingBoxes = getAllChildBoundingBoxes();
 		
 		// Calculate bounding box
-		this.boundingBox = BoundingBox.getCoveringBox(boundingBoxes);
+		this.boundingBox = Hyperrectangle.getCoveringBox(boundingBoxes);
 	}
 
 	/**
 	 * Get the bounding boxes of all childs
 	 * @return
 	 */
-	public List<BoundingBox> getAllChildBoundingBoxes() {
+	public List<Hyperrectangle> getAllChildBoundingBoxes() {
 
 		// Get all Bounding boxes
 		return Stream.concat(directoryNodeChilds.stream(), indexEntries.stream())
@@ -164,12 +164,12 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @param entryBox
 	 * @return
 	 */
-	protected RTreeDirectoryNode findBestNodeForInsert(final BoundingBox entryBox) {
+	protected RTreeDirectoryNode findBestNodeForInsert(final Hyperrectangle entryBox) {
 		RTreeDirectoryNode bestNode = null;
 		double bestEnlargement = -1;
 		
 		for(final RTreeDirectoryNode node : directoryNodeChilds) {
-			final BoundingBox nodeBoundingBox = node.getBoundingBox();
+			final Hyperrectangle nodeBoundingBox = node.getBoundingBox();
 			final double nodeEnlargement = nodeBoundingBox.calculateEnlargement(entryBox);
 
 			if(bestNode == null) {
@@ -201,7 +201,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+	public List<SpatialIndexEntry> getEntriesForRegion(final Hyperrectangle boundingBox) {
 		
 		assert(boundingBox != null) : "Query bounding box has to be != null";
 		assert(indexEntries != null) : "Index entries has to be != null";

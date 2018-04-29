@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.queryprocessor.predicate;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 
 public class OverlapsBoundingBoxPredicate implements Predicate {
@@ -25,9 +25,9 @@ public class OverlapsBoundingBoxPredicate implements Predicate {
 	/**
 	 * The bounding box to match
 	 */
-	protected final BoundingBox boundingBox;
+	protected final Hyperrectangle boundingBox;
 	
-	public OverlapsBoundingBoxPredicate(final BoundingBox boundingBox) {
+	public OverlapsBoundingBoxPredicate(final Hyperrectangle boundingBox) {
 		this.boundingBox = boundingBox;
 	}
 

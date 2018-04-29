@@ -20,7 +20,7 @@ package org.bboxdb.network;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
@@ -53,17 +53,17 @@ public class NetworkQueryHelper {
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Inside our bbox query
-		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes(), 4);
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(0d, 1d, 0d, 1d), "abc".getBytes(), 4);
 		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
-		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes(), 4);
+		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(0d, 0.5d, 0d, 0.5d), "def".getBytes(), 4);
 		final EmptyResultFuture result2 = bboxDBClient.insertTuple(table, tuple2);
-		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes(), 1);
+		final Tuple tuple3 = new Tuple("geh", new Hyperrectangle(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes(), 1);
 		final EmptyResultFuture result3 = bboxDBClient.insertTuple(table, tuple3);
 		
 		// Outside our bbox query
-		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
+		final Tuple tuple4 = new Tuple("ijk", new Hyperrectangle(-10d, -9d, -10d, -9d), "ijk".getBytes());
 		final EmptyResultFuture result4 = bboxDBClient.insertTuple(table, tuple4);
-		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
+		final Tuple tuple5 = new Tuple("lmn", new Hyperrectangle(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
 		final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
 		
 		result1.waitForCompletion();
@@ -72,7 +72,7 @@ public class NetworkQueryHelper {
 		result4.waitForCompletion();
 		result5.waitForCompletion();
 
-		final TupleListFuture future = bboxDBClient.queryRectangleAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
+		final TupleListFuture future = bboxDBClient.queryRectangleAndTime(table, new Hyperrectangle(-1d, 2d, -1d, 2d), 2);
 		future.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 				
@@ -103,13 +103,13 @@ public class NetworkQueryHelper {
 		Assert.assertFalse(resultCreateTable.isFailed());
 
 		// Inside our bbox query
-		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
-		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes());
-		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(0d, 1d, 0d, 1d), "abc".getBytes());
+		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(0d, 0.5d, 0d, 0.5d), "def".getBytes());
+		final Tuple tuple3 = new Tuple("geh", new Hyperrectangle(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
 
 		// Outside our bbox query
-		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
+		final Tuple tuple4 = new Tuple("ijk", new Hyperrectangle(-10d, -9d, -10d, -9d), "ijk".getBytes());
+		final Tuple tuple5 = new Tuple("lmn", new Hyperrectangle(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
 
 		if(withTupes) {
 			final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
@@ -126,7 +126,7 @@ public class NetworkQueryHelper {
 		}
 		
 		System.out.println("=== Executing query");
-		final TupleListFuture future = bboxDBClient.queryRectangle(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final TupleListFuture future = bboxDBClient.queryRectangle(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
 		future.waitForCompletion();
 		System.out.println("=== Query DONE");
 
@@ -167,14 +167,14 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
-		final TupleListFuture future = bboxDBClient.queryRectangleContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final TupleListFuture future = bboxDBClient.queryRectangleContinuous(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
 
 		Thread.sleep(1000);
 		
 		System.out.println("=== Tuples per page is: " + bboxDBClient.getTuplesPerPage());
 		if(bboxDBClient.getTuplesPerPage() > 0) {
 			for(int i = 0; i <= bboxDBClient.getTuplesPerPage(); i++) {
-				bboxDBClient.insertTuple(table, new Tuple("1", new BoundingBox(0d, 1d, 0d, 1d), "".getBytes()));
+				bboxDBClient.insertTuple(table, new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes()));
 			}
 		}
 		
@@ -227,7 +227,7 @@ public class NetworkQueryHelper {
 		Assert.assertTrue(getResult.isDone());
 		
 		System.out.println("Insert tuple");
-		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
+		final Tuple tuple = new Tuple(key, Hyperrectangle.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		insertResult.waitForCompletion();
 		Assert.assertFalse(insertResult.isFailed());
@@ -283,28 +283,28 @@ public class NetworkQueryHelper {
 				
 		// Insert tuples
 		System.out.println("Insert tuple 1");
-		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1.0, 2.0, 1.0, 2.0), "abc".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "abc".getBytes());
 		final EmptyResultFuture insertResult1 = bboxDBClient.insertTuple(table1, tuple1);
 		insertResult1.waitForCompletion();
 		Assert.assertFalse(insertResult1.isFailed());
 		Assert.assertTrue(insertResult1.isDone());
 
 		System.out.println("Insert tuple 2");
-		final Tuple tuple2 = new Tuple("def", new BoundingBox(1.5, 2.5, 1.5, 2.5), "abc".getBytes());
+		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "abc".getBytes());
 		final EmptyResultFuture insertResult2 = bboxDBClient.insertTuple(table1, tuple2);
 		insertResult2.waitForCompletion();
 		Assert.assertFalse(insertResult2.isFailed());
 		Assert.assertTrue(insertResult2.isDone());
 
 		System.out.println("Insert tuple 3");
-		final Tuple tuple3 = new Tuple("123", new BoundingBox(0.0, 5.0, 0.0, 5.0), "abc".getBytes());
+		final Tuple tuple3 = new Tuple("123", new Hyperrectangle(0.0, 5.0, 0.0, 5.0), "abc".getBytes());
 		final EmptyResultFuture insertResult3 = bboxDBClient.insertTuple(table2, tuple3);
 		insertResult3.waitForCompletion();
 		Assert.assertFalse(insertResult3.isFailed());
 		Assert.assertTrue(insertResult3.isDone());
 				
 		// Execute the join
-		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), new BoundingBox(0.0, 10.0, 0.0, 10.0));
+		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), new Hyperrectangle(0.0, 10.0, 0.0, 10.0));
 		joinResult.waitForCompletion();
 		final List<JoinedTuple> resultList = Lists.newArrayList(joinResult.iterator());
 
@@ -313,12 +313,12 @@ public class NetworkQueryHelper {
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(table1, resultList.get(0).getTupleStoreName(0));
 		Assert.assertEquals(table2, resultList.get(0).getTupleStoreName(1));
-		Assert.assertEquals(new BoundingBox(1.0, 2.0, 1.0, 2.0), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(1.0, 2.0, 1.0, 2.0), resultList.get(0).getBoundingBox());
 
 		Assert.assertEquals(2, resultList.get(1).getNumberOfTuples());
 		Assert.assertEquals(table1, resultList.get(1).getTupleStoreName(0));
 		Assert.assertEquals(table2, resultList.get(1).getTupleStoreName(1));
-		Assert.assertEquals(new BoundingBox(1.5, 2.5, 1.5, 2.5), resultList.get(1).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(1.5, 2.5, 1.5, 2.5), resultList.get(1).getBoundingBox());
 
 		System.out.println("=== End Execute join");
 	}
@@ -343,7 +343,7 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
-		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
+		final Tuple tuple = new Tuple(key, Hyperrectangle.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		insertResult.waitForCompletion();
 		Assert.assertFalse(insertResult.isFailed());
@@ -383,7 +383,7 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
-		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
+		final Tuple tuple = new Tuple(key, Hyperrectangle.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		insertResult.waitForCompletion();
 		Assert.assertFalse(insertResult.isFailed());

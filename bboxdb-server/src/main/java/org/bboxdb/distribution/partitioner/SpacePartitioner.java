@@ -20,7 +20,7 @@ package org.bboxdb.distribution.partitioner;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
@@ -72,7 +72,7 @@ public interface SpacePartitioner {
 	 * @throws BBoxDBException 
 	 */
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
-			final Collection<BoundingBox> samples) throws BBoxDBException;
+			final Collection<Hyperrectangle> samples) throws BBoxDBException;
 	
 	/**
 	 * A split is complete

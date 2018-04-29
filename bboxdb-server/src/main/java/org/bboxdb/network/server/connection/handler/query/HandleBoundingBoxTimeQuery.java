@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -76,7 +76,7 @@ public class HandleBoundingBoxTimeQuery implements QueryHandler {
 						throw new IllegalArgumentException("This operator tree needs 1 storage manager");
 					}
 					
-					final BoundingBox boundingBox = queryRequest.getBoundingBox();
+					final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
 					final SpatialIndexReadOperator operator = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
 					
 					final Operator operator1 = new NewerAsInsertTimeSeclectionOperator(queryRequest.getTimestamp(), 

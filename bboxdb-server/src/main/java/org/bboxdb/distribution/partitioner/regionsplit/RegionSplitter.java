@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -87,7 +87,7 @@ public class RegionSplitter {
 		final List<DistributionRegion> destination = new ArrayList<>();
 		
 		try {
-			final Collection<BoundingBox> samples 
+			final Collection<Hyperrectangle> samples 
 				= SamplingHelper.getSamplesForRegion(region, tupleStoreManagerRegistry);
 			
 			final List<DistributionRegion> splitRegions = spacePartitioner.splitRegion(region, samples);

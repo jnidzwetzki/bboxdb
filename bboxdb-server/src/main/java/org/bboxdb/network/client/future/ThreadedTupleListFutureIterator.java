@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 
 public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIterator<Tuple> {
@@ -28,7 +28,7 @@ public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIt
 
 	@Override
 	protected Tuple buildQueueTerminal() {
-		return new Tuple("", BoundingBox.FULL_SPACE, "".getBytes());
+		return new Tuple("", Hyperrectangle.FULL_SPACE, "".getBytes());
 	}
 	
 

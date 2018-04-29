@@ -33,7 +33,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
@@ -395,7 +395,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final List<String> tableList = Arrays.asList(tables.split(":"));
 
 			System.out.println("Executing join query...");
-			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
+			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);	
 			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox);
 						
 			if(resultFuture == null) {
@@ -443,7 +443,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
-			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);
+			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			
 			final TupleListFuture resultFuture = bboxDbConnection.queryRectangleContinuous
 					(table, boundingBox);
@@ -508,13 +508,13 @@ public class CLI implements Runnable, AutoCloseable {
 			
 		} else if(line.hasOption(CLIParameter.BOUNDING_BOX) && line.hasOption(CLIParameter.TIMESTAMP)) {
 			System.out.println("Executing bounding box and time query...");
-			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
+			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);	
 			final long timestamp = getTimestampFromArgs();
 			return bboxDbConnection.queryRectangleAndTime(table, boundingBox, timestamp);
 			
 		} else if(line.hasOption(CLIParameter.BOUNDING_BOX)) {
 			System.out.println("Executing bounding box query...");
-			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
+			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);	
 			return bboxDbConnection.queryRectangle(table, boundingBox);
 			
 		} else if(line.hasOption(CLIParameter.TIMESTAMP)) { 
@@ -554,7 +554,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param line
 	 * @return
 	 */
-	protected BoundingBox getBoundingBoxFromArgs(final CommandLine line) {
+	protected Hyperrectangle getBoundingBoxFromArgs(final CommandLine line) {
 		final String bbox = line.getOptionValue(CLIParameter.BOUNDING_BOX);
 		
 		final String[] bboxStringParts = bbox.split(":|,");
@@ -573,7 +573,7 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 		}
 		
-		return new BoundingBox(bboxDoubleValues);
+		return new Hyperrectangle(bboxDoubleValues);
 	}
 	
 	/**
@@ -631,7 +631,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final String table = line.getOptionValue(CLIParameter.TABLE);
 		final String key = line.getOptionValue(CLIParameter.KEY);
 		final String value = line.getOptionValue(CLIParameter.VALUE);
-		final BoundingBox boundingBox = getBoundingBoxFromArgs(line);
+		final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 		
 		final Tuple tuple = new Tuple(key, boundingBox, value.getBytes());
 		
@@ -796,7 +796,7 @@ public class CLI implements Runnable, AutoCloseable {
 			return;
 		}
 		
-		final BoundingBox boundingBox = distributionRegion.getConveringBox();
+		final Hyperrectangle boundingBox = distributionRegion.getConveringBox();
 		
 		final String bboxString = IntStream.range(0, boundingBox.getDimension())
 			.mapToObj(i -> "Dimension:" + i + " " + boundingBox.getIntervalForDimension(i).toString())

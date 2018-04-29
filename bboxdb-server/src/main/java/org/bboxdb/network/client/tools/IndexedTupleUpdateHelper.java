@@ -20,7 +20,7 @@ package org.bboxdb.network.client.tools;
 import java.util.List;
 import java.util.Optional;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -95,7 +95,7 @@ public class IndexedTupleUpdateHelper {
 		
 		try {
 			// Might be full space covering box when index entry not found
-			final BoundingBox oldBoundingBox = getAndLockOldBundingBoxForTuple(table, tuple);
+			final Hyperrectangle oldBoundingBox = getAndLockOldBundingBoxForTuple(table, tuple);
 			
 			// Delete old tuple
 			final String key = tuple.getKey();
@@ -127,7 +127,7 @@ public class IndexedTupleUpdateHelper {
 		final String tablename = convertTablenameToIndexTablename(table);
 		
 		final String key = tuple.getKey();
-		final BoundingBox indexBox = getBoundingBoxForKey(key);
+		final Hyperrectangle indexBox = getBoundingBoxForKey(key);
 		
 		final Tuple tupleToUpdate = new Tuple(key, indexBox, boundingBoxValue.getBytes());
 		final EmptyResultFuture insertFuture = cluster.insertTuple(tablename, tupleToUpdate);
@@ -139,9 +139,9 @@ public class IndexedTupleUpdateHelper {
 	 * @param key
 	 * @return
 	 */
-	private BoundingBox getBoundingBoxForKey(final String key) {
+	private Hyperrectangle getBoundingBoxForKey(final String key) {
 		final int hashCode = key.hashCode();
-		return new BoundingBox((double) hashCode, (double) hashCode);
+		return new Hyperrectangle((double) hashCode, (double) hashCode);
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class IndexedTupleUpdateHelper {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	private BoundingBox getAndLockOldBundingBoxForTuple(final String table, final Tuple tuple) 
+	private Hyperrectangle getAndLockOldBundingBoxForTuple(final String table, final Tuple tuple) 
 			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, InterruptedException {
 		
 		final String indexTableName = createMissingTables(table);
@@ -195,7 +195,7 @@ public class IndexedTupleUpdateHelper {
 	public Optional<Tuple> getOldIndexEntry(final String indexTableName, final String key) 
 			throws InterruptedException, BBoxDBException {
 		
-		final BoundingBox boundingBox = getBoundingBoxForKey(key);
+		final Hyperrectangle boundingBox = getBoundingBoxForKey(key);
 		final TupleListFuture resultFuture = cluster.queryRectangle(indexTableName, boundingBox);
 		resultFuture.waitForCompletion();
 		
@@ -212,7 +212,7 @@ public class IndexedTupleUpdateHelper {
 			if(indexEntry.isPresent()) {
 				return indexEntry;
 			} else {
-				final BoundingBox fullSpace = BoundingBox.FULL_SPACE;
+				final Hyperrectangle fullSpace = Hyperrectangle.FULL_SPACE;
 				final String fullSpaceString = fullSpace.toCompactString();
 				return Optional.of(new Tuple(key, fullSpace, fullSpaceString.getBytes(), -1));
 			}
@@ -227,7 +227,7 @@ public class IndexedTupleUpdateHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	private BoundingBox tryToGetIndexEntry(final String indexTableName, final Tuple tuple)
+	private Hyperrectangle tryToGetIndexEntry(final String indexTableName, final Tuple tuple)
 			throws BBoxDBException, InterruptedException {
 				
 		for(int i = 0; i < TOTAL_RETRIES; i++) {
@@ -247,7 +247,7 @@ public class IndexedTupleUpdateHelper {
 			// Lock successfull
 			if(! lockResult.isFailed()) {
 				final byte[] boundingBoxData = oldIndexEntry.getDataBytes();
-				return new BoundingBox(new String(boundingBoxData));
+				return new Hyperrectangle(new String(boundingBoxData));
 			}
 		}
 		

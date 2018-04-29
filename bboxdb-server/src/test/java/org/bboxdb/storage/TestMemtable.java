@@ -24,7 +24,7 @@ import java.util.List;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.ObjectSerializer;
 import org.bboxdb.commons.entity.PersonEntity;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -155,7 +155,7 @@ public class TestMemtable {
 		final int MAX_TUPLES = memtable.getMaxEntries() * 10;
 
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, Integer.toString(i).getBytes());
 			memtable.put(createdTuple);
 		}
 	}

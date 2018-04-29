@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class SimpleSplitStrategy implements SplitpointStrategy {
 	 * Perform a split of the given distribution region
 	 */
 	@Override
-	public double getSplitPoint(final int splitDimension, final BoundingBox coveringBox) {
+	public double getSplitPoint(final int splitDimension, final Hyperrectangle coveringBox) {
 						
 		// Split region
 		final DoubleInterval interval = coveringBox.getIntervalForDimension(splitDimension);

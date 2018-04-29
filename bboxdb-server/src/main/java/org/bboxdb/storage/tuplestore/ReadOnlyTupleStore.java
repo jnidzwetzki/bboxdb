@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.commons.concurrent.AcquirableResource;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -53,7 +53,7 @@ public interface ReadOnlyTupleStore extends Iterable<Tuple>, AcquirableResource 
 	 * @param boundingBox
 	 * @return
 	 */
-	public Iterator<Tuple> getAllTuplesInBoundingBox(final BoundingBox boundingBox);
+	public Iterator<Tuple> getAllTuplesInBoundingBox(final Hyperrectangle boundingBox);
 	
 	/**
 	 * Get the number of tuples in the storage

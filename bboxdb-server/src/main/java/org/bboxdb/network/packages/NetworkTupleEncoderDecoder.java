@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
@@ -56,7 +56,7 @@ public class NetworkTupleEncoderDecoder {
 		final byte[] dataBytes = new byte[dataLength];
 		encodedPackage.get(dataBytes, 0, dataBytes.length);
 		
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boxBytes);
 		
 		Tuple tuple = null;
 		if(TupleHelper.isDeletedTuple(boxBytes, dataBytes)) {

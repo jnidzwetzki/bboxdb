@@ -20,7 +20,7 @@ package org.bboxdb.network;
 import java.util.Optional;
 
 import org.bboxdb.BBoxDBMain;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -150,16 +150,16 @@ public class TestIndexedTupleUpdate {
 		
 		final BBoxDBCluster cluster = connectToServer();
 		
-		final Tuple tuple1 = new Tuple("abc", new BoundingBox(4d, 5d, 4d, 5d), "value1".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(4d, 5d, 4d, 5d), "value1".getBytes());
 		
 		final IndexedTupleUpdateHelper indexedTupleUpdateHelper = new IndexedTupleUpdateHelper(cluster);
 		indexedTupleUpdateHelper.createMissingTables(TABLENAME);
 		
 		final Optional<Tuple> oldIndexEntry = indexedTupleUpdateHelper.getOldIndexEntry(TABLENAME_INDEX, tuple1.getKey());
 		final byte[] boundingBoxData1 = oldIndexEntry.get().getDataBytes();
-		final BoundingBox boundingBox1 = new BoundingBox(new String(boundingBoxData1));
+		final Hyperrectangle boundingBox1 = new Hyperrectangle(new String(boundingBoxData1));
 		
-		Assert.assertEquals(BoundingBox.FULL_SPACE, boundingBox1);
+		Assert.assertEquals(Hyperrectangle.FULL_SPACE, boundingBox1);
 		
 		disconnect(cluster);
 	}
@@ -170,7 +170,7 @@ public class TestIndexedTupleUpdate {
 		
 		final BBoxDBCluster cluster = connectToServer();
 		
-		final Tuple tuple1 = new Tuple("abc", new BoundingBox(4d, 5d, 4d, 5d), "value1".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(4d, 5d, 4d, 5d), "value1".getBytes());
 		
 		final IndexedTupleUpdateHelper indexedTupleUpdateHelper = new IndexedTupleUpdateHelper(cluster);
 		
@@ -181,10 +181,10 @@ public class TestIndexedTupleUpdate {
 		
 		final Optional<Tuple> oldIndexEntry1 = indexedTupleUpdateHelper.getOldIndexEntry(TABLENAME_INDEX, tuple1.getKey());
 		final byte[] boundingBoxData1 = oldIndexEntry1.get().getDataBytes();
-		final BoundingBox boundingBox1 = new BoundingBox(new String(boundingBoxData1));
+		final Hyperrectangle boundingBox1 = new Hyperrectangle(new String(boundingBoxData1));
 		Assert.assertEquals(tuple1.getBoundingBox(), boundingBox1);
 		
-		final Tuple tuple2 = new Tuple("abc", new BoundingBox(7d, 9d, 4d, 50d), "value2".getBytes());
+		final Tuple tuple2 = new Tuple("abc", new Hyperrectangle(7d, 9d, 4d, 50d), "value2".getBytes());
 
 		final EmptyResultFuture update2Future = indexedTupleUpdateHelper.handleTupleUpdate(TABLENAME, tuple2);
 		update2Future.waitForCompletion();
@@ -193,7 +193,7 @@ public class TestIndexedTupleUpdate {
 
 		final Optional<Tuple> oldIndexEntry2 = indexedTupleUpdateHelper.getOldIndexEntry(TABLENAME_INDEX, tuple2.getKey());
 		final byte[] boundingBoxData2 = oldIndexEntry2.get().getDataBytes();
-		final BoundingBox boundingBox2 = new BoundingBox(new String(boundingBoxData2));
+		final Hyperrectangle boundingBox2 = new Hyperrectangle(new String(boundingBoxData2));
 		Assert.assertEquals(tuple2.getBoundingBox(), boundingBox2);
 		
 		disconnect(cluster);

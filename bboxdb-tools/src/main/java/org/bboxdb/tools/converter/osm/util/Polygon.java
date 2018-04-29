@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -113,10 +113,10 @@ public class Polygon implements Serializable {
 	 * Get the bounding box from the object
 	 * @return
 	 */
-	public BoundingBox getBoundingBox() {
+	public Hyperrectangle getBoundingBox() {
 
 		if(pointList.isEmpty()) {
-			return BoundingBox.FULL_SPACE;
+			return Hyperrectangle.FULL_SPACE;
 		}
 
 		final OSMPoint firstPoint = pointList.get(0);
@@ -132,7 +132,7 @@ public class Polygon implements Serializable {
 			maxY = Math.max(maxY, osmPoint.getY());
 		}
 
-		return new BoundingBox(minX, maxX, minY, maxY);
+		return new Hyperrectangle(minX, maxX, minY, maxY);
 	}
 
 	/**

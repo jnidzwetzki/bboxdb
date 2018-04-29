@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -52,7 +52,7 @@ public class RoutingHeaderHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static RoutingHeader getRoutingHeaderForLocalSystem(final String table, BoundingBox boundingBox, 
+	public static RoutingHeader getRoutingHeaderForLocalSystem(final String table, Hyperrectangle boundingBox, 
 			final boolean allowEmptyHop, final InetSocketAddress serverAddress, final boolean write) 
 			throws ZookeeperException, BBoxDBException, InterruptedException {
 
@@ -65,7 +65,7 @@ public class RoutingHeaderHelper {
 		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
 
 		if(boundingBox == null) {
-			boundingBox = BoundingBox.FULL_SPACE;
+			boundingBox = Hyperrectangle.FULL_SPACE;
 		}
 		
 		final List<RoutingHop> hops = getLocalHops(boundingBox, distributionRegion, write);
@@ -98,7 +98,7 @@ public class RoutingHeaderHelper {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	private static List<RoutingHop> getLocalHops(BoundingBox boundingBox, 
+	private static List<RoutingHop> getLocalHops(Hyperrectangle boundingBox, 
 			final DistributionRegion distributionRegion, final boolean write) throws InterruptedException {
 		
 		for(int retry = 0; retry < Const.OPERATION_RETRY; retry++) {
@@ -127,7 +127,7 @@ public class RoutingHeaderHelper {
 	 * @param allowEmptyHop
 	 * @return
 	 */
-	public static RoutingHeader getRoutingHeaderForLocalSystemWriteNE(final String table, final BoundingBox boundingBox, 
+	public static RoutingHeader getRoutingHeaderForLocalSystemWriteNE(final String table, final Hyperrectangle boundingBox, 
 			final boolean allowEmptyHop, final InetSocketAddress serverAddress) {
 		
 		try {
@@ -145,7 +145,7 @@ public class RoutingHeaderHelper {
 	 * @param allowEmptyHop
 	 * @return
 	 */
-	public static RoutingHeader getRoutingHeaderForLocalSystemReadNE(final String table, final BoundingBox boundingBox, 
+	public static RoutingHeader getRoutingHeaderForLocalSystemReadNE(final String table, final Hyperrectangle boundingBox, 
 			final boolean allowEmptyHop, final InetSocketAddress serverAddress) {
 		
 		try {

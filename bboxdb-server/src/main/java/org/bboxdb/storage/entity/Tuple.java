@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.util.TupleHelper;
 
 public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
@@ -34,7 +34,7 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 	/**
 	 * The bounding box of the tuple
 	 */
-	protected BoundingBox boundingBox;
+	protected Hyperrectangle boundingBox;
 	
 	/**
 	 * The data of the tuple
@@ -51,7 +51,7 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 	 */
 	protected final long receivedTimestamp;
 	
-	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes) {
+	public Tuple(final String key, final Hyperrectangle boundingBox, final byte[] dataBytes) {
 		this.key = Objects.requireNonNull(key);
 		this.boundingBox = boundingBox;
 		this.dataBytes = Objects.requireNonNull(dataBytes);
@@ -59,7 +59,7 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 		this.receivedTimestamp = MicroSecondTimestampProvider.getNewTimestamp();
 	}
 	
-	public Tuple(final String key, final BoundingBox boundingBox, 
+	public Tuple(final String key, final Hyperrectangle boundingBox, 
 			final byte[] dataBytes, final long versionTimestamp) {
 		
 		this.key = Objects.requireNonNull(key);
@@ -69,7 +69,7 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 		this.receivedTimestamp = System.currentTimeMillis();
 	}
 	
-	public Tuple(final String key, final BoundingBox boundingBox, 
+	public Tuple(final String key, final Hyperrectangle boundingBox, 
 			final byte[] dataBytes, final long versionTimestamp,
 			final long receivedTimestamp) {
 		
@@ -131,7 +131,7 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 	 * 
 	 * @return
 	 */
-	public BoundingBox getBoundingBox() {
+	public Hyperrectangle getBoundingBox() {
 		return boundingBox;
 	}
 	
@@ -216,7 +216,7 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 			return String.format("Key %s, DELETED, version timestamp=%d%n", 
 					getKey(), getVersionTimestamp());
 		} else {
-			return String.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d%n",
+			return String.format("Key %s, Hyperrectangle=%s, value=%s, version timestamp=%d%n",
 					getKey(), getBoundingBox().toCompactString(), 
 					new String(getDataBytes()), getVersionTimestamp());
 		}

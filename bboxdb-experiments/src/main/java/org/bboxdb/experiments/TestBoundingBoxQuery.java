@@ -26,7 +26,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
@@ -97,7 +97,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	@Override
 	public void run() {
 		System.out.format("# Reading %s%n", filename);
-		final BoundingBox boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
+		final Hyperrectangle boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
 		
 		System.out.println("Connecting to BBoxDB cluster");
 		final BBoxDB bboxDBConnection = new BBoxDBCluster(endpoint, cluster);
@@ -121,7 +121,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	 * @throws BBoxDBException 
 	 * @throws IOException 
 	 */
-	protected void runExperiment(final double maxDimensionSize, final BoundingBox boundingBox, 
+	protected void runExperiment(final double maxDimensionSize, final Hyperrectangle boundingBox, 
 			final BBoxDB bboxDBConnection) {
 		
 		try {
@@ -151,7 +151,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	 * @throws InterruptedException 
 	 * @throws RejectedException 
 	 */
-	protected void executeQueries(final double maxDimensionSize, final BoundingBox boundingBox, 
+	protected void executeQueries(final double maxDimensionSize, final Hyperrectangle boundingBox, 
 			final BBoxDB bboxDBConnection) throws BBoxDBException, InterruptedException, RejectedException {
 		
 		for(int i = 0; i < QUERIES; i++) {
@@ -171,7 +171,7 @@ public class TestBoundingBoxQuery implements Runnable {
 				bboxIntervals.add(doubleInterval);
 			}
 			
-			final BoundingBox queryBox = new BoundingBox(bboxIntervals);
+			final Hyperrectangle queryBox = new Hyperrectangle(bboxIntervals);
 			final TupleListFuture future = bboxDBConnection.queryRectangle(tablename, queryBox);
 			pendingFutures.put(future);
 		}

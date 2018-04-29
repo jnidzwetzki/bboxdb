@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.misc.BBoxDBException;
@@ -56,7 +56,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 					"".getBytes());
 					
-			final BoundingBox rootBox = new BoundingBox(splitConfig[0]);
+			final Hyperrectangle rootBox = new Hyperrectangle(splitConfig[0]);
 			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
 			
 			// Create grid
@@ -90,6 +90,6 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 	 */
 	protected abstract void createCells(final String[] splitConfig, 
 			final DistributionGroupConfiguration configuration, 
-			final String rootPath, final BoundingBox rootBox) throws Exception;
+			final String rootPath, final Hyperrectangle rootBox) throws Exception;
 
 }

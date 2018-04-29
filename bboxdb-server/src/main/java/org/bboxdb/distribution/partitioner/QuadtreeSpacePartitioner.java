@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.ListHelper;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -42,7 +42,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 
 	@Override
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
-			final Collection<BoundingBox> samples) throws BBoxDBException {
+			final Collection<Hyperrectangle> samples) throws BBoxDBException {
 		
 		try {
 			logger.info("Splitting region {}", regionToSplit.getIdentifier());
@@ -50,14 +50,14 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			final String parentPath 
 				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 	
-			final BoundingBox box = regionToSplit.getConveringBox();
+			final Hyperrectangle box = regionToSplit.getConveringBox();
 			
-			final List<BoundingBox> childBoxes = createBoundingBoxes(box);
+			final List<Hyperrectangle> childBoxes = createBoundingBoxes(box);
 			
 			final int numberOfChilden = childBoxes.size();
 	
 			for(int i = 0; i < numberOfChilden; i++) {
-				final BoundingBox childBox = childBoxes.get(i);
+				final Hyperrectangle childBox = childBoxes.get(i);
 				distributionRegionZookeeperAdapter.createNewChild(parentPath, i, childBox, distributionGroupName);
 			}
 			
@@ -82,7 +82,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	 * @param box
 	 * @return
 	 */
-	private List<BoundingBox> createBoundingBoxes(final BoundingBox box) {
+	private List<Hyperrectangle> createBoundingBoxes(final Hyperrectangle box) {
 		
 		final List<DoubleInterval> list1 = new ArrayList<>();
 		final List<DoubleInterval> list2 = new ArrayList<>();
@@ -90,10 +90,10 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 		
 		List<List<DoubleInterval>> intervalCombinations = ListHelper.getCombinations(list1, list2);
 		
-		final List<BoundingBox> childBoxes = new ArrayList<>();
+		final List<Hyperrectangle> childBoxes = new ArrayList<>();
 		
 		for(List<DoubleInterval> boxAsIntervals : intervalCombinations) {
-			childBoxes.add(new BoundingBox(boxAsIntervals));
+			childBoxes.add(new Hyperrectangle(boxAsIntervals));
 		}
 		
 		return childBoxes;
@@ -105,7 +105,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	 * @param list1
 	 * @param list2
 	 */
-	private void generateIntervalLists(final BoundingBox box, final List<DoubleInterval> list1,
+	private void generateIntervalLists(final Hyperrectangle box, final List<DoubleInterval> list1,
 			final List<DoubleInterval> list2) {
 		
 		for(int dimension = 0; dimension < box.getDimension(); dimension++) {

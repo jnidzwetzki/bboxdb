@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.FileLineIndex;
 import org.bboxdb.tools.TupleFileReader;
@@ -142,14 +142,14 @@ public class DetermineSamplingSize implements Runnable {
 	protected ExperimentStatistics runExperimentForPos(final double splitPos) throws ClassNotFoundException, IOException {
 
 		final ExperimentStatistics statistics = new ExperimentStatistics();		
-		final BoundingBox fullBox = BoundingBox.createFullCoveringDimensionBoundingBox(tupleDimension);
-		final BoundingBox leftBox = fullBox.splitAndGetLeft(splitPos, 0, true);
-		final BoundingBox rightBox = fullBox.splitAndGetRight(splitPos, 0, false);
+		final Hyperrectangle fullBox = Hyperrectangle.createFullCoveringDimensionBoundingBox(tupleDimension);
+		final Hyperrectangle leftBox = fullBox.splitAndGetLeft(splitPos, 0, true);
+		final Hyperrectangle rightBox = fullBox.splitAndGetRight(splitPos, 0, false);
 
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		
 		tupleFile.addTupleListener(t -> {
-			final BoundingBox polygonBoundingBox = t.getBoundingBox();
+			final Hyperrectangle polygonBoundingBox = t.getBoundingBox();
 			
 			boolean tupleDistributed = false;
 			
@@ -195,7 +195,7 @@ public class DetermineSamplingSize implements Runnable {
 			final long numberOfElements) throws ClassNotFoundException, IOException {
 		
 		final Set<Long> takenSamples = new HashSet<>();
-		final List<BoundingBox> samples = new ArrayList<>();
+		final List<Hyperrectangle> samples = new ArrayList<>();
 		
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
 		try(
@@ -220,7 +220,7 @@ public class DetermineSamplingSize implements Runnable {
 			    	continue;
 			    }
 			    
-				final BoundingBox boundingBox = tuple.getBoundingBox();
+				final Hyperrectangle boundingBox = tuple.getBoundingBox();
 				samples.add(boundingBox);
 				tupleDimension = boundingBox.getDimension();
 				

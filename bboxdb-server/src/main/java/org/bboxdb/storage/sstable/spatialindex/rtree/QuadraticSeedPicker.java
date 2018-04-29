@@ -20,7 +20,7 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 import java.util.List;
 
 import org.bboxdb.commons.Pair;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 
 public class QuadraticSeedPicker<T extends BoundingBoxEntity> {
@@ -44,11 +44,11 @@ public class QuadraticSeedPicker<T extends BoundingBoxEntity> {
 					continue;
 				}
 				
-				final BoundingBox boundingBox1 = box1.getBoundingBox();
-				final BoundingBox boundingBox2 = box2.getBoundingBox();
+				final Hyperrectangle boundingBox1 = box1.getBoundingBox();
+				final Hyperrectangle boundingBox2 = box2.getBoundingBox();
 				
 				final double coveringArea 
-					= BoundingBox.getCoveringBox(boundingBox1, boundingBox2).getVolume();
+					= Hyperrectangle.getCoveringBox(boundingBox1, boundingBox2).getVolume();
 				
 				final double waste = coveringArea - boundingBox1.getVolume()
 						- boundingBox2.getVolume();

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.tools.TupleFileReader;
 
 public class ExperimentHelper {
@@ -32,11 +32,11 @@ public class ExperimentHelper {
 	 * @return 
 	 * @throws IOException 
 	 */
-	public static BoundingBox determineBoundingBox(final String filename, final String format) {
+	public static Hyperrectangle determineBoundingBox(final String filename, final String format) {
 		System.out.println("# Determining the bounding box");
 			
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
-		final List<BoundingBox> bboxes = new ArrayList<>();
+		final List<Hyperrectangle> bboxes = new ArrayList<>();
 		
 		tupleFile.addTupleListener(t -> {
 			bboxes.add(t.getBoundingBox());
@@ -49,7 +49,7 @@ public class ExperimentHelper {
 			System.exit(-1);
 		}
 		
-		return BoundingBox.getCoveringBox(bboxes);
+		return Hyperrectangle.getCoveringBox(bboxes);
 	}
 
 }

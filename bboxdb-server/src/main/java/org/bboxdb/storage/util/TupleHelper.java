@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
@@ -163,7 +163,7 @@ public class TupleHelper {
 			return new DeletedTuple(keyString, versionTimestamp);
 		}
 		
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boxBytes);
 		
 		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
 	}
@@ -210,7 +210,7 @@ public class TupleHelper {
 			return new DeletedTuple(keyString, versionTimestamp);
 		}
 						
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boxBytes);
 		
 		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
 	}
@@ -221,7 +221,7 @@ public class TupleHelper {
 	 * @return
 	 */
 	public static boolean isDeletedTuple(final Tuple tuple) {
-		if(tuple.getBoundingBox() == BoundingBox.FULL_SPACE) {
+		if(tuple.getBoundingBox() == Hyperrectangle.FULL_SPACE) {
 			if(Arrays.equals(tuple.getDataBytes(), SSTableConst.DELETED_MARKER)) {
 				return true;
 			}

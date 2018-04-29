@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -97,7 +97,7 @@ public class RTreeMMFReader extends AbstractRTreeReader {
 	}
 
 	@Override
-	public synchronized List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) 
+	public synchronized List<SpatialIndexEntry> getEntriesForRegion(final Hyperrectangle boundingBox) 
 			throws StorageManagerException {
 		
 		final List<SpatialIndexEntry> resultList = new ArrayList<>();

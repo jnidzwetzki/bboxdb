@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
@@ -217,7 +217,7 @@ public class TestQuadtreeSpacePartitioner {
 	public void testRestrictedSpace() throws ZookeeperException, BBoxDBException, 
 		ZookeeperNotFoundException {
 		
-		final BoundingBox completeSpace = new BoundingBox(0d, 10d, 0d, 10d);
+		final Hyperrectangle completeSpace = new Hyperrectangle(0d, 10d, 0d, 10d);
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)

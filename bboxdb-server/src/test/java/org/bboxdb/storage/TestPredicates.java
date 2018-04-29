@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
@@ -40,8 +40,8 @@ public class TestPredicates {
 	 */
 	@Test(timeout=60000)
 	public void testNewerAsPredicate1() throws Exception {
-		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
-		final Tuple tuple2 = new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes(), 2);
+		final Tuple tuple1 = new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("2", Hyperrectangle.FULL_SPACE, "def".getBytes(), 2);
 		
 		final List<Tuple> tupleList = new ArrayList<>();
 		tupleList.add(tuple1);
@@ -63,8 +63,8 @@ public class TestPredicates {
 	 */
 	@Test(timeout=60000)
 	public void testNewerAsPredicate2() throws Exception {
-		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 50);
-		final Tuple tuple2 = new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes(), 1234);
+		final Tuple tuple1 = new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 50);
+		final Tuple tuple2 = new Tuple("2", Hyperrectangle.FULL_SPACE, "def".getBytes(), 1234);
 
 		final List<Tuple> tupleList = new ArrayList<>();
 		tupleList.add(tuple1);
@@ -84,21 +84,21 @@ public class TestPredicates {
 	 */
 	@Test(timeout=60000)
 	public void boundingBoxPredicate() {
-		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
-		final Tuple tuple2 = new Tuple("2", new BoundingBox(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);
+		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
+		final Tuple tuple2 = new Tuple("2", new Hyperrectangle(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);
 
 		final List<Tuple> tupleList = new ArrayList<>();
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new BoundingBox(-100.0, 100.0, -100.0, 100.0));
+		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new Hyperrectangle(-100.0, 100.0, -100.0, 100.0));
 		final Collection<Tuple> tuples1 = getTuplesFromPredicate(tupleList, predicate1);
 		
 		Assert.assertEquals(2, tuples1.size());
 		Assert.assertTrue(tuples1.contains(tuple1));
 		Assert.assertTrue(tuples1.contains(tuple2));
 		
-		final Predicate predicate2 = new OverlapsBoundingBoxPredicate(new BoundingBox(2.0, 100.0, 2.0, 100.0));
+		final Predicate predicate2 = new OverlapsBoundingBoxPredicate(new Hyperrectangle(2.0, 100.0, 2.0, 100.0));
 		final Collection<Tuple> tuples2 = getTuplesFromPredicate(tupleList, predicate2);
 		
 		Assert.assertEquals(1, tuples2.size());
@@ -112,14 +112,14 @@ public class TestPredicates {
 	 */
 	@Test(timeout=60000)
 	public void boundingAndPredicate() {
-		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
-		final Tuple tuple2 = new Tuple("2", new BoundingBox(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);
+		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
+		final Tuple tuple2 = new Tuple("2", new Hyperrectangle(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);
 
 		final List<Tuple> tupleList = new ArrayList<>();
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new BoundingBox(2.0, 100.0, 2.0, 100.0));
+		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new Hyperrectangle(2.0, 100.0, 2.0, 100.0));
 		final Predicate predicate2 = new NewerAsVersionTimePredicate(51);
 		
 		final Predicate predicate = new AndPredicate(predicate1, predicate2);

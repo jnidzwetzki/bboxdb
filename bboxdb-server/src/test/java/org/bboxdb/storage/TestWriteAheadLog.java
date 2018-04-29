@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.bboxdb.commons.io.FileUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -52,7 +52,7 @@ public class TestWriteAheadLog {
 	/**
 	 * Test tuple a
 	 */
-	private static final Tuple TUPLE_A = new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes());
+	private static final Tuple TUPLE_A = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes());
 
 	/**
 	 * Test tuple b
@@ -101,7 +101,7 @@ public class TestWriteAheadLog {
 	@Test
 	public void testWriteReadOneTuple() throws IOException, StorageManagerException {
 		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
-		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
+		walWriter.addTuple(new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes()));
 		walWriter.close();
 		
 		final File writtenFile = walWriter.getFile();
@@ -118,7 +118,7 @@ public class TestWriteAheadLog {
 	@Test
 	public void testWriteReadTwoTuple() throws IOException, StorageManagerException {
 		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
-		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
+		walWriter.addTuple(new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes()));
 		walWriter.addTuple(new DeletedTuple("abc"));
 
 		walWriter.close();
@@ -137,13 +137,13 @@ public class TestWriteAheadLog {
 	@Test
 	public void testWriteReadDefectiveTuple() throws IOException, StorageManagerException {
 		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
-		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
+		walWriter.addTuple(new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes()));
 		walWriter.addTuple(new DeletedTuple("abc"));
 
 		walWriter.close();
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		TupleHelper.writeTupleToStream(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()), bos);
+		TupleHelper.writeTupleToStream(new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes()), bos);
 		bos.close();
 		final byte[] bytes = bos.toByteArray();
 		
@@ -169,7 +169,7 @@ public class TestWriteAheadLog {
 		final File writtenFile = new File(tempDir + File.separator + "test");
 		
 		final BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(writtenFile));
-		TupleHelper.writeTupleToStream(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()), os);
+		TupleHelper.writeTupleToStream(new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes()), os);
 		os.close();
 
 		final WriteAheadLogReader reader = new WriteAheadLogReader(writtenFile);
@@ -206,7 +206,7 @@ public class TestWriteAheadLog {
 	@Test
 	public void testConstructor() throws IOException, StorageManagerException {
 		final WriteAheadLogWriter walWriter = new WriteAheadLogWriter(tempDir, 1);
-		walWriter.addTuple(new Tuple("abc", new BoundingBox(1d, 2d), "".getBytes()));
+		walWriter.addTuple(new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes()));
 		walWriter.addTuple(new DeletedTuple("abc"));
 
 		walWriter.close();

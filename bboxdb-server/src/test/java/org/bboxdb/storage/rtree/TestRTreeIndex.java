@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -50,7 +50,7 @@ public class TestRTreeIndex {
 	@Test(timeout=60000)
 	public void testQueryOnEmptytree() {
 		final SpatialIndexBuilder index = new RTreeBuilder();
-		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(new BoundingBox(1d, 1d, 2d, 2d));
+		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(new Hyperrectangle(1d, 1d, 2d, 2d));
 		Assert.assertTrue(result.isEmpty());
 	}
 	
@@ -162,7 +162,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60000)
 	public void testEncodeDecodeRTreeEntryFromFile() throws IOException {
-		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
+		final Hyperrectangle boundingBox = new Hyperrectangle(4.1, 8.1, 4.2, 8.8);
 		
 		final File tempFile = File.createTempFile("rtree-", "-test");
 		tempFile.deleteOnExit();
@@ -185,7 +185,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60000)
 	public void testEncodeDecodeRTreeEntryFromByteBuffer() throws IOException {
-		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
+		final Hyperrectangle boundingBox = new Hyperrectangle(4.1, 8.1, 4.2, 8.8);
 		
 		final File tempFile = File.createTempFile("rtree-", "-test");
 		tempFile.deleteOnExit();
@@ -227,7 +227,7 @@ public class TestRTreeIndex {
 	@Test(timeout=60000)
 	public void testEmptryRTreeBBox() {
 		final RTreeBuilder index = new RTreeBuilder();
-		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(BoundingBox.FULL_SPACE);
+		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(Hyperrectangle.FULL_SPACE);
 		Assert.assertTrue(result.isEmpty());
 	}
 	

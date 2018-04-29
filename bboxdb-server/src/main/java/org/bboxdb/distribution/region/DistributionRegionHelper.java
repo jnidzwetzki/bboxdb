@@ -31,7 +31,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.Retryer;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.OutdatedDistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -84,7 +84,7 @@ public class DistributionRegionHelper {
 	 * @return 
 	 */
 	public static List<RoutingHop> getRegionsForPredicateAndBox(
-			final DistributionRegion rootRegion, final BoundingBox boundingBox, 
+			final DistributionRegion rootRegion, final Hyperrectangle boundingBox, 
 			final Predicate<DistributionRegionState> statePredicate) {
 	
 		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();

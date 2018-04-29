@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
@@ -101,7 +101,7 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 		final SerializableNode serializableNode = new SerializableNode(node);
 		final byte[] nodeBytes = serializableNode.toByteArray();
 		
-		final Tuple tuple = new Tuple(Long.toString(node.getId()), BoundingBox.FULL_SPACE, nodeBytes);
+		final Tuple tuple = new Tuple(Long.toString(node.getId()), Hyperrectangle.FULL_SPACE, nodeBytes);
 		storageManager.put(tuple);
 	}
 

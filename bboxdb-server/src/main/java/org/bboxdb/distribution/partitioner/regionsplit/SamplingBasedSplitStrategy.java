@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.storage.StorageManagerException;
 import org.slf4j.Logger;
@@ -33,20 +33,20 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	/**
 	 * The samples
 	 */
-	private final Collection<BoundingBox> samples;
+	private final Collection<Hyperrectangle> samples;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SamplingBasedSplitStrategy.class);
 
-	public SamplingBasedSplitStrategy(final Collection<BoundingBox> samples) {
+	public SamplingBasedSplitStrategy(final Collection<Hyperrectangle> samples) {
 		this.samples = samples;
 		assert (! samples.isEmpty()) : "Samples list is emoty";
 	}
 
 	@Override
-	public double getSplitPoint(final int splitDimension, final BoundingBox coveringBox) 
+	public double getSplitPoint(final int splitDimension, final Hyperrectangle coveringBox) 
 			throws StorageManagerException {
 		
 		final List<Double> pointSamples = preprocessSamples(splitDimension, coveringBox);
@@ -72,11 +72,11 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	 * @param coveringBox
 	 * @return
 	 */
-	private List<Double> preprocessSamples(final int splitDimension, final BoundingBox coveringBox) {
+	private List<Double> preprocessSamples(final int splitDimension, final Hyperrectangle coveringBox) {
 		
 		final List<Double> pointSamples = new ArrayList<>();
 		
-		for(final BoundingBox sampleBox : samples) {
+		for(final Hyperrectangle sampleBox : samples) {
 			// Add the begin and end pos to the lists, if the begin / end is in the 
 			// covering box
 			final DoubleInterval tupleInterval = sampleBox.getIntervalForDimension(splitDimension);

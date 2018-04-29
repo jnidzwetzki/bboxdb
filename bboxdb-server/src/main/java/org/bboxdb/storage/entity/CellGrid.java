@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
@@ -38,12 +38,12 @@ public class CellGrid {
 	/**
 	 * The covering box
 	 */
-	protected BoundingBox coveringBox;
+	protected Hyperrectangle coveringBox;
 	
 	/**
 	 * All boxes of this grid
 	 */
-	protected final Set<BoundingBox> allBoxes;
+	protected final Set<Hyperrectangle> allBoxes;
 	
 	/**
 	 * The spatial index
@@ -56,7 +56,7 @@ public class CellGrid {
 	 * @param cellsPerDimension
 	 * @return
 	 */
-	public static CellGrid buildWithFixedCellSize(final BoundingBox coveringBox, 
+	public static CellGrid buildWithFixedCellSize(final Hyperrectangle coveringBox, 
 			final double cellSize) {
 		
 		Objects.requireNonNull(coveringBox);
@@ -76,7 +76,7 @@ public class CellGrid {
 	 * @param cellsPerDimension
 	 * @return
 	 */
-	public static CellGrid buildWithFixedAmountOfCells(final BoundingBox coveringBox, 
+	public static CellGrid buildWithFixedAmountOfCells(final Hyperrectangle coveringBox, 
 			final double cellsPerDimension) {
 		
 		Objects.requireNonNull(coveringBox);
@@ -97,7 +97,7 @@ public class CellGrid {
 	 * @param cellSizeInDimension
 	 * @return
 	 */
-	private static CellGrid createCells(final BoundingBox coveringBox,
+	private static CellGrid createCells(final Hyperrectangle coveringBox,
 			final Function<Integer, Double> cellSizeInDimension) {
 		
 		final List<List<DoubleInterval>> cells = new ArrayList<>();
@@ -130,7 +130,7 @@ public class CellGrid {
 			}
 		}
 		
-		final Set<BoundingBox> allBoxes = convertListsToBoxes(cells);
+		final Set<Hyperrectangle> allBoxes = convertListsToBoxes(cells);
 		return new CellGrid(coveringBox, allBoxes);
 	}
 
@@ -139,7 +139,7 @@ public class CellGrid {
 	 * @param coveringBox
 	 * @param allBoxes
 	 */
-	private CellGrid(final BoundingBox coveringBox, final Set<BoundingBox> allBoxes) {
+	private CellGrid(final Hyperrectangle coveringBox, final Set<Hyperrectangle> allBoxes) {
 		this.coveringBox = Objects.requireNonNull(coveringBox);
 		this.allBoxes = allBoxes;		
 
@@ -157,7 +157,7 @@ public class CellGrid {
 	 * @param boundingBox
 	 * @return
 	 */
-	public Set<BoundingBox> getAllInersectedBoundingBoxes(final BoundingBox boundingBox) {
+	public Set<Hyperrectangle> getAllInersectedBoundingBoxes(final Hyperrectangle boundingBox) {
 		
 		if(coveringBox.getDimension() != boundingBox.getDimension()){
 			throw new IllegalArgumentException("Dimension of the cell is: " + coveringBox.getDimension() 
@@ -174,12 +174,12 @@ public class CellGrid {
 	 * @param cells
 	 * @return 
 	 */
-	private static Set<BoundingBox> convertListsToBoxes(final List<List<DoubleInterval>> cells) {
-		final Set<BoundingBox> allBoxes = new HashSet<>();
+	private static Set<Hyperrectangle> convertListsToBoxes(final List<List<DoubleInterval>> cells) {
+		final Set<Hyperrectangle> allBoxes = new HashSet<>();
 		final List<List<DoubleInterval>> intervallProduct = Lists.cartesianProduct(cells);
 		
 		for(List<DoubleInterval> intervalls : intervallProduct) {
-			final BoundingBox boundingBox = new BoundingBox(intervalls);
+			final Hyperrectangle boundingBox = new Hyperrectangle(intervalls);
 			allBoxes.add(boundingBox);
 		}
 		
@@ -190,7 +190,7 @@ public class CellGrid {
 	 * Get all cells of the grid
 	 * @return
 	 */
-	public Set<BoundingBox> getAllCells() {
+	public Set<Hyperrectangle> getAllCells() {
 		return Collections.unmodifiableSet(allBoxes);
 	}
 

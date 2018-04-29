@@ -17,17 +17,17 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.sstable.SSTableConst;
 
 public class DeletedTuple extends Tuple {
 
 	public DeletedTuple(final String key) {
-		super(key, BoundingBox.FULL_SPACE, SSTableConst.DELETED_MARKER);
+		super(key, Hyperrectangle.FULL_SPACE, SSTableConst.DELETED_MARKER);
 	}
 	
 	public DeletedTuple(final String key, final long versionTimestamp) {
-		super(key, BoundingBox.FULL_SPACE, SSTableConst.DELETED_MARKER, versionTimestamp);
+		super(key, Hyperrectangle.FULL_SPACE, SSTableConst.DELETED_MARKER, versionTimestamp);
 	}
 
 	@Override

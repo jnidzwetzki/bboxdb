@@ -23,7 +23,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -48,7 +48,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	/**
 	 * The bounding box of the query
 	 */
-	protected final BoundingBox boundingBox;
+	protected final Hyperrectangle boundingBox;
 
 	/**
 	 * The client connection handler
@@ -106,7 +106,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousBoundingBoxClientQuery.class);
 
 
-	public ContinuousBoundingBoxClientQuery(final BoundingBox boundingBox,
+	public ContinuousBoundingBoxClientQuery(final Hyperrectangle boundingBox,
 			final ClientConnectionHandler clientConnectionHandler, 
 			final short querySequence, final TupleStoreName requestTable) {
 		

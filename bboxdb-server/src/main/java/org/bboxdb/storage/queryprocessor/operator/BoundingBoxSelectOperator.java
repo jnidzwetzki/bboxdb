@@ -20,7 +20,7 @@ package org.bboxdb.storage.queryprocessor.operator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
@@ -31,14 +31,14 @@ public class BoundingBoxSelectOperator implements Operator {
 	/**
 	 * The bounding box for the query
 	 */
-	protected final BoundingBox boundingBox;
+	protected final Hyperrectangle boundingBox;
 	
 	/**
 	 * The operator
 	 */
 	private Operator operator;
 	
-	public BoundingBoxSelectOperator(final BoundingBox boundingBox, final Operator operator) {
+	public BoundingBoxSelectOperator(final Hyperrectangle boundingBox, final Operator operator) {
 		this.boundingBox = boundingBox;
 		this.operator = operator;
 	}

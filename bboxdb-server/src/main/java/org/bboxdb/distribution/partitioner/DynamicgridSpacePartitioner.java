@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
@@ -46,12 +46,12 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 
 	@Override
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
-			final Collection<BoundingBox> samples) throws BBoxDBException {
+			final Collection<Hyperrectangle> samples) throws BBoxDBException {
 		
 		try {
 			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(samples);
 			
-			final BoundingBox regionBox = regionToSplit.getConveringBox();
+			final Hyperrectangle regionBox = regionToSplit.getConveringBox();
 			final double splitPosition = splitpointStrategy.getSplitPoint(0, regionBox);
 			
 			return splitNode(regionToSplit, splitPosition);			
@@ -82,9 +82,9 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(parent);
 			
 			// Calculate the covering bounding boxes
-			final BoundingBox parentBox = regionToSplit.getConveringBox();
-			final BoundingBox leftBoundingBox = parentBox.splitAndGetLeft(splitPosition, 0, true);
-			final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(splitPosition, 0, false);
+			final Hyperrectangle parentBox = regionToSplit.getConveringBox();
+			final Hyperrectangle leftBoundingBox = parentBox.splitAndGetLeft(splitPosition, 0, true);
+			final Hyperrectangle rightBoundingBox = parentBox.splitAndGetRight(splitPosition, 0, false);
 			
 			final String fullname = distributionGroupName;
 			
@@ -151,7 +151,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		try {			
 			assert(source.size() == 2) : "We can only merge 2 regions";
 			
-			final BoundingBox bbox = BoundingBox.getCoveringBox(
+			final Hyperrectangle bbox = Hyperrectangle.getCoveringBox(
 					source.get(0).getConveringBox(), 
 					source.get(1).getConveringBox());
 			
@@ -259,7 +259,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 	 * @throws Exception
 	 */
 	protected void createCells(final String[] splitConfig, final DistributionGroupConfiguration configuration, 
-			final String rootPath, final BoundingBox rootBox) throws Exception {
+			final String rootPath, final Hyperrectangle rootBox) throws Exception {
 				
 		createGridInDimension(splitConfig, rootPath, rootBox, configuration.getDimensions() - 1);	
 	}
@@ -276,7 +276,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 	 * @throws ResourceAllocationException
 	 */
 	private void createGridInDimension(final String[] splitConfig, 
-			final String parentPath, final BoundingBox box, final int dimension) 
+			final String parentPath, final Hyperrectangle box, final int dimension) 
 					throws ZookeeperException, InputParseException, ZookeeperNotFoundException, ResourceAllocationException {
 		
 		logger.info("Processing dimension {}", dimension);
@@ -297,12 +297,12 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		final double stepInterval 
 			= MathUtil.tryParseDouble(stepIntervalString, () -> "Unable to parse" + stepIntervalString);
 			
-		BoundingBox boundingBoxToSplit = box;
+		Hyperrectangle boundingBoxToSplit = box;
 		int childNumber = 0;
 		
 		while(boundingBoxToSplit != null) {
 			final double splitPos = boundingBoxToSplit.getCoordinateLow(dimension) + stepInterval;
-			BoundingBox nodeBox;
+			Hyperrectangle nodeBox;
 			
 			if(splitPos >= boundingBoxToSplit.getCoordinateHigh(dimension)) {
 				nodeBox = boundingBoxToSplit;

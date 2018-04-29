@@ -20,7 +20,7 @@ package org.bboxdb.network;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
@@ -239,7 +239,7 @@ public class TestBBoxDBCluster {
 		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Execute query
-		final TupleListFuture result = bboxDBClient.queryRectangleContinuous(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final TupleListFuture result = bboxDBClient.queryRectangleContinuous(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
 
 		Assert.assertFalse(result.isFailed());
 		

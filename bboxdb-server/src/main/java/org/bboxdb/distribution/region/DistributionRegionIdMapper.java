@@ -28,7 +28,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class DistributionRegionIdMapper {
 	/**
 	 * The mappings
 	 */
-	private final Map<Long, BoundingBox> regions;
+	private final Map<Long, Hyperrectangle> regions;
 	
 	/**
 	 * The distribution group name
@@ -67,7 +67,7 @@ public class DistributionRegionIdMapper {
 	/**
 	 * Search the region ids that are overlapped by the bounding box
 	 */
-	public Set<Long> getRegionIdsForRegion(final BoundingBox region) {
+	public Set<Long> getRegionIdsForRegion(final Hyperrectangle region) {
 		return regions.entrySet()
 			.stream()
 			.filter(e -> e.getValue().overlaps(region))
@@ -89,7 +89,7 @@ public class DistributionRegionIdMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public List<TupleStoreName> getLocalTablesForRegion(final BoundingBox region, 
+	public List<TupleStoreName> getLocalTablesForRegion(final Hyperrectangle region, 
 			final TupleStoreName ssTableName) {
 	
 		Collection<Long> namprefixes = null;
@@ -151,7 +151,7 @@ public class DistributionRegionIdMapper {
 	 * @param tablename
 	 * @param boundingBox
 	 */
-	public boolean addMapping(final long regionId, final BoundingBox boundingBox) {
+	public boolean addMapping(final long regionId, final Hyperrectangle boundingBox) {
 				
 		if(regions.containsKey(regionId)) {
 			logger.debug("Mapping for region {} / {} already exists, ignoring", 

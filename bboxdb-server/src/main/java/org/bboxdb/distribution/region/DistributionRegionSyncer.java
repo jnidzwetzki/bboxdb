@@ -28,7 +28,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.bboxdb.commons.Retryer;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
@@ -344,7 +344,7 @@ public class DistributionRegionSyncer implements Watcher {
 	private DistributionRegion readChild(final String childPath, final DistributionRegion parentRegion) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final BoundingBox boundingBox = distributionRegionAdapter.getBoundingBoxForPath(childPath);
+		final Hyperrectangle boundingBox = distributionRegionAdapter.getBoundingBoxForPath(childPath);
 		final long regionId = distributionGroupAdapter.getRegionIdForPath(childPath);
 		
 		final DistributionRegion region = new DistributionRegion(distributionGroupName, parentRegion, boundingBox, regionId);		
@@ -412,7 +412,7 @@ public class DistributionRegionSyncer implements Watcher {
 				if(NodeMutationHelper.isNodeCompletelyCreated(zookeeperClient, path)) {
 					logger.info("Create new root element for {}", distributionGroupName);
 					
-					final BoundingBox rootBoundingBox = distributionRegionAdapter.getBoundingBoxForPath(path);
+					final Hyperrectangle rootBoundingBox = distributionRegionAdapter.getBoundingBoxForPath(path);
 					
 					rootNode = new DistributionRegion(distributionGroupName, rootBoundingBox);
 					updateNodeIfNeeded(path, rootNode);

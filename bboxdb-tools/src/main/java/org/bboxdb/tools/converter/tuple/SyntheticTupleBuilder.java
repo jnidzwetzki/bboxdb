@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class SyntheticTupleBuilder implements TupleBuilder {
 				bboxValues[i] = Double.parseDouble(bboxData[i]);
 			}
 			
-			final BoundingBox boundingBox = new BoundingBox(bboxValues);
+			final Hyperrectangle boundingBox = new Hyperrectangle(bboxValues);
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, data[1].getBytes());
 			

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -44,7 +44,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The the query bounding box
 	 */
-	protected final BoundingBox box;
+	protected final Hyperrectangle box;
 
 	/**
 	 * Paging enables
@@ -57,7 +57,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	protected final short tuplesPerPage;
 
 	public QueryJoinRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final List<TupleStoreName> tables, final BoundingBox box, final boolean pagingEnabled, 
+			final List<TupleStoreName> tables, final Hyperrectangle box, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
@@ -148,7 +148,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	    
 		final byte[] bboxBytes = new byte[bboxLength];
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
 				
 		final List<TupleStoreName> tableNames = new ArrayList<>();
 		
@@ -181,7 +181,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	}
 	
 
-	public BoundingBox getBoundingBox() {
+	public Hyperrectangle getBoundingBox() {
 		return box;
 	}
 	

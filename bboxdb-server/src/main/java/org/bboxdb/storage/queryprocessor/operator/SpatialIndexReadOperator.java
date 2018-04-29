@@ -20,7 +20,7 @@ package org.bboxdb.storage.queryprocessor.operator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -30,24 +30,24 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 	/**
 	 * The bounding box
 	 */
-	protected BoundingBox boundingBox;
+	protected Hyperrectangle boundingBox;
 	
 	public SpatialIndexReadOperator(final TupleStoreManager tupleStoreManager, 
-			final BoundingBox boundingBox) {		
+			final Hyperrectangle boundingBox) {		
 		
 		super(tupleStoreManager);
 		this.boundingBox = boundingBox;
 	}
 	
 	public SpatialIndexReadOperator(final TupleStoreManager tupleStoreManager) {		
-		this(tupleStoreManager, BoundingBox.FULL_SPACE);
+		this(tupleStoreManager, Hyperrectangle.FULL_SPACE);
 	}
 	
 	/**
 	 * Set a new bounding box to read
 	 * @param boundingBox
 	 */
-	public void setBoundingBox(final BoundingBox boundingBox) {
+	public void setBoundingBox(final Hyperrectangle boundingBox) {
 		this.boundingBox = boundingBox;
 	}
 

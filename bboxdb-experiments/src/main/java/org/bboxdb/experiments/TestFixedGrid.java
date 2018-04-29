@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.concurrent.ExecutorUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.CellGrid;
 import org.bboxdb.tools.TupleFileReader;
 
@@ -64,7 +64,7 @@ public class TestFixedGrid implements Runnable {
 	@Override
 	public void run() {
 		System.out.format("Reading %s%n", filename);
-		final BoundingBox boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
+		final Hyperrectangle boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
 		
 		for(final Integer cellsPerDimension: cellSizes) {
 			System.out.println("Cells per Dimension: " + cellsPerDimension);
@@ -79,16 +79,16 @@ public class TestFixedGrid implements Runnable {
 	 */
 	protected void runExperiment(final CellGrid cellGrid) {
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
-		final Map<BoundingBox, Integer> bboxes = new HashMap<>();
+		final Map<Hyperrectangle, Integer> bboxes = new HashMap<>();
 		
 		final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(10, 100);
 		
 		tupleFile.addTupleListener(t -> {
 			executor.submit(() -> {
-				final Set<BoundingBox> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
+				final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
 				
 				synchronized (bboxes) {
-					for(final BoundingBox box : intersectedBoxes) {
+					for(final Hyperrectangle box : intersectedBoxes) {
 						if(bboxes.containsKey(box)) {
 							final int oldValue = bboxes.get(box);
 							bboxes.put(box, oldValue + 1);
@@ -115,7 +115,7 @@ public class TestFixedGrid implements Runnable {
 	/**
 	 *  Calculate the result
 	 */
-	protected void calculateResult(final Map<BoundingBox, Integer> bboxes) {
+	protected void calculateResult(final Map<Hyperrectangle, Integer> bboxes) {
 		System.out.println("# Calculating node results");
 		
 		final int[] boxesPerNode = new int[NODES];
@@ -123,7 +123,7 @@ public class TestFixedGrid implements Runnable {
 			boxesPerNode[i] = 0;
 		}
 		
-		for(final Entry<BoundingBox, Integer> entry : bboxes.entrySet()) {
+		for(final Entry<Hyperrectangle, Integer> entry : bboxes.entrySet()) {
 			final int pos = Math.abs(entry.getKey().hashCode() % NODES);
 			boxesPerNode[pos] += entry.getValue(); 
 		}

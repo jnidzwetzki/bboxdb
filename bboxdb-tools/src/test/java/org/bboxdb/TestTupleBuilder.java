@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.TupleFileReader;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
@@ -74,7 +74,7 @@ public class TestTupleBuilder {
 		
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
-		final BoundingBox expectedBox = new BoundingBox(52.4688608, 52.4688608, 13.3327994, 13.3327994);
+		final Hyperrectangle expectedBox = new Hyperrectangle(52.4688608, 52.4688608, 13.3327994, 13.3327994);
 		Assert.assertEquals(expectedBox, tuple.getBoundingBox());
 	}
 
@@ -96,7 +96,7 @@ public class TestTupleBuilder {
 		final Date dateLow = dateParser.parse("2016-01-01 00:00:00");
 		final Date dateHigh = dateParser.parse("2016-01-01 00:00:00");
 
-		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, -73.981842041015625, 
+		final Hyperrectangle exptectedBox = new Hyperrectangle(-73.990371704101563, -73.981842041015625, 
 				40.732406616210937, 40.734695434570313,
 				(double) dateLow.getTime(), (double) dateHigh.getTime());
 		
@@ -120,7 +120,7 @@ public class TestTupleBuilder {
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 		final Date dateLow = dateParser.parse("2016-01-01 00:00:00");
 
-		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, -73.990371704101563,
+		final Hyperrectangle exptectedBox = new Hyperrectangle(-73.990371704101563, -73.990371704101563,
 				40.734695434570313, 40.734695434570313, 
 				(double) dateLow.getTime(), (double) dateLow.getTime());
 		
@@ -145,7 +145,7 @@ public class TestTupleBuilder {
 		final Date date = dateParser.parse("1993-12-04");
 
 		final double doubleTime = (double) date.getTime();
-		final BoundingBox exptectedBox = new BoundingBox(doubleTime, doubleTime);
+		final Hyperrectangle exptectedBox = new Hyperrectangle(doubleTime, doubleTime);
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
@@ -171,7 +171,7 @@ public class TestTupleBuilder {
 		final double doubleShipDateTime = (double) shipDateTime.getTime();
 		final double doublereceiptDateTime = (double) receiptDateTime.getTime();
 
-		final BoundingBox exptectedBox = new BoundingBox(doubleShipDateTime, doublereceiptDateTime);
+		final Hyperrectangle exptectedBox = new Hyperrectangle(doubleShipDateTime, doublereceiptDateTime);
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
@@ -195,7 +195,7 @@ public class TestTupleBuilder {
 		
 		final double doubleOrder = (double) orderDate.getTime();
 
-		final BoundingBox expectedBox = new BoundingBox(doubleOrder, doubleOrder);
+		final Hyperrectangle expectedBox = new Hyperrectangle(doubleOrder, doubleOrder);
 		
 		Assert.assertEquals(expectedBox, tuple.getBoundingBox());
 	}
@@ -214,7 +214,7 @@ public class TestTupleBuilder {
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 		
-		final BoundingBox exptectedBox = new BoundingBox(51.47015078569419, 58.26664175357267,
+		final Hyperrectangle exptectedBox = new Hyperrectangle(51.47015078569419, 58.26664175357267,
 				49.11808592466023, 52.72529828070016);
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());

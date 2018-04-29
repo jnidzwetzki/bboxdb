@@ -19,7 +19,7 @@ package org.bboxdb.network.client;
 
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
@@ -92,7 +92,7 @@ public interface BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp, 
-			final BoundingBox boundingBox) throws BBoxDBException;
+			final Hyperrectangle boundingBox) throws BBoxDBException;
 
 	/**
 	 * Delete the given key from a table - version without timestamp
@@ -135,7 +135,7 @@ public interface BBoxDB {
 	 * @return
 	 */
 	public TupleListFuture queryRectangle(final String table,
-			final BoundingBox boundingBox) throws BBoxDBException;
+			final Hyperrectangle boundingBox) throws BBoxDBException;
 	
 	/**
 	 * Execute a continuous bounding box query on the given table
@@ -145,7 +145,7 @@ public interface BBoxDB {
 	 * @throws BBoxDBException
 	 */
 	public TupleListFuture queryRectangleContinuous(final String table,
-			final BoundingBox boundingBox) throws BBoxDBException;
+			final Hyperrectangle boundingBox) throws BBoxDBException;
 
 	/**
 	 * Query the given table for all tuples that have a newer version timestamp
@@ -169,7 +169,7 @@ public interface BBoxDB {
 	 * @param key
 	 * @return
 	 */
-	public TupleListFuture queryRectangleAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws BBoxDBException;
+	public TupleListFuture queryRectangleAndTime(final String table, final Hyperrectangle boundingBox, final long timestamp) throws BBoxDBException;
 
 	/**
 	 * Execute a join
@@ -177,7 +177,7 @@ public interface BBoxDB {
 	 * @param boundingBox
 	 * @return
 	 */
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) throws BBoxDBException;
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) throws BBoxDBException;
 	
 	/**
 	 * Is the client connected?

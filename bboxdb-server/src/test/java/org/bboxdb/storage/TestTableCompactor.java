@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -99,11 +99,11 @@ public class TestTableCompactor {
 	@Test(timeout=60000)
 	public void testCompactTestFileCreation() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
+		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
-		tupleList2.add(new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes()));
+		tupleList2.add(new Tuple("2", Hyperrectangle.FULL_SPACE, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
 		storageRegistry.deleteTable(TEST_RELATION, true);
@@ -129,11 +129,11 @@ public class TestTableCompactor {
 	@Test(timeout=60000)
 	public void testCompactTestMerge() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
+		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
-		tupleList2.add(new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes()));
+		tupleList2.add(new Tuple("2", Hyperrectangle.FULL_SPACE, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
@@ -155,14 +155,14 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList = new ArrayList<Tuple>();
 
 		for(int i = 0; i < 500; i=i+2) {
-			tupleList.add(new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, "abc".getBytes()));
+			tupleList.add(new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		}
 		reader1 = addTuplesToFileAndGetReader(tupleList, 5);
 
 		tupleList.clear();
 	
 		for(int i = 1; i < 500; i=i+2) {
-			tupleList.add(new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, "def".getBytes()));
+			tupleList.add(new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, "def".getBytes()));
 		}
 		reader2 = addTuplesToFileAndGetReader(tupleList, 2);
 
@@ -188,7 +188,7 @@ public class TestTableCompactor {
 	@Test(timeout=60000)
 	public void testCompactTestFileOneEmptyfile1() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
+		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
@@ -210,7 +210,7 @@ public class TestTableCompactor {
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
-		tupleList2.add(new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes()));
+		tupleList2.add(new Tuple("2", Hyperrectangle.FULL_SPACE, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
@@ -226,11 +226,11 @@ public class TestTableCompactor {
 	@Test(timeout=60000)
 	public void testCompactTestSameKey() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 1));
+		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 1));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
-		tupleList2.add(new Tuple("1", BoundingBox.FULL_SPACE, "def".getBytes(), 2));
+		tupleList2.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "def".getBytes(), 2));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
@@ -252,7 +252,7 @@ public class TestTableCompactor {
 	@Test(timeout=60000)
 	public void testCompactTestWithDeletedTuple() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
+		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
@@ -277,7 +277,7 @@ public class TestTableCompactor {
 	@Test(timeout=60000)
 	public void testCompactationMinor() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
+		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
@@ -307,7 +307,7 @@ public class TestTableCompactor {
 	@Test(timeout=60000)
 	public void testCompactationMajor1() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
+		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
@@ -339,11 +339,11 @@ public class TestTableCompactor {
 		
 		final List<Tuple> tupleList1 = new ArrayList<>();
 
-		final Tuple nonDeletedTuple = new Tuple("KEY", BoundingBox.FULL_SPACE, "abc".getBytes());
+		final Tuple nonDeletedTuple = new Tuple("KEY", Hyperrectangle.FULL_SPACE, "abc".getBytes());
 		tupleList1.add(nonDeletedTuple);
 
 		for(int i = 0; i < 1000; i++) {
-			tupleList1.add(new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, "abc".getBytes()));
+			tupleList1.add(new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		}
 		
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -446,13 +446,13 @@ public class TestTableCompactor {
 
 		// Create file 1
 		for(int i = 0; i < 1000; i++) {
-			storageManager.put(new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, "abc".getBytes()));
+			storageManager.put(new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		}
 		storageManager.flush();
 		
 		// Create file 2
 		for(int i = 0; i < 1000; i++) {
-			storageManager.put(new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, "abc".getBytes()));
+			storageManager.put(new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		}
 		storageManager.flush();
 		

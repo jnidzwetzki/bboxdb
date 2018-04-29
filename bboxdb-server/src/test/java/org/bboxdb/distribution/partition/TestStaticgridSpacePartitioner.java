@@ -19,7 +19,7 @@ package org.bboxdb.distribution.partition;
 
 import java.util.HashSet;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -77,8 +77,8 @@ public class TestStaticgridSpacePartitioner {
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
 		Assert.assertEquals(rootElement.getState(), DistributionRegionState.SPLIT);
 		
-		final BoundingBox box = rootElement.getConveringBox();
-		Assert.assertEquals(new BoundingBox(0.0, 5.0, 0.0, 6.0), box);
+		final Hyperrectangle box = rootElement.getConveringBox();
+		Assert.assertEquals(new Hyperrectangle(0.0, 5.0, 0.0, 6.0), box);
 	}
 	
 	@Test(timeout=60000)

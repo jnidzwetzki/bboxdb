@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partition;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -67,7 +67,7 @@ public class TestSpacePartitionerCache {
 		final DistributionRegionIdMapper mapper = oldSpacepartitionier.getDistributionRegionIdMapper();
 		
 		Assert.assertEquals(0, mapper.getAllRegionIds().size());
-		mapper.addMapping(3, BoundingBox.FULL_SPACE);
+		mapper.addMapping(3, Hyperrectangle.FULL_SPACE);
 		Assert.assertEquals(1, mapper.getAllRegionIds().size());
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);

@@ -20,7 +20,7 @@ package org.bboxdb.storage.sstable.spatialindex;
 import java.io.RandomAccessFile;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.StorageManagerException;
 
 
@@ -55,6 +55,6 @@ public interface SpatialIndexBuilder {
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<? extends SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox);
+	public List<? extends SpatialIndexEntry> getEntriesForRegion(final Hyperrectangle boundingBox);
 
 }

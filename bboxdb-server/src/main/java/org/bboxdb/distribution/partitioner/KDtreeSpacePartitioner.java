@@ -20,7 +20,7 @@ package org.bboxdb.distribution.partitioner;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
@@ -53,13 +53,13 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	 */
 	@Override
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
-			final Collection<BoundingBox> samples) throws BBoxDBException {
+			final Collection<Hyperrectangle> samples) throws BBoxDBException {
 		
 		try {
 			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(samples);
 			
 			final int splitDimension = getSplitDimension(regionToSplit);
-			final BoundingBox regionBox = regionToSplit.getConveringBox();
+			final Hyperrectangle regionBox = regionToSplit.getConveringBox();
 			final double splitPosition = splitpointStrategy.getSplitPoint(splitDimension, regionBox);
 			
 			splitNode(regionToSplit, splitPosition);
@@ -86,10 +86,10 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 			
 			// Calculate the covering bounding boxes
-			final BoundingBox parentBox = regionToSplit.getConveringBox();
+			final Hyperrectangle parentBox = regionToSplit.getConveringBox();
 			final int splitDimension = getSplitDimension(regionToSplit);
-			final BoundingBox leftBoundingBox = parentBox.splitAndGetLeft(splitPosition, splitDimension, true);
-			final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(splitPosition, splitDimension, false);
+			final Hyperrectangle leftBoundingBox = parentBox.splitAndGetLeft(splitPosition, splitDimension, true);
+			final Hyperrectangle rightBoundingBox = parentBox.splitAndGetRight(splitPosition, splitDimension, false);
 						
 			// Only one system executes the split, therefore we can determine the child ids
 			distributionRegionZookeeperAdapter.createNewChild(parentPath, 0, leftBoundingBox, distributionGroupName);

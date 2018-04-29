@@ -28,7 +28,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.tools.gui.DistributionRegionComponent;
@@ -101,13 +101,13 @@ public class TreeJPanel extends JPanel {
 	 * @param distributionRegion
 	 * @return 
 	 */
-	protected BoundingBox drawDistributionRegion(final Graphics2D graphics2d) {
+	protected Hyperrectangle drawDistributionRegion(final Graphics2D graphics2d) {
 
-		BoundingBox minBoundingBox = BoundingBox.FULL_SPACE;
+		Hyperrectangle minBoundingBox = Hyperrectangle.FULL_SPACE;
 		
 		for(final DistributionRegionComponent component : regions) {
-			final BoundingBox boundingBox = component.drawComponent(graphics2d);
-			minBoundingBox = BoundingBox.getCoveringBox(boundingBox, minBoundingBox);
+			final Hyperrectangle boundingBox = component.drawComponent(graphics2d);
+			minBoundingBox = Hyperrectangle.getCoveringBox(boundingBox, minBoundingBox);
 		}
 		
 		return minBoundingBox;
@@ -176,7 +176,7 @@ public class TreeJPanel extends JPanel {
 			
 			calculateRootNodeXPos();
 			
-			final BoundingBox drawBox = drawDistributionRegion(graphics2D);
+			final Hyperrectangle drawBox = drawDistributionRegion(graphics2D);
 			
 			updateComponentSize(drawBox);
 		} catch (BBoxDBException e) {
@@ -193,10 +193,10 @@ public class TreeJPanel extends JPanel {
 			return;
 		}
 		
-		BoundingBox minBoundingBox = BoundingBox.FULL_SPACE;
+		Hyperrectangle minBoundingBox = Hyperrectangle.FULL_SPACE;
 		
 		for(DistributionRegionComponent component : regions) {
-			minBoundingBox = BoundingBox.getCoveringBox(component.getBoundingBox(), minBoundingBox);
+			minBoundingBox = Hyperrectangle.getCoveringBox(component.getBoundingBox(), minBoundingBox);
 		}
 						
 		final double rootCoordinateLow = regions.get(0).getBoundingBox().getCoordinateLow(0);
@@ -215,9 +215,9 @@ public class TreeJPanel extends JPanel {
 	 * @param distributionRegion
 	 * @param boundingBox 
 	 */
-	protected void updateComponentSize(final BoundingBox boundingBox) {
+	protected void updateComponentSize(final Hyperrectangle boundingBox) {
 		
-		if(boundingBox == BoundingBox.FULL_SPACE) {
+		if(boundingBox == Hyperrectangle.FULL_SPACE) {
 			return;
 		}
 				

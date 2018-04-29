@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 
 public interface BoundingBoxEntity {
 
@@ -25,6 +25,6 @@ public interface BoundingBoxEntity {
 	 * Get the bounding box
 	 * @return
 	 */
-	public BoundingBox getBoundingBox();
+	public Hyperrectangle getBoundingBox();
 
 }

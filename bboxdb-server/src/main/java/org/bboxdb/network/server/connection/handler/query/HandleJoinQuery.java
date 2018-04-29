@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -62,7 +62,7 @@ public class HandleJoinQuery implements QueryHandler {
 			
 			final QueryJoinRequest queryRequest = QueryJoinRequest.decodeTuple(encodedPackage);
 			final List<TupleStoreName> requestTables = queryRequest.getTables();
-			final BoundingBox boundingBox = queryRequest.getBoundingBox();
+			final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
 			
 			for(final TupleStoreName requestTable : requestTables) {
 				if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {

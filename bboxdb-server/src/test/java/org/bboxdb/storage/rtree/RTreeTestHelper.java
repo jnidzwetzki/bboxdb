@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -82,16 +82,16 @@ public class RTreeTestHelper {
 	 */
 	public static List<SpatialIndexEntry> getEntryList() {
 		final List<SpatialIndexEntry> entryList = new ArrayList<SpatialIndexEntry>();
-		entryList.add(new SpatialIndexEntry(new BoundingBox(0d, 1d, 0d, 1d), 1));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(1d, 2d, 1d, 3d), 2));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(2d, 3d, 0d, 1d), 3));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(3d, 4d, 3d, 7d), 4));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(1.2d, 2.2d, 0d, 1d), 5));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(4.6d, 5.6d, 0d, 1d), 6));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(5.2d, 6.2d, 4d, 5d), 7));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(5.1d, 6.1d, 0d, 1d), 8));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(6.1d, 7.1d, 0d, 1d), 9));
-		entryList.add(new SpatialIndexEntry(new BoundingBox(8.1d, 9.1d, 2d, 5d), 10));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(0d, 1d, 0d, 1d), 1));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(1d, 2d, 1d, 3d), 2));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(2d, 3d, 0d, 1d), 3));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(3d, 4d, 3d, 7d), 4));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(1.2d, 2.2d, 0d, 1d), 5));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(4.6d, 5.6d, 0d, 1d), 6));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(5.2d, 6.2d, 4d, 5d), 7));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(5.1d, 6.1d, 0d, 1d), 8));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(6.1d, 7.1d, 0d, 1d), 9));
+		entryList.add(new SpatialIndexEntry(new Hyperrectangle(8.1d, 9.1d, 2d, 5d), 10));
 		return entryList;
 	}
 	
@@ -113,7 +113,7 @@ public class RTreeTestHelper {
 				boundingBoxData[2 * d + 1] = begin+extent; // End coordinate
 			}
 			
-			final SpatialIndexEntry entry = new SpatialIndexEntry(new BoundingBox(boundingBoxData), i);
+			final SpatialIndexEntry entry = new SpatialIndexEntry(new Hyperrectangle(boundingBoxData), i);
 			entryList.add(entry);
 		}
 

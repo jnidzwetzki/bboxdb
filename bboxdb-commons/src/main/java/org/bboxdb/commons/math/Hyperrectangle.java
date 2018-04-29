@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 import org.bboxdb.commons.StringUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
 
-public class BoundingBox implements Comparable<BoundingBox> {
+public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	
 	/**
 	 * This special bounding box covers every space completely
 	 */
-	public final static BoundingBox FULL_SPACE = new BoundingBox();
+	public final static Hyperrectangle FULL_SPACE = new Hyperrectangle();
 
 	/**
 	 * The return value of an invalid dimension
@@ -47,7 +47,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * Create from Double
 	 * @param args
 	 */
-	public BoundingBox(final Double... args) {
+	public Hyperrectangle(final Double... args) {
 		
 		if(args.length % 2 != 0) {
 			throw new IllegalArgumentException("Even number of arguments expected");
@@ -65,7 +65,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * Create from double[]
 	 * @param args
 	 */
-	public BoundingBox(final double[] values) {
+	public Hyperrectangle(final double[] values) {
 		
 		if(values.length % 2 != 0) {
 			throw new IllegalArgumentException("Even number of arguments expected");
@@ -83,7 +83,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * Create from List<DoubleInterval>
 	 * @param args
 	 */
-	public BoundingBox(final List<DoubleInterval> values) {
+	public Hyperrectangle(final List<DoubleInterval> values) {
 		this.boundingBox = new ArrayList<>(values);
 	}
 	
@@ -91,7 +91,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * Create a bounding box from a string value
 	 * @param stringValue
 	 */
-	public BoundingBox(final String stringValue) {
+	public Hyperrectangle(final String stringValue) {
 		
 		if(! stringValue.startsWith("[")) {
 			throw new IllegalArgumentException("Bounding box have to start with [");
@@ -161,9 +161,9 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param boxBytes
 	 * @return
 	 */
-	public static BoundingBox fromByteArray(final byte[] boxBytes) {
+	public static Hyperrectangle fromByteArray(final byte[] boxBytes) {
 		final double[] doubleArray = DataEncoderHelper.readDoubleArrayFromByte(boxBytes);
-		return new BoundingBox(doubleArray);
+		return new Hyperrectangle(doubleArray);
 	}
 	
 	/**
@@ -171,7 +171,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param dimension
 	 * @return
 	 */
-	public static BoundingBox createFullCoveringDimensionBoundingBox(final int dimension) {
+	public static Hyperrectangle createFullCoveringDimensionBoundingBox(final int dimension) {
 		if(dimension <= 0) {
 			throw new IllegalArgumentException("Unable to create full covering bounding box for dimension: " + dimension);
 		}
@@ -182,7 +182,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			dimensions.add(new DoubleInterval(DoubleInterval.MIN_VALUE, DoubleInterval.MAX_VALUE));
 		}
 		
-		return new BoundingBox(dimensions);
+		return new Hyperrectangle(dimensions);
 	}
 	
 	/**
@@ -190,7 +190,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param otherBoundingBox
 	 * @return
 	 */
-	public boolean overlaps(final BoundingBox otherBoundingBox) {
+	public boolean overlaps(final Hyperrectangle otherBoundingBox) {
 		
 		// Null does overlap with nothing
 		if(otherBoundingBox == null) {
@@ -198,12 +198,12 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		}
 		
 		// The empty bounding box overlaps everything
-		if(this == BoundingBox.FULL_SPACE) {
+		if(this == Hyperrectangle.FULL_SPACE) {
 			return true;
 		}
 		
 		// The empty bounding box overlaps everything
-		if(otherBoundingBox == BoundingBox.FULL_SPACE) {
+		if(otherBoundingBox == Hyperrectangle.FULL_SPACE) {
 			return true;
 		}
 		
@@ -302,7 +302,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param splitPositionIncluded
 	 * @return
 	 */
-	public BoundingBox splitAndGetLeft(final double splitPosition, 
+	public Hyperrectangle splitAndGetLeft(final double splitPosition, 
 			final int splitDimension, final boolean splitPositionIncluded) {
 		
 		if(splitDimension > getDimension() - 1) {
@@ -317,7 +317,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		final DoubleInterval splitInterval = intervals.get(splitDimension);
 		final DoubleInterval newInterval = splitInterval.splitAndGetLeftPart(splitPosition, splitPositionIncluded);
 		intervals.set(splitDimension, newInterval);
-		return new BoundingBox(intervals);
+		return new Hyperrectangle(intervals);
 	}
 	
 	/**
@@ -326,7 +326,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param splitPositionIncluded
 	 * @return
 	 */
-	public BoundingBox splitAndGetRight(final double splitPosition, final int splitDimension, final boolean splitPositionIncluded) {
+	public Hyperrectangle splitAndGetRight(final double splitPosition, final int splitDimension, final boolean splitPositionIncluded) {
 		if(splitDimension > getDimension()) {
 			throw new IllegalArgumentException("Unable to split a bounding box with " + getDimension() + " dimensions in dimension" + splitDimension);
 		}
@@ -339,7 +339,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		final DoubleInterval splitInterval = intervals.get(splitDimension);
 		final DoubleInterval newInterval = splitInterval.splitAndGetRightPart(splitPosition, splitPositionIncluded);
 		intervals.set(splitDimension, newInterval);
-		return new BoundingBox(intervals);
+		return new Hyperrectangle(intervals);
 	}
 
 	/**
@@ -348,7 +348,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 */
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("BoundingBox [dimensions=");
+		final StringBuilder sb = new StringBuilder("Hyperrectangle [dimensions=");
 		sb.append(getDimension());
 		
 		for(int d = 0; d < getDimension(); d++) {
@@ -408,7 +408,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BoundingBox other = (BoundingBox) obj;
+		Hyperrectangle other = (Hyperrectangle) obj;
 		if (boundingBox == null) {
 			if (other.boundingBox != null)
 				return false;
@@ -421,7 +421,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * Compare to an other bounding box
 	 */
 	@Override
-	public int compareTo(final BoundingBox otherBox) {
+	public int compareTo(final Hyperrectangle otherBox) {
 		
 		// Check number od dimensions
 		if(getDimension() != otherBox.getDimension()) {
@@ -449,7 +449,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param boundingBox2
 	 * @return
 	 */
-	public static BoundingBox getCoveringBox(final BoundingBox... boundingBoxes) {
+	public static Hyperrectangle getCoveringBox(final Hyperrectangle... boundingBoxes) {
 		return getCoveringBox(Arrays.asList(boundingBoxes));
 	}
 	
@@ -459,11 +459,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param boundingBox2
 	 * @return
 	 */
-	public static BoundingBox getCoveringBox(final List<BoundingBox> argumentBoundingBoxes) {
+	public static Hyperrectangle getCoveringBox(final List<Hyperrectangle> argumentBoundingBoxes) {
 
 		// Bounding box could be null, e.g. for DeletedTuple instances.
 		// And don't merge empty boxes
-		final List<BoundingBox> boundingBoxes = argumentBoundingBoxes
+		final List<Hyperrectangle> boundingBoxes = argumentBoundingBoxes
 				.stream()
 				.filter(b -> b != null)
 				.filter(b -> b != FULL_SPACE)
@@ -471,7 +471,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		
 		// No argument
 		if(boundingBoxes.isEmpty()) {
-			return BoundingBox.FULL_SPACE;
+			return Hyperrectangle.FULL_SPACE;
 		}
 		
 		// Only 1 argument
@@ -482,7 +482,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		final int dimensions = boundingBoxes.get(0).getDimension();
 		
 		// All bounding boxes need the same dimension
-		for(final BoundingBox currentBox : boundingBoxes) {
+		for(final Hyperrectangle currentBox : boundingBoxes) {
 			if(dimensions != currentBox.getDimension()) {
 				final String errorMessage = "Merging bounding boxes with different dimensions: " 
 						+ dimensions + "/" + currentBox.getDimension();
@@ -499,7 +499,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			double resultMin = Double.MAX_VALUE;
 			double resultMax = Double.MIN_VALUE;
 			
-			for(final BoundingBox currentBox : boundingBoxes) {
+			for(final Hyperrectangle currentBox : boundingBoxes) {
 				resultMin = Math.min(resultMin, currentBox.getCoordinateLow(d));
 				resultMax = Math.max(resultMax, currentBox.getCoordinateHigh(d));
 			}
@@ -508,7 +508,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			coverBox[2 * d + 1] = resultMax; // End position
 		}
 		
-		return new BoundingBox(coverBox);
+		return new Hyperrectangle(coverBox);
 	}
 
 	
@@ -517,7 +517,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param otherBox
 	 * @return
 	 */
-	public boolean isCovering(final BoundingBox otherBox) {
+	public boolean isCovering(final Hyperrectangle otherBox) {
 		if(this == FULL_SPACE || otherBox == FULL_SPACE) {
 			return true;
 		}
@@ -538,7 +538,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param otherBox
 	 * @return
 	 */
-	public double calculateEnlargement(final BoundingBox otherBox) {
+	public double calculateEnlargement(final Hyperrectangle otherBox) {
 		if(this == FULL_SPACE || otherBox == FULL_SPACE) {
 			return 0;
 		}
@@ -551,7 +551,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		
 		final double ourVolume = getVolume();
 		
-		final BoundingBox mergedBox = BoundingBox.getCoveringBox(this, otherBox);
+		final Hyperrectangle mergedBox = Hyperrectangle.getCoveringBox(this, otherBox);
 		
 		return mergedBox.getVolume() - ourVolume;
 	}
@@ -578,7 +578,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param otherBox
 	 * @return 
 	 */
-	public BoundingBox getIntersection(final BoundingBox otherBox) {
+	public Hyperrectangle getIntersection(final Hyperrectangle otherBox) {
 		
 		if(getDimension() == 0 || otherBox.getDimension() == 0) {
 			return FULL_SPACE;
@@ -601,14 +601,14 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			intervalList.add(intersection);
 		}
 		
-		return new BoundingBox(intervalList);
+		return new Hyperrectangle(intervalList);
 	}
 
 	/**
 	 * Throw an exception of the dimension of the other box don't match
 	 * @param otherBox
 	 */
-	protected void throwExceptionIfDimensionNotMatch(final BoundingBox otherBox) {
+	protected void throwExceptionIfDimensionNotMatch(final Hyperrectangle otherBox) {
 		
 		if(getDimension() != otherBox.getDimension()) {
 			throw new IllegalArgumentException(

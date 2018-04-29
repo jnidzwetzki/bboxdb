@@ -20,7 +20,7 @@ package org.bboxdb.tools.benchmark;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -88,7 +88,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuplesToInsert; insertedTuples.incrementAndGet()) {
-			bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.FULL_SPACE, "abcdef".getBytes()));
+			bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), Hyperrectangle.FULL_SPACE, "abcdef".getBytes()));
 		}
 		
 		// Wait for requests to settle

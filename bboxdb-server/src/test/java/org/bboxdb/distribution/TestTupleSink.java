@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSink;
@@ -93,7 +93,7 @@ public class TestTupleSink {
 	public void testTupleWithoutRegions() throws Exception {
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
-		final Tuple tuple1 = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes());
+		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes());
 		
 		tupleRedistributor.redistributeTuple(tuple1);
 	}
@@ -108,7 +108,7 @@ public class TestTupleSink {
 	public void testRegisterRegionDuplicate() throws StorageManagerException, InterruptedException, BBoxDBException {
 		
 		final DistributionRegion distributionRegion = new DistributionRegion(
-				TEST_GROUP, BoundingBox.createFullCoveringDimensionBoundingBox(3));
+				TEST_GROUP, Hyperrectangle.createFullCoveringDimensionBoundingBox(3));
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
@@ -138,14 +138,14 @@ public class TestTupleSink {
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				TEST_GROUP, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
-				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
+				new Hyperrectangle(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
 		final AbstractTupleSink tupleSink1 = Mockito.mock(AbstractTupleSink.class);
 		tupleRedistributor.registerRegion(distributionRegion1, Arrays.asList(tupleSink1));
 		
-		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), "".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), "".getBytes());
 	
 		tupleRedistributor.redistributeTuple(tuple1);
 		(Mockito.verify(tupleSink1, Mockito.times(1))).sinkTuple(Mockito.any(Tuple.class));
@@ -165,11 +165,11 @@ public class TestTupleSink {
 	public void testTupleRedistribution2() throws Exception {		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				TEST_GROUP, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
-				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
+				new Hyperrectangle(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final DistributionRegion distributionRegion2 = new DistributionRegion(
 				TEST_GROUP, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
-				new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0), 1);
+				new Hyperrectangle(5.0, 6.0, 5.0, 6.0, 5.0, 6.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
@@ -179,18 +179,18 @@ public class TestTupleSink {
 		final AbstractTupleSink tupleSink2 = Mockito.mock(AbstractTupleSink.class);
 		tupleRedistributor.registerRegion(distributionRegion2, Arrays.asList(tupleSink2));
 		
-		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), "".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), "".getBytes());
 	
 		tupleRedistributor.redistributeTuple(tuple1);
 		(Mockito.verify(tupleSink1, Mockito.times(1))).sinkTuple(Mockito.any(Tuple.class));
 		(Mockito.verify(tupleSink2, Mockito.never())).sinkTuple(Mockito.any(Tuple.class));
 
-		final Tuple tuple2 = new Tuple("abc", new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0), "".getBytes());
+		final Tuple tuple2 = new Tuple("abc", new Hyperrectangle(5.0, 6.0, 5.0, 6.0, 5.0, 6.0), "".getBytes());
 		tupleRedistributor.redistributeTuple(tuple2);
 		(Mockito.verify(tupleSink1, Mockito.times(1))).sinkTuple(Mockito.any(Tuple.class));
 		(Mockito.verify(tupleSink2, Mockito.times(1))).sinkTuple(Mockito.any(Tuple.class));
 
-		final Tuple tuple3 = new Tuple("abc", new BoundingBox(0.0, 6.0, 0.0, 6.0, 0.0, 6.0), "".getBytes());
+		final Tuple tuple3 = new Tuple("abc", new Hyperrectangle(0.0, 6.0, 0.0, 6.0, 0.0, 6.0), "".getBytes());
 		tupleRedistributor.redistributeTuple(tuple3);
 		(Mockito.verify(tupleSink1, Mockito.atLeast(2))).sinkTuple(Mockito.any(Tuple.class));
 		(Mockito.verify(tupleSink2, Mockito.atLeast(2))).sinkTuple(Mockito.any(Tuple.class));

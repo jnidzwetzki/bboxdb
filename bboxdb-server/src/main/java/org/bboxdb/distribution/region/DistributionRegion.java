@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.storage.entity.DistributionGroupHelper;
@@ -49,7 +49,7 @@ public class DistributionRegion {
 	/**
 	 * The area that is covered
 	 */
-	private final BoundingBox converingBox;
+	private final Hyperrectangle converingBox;
 	
 	/**
 	 * The state of the region
@@ -71,7 +71,7 @@ public class DistributionRegion {
 	 */
 	public final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
 
-	public DistributionRegion(final String name, final BoundingBox boundingBox) {
+	public DistributionRegion(final String name, final Hyperrectangle boundingBox) {
 		this(name, ROOT_NODE_ROOT_POINTER, boundingBox, 0);
 	}
 	
@@ -81,7 +81,7 @@ public class DistributionRegion {
 	 * @param level
 	 */
 	public DistributionRegion(final String name, final DistributionRegion parent,
-			final BoundingBox boundingBox, final long regionid) {
+			final Hyperrectangle boundingBox, final long regionid) {
 		
 		if(! DistributionGroupHelper.validateDistributionGroupName(name)) {
 			throw new IllegalArgumentException("Invalid distribution group specified");
@@ -321,7 +321,7 @@ public class DistributionRegion {
 	 * Get the covering bounding box
 	 * @return
 	 */
-	public BoundingBox getConveringBox() {
+	public Hyperrectangle getConveringBox() {
 		return converingBox;
 	}
 
@@ -380,7 +380,7 @@ public class DistributionRegion {
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<DistributionRegion> getDistributionRegionsForBoundingBox(final BoundingBox boundingBox) {
+	public List<DistributionRegion> getDistributionRegionsForBoundingBox(final Hyperrectangle boundingBox) {
 		return getThisAndChildRegions().stream()
 			.filter(r -> r.getConveringBox().overlaps(boundingBox))
 			.collect(Collectors.toList());

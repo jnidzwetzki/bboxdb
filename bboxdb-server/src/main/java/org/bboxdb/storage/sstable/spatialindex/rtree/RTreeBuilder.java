@@ -23,7 +23,7 @@ import java.util.Deque;
 import java.util.List;
 
 import org.bboxdb.commons.Pair;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -111,7 +111,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	@Override
 	public boolean insert(final SpatialIndexEntry entry) {
 
-		if(entry.getBoundingBox() == null || entry.getBoundingBox() == BoundingBox.FULL_SPACE) {
+		if(entry.getBoundingBox() == null || entry.getBoundingBox() == Hyperrectangle.FULL_SPACE) {
 			return false;
 		}
 
@@ -129,7 +129,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	 */
 	protected RTreeDirectoryNode insert(final RTreeDirectoryNode insertBaseNode, final SpatialIndexEntry entry) {
 
-		final BoundingBox entryBox = entry.getBoundingBox();
+		final Hyperrectangle entryBox = entry.getBoundingBox();
 
 		RTreeDirectoryNode childNode = insertBaseNode;
 
@@ -227,7 +227,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	}
 
 	@Override
-	public List<? extends SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+	public List<? extends SpatialIndexEntry> getEntriesForRegion(final Hyperrectangle boundingBox) {
 		return rootNode.getEntriesForRegion(boundingBox);
 	}
 

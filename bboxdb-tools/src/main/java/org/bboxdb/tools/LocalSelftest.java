@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -94,7 +94,7 @@ public class LocalSelftest {
 
 		logger.info("Inserting tuples...");
 		for(int i = 0; i < TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 		}
 		

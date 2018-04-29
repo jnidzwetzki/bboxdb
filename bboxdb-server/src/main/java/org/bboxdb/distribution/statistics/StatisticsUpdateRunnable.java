@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -134,7 +134,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 				
 				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
 				
-				final Collection<Long> allIds = regionIdMapper.getRegionIdsForRegion(BoundingBox.FULL_SPACE);
+				final Collection<Long> allIds = regionIdMapper.getRegionIdsForRegion(Hyperrectangle.FULL_SPACE);
 				
 				for(final long id : allIds) {
 					updateRegionStatistics(distributionGroup, id);

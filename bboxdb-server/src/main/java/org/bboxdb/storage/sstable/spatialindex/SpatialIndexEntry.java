@@ -22,7 +22,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 
 public class SpatialIndexEntry implements BoundingBoxEntity {
 
@@ -34,9 +34,9 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	/**
 	 * The bounding box
 	 */
-	protected final BoundingBox boundingBox;
+	protected final Hyperrectangle boundingBox;
 
-	public SpatialIndexEntry(final BoundingBox boundingBox, final int value) {
+	public SpatialIndexEntry(final Hyperrectangle boundingBox, final int value) {
 		this.value = value;
 		this.boundingBox = boundingBox;
 	}
@@ -53,7 +53,7 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	 * @see org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity#getBoundingBox()
 	 */
 	@Override
-	public BoundingBox getBoundingBox() {
+	public Hyperrectangle getBoundingBox() {
 		return boundingBox;
 	}
 
@@ -126,7 +126,7 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 		final byte[] bboxBytes = new byte[bboxLength];		
 		randomAccessFile.readFully(bboxBytes, 0, bboxBytes.length);
 
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
 	
 		return new SpatialIndexEntry(boundingBox, key);
 	}
@@ -150,7 +150,7 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 		final byte[] bboxBytes = new byte[bboxLength];		
 		buffer.get(bboxBytes, 0, bboxBytes.length);
 
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
 	
 		return new SpatialIndexEntry(boundingBox, key);
 	}

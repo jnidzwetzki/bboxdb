@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -283,7 +283,7 @@ public class DistributedSelftest {
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final Tuple myTuple = new Tuple(key, new BoundingBox(1.0d, 2.0d, 1.0d, 2.0d), "test".getBytes());
+			final Tuple myTuple = new Tuple(key, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "test".getBytes());
 			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(TABLE, myTuple);
 			insertResult.waitForCompletion();
 			

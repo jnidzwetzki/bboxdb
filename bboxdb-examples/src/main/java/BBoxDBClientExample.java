@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -104,10 +104,10 @@ public class BBoxDBClientExample {
 		}
 		
 		// Insert two new tuples
-		final Tuple tuple1 = new Tuple("key1", new BoundingBox(0d, 5d, 0d, 1d), "mydata1".getBytes());
+		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(0d, 5d, 0d, 1d), "mydata1".getBytes());
 		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(mytable, tuple1);
 		
-		final Tuple tuple2 = new Tuple("key2", new BoundingBox(-1d, 2d, -1d, 2d), "mydata2".getBytes());
+		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(-1d, 2d, -1d, 2d), "mydata2".getBytes());
 		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(mytable, tuple2);
 		
 		// Wait for the insert operations to complete
@@ -142,7 +142,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Query by bounding box
-		final TupleListFuture resultFuture2 = bboxdbClient.queryRectangle(mytable, new BoundingBox(-0.5d, 1d, -0.5d, 1d));
+		final TupleListFuture resultFuture2 = bboxdbClient.queryRectangle(mytable, new Hyperrectangle(-0.5d, 1d, -0.5d, 1d));
 		
 		// Again, we got a future object, the search is performed asynchronous
 		resultFuture2.waitForCompletion();

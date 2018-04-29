@@ -20,7 +20,7 @@ package org.bboxdb.storage.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 
 public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEntity {
 	
@@ -102,11 +102,11 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	 * Get the intersection bounding box of all tuples
 	 * @return
 	 */
-	public BoundingBox getBoundingBox() {
-		BoundingBox intersectionBox = tuples.get(0).getBoundingBox();
+	public Hyperrectangle getBoundingBox() {
+		Hyperrectangle intersectionBox = tuples.get(0).getBoundingBox();
 				
 		for(int i = 1; i < tuples.size(); i++) {
-			final BoundingBox tupleBox = tuples.get(i).getBoundingBox();
+			final Hyperrectangle tupleBox = tuples.get(i).getBoundingBox();
 			intersectionBox = intersectionBox.getIntersection(tupleBox);
 		}
 		

@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreMetaData;
 
@@ -46,7 +46,7 @@ public class SSTableMetadataBuilder {
 	/**
 	 * The coresponding bounding box
 	 */
-	protected BoundingBox boundingBox;
+	protected Hyperrectangle boundingBox;
 	
 	/**
 	 * Update the metadata 
@@ -59,7 +59,7 @@ public class SSTableMetadataBuilder {
 		} else {
 			// Calculate the bounding box of the current bounding box and
 			// the bounding box of the tuple
-			boundingBox = BoundingBox.getCoveringBox(boundingBox, tuple.getBoundingBox());
+			boundingBox = Hyperrectangle.getCoveringBox(boundingBox, tuple.getBoundingBox());
 		}
 				
 		// Update the newest and the oldest tuple

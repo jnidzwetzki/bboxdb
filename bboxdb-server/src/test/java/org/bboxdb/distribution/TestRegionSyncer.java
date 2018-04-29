@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
@@ -120,7 +120,7 @@ public class TestRegionSyncer {
 		System.out.println("==== Creating subchild");
 		
 		final DistributionRegion level1Child = root.getChildNumber(0);
-		final BoundingBox leftBoundingBoxChild = level1Child.getConveringBox().splitAndGetLeft(0, 1, true);
+		final Hyperrectangle leftBoundingBoxChild = level1Child.getConveringBox().splitAndGetLeft(0, 1, true);
 		
 		final CountDownLatch latchLevel1 = new CountDownLatch(1);
 		final String level1ChildPath = distributionRegionAdapter.getZookeeperPathForDistributionRegion(level1Child);
@@ -376,7 +376,7 @@ public class TestRegionSyncer {
 		distributionRegionSyncer.registerCallback(callback2);
 		final String regionPath = distributionRegionAdapter.getZookeeperPathForDistributionRegion(root);
 		final long number = root.getHighestChildNumber() + 1;
-		distributionRegionAdapter.createNewChild(regionPath, number, new BoundingBox(1d, 2d), GROUP);
+		distributionRegionAdapter.createNewChild(regionPath, number, new Hyperrectangle(1d, 2d), GROUP);
 		
 		addLatch1.await();
 		distributionRegionSyncer.unregisterCallback(callback2);
@@ -431,8 +431,8 @@ public class TestRegionSyncer {
 	private String createSplittedRoot(final DistributionRegionSyncer distributionRegionSyncer,
 			final DistributionRegion root) throws ZookeeperException, InterruptedException {
 		
-		final BoundingBox leftBoundingBox = root.getConveringBox().splitAndGetLeft(0, 0, true);
-		final BoundingBox rightBoundingBox = root.getConveringBox().splitAndGetRight(0, 0, true);
+		final Hyperrectangle leftBoundingBox = root.getConveringBox().splitAndGetLeft(0, 0, true);
+		final Hyperrectangle rightBoundingBox = root.getConveringBox().splitAndGetRight(0, 0, true);
 		
 		final String regionPath = distributionRegionAdapter.getZookeeperPathForDistributionRegion(root);
 		

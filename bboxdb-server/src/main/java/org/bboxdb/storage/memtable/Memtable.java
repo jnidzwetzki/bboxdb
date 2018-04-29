@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
@@ -470,7 +470,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	}
 
 	@Override
-	public Iterator<Tuple> getAllTuplesInBoundingBox(final BoundingBox boundingBox) {
+	public Iterator<Tuple> getAllTuplesInBoundingBox(final Hyperrectangle boundingBox) {
 		assert (usage.get() > 0);
 
 		final List<? extends SpatialIndexEntry> matchingKeys = spatialIndex.getEntriesForRegion(boundingBox);

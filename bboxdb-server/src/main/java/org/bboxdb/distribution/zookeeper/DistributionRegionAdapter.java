@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -61,14 +61,14 @@ public class DistributionRegionAdapter {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public BoundingBox getBoundingBoxForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException  {
+	public Hyperrectangle getBoundingBoxForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException  {
 		
 		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_BOUNDINGBOX;
 		String boundingBoxString = null;
 		
 		try {			
 			boundingBoxString = zookeeperClient.readPathAndReturnString(splitPathName);
-			return new BoundingBox(boundingBoxString);
+			return new Hyperrectangle(boundingBoxString);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse bounding box '" + boundingBoxString + "' for " + splitPathName);
 		}		
@@ -80,7 +80,7 @@ public class DistributionRegionAdapter {
 	 * @param position
 	 * @throws ZookeeperException 
 	 */
-	public void setBoundingBoxForPath(final String path, final BoundingBox boundingBox) 
+	public void setBoundingBoxForPath(final String path, final Hyperrectangle boundingBox) 
 			throws ZookeeperException {
 		
 		final String boundingBoxString = boundingBox.toCompactString();
@@ -649,7 +649,7 @@ public class DistributionRegionAdapter {
 	 * @throws ZookeeperException
 	 */
 	public String createNewChild(final String parentPath, final long childNumber, 
-			final BoundingBox boundingBox, final String distributionGroupName) throws ZookeeperException {
+			final Hyperrectangle boundingBox, final String distributionGroupName) throws ZookeeperException {
 
 		final String childPath = parentPath + "/" + ZookeeperNodeNames.NAME_CHILDREN + childNumber;
 		logger.info("Creating: {}", childPath);

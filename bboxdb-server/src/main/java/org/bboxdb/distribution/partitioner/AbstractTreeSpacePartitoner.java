@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
@@ -65,7 +65,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 					"".getBytes());
 					
-			final BoundingBox rootBox = getRootBox(configuration);
+			final Hyperrectangle rootBox = getRootBox(configuration);
 			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
 
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
@@ -85,19 +85,19 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * @param configuration
 	 * @return
 	 */
-	private BoundingBox getRootBox(DistributionGroupConfiguration configuration) {
+	private Hyperrectangle getRootBox(DistributionGroupConfiguration configuration) {
 		
 		final String spConfig = configuration.getSpacePartitionerConfig();
 		
 		if(! spConfig.isEmpty()) {
 			if(spConfig.contains("[") && spConfig.contains("]")) {
-				return new BoundingBox(spConfig);	
+				return new Hyperrectangle(spConfig);	
 			} else {
 				logger.error("Got invalid space partitoner config {}", spConfig);
 			}
 		}
 		
-		return BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions());
+		return Hyperrectangle.createFullCoveringDimensionBoundingBox(configuration.getDimensions());
 	}
 
 	@Override

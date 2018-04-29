@@ -20,7 +20,7 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -264,7 +264,7 @@ public class RegionMerger {
 
 		assert (connection != null) : "Connection can not be null: " + firstSystem.getStringValue();
 
-		final BoundingBox bbox = childRegion.getConveringBox();
+		final Hyperrectangle bbox = childRegion.getConveringBox();
 		final String fullname = tupleStoreName.getFullname();
 		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
 		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox);

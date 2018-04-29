@@ -20,7 +20,7 @@ package org.bboxdb.distribution;
 import java.util.Collection;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingHelper;
@@ -102,7 +102,7 @@ public class TestSampling {
 		final DistributionRegion rootNode 
 			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP).getRootNode();
 		
-		final Collection<BoundingBox> samples 
+		final Collection<Hyperrectangle> samples 
 			= SamplingHelper.getSamplesForRegion(rootNode, storageRegistry);
 		
 		Assert.assertFalse(samples.isEmpty());		
@@ -119,7 +119,7 @@ public class TestSampling {
 			= storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
 		
 		for(int i = 0; i < 100; i++) {
-			table.put(new Tuple(Integer.toString(i), new BoundingBox(1d, 2d, 1d, 20d), "".getBytes()));
+			table.put(new Tuple(Integer.toString(i), new Hyperrectangle(1d, 2d, 1d, 20d), "".getBytes()));
 			table.put(new DeletedTuple(Integer.toString(i+10000)));
 		}
 	}
@@ -138,7 +138,7 @@ public class TestSampling {
 		final DistributionRegion rootNode 
 			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP).getRootNode();
 		
-		final Collection<BoundingBox> samples 
+		final Collection<Hyperrectangle> samples 
 			= SamplingHelper.getSamplesForRegion(rootNode, storageRegistry);
 		
 		Assert.assertTrue(samples.isEmpty());		
@@ -158,26 +158,26 @@ public class TestSampling {
 		final DistributionRegion rootNode 
 			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP).getRootNode();
 		
-		final Collection<BoundingBox> samples 
+		final Collection<Hyperrectangle> samples 
 			= SamplingHelper.getSamplesForRegion(rootNode, storageRegistry);
 		
 		Assert.assertFalse(samples.isEmpty());		
 		
 		final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(samples);
 
-		final BoundingBox coveringBox1 = new BoundingBox(1d, 2d, -1d, 20d);
+		final Hyperrectangle coveringBox1 = new Hyperrectangle(1d, 2d, -1d, 20d);
 		final double splitPoint0 = splitpointStrategy.getSplitPoint(0, coveringBox1);
 		final double splitPoint1 = splitpointStrategy.getSplitPoint(1, coveringBox1);
 		Assert.assertTrue(coveringBox1.isCoveringPointInDimension(splitPoint0, 0));
 		Assert.assertTrue(coveringBox1.isCoveringPointInDimension(splitPoint1, 1));	
 		
-		final BoundingBox coveringBox2 = new BoundingBox(1.5d, 2d, -1d, 20d);
+		final Hyperrectangle coveringBox2 = new Hyperrectangle(1.5d, 2d, -1d, 20d);
 		final double splitPoint02 = splitpointStrategy.getSplitPoint(0, coveringBox2);
 		final double splitPoint12 = splitpointStrategy.getSplitPoint(1, coveringBox2);
 		Assert.assertTrue(coveringBox1.isCoveringPointInDimension(splitPoint02, 0));
 		Assert.assertTrue(coveringBox1.isCoveringPointInDimension(splitPoint12, 1));	
 		
-		final BoundingBox coveringBox3 = new BoundingBox(-1.5d, 2d, -1d, 20d);
+		final Hyperrectangle coveringBox3 = new Hyperrectangle(-1.5d, 2d, -1d, 20d);
 		final double splitPoint03 = splitpointStrategy.getSplitPoint(0, coveringBox3);
 		final double splitPoint13 = splitpointStrategy.getSplitPoint(1, coveringBox3);
 		Assert.assertTrue(coveringBox1.isCoveringPointInDimension(splitPoint03, 0));
@@ -198,14 +198,14 @@ public class TestSampling {
 		final DistributionRegion rootNode 
 			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP).getRootNode();
 		
-		final Collection<BoundingBox> samples 
+		final Collection<Hyperrectangle> samples 
 			= SamplingHelper.getSamplesForRegion(rootNode, storageRegistry);
 		
 		Assert.assertFalse(samples.isEmpty());		
 		
 		final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(samples);
 
-		final BoundingBox coveringBox = new BoundingBox(10d, 20d, -1d, 20d);
+		final Hyperrectangle coveringBox = new Hyperrectangle(10d, 20d, -1d, 20d);
 		
 		final double splitPoint0 = splitpointStrategy.getSplitPoint(0, coveringBox);
 		final double splitPoint1 = splitpointStrategy.getSplitPoint(1, coveringBox);
@@ -224,7 +224,7 @@ public class TestSampling {
 	@Test(timeout=60000)
 	public void testSimpleSplitpointStrategy1() throws StorageManagerException {
 		final SplitpointStrategy splitpointStrategy = new SimpleSplitStrategy();
-		final BoundingBox coveringBox = new BoundingBox(1d, 2d, -1d, 20d);
+		final Hyperrectangle coveringBox = new Hyperrectangle(1d, 2d, -1d, 20d);
 		
 		final double splitPoint0 = splitpointStrategy.getSplitPoint(0, coveringBox);
 		final double splitPoint1 = splitpointStrategy.getSplitPoint(1, coveringBox);

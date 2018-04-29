@@ -21,7 +21,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -73,7 +73,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 			final double y = Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			final double z = Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			
-			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
+			final Hyperrectangle boundingBox = new Hyperrectangle(x, x+1, y, y+1, z, z+1);
 			
 			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
 			

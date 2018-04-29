@@ -21,7 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class TPCHOrderPointBuilder implements TupleBuilder {
 			final Date orderDate = dateParser.parse(data[4]);
 			
 			final double orderDateTime = (double) orderDate.getTime();
-			final BoundingBox boundingBox = new BoundingBox(orderDateTime, orderDateTime);
+			final Hyperrectangle boundingBox = new Hyperrectangle(orderDateTime, orderDateTime);
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			

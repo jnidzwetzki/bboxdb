@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.BloomFilterBuilder;
@@ -440,7 +440,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	}
 
 	@Override
-	public Iterator<Tuple> getAllTuplesInBoundingBox(final BoundingBox boundingBox) {
+	public Iterator<Tuple> getAllTuplesInBoundingBox(final Hyperrectangle boundingBox) {
 		assert (usage.get() > 0);
 
 		List<SpatialIndexEntry> entries;

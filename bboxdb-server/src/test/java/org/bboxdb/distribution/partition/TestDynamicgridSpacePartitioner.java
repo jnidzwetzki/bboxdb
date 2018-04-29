@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -79,8 +79,8 @@ public class TestDynamicgridSpacePartitioner {
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
 		Assert.assertEquals(rootElement.getState(), DistributionRegionState.SPLIT);
 		
-		final BoundingBox box = rootElement.getConveringBox();
-		Assert.assertEquals(new BoundingBox(0.0, 5.0, 0.0, 6.0), box);
+		final Hyperrectangle box = rootElement.getConveringBox();
+		Assert.assertEquals(new Hyperrectangle(0.0, 5.0, 0.0, 6.0), box);
 	}
 	
 	@Test(timeout=60000)
@@ -159,7 +159,7 @@ public class TestDynamicgridSpacePartitioner {
 		
 		final int oldChildren = regionToSplit.getParent().getThisAndChildRegions().size();
 		
-		final List<BoundingBox> samples = Arrays.asList(new BoundingBox(1d, 2d, 1d, 2d));
+		final List<Hyperrectangle> samples = Arrays.asList(new Hyperrectangle(1d, 2d, 1d, 2d));
 		final List<DistributionRegion> newRegions = spacePartitioner.splitRegion(regionToSplit, samples);
 		Assert.assertEquals(2, newRegions.size());
 		

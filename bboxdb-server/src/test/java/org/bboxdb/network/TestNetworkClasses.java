@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.capabilities.PeerCapabilities;
@@ -179,7 +179,7 @@ public class TestNetworkClasses {
 	 */
 	@Test(timeout=60000)
 	public void encodeAndDecodeInsertTuple1() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
@@ -205,7 +205,7 @@ public class TestNetworkClasses {
 	 */
 	@Test(timeout=60000)
 	public void encodeAndDecodeInsertTuple2() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", new BoundingBox(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", new Hyperrectangle(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
@@ -231,9 +231,9 @@ public class TestNetworkClasses {
 	 */
 	@Test(timeout=60000)
 	public void encodeAndDecodeJoinedTuple() throws IOException, PackageEncodeException {
-		final Tuple tuple1 = new Tuple("key1", new BoundingBox(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
-		final Tuple tuple2 = new Tuple("key2", new BoundingBox(1.32443453224, 545334.03, 34324.343, 343243.0), "abc".getBytes(), 12);
-		final Tuple tuple3 = new Tuple("key3", new BoundingBox(1.35433224, 5453.43, 34324.343, 343243.0), "abc".getBytes(), 12);
+		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
+		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(1.32443453224, 545334.03, 34324.343, 343243.0), "abc".getBytes(), 12);
+		final Tuple tuple3 = new Tuple("key3", new Hyperrectangle(1.35433224, 5453.43, 34324.343, 343243.0), "abc".getBytes(), 12);
 
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -269,7 +269,7 @@ public class TestNetworkClasses {
 	@Test(timeout=60000)
 	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
-		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple);
@@ -514,7 +514,7 @@ public class TestNetworkClasses {
 	@Test(timeout=60000)
 	public void testDecodeBoundingBoxQuery() throws IOException, PackageEncodeException {
 		final String table = "table1";
-		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
+		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final QueryHyperrectangleRequest queryRequest = new QueryHyperrectangleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, false, (short) 10);
@@ -543,7 +543,7 @@ public class TestNetworkClasses {
 	@Test(timeout=60000)
 	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PackageEncodeException {
 		final String table = "table1";
-		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
+		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final QueryHyperrectangleContinuousRequest queryRequest = new QueryHyperrectangleContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox);
@@ -630,7 +630,7 @@ public class TestNetworkClasses {
 	public void testDecodeBoundingBoxAndTime() throws IOException, PackageEncodeException {
 		final String table = "table1";
 		final long timeStamp = 4711;
-		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
+		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -664,7 +664,7 @@ public class TestNetworkClasses {
 		final List<TupleStoreName> tables = Arrays.asList(new TupleStoreName("3dgroup_table1"),
 				new TupleStoreName("3dgroup_table2"), new TupleStoreName("3dgroup_table3"));
 		
-		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
+		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final QueryJoinRequest queryRequest = new QueryJoinRequest(sequenceNumber, ROUTING_HEADER_ROUTED, tables, boundingBox, false, (short) 10);
@@ -822,7 +822,7 @@ public class TestNetworkClasses {
 	 */
 	@Test(timeout=60000)
 	public void testDecodePackage() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
@@ -842,7 +842,7 @@ public class TestNetworkClasses {
 	 */
 	@Test(timeout=60000)
 	public void testGetSequenceNumber() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		
 		// Increment to avoid sequenceNumber = 0
 		sequenceNumberGenerator.getNextSequenceNummber();
@@ -866,7 +866,7 @@ public class TestNetworkClasses {
 	 */
 	@Test(timeout=60000)
 	public void testGetRequestBodyLength() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
@@ -1000,7 +1000,7 @@ public class TestNetworkClasses {
 	@Test(timeout=60000)
 	public void testSingleTupleResponse() throws PackageEncodeException, IOException {
 		final String tablename = "table1";
-		final Tuple tuple = new Tuple("abc", BoundingBox.FULL_SPACE, "databytes".getBytes());
+		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "databytes".getBytes());
 		
 		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
 		final byte[] encodedPackage = networkPackageToByte(singleTupleResponse);
@@ -1049,7 +1049,7 @@ public class TestNetworkClasses {
 	public void testCompression1Request() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
 		
-		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple);
@@ -1091,7 +1091,7 @@ public class TestNetworkClasses {
 	@Test(timeout=60000)
 	public void testCompression2Request() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
-		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.FULL_SPACE, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
+		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", Hyperrectangle.FULL_SPACE, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple);
@@ -1134,7 +1134,7 @@ public class TestNetworkClasses {
 	@Test(timeout=60000)
 	public void testCompressionReponse1() throws IOException, PackageEncodeException {
 		final String tablename = "table1";
-		final Tuple tuple = new Tuple("abc", BoundingBox.FULL_SPACE, "databytes".getBytes());
+		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "databytes".getBytes());
 		
 		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
 		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(singleTupleResponse));
@@ -1221,9 +1221,9 @@ public class TestNetworkClasses {
 		final String tablename = "testgroup_abc";
 		
 		final List<Tuple> tuples = new ArrayList<>();
-		tuples.add(new Tuple("abc", new BoundingBox(1d, 2d, 1d, 2d), "".getBytes()));
-		tuples.add(new Tuple("def", new BoundingBox(2d, 2d, 4d, 20d), "".getBytes()));
-		tuples.add(new Tuple("xyz", new BoundingBox(10d, 20d, 10d, 20d), "".getBytes()));
+		tuples.add(new Tuple("abc", new Hyperrectangle(1d, 2d, 1d, 2d), "".getBytes()));
+		tuples.add(new Tuple("def", new Hyperrectangle(2d, 2d, 4d, 20d), "".getBytes()));
+		tuples.add(new Tuple("xyz", new Hyperrectangle(10d, 20d, 10d, 20d), "".getBytes()));
 
 		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest(sequenceNumber, tablename, tuples);
 		

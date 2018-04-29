@@ -21,7 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class YellowTaxiRangeTupleBuilder implements TupleBuilder {
 			final double longEnd = Double.parseDouble(data[9]);
 			final double latEnd = Double.parseDouble(data[10]);
 			
-			final BoundingBox boundingBox = new BoundingBox(
+			final Hyperrectangle boundingBox = new Hyperrectangle(
 					Math.min(longBegin, longEnd),
 					Math.max(longBegin, longEnd),
 					Math.min(latBegin, latEnd),

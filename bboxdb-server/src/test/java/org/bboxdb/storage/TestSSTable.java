@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.io.FileUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
@@ -164,10 +164,10 @@ public class TestSSTable {
 	 */
 	protected List<Tuple> createTupleList() {
 		final List<Tuple> tupleList = new ArrayList<Tuple>();
-		tupleList.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
-		tupleList.add(new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes()));
-		tupleList.add(new Tuple("3", BoundingBox.FULL_SPACE, "geh".getBytes()));
-		tupleList.add(new Tuple("4", BoundingBox.FULL_SPACE, "ijk".getBytes()));
+		tupleList.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
+		tupleList.add(new Tuple("2", Hyperrectangle.FULL_SPACE, "def".getBytes()));
+		tupleList.add(new Tuple("3", Hyperrectangle.FULL_SPACE, "geh".getBytes()));
+		tupleList.add(new Tuple("4", Hyperrectangle.FULL_SPACE, "ijk".getBytes()));
 		tupleList.add(new DeletedTuple("4"));
 		return tupleList;
 	}

@@ -20,7 +20,7 @@ package org.bboxdb.network.server.connection.handler.query;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryHyperrectangleContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -64,7 +64,7 @@ public class HandleContinuousBoundingBoxQuery implements QueryHandler {
 				return;
 			}
 			
-			final BoundingBox boundingBox = queryRequest.getBoundingBox();
+			final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
 			
 			final ClientQuery clientQuery = new ContinuousBoundingBoxClientQuery(boundingBox,
 					clientConnectionHandler, packageSequence, requestTable);

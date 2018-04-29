@@ -24,7 +24,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.tools.gui.GuiModel;
@@ -59,7 +59,7 @@ public class OSMOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * The area covering box
 	 */
-	protected final BoundingBox coverBox = new BoundingBox((double) MIN_LAT, (double) MAX_LAT, (double) MIN_LONG, (double) MAX_LONG);
+	protected final Hyperrectangle coverBox = new Hyperrectangle((double) MIN_LAT, (double) MAX_LAT, (double) MIN_LONG, (double) MAX_LONG);
 
 	/**
 	 * The gui model
@@ -106,7 +106,7 @@ public class OSMOverlayPainter implements Painter<JXMapViewer> {
 			}
 			
 			final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
-			final BoundingBox bbox = distributionRegion.getConveringBox();
+			final Hyperrectangle bbox = distributionRegion.getConveringBox();
 
 			if(bbox.getDimension() != 2) {
 				System.err.println("Unable to print dimensions: " + bbox.getDimension());
@@ -124,9 +124,9 @@ public class OSMOverlayPainter implements Painter<JXMapViewer> {
 	 * 
 	 */
 	protected void drawBoundingBox(final Graphics2D graphicsContext, final JXMapViewer map, final DistributionRegion distributionRegion) {
-		final BoundingBox bbox = distributionRegion.getConveringBox();
+		final Hyperrectangle bbox = distributionRegion.getConveringBox();
 
-		final BoundingBox paintBox = bbox.getIntersection(coverBox);
+		final Hyperrectangle paintBox = bbox.getIntersection(coverBox);
 				
 		final GeoPosition bl = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateLow(1));
 		final GeoPosition br = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateHigh(1));

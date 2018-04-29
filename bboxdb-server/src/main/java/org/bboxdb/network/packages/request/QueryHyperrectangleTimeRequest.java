@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -40,7 +40,7 @@ public class QueryHyperrectangleTimeRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The the query bounding box
 	 */
-	protected final BoundingBox box;
+	protected final Hyperrectangle box;
 	
 	/**
 	 * The timestamp
@@ -58,7 +58,7 @@ public class QueryHyperrectangleTimeRequest extends NetworkQueryRequestPackage {
 	protected final short tuplesPerPage;
 	
 	public QueryHyperrectangleTimeRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
-			final String table, final BoundingBox box, final long timestamp, final boolean pagingEnabled, 
+			final String table, final Hyperrectangle box, final long timestamp, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
@@ -155,7 +155,7 @@ public class QueryHyperrectangleTimeRequest extends NetworkQueryRequestPackage {
 		
 		final byte[] bboxBytes = new byte[bboxLength];
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
@@ -181,7 +181,7 @@ public class QueryHyperrectangleTimeRequest extends NetworkQueryRequestPackage {
 		return table;
 	}
 
-	public BoundingBox getBoundingBox() {
+	public Hyperrectangle getBoundingBox() {
 		return box;
 	}
 	

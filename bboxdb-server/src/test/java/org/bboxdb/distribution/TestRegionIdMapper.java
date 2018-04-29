@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -62,7 +62,7 @@ public class TestRegionIdMapper {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
 		
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(2.5d, 2.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(2.5d, 2.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
 	}
 	
 	/**
@@ -71,18 +71,18 @@ public class TestRegionIdMapper {
 	@Test(timeout=60000)
 	public void testOneMapping() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
+		regionIdMapper.addMapping(1, new Hyperrectangle(1d, 2d, 1d, 2d));
 				
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(2.5d, 2.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(2.5d, 2.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
 		
 		Assert.assertEquals(1, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
 		
 		regionIdMapper.clear();
 		
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
 	}
 	
 	
@@ -92,22 +92,22 @@ public class TestRegionIdMapper {
 	@Test(timeout=60000)
 	public void testTwoMapping() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
-		regionIdMapper.addMapping(2, new BoundingBox(10d, 20d, 10d, 20d));
+		regionIdMapper.addMapping(1, new Hyperrectangle(1d, 2d, 1d, 2d));
+		regionIdMapper.addMapping(2, new Hyperrectangle(10d, 20d, 10d, 20d));
 
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(2.5d, 2.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(2.5d, 2.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
 		
 		Assert.assertEquals(1, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
 		
 		Assert.assertEquals(2, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 55d, 1.5d, 55d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(1.5d, 55d, 1.5d, 55d), DEFAULT_SSTABLE_NAME).size());
 		
 		regionIdMapper.clear();
 		
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
 	}
 	
 	/**
@@ -116,12 +116,12 @@ public class TestRegionIdMapper {
 	@Test(timeout=60000)
 	public void testThreeMapping() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
-		regionIdMapper.addMapping(2, new BoundingBox(10d, 20d, 10d, 20d));
-		regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(1, new Hyperrectangle(1d, 2d, 1d, 2d));
+		regionIdMapper.addMapping(2, new Hyperrectangle(10d, 20d, 10d, 20d));
+		regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 
 		Assert.assertEquals(3, regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 55d, 1.5d, 55d), DEFAULT_SSTABLE_NAME).size());
+				new Hyperrectangle(1.5d, 55d, 1.5d, 55d), DEFAULT_SSTABLE_NAME).size());
 	}
 	
 	/**
@@ -130,12 +130,12 @@ public class TestRegionIdMapper {
 	@Test(timeout=60000)
 	public void testGetTableNames1() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
-		regionIdMapper.addMapping(2, new BoundingBox(10d, 20d, 10d, 20d));
-		regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(1, new Hyperrectangle(1d, 2d, 1d, 2d));
+		regionIdMapper.addMapping(2, new Hyperrectangle(10d, 20d, 10d, 20d));
+		regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 
 		final Collection<TupleStoreName> mappingResult = regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 55d, 1.5d, 55d), DEFAULT_SSTABLE_NAME);
+				new Hyperrectangle(1.5d, 55d, 1.5d, 55d), DEFAULT_SSTABLE_NAME);
 		
 		Assert.assertTrue(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_1")));
 		Assert.assertTrue(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_2")));
@@ -149,12 +149,12 @@ public class TestRegionIdMapper {
 	@Test(timeout=60000)
 	public void testGetTableNames2() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
-		regionIdMapper.addMapping(2, new BoundingBox(10d, 20d, 10d, 20d));
-		regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(1, new Hyperrectangle(1d, 2d, 1d, 2d));
+		regionIdMapper.addMapping(2, new Hyperrectangle(10d, 20d, 10d, 20d));
+		regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 
 		final Collection<TupleStoreName> mappingResult = regionIdMapper.getLocalTablesForRegion(
-				new BoundingBox(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME);
+				new Hyperrectangle(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME);
 		
 		Assert.assertTrue(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_1")));
 		Assert.assertFalse(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_2")));
@@ -168,9 +168,9 @@ public class TestRegionIdMapper {
 	@Test(timeout=60000)
 	public void testGetAll() {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(1, new BoundingBox(1d, 2d, 1d, 2d));
-		regionIdMapper.addMapping(2, new BoundingBox(10d, 20d, 10d, 20d));
-		regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(1, new Hyperrectangle(1d, 2d, 1d, 2d));
+		regionIdMapper.addMapping(2, new Hyperrectangle(10d, 20d, 10d, 20d));
+		regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 
 		final List<TupleStoreName> mappingResult = regionIdMapper.getAllLocalTables(DEFAULT_SSTABLE_NAME);
 		Assert.assertEquals(3, mappingResult.size());
@@ -184,7 +184,7 @@ public class TestRegionIdMapper {
 	@Test(timeout=10000)
 	public void testMappingAppears1() throws TimeoutException, InterruptedException {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 		
 		regionIdMapper.waitUntilMappingAppears(3);
 	}
@@ -219,7 +219,7 @@ public class TestRegionIdMapper {
 					e.printStackTrace();
 				}
 				
-				regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+				regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 			}
 		};
 		
@@ -249,7 +249,7 @@ public class TestRegionIdMapper {
 	@Test(timeout=15000, expected=TimeoutException.class)
 	public void testMappingDisappears2() throws TimeoutException, InterruptedException {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 
 		regionIdMapper.waitUntilMappingDisappears(3, 5, TimeUnit.SECONDS);
 	}
@@ -262,7 +262,7 @@ public class TestRegionIdMapper {
 	@Test(timeout=10000)
 	public void testMappingDisappears3() throws TimeoutException, InterruptedException {
 		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper(DISTRIBUTION_REGION_NAME);
-		regionIdMapper.addMapping(3, new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(3, new Hyperrectangle(15d, 18d, 15d, 18d));
 		
 		final Runnable runable = new Runnable() {
 			

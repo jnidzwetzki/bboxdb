@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -159,7 +159,7 @@ public class BBoxDBClient implements BBoxDB {
 			final boolean deleteOnTimeout) throws BBoxDBException {
 		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 	
 		final NetworkOperationFuture future = createLockTupleFuture(table, tuple, deleteOnTimeout, 
 				routingHeader);
@@ -214,7 +214,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp, 
-			final BoundingBox boundingBox) {
+			final Hyperrectangle boundingBox) {
 		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, boundingBox, true, connection.getServerAddress());
@@ -227,7 +227,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
-		return deleteTuple(table, key, timestamp, BoundingBox.FULL_SPACE);
+		return deleteTuple(table, key, timestamp, Hyperrectangle.FULL_SPACE);
 	}
 
 	/* (non-Javadoc)
@@ -298,7 +298,7 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryKey(final String table, final String key) {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 		
 		final NetworkOperationFuture future = getQueryKeyFuture(table, key, routingHeader);
 		
@@ -328,7 +328,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBox(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
-	public TupleListFuture queryRectangle(final String table, final BoundingBox boundingBox) {
+	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox) {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, boundingBox, false, connection.getServerAddress());
 		final NetworkOperationFuture future = getQueryBoundingBoxFuture(table, boundingBox, routingHeader);
@@ -343,7 +343,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public NetworkOperationFuture getQueryBoundingBoxFuture(final String table, 
-			final BoundingBox boundingBox, RoutingHeader routingHeader) {
+			final Hyperrectangle boundingBox, RoutingHeader routingHeader) {
 		
 		return new NetworkOperationFuture(connection, () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
@@ -358,7 +358,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * 
 	 */
 	@Override
-	public TupleListFuture queryRectangleContinuous(final String table, final BoundingBox boundingBox) {
+	public TupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox) {
 		final NetworkOperationFuture future = getQueryBoundingBoxContinousFuture(table, boundingBox);
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
 	}
@@ -369,7 +369,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public NetworkOperationFuture getQueryBoundingBoxContinousFuture(final String table,
-			final BoundingBox boundingBox) {
+			final Hyperrectangle boundingBox) {
 		
 		return new NetworkOperationFuture(connection, () -> {
 			final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
@@ -387,7 +387,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryRectangleAndTime(final String table,
-			final BoundingBox boundingBox, final long timestamp) {
+			final Hyperrectangle boundingBox, final long timestamp) {
 		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, boundingBox, false, connection.getServerAddress());
@@ -405,7 +405,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader 
 	 * @return
 	 */
-	public NetworkOperationFuture getBoundingBoxAndTimeFuture(final String table, final BoundingBox boundingBox,
+	public NetworkOperationFuture getBoundingBoxAndTimeFuture(final String table, final Hyperrectangle boundingBox,
 			final long timestamp, RoutingHeader routingHeader) {
 		
 		return new NetworkOperationFuture(connection, () -> {
@@ -422,7 +422,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryVersionTime(final String table, final long timestamp) {
 		final RoutingHeader routingHeader =  RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 
 		final NetworkOperationFuture future = getVersionTimeFuture(table, timestamp, routingHeader);
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
@@ -451,7 +451,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-				table, BoundingBox.FULL_SPACE, true, connection.getServerAddress());
+				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 		final NetworkOperationFuture future = getInsertedTimeFuture(table, timestamp, routingHeader);
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
 	}
@@ -476,7 +476,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
 	 */
 	@Override
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) {
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				tableNames.get(0), boundingBox, true, connection.getServerAddress());
 		
@@ -490,7 +490,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader2 
 	 * @return
 	 */
-	public NetworkOperationFuture getJoinFuture(final List<String> tableNames, final BoundingBox boundingBox, 
+	public NetworkOperationFuture getJoinFuture(final List<String> tableNames, final Hyperrectangle boundingBox, 
 			final RoutingHeader routingHeader) {
 		
 		return new NetworkOperationFuture(connection, () -> {

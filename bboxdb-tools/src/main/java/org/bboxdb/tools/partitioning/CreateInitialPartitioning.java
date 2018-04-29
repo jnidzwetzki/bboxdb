@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -81,10 +81,10 @@ public class CreateInitialPartitioning implements Runnable {
 		
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		
-		final List<BoundingBox> samples = new ArrayList<>();
+		final List<Hyperrectangle> samples = new ArrayList<>();
 		
 		tupleFile.addTupleListener(t -> {
-			final BoundingBox polygonBoundingBox = t.getBoundingBox();
+			final Hyperrectangle polygonBoundingBox = t.getBoundingBox();
 			samples.add(polygonBoundingBox);
 	    });
 		
