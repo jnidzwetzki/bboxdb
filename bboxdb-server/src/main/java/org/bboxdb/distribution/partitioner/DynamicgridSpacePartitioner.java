@@ -165,7 +165,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final String childPath = distributionRegionZookeeperAdapter.createNewChild(parentPath, 
 					childNumber + 1, bbox, distributionGroupName);
 			
-			final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == oldNumberOfhildren + 1;
+			final Predicate<DistributionRegion> predicate = (r) -> parent.getDirectChildren().size() == oldNumberOfhildren + 1;
 			DistributionRegionSyncerHelper.waitForPredicate(predicate, parent, distributionRegionSyncer);
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
