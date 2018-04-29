@@ -27,7 +27,7 @@ import org.bboxdb.commons.math.DoubleInterval;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestBoundingBox {
+public class TestHyperrectangle {
 	
 	protected final static float EQUALS_DELTA = 0.001f;
 
