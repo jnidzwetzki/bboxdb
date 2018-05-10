@@ -1,0 +1,16 @@
+[Unit]
+Description=BBoxDB database server
+After=syslog.target network.target
+
+[Service]
+Type=forking
+
+ExecStart=/opt/bboxdb/bin/manage_instance start
+ExecStop=/opt/bboxdb/bin/manage_instance stop
+
+UMask=0007
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
