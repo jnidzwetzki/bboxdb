@@ -7,7 +7,7 @@ permalink: none
 
 codeurl: 'https://github.com/jnidzwetzki/bboxdb'
 
-baseurl: 'http://jnidzwetzki.github.io/bboxdb/'
+baseurl: 'https://jnidzwetzki.github.io/bboxdb/'
 
 sections: [
     ['doc', 'Documentation'],
