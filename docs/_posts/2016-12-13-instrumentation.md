@@ -36,9 +36,9 @@ All BBoxDB related counters are starting with the prefix ``bboxdb_``. Also, deta
 [Prometheus](https://prometheus.io) is used as the data store for the performance counter. To work with the software, download and unpack it into a certain directory. 
 
 ```bash
-wget https://github.com/prometheus/prometheus/releases/download/v2.0.0/prometheus-2.0.0.linux-amd64.tar.gz
-tar zxvf prometheus-2.0.0.linux-amd64.tar.gz
-cd prometheus-2.0.0.linux-amd64
+wget https://github.com/prometheus/prometheus/releases/download/v2.2.1/prometheus-2.2.1.linux-amd64.tar.gz
+tar zxvf prometheus-2.2.1.linux-amd64.tar.gz
+cd prometheus-2.2.1.linux-amd64
 ```
 
 Then create a config file ``prometheus.yml`` which contains a job for all of your BBoxDB instances. In our configuration file, the data is read from the systems ``node1`` and ``node2`` from the port 10085.
@@ -86,9 +86,9 @@ Now you can open the URL ``http://your-node:9090`` and see on the page ``Status`
 [Grafana](https://grafana.com/) is widely used for the virtualization of time series. Also, Grafana allows querying Prometheus as a data source. The installation is quite easy; the software needs to be downloaded, unpacked and started. The configuration is done via the web interface.
 
 ```bash
-wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-4.3.2.linux-x64.tar.gz
-tar zxvf grafana-4.3.2.linux-x64.tar.gz
-cd grafana-4.3.2.linux
+wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-5.1.3.linux-x64.tar.gz
+tar zxvf grafana-5.1.3.linux-x64.tar.gz
+cd grafana-5.1.3.linux
 ./grafana-server
 ```
 
