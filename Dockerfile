@@ -1,5 +1,6 @@
 # Build with: docker build --build-arg version=tags/v0.0.1 -t jnidzwetzki/bboxdb:0.0.1 - < Dockerfile
-# For example: docker build --build-arg version=master -t jnidzwetzki/bboxdb:latest - < Dockerfile
+# To build the most recent version, use:
+# docker build --build-arg version=master -t jnidzwetzki/bboxdb:latest --no-cache - < Dockerfile
 
 FROM alpine/git as clone
 ARG version
