@@ -2,8 +2,8 @@
 
 FROM alpine/git as clone
 ARG version
-WORKDIR /bboxdb
 RUN git clone https://github.com/jnidzwetzki/crypto-bot.git /bboxdb
+WORKDIR /bboxdb
 RUN git checkout tags/v${version}
 
 FROM maven:3.5-jdk-8-alpine as build
