@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #*******************************************************************************
 #
 #    Copyright (C) 2015-2018 the BBoxDB project
@@ -23,8 +23,8 @@
 #########################################
 
 # Include functions
-source $BBOXDB_HOME/bin/bboxdb-env.sh
-source $BBOXDB_HOME/bin/functions.sh
+. $BBOXDB_HOME/bin/bboxdb-env.sh
+. $BBOXDB_HOME/bin/functions.sh
 
 # Change working dir
 cd $BBOXDB_HOME 
