@@ -2,7 +2,7 @@
 
 FROM alpine/git as clone
 ARG version
-RUN git clone https://github.com/jnidzwetzki/crypto-bot.git /bboxdb
+RUN git clone https://github.com/jnidzwetzki/bboxdb.git /bboxdb
 WORKDIR /bboxdb
 RUN git checkout tags/v${version}
 
