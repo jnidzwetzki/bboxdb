@@ -17,4 +17,11 @@ COPY --from=build /bboxdb /bboxdb
 ENTRYPOINT ["sh", "-c"]
 ENV BBOXDB_HOME=/bboxdb
 ENV BBOXDB_FOREGROUND=true
+
+# BBoxDB database port
+EXPOSE 50505/tcp
+
+# Performance counter (prometheus)
+EXPOSE 10085/tcp
+
 CMD ["/bboxdb/bin"]
