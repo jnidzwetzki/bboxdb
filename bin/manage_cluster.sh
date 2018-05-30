@@ -28,7 +28,7 @@ if [ -z "$BBOXDB_HOME" ]; then
 fi
 
 # Load all required functions and variables
-source $BBOXDB_HOME/bin/bootstrap.sh
+. $BBOXDB_HOME/bin/bootstrap.sh
 
 ###
 # Execute command parallel on multiple nodes
