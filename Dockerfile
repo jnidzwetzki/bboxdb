@@ -1,10 +1,10 @@
-# Build with: docker build --build-arg version=0.0.1 -t jnidzwetzki/bboxdb:0.0.1 - < Dockerfile
+# Build with: docker build --build-arg version=tags/v0.0.1 -t jnidzwetzki/bboxdb:0.0.1 - < Dockerfile
 
 FROM alpine/git as clone
 ARG version
 RUN git clone https://github.com/jnidzwetzki/bboxdb.git /bboxdb
 WORKDIR /bboxdb
-RUN git checkout tags/v${version}
+RUN git checkout ${version}
 
 FROM maven:3.5-jdk-8-alpine as build
 WORKDIR /bboxdb
