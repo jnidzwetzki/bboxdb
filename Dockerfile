@@ -13,8 +13,8 @@ WORKDIR /bboxdb
 COPY --from=clone /bboxdb /bboxdb
 RUN mvn install -DskipTests
 
-FROM debian:stretch-slim
-RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+FROM openjdk:8-jre-alpine
+RUN apk update && apk add bash
 WORKDIR /bboxdb
 COPY --from=build /bboxdb /bboxdb
 ENTRYPOINT ["sh", "-c"]
