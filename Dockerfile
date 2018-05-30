@@ -14,9 +14,9 @@ COPY --from=clone /bboxdb /bboxdb
 RUN mvn install -DskipTests
 
 FROM openjdk:8-jre-alpine
-RUN apk update && apk add bash
 WORKDIR /bboxdb
 COPY --from=build /bboxdb /bboxdb
+RUN apk update && apk add bash
 ENTRYPOINT ["sh", "-c"]
 ENV BBOXDB_HOME=/bboxdb
 ENV BBOXDB_FOREGROUND=true
