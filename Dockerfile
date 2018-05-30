@@ -17,7 +17,6 @@ FROM openjdk:8-jre-alpine
 WORKDIR /bboxdb
 COPY --from=build /bboxdb /bboxdb
 RUN apk update && apk add bash
-ENTRYPOINT ["sh", "-c"]
 ENV BBOXDB_HOME=/bboxdb
 ENV BBOXDB_FOREGROUND=true
 
@@ -27,4 +26,4 @@ EXPOSE 50505/tcp
 # Performance counter (prometheus)
 EXPOSE 10085/tcp
 
-CMD ["/bboxdb/bin"]
+ENTRYPOINT ["/bboxdb/bin/manage_instance.sh", "bboxdb_start"]
