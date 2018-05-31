@@ -240,8 +240,8 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	@Override
 	public String toString() {
 		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + ", "
-				+ "cpuCores=" + cpuCores + ", memory=" + memory + ", state=" + state 
-				+ ", storages=" + getNumberOfStorages() + ", freeSpace()=" 
+				+ "cpuCores=" + cpuCores + ", memory=" + FileSizeHelper.readableFileSize(memory)
+				+ ", state=" + state + ", storages=" + getNumberOfStorages() + ", freeSpace()=" 
 				+ FileSizeHelper.readableFileSize(getFreeSpace()) 
 				+ ", totalSpace()=" + FileSizeHelper.readableFileSize(getTotalSpace()) + "]";
 	}
