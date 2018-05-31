@@ -255,7 +255,7 @@ public class BBoxDBConnection {
 			connectionState.dipatchToStarting();
 			connectionState.registerCallback((c) -> { if(c.isInFailedState() ) { killPendingCalls(); } });
 			
-			final Retryer<Socket> socketRetryer = new Retryer<>(10, 50, TimeUnit.MILLISECONDS, () -> {
+			final Retryer<Socket> socketRetryer = new Retryer<>(10, 200, TimeUnit.MILLISECONDS, () -> {
 				return new Socket(serverAddress.getAddress(), serverAddress.getPort());
 			});
 			
