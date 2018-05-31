@@ -33,7 +33,7 @@ acfb02de781f        zookeeper                              "/docker-entrypoint.â
 79e73e60883d        zookeeper                              "/docker-entrypoint.â€¦"   9 minutes ago       Up 4 minutes        2888/tcp, 3888/tcp, 0.0.0.0:2182->2181/tcp           docker_zk2_1
 ```
 
-For example, you can now enter one of the BBoxDB containers and work with the CLI of BBoxDB. For example, you can list all discovered BBoxDB nodes.
+You can now enter one of the BBoxDB containers and work with the CLI of BBoxDB. For example, you can list all discovered BBoxDB nodes.
 
 ```bash
 $ docker exec -it docker_bboxdb5_1 bash
