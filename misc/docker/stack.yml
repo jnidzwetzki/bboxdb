@@ -95,7 +95,7 @@ services:
     environment:
       ZK_HOSTS: zk1, zk2, zk3
 
-bboxdb5:
+  bboxdb5:
     image: jnidzwetzki/bboxdb:latest
     restart: always
     hostname: bboxdb5
