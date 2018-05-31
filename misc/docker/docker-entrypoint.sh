@@ -20,5 +20,17 @@
 # Entry point for Docker
 ######################
 
+if [ -z ${ZK_HOSTS+x} ]; then
+   echo "Error: Environment variable ZK_HOSTS is not set"
+   exit -1
+fi
+
+zk_file="/bboxdb/conf/zookeeper-nodes"
+
+rm $zk_file
+
+echo $ZK_HOSTS | sed s/[[:blank:]]//g | sed "s/,/ /g" | while read zookeeper; do 
+   echo $zookeeper >> $zk_file; 
+done
+
  /bboxdb/bin/manage_instance.sh bboxdb_start
- 
