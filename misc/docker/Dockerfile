@@ -11,7 +11,8 @@
 ###
 # Run
 ###
-docker run --rm -e 'ZK_HOSTS=zk1, zk2, zk3' --name bboxdb1 jnidzwetzki/bboxdb:latest
+
+# docker run --rm -e 'ZK_HOSTS=zk1, zk2, zk3' --name bboxdb1 jnidzwetzki/bboxdb:latest
 
 ##########################################################################################
 
