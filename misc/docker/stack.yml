@@ -1,3 +1,11 @@
+###
+# Start with: docker-compose -f misc/docker/stack.yml up -d
+###
+
+###
+# Stop with: docker-compose -f misc/docker/stack.yml down
+###
+
 version: '3.1'
 
 services:
@@ -30,3 +38,13 @@ services:
     environment:
       ZOO_MY_ID: 3
       ZOO_SERVERS: server.1=zk1:2888:3888 server.2=zk2:2888:3888 server.3=0.0.0.0:2888:3888
+
+  bboxdb1:
+    image jnidzwetzki/bboxdb:latest
+    restart: always
+    hostname: bboxdb1
+    ports:
+      - 10085:10085
+      - 50505:50505
+    envoronment:
+      ZK_HOOSTS: zk1, zk2, zk3
