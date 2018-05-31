@@ -12,7 +12,9 @@
   </a> <a href="https://repo1.maven.org/maven2/org/bboxdb/"><img alt="Maven Central Version" src="https://maven-badges.herokuapp.com/maven-central/org.bboxdb/bboxdb-server/badge.svg" />
   </a> <a href="https://codeclimate.com/github/jnidzwetzki/bboxdb/maintainability"><img src="https://api.codeclimate.com/v1/badges/0b8b98bde4ec65bfb5b7/maintainability" /></a><a href="http://makeapullrequest.com">
  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
-</a>
+ </a>
+ <a href="https://hub.docker.com/r/jnidzwetzki/bboxdb/"><img src="https://img.shields.io/docker/stars/jnidzwetzki/bboxdb.svg">
+ </a>
 
 __Please Note:__ The master branch may be in an unstable state during development. Please use our releases for productive environments.
 
