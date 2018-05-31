@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server.connection;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -98,19 +99,22 @@ public class NetworkConnectionService implements BBoxDBService {
 				threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
 			}
 			
+			final CountDownLatch connectionReadyLatch = new CountDownLatch(1);
+			
 			serverSocketDispatcher = new ConnectionDispatcherRunable(port, threadPool, 
-					storageRegistry, lockManager);
+					storageRegistry, lockManager, connectionReadyLatch);
 			
 			serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 			serverSocketDispatchThread.start();
 			serverSocketDispatchThread.setName("Connection dispatcher thread");
+			
+			connectionReadyLatch.await();
 			
 			state.dispatchToRunning();
 		} catch(Exception e) {
 			logger.error("Got exception, setting state to failed", e);
 			state.dispatchToFailed(e);
 			shutdown();
-			throw e;
 		}
 	}
 	
