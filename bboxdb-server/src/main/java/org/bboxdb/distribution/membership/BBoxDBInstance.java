@@ -21,6 +21,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bboxdb.commons.FileSizeHelper;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 
@@ -240,8 +241,9 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	public String toString() {
 		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + ", "
 				+ "cpuCores=" + cpuCores + ", memory=" + memory + ", state=" + state 
-				+ ", storages=" + getNumberOfStorages() + ", freeSpace()=" + getFreeSpace() 
-				+ ", totalSpace()=" + getTotalSpace() + "]";
+				+ ", storages=" + getNumberOfStorages() + ", freeSpace()=" 
+				+ FileSizeHelper.readableFileSize(getFreeSpace()) 
+				+ ", totalSpace()=" + FileSizeHelper.readableFileSize(getTotalSpace()) + "]";
 	}
 
 	/**

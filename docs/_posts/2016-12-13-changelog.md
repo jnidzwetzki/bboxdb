@@ -6,8 +6,9 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.8.0 - TBA
-- New Feature: Added Docker compose file for a sample cluster with 3 Zookeeper nodes and 5 BBoxDB nodes
+- New Feature: Added Docker compose file for a sample cluster with three Zookeeper nodes and five BBoxDB nodes
 - Improvement: Improved Docker build
+- Improvement: Made diskspace readable in instance toString()
 
 ### Version 0.7.0 - 27.04.2018
 - New Feature: BBoxDB can now be started in foreground
