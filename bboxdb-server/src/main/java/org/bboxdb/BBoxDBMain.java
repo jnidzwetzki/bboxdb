@@ -66,10 +66,6 @@ public class BBoxDBMain {
 		final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
 		services.add(storageRegistry);
 		
-		// The zookeeper registerer
-		final ZookeeperInstanceRegisterer zookeeperClient = new ZookeeperInstanceRegisterer();
-		services.add(zookeeperClient);
-		
 		// The membership connection service
 		final MembershipConnectionService membershipService = createMembershipService(storageRegistry);
 		services.add(membershipService);
@@ -93,6 +89,10 @@ public class BBoxDBMain {
 		// The performance counter service
 		final PerformanceCounterService performanceCounterService = new PerformanceCounterService();
 		services.add(performanceCounterService);
+		
+		// The zookeeper registerer
+		final ZookeeperInstanceRegisterer zookeeperClient = new ZookeeperInstanceRegisterer();
+		services.add(zookeeperClient);
 		
 		// Send flush events to zookeeper
 		storageRegistry.registerSSTableFlushCallback(new TupleStoreFlushZookeeperAdapter());
