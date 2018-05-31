@@ -40,7 +40,7 @@ services:
       ZOO_SERVERS: server.1=zk1:2888:3888 server.2=zk2:2888:3888 server.3=0.0.0.0:2888:3888
 
   bboxdb1:
-    image jnidzwetzki/bboxdb:latest
+    image: jnidzwetzki/bboxdb:latest
     restart: always
     hostname: bboxdb1
     ports:
