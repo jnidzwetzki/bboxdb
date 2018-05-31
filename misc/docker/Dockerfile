@@ -1,6 +1,19 @@
-# Build with: docker build --build-arg version=tags/v0.0.1 -t jnidzwetzki/bboxdb:0.0.1 - < misc/docker/Dockerfile
-# To build the most recent version, use:
+###
+# Build
+###
+
+# Release:
+# docker build --build-arg version=tags/v0.0.1 -t jnidzwetzki/bboxdb:0.0.1 - < misc/docker/Dockerfile
+
+# Git head
 # docker build --build-arg version=master -t jnidzwetzki/bboxdb:latest --no-cache - < misc/docker/Dockerfile
+
+###
+# Run
+###
+docker run --rm -e 'ZK_HOSTS=zk1, zk2, zk3' --name bboxdb1 jnidzwetzki/bboxdb:latest
+
+##########################################################################################
 
 FROM alpine/git as clone
 ARG version
