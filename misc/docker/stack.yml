@@ -43,8 +43,12 @@ services:
     image: jnidzwetzki/bboxdb:latest
     restart: always
     hostname: bboxdb1
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
     ports:
       - 10085:10085
       - 50505:50505
     environment:
-      ZK_HOOSTS: zk1, zk2, zk3
+      ZK_HOSTS: zk1, zk2, zk3
