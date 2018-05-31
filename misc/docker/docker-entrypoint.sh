@@ -22,7 +22,7 @@
 
 if [ -z ${ZK_HOSTS+x} ]; then
    echo "Error: Environment variable ZK_HOSTS is not set"
-   exit -1
+   exit
 fi
 
 zk_file="/bboxdb/conf/zookeeper-nodes"
