@@ -22,10 +22,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.SystemInfo;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -65,7 +67,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * Register a watch on membership changes. A watch is a one-time operation,
 	 * the watch is reregistered on each method call.
 	 */
-	protected boolean readMembershipAndRegisterWatch() {
+	public boolean readMembershipAndRegisterWatch() {
 
 		try {
 			final BBoxDBInstanceManager distributedInstanceManager 
@@ -77,7 +79,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 			
 			// Read version data
 			final String detailsPath = zookeeperClient.getDetailsPath();
-			final List<String> instances = zookeeperClient.getChildren(detailsPath);
+			final List<String> instances = zookeeperClient.getChildren(detailsPath, this);
 			
 			final Set<BBoxDBInstance> instanceSet = new HashSet<>();
 			
@@ -90,8 +92,11 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		} catch (ZookeeperNotFoundException | ZookeeperException e) {
 			logger.warn("Unable to read membership and create a watch", e);
 			return false;
-		} 
-
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return false;
+		}
+ 
 		return true;
 	}
 
@@ -102,29 +107,48 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @throws ZookeeperNotFoundException
 	 * @throws ZookeeperException 
 	 */
-	protected BBoxDBInstance readInstance(final String instanceName) 
-			throws ZookeeperNotFoundException, ZookeeperException {
+	private BBoxDBInstance readInstance(final String instanceName) 
+			throws ZookeeperException, InterruptedException {
 		
 		final BBoxDBInstance instance = new BBoxDBInstance(instanceName);
+		
+		final Retryer<Boolean> retryer = new Retryer<>(5, 200, new Callable<Boolean>() {
 
-		// Version
-		final String instanceVersion = getVersionForInstance(instance);
-		instance.setVersion(instanceVersion);
+			// After the instance is registered, it can take some time until the
+			// complete ressource data is available in zookeeper
+			@Override
+			public Boolean call() throws Exception {
+				
+				// Version
+				final String instanceVersion = getVersionForInstance(instance);
+				instance.setVersion(instanceVersion);
+				
+				// State
+				final BBoxDBInstanceState state = getStateForInstance(instanceName);
+				instance.setState(state);
+				
+				// CPU cores
+				final int cpuCores = getCpuCoresForInstnace(instance);
+				instance.setCpuCores(cpuCores);
+				
+				// Memory
+				final long memory = getMemoryForInstance(instance);
+				instance.setMemory(memory);
+				
+				// Diskspace
+				readDiskSpaceForInstance(instance);
+				
+				return true;
+			}
+		});
 		
-		// State
-		final BBoxDBInstanceState state = getStateForInstance(instanceName);
-		instance.setState(state);
+
+		final boolean result = retryer.execute();
 		
-		// CPU cores
-		final int cpuCores = getCpuCoresForInstnace(instance);
-		instance.setCpuCores(cpuCores);
-		
-		// Memory
-		final long memory = getMemoryForInstance(instance);
-		instance.setMemory(memory);
-		
-		// Diskspace
-		readDiskSpaceForInstance(instance);
+		if(! result) {
+			throw new ZookeeperException("Unable to read instance " + instanceName, 
+					retryer.getLastException());
+		}
 		
 		return instance;
 	}
@@ -136,7 +160,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected BBoxDBInstanceState getStateForInstance(final String member) {
+	private BBoxDBInstanceState getStateForInstance(final String member) {
 		final String nodesPath = zookeeperClient.getActiveInstancesPath();
 		final String statePath = nodesPath + "/" + member;
 
@@ -161,7 +185,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected String getVersionForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
+	private String getVersionForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
 		final String versionPath = pathHelper.getInstancesVersionPath(instance);
 
 		try {
@@ -179,7 +203,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected int getCpuCoresForInstnace(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
+	private int getCpuCoresForInstnace(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
 		final String versionPath = pathHelper.getInstancesCpuCorePath(instance);
 
 		String versionString = null;
@@ -202,7 +226,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected long getMemoryForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
+	private long getMemoryForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
 		final String memoryPath = pathHelper.getInstancesMemoryPath(instance);
 
 		String memoryString = null;
@@ -225,7 +249,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @throws ZookeeperNotFoundException
 	 * @throws ZookeeperException 
 	 */
-	protected void readDiskSpaceForInstance(final BBoxDBInstance instance) 
+	private void readDiskSpaceForInstance(final BBoxDBInstance instance) 
 			throws ZookeeperNotFoundException, ZookeeperException {
 		
 		final String diskspacePath = pathHelper.getInstancesDiskspacePath(instance);
@@ -290,7 +314,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * 
 	 * @param watchedEvent
 	 */
-	protected synchronized void processZookeeperEvent(final WatchedEvent watchedEvent) {
+	private synchronized void processZookeeperEvent(final WatchedEvent watchedEvent) {
 		// Ignore null parameter
 		if (watchedEvent == null) {
 			logger.warn("process called with an null argument");
@@ -312,9 +336,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 
 		// Process events
 		if (watchedEvent.getPath() != null) {
-			if (watchedEvent.getPath().startsWith(zookeeperClient.getInstancesPath())) {
-				readMembershipAndRegisterWatch();
-			}
+			readMembershipAndRegisterWatch();	
 		} else {
 			logger.warn("Got unknown zookeeper event: {}", watchedEvent);
 		}
