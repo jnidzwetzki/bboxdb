@@ -12,6 +12,8 @@ FROM maven:3.5-jdk-8-alpine as build
 WORKDIR /bboxdb
 COPY --from=clone /bboxdb /bboxdb
 RUN mvn install -DskipTests
+RUN "echo storageDirectories: " >> /bboxdb/conf/bboxdb.yml \
+     && echo " - /bboxdb/data" >> /bboxdb/conf/bboxdb.yml
 
 FROM openjdk:8-jre-alpine
 WORKDIR /bboxdb
@@ -26,4 +28,7 @@ EXPOSE 50505/tcp
 # Performance counter (prometheus)
 EXPOSE 10085/tcp
 
-ENTRYPOINT ["/bboxdb/bin/manage_instance.sh", "bboxdb_start"]
+RUN mkdir /bboxdb/data
+VOLUME /bboxdb/data
+
+CMD ["/bboxdb/bin/manage_instance.sh", "bboxdb_start"]
