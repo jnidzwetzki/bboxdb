@@ -6,6 +6,10 @@
 # Stop with: docker-compose -f misc/docker/stack.yml down
 ###
 
+###
+# Delete with: docker-compose -f misc/docker/stack.yml rm
+###
+
 version: '3.1'
 
 services:
