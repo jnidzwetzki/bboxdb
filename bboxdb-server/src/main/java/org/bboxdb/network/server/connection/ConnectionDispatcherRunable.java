@@ -20,7 +20,6 @@ package org.bboxdb.network.server.connection;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import org.bboxdb.commons.CloseableHelper;
@@ -62,25 +61,18 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 	private final LockManager lockManager;
 	
 	/**
-	 * The connection ready latch
-	 */
-	private CountDownLatch connectionReadyLatch;
-	
-	/**
 	 * The Logger
 	 */
 	final static Logger logger = LoggerFactory.getLogger(ConnectionDispatcherRunable.class);
 
 
 	public ConnectionDispatcherRunable(final int port, final ExecutorService threadPool, 
-			final TupleStoreManagerRegistry storageRegistry, final LockManager lockManager, 
-			final CountDownLatch connectionReadyLatch) {
+			final TupleStoreManagerRegistry storageRegistry, final LockManager lockManager) {
 		
 		this.port = port;
 		this.threadPool = threadPool;
 		this.storageRegistry = storageRegistry;
 		this.lockManager = lockManager;
-		this.connectionReadyLatch = connectionReadyLatch;
 	}
 
 	@Override
@@ -98,9 +90,6 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 		try {
 			serverSocket = new ServerSocket(port);
 			serverSocket.setReuseAddress(true);
-			
-			// Socket is crated and we are accepting connections
-			connectionReadyLatch.countDown();
 			
 			while(isThreadActive()) {
 				final Socket clientSocket = serverSocket.accept();

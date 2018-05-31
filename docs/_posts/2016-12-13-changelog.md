@@ -11,7 +11,7 @@ order: 1
 - Improvement: Made diskspace readable in instance toString()
 - Improvement: A TimeUnit has to be specified when a Retryer is used
 - Bugfix: Instance ressources are re-read if not available
-- Bugfix: Ensure server socket is ready before we are registered in Zookeeper
+- Bugfix: Retry to open sockets
 
 ### Version 0.7.0 - 27.04.2018
 - New Feature: BBoxDB can now be started in foreground
