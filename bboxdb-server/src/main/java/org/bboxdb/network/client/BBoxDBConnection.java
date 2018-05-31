@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.NetworkInterfaceHelper;
+import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -254,7 +255,15 @@ public class BBoxDBConnection {
 			connectionState.dipatchToStarting();
 			connectionState.registerCallback((c) -> { if(c.isInFailedState() ) { killPendingCalls(); } });
 			
-			clientSocket = new Socket(serverAddress.getAddress(), serverAddress.getPort());
+			final Retryer<Socket> socketRetryer = new Retryer<>(10, 50, TimeUnit.MILLISECONDS, () -> {
+				return new Socket(serverAddress.getAddress(), serverAddress.getPort());
+			});
+			
+			if(! socketRetryer.execute()) {
+				throw socketRetryer.getLastException();
+			}
+			
+			clientSocket = socketRetryer.getResult();
 
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
