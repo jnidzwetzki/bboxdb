@@ -23,10 +23,10 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
 In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (e.g., regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
 
 ## Documentation 
-The documentation of the project is located at [http://jnidzwetzki.github.io/bboxdb/](http://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
+The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
 ## Getting started
-See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/gettingstarted.html) chapter in the documentation. We also recommend to read the examples located in the [bboxdb-examples/src/main/java](bboxdb-examples/src/main/java/) directory.
+See the [getting started](https://jnidzwetzki.github.io/bboxdb/doc/gettingstarted.html) chapter in the documentation. We also recommend to read the examples located in the [bboxdb-examples/src/main/java](bboxdb-examples/src/main/java/) directory. The [install guide](https://jnidzwetzki.github.io/bboxdb/doc/installation.html) describes the installation of BBoxDB and a quick setup of a cluster of 5 nodes with Docker.
 
 ## Screenshots
 BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown. 
@@ -39,7 +39,7 @@ When 2-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/Wo
 
 
 ## Contact / Stay informed
-* Visit our [website](http://bboxdb.org)
+* Visit our [website](https://bboxdb.org)
 * Join our chat at [gitter](https://gitter.im/bboxdb/Lobby)
 * Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
 * Subscribe our mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
