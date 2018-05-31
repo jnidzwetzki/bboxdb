@@ -48,6 +48,62 @@ services:
       - zk2
       - zk3
     ports:
+      - 10081:10085
+      - 50501:50505
+    environment:
+      ZK_HOSTS: zk1, zk2, zk3
+
+  bboxdb2:
+    image: jnidzwetzki/bboxdb:latest
+    restart: always
+    hostname: bboxdb2
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+    ports:
+      - 10082:10085
+      - 50502:50505
+    environment:
+      ZK_HOSTS: zk1, zk2, zk3
+
+  bboxdb3:
+    image: jnidzwetzki/bboxdb:latest
+    restart: always
+    hostname: bboxdb3
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+    ports:
+      - 10083:10085
+      - 50503:50505
+    environment:
+      ZK_HOSTS: zk1, zk2, zk3
+
+  bboxdb4:
+    image: jnidzwetzki/bboxdb:latest
+    restart: always
+    hostname: bboxdb4
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+    ports:
+      - 10084:10085
+      - 50504:50505
+    environment:
+      ZK_HOSTS: zk1, zk2, zk3
+
+bboxdb5:
+    image: jnidzwetzki/bboxdb:latest
+    restart: always
+    hostname: bboxdb5
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+    ports:
       - 10085:10085
       - 50505:50505
     environment:
