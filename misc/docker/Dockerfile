@@ -13,7 +13,7 @@ WORKDIR /bboxdb
 COPY --from=clone /bboxdb /bboxdb
 RUN mvn install -DskipTests
 RUN echo "storageDirectories: " >> /bboxdb/conf/bboxdb.yaml \
-     && echo " - /bboxdb/data" >> /bboxdb/conf/bboxdb.yaml
+     && echo " - /bboxdb/storage" >> /bboxdb/conf/bboxdb.yaml
 
 FROM openjdk:8-jre-alpine
 WORKDIR /bboxdb
@@ -28,7 +28,7 @@ EXPOSE 50505/tcp
 # Performance counter (prometheus)
 EXPOSE 10085/tcp
 
-RUN mkdir /bboxdb/data
-VOLUME /bboxdb/data
+RUN mkdir -p /bboxdb/storage/data
+VOLUME /bboxdb/storage
 
 CMD ["/bboxdb/misc/docker/docker-entrypoint.sh"]

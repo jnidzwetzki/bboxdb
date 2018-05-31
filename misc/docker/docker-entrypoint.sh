@@ -21,3 +21,4 @@
 ######################
 
  /bboxdb/bin/manage_instance.sh bboxdb_start
+ 
