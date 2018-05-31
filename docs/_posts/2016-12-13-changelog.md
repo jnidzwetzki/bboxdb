@@ -9,6 +9,8 @@ order: 1
 - New Feature: Added Docker compose file for a sample cluster with three Zookeeper nodes and five BBoxDB nodes
 - Improvement: Improved Docker build
 - Improvement: Made diskspace readable in instance toString()
+- Improvement: A TimeUnit has to be specified when a Retryer is used
+- Bugfix: Instance ressources are re-read if not available
 
 ### Version 0.7.0 - 27.04.2018
 - New Feature: BBoxDB can now be started in foreground

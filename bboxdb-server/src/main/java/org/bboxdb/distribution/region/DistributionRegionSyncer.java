@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -238,7 +239,7 @@ public class DistributionRegionSyncer implements Watcher {
 				
 		final Watcher callbackWatcher = this;
 		
-		final Retryer<Boolean> retryer = new Retryer<>(10, 100, () -> {
+		final Retryer<Boolean> retryer = new Retryer<>(10, 100, TimeUnit.MILLISECONDS, () -> {
 			try {
 				final Collection<BBoxDBInstance> systemsForDistributionRegion 
 					= distributionRegionAdapter.getSystemsForDistributionRegion(region);

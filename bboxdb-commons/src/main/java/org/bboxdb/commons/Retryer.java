@@ -18,6 +18,7 @@
 package org.bboxdb.commons;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class Retryer<T> {
 
@@ -34,7 +35,7 @@ public class Retryer<T> {
 	/**
 	 * Number of milliseconds to wait between retries
 	 */
-	protected int waitMillis;
+	protected final long waitMillis;
 	
 	/**
 	 * The Callable
@@ -62,9 +63,11 @@ public class Retryer<T> {
 	protected Exception lastException;
 
 	
-	public Retryer(final int maxExecutions, final int waitMillis, final Callable<T> callable) {
+	public Retryer(final int maxExecutions, final int waitTime, final TimeUnit timeUnit, 
+			final Callable<T> callable) {
+		
 		this.maxExecutions = maxExecutions;
-		this.waitMillis = waitMillis;
+		this.waitMillis = timeUnit.toMillis(waitTime);
 		this.callable = callable;
 		this.done = false;
 		this.successfully = false;

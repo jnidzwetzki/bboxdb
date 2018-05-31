@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -112,37 +112,32 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		
 		final BBoxDBInstance instance = new BBoxDBInstance(instanceName);
 		
-		final Retryer<Boolean> retryer = new Retryer<>(5, 200, new Callable<Boolean>() {
-
-			// After the instance is registered, it can take some time until the
-			// complete ressource data is available in zookeeper
-			@Override
-			public Boolean call() throws Exception {
-				
-				// Version
-				final String instanceVersion = getVersionForInstance(instance);
-				instance.setVersion(instanceVersion);
-				
-				// State
-				final BBoxDBInstanceState state = getStateForInstance(instanceName);
-				instance.setState(state);
-				
-				// CPU cores
-				final int cpuCores = getCpuCoresForInstnace(instance);
-				instance.setCpuCores(cpuCores);
-				
-				// Memory
-				final long memory = getMemoryForInstance(instance);
-				instance.setMemory(memory);
-				
-				// Diskspace
-				readDiskSpaceForInstance(instance);
-				
-				return true;
-			}
+		// After the instance is registered, it can take some time until the
+		// complete ressource data is available in zookeeper			
+		final Retryer<Boolean> retryer = new Retryer<>(5, 200, TimeUnit.MILLISECONDS, () -> {
+			
+			// Version
+			final String instanceVersion = getVersionForInstance(instance);
+			instance.setVersion(instanceVersion);
+			
+			// State
+			final BBoxDBInstanceState state = getStateForInstance(instanceName);
+			instance.setState(state);
+			
+			// CPU cores
+			final int cpuCores = getCpuCoresForInstnace(instance);
+			instance.setCpuCores(cpuCores);
+			
+			// Memory
+			final long memory = getMemoryForInstance(instance);
+			instance.setMemory(memory);
+			
+			// Diskspace
+			readDiskSpaceForInstance(instance);
+			
+			return true;
 		});
-		
-
+	
 		final boolean result = retryer.execute();
 		
 		if(! result) {

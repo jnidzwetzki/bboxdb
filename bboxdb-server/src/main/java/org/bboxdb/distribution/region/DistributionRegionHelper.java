@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -143,6 +144,7 @@ public class DistributionRegionHelper {
 		// Retry the operation if needed
 		final Retryer<DistributionRegion> retyer = new Retryer<>(Const.OPERATION_RETRY, 
 				250, 
+				TimeUnit.MILLISECONDS,
 				getDistributionRegion);
 		
 		retyer.execute();

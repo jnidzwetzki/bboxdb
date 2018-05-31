@@ -18,6 +18,7 @@
 package org.bboxdb;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.Retryer;
 import org.junit.Assert;
@@ -35,7 +36,7 @@ public class TestRetyer {
 			}
 		};
 		
-		final Retryer<Boolean> retryer = new Retryer<>(10, 100, callable);
+		final Retryer<Boolean> retryer = new Retryer<>(10, 100, TimeUnit.MILLISECONDS, callable);
 		
 		Assert.assertFalse(retryer.isDone());
 		Assert.assertFalse(retryer.isSuccessfully());
@@ -68,7 +69,7 @@ public class TestRetyer {
 			}
 		};
 		
-		final Retryer<Boolean> retryer = new Retryer<>(10, 100, callable);
+		final Retryer<Boolean> retryer = new Retryer<>(10, 100, TimeUnit.MILLISECONDS, callable);
 		
 		Assert.assertFalse(retryer.isDone());
 		Assert.assertFalse(retryer.isSuccessfully());
@@ -102,7 +103,7 @@ public class TestRetyer {
 			}
 		};
 		
-		final Retryer<Boolean> retryer = new Retryer<>(10, 100, callable);
+		final Retryer<Boolean> retryer = new Retryer<>(10, 100, TimeUnit.MILLISECONDS, callable);
 		
 		Assert.assertFalse(retryer.isDone());
 		Assert.assertFalse(retryer.isSuccessfully());
