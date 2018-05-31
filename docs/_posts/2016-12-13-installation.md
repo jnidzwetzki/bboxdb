@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 # Quickstart with Docker
-Docker is the de-facto standard for packaging distributed applications. For easy deployments, we provide a Docker container image of BBoxDB. We also offer a docker compose [file](https://github.com/jnidzwetzki/bboxdb/blob/master/misc/docker/stack.yml) which installs a cluster consisting of three Zookeeper nodes and five BBoxDB nodes within two minutes.
+Docker is the de-facto standard for packaging distributed applications. For easy deployments, we provide a Docker container [image](https://hub.docker.com/r/jnidzwetzki/bboxdb/) of BBoxDB. We also offer a docker compose [file](https://github.com/jnidzwetzki/bboxdb/blob/master/misc/docker/stack.yml) which installs a cluster consisting of three Zookeeper nodes and five BBoxDB nodes within two minutes.
 
 ## Setup a sample cluster
 To set up the sample cluster, please enter the following commands. Please note that you have do install [Docker](https://docs.docker.com/glossary/?term=Docker) and [Docker Compose](https://docs.docker.com/compose/) first.
