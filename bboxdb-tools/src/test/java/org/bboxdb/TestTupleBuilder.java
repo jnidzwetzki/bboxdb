@@ -40,27 +40,34 @@ public class TestTupleBuilder {
 	/**
 	 * The testline for TPC-H lineitem tests
 	 */
-	protected final static String TPCH_LINEITEM_TEST_LINE = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
+	private final static String TPCH_LINEITEM_TEST_LINE = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
 
 	/**
 	 * The testline for TPC-H order tests
 	 */
-	protected final static String TPCH_ORDER_TEST_LINE = "1|738001|O|215050.73|1996-01-02|5-LOW|Clerk#000019011|0|nstructions sleep furiously among |";
+	private final static String TPCH_ORDER_TEST_LINE = "1|738001|O|215050.73|1996-01-02|5-LOW|Clerk#000019011|0|nstructions sleep furiously among |";
 	
 	/**
 	 * The testline for synthetic tests
 	 */
-	protected final static String SYNTHETIC_TEST_LINE = "51.47015078569419,58.26664175357267,49.11808592466023,52.72529828070016 e1k141dox9rayxo544y9";
+	private final static String SYNTHETIC_TEST_LINE = "51.47015078569419,58.26664175357267,49.11808592466023,52.72529828070016 e1k141dox9rayxo544y9";
 	
 	/**
 	 * The testline for yellow taxi format tests
 	 */
-	protected final static String TAXI_TEST_LINE = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
+	private final static String TAXI_TEST_LINE = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
 
+	/**
+	 * The test lines for the rome taxi data set
+	 */
+	private final static String ROME_TAXI_1 = "173;2014-01-04 00:00:07.028304+01;POINT(41.91924450823211 12.5027184734508)";
+	private final static String ROME_TAXI_2 = "173;2014-01-04 00:00:09.028304+01;POINT(41.92924450823211 14.5527184734508)";
+	
+	
 	/**
 	 * The line for geojson tests
 	 */
-	protected final static String GEO_JSON_LINE = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
+	private final static String GEO_JSON_LINE = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
 
 	/**
 	 * Test the geo json tuple builder
@@ -77,7 +84,77 @@ public class TestTupleBuilder {
 		final Hyperrectangle expectedBox = new Hyperrectangle(52.4688608, 52.4688608, 13.3327994, 13.3327994);
 		Assert.assertEquals(expectedBox, tuple.getBoundingBox());
 	}
+	
+	/**
+	 * Test the rome taxi range tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testRomeTaxiPointTupleBuilder() throws ParseException {	
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.ROME_TAXI_POINT);
+		
+		final Tuple tuple = tupleBuilder.buildTuple("1", ROME_TAXI_1);
+				
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007028d, 1388790007028d, 
+				41.91924450823211, 41.91924450823211,
+				12.5027184734508, 12.5027184734508);
+		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
+	
+	/**
+	 * Test the rome taxi range tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testRomeTaxiRangeTupleBuilder1() throws ParseException {	
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.ROME_TAXI_RANGE);
+		
+		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
+		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
+
+		Assert.assertTrue(tuple1 == null);
+		Assert.assertTrue(tuple2 != null);
+		Assert.assertEquals(Integer.toString(1), tuple2.getKey());
+		
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007028d, 1388790009028d, 
+				41.91924450823211, 41.92924450823211,
+				12.5027184734508, 14.5527184734508);
+		
+		System.out.println(exptectedBox);
+		System.out.println(tuple2.getBoundingBox());
+		
+		Assert.assertEquals(exptectedBox, tuple2.getBoundingBox());
+	}
+	
+	/**
+	 * Test the rome taxi range tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testRomeTaxiRangeTupleBuilder2() throws ParseException {	
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.ROME_TAXI_RANGE);
+		
+		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
+		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
+
+		Assert.assertTrue(tuple1 == null);
+		Assert.assertTrue(tuple2 != null);
+		Assert.assertEquals(Integer.toString(1), tuple2.getKey());
+		
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007028d, 1388790009028d, 
+				41.91924450823211, 41.92924450823211,
+				12.5027184734508, 14.5527184734508);
+		
+		Assert.assertEquals(exptectedBox, tuple2.getBoundingBox());
+	}
+	
 	/**
 	 * Test the yellow taxi range tuple builder
 	 * @throws ParseException 

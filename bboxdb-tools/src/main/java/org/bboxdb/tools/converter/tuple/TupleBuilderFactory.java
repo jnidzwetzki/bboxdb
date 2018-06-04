@@ -64,6 +64,16 @@ public class TupleBuilderFactory {
 		 * The TPC-H order builder - point version (orderDate)
 		 */
 		public static final String TPCH_ORDER_POINT = "tpch_order_point";
+		
+		/**
+		 * Rome taxi point
+		 */
+		public static final String ROME_TAXI_POINT = "rome_taxi_point";
+		
+		/**
+		 * Rome taxi point
+		 */
+		public static final String ROME_TAXI_RANGE = "rome_taxi_range";
 	}
 	
 	/**
@@ -73,7 +83,8 @@ public class TupleBuilderFactory {
 			Name.GEOJSON, Name.SYNTHETIC,
 			Name.YELLOWTAXI_POINT, Name.YELLOWTAXI_RANGE, 
 			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE, 
-			Name.TPCH_ORDER_POINT);
+			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
+			Name.ROME_TAXI_RANGE);
 
 	/**
 	 * Return the parser for the tuple format
@@ -95,6 +106,10 @@ public class TupleBuilderFactory {
 			return new TPCHLineitemRangeBuilder();
 		} else if(Name.TPCH_ORDER_POINT.equals(format)) {
 			return new TPCHOrderPointBuilder();
+		} else if(Name.ROME_TAXI_POINT.equals(format)) {
+			return new RomeTaxiPointBuilder();
+		} else if(Name.ROME_TAXI_RANGE.equals(format)) { 
+			return new RomeTaxiRangeBuilder();
 		} else {
 			throw new RuntimeException("Unknown format: " + format);
 		}

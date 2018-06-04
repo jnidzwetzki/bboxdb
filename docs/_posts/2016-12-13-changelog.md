@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.8.0 - TBA
 - New Feature: Added Docker compose file for a sample cluster with three Zookeeper nodes and five BBoxDB nodes
+- New Feature: Added importer for the rome taxi dataset
 - Improvement: Improved Docker build
 - Improvement: Made diskspace readable in instance toString()
 - Improvement: A TimeUnit has to be specified when a Retryer is used
