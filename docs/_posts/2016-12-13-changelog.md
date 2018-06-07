@@ -5,6 +5,8 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+### Version 0.8.1 - TBA
+
 ### Version 0.8.0 - 07.06.2018
 - New Feature: Added Docker compose file for a sample cluster with three Zookeeper nodes and five BBoxDB nodes
 - New Feature: Added importer for the rome taxi dataset
