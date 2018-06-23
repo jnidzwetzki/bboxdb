@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.experiments;
+package org.bboxdb.experiments.misc;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.concurrent.ExecutorUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.experiments.ExperimentHelper;
 import org.bboxdb.storage.entity.CellGrid;
 import org.bboxdb.tools.TupleFileReader;
 

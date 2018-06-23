@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.experiments;
+package org.bboxdb.experiments.misc;
 
 import java.io.File;
 import java.io.IOException;
