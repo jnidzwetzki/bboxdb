@@ -6,15 +6,15 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 # Quickstart with Docker
-Docker is the de-facto standard for packaging distributed applications. For easy deployments, we provide a Docker container [image](https://hub.docker.com/r/jnidzwetzki/bboxdb/) of BBoxDB. We also offer a Docker compose [file](https://github.com/jnidzwetzki/bboxdb/blob/master/misc/docker/stack.yml) which installs a cluster consisting of three Zookeeper nodes and five BBoxDB nodes within two minutes.
+Docker is the de-facto standard for packaging distributed applications. For easy deployments, we provide a Docker container [image](https://hub.docker.com/r/jnidzwetzki/bboxdb/) of BBoxDB. We also offer a Docker compose [file](https://github.com/jnidzwetzki/bboxdb/blob/master/misc/docker/docker-compose.yml) which installs a cluster consisting of three Zookeeper nodes and five BBoxDB nodes within two minutes.
 
 ## Setup a sample cluster
 To set up the sample cluster, please enter the following commands. Please note that you have do install [Docker](https://docs.docker.com/glossary/?term=Docker) and [Docker Compose](https://docs.docker.com/compose/) first.
 
 ```bash
-$ wget https://github.com/jnidzwetzki/bboxdb/blob/master/misc/docker/stack.yml
+$ wget https://github.com/jnidzwetzki/bboxdb/blob/master/misc/docker/docker-compose.yml
 $ cd bboxdb
-$ docker-compose -d -f stack.yml up
+$ docker-compose -d -f docker-compose.yml up
 ```
 
 After the command is completed, you should have 8 containers running:
@@ -53,8 +53,8 @@ DistributedInstance [ip=172.18.0.9, port=50505, version=0.7.0, cpuCores=4, memor
 When you are done with your work, you can stop and delete the BBoxDB cluster.
 
 ```bash
-$ docker-compose -f stack.yml down
-$ docker-compose -f stack.yml rm
+$ docker-compose -f docker-compose.yml down
+$ docker-compose -f docker-compose.yml rm
 ```
 
 # Manuall installation
