@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.8.1 - TBA
+- Improvement: Updated dependencies (Prometheus 0.3.0 -> 0.4.0, Zookeeper 3.4.11 -> 3.4.12, snakeyaml 1.20 -> 1.21, Guava 24.0 -> 25.1, Mockito 2.18 -> 2.19)
 
 ### Version 0.8.0 - 07.06.2018
 - New Feature: Added Docker compose file for a sample cluster with three Zookeeper nodes and five BBoxDB nodes
@@ -33,7 +34,7 @@ order: 1
 - Improvement: Fixed bugs found by Coverity scan
 - Improvement: Refactored maintainability to A rating (closes #80)
 - Improvement: The complete space of the tree space partitioner can be restricted
-- Improvement: Added the ability to display generic trees in GUI (closes #84) 
+- Improvement: Added the ability to display generic trees in GUI (closes #84)
 - Improvement: The delete distribution group call needs only to be send to one node
 - Improvement: The table deletion call needs only to be send to one node
 - Improvement: Reimplemented the futures and the BBoxDBCluster to increase fault tolerance (closes #79)
@@ -69,7 +70,7 @@ order: 1
 - Improvement: Increased test coverage to 72% (closes #47)
 - Bugfix: Wait before data is merged / distributed until we see the region change in zookeeper (closes #75)
 - Bugfix: The average region is size is used in merges to prevent merges directly after a split (closes #76)
-- Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 
+- Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support
 - Bugfix: Recreated distribution groups can use another space partitioner (closes #82)
 - Bugfix: Local tables are removed after merge/split (closes #77)
 - Bugfix: Min region size was set to max region size
@@ -90,7 +91,7 @@ order: 1
 - New Feature: Added gossip for eventual consistency
 - New Feature: Added read repair for eventual consistency
 - Improvement: Updated dependencies (json / guava)
-- Improvement: Rewrote shutdown code 
+- Improvement: Rewrote shutdown code
 - Improvement: If the server is still running 60 seconds after a shutdown, it is killed
 - Improvement: Check for enough split points on sampling
 - Improvement: Routed packages with empty tuplestore list are not sent to the server
@@ -165,7 +166,7 @@ order: 1
 
 ### Version 0.3.6 - 20.11.2017
 - New Feature: Added continuous bounding box query
-- New Feature: Added performance counter / instrumentation (implemented with Prometheus) 
+- New Feature: Added performance counter / instrumentation (implemented with Prometheus)
 - Improvement: Made memory statistics logging configurable via const
 - Improvement: Added insert callback to TupleStore
 - Improvement: The spatial index now contains the tuple byte positions
@@ -226,8 +227,8 @@ order: 1
 ### Version 0.3.1 - 29.06.2017
 - Improvement: A fixed amount of memtable flush threads is used per storage
 - Improvement: Only one checkpoint thread per storage
-- Improvement: Only one compact thread per storage 
-- Improvement: Only one split task per storage 
+- Improvement: Only one compact thread per storage
+- Improvement: Only one split task per storage
 - Improvement: Made service init interruptable
 - Improvement: Better spread statistics
 - Improvement: Enabled Zookeeper logging
@@ -337,7 +338,7 @@ order: 1
 - Bugfix: Removed unused jsvc_* variables from bash scripts
 
 ### Version 0.2.3 - 09.04.2017
-- New Feature: Futures now store the completion time 
+- New Feature: Futures now store the completion time
 - New Feature: Introduced the tuple deletion without timestamp method in API
 - New Feature: Changed the format of the compressed envelopes to support multi-package compression
 - New Feature: Added parser for simple GEOJson data
@@ -345,7 +346,7 @@ order: 1
 - Improvement: Enabled paging as default setting (50 tuples per page)
 - Improvement: Switched tuple timestamps from milliseconds to microseconds
 - Improvement: Added water OSM entity filter
-- Improvement: Speed up the OSM importer by using a new node serializer 
+- Improvement: Speed up the OSM importer by using a new node serializer
 - Improvement: Updated to org.yaml 1.18 (from 1.17) / Mockito 2.7.19 (from 2.7.5)
 - Improvement: Refactored the server side network package handling
 - Improvement: Refactored the client side network package handling
@@ -357,7 +358,7 @@ order: 1
 ### Version 0.2.2 - 23.03.2017
 - New Feature: Added start option for remote debuging
 - New Feature: Added OSM viewer for K-D Trees
-- New Feature: Added sampling size experiment 
+- New Feature: Added sampling size experiment
 - Improvement: Moved scripts from misc/ to bin/ folder
 - Improvement: New file system layout (all tables of a distribution group are now located in one dir)
 - Improvement: In memory data is also redistributed after a region split
@@ -429,18 +430,18 @@ order: 1
 - Improvement: Log statistics about redistributed tuples
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 - Bugfix: GUI is repainted when a distribution region is recreated
-- Bugfix: Size of the GUI tree component was not dynamically calculated 
+- Bugfix: Size of the GUI tree component was not dynamically calculated
 - Bugfix: The acquire storages code releases all (not only the already acquired) storages on failure, this leads to wrong usage counting
 - Bugfix: Regions couldn't be removed from the name prefix manager
 - Bugfix: No data is written to ACTIVE_FULL regions
 - Bugfix: For splits, only the part of the tuple is analyzed, that is covered by the region
-- Bugfix: State updates of the tree are applied after reading the child nodes. Otherwise, a region could be set to splitted before the child nodes are ready 
+- Bugfix: State updates of the tree are applied after reading the child nodes. Otherwise, a region could be set to splitted before the child nodes are ready
 - Bugfix: Nodes in state 'creating' are not considered as real child nodes in isLeafNode() method
 
 ### Version 0.2.0 (Beta-4) - 20.12.2016
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'
 - New Feature: Introduced the new $BBOXDB_HOME environment variable
-- New Feature: Added cluster debug startup to manage_cluster.sh script 
+- New Feature: Added cluster debug startup to manage_cluster.sh script
 - Improvement: Unified tuple store aquire code
 - Improvement: Introduced the local selftest
 - Improvement: Added CLI parameter to the SSTableExaminer
@@ -460,8 +461,8 @@ order: 1
 - New Feature: Added boundingbox with time query type
 - New Feature: Added the cancel query server call
 - Improvement: Simplified network protocol by removing the duplicate success and response packages
-- Improvement: Success and Error responses are now indicated by the isFailed() future method 
-- Improvement: Success and Error messages are now provided by the getMessage() future method 
+- Improvement: Success and Error responses are now indicated by the isFailed() future method
+- Improvement: Success and Error messages are now provided by the getMessage() future method
 - Improvement: Introduced iterator for list results in client API
 - Improvement: Use the WeightBasedSplitStrategy as default
 - Improvement: Clean unused memtables to support the GC
@@ -475,7 +476,7 @@ order: 1
 - Bugfix: Fixed division by zero in WeightBasedSplitStrategy
 - Bugfix: Thread names contain the full output of sstablename.toString
 - Bugfix: The checkpoint date is not written to zookeper, if no memtable was flushed
-- Bugfix: The tuple redistribution strategy was not able to handle local destinations 
+- Bugfix: The tuple redistribution strategy was not able to handle local destinations
 - Bugfix: Fixed NPE during bounding box creation
 - Bugfix: Deleted tuples were read form SSTables without the original timestamp
 - Bugfix: Duplicate tuples (caused by queries on replicates) are filtered in the client code
@@ -499,7 +500,7 @@ order: 1
 ### Version 0.2.0 (Beta-1) - 17.11.2016
 - New feature: Added a selftest
 - Improvement: Implemented keep alive packages, to keep TCP connections open
-- Improvement: Added the possibility to log debug messages 
+- Improvement: Added the possibility to log debug messages
 - Improvement: Write geometrical data to server in OSMInsertBenchmark
 - Improvement: Moved OSM importer code to own class
 - Bugfix: Removed duplicate logging entries
@@ -529,7 +530,7 @@ order: 1
 ### Version 0.1.0 - 07.08.2016
 - Fixed some crashes in the network handler
 - Added first version of the OSM data import benchmark
-- Added routing header to network packages 
+- Added routing header to network packages
 - First version with working ClusterClient
 - Changed client API (Introduced multi-result futures)
 - Implemented insert request routing
@@ -560,7 +561,7 @@ order: 1
 - Added create and delete distribution group network packages
 - Replication factor is now configurable per distribution group
 - Added logic to store distribution groups in zookeeper
-- Added an in-memory structure for distribution groups (updated by zookeeper) 
+- Added an in-memory structure for distribution groups (updated by zookeeper)
 - Added zookeeper to Travis CI environment
 - Added zookeeper integration tests
 
@@ -569,7 +570,7 @@ order: 1
 - Implemented the table transfer network package
 - Changed the requestid of the network protocol to int, to handle more parallel requests
 - Removed many buffers in the network implementation (less memory is needed)
-- Implemented distributed instance discovery via zookeeper 
+- Implemented distributed instance discovery via zookeeper
 - Added a basic GUI
 - The zookeeper database can be now deleted with the cluster management script
 
@@ -585,7 +586,7 @@ order: 1
 - Integrated zookeeper
 
 ### Version 0.0.4 - 03.03.2016
-- Added one client example 
+- Added one client example
 - Added configuration file (scalephant.yaml)
 - Added support for multiple tuple result queries
 - Implemented BoundingBoxes
@@ -601,10 +602,10 @@ order: 1
 ### Version 0.0.2 - 26.01.2016
 - Implemented a SSTable/SSTableIndex examiner for debugging
 - Introduced a simple compactification strategy
-- Introduced SSTable indices  
+- Introduced SSTable indices
 - Implemented binary index search, to locate tuples
 - Implemented a tuple iterator to perform full table scans
-- Handle deleted tuples correctly 
+- Handle deleted tuples correctly
 - Implemented SSTable compactification
 - Added MultiThreadling support in the SSTableManager
 - Switched the reader from File IO to Memory Mapped IO
