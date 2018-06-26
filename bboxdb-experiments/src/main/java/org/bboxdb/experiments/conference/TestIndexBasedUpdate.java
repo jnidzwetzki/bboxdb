@@ -96,15 +96,9 @@ public class TestIndexBasedUpdate implements Runnable {
 	@Override
 	public void run() {
 		try {
-			System.out.println("Connecting to BBoxDB cluster");
-			final BBoxDBCluster bboxDBConnection = new BBoxDBCluster(endpoint, cluster);
+			final BBoxDBCluster bboxDBConnection = getBBoxDBConnection();
 
-			if(! bboxDBConnection.connect()) {
-				System.err.println("Unable to connect to the BBoxDB cluster, exiting");
-				System.exit(-1);
-			}
-
-			ZookeeperClient zookeeperClient = bboxDBConnection.getZookeeperClient();
+			final ZookeeperClient zookeeperClient = bboxDBConnection.getZookeeperClient();
 			final DistributionGroupAdapter adapter = zookeeperClient.getDistributionGroupAdapter();
 			String distributionGroup = new TupleStoreName(tablename).getDistributionGroup();
 			final DistributionGroupConfiguration configuration = adapter.getDistributionGroupConfiguration(distributionGroup);
@@ -123,6 +117,21 @@ public class TestIndexBasedUpdate implements Runnable {
 		} catch (Exception e) {
 			logger.error("Got exception while performing experiment", e);
 		}
+	}
+
+	/**
+	 * Open a new BBoxDB connection
+	 * @return
+	 */
+	private BBoxDBCluster getBBoxDBConnection() {
+		final BBoxDBCluster bboxDBConnection = new BBoxDBCluster(endpoint, cluster);
+
+		if(! bboxDBConnection.connect()) {
+			System.err.println("Unable to connect to the BBoxDB cluster, exiting");
+			System.exit(-1);
+		}
+		
+		return bboxDBConnection;
 	}
 
 	/**
@@ -240,8 +249,10 @@ public class TestIndexBasedUpdate implements Runnable {
 	 */
 	private Runnable getNewRunableIndex(final BBoxDBCluster bboxDBConnection, final int dimensions) {
 		final Runnable run = () -> {
+			BBoxDBCluster threadConnection = null;
 			try {
-				final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(bboxDBConnection);
+				threadConnection = getBBoxDBConnection();
+				final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(threadConnection);
 
 				for(int i = 0; i < queries; i++) {
 					final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);
@@ -269,6 +280,11 @@ public class TestIndexBasedUpdate implements Runnable {
 				}
 			} catch (Exception e) {
 				logger.error("Got an exception in update thread", e);
+			} finally {
+				if(threadConnection != null) {
+					threadConnection.disconnect();
+					threadConnection = null;
+				}
 			}
 		};
 
