@@ -283,7 +283,7 @@ public class TestIndexBasedUpdate implements Runnable {
 
 		// Check parameter
 		if(args.length != 5) {
-			System.err.println("Usage: programm <endpoint> <cluster> <table> <queries> <worker>");
+			System.err.println("Usage: programm <endpoint> <cluster> <table> <queries>");
 			System.exit(-1);
 		}
 
