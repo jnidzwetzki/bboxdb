@@ -130,6 +130,7 @@ public class NetworkQueryHelper {
 		future.waitForCompletion();
 		System.out.println("=== Query DONE");
 
+		Assert.assertTrue(future.isDone());
 		Assert.assertFalse(future.isFailed());
 		
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
