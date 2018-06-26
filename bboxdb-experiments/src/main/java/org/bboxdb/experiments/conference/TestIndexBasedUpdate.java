@@ -140,7 +140,6 @@ public class TestIndexBasedUpdate implements Runnable {
 				final Stopwatch stopwatch = Stopwatch.createStarted();
 				executeQueriesOnIndex(worker, bboxDBConnection, dimensions, useIndex);
 				final long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-				System.out.println("#" + elapsedTime);
 				totalElapsedTime += elapsedTime;
 			}
 
