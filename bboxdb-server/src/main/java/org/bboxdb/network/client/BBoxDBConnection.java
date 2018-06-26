@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -95,12 +96,12 @@ public class BBoxDBConnection {
 	/**
 	 * The pending calls
 	 */
-	private final Map<Short, NetworkOperationFuture> pendingCalls = new HashMap<>();
+	private final Map<Short, NetworkOperationFuture> pendingCalls;
 
 	/**
 	 * The result buffer
 	 */
-	private final Map<Short, List<PagedTransferableEntity>> resultBuffer = new HashMap<>();
+	private final Map<Short, List<PagedTransferableEntity>> resultBuffer;
 
 	/**
 	 * The server response reader
@@ -217,9 +218,16 @@ public class BBoxDBConnection {
 		// Default: Enable gzip compression
 		this.clientCapabilities.setGZipCompression();
 
-		this.pendingCompressionPackages = new ArrayList<>();
+		// No concurrent access
 		this.serverResponseHandler = new HashMap<>();
 
+		// Concurrent access with synchronized
+		this.pendingCompressionPackages = new ArrayList<>();
+		
+		// Concurrent access
+		this.resultBuffer = new ConcurrentHashMap<>();
+		this.pendingCalls = new ConcurrentHashMap<>();
+		
 		initResponseHandler();
 	}
 
