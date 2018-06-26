@@ -601,6 +601,37 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Insert a tuple and request it via key
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test(timeout=60000)
+	public void testGetByKeyNotExisting() throws InterruptedException, ExecutionException, BBoxDBException {
+		System.out.println("=== Running testGetByKeyNotExisting");
+		final String table = DISTRIBUTION_GROUP + "_relation12334";
+		
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+				
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForCompletion();
+		Assert.assertFalse(resultCreateTable.isFailed());
+		
+		final TupleListFuture future = bboxDBClient.queryKey(table, "abc");
+		future.waitForCompletion();
+		Assert.assertFalse(future.isFailed());
+		Assert.assertTrue(future.isDone());
+
+		final List<Tuple> resultList = Lists.newArrayList(future.iterator());		
+		Assert.assertEquals(0, resultList.size());
+	
+		System.out.println("=== End testGetByKeyNotExisting");
+		disconnect(bboxDBClient);
+	}
+	
+	/**
 	 * Insert some tuples and start a bounding box query afterwards
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
