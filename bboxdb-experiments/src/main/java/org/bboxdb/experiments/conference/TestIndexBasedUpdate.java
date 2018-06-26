@@ -249,9 +249,10 @@ public class TestIndexBasedUpdate implements Runnable {
 	 */
 	private Runnable getNewRunableIndex(final BBoxDBCluster bboxDBConnection, final int dimensions) {
 		final Runnable run = () -> {
-			BBoxDBCluster threadConnection = null;
-			try {
-				threadConnection = getBBoxDBConnection();
+			
+			try (
+					final BBoxDBCluster threadConnection = getBBoxDBConnection();
+			    ){
 				final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(threadConnection);
 
 				for(int i = 0; i < queries; i++) {
@@ -280,11 +281,6 @@ public class TestIndexBasedUpdate implements Runnable {
 				}
 			} catch (Exception e) {
 				logger.error("Got an exception in update thread", e);
-			} finally {
-				if(threadConnection != null) {
-					threadConnection.close();
-					threadConnection = null;
-				}
 			}
 		};
 
