@@ -144,7 +144,7 @@ public class TestIndexBasedUpdate implements Runnable {
 				totalElapsedTime += elapsedTime;
 			}
 
-			System.out.format("%f\t%f\t%f%n", queries, worker, totalElapsedTime / RETRIES);
+			System.out.format("%d\t%d\t%d%n", queries, worker, totalElapsedTime / RETRIES);
 		} catch (Exception e) {
 			System.err.println("Got exception while executing experiment: " + e);
 			System.exit(-1);
