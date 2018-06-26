@@ -10,6 +10,7 @@ order: 1
 - Improvement: Added index based update experiment
 - Bugfix: Fixed RaceConditions in FixedSizeFutureStore
 - Bugfix: Fixed RaceConditions in BBoxDBConnection
+- Bugfix: Prevent out of order packages when using compression
 
 ### Version 0.8.0 - 07.06.2018
 - New Feature: Added Docker compose file for a sample cluster with three Zookeeper nodes and five BBoxDB nodes

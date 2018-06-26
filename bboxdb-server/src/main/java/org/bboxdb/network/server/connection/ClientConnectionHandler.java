@@ -271,6 +271,9 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		
 		final List<NetworkResponsePackage> packagesToWrite = new ArrayList<>();
 		
+		// We have to ensure that the buffer clear and socket write
+		// are perfomed in one synchronized block otherwise
+		// we will create out of order packages
 		synchronized (pendingCompressionPackages) {
 			if(pendingCompressionPackages.isEmpty()) {
 				return;
@@ -278,19 +281,19 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			
 			packagesToWrite.addAll(pendingCompressionPackages);
 			pendingCompressionPackages.clear();
-		}
 			
-		if(logger.isDebugEnabled()) {
-			logger.debug("Chunk size is: {}", packagesToWrite.size());
-		}
-		
-		final NetworkResponsePackage compressionEnvelopeRequest 
-			= new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
-		
-		try {
-			writePackageToSocket(compressionEnvelopeRequest);
-		} catch (PackageEncodeException | IOException e) {
-			logger.error("Got an exception while write pending compression packages to client", e);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Chunk size is: {}", packagesToWrite.size());
+			}
+			
+			final NetworkResponsePackage compressionEnvelopeRequest 
+				= new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
+			
+			try {
+				writePackageToSocket(compressionEnvelopeRequest);
+			} catch (PackageEncodeException | IOException e) {
+				logger.error("Got an exception while write pending compression packages to client", e);
+			}
 		}
 	}
 	
