@@ -57,7 +57,7 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 		}
 		
 		if(resultList == null) {
-			logger.error("Got handleMultiTupleEnd and resultList is empty (package {})", sequenceNumber);
+			logger.error("Got handleMultiTupleEnd and resultList is null (package {})", sequenceNumber);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return true;
