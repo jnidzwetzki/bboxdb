@@ -282,7 +282,7 @@ public class TestIndexBasedUpdate implements Runnable {
 				logger.error("Got an exception in update thread", e);
 			} finally {
 				if(threadConnection != null) {
-					threadConnection.disconnect();
+					threadConnection.close();
 					threadConnection = null;
 				}
 			}

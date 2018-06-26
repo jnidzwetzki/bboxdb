@@ -166,7 +166,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		}
 		
 		// Disconnect from server and shutdown the statistics thread
-		bboxdbClient.disconnect();
+		bboxdbClient.close();
 		executorService.shutdown();
 		
 		System.out.format("Done in %d ms%n", stopWatch.elapsed(TimeUnit.MILLISECONDS));

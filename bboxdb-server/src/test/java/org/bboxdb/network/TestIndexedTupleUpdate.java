@@ -119,7 +119,7 @@ public class TestIndexedTupleUpdate {
 	 * @param bboxDBConnection
 	 */
 	protected void disconnect(final BBoxDB bboxDBClient) {
-		bboxDBClient.disconnect();
+		bboxDBClient.close();
 		Assert.assertFalse(bboxDBClient.isConnected());
 	}
 	

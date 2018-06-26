@@ -101,7 +101,7 @@ public class TestBBoxDBCluster {
 
 		final BBoxDBCluster bboxdbClient = connectToServer();
 		Assert.assertTrue(bboxdbClient.isConnected());
-		bboxdbClient.disconnect();
+		bboxdbClient.close();
 		Assert.assertFalse(bboxdbClient.isConnected());
 		
 		System.out.println("=== End cluster testSendDisconnectPackage");
@@ -215,7 +215,7 @@ public class TestBBoxDBCluster {
 	 * @param bboxDBConnection
 	 */
 	protected void disconnect(final BBoxDB bboxDBClient) {
-		bboxDBClient.disconnect();
+		bboxDBClient.close();
 		Assert.assertFalse(bboxDBClient.isConnected());
 	}
 	

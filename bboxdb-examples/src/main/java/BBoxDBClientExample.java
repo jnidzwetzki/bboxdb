@@ -157,7 +157,7 @@ public class BBoxDBClientExample {
 			System.out.println("Tuple: " + tuple);
 		}
 
-		bboxdbClient.disconnect();
+		bboxdbClient.close();
 	}
 	
 }

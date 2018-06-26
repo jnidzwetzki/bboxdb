@@ -225,7 +225,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 */
 	public void close() {
 		if(bboxDbConnection != null) {
-			bboxDbConnection.disconnect();
+			bboxDbConnection.close();
 			bboxDbConnection = null;
 		}
 	}

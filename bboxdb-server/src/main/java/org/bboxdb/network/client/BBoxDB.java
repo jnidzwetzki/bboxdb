@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.io.Closeable;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -28,7 +29,7 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 
-public interface BBoxDB {
+public interface BBoxDB extends Closeable {
 	
 	/**
 	 * Connect to the server
@@ -39,7 +40,8 @@ public interface BBoxDB {
 	/**
 	 * Disconnect from the server
 	 */
-	public void disconnect();
+	@Override
+	public void close();
 
 	/**
 	 * Create a new table

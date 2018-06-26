@@ -624,7 +624,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 
 	@Override
-	public void disconnect() {
+	public void close() {
 		connection.disconnect();
 	}
 

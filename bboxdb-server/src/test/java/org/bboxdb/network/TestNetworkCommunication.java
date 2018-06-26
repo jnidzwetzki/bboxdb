@@ -319,7 +319,7 @@ public class TestNetworkCommunication {
 		
 		System.out.println(insertResult.getMessage(0));
 
-		bboxDBClient.disconnect();
+		bboxDBClient.close();
 		
 		System.out.println("=== End testInsertIntoNonExstingTable");
 	}
@@ -930,7 +930,7 @@ public class TestNetworkCommunication {
 	 * @param bboxDBConnection
 	 */
 	protected void disconnect(final BBoxDB bboxDBClient) {
-		bboxDBClient.disconnect();
+		bboxDBClient.close();
 		Assert.assertFalse(bboxDBClient.isConnected());
 	}
 }

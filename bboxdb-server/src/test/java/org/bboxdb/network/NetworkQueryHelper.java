@@ -252,7 +252,7 @@ public class NetworkQueryHelper {
 		Assert.assertFalse(getResult3.isFailed());
 		Assert.assertTrue(getResult3.isDone());
 		
-		bboxDBClient.disconnect();
+		bboxDBClient.close();
 		
 		System.out.println("=== End testInsertAndDelete");
 	}
