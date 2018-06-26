@@ -100,7 +100,9 @@ public class FixedSizeFutureStore {
 				.forEach(f -> handleFailedFuture(f));
 		
 		// Remove old futures
-		pendingFutures.removeAll(doneFutures);
+		if(pendingFutures != null) {
+			pendingFutures.removeAll(doneFutures);
+		}
 	}
 
 	/**
