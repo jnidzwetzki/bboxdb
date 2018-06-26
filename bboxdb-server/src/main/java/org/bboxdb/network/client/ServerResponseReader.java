@@ -78,12 +78,12 @@ public class ServerResponseReader extends ExceptionSafeRunnable {
 
 	@Override
 	protected void beginHook() {
-		logger.debug("Started new response reader for " + bboxDBConnection.getConnectionName());
+		logger.debug("Started new response reader for {}", bboxDBConnection.getConnectionName());
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.debug("Stopping new response reader for " + bboxDBConnection.getConnectionName());
+		logger.debug("Stopping new response reader for {}", bboxDBConnection.getConnectionName());
 	}
 	
 	@Override
