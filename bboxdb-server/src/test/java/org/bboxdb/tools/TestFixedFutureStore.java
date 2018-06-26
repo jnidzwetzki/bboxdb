@@ -30,6 +30,15 @@ import org.junit.Test;
 public class TestFixedFutureStore {
 
 	/**
+	 * Remove on empty list
+	 */
+	@Test(timeout=5000)
+	public void testRemove1() {
+		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
+		futureStore.removeCompleteFutures();
+	}
+	
+	/**
 	 * Add more futures in failed state
 	 */
 	@Test(timeout=5000)

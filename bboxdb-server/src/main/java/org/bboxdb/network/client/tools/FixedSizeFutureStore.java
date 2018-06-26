@@ -18,12 +18,14 @@
 package org.bboxdb.network.client.tools;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.future.OperationFuture;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public class FixedSizeFutureStore {
 
@@ -44,7 +46,7 @@ public class FixedSizeFutureStore {
 	
 	public FixedSizeFutureStore(final long maxPendingFutures) {
 		this.maxPendingFutures = maxPendingFutures;
-		this.pendingFutures = new LinkedList<>();
+		this.pendingFutures = new CopyOnWriteArrayList<>();
 		this.failedFutureCallbacks = new ArrayList<>();
 	}
 
@@ -55,7 +57,6 @@ public class FixedSizeFutureStore {
 	 */
 	public void put(final OperationFuture futureToAdd) {
 		pendingFutures.add(futureToAdd);
-
 		checkAndCleanupRunningFuture();
 	}
 
@@ -87,7 +88,8 @@ public class FixedSizeFutureStore {
 	/**
 	 * Remove all complete futures
 	 */
-	private void removeCompleteFutures() {
+	@VisibleForTesting
+	public void removeCompleteFutures() {
 		
 		// Get done futures
 		final List<OperationFuture> doneFutures = pendingFutures.stream()
@@ -100,9 +102,7 @@ public class FixedSizeFutureStore {
 				.forEach(f -> handleFailedFuture(f));
 		
 		// Remove old futures
-		if(pendingFutures != null) {
-			pendingFutures.removeAll(doneFutures);
-		}
+		pendingFutures.removeAll(doneFutures);
 	}
 
 	/**
