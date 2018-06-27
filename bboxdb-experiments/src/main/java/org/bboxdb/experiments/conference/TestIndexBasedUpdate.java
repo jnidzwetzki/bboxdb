@@ -68,11 +68,6 @@ public class TestIndexBasedUpdate implements Runnable {
 	private final static int RETRIES = 5;
 
 	/**
-	 * The pending futures
-	 */
-	private final FixedSizeFutureStore pendingFutures;
-
-	/**
 	 * The number of queries to execute
 	 */
 	private int queries;
@@ -90,7 +85,6 @@ public class TestIndexBasedUpdate implements Runnable {
 		this.cluster = cluster;
 		this.tablename = tablename;
 		this.queries = queries;
-		this.pendingFutures = new FixedSizeFutureStore(1000);
 	}
 
 	@Override
@@ -201,6 +195,8 @@ public class TestIndexBasedUpdate implements Runnable {
 	private Runnable getNewRunable(final BBoxDBCluster bboxDBConnection, final int dimensions) {
 		final Runnable run = () -> {
 			try {
+				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
+
 				for(int i = 0; i < queries; i++) {
 					final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);
 					final String key = Double.toString(randomDouble);
@@ -231,6 +227,8 @@ public class TestIndexBasedUpdate implements Runnable {
 					final EmptyResultFuture updateRequest = bboxDBConnection.insertTuple(tablename, tuple);
 					pendingFutures.put(updateRequest);
 				}
+
+				pendingFutures.waitForCompletion();
 			} catch (Exception e) {
 				logger.error("Got an exception in update thread", e);
 			}
@@ -249,6 +247,7 @@ public class TestIndexBasedUpdate implements Runnable {
 		final Runnable run = () -> {
 
 			try {
+				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
 				final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(bboxDBConnection);
 
 				for(int i = 0; i < queries; i++) {
@@ -275,6 +274,8 @@ public class TestIndexBasedUpdate implements Runnable {
 					final EmptyResultFuture updateRequest = updateHelper.handleTupleUpdate(tablename, tuple);
 					pendingFutures.put(updateRequest);
 				}
+
+				pendingFutures.waitForCompletion();
 			} catch (Exception e) {
 				logger.error("Got an exception in update thread", e);
 			}
