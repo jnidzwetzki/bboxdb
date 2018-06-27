@@ -248,10 +248,8 @@ public class TestIndexBasedUpdate implements Runnable {
 	private Runnable getNewRunableIndex(final BBoxDBCluster bboxDBConnection, final int dimensions) {
 		final Runnable run = () -> {
 
-			try (
-					final BBoxDBCluster threadConnection = getBBoxDBConnection();
-			    ){
-				final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(threadConnection);
+			try {
+				final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(bboxDBConnection);
 
 				for(int i = 0; i < queries; i++) {
 					final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);
