@@ -598,8 +598,8 @@ public class BBoxDBConnection {
 	 * @param requestPackage
 	 * @param future
 	 */
-	private void writePackageWithCompression(NetworkRequestPackage requestPackage,
-			NetworkOperationFuture future) {
+	private void writePackageWithCompression(final NetworkRequestPackage requestPackage,
+			final NetworkOperationFuture future) {
 
 		boolean queueFull = false;
 
