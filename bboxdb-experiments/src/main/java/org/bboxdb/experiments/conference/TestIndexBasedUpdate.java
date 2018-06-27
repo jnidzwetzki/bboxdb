@@ -130,7 +130,7 @@ public class TestIndexBasedUpdate implements Runnable {
 			System.err.println("Unable to connect to the BBoxDB cluster, exiting");
 			System.exit(-1);
 		}
-		
+
 		return bboxDBConnection;
 	}
 
@@ -190,8 +190,6 @@ public class TestIndexBasedUpdate implements Runnable {
 		for(final Thread thread : threads) {
 			thread.join();
 		}
-
-		pendingFutures.waitForCompletion();
 	}
 
 	/**
@@ -249,7 +247,7 @@ public class TestIndexBasedUpdate implements Runnable {
 	 */
 	private Runnable getNewRunableIndex(final BBoxDBCluster bboxDBConnection, final int dimensions) {
 		final Runnable run = () -> {
-			
+
 			try (
 					final BBoxDBCluster threadConnection = getBBoxDBConnection();
 			    ){
