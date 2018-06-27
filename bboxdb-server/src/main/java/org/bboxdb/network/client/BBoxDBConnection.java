@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.network.client;
 
@@ -72,7 +72,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 
 public class BBoxDBConnection {
-	
+
 	/**
 	 * The sequence number generator
 	 */
@@ -122,7 +122,7 @@ public class BBoxDBConnection {
 	 * The maintenance thread
 	 */
 	private Thread mainteinanceThread;
-	
+
 	/**
 	 * The maintenance handler instance
 	 */
@@ -142,7 +142,7 @@ public class BBoxDBConnection {
 	 * The connection state
 	 */
 	private final ServiceState connectionState;
-	
+
 	/**
 	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
 	 * prevent two in flight requests with the same id.
@@ -184,13 +184,13 @@ public class BBoxDBConnection {
 	 * The BBoxDBClient;
 	 */
 	private final BBoxDBClient bboxDBClient;
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
 
-	
+
 	@VisibleForTesting
 	public BBoxDBConnection() {
 		this(new InetSocketAddress("localhost", 1234));
@@ -206,10 +206,10 @@ public class BBoxDBConnection {
 				final Inet4Address nonLoopbackAdress = NetworkInterfaceHelper.getFirstNonLoopbackIPv4();
 				this.serverAddress = new InetSocketAddress(nonLoopbackAdress, serverAddress.getPort());
 			} catch (SocketException e) {
-				logger.error("Connection to loopback IP " + serverAddress 
+				logger.error("Connection to loopback IP " + serverAddress
 						+ " requested and unable replace the IP with external IP", e);
 			}
-		} 
+		}
 
 		this.bboxDBClient = new BBoxDBClient(this);
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
@@ -223,11 +223,11 @@ public class BBoxDBConnection {
 
 		// Concurrent access with synchronized
 		this.pendingCompressionPackages = new ArrayList<>();
-		
+
 		// Concurrent access
 		this.resultBuffer = new ConcurrentHashMap<>();
 		this.pendingCalls = new ConcurrentHashMap<>();
-		
+
 		initResponseHandler();
 	}
 
@@ -262,15 +262,15 @@ public class BBoxDBConnection {
 		try {
 			connectionState.dipatchToStarting();
 			connectionState.registerCallback((c) -> { if(c.isInFailedState() ) { killPendingCalls(); } });
-			
+
 			final Retryer<Socket> socketRetryer = new Retryer<>(10, 200, TimeUnit.MILLISECONDS, () -> {
 				return new Socket(serverAddress.getAddress(), serverAddress.getPort());
 			});
-			
+
 			if(! socketRetryer.execute()) {
 				throw socketRetryer.getLastException();
 			}
-			
+
 			clientSocket = socketRetryer.getResult();
 
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
@@ -294,7 +294,7 @@ public class BBoxDBConnection {
 			closeSocket();
 			connectionState.dispatchToFailed(e);
 			return false;
-		} 
+		}
 
 		return true;
 	}
@@ -326,8 +326,8 @@ public class BBoxDBConnection {
 
 	/**
 	 * Run the handshake with the server
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
 	private void runHandshake() throws Exception {
 
@@ -335,15 +335,15 @@ public class BBoxDBConnection {
 			logger.error("Handshaking called in wrong state: {}", connectionState);
 		}
 
-		// Capabilities are reported to server; now freeze client capabilities. 
+		// Capabilities are reported to server; now freeze client capabilities.
 		clientCapabilities.freeze();
-	
+
 
 		final NetworkOperationFuture operationFuture = new NetworkOperationFuture(this, () -> {
-			return new HelloRequest(getNextSequenceNumber(), 
+			return new HelloRequest(getNextSequenceNumber(),
 					NetworkConst.PROTOCOL_VERSION, clientCapabilities);
 		});
-		
+
 		final HelloFuture helloFuture = new HelloFuture(operationFuture);
 		helloFuture.waitForCompletion();
 
@@ -356,7 +356,7 @@ public class BBoxDBConnection {
 
 		connectionState.dispatchToRunning();
 		logger.debug("Handshaking with {} done", getConnectionName());
-		
+
 		flushHandler = new ConnectionFlushRunnable(this);
 		flushThread = new Thread(flushHandler);
 		flushThread.setName("Flush thread for: " + getConnectionName());
@@ -372,7 +372,7 @@ public class BBoxDBConnection {
 	 * @see org.bboxdb.network.client.BBoxDB#disconnect()
 	 */
 	public void disconnect() {
-		
+
 		if(! connectionState.isInRunningState()) {
 			logger.error("Unable to disconnect, connection is in state {}", connectionState);
 			return;
@@ -385,7 +385,7 @@ public class BBoxDBConnection {
 			final NetworkOperationFuture future = new NetworkOperationFuture(this, () -> {
 				return new DisconnectRequest(getNextSequenceNumber());
 			});
-			
+
 			future.execute();
 		}
 
@@ -402,24 +402,24 @@ public class BBoxDBConnection {
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
-			
+
 			while(getInFlightCalls() > 0) {
 				final long timeLeft = shutdownTimeMillis - stopwatch.elapsed(TimeUnit.MILLISECONDS);
-				
+
 				if (timeLeft <= 0) {
 					break;
 				}
-				
+
 				if(! isConnected()) {
-					logger.warn("Connection already closed but {} requests are pending", 
+					logger.warn("Connection already closed but {} requests are pending",
 							getInFlightCalls());
 					return;
 				}
-				
+
 				logger.info("Waiting up to {} seconds for pending requests to settle "
-						+ "(pending {} / server {})", timeLeft, 
+						+ "(pending {} / server {})", timeLeft,
 						getInFlightCalls(), getConnectionName());
-				
+
 				try {
 					// Recheck connection state all 5 seconds
 					final long maxWaitTime = Math.min(timeLeft, TimeUnit.SECONDS.toMillis(5));
@@ -461,14 +461,14 @@ public class BBoxDBConnection {
 	 * Close the connection to the server without sending a disconnect package. For a
 	 * regular disconnect, see the disconnect() method.
 	 */
-	public void terminateConnection() {		
+	public void terminateConnection() {
 		if(connectionState.isInRunningState()) {
 			connectionState.dispatchToStopping();
 		}
 
 		killPendingCalls();
 		getResultBuffer().clear();
-		
+
 		closeSocket();
 
 		logger.info("Disconnected from server: {}", getConnectionName());
@@ -521,20 +521,20 @@ public class BBoxDBConnection {
 	 * Send a request package to the server
 	 * @param responsePackage
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public void sendPackageToServer(final NetworkRequestPackage requestPackage, 
+	public void sendPackageToServer(final NetworkRequestPackage requestPackage,
 			final NetworkOperationFuture future) {
-		
+
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 		final boolean result = testPackageSend(requestPackage, future);
-		
+
 		// Package don't need to be send
 		if(result == false) {
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
 			return;
 		}
-				
+
 		if(connectionCapabilities.hasGZipCompression()) {
 			writePackageWithCompression(requestPackage, future);
 		} else {
@@ -546,15 +546,15 @@ public class BBoxDBConnection {
 	 * Recalculate the routing header and handle the exceptions
 	 * @param requestPackage
 	 * @param future
-	 * @return 
+	 * @return
 	 */
-	private boolean testPackageSend(final NetworkRequestPackage requestPackage, 
+	private boolean testPackageSend(final NetworkRequestPackage requestPackage,
 			final NetworkOperationFuture future) {
-		
-		try {			
+
+		try {
 			// Check if package needs to be send
 			final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
-			
+
 			if(routingHeader.isRoutedPackage()) {
 				if(routingHeader.getHopCount() == 0) {
 					future.setMessage("No distribution regions in next hop, not sending to server");
@@ -562,7 +562,7 @@ public class BBoxDBConnection {
 					return false;
 				}
 			}
-			
+
 		} catch (PackageEncodeException e) {
 			final String message = "Got a exception during package encoding";
 			logger.error(message);
@@ -571,7 +571,7 @@ public class BBoxDBConnection {
 			future.fireCompleteEvent();
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -580,10 +580,10 @@ public class BBoxDBConnection {
 	 * @param requestPackage
 	 * @param future
 	 */
-	private void writePackageUncompressed(final NetworkRequestPackage requestPackage, 
+	private void writePackageUncompressed(final NetworkRequestPackage requestPackage,
 			final NetworkOperationFuture future) {
 
-		try {	
+		try {
 			writePackageToSocket(requestPackage);
 		} catch (IOException | PackageEncodeException e) {
 			logger.warn("Got an exception while sending package to server", e);
@@ -598,7 +598,7 @@ public class BBoxDBConnection {
 	 * @param requestPackage
 	 * @param future
 	 */
-	private void writePackageWithCompression(NetworkRequestPackage requestPackage, 
+	private void writePackageWithCompression(NetworkRequestPackage requestPackage,
 			NetworkOperationFuture future) {
 
 		boolean queueFull = false;
@@ -614,8 +614,8 @@ public class BBoxDBConnection {
 	}
 
 	/**
-	 * Write all pending compression packages to server, called by the maintainance thread
-	 * 
+	 * Write all pending compression packages to server, called by the maintenance thread
+	 *
 	 */
 	public void flushPendingCompressionPackages() {
 
@@ -634,7 +634,7 @@ public class BBoxDBConnection {
 			logger.debug("Chunk size is: {}", packagesToWrite.size());
 		}
 
-		final NetworkRequestPackage compressionEnvelopeRequest 
+		final NetworkRequestPackage compressionEnvelopeRequest
 			= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
 
 		try {
@@ -651,7 +651,7 @@ public class BBoxDBConnection {
 	 * @throws PackageEncodeException
 	 * @throws IOException
 	 */
-	private void writePackageToSocket(final NetworkRequestPackage requestPackage) 
+	private void writePackageToSocket(final NetworkRequestPackage requestPackage)
 			throws PackageEncodeException, IOException {
 
 		synchronized (outputStream) {
@@ -662,7 +662,7 @@ public class BBoxDBConnection {
 		// Could be null during handshake
 		if(mainteinanceHandler != null) {
 			mainteinanceHandler.updateLastDataSendTimestamp();
-		}	
+		}
 	}
 
 	/**
@@ -671,38 +671,38 @@ public class BBoxDBConnection {
 	 * @param future
 	 * @return
 	 */
-	public short registerPackageCallback(final NetworkRequestPackage requestPackage, 
+	public short registerPackageCallback(final NetworkRequestPackage requestPackage,
 			final NetworkOperationFuture future) {
-		
+
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 
 		synchronized (pendingCalls) {
-			assert (! pendingCalls.containsKey(sequenceNumber)) 
+			assert (! pendingCalls.containsKey(sequenceNumber))
 				: "Old call exists: " + pendingCalls.get(sequenceNumber);
-			
+
 			pendingCalls.put(sequenceNumber, future);
 		}
-		
+
 		try {
 			synchronized (pendingCalls) {
 				// Ensure that not more then maxInFlightCalls are active
 				while(pendingCalls.size() > maxInFlightCalls) {
 					pendingCalls.wait();
-				}	
+				}
 			}
 
 		} catch(InterruptedException e) {
 			logger.warn("Got an exception while waiting for pending requests", e);
 			Thread.currentThread().interrupt();
 		}
-	
+
 		return sequenceNumber;
 	}
 
 	/**
 	 * Handle the next result package
 	 * @param packageHeader
-	 * @throws PackageEncodeException 
+	 * @throws PackageEncodeException
 	 */
 	public void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
@@ -713,17 +713,17 @@ public class BBoxDBConnection {
 		synchronized (pendingCalls) {
 			future = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}
-		
+
 		if(! serverResponseHandler.containsKey(packageType)) {
 			logger.error("Unknown respose package type: {}", packageType);
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
-			
+
 			if(future != null) {
 				future.setFailedState();
 				future.fireCompleteEvent();
 			}
 
-		} else {			
+		} else {
 			final ServerResponseHandler handler = serverResponseHandler.get(packageType);
 			final boolean removeFuture = handler.handleServerResult(this, encodedPackage, future);
 
@@ -736,7 +736,7 @@ public class BBoxDBConnection {
 
 	/**
 	 * Remove the future from list and release the sequence number
-	 * 
+	 *
 	 * @param sequenceNumber
 	 */
 	private void removeFutureAndReleaseSequencenumber(final short sequenceNumber) {
@@ -751,9 +751,9 @@ public class BBoxDBConnection {
 	/**
 	 * Read the full package
 	 * @param packageHeader
-	 * @param inputStream2 
+	 * @param inputStream2
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public ByteBuffer readFullPackage(final ByteBuffer packageHeader,
 			final InputStream inputStream) throws IOException {
@@ -771,7 +771,7 @@ public class BBoxDBConnection {
 
 	@Override
 	public String toString() {
-		return "BBoxDBClient [serverHostname=" + serverAddress.getHostString() 
+		return "BBoxDBClient [serverHostname=" + serverAddress.getHostString()
 		+ ", serverPort=" + serverAddress.getPort() + ", pendingCalls="
 		+ pendingCalls.size() + ", connectionState=" + connectionState + "]";
 	}
@@ -806,7 +806,7 @@ public class BBoxDBConnection {
 	public ServerResponseReader getServerResponseReader() {
 		return serverResponseReader;
 	}
-	
+
 	/**
 	 * Get the server address
 	 * @return
@@ -814,7 +814,7 @@ public class BBoxDBConnection {
 	public InetSocketAddress getServerAddress() {
 		return serverAddress;
 	}
-	
+
 	/**
 	 * Get the BBoxDB Client
 	 * @return
@@ -822,10 +822,10 @@ public class BBoxDBConnection {
 	public BBoxDBClient getBboxDBClient() {
 		return bboxDBClient;
 	}
-	
+
 	/**
 	 * Get the input stream
-	 * 
+	 *
 	 * @return
 	 */
 	public BufferedInputStream getInputStream() {
