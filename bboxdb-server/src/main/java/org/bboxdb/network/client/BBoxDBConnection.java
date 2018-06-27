@@ -608,7 +608,7 @@ public class BBoxDBConnection {
 			queueFull = pendingCompressionPackages.size() >= Const.MAX_UNCOMPRESSED_QUEUE_SIZE;
 		}
 
-		if(queueFull) {
+		if(queueFull || requestPackage.needsImmediateFlush()) {
 			flushPendingCompressionPackages();
 		}
 	}
