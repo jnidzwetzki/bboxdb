@@ -8,6 +8,7 @@ order: 1
 ### Version 0.8.1 - TBA
 - Improvement: Updated dependencies (Prometheus 0.3.0 -> 0.4.0, Zookeeper 3.4.11 -> 3.4.12, snakeyaml 1.20 -> 1.21, Guava 24.0 -> 25.1, Mockito 2.18 -> 2.19)
 - Improvement: Added index based update experiment
+- Improvement: Added update / delete experiment
 - Improvement: Made cluster connection closeable
 - Improvement: Flush connection after executing lock requests
 - Bugfix: Fixed RaceConditions in FixedSizeFutureStore
