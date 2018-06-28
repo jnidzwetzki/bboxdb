@@ -98,7 +98,7 @@ public class TestIndexBasedUpdate implements Runnable {
 			final DistributionGroupConfiguration configuration = adapter.getDistributionGroupConfiguration(distributionGroup);
 			final int dimensions = configuration.getDimensions();
 
-			final List<Integer> worker = Arrays.asList(1, 2, 3, 5, 10, 20, 50);
+			final List<Integer> worker = Arrays.asList(1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100);
 
 			// Updates without index
 			System.out.format("# Running n queries and p parallel worker (non index) %n");
