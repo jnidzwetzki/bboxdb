@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Stopwatch;
 
 public class TestDeleteGetQuery implements Runnable {
-	
+
 	enum ExperientMode {
 		READ_ALL,
 		DELETE;
@@ -102,7 +102,7 @@ public class TestDeleteGetQuery implements Runnable {
 			final DistributionGroupConfiguration configuration = adapter.getDistributionGroupConfiguration(distributionGroup);
 			final int dimensions = configuration.getDimensions();
 
-			final List<Integer> worker = Arrays.asList(1, 5, 10, 20, 50);
+			final List<Integer> worker = Arrays.asList(1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100);
 
 			// Updates without index
 			System.out.format("# Running n queries and p parallel worker (delete) %n");
@@ -207,7 +207,7 @@ public class TestDeleteGetQuery implements Runnable {
 					final String key = Double.toString(randomDouble);
 
 					final List<BBoxDBConnection> connections = MembershipConnectionService.getInstance().getAllConnections();
-					
+
 					for(final BBoxDBConnection connection : connections) {
 						final BBoxDBClient bBoxDBClient = new BBoxDBClient(connection);
 						final TupleListFuture future = bBoxDBClient.queryKey(tablename, key);
