@@ -24,7 +24,7 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
 In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (e.g., non-point data / regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
 
 # BBoxDB in Action
-In the following screencast, a 2-dimensional distribution group and two tables are created. Then some tuples are inserted and operations like key-queries, hyperrectangle-queries, deletes, and joins are executed on the stored data.
+In the following screencast, the _command line interface_ of BBoxDB is used to create a 2-dimensional distribution group and two tables. Then some tuples are inserted and operations like key-queries, hyperrectangle-queries, deletes, and joins are executed on the stored data. For accessing BBoxDB from your application, see the [creating client code](https://jnidzwetzki.github.io/bboxdb/doc/client.html) section in the documentation.
 
 <p><img src="docs/images/screencast.gif" width="800"></p>
 
