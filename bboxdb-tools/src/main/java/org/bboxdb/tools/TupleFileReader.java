@@ -36,32 +36,49 @@ public class TupleFileReader {
 	/**
 	 * The filename to read
 	 */
-	protected String filename;
+	private String filename;
 	
 	/**
 	 * The input format
 	 */
-	protected final TupleBuilder tupleBuilder;
+	private final TupleBuilder tupleBuilder;
+	
+	/**
+	 * The bounding box padding
+	 */
+	private final double boxPadding;
 	
 	/**
 	 * The tuple callbacks
 	 */
-	protected final List<Consumer<? super Tuple>> callbacks;
+	private final List<Consumer<? super Tuple>> callbacks;
 
 	/** 
 	 * The amount of processed lines
 	 */
-	protected long lineNumber;
+	private long lineNumber;
 
 	/**
 	 * The last read file
 	 */
-	protected String fileLine;
+	private String fileLine;
+	
+	/**
+	 * The default bounding box padding
+	 */
+	private final static double DEFAULT_BOX_PADDING = 0.0;
 
 	public TupleFileReader(final String filename, final String importFormat) {
+		this(filename, importFormat, DEFAULT_BOX_PADDING);
+	}
+	
+	public TupleFileReader(final String filename, final String importFormat, final double boxPadding) {
 		this.filename = filename;
+		this.boxPadding = boxPadding;
 		this.tupleBuilder = TupleBuilderFactory.getBuilderForFormat(importFormat);
 		this.callbacks = new ArrayList<>();
+		
+		tupleBuilder.setPadding(boxPadding);
 	}
 	
 	/**
@@ -124,5 +141,13 @@ public class TupleFileReader {
 	 */
 	public String getLastReadLine() {
 		return fileLine;
+	}
+	
+	/**
+	 * Get the bounding box padding
+	 * @return
+	 */
+	public double getBoxPadding() {
+		return boxPadding;
 	}
 }

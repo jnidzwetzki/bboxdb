@@ -22,7 +22,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyntheticTupleBuilder implements TupleBuilder {
+public class SyntheticTupleBuilder extends TupleBuilder {
 
 	/**
 	 * The Logger

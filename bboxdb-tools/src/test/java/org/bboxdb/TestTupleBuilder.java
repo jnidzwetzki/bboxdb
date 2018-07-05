@@ -156,6 +156,31 @@ public class TestTupleBuilder {
 	}
 	
 	/**
+	 * Test the rome taxi range tuple builder - with padding
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testRomeTaxiRangeTupleBuilder3() throws ParseException {	
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.ROME_TAXI_RANGE);
+		
+		tupleBuilder.setPadding(1.0);
+		
+		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
+		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
+
+		Assert.assertTrue(tuple1 == null);
+		Assert.assertTrue(tuple2 != null);
+		Assert.assertEquals(Integer.toString(1), tuple2.getKey());
+		
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007027d, 1388790009029d, 
+				40.91924450823211, 42.92924450823211,
+				11.5027184734508, 15.5527184734508);
+		
+		Assert.assertEquals(exptectedBox, tuple2.getBoundingBox());
+	}
+	
+	/**
 	 * Test the yellow taxi range tuple builder
 	 * @throws ParseException 
 	 */

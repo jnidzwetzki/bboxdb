@@ -27,7 +27,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RomeTaxiRangeBuilder implements TupleBuilder {
+public class RomeTaxiRangeBuilder extends TupleBuilder {
 
 	/**
 	 * The time zone
@@ -76,8 +76,9 @@ public class RomeTaxiRangeBuilder implements TupleBuilder {
 			final double beginLatitude = Math.min(oldEntry.getLatitude(), latitude);
 			final double endLatitude = Math.max(oldEntry.getLatitude(), latitude);
 			
-			final Hyperrectangle boundingBox = new Hyperrectangle(beginTime, endTime,
-					beginLongitude, endLongitude, beginLatitude, endLatitude);
+			final Hyperrectangle boundingBox = new Hyperrectangle(beginTime - boxPadding, 
+					endTime + boxPadding, beginLongitude - boxPadding, endLongitude + boxPadding, 
+					beginLatitude - boxPadding, endLatitude + boxPadding);
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			

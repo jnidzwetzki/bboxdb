@@ -19,12 +19,33 @@ package org.bboxdb.tools.converter.tuple;
 
 import org.bboxdb.storage.entity.Tuple;
 
-public interface TupleBuilder {
+public abstract class TupleBuilder {
+	
+	/**
+	 * The default bbox padding
+	 */
+	protected double boxPadding = 0.0;
 	
 	/**
 	 * Build a tuple from the given strings
 	 * @param data
 	 * @return
 	 */
-	public Tuple buildTuple(final String keyData, final String valueData);
+	public abstract Tuple buildTuple(final String keyData, final String valueData);
+
+	/**
+	 * Set the padding of the bounding box
+	 * @param boxPadding
+	 */
+	public void setPadding(final double boxPadding) {
+		this.boxPadding = boxPadding;
+	}
+	
+	/**
+	 * Get the bounding box padding
+	 * @return
+	 */
+	public double getBoxPadding() {
+		return boxPadding;
+	}
 }

@@ -26,7 +26,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class YellowTaxiPointTupleBuilder implements TupleBuilder {
+public class YellowTaxiPointTupleBuilder extends TupleBuilder {
 
 	/**
 	 * The date parser
@@ -53,9 +53,10 @@ public class YellowTaxiPointTupleBuilder implements TupleBuilder {
 			final double longBegin = Double.parseDouble(data[5]);
 			final double latBegin = Double.parseDouble(data[6]);
 
-			final Hyperrectangle boundingBox = new Hyperrectangle(longBegin, longBegin,
-					latBegin, latBegin,
-					(double) tripStart.getTime(), (double) tripStart.getTime());
+			final Hyperrectangle boundingBox = new Hyperrectangle(longBegin - boxPadding, 
+					longBegin + boxPadding,
+					latBegin - boxPadding, latBegin + boxPadding,
+					(double) tripStart.getTime() - boxPadding, (double) tripStart.getTime() + boxPadding);
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			

@@ -93,7 +93,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 			final Polygon polygon = Polygon.fromGeoJson(line);
 			final byte[] tupleBytes = polygon.toGeoJson().getBytes();
    
-			final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
+			final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(0.0), tupleBytes);
 			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 			
 			// register pending future

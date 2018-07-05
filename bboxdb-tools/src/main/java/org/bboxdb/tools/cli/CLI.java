@@ -664,10 +664,16 @@ public class CLI implements Runnable, AutoCloseable {
 		final String filename = line.getOptionValue(CLIParameter.FILE);
 		final String format = line.getOptionValue(CLIParameter.FORMAT);
 		final String table = line.getOptionValue(CLIParameter.TABLE);
-	
-		System.out.format("Importing file: %s%n", filename);
 		
-		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
+		final String paddingString 
+			= CLIHelper.getParameterOrDefault(line, CLIParameter.BOUNDING_BOX_PADDING, "0.0");
+	
+		final double padding = MathUtil.tryParseDoubleOrExit(paddingString, 
+				() -> "Untable to parse: " + paddingString);
+		
+		System.out.format("Importing file: %s with padding %d%n", filename, padding);
+		
+		final TupleFileReader tupleFile = new TupleFileReader(filename, format, padding);
 		tupleFile.addTupleListener(t -> {
 			
 			if(t == null) {
@@ -1088,6 +1094,14 @@ public class CLI implements Runnable, AutoCloseable {
 				.desc("The bounding box of the tuple")
 				.build();
 		options.addOption(bbox);
+		
+		// BBox padding
+		final Option bboxPadding = Option.builder(CLIParameter.BOUNDING_BOX_PADDING)
+				.hasArg()
+				.argName("bounding box padding")
+				.desc("The bounding box padding")
+				.build();
+		options.addOption(bboxPadding);
 		
 		// Value
 		final Option value = Option.builder(CLIParameter.VALUE)

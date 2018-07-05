@@ -111,9 +111,10 @@ public class Polygon implements Serializable {
 
 	/**
 	 * Get the bounding box from the object
+	 * @param boxPadding 
 	 * @return
 	 */
-	public Hyperrectangle getBoundingBox() {
+	public Hyperrectangle getBoundingBox(final double boxPadding) {
 
 		if(pointList.isEmpty()) {
 			return Hyperrectangle.FULL_SPACE;
@@ -132,7 +133,8 @@ public class Polygon implements Serializable {
 			maxY = Math.max(maxY, osmPoint.getY());
 		}
 
-		return new Hyperrectangle(minX, maxX, minY, maxY);
+		return new Hyperrectangle(minX - boxPadding, maxX + boxPadding, 
+				minY - boxPadding, maxY + boxPadding);
 	}
 
 	/**

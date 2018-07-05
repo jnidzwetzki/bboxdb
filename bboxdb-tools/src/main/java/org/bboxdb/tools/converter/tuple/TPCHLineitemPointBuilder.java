@@ -26,7 +26,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TPCHLineitemPointBuilder implements TupleBuilder {
+public class TPCHLineitemPointBuilder extends TupleBuilder {
 
 	/**
 	 * The date parser
@@ -66,7 +66,8 @@ public class TPCHLineitemPointBuilder implements TupleBuilder {
 			final Date shipDate = dateParser.parse(data[10]);
 			
 			final double shipDateTime = (double) shipDate.getTime();
-			final Hyperrectangle boundingBox = new Hyperrectangle(shipDateTime, shipDateTime);
+			final Hyperrectangle boundingBox = new Hyperrectangle(shipDateTime - boxPadding, 
+					shipDateTime + boxPadding);
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			

@@ -118,6 +118,11 @@ public class CLIParameter {
 	 * Bounding Box
 	 */
 	public static final String BOUNDING_BOX = "bbox";
+	
+	/**
+	 * Bounding Box padding
+	 */
+	public static final String BOUNDING_BOX_PADDING = "bboxpadding";
 
 	/**
 	 * Value

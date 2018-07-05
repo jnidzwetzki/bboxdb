@@ -26,7 +26,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class YellowTaxiRangeTupleBuilder implements TupleBuilder {
+public class YellowTaxiRangeTupleBuilder extends TupleBuilder {
 
 	/**
 	 * The date parser
@@ -58,12 +58,12 @@ public class YellowTaxiRangeTupleBuilder implements TupleBuilder {
 			final double latEnd = Double.parseDouble(data[10]);
 			
 			final Hyperrectangle boundingBox = new Hyperrectangle(
-					Math.min(longBegin, longEnd),
-					Math.max(longBegin, longEnd),
-					Math.min(latBegin, latEnd),
-					Math.max(latBegin, latEnd),
-					Math.min((double) tripStart.getTime(), (double) tripEnd.getTime()),
-					Math.max((double) tripStart.getTime(), (double) tripEnd.getTime()));
+					Math.min(longBegin, longEnd) - boxPadding,
+					Math.max(longBegin, longEnd) + boxPadding,
+					Math.min(latBegin, latEnd) - boxPadding, 
+					Math.max(latBegin, latEnd) + boxPadding,
+					Math.min((double) tripStart.getTime(), (double) tripEnd.getTime() - boxPadding),
+					Math.max((double) tripStart.getTime(), (double) tripEnd.getTime() + boxPadding));
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			
