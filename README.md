@@ -26,7 +26,7 @@ In contrast to existing key-value stores, BBoxDB can handle multi-dimensional ef
 # BBoxDB in Action
 In the following screencast, the _command line interface_ of BBoxDB is used to create a 2-dimensional distribution group and two tables. Then some tuples are inserted and operations like key-queries, hyperrectangle-queries, deletes, and joins are executed on the stored data. For accessing BBoxDB from your application, see the [creating client code](https://jnidzwetzki.github.io/bboxdb/doc/client.html) section in the documentation.
 
-<p><img src="docs/images/screencast.gif"></p>
+<p><a href="https://github.com/jnidzwetzki/bboxdb/blob/master/docs/images/screencast.gif?raw=true"><img src="docs/images/screencast.gif"></a></p>
 
 ## Documentation 
 The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
