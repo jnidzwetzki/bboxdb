@@ -26,6 +26,8 @@ In contrast to existing key-value stores, BBoxDB can handle multi-dimensional ef
 # BBoxDB in Action
 In the following screencast, a 2-dimensional distribution group and two tables are created. Then some tuples are inserted into the tables, and queries like key-queries, hyperrectangle-queries, deletes, and joins are executed on the stored data.
 
+<p><img src="docs/images/screencast.gif" width="400"></p>
+
 ## Documentation 
 The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
