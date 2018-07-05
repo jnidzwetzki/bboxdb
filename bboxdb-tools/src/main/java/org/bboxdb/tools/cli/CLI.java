@@ -665,13 +665,13 @@ public class CLI implements Runnable, AutoCloseable {
 		final String format = line.getOptionValue(CLIParameter.FORMAT);
 		final String table = line.getOptionValue(CLIParameter.TABLE);
 	
-		System.out.println("Importing file: " + filename);
+		System.out.format("Importing file: %s%n", filename);
 		
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		tupleFile.addTupleListener(t -> {
 			
 			if(t == null) {
-				logger.error("Unable to parse line: " + tupleFile.getLastReadLine());
+				logger.error("Unable to parse line: {}", tupleFile.getLastReadLine());
 				return;
 			}
 			
