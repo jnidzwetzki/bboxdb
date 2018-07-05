@@ -26,7 +26,7 @@ In contrast to existing key-value stores, BBoxDB can handle multi-dimensional ef
 # BBoxDB in Action
 In the following screencast, the _command line interface_ of BBoxDB is used to create a 2-dimensional distribution group and two tables. Then some tuples are inserted and operations like key-queries, hyperrectangle-queries, deletes, and joins are executed on the stored data. For accessing BBoxDB from your application, see the [creating client code](https://jnidzwetzki.github.io/bboxdb/doc/client.html) section in the documentation.
 
-<p><a href="https://github.com/jnidzwetzki/bboxdb/blob/master/docs/images/screencast.gif?raw=true" target="_blank"><img src="docs/images/screencast.gif" ></a></p>
+<p><a href="https://github.com/jnidzwetzki/bboxdb/blob/master/docs/images/screencast.gif?raw=true" target="_blank"><img src="docs/images/screencast.gif" ></a><br><i>If the font is difficult to read, please click on the image.</i></p>
 
 ## Documentation 
 The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
@@ -38,7 +38,7 @@ For a guided tour through the features of BBoxDB, see the [getting started](http
 BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown. 
 
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
-(The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)
+<i>(The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)</i>
 </p>
 
 When 2-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported.
