@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +72,7 @@ public class TestIndexBasedUpdate implements Runnable {
 	/**
 	 * The number of queries to execute
 	 */
-	private int queries;
+	private final int queries;
 
 	/**
 	 * The logger
@@ -141,7 +143,7 @@ public class TestIndexBasedUpdate implements Runnable {
 			long totalElapsedTime = 0;
 			for(int execution = 0; execution < RETRIES; execution++) {
 				final Stopwatch stopwatch = Stopwatch.createStarted();
-				executeQueriesOnIndex(worker, bboxDBConnection, dimensions, useIndex);
+				executeQueries(worker, bboxDBConnection, dimensions, useIndex);
 				final long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 				totalElapsedTime += elapsedTime;
 			}
@@ -161,7 +163,7 @@ public class TestIndexBasedUpdate implements Runnable {
 	 * @throws InterruptedException
 	 * @throws RejectedException
 	 */
-	private void executeQueriesOnIndex(final int worker, final BBoxDBCluster bboxDBConnection,
+	private void executeQueries(final int worker, final BBoxDBCluster bboxDBConnection,
 			final int dimensions, final boolean useIndex)
 					throws BBoxDBException, InterruptedException, RejectedException {
 
@@ -173,7 +175,7 @@ public class TestIndexBasedUpdate implements Runnable {
 			if(useIndex) {
 				runable = getNewRunableIndex(bboxDBConnection, dimensions);
 			} else {
-				runable = getNewRunable(bboxDBConnection, dimensions);
+				runable = getNewRunableNonIndex(bboxDBConnection, dimensions);
 			}
 
 			final Thread thread = new Thread(runable);
@@ -192,53 +194,67 @@ public class TestIndexBasedUpdate implements Runnable {
 	 * @param dimensions
 	 * @return
 	 */
-	private Runnable getNewRunable(final BBoxDBCluster bboxDBConnection, final int dimensions) {
+	private Runnable getNewRunableNonIndex(final BBoxDBCluster bboxDBConnection, final int dimensions) {
 		final Runnable run = () -> {
-			try {
-				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
+			final ExecutorService executor = Executors.newFixedThreadPool(100);
+			final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
 
-				for(int i = 0; i < queries; i++) {
-					final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);
-					final String key = Double.toString(randomDouble);
+			for(int i = 0; i < queries; i++) {
+				final Runnable runable = () -> {
+					try {
 
-					// Determine query bounding box
-					final List<DoubleInterval> bboxIntervals = new ArrayList<>();
-					for(int dimension = 0; dimension < dimensions; dimension++) {
-						final double d1 = ThreadLocalRandom.current().nextDouble(1000);
-						final double d2 = ThreadLocalRandom.current().nextDouble(1000);
+						final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);
+						final String key = Double.toString(randomDouble);
 
-						final double coordinateLow = d1;
-						final double coordinateHigh = d1 + d2;
+						// Determine query bounding box
+						final List<DoubleInterval> bboxIntervals = new ArrayList<>();
+						for(int dimension = 0; dimension < dimensions; dimension++) {
+							final double d1 = ThreadLocalRandom.current().nextDouble(1000);
+							final double d2 = ThreadLocalRandom.current().nextDouble(1000);
 
-						final DoubleInterval doubleInterval = new DoubleInterval(coordinateLow, coordinateHigh);
-						bboxIntervals.add(doubleInterval);
+							final double coordinateLow = d1;
+							final double coordinateHigh = d1 + d2;
+
+							final DoubleInterval doubleInterval = new DoubleInterval(coordinateLow, coordinateHigh);
+							bboxIntervals.add(doubleInterval);
+						}
+
+						final Hyperrectangle box = new Hyperrectangle(bboxIntervals);
+
+						final TupleListFuture keyQuery = bboxDBConnection.queryKey(tablename, key);
+						pendingFutures.put(keyQuery);
+
+						final EmptyResultFuture deleteQuery = bboxDBConnection.deleteTuple(tablename, key, System.currentTimeMillis(), box);
+						pendingFutures.put(deleteQuery);
+
+						final Tuple tuple = new Tuple(key, box, "".getBytes());
+
+						final EmptyResultFuture updateRequest = bboxDBConnection.insertTuple(tablename, tuple);
+						pendingFutures.put(updateRequest);
+					} catch (Exception e) {
+						logger.error("Got an exception in update thread", e);
 					}
+				};
 
-					final Hyperrectangle box = new Hyperrectangle(bboxIntervals);
-
-					final TupleListFuture keyQuery = bboxDBConnection.queryKey(tablename, key);
-					pendingFutures.put(keyQuery);
-
-					final EmptyResultFuture deleteQuery = bboxDBConnection.deleteTuple(tablename, key, System.currentTimeMillis(), box);
-					pendingFutures.put(deleteQuery);
-
-					final Tuple tuple = new Tuple(key, box, "".getBytes());
-
-					final EmptyResultFuture updateRequest = bboxDBConnection.insertTuple(tablename, tuple);
-					pendingFutures.put(updateRequest);
-				}
-
-				pendingFutures.waitForCompletion();
-			} catch (Exception e) {
-				logger.error("Got an exception in update thread", e);
+				executor.submit(runable);
 			}
+
+			// Wait for all update tasks
+			try {
+				executor.shutdown();
+				executor.awaitTermination(1, TimeUnit.DAYS);
+				pendingFutures.waitForCompletion();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 		};
 
 		return run;
 	}
 
 	/**
-	 * Create a new runable
+	 * Create a new runnable
 	 * @param bboxDBConnection
 	 * @param dimensions
 	 * @return
