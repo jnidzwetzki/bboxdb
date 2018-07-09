@@ -134,7 +134,7 @@ bboxdb_start() {
        java $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain
     else 
        # Start BBoxDB server as daemon
-       nohup java $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain > $logdir/bboxdb.out.log 2>&1 < /dev/null &
+       nohup java $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain >> $logdir/bboxdb.out.log 2>&1 < /dev/null &
     
        if [ $? -eq 0 ]; then
           # Dump PID into file
