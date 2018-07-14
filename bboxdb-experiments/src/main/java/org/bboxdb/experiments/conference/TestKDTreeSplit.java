@@ -41,32 +41,32 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The file to import
 	 */
-	protected final Map<String, String> filesAndFormats;
+	private final Map<String, String> filesAndFormats;
 
 	/**
 	 * The elements
 	 */
-	protected final Map<Hyperrectangle, List<Hyperrectangle>> elements;
+	private final Map<Hyperrectangle, List<Hyperrectangle>> elements;
 
 	/**
 	 * Box dimensions
 	 */
-	protected final Map<Hyperrectangle, Integer> boxDimension;
+	private final Map<Hyperrectangle, Integer> boxDimension;
 
 	/**
 	 * The sampling size
 	 */
-	protected final static double SAMPLING_SIZE = 1d;
+	private final static double SAMPLING_SIZE = 1d;
 
 	/**
 	 * The dimension of the input data
 	 */
-	protected int dataDimension = -1;
+	private int dataDimension = -1;
 
 	/**
 	 * Experiment sizes
 	 */
-	protected final List<Integer> experimentSize;
+	private final List<Integer> experimentSize;
 
 	public TestKDTreeSplit(final Map<String, String> filesAndFormats, final List<Integer> experimentSize) {
 		this.filesAndFormats = filesAndFormats;
@@ -85,7 +85,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param sampleSize
 	 * @throws IOException
 	 */
-	protected void runExperiment(final int maxRegionSize) {
+	private void runExperiment(final int maxRegionSize) {
 		System.out.println("# Simulating with max element size: " + maxRegionSize);
 
 		elements.clear();
@@ -124,7 +124,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param maxRegionSize
 	 * @param tuple
 	 */
-	protected void insertNextBoundingBox(final Hyperrectangle boundingBox,
+	private void insertNextBoundingBox(final Hyperrectangle boundingBox,
 			final int maxRegionSize) {
 
 		// Create first entry
@@ -164,7 +164,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param numberOfElements
 	 * @return
 	 */
-	protected void splitRegion(final Hyperrectangle boundingBoxToSplit) {
+	private void splitRegion(final Hyperrectangle boundingBoxToSplit) {
 
 		final int parentBoxDimension = boxDimension.get(boundingBoxToSplit) % dataDimension;
 
@@ -203,7 +203,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param boundingBoxToSplit
 	 * @return
 	 */
-	protected double getSplitPosition(final Hyperrectangle boundingBoxToSplit, final int dimension) {
+	private double getSplitPosition(final Hyperrectangle boundingBoxToSplit, final int dimension) {
 		final List<Double> pointSamples = new ArrayList<>();
 		final Set<Integer> takenSamples = new HashSet<>();
 		final List<Hyperrectangle> elementsToProcess = elements.get(boundingBoxToSplit);
