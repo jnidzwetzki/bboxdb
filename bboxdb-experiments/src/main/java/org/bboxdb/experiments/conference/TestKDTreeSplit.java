@@ -254,9 +254,13 @@ public class TestKDTreeSplit implements Runnable {
 	    }
 	    
 	    cursor.close();
+	    
+	    // Name needs to be fetched before database is closed
+	    final String databaseName = database.getDatabaseName();
+	    
 	    database.close();
 	    
-	    dbEnv.removeDatabase(null, database.getDatabaseName());
+		dbEnv.removeDatabase(null, databaseName);
 	}
 
 	/***
