@@ -17,24 +17,33 @@
  *******************************************************************************/
 package org.bboxdb.experiments.conference;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.io.FileUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.tools.TupleFileReader;
+
+import com.google.common.io.Files;
+import com.sleepycat.je.Cursor;
+import com.sleepycat.je.Database;
+import com.sleepycat.je.DatabaseConfig;
+import com.sleepycat.je.DatabaseEntry;
+import com.sleepycat.je.Environment;
+import com.sleepycat.je.EnvironmentConfig;
+import com.sleepycat.je.LockMode;
+import com.sleepycat.je.OperationStatus;
 
 public class TestKDTreeSplit implements Runnable {
 
@@ -46,7 +55,7 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The elements
 	 */
-	private final Map<Hyperrectangle, List<Hyperrectangle>> elements;
+	private final Map<Hyperrectangle, Database> elements;
 
 	/**
 	 * Box dimensions
@@ -68,11 +77,34 @@ public class TestKDTreeSplit implements Runnable {
 	 */
 	private final List<Integer> experimentSize;
 
+	/**
+	 * The dbEnv
+	 */
+	private final Environment dbEnv;
+
+	/**
+	 * The DB config
+	 */
+	private DatabaseConfig dbConfig;
+
 	public TestKDTreeSplit(final Map<String, String> filesAndFormats, final List<Integer> experimentSize) {
 		this.filesAndFormats = filesAndFormats;
 		this.experimentSize = experimentSize;
 		this.elements = new HashMap<>();
 		this.boxDimension = new HashMap<>();
+	
+		final File folder = Files.createTempDir();
+		FileUtil.deleteDirOnExit(folder.toPath());
+		
+		final EnvironmentConfig envConfig = new EnvironmentConfig();
+		envConfig.setTransactional(false);
+		envConfig.setAllowCreate(true);
+	    envConfig.setSharedCache(true);
+		dbEnv = new Environment(folder, envConfig);
+
+		dbConfig = new DatabaseConfig();
+		dbConfig.setTransactional(false);
+		dbConfig.setAllowCreate(true);		
 	}
 
 	@Override
@@ -111,13 +143,15 @@ public class TestKDTreeSplit implements Runnable {
 		}
 
 		// Print results
-		final List<Integer> buckets = elements.values()
+		final List<Long> buckets = elements.values()
 				.stream()
-				.map(l -> l.size())
+				.map(d -> d.count())
 				.collect(Collectors.toList());
 
 		IntStream.range(0, buckets.size()).forEach(i -> System.out.format("%d\t%d\n", i, buckets.get(i)));
 	}
+	
+	
 
 	/**
 	 * Handle the next bounding box
@@ -131,18 +165,25 @@ public class TestKDTreeSplit implements Runnable {
 		if(elements.isEmpty()) {
 			dataDimension = boundingBox.getDimension();
 			final Hyperrectangle coveringBoundingBox = Hyperrectangle.createFullCoveringDimensionBoundingBox(dataDimension);
-			elements.put(coveringBoundingBox, new ArrayList<>());
+			final Database database = buildNewDatabase();
+			elements.put(coveringBoundingBox, database);
 			boxDimension.put(coveringBoundingBox, 0);
 		}
-
+		
+		// Bounding box db entry
+		final DatabaseEntry key = new DatabaseEntry();
+		key.setData(Long.toString(System.nanoTime()).getBytes());
+		final DatabaseEntry value = new DatabaseEntry();
+		value.setData(boundingBox.toByteArray());
+		
 		// Add element to all needed bounding boxes
 		elements.entrySet()
 			.stream()
 			.filter(e -> e.getKey().overlaps(boundingBox))
-			.forEach(e -> e.getValue().add(boundingBox));
+			.forEach(e -> e.getValue().put(null, key, value));
 
-		final Predicate<Entry<Hyperrectangle, List<Hyperrectangle>>> boxFullPredicate
-			= e -> e.getValue().size() >= maxRegionSize;
+		final Predicate<Entry<Hyperrectangle, Database>> boxFullPredicate
+			= e -> e.getValue().count() >= maxRegionSize;
 
 		// Split and remove full boxes
 		final List<Hyperrectangle> boxesToSplit = elements.entrySet()
@@ -159,6 +200,14 @@ public class TestKDTreeSplit implements Runnable {
 	}
 
 	/**
+	 * @return
+	 */
+	private Database buildNewDatabase() {
+		final Database database = dbEnv.openDatabase(null, Long.toString(System.nanoTime()), dbConfig);
+		return database;
+	}
+
+	/**
 	 * Split the region
 	 * @param sampleSize
 	 * @param numberOfElements
@@ -172,30 +221,40 @@ public class TestKDTreeSplit implements Runnable {
 
 		final Hyperrectangle leftBBox = boundingBoxToSplit.splitAndGetLeft(splitPosition,
 				parentBoxDimension, true);
+		
 		final Hyperrectangle rightBBox = boundingBoxToSplit.splitAndGetRight(splitPosition,
 				parentBoxDimension, false);
-
-		// Data to redistribute
-		final List<Hyperrectangle> dataToRedistribute = elements.get(boundingBoxToSplit);
 
 		// Write the box dimension
 		boxDimension.put(leftBBox, parentBoxDimension + 1);
 		boxDimension.put(rightBBox, parentBoxDimension + 1);
 
 		// Insert new boxes and remove old one
-		elements.put(leftBBox, new ArrayList<>());
-		elements.put(rightBBox, new ArrayList<>());
-		elements.remove(boundingBoxToSplit);
+		elements.put(leftBBox, buildNewDatabase());
+		elements.put(rightBBox, buildNewDatabase());
+		
+		final Database database = elements.remove(boundingBoxToSplit);
 
-		dataToRedistribute.forEach(b -> {
-			if(leftBBox.overlaps(b)) {
-				elements.get(leftBBox).add(b);
+		// Data to redistribute
+	    final Cursor cursor = database.openCursor(null, null);
+	    
+	    final DatabaseEntry foundKey = new DatabaseEntry();
+	    final DatabaseEntry foundData = new DatabaseEntry();
+
+	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+	        final Hyperrectangle box = Hyperrectangle.fromByteArray(foundData.getData());
+	        
+	        if(leftBBox.overlaps(box)) {
+				elements.get(leftBBox).put(null, foundKey, foundData);
 			}
 
-			if(rightBBox.overlaps(b)) {
-				elements.get(rightBBox).add(b);
+			if(rightBBox.overlaps(box)) {
+				elements.get(rightBBox).put(null, foundKey, foundData);
 			}
-		});
+	    }
+	    
+	    database.close();
+	    dbEnv.removeDatabase(null, database.getDatabaseName());
 	}
 
 	/***
@@ -205,26 +264,26 @@ public class TestKDTreeSplit implements Runnable {
 	 */
 	private double getSplitPosition(final Hyperrectangle boundingBoxToSplit, final int dimension) {
 		final List<Double> pointSamples = new ArrayList<>();
-		final Set<Integer> takenSamples = new HashSet<>();
-		final List<Hyperrectangle> elementsToProcess = elements.get(boundingBoxToSplit);
+		final Database database = elements.get(boundingBoxToSplit);
 
-		final int numberOfElements = elementsToProcess.size();
+		final long numberOfElements = database.count();
 		final long numberOfSamples = (long) (numberOfElements / 100.0 * SAMPLING_SIZE);
 
-		double sample = 0;
-
+	    final Cursor cursor = database.openCursor(null, null);
+	    
+	    final DatabaseEntry foundKey = new DatabaseEntry();
+	    final DatabaseEntry foundData = new DatabaseEntry();
+	    
+	    long elementNumber = 0;
+	    
 		// Try to find n samples (= 2n points)
-		while(pointSamples.size() < (2 * numberOfSamples)) {
-			sample++;
-			final int sampleId = ThreadLocalRandom.current().nextInt(numberOfElements);
+	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 
-			if(takenSamples.contains(sampleId)) {
-				continue;
-			}
-
-			takenSamples.add(sampleId);
-
-			final Hyperrectangle bboxSample = elementsToProcess.get(sampleId);
+	    		if(elementNumber % (2 * numberOfSamples) == 0) {
+	    			continue;
+	    		}
+			
+	        final Hyperrectangle bboxSample = Hyperrectangle.fromByteArray(foundData.getData());
 
 			if(bboxSample.getCoordinateLow(dimension) > boundingBoxToSplit.getCoordinateLow(dimension)) {
 				pointSamples.add(bboxSample.getCoordinateLow(dimension));
@@ -233,11 +292,8 @@ public class TestKDTreeSplit implements Runnable {
 			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
 				pointSamples.add(bboxSample.getCoordinateHigh(dimension));
 			}
-
-			// Unable to find enough samples
-			if(sample > (50 * numberOfSamples)) {
-				break;
-			}
+			
+			elementNumber++;
 		}
 
 		pointSamples.sort((b1, b2) -> Double.compare(b1, b2));
