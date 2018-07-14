@@ -278,6 +278,8 @@ public class TestKDTreeSplit implements Runnable {
 	    
 		// Try to find n samples (= 2n points)
 	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+	    	
+			elementNumber++;
 
 	    		if(elementNumber % (2 * numberOfSamples) == 0) {
 	    			continue;
@@ -291,9 +293,7 @@ public class TestKDTreeSplit implements Runnable {
 
 			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
 				pointSamples.add(bboxSample.getCoordinateHigh(dimension));
-			}
-			
-			elementNumber++;
+			}	
 		}
 
 		pointSamples.sort((b1, b2) -> Double.compare(b1, b2));
