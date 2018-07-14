@@ -22,10 +22,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -272,7 +275,7 @@ public class TestKDTreeSplit implements Runnable {
 		final List<Double> pointSamples = new ArrayList<>();
 		final Database database = elements.get(boundingBoxToSplit);
 
-		final long numberOfElements = database.count();
+		final int numberOfElements = (int) database.count();
 		final long numberOfSamples = (long) (numberOfElements / 100.0 * SAMPLING_SIZE);
 
 	    final Cursor cursor = database.openCursor(null, null);
@@ -280,29 +283,45 @@ public class TestKDTreeSplit implements Runnable {
 	    final DatabaseEntry foundKey = new DatabaseEntry();
 	    final DatabaseEntry foundData = new DatabaseEntry();
 	    
-	    long elementNumber = 0;
+	    final List<Hyperrectangle> elementsToProcess = new ArrayList<>();
 	    
 		// Try to find n samples (= 2n points)
 	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-	    	
-			elementNumber++;
-
-	    		if(elementNumber % (2 * numberOfSamples) == 0) {
-	    			continue;
-	    		}
-			
 	        final Hyperrectangle bboxSample = Hyperrectangle.fromByteArray(foundData.getData());
-
-			if(bboxSample.getCoordinateLow(dimension) > boundingBoxToSplit.getCoordinateLow(dimension)) {
-				pointSamples.add(bboxSample.getCoordinateLow(dimension));
-			}
-
-			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
-				pointSamples.add(bboxSample.getCoordinateHigh(dimension));
-			}	
+	        elementsToProcess.add(bboxSample);
 		}
 
 	    cursor.close();
+	    
+	    final Set<Integer> takenSamples = new HashSet<>();
+	    int sample = 0;
+
+	    while(pointSamples.size() < (2 * numberOfSamples)) {
+	    		sample++;
+		    	
+		    final int sampleId = ThreadLocalRandom.current().nextInt(numberOfElements);
+		    
+		    if(takenSamples.contains(sampleId)) {
+		    		continue;
+		    	}
+		    	
+		    	takenSamples.add(sampleId);
+		    	
+		    	final Hyperrectangle bboxSample = elementsToProcess.get(sampleId);
+		    
+			if(bboxSample.getCoordinateLow(dimension) > boundingBoxToSplit.getCoordinateLow(dimension)) {
+				pointSamples.add(bboxSample.getCoordinateLow(dimension));
+			}
+	
+			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
+				pointSamples.add(bboxSample.getCoordinateHigh(dimension));
+			}	
+		    
+			// Unable to find enough samples
+		    if(sample > (50 * numberOfSamples)) {
+		    		break;
+		    }
+	    }
 	    
 		pointSamples.sort((b1, b2) -> Double.compare(b1, b2));
 
