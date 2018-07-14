@@ -253,7 +253,9 @@ public class TestKDTreeSplit implements Runnable {
 			}
 	    }
 	    
+	    cursor.close();
 	    database.close();
+	    
 	    dbEnv.removeDatabase(null, database.getDatabaseName());
 	}
 
@@ -296,6 +298,8 @@ public class TestKDTreeSplit implements Runnable {
 			}	
 		}
 
+	    cursor.close();
+	    
 		pointSamples.sort((b1, b2) -> Double.compare(b1, b2));
 
 		return pointSamples.get(pointSamples.size() / 2);
