@@ -25,11 +25,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import org.bboxdb.commons.concurrent.ExecutorUtil;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
@@ -108,7 +108,8 @@ public class TupleFileReader {
 	 */
 	public void processFile(final long maxLines) throws IOException, InterruptedException {
 
-		final ExecutorService executorService = Executors.newFixedThreadPool(1);
+		// Executor with 1 thread and max 100 pending tasks
+		final ExecutorService executorService = ExecutorUtil.getBoundThreadPoolExecutor(1, 100);
 
 		final File file = new File(filename);
 
