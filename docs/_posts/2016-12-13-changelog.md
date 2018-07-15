@@ -7,8 +7,10 @@ order: 1
 ---
 
 ### Version 0.8.2 - TBA
-- Improvement: Bounding boxes can be padded in dataset import 
+- Improvement: Bounding boxes can be padded in dataset import
 - Improvement: Added 'ulimit -a' output in bboxdb.out server log
+- Improvement: Made tuplestore reader callbacks async
+- Improvement: Added external storage support for the KD-Tree split experiment
 
 ### Version 0.8.1 - 01.07.2018
 - Improvement: Updated dependencies (Prometheus 0.3.0 -> 0.4.0, Zookeeper 3.4.11 -> 3.4.12, snakeyaml 1.20 -> 1.21, Guava 24.0 -> 25.1, Mockito 2.18 -> 2.19)
