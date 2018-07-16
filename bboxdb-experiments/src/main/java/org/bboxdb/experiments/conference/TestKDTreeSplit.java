@@ -152,7 +152,7 @@ public class TestKDTreeSplit implements Runnable {
 			}
 		}
 
-		final ArrayList<Entry<Hyperrectangle, Long>> elements = new ArrayList<>(elementCounter.entrySet());
+		final ArrayList<Long> elements = new ArrayList<>(elementCounter.values());
 
 		IntStream.range(0, elements.size()).forEach(
 				i -> System.out.format("%d\t%d\n", i, elements.get(i))
