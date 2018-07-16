@@ -175,7 +175,6 @@ public class TestKDTreeSplit implements Runnable {
 			final Hyperrectangle coveringBoundingBox = Hyperrectangle.createFullCoveringDimensionBoundingBox(dataDimension);
 			final Database database = buildNewDatabase();
 			elements.put(coveringBoundingBox, database);
-			elementCounter.put(coveringBoundingBox, 0l);
 			boxDimension.put(coveringBoundingBox, 0);
 		}
 
@@ -190,7 +189,7 @@ public class TestKDTreeSplit implements Runnable {
 			.stream()
 			.filter(e -> e.getKey().overlaps(boundingBox))
 			.forEach(e -> {
-				final Long oldValue = elementCounter.get(e.getKey());
+				final Long oldValue = elementCounter.getOrDefault(e.getKey(), 0l);
 				elementCounter.put(e.getKey(), oldValue + 1);
 				e.getValue().put(null, key, value);
 			});
@@ -214,8 +213,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @return
 	 */
 	private Database buildNewDatabase() {
-		final Database database = dbEnv.openDatabase(null, Long.toString(System.nanoTime()), dbConfig);
-		return database;
+		return dbEnv.openDatabase(null, Long.toString(System.nanoTime()), dbConfig);
 	}
 
 	/**
