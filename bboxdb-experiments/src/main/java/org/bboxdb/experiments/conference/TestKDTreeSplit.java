@@ -37,7 +37,6 @@ import org.bboxdb.commons.io.FileUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.tools.TupleFileReader;
 
-import com.google.common.io.Files;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
@@ -94,21 +93,25 @@ public class TestKDTreeSplit implements Runnable {
 	 */
 	private DatabaseConfig dbConfig;
 
-	public TestKDTreeSplit(final Map<String, String> filesAndFormats, final List<Integer> experimentSize) {
+	public TestKDTreeSplit(final File tmpDir, final Map<String, String> filesAndFormats,
+			final List<Integer> experimentSize) {
+
 		this.filesAndFormats = filesAndFormats;
 		this.experimentSize = experimentSize;
+
 		this.elements = new HashMap<>();
 		this.elementCounter = new HashMap<>();
 		this.boxDimension = new HashMap<>();
 
-		final File folder = Files.createTempDir();
-		FileUtil.deleteDirOnExit(folder.toPath());
+		// Setup database dir
+		tmpDir.mkdirs();
+		FileUtil.deleteDirOnExit(tmpDir.toPath());
 
 		final EnvironmentConfig envConfig = new EnvironmentConfig();
 		envConfig.setTransactional(false);
 		envConfig.setAllowCreate(true);
 	    envConfig.setSharedCache(true);
-		dbEnv = new Environment(folder, envConfig);
+		dbEnv = new Environment(tmpDir, envConfig);
 
 		dbConfig = new DatabaseConfig();
 		dbConfig.setTransactional(false);
@@ -340,12 +343,20 @@ public class TestKDTreeSplit implements Runnable {
 	public static void main(final String[] args) throws IOException {
 
 		// Check parameter
-		if(args.length < 2) {
-			System.err.println("Usage: programm <size1,size2,sizeN> <filename1:format1> <filenameN:formatN> <filenameN:formatN>");
+		if(args.length < 3) {
+			System.err.println("Usage: programm <tmpdir> <size1,size2,sizeN> <filename1:format1> <filenameN:formatN> <filenameN:formatN>");
 			System.exit(-1);
 		}
 
-		final String experimentSizeString = Objects.requireNonNull(args[0]);
+		final String tmpDir = args[0];
+		final File dir = new File(tmpDir);
+
+		if(dir.exists()) {
+			System.err.format("Dir %s already exists, exiting%n", tmpDir);
+			System.exit(-1);
+		}
+
+		final String experimentSizeString = Objects.requireNonNull(args[1]);
 		final List<Integer> experimentSize = Arrays.asList(experimentSizeString.split(","))
 				.stream()
 				.map(e -> MathUtil.tryParseIntOrExit(e))
@@ -353,7 +364,7 @@ public class TestKDTreeSplit implements Runnable {
 
 		final Map<String, String> filesAndFormats = new HashMap<>();
 
-		for(int pos = 1; pos < args.length; pos++) {
+		for(int pos = 2; pos < args.length; pos++) {
 
 			final String element = args[pos];
 
@@ -372,7 +383,7 @@ public class TestKDTreeSplit implements Runnable {
 			filesAndFormats.put(splitFile[0], splitFile[1]);
 		}
 
-		final TestKDTreeSplit testSplit = new TestKDTreeSplit(filesAndFormats, experimentSize);
+		final TestKDTreeSplit testSplit = new TestKDTreeSplit(dir, filesAndFormats, experimentSize);
 		testSplit.run();
 	}
 
