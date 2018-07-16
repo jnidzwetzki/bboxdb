@@ -18,14 +18,14 @@
 package org.bboxdb.experiments.conference;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.concurrent.ExecutorUtil;
@@ -37,35 +37,36 @@ import org.bboxdb.tools.TupleFileReader;
 public class TestFixedGrid implements Runnable {
 
 	/**
-	 * The file to import
-	 */
-	protected final String filename;
-
-	/**
-	 * The format of the input file
-	 */
-	protected String format;
-
-	/**
 	 * The cell sizes
 	 */
-	protected List<Integer> cellSizes;
+	private final List<Integer> cellSizes;
+
+	/**
+	 * The files to process
+	 */
+	private final Map<String, String> filesAndFormats;
 
 	/**
 	 * The number of storing nodes
 	 */
 	public final static int NODES = 385;
 
-	public TestFixedGrid(final String filename, final String format, final List<Integer> cellSizes) {
-		this.filename = filename;
-		this.format = format;
+
+	public TestFixedGrid(final Map<String, String> filesAndFormats, final List<Integer> cellSizes) {
+		this.filesAndFormats = filesAndFormats;
 		this.cellSizes = cellSizes;
 	}
 
 	@Override
 	public void run() {
-		System.out.format("Reading %s%n", filename);
-		final Hyperrectangle boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
+		System.out.println("Determine bounding box");
+
+		final Hyperrectangle boundingBox = filesAndFormats
+				.entrySet()
+				.stream()
+				.map(e -> ExperimentHelper.determineBoundingBox(e.getKey(), e.getValue()))
+				.reduce((b1, b2) -> Hyperrectangle.getCoveringBox(b1, b2))
+				.orElseThrow(() -> new IllegalArgumentException("Unable to calculate bounding box"));
 
 		for(final Integer cellsPerDimension: cellSizes) {
 			System.out.println("Cells per Dimension: " + cellsPerDimension);
@@ -78,36 +79,41 @@ public class TestFixedGrid implements Runnable {
 	 * Run this experiment
 	 * @param cellGrid
 	 */
-	protected void runExperiment(final CellGrid cellGrid) {
-		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
+	private void runExperiment(final CellGrid cellGrid) {
+
 		final Map<Hyperrectangle, Integer> bboxes = new HashMap<>();
 
-		final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(10, 100);
+		for(Entry<String, String> file : filesAndFormats.entrySet()) {
 
-		tupleFile.addTupleListener(t -> {
-			executor.submit(() -> {
-				final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
+			final TupleFileReader tupleFile = new TupleFileReader(file.getKey(), file.getValue());
 
-				synchronized (bboxes) {
-					for(final Hyperrectangle box : intersectedBoxes) {
-						if(bboxes.containsKey(box)) {
-							final int oldValue = bboxes.get(box);
-							bboxes.put(box, oldValue + 1);
-						} else {
-							bboxes.put(box, 1);
+			final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(10, 100);
+
+			tupleFile.addTupleListener(t -> {
+				executor.submit(() -> {
+					final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
+
+					synchronized (bboxes) {
+						for(final Hyperrectangle box : intersectedBoxes) {
+							if(bboxes.containsKey(box)) {
+								final int oldValue = bboxes.get(box);
+								bboxes.put(box, oldValue + 1);
+							} else {
+								bboxes.put(box, 1);
+							}
 						}
 					}
-				}
+				});
 			});
-		});
 
-		try {
-			System.out.println("# Processing tuples");
-			tupleFile.processFile();
-			executor.shutdown();
-		} catch (Exception e) {
-			System.err.println("Got an Exception during experiment: " + e);
-			System.exit(-1);
+			try {
+				System.out.println("# Processing tuples in file: " + file.getKey());
+				tupleFile.processFile();
+				executor.shutdown();
+			} catch (Exception e) {
+				System.err.println("Got an Exception during experiment: " + e);
+				System.exit(-1);
+			}
 		}
 
 		calculateResult(bboxes);
@@ -116,7 +122,7 @@ public class TestFixedGrid implements Runnable {
 	/**
 	 *  Calculate the result
 	 */
-	protected void calculateResult(final Map<Hyperrectangle, Integer> bboxes) {
+	private void calculateResult(final Map<Hyperrectangle, Integer> bboxes) {
 		System.out.println("# Calculating node results");
 
 		final int[] boxesPerNode = new int[NODES];
@@ -141,22 +147,39 @@ public class TestFixedGrid implements Runnable {
 	public static void main(final String[] args) throws IOException {
 
 		// Check parameter
-		if(args.length < 3) {
-			System.err.println("Usage: programm <filename> <format> <cells per dimension>");
+		if(args.length < 2) {
+			System.err.println("Usage: programm <cells per dimension> <filename1:format1> <filenameN:formatN> ");
 			System.exit(-1);
 		}
 
-		final String filename = Objects.requireNonNull(args[0]);
-		final String format = Objects.requireNonNull(args[1]);
+		final List<Integer> cellSizes = Arrays.asList(args[0].split(","))
+				.stream()
+				.map(s -> MathUtil.tryParseIntOrExit(s, () -> "Unable to parse: " + s))
+				.collect(Collectors.toList());
 
-		final List<Integer> cellSizes = new ArrayList<>();
 
-		for(int pos = 2; pos < args.length; pos++) {
-			final Integer size = MathUtil.tryParseIntOrExit(args[pos]);
-			cellSizes.add(size);
+		final Map<String, String> filesAndFormats = new HashMap<>();
+
+		for(int pos = 1; pos < args.length; pos++) {
+
+			final String element = args[pos];
+
+			if(! element.contains(":")) {
+				System.err.println("Element does not contain format specifier: " + element);
+				System.exit(-1);
+			}
+
+			final String[] splitFile = element.split(":");
+
+			if(splitFile.length != 2) {
+				System.err.println("Unable to get two elements after format split: " + element);
+				System.exit(-1);
+			}
+
+			filesAndFormats.put(splitFile[0], splitFile[1]);
 		}
 
-		final TestFixedGrid testSplit = new TestFixedGrid(filename, format, cellSizes);
+		final TestFixedGrid testSplit = new TestFixedGrid(filesAndFormats, cellSizes);
 		testSplit.run();
 	}
 }

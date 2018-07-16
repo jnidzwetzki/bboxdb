@@ -9,7 +9,7 @@ order: 1
 ### Version 0.8.2 - TBA
 - Improvement: Bounding boxes can be padded in dataset import
 - Improvement: Added 'ulimit -a' output in bboxdb.out server log
-- Improvement: Made tuplestore reader callbacks async
+- Improvement: Added multiple file support for fixed grid experiment
 - Improvement: Added external storage support for the KD-Tree split experiment
 
 ### Version 0.8.1 - 01.07.2018
