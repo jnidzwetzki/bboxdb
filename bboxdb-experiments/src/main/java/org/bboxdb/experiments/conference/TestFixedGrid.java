@@ -59,8 +59,6 @@ public class TestFixedGrid implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Determine bounding box");
-
 		final Hyperrectangle boundingBox = filesAndFormats
 				.entrySet()
 				.stream()
