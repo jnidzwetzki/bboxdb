@@ -146,7 +146,8 @@ public class TestKDTreeSplit implements Runnable {
 			try {
 				tupleFile.processFile();
 			} catch (Exception e) {
-				System.err.println("Got an Exception during experiment: "+ e);
+				System.err.println("Got an Exception during experiment");
+				e.printStackTrace();
 				System.exit(-1);
 			}
 		}
