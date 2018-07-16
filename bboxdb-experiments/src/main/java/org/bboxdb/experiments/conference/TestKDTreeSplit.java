@@ -29,7 +29,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -59,6 +58,11 @@ public class TestKDTreeSplit implements Runnable {
 	 * The elements
 	 */
 	private final Map<Hyperrectangle, Database> elements;
+
+	/**
+	 * The elements
+	 */
+	private final Map<Hyperrectangle, Long> elementCounter;
 
 	/**
 	 * Box dimensions
@@ -94,6 +98,7 @@ public class TestKDTreeSplit implements Runnable {
 		this.filesAndFormats = filesAndFormats;
 		this.experimentSize = experimentSize;
 		this.elements = new HashMap<>();
+		this.elementCounter = new HashMap<>();
 		this.boxDimension = new HashMap<>();
 
 		final File folder = Files.createTempDir();
@@ -124,6 +129,7 @@ public class TestKDTreeSplit implements Runnable {
 		System.out.println("# Simulating with max element size: " + maxRegionSize);
 
 		elements.clear();
+		elementCounter.clear();
 		boxDimension.clear();
 
 		for(Entry<String, String> elements : filesAndFormats.entrySet()) {
@@ -145,13 +151,11 @@ public class TestKDTreeSplit implements Runnable {
 			}
 		}
 
-		// Print results
-		final List<Long> buckets = elements.values()
-				.stream()
-				.map(d -> d.count())
-				.collect(Collectors.toList());
+		final ArrayList<Entry<Hyperrectangle, Long>> elements = new ArrayList<>(elementCounter.entrySet());
 
-		IntStream.range(0, buckets.size()).forEach(i -> System.out.format("%d\t%d\n", i, buckets.get(i)));
+		IntStream.range(0, elements.size()).forEach(
+				i -> System.out.format("%d\t%d\n", i, elements.get(i))
+		);
 	}
 
 
@@ -170,6 +174,7 @@ public class TestKDTreeSplit implements Runnable {
 			final Hyperrectangle coveringBoundingBox = Hyperrectangle.createFullCoveringDimensionBoundingBox(dataDimension);
 			final Database database = buildNewDatabase();
 			elements.put(coveringBoundingBox, database);
+			elementCounter.put(coveringBoundingBox, 0l);
 			boxDimension.put(coveringBoundingBox, 0);
 		}
 
@@ -183,15 +188,16 @@ public class TestKDTreeSplit implements Runnable {
 		elements.entrySet()
 			.stream()
 			.filter(e -> e.getKey().overlaps(boundingBox))
-			.forEach(e -> e.getValue().put(null, key, value));
-
-		final Predicate<Entry<Hyperrectangle, Database>> boxFullPredicate
-			= e -> e.getValue().count() >= maxRegionSize;
+			.forEach(e -> {
+				final Long oldValue = elementCounter.get(e.getKey());
+				elementCounter.put(e.getKey(), oldValue + 1);
+				e.getValue().put(null, key, value);
+			});
 
 		// Split and remove full boxes
-		final List<Hyperrectangle> boxesToSplit = elements.entrySet()
+		final List<Hyperrectangle> boxesToSplit = elementCounter.entrySet()
 			.stream()
-			.filter(boxFullPredicate)
+			.filter(e -> e.getValue() >= maxRegionSize)
 			.map(e -> e.getKey())
 			.collect(Collectors.toList());
 
@@ -200,6 +206,7 @@ public class TestKDTreeSplit implements Runnable {
 
 		// Remove split regions
 		elements.entrySet().removeIf(e -> boxesToSplit.contains(e.getKey()));
+		elementCounter.entrySet().removeIf(e -> boxesToSplit.contains(e.getKey()));
 	}
 
 	/**
