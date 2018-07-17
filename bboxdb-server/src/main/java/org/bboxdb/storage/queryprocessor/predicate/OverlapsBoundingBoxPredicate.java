@@ -33,7 +33,7 @@ public class OverlapsBoundingBoxPredicate implements Predicate {
 
 	@Override
 	public boolean matches(final Tuple tuple) {
-		if(boundingBox.overlaps(tuple.getBoundingBox())) {
+		if(boundingBox.intersects(tuple.getBoundingBox())) {
 			return true;
 		}
 		

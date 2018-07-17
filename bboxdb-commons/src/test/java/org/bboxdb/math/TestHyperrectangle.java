@@ -133,22 +133,22 @@ public class TestHyperrectangle {
 		final Hyperrectangle bb1middle = new Hyperrectangle(5d, 15d);
 		final Hyperrectangle bb1right = new Hyperrectangle(10.1d, 20.1d);
 		
-		Assert.assertTrue(bb1left.overlaps(bb1left));
-		Assert.assertTrue(bb1middle.overlaps(bb1middle));
-		Assert.assertTrue(bb1right.overlaps(bb1right));
+		Assert.assertTrue(bb1left.intersects(bb1left));
+		Assert.assertTrue(bb1middle.intersects(bb1middle));
+		Assert.assertTrue(bb1right.intersects(bb1right));
 		
-		Assert.assertFalse(bb1left.overlaps(null));
-		Assert.assertFalse(bb1middle.overlaps(null));
-		Assert.assertFalse(bb1right.overlaps(null));
+		Assert.assertFalse(bb1left.intersects(null));
+		Assert.assertFalse(bb1middle.intersects(null));
+		Assert.assertFalse(bb1right.intersects(null));
 		
-		Assert.assertFalse(bb1left.overlaps(bb1right));
-		Assert.assertFalse(bb1right.overlaps(bb1left));
+		Assert.assertFalse(bb1left.intersects(bb1right));
+		Assert.assertFalse(bb1right.intersects(bb1left));
 
-		Assert.assertTrue(bb1left.overlaps(bb1middle));
-		Assert.assertTrue(bb1middle.overlaps(bb1left));
+		Assert.assertTrue(bb1left.intersects(bb1middle));
+		Assert.assertTrue(bb1middle.intersects(bb1left));
 
-		Assert.assertTrue(bb1middle.overlaps(bb1right));
-		Assert.assertTrue(bb1right.overlaps(bb1middle));		
+		Assert.assertTrue(bb1middle.intersects(bb1right));
+		Assert.assertTrue(bb1right.intersects(bb1middle));		
 	}
 	
 	/**
@@ -159,16 +159,16 @@ public class TestHyperrectangle {
 		final Hyperrectangle bb1left = new Hyperrectangle(0d, 1d, 0d, 1d);
 		final Hyperrectangle bb1leftinside = new Hyperrectangle(0.5d, 0.7d, 0.5d, 0.7d);
 		
-		Assert.assertTrue(bb1left.overlaps(bb1leftinside));
-		Assert.assertTrue(bb1leftinside.overlaps(bb1left));
+		Assert.assertTrue(bb1left.intersects(bb1leftinside));
+		Assert.assertTrue(bb1leftinside.intersects(bb1left));
 
 		final Hyperrectangle bb1middle = new Hyperrectangle(0.5d, 1.5d, 0.5d, 1.5d);
-		Assert.assertTrue(bb1left.overlaps(bb1middle));
-		Assert.assertTrue(bb1middle.overlaps(bb1left));
+		Assert.assertTrue(bb1left.intersects(bb1middle));
+		Assert.assertTrue(bb1middle.intersects(bb1left));
 
 		final Hyperrectangle bb1right = new Hyperrectangle(1d, 2d, 10d, 11d);
-		Assert.assertFalse(bb1left.overlaps(bb1right));
-		Assert.assertFalse(bb1right.overlaps(bb1left));
+		Assert.assertFalse(bb1left.intersects(bb1right));
+		Assert.assertFalse(bb1right.intersects(bb1left));
 	}
 	
 	/**
@@ -178,16 +178,16 @@ public class TestHyperrectangle {
 	public void testOverlapping3D() {
 		final Hyperrectangle bb1left = new Hyperrectangle(0d, 1d, 0d, 1d, 0d, 1d);
 		final Hyperrectangle bb1leftinside = new Hyperrectangle(0.5d, 0.7d, 0.5d, 0.7d, 0.5d, 0.7d);
-		Assert.assertTrue(bb1left.overlaps(bb1leftinside));
-		Assert.assertTrue(bb1leftinside.overlaps(bb1left));
+		Assert.assertTrue(bb1left.intersects(bb1leftinside));
+		Assert.assertTrue(bb1leftinside.intersects(bb1left));
 		
 		final Hyperrectangle bb1middle = new Hyperrectangle(0.5d, 1.5d, 0.5d, 1.5d, 0.5d, 1.5d);
-		Assert.assertTrue(bb1left.overlaps(bb1middle));
-		Assert.assertTrue(bb1middle.overlaps(bb1left));
+		Assert.assertTrue(bb1left.intersects(bb1middle));
+		Assert.assertTrue(bb1middle.intersects(bb1left));
 
 		final Hyperrectangle bb1right = new Hyperrectangle(10d, 11d, 10d, 11d, 10d, 11d);
-		Assert.assertFalse(bb1left.overlaps(bb1right));
-		Assert.assertFalse(bb1right.overlaps(bb1left));
+		Assert.assertFalse(bb1left.intersects(bb1right));
+		Assert.assertFalse(bb1right.intersects(bb1left));
 	}
 	
 	/**
@@ -196,8 +196,8 @@ public class TestHyperrectangle {
 	@Test(timeout=60000)
 	public void testOverlapEmptyBoundingBox() {
 		final Hyperrectangle bb1left = new Hyperrectangle(0d, 1d, 0d, 1d, 0d, 1d);
-		Assert.assertTrue(bb1left.overlaps(Hyperrectangle.FULL_SPACE));
-		Assert.assertTrue(Hyperrectangle.FULL_SPACE.overlaps(Hyperrectangle.FULL_SPACE));
+		Assert.assertTrue(bb1left.intersects(Hyperrectangle.FULL_SPACE));
+		Assert.assertTrue(Hyperrectangle.FULL_SPACE.intersects(Hyperrectangle.FULL_SPACE));
 	}
 	
 	/**
@@ -410,9 +410,9 @@ public class TestHyperrectangle {
 		Assert.assertTrue(boundingBox.isCoveringPointInDimension(0, 0));
 		final Hyperrectangle boundingBoxLeft = boundingBox.splitAndGetLeft(0, 0, false);
 		final Hyperrectangle boundingBoxRight = boundingBox.splitAndGetRight(0, 0, false);
-		Assert.assertFalse(boundingBoxLeft.overlaps(boundingBoxRight));
-		Assert.assertTrue(boundingBox.overlaps(boundingBoxLeft));
-		Assert.assertTrue(boundingBox.overlaps(boundingBoxRight));
+		Assert.assertFalse(boundingBoxLeft.intersects(boundingBoxRight));
+		Assert.assertTrue(boundingBox.intersects(boundingBoxLeft));
+		Assert.assertTrue(boundingBox.intersects(boundingBoxRight));
 		
 	}
 	

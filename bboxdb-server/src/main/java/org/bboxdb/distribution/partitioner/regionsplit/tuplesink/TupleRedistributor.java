@@ -196,7 +196,7 @@ public class TupleRedistributor {
 	 */
 	private boolean belongsTupleToRegion(final Tuple tuple, final DistributionRegion region) {
 		// Tuple overlaps with region
-		if(region.getConveringBox().overlaps(tuple.getBoundingBox())) {
+		if(region.getConveringBox().intersects(tuple.getBoundingBox())) {
 			return true;
 		}
 		

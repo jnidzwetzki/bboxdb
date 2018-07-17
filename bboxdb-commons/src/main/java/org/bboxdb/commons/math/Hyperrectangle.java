@@ -190,7 +190,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 * @param otherBoundingBox
 	 * @return
 	 */
-	public boolean overlaps(final Hyperrectangle otherBoundingBox) {
+	public boolean intersects(final Hyperrectangle otherBoundingBox) {
 		
 		// Null does overlap with nothing
 		if(otherBoundingBox == null) {

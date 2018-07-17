@@ -113,13 +113,13 @@ public class RTreeMMFReader extends AbstractRTreeReader {
 				final DirectoryNode directoryNode = new DirectoryNode();
 				directoryNode.initFromByteBuffer(memory, maxNodeSize);
 				
-				if(directoryNode.getBoundingBox().overlaps(boundingBox)) {
+				if(directoryNode.getBoundingBox().intersects(boundingBox)) {
 					readTasks.addAll(directoryNode.getChildNodes());
 					
 					final List<SpatialIndexEntry> foundEntries = 
 						directoryNode.getIndexEntries()
 						.stream()
-						.filter(e -> e.getBoundingBox().overlaps(boundingBox))
+						.filter(e -> e.getBoundingBox().intersects(boundingBox))
 						.collect(Collectors.toList());
 					
 					resultList.addAll(foundEntries);

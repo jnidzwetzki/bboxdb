@@ -122,7 +122,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 			this.tupleInsertCallback = (t) -> {
 				
 				// Is the tuple important for the query?
-				if(! t.getBoundingBox().overlaps(boundingBox)) {
+				if(! t.getBoundingBox().intersects(boundingBox)) {
 					return;
 				}
 				

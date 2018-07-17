@@ -210,12 +210,12 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		try {
 		final List<SpatialIndexEntry> nodeMatches = indexEntries
 			.stream()
-			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
+			.filter(c -> c.getBoundingBox().intersects(boundingBox))
 			.collect(Collectors.toList());
 		
 		final List<SpatialIndexEntry> childMatches = directoryNodeChilds
 			.stream()
-			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
+			.filter(c -> c.getBoundingBox().intersects(boundingBox))
 			.map(c -> c.getEntriesForRegion(boundingBox))
 			.flatMap(List::stream)
 			.collect(Collectors.toList());
@@ -242,7 +242,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 				success = false;
 			}
 			
-			if(! boundingBox.overlaps(entry.getBoundingBox())) {
+			if(! boundingBox.intersects(entry.getBoundingBox())) {
 				System.err.println("Error 2");
 				success = false;
 			}
@@ -265,7 +265,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 				}
 			}
 			
-			if(! boundingBox.overlaps(entry.getBoundingBox())) {
+			if(! boundingBox.intersects(entry.getBoundingBox())) {
 				System.err.println("Error 4");
 				success = false;
 			}

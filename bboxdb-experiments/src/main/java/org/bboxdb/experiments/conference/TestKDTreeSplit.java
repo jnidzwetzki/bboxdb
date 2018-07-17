@@ -190,7 +190,7 @@ public class TestKDTreeSplit implements Runnable {
 		// Add element to all needed bounding boxes
 		elements.entrySet()
 			.stream()
-			.filter(e -> e.getKey().overlaps(boundingBox))
+			.filter(e -> e.getKey().intersects(boundingBox))
 			.forEach(e -> {
 				final Long oldValue = elementCounter.getOrDefault(e.getKey(), 0l);
 				elementCounter.put(e.getKey(), oldValue + 1);
@@ -256,11 +256,11 @@ public class TestKDTreeSplit implements Runnable {
 	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 	        final Hyperrectangle box = Hyperrectangle.fromByteArray(foundData.getData());
 
-	        if(leftBBox.overlaps(box)) {
+	        if(leftBBox.intersects(box)) {
 				elements.get(leftBBox).put(null, foundKey, foundData);
 			}
 
-			if(rightBBox.overlaps(box)) {
+			if(rightBBox.intersects(box)) {
 				elements.get(rightBBox).put(null, foundKey, foundData);
 			}
 	    }

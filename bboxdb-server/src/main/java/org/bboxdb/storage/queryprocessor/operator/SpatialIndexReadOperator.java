@@ -72,6 +72,6 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 			return false;
 		}
 		
-		return ! tuple.getBoundingBox().overlaps(boundingBox);
+		return ! tuple.getBoundingBox().intersects(boundingBox);
 	}
 }

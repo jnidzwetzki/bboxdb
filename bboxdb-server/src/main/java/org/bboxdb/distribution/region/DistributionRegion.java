@@ -382,7 +382,7 @@ public class DistributionRegion {
 	 */
 	public List<DistributionRegion> getDistributionRegionsForBoundingBox(final Hyperrectangle boundingBox) {
 		return getThisAndChildRegions().stream()
-			.filter(r -> r.getConveringBox().overlaps(boundingBox))
+			.filter(r -> r.getConveringBox().intersects(boundingBox))
 			.collect(Collectors.toList());
 	}
 	

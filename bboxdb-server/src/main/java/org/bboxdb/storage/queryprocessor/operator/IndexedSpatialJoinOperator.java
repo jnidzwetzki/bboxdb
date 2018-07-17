@@ -62,7 +62,7 @@ public class IndexedSpatialJoinOperator implements Operator {
 				}
 				
 				final Tuple nextCandidateTuple = candidatesForCurrentTuple.next().convertToSingleTupleIfPossible();
-				assert (nextCandidateTuple.getBoundingBox().overlaps(tupleFromStreamSource.getBoundingBox())) : "Wrong join, no overlap";
+				assert (nextCandidateTuple.getBoundingBox().intersects(tupleFromStreamSource.getBoundingBox())) : "Wrong join, no overlap";
 				nextTuple = buildNextJoinedTuple(nextCandidateTuple);
 			}
 							

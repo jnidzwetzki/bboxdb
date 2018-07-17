@@ -153,12 +153,12 @@ public class DetermineSamplingSize implements Runnable {
 
 			boolean tupleDistributed = false;
 
-			if(polygonBoundingBox.overlaps(leftBox)) {
+			if(polygonBoundingBox.intersects(leftBox)) {
 				statistics.increaseLeft();
 				tupleDistributed = true;
 			}
 
-			if(polygonBoundingBox.overlaps(rightBox)) {
+			if(polygonBoundingBox.intersects(rightBox)) {
 				statistics.increaseRight();
 				tupleDistributed = true;
 			}

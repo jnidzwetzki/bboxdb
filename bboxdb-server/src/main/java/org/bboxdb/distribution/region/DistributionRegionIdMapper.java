@@ -70,7 +70,7 @@ public class DistributionRegionIdMapper {
 	public Set<Long> getRegionIdsForRegion(final Hyperrectangle region) {
 		return regions.entrySet()
 			.stream()
-			.filter(e -> e.getValue().overlaps(region))
+			.filter(e -> e.getValue().intersects(region))
 			.map(e -> e.getKey())
 			.collect(Collectors.toSet());
 	}

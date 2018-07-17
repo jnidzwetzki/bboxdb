@@ -94,7 +94,7 @@ public class DistributionRegionHelper {
 		
 		for(final DistributionRegion region : regions) {
 			
-			if(! boundingBox.overlaps(region.getConveringBox())) {
+			if(! boundingBox.intersects(region.getConveringBox())) {
 				continue;
 			}
 			
