@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.storage.tuplestore.manager;
 
@@ -115,7 +115,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreManager.class);
 
-	public TupleStoreManager(final DiskStorage storage, final TupleStoreName sstablename, 
+	public TupleStoreManager(final DiskStorage storage, final TupleStoreName sstablename,
 			final BBoxDBConfiguration configuration) {
 
 		this.storage = storage;
@@ -126,7 +126,7 @@ public class TupleStoreManager implements BBoxDBService {
 		this.insertCallbacks = new ArrayList<>();
 
 		// Close open resources when the failed state is entered
-		this.serviceState = new ServiceState(); 
+		this.serviceState = new ServiceState();
 		serviceState.registerCallback((s) -> {
 			if(s.getState() == State.FAILED) {
 				closeRessources();
@@ -144,7 +144,7 @@ public class TupleStoreManager implements BBoxDBService {
 			logger.warn("SSTable manager state is not new init() is called: {}", serviceState.getState());
 			return;
 		}
-		
+
 		serviceState.reset();
 		serviceState.dipatchToStarting();
 
@@ -159,7 +159,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 			nextFreeTableNumber.set(getLastSequencenumberFromReader() + 1);
 			tupleStoreInstances.setReadWrite();
-			
+
 			// Apply WAL after write access is possible
 			applyWal();
 
@@ -208,13 +208,13 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	protected void closeRessources() {
 		setToReadOnly();
-		tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());		
+		tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());
 		tupleStoreInstances.clear();
 	}
 
 	/**
 	 * Flush all in memory data, if the memtable flush thread is running
-	 * @return 
+	 * @return
 	 */
 	public boolean flush() {
 		final Memtable activeMemtable = tupleStoreInstances.getMemtable();
@@ -223,7 +223,7 @@ public class TupleStoreManager implements BBoxDBService {
 			return true;
 		}
 
-		// Flush in memory data	
+		// Flush in memory data
 		initNewMemtable();
 
 		try {
@@ -239,36 +239,36 @@ public class TupleStoreManager implements BBoxDBService {
 
 		return true;
 	}
-	
+
 	/**
 	 * Apply the old write ahead logs
 	 */
 	private void applyWal() {
 		final String storageDir = storage.getBasedir().getAbsolutePath();
 		final String baseDir = SSTableHelper.getSSTableDir(storageDir, tupleStoreName);
-		
+
 		final List<File> walFiles = WriteAheadLogManager.getAllWalFiles(new File(baseDir));
 		logger.debug("Apply old WAL files {}", walFiles);
-		
+
 		for(final File walFile: walFiles) {
-			try {
-				final WriteAheadLogReader reader = new WriteAheadLogReader(walFile);
-				
+			try(
+					final WriteAheadLogReader reader = new WriteAheadLogReader(walFile);
+			){
 				for(final Tuple tuple : reader) {
 					put(tuple);
 				}
-				
+
 				reader.close();
 				reader.deleteFile();
 			} catch (Exception e) {
 				logger.error("Got an exception while applying WAL", e);
-			} 
+			}
 		}
 	}
 
 	/**
 	 * Wait for the shutdown to complete
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void awaitShutdown() throws InterruptedException {
 		serviceState.awaitTerminatedOrFailed();
@@ -289,7 +289,7 @@ public class TupleStoreManager implements BBoxDBService {
 		// Set the flush mode to read write
 		tupleStoreInstances.setReadWrite();
 	}
-	
+
 	/**
 	 * Is the shutdown complete?
 	 * @return
@@ -301,7 +301,7 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * Create the given SSTable
 	 * @param configuration
-	 * @throws StorageManagerException 
+	 * @throws StorageManagerException
 	 */
 	public void create(final TupleStoreConfiguration configuration) throws StorageManagerException {
 		createSSTableDirIfNeeded();
@@ -312,9 +312,9 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * Write the Tuplestore meta data
 	 * @param configuration
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	protected void writeTupleStoreMetaData(final TupleStoreConfiguration configuration) 
+	protected void writeTupleStoreMetaData(final TupleStoreConfiguration configuration)
 			throws StorageManagerException {
 
 		final File metadataFile = getTuplestoreMetadataFile();
@@ -351,8 +351,8 @@ public class TupleStoreManager implements BBoxDBService {
 
 	/**
 	 * Ensure that the directory for the given table exists
-	 * @throws StorageManagerException 
-	 * 
+	 * @throws StorageManagerException
+	 *
 	 */
 	protected void createSSTableDirIfNeeded() throws StorageManagerException {
 		final String storageDir = storage.getBasedir().getAbsolutePath();
@@ -360,8 +360,8 @@ public class TupleStoreManager implements BBoxDBService {
 		final File dgroupDirHandle = new File(dgroupDir);
 
 		if(! dgroupDirHandle.exists()) {
-			logger.info("Create a new directory for dgroup {} ({})", 
-					tupleStoreName.getDistributionGroup(), 
+			logger.info("Create a new directory for dgroup {} ({})",
+					tupleStoreName.getDistributionGroup(),
 					dgroupDir);
 
 			final boolean mkdirResult = dgroupDirHandle.mkdirs();
@@ -388,12 +388,12 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Write the meta data for the distribution group
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	protected void writeDistributionGroupMetaData() throws ZookeeperException, 
+	protected void writeDistributionGroupMetaData() throws ZookeeperException,
 		ZookeeperNotFoundException, IOException {
 
-		if(! tupleStoreName.isDistributedTable()) {	
+		if(! tupleStoreName.isDistributedTable()) {
 			return;
 		}
 
@@ -402,24 +402,24 @@ public class TupleStoreManager implements BBoxDBService {
 
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionGroupAdapter dAdapter = new DistributionGroupAdapter(zookeeperClient);
-		
+
 		final String path = dAdapter.getDistributionGroupPath(groupName);
 		final long version = NodeMutationHelper.getNodeMutationVersion(zookeeperClient, path, null);
 
 		DistributionGroupMetadata distributionGroupMetadata = new DistributionGroupMetadata();
 		distributionGroupMetadata.setVersion(version);
 
-		DistributionGroupMetadataHelper.writeMedatadataForGroup(storage.getBasedir().getAbsolutePath(), 
-				tupleStoreName.getDistributionGroup(), 
+		DistributionGroupMetadataHelper.writeMedatadataForGroup(storage.getBasedir().getAbsolutePath(),
+				tupleStoreName.getDistributionGroup(),
 				distributionGroupMetadata);
 	}
 
 	/**
 	 * Scan the database directory for all existing SSTables and
 	 * create reader objects
-	 * @throws StorageManagerException 
-	 * @throws InterruptedException 
-	 * 
+	 * @throws StorageManagerException
+	 * @throws InterruptedException
+	 *
 	 */
 	protected void scanForExistingTables() throws StorageManagerException, InterruptedException {
 		logger.info("Scan for existing SSTables: " + tupleStoreName.getFullname());
@@ -438,7 +438,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(tupleStoreName, filename);
-					final SSTableFacade facade = new SSTableFacade(storageDir, tupleStoreName, sequenceNumber, 
+					final SSTableFacade facade = new SSTableFacade(storageDir, tupleStoreName, sequenceNumber,
 							configuration.getSstableKeyCacheEntries());
 					facade.init();
 					tupleStoreInstances.addNewDetectedSSTable(facade);
@@ -452,7 +452,7 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * Get the highest sequence number, based on the reader
 	 * instances
-	 * 
+	 *
 	 * @return the sequence number
 	 */
 	protected int getLastSequencenumberFromReader() {
@@ -467,9 +467,9 @@ public class TupleStoreManager implements BBoxDBService {
 
 	/**
 	 * Ensure that the storage directory does exist
-	 * 
+	 *
 	 * @param directoryHandle
-	 * @throws StorageManagerException 
+	 * @throws StorageManagerException
 	 */
 	public void checkSSTableDir(final File directoryHandle) throws StorageManagerException {
 
@@ -499,7 +499,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 		final File[] entries = directoryHandle.listFiles();
 
-		for(final File file : entries) {			
+		for(final File file : entries) {
 			deleteFileIfKnown(file);
 		}
 
@@ -553,7 +553,7 @@ public class TupleStoreManager implements BBoxDBService {
 	public List<Tuple> get(final String key) throws StorageManagerException {
 
 		if(! serviceState.isInRunningState()) {
-			throw new StorageManagerException("Storage manager is not ready: " 
+			throw new StorageManagerException("Storage manager is not ready: "
 					+ tupleStoreName.getFullname() + " state: " + serviceState);
 		}
 
@@ -580,12 +580,12 @@ public class TupleStoreManager implements BBoxDBService {
 		resolver.removeDuplicates(tupleList);
 
 		return tupleList;
-	}	
+	}
 
 	/**
 	 * Try to acquire all needed tables
-	 * @return 
-	 * @throws StorageManagerException 
+	 * @return
+	 * @throws StorageManagerException
 	 */
 	public List<ReadOnlyTupleStore> aquireStorage() throws StorageManagerException {
 
@@ -624,7 +624,7 @@ public class TupleStoreManager implements BBoxDBService {
 			}
 		}
 
-		throw new StorageManagerException("Unable to aquire all sstables in " 
+		throw new StorageManagerException("Unable to aquire all sstables in "
 				+ Const.OPERATION_RETRY + " retries");
 	}
 
@@ -633,14 +633,14 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Release all acquired tables
 	 */
 	public void releaseStorage(List<ReadOnlyTupleStore> storagesToRelease) {
-		
+
 		if(storagesToRelease == null) {
 			return;
 		}
-		
+
 		for(final ReadOnlyTupleStore storage : storagesToRelease) {
 			storage.release();
-		}		
+		}
 	}
 
 	/**
@@ -680,20 +680,20 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public synchronized void initNewMemtable() {
-		
+
 		final WriteAheadLogWriter walWriter = getWriteAheadLogWriter();
-		
-		final Memtable memtable = new Memtable(tupleStoreName, 
-				configuration.getMemtableEntriesMax(), 
+
+		final Memtable memtable = new Memtable(tupleStoreName,
+				configuration.getMemtableEntriesMax(),
 				configuration.getMemtableSizeMax(), walWriter);
 
 		memtable.acquire();
 		memtable.init();
 
-		final Memtable oldMemtable = tupleStoreInstances.activateNewMemtable(memtable);	
+		final Memtable oldMemtable = tupleStoreInstances.activateNewMemtable(memtable);
 
 		if(oldMemtable != null) {
-			final MemtableAndTupleStoreManagerPair memtableTask 
+			final MemtableAndTupleStoreManagerPair memtableTask
 				= new MemtableAndTupleStoreManagerPair(oldMemtable, this);
 
 			storage.scheduleMemtableFlush(memtableTask);
@@ -704,17 +704,17 @@ public class TupleStoreManager implements BBoxDBService {
 
 	/**
 	 * Get the write ahead log writer
-	 * 
+	 *
 	 * @return
 	 */
-	private WriteAheadLogWriter getWriteAheadLogWriter() {		
+	private WriteAheadLogWriter getWriteAheadLogWriter() {
 		if(! configuration.isStorageWriteAheadLog()) {
 			return null;
 		}
-		
+
 		final String storageDir = storage.getBasedir().getAbsolutePath();
 		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, tupleStoreName);
-		
+
 		try {
 			return new WriteAheadLogWriter(new File(ssTableDir), System.currentTimeMillis());
 		} catch (IOException e) {
@@ -727,13 +727,13 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Store a new tuple
 	 * @param tuple
 	 * @throws StorageManagerException
-	 * @throws RejectedException 
+	 * @throws RejectedException
 	 */
 	public void put(final Tuple tuple) throws StorageManagerException, RejectedException {
 
 		if(! serviceState.isInRunningState()) {
-			throw new StorageManagerException("Storage manager is not ready: " 
-					+ tupleStoreName.getFullname() 
+			throw new StorageManagerException("Storage manager is not ready: "
+					+ tupleStoreName.getFullname()
 					+ " state: " + serviceState);
 		}
 
@@ -743,7 +743,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 		try {
 			// Ensure that only one memtable is newly created
-			synchronized (this) {	
+			synchronized (this) {
 				if(getMemtable().isFull()) {
 					initNewMemtable();
 				}
@@ -765,12 +765,12 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @param key
 	 * @param timestamp
 	 * @throws StorageManagerException
-	 * @throws RejectedException 
+	 * @throws RejectedException
 	 */
 	public void delete(final String key, final long timestamp) throws StorageManagerException, RejectedException {
 		if(! serviceState.isInRunningState()) {
-			throw new StorageManagerException("Storage manager is not ready: " 
-					+ tupleStoreName.getFullname() 
+			throw new StorageManagerException("Storage manager is not ready: "
+					+ tupleStoreName.getFullname()
 					+ " state: " + serviceState);
 		}
 
@@ -780,7 +780,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 		// Ensure that only one memtable is newly created
 		try {
-			synchronized (this) {	
+			synchronized (this) {
 				if(getMemtable().isFull()) {
 					initNewMemtable();
 				}
@@ -798,11 +798,11 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Replace memtable delegate
 	 * @param memtable
 	 * @param sstableFacade
-	 * @throws RejectedException 
+	 * @throws RejectedException
 	 */
-	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) 
+	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade)
 			throws RejectedException {
-		
+
 		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state: " + tupleStoreName);
 		}
@@ -814,9 +814,9 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Replace sstables delegate
 	 * @param newFacedes
 	 * @param oldFacades
-	 * @throws RejectedException 
+	 * @throws RejectedException
 	 */
-	public void replaceCompactedSStables(final List<SSTableFacade> newFacedes, 
+	public void replaceCompactedSStables(final List<SSTableFacade> newFacedes,
 			final List<SSTableFacade> oldFacades) throws RejectedException {
 
 		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
@@ -879,7 +879,7 @@ public class TupleStoreManager implements BBoxDBService {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get the amount of tuples
 	 * @return
@@ -936,35 +936,35 @@ public class TupleStoreManager implements BBoxDBService {
 
 	/**
 	 * Remove a insert callback
-	 * @return 
+	 * @return
 	 */
 	public boolean removeInsertCallback(final Consumer<Tuple> callback) {
 		return insertCallbacks.remove(callback);
 	}
-	
+
 	/**
 	 * Get the most recent version of the tuple
 	 * e.g. Memtables can contain multiple versions of the key
 	 * The iterator can return an outdated version
-	 * 
+	 *
 	 * @param tuple
 	 * @return
-	 * @throws StorageManagerException 
+	 * @throws StorageManagerException
 	 */
-	public List<Tuple> getVersionsForTuple(final String key) 
+	public List<Tuple> getVersionsForTuple(final String key)
 			throws StorageManagerException {
-		
+
 		final List<Tuple> resultTuples = getAllTupleVersionsForKey(key);
-		
-		final TupleStoreConfiguration tupleStoreConfiguration 
+
+		final TupleStoreConfiguration tupleStoreConfiguration
 			= getTupleStoreConfiguration();
-				
-		final DuplicateResolver<Tuple> resolver 
+
+		final DuplicateResolver<Tuple> resolver
 			= TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
-				
+
 		// Removed unwanted tuples for key
 		resolver.removeDuplicates(resultTuples);
-		
+
 		return resultTuples;
 	}
 
@@ -976,19 +976,19 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public List<Tuple> getAllTupleVersionsForKey(final String key) throws StorageManagerException {
-		
+
 		List<ReadOnlyTupleStore> aquiredStorages = null;
-		
+
 		try {
 			aquiredStorages = aquireStorage();
-			
+
 			final List<Tuple> resultTuples = new ArrayList<>();
-			
+
 			for(final ReadOnlyTupleStore readOnlyTupleStorage : aquiredStorages) {
 				final List<Tuple> possibleTuples = readOnlyTupleStorage.get(key);
 				resultTuples.addAll(possibleTuples);
 			}
-			
+
 			return resultTuples;
 		} catch(Exception e) {
 			throw e;
