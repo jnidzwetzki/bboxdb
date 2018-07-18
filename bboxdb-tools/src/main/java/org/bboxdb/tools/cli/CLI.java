@@ -671,7 +671,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final double padding = MathUtil.tryParseDoubleOrExit(paddingString,
 				() -> "Untable to parse: " + paddingString);
 
-		System.out.format("Importing file: %s with padding %d%n", filename, padding);
+		System.out.format("Importing file: %s with padding %f%n", filename, padding);
 
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format, padding);
 		tupleFile.addTupleListener(t -> {
