@@ -120,7 +120,7 @@ public class TestBoundingBoxQuery implements Runnable {
 			final BBoxDB bboxDBConnection) {
 
 		try {
-			System.out.format("# Simulating with max dimension size %d%n", maxDimensionSize);
+			System.out.format("# Simulating with max dimension size %f%n", maxDimensionSize);
 			long totalElapsedTime = 0;
 			for(int execution = 0; execution < RETRIES; execution++) {
 				final Stopwatch stopwatch = Stopwatch.createStarted();
