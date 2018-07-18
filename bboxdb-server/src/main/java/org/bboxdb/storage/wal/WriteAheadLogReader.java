@@ -147,7 +147,11 @@ public class WriteAheadLogReader implements Closeable, Iterable<Tuple> {
 		close();
 
 		if(file.exists()) {
-			file.delete();
+			final boolean deleteResult = file.delete();
+
+			if(! deleteResult) {
+				throw new IOException("Unable to delete: " + file);
+			}
 		}
 	}
 }
