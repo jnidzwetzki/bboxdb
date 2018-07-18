@@ -258,7 +258,7 @@ public class TestBaselineApproach implements AutoCloseable {
 			testBaselineApproach.executeRangeQuery(args);
 			break;
 		default:
-			System.err.println("Unkown command: " + command);
+			System.err.println("Unknown command: " + command);
 			System.exit(-1);
 		}
 
