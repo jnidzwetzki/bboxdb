@@ -79,23 +79,16 @@ public class TestFixedGrid implements Runnable {
 
 		final Map<Hyperrectangle, Integer> bboxes = new HashMap<>();
 
-		for(Entry<String, String> file : filesAndFormats.entrySet()) {
+		for(final Entry<String, String> file : filesAndFormats.entrySet()) {
 
 			final TupleFileReader tupleFile = new TupleFileReader(file.getKey(), file.getValue());
 
 			tupleFile.addTupleListener(t -> {
-
 				final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
 
-				synchronized (bboxes) {
-					for(final Hyperrectangle box : intersectedBoxes) {
-						if(bboxes.containsKey(box)) {
-							final int oldValue = bboxes.get(box);
-							bboxes.put(box, oldValue + 1);
-						} else {
-							bboxes.put(box, 1);
-						}
-					}
+				for(final Hyperrectangle box : intersectedBoxes) {
+					final int oldValue = bboxes.getOrDefault(box, 0);
+					bboxes.put(box, oldValue + 1);
 				}
 			});
 
