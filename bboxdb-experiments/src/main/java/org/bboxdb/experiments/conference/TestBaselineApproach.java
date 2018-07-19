@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.concurrent.TimeUnit;
 
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
@@ -143,16 +145,19 @@ public class TestBaselineApproach implements AutoCloseable {
 	/**
 	 * Execute a join
 	 * @param args
+	 * @throws InputParseException
 	 */
-	public void executeJoin(final String args[]) {
-		if(args.length != 6) {
-			System.err.println("Usage: join <table1> <table2> <format1> <format2> <range>");
+	public void executeJoin(final String args[]) throws InputParseException {
+		if(args.length != 7) {
+			System.err.println("Usage: join <table1> <table2> <format1> <format2> <range> <padding>");
 			System.exit(-1);
 		}
 
 		final Hyperrectangle hyperrectangle = new Hyperrectangle(args[4]);
 
-		executeJoin(args[1], args[2], args[3], args[4], hyperrectangle);
+		final double padding = MathUtil.tryParseDouble(args[5], () -> "Unable to parse " + args[5]);
+
+		executeJoin(args[1], args[2], args[3], args[4], hyperrectangle, padding);
 	}
 
 	/**
@@ -162,7 +167,7 @@ public class TestBaselineApproach implements AutoCloseable {
 	 * @param range
 	 */
 	public void executeJoin(final String table1, final String table2, final String format1,
-			final String format2, final Hyperrectangle range) {
+			final String format2, final Hyperrectangle range, final double padding) {
 
 		System.out.println("# Execute join query in range " + range);
 
@@ -217,7 +222,7 @@ public class TestBaselineApproach implements AutoCloseable {
 
 			    final Tuple tuple2 = tupleBuilder2.buildTuple(Long.toString(id2), text2);
 
-			    if(tuple1.getBoundingBox().intersects(tuple2.getBoundingBox())) {
+			    if(tuple1.getBoundingBox().intersects(tuple2.getBoundingBox().enlarge(padding))) {
 			    	resultRecords++;
 			    }
 			}
