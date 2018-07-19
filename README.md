@@ -19,23 +19,38 @@
 __Please Note:__ The master branch may be in an unstable state during development. Please use our releases for productive environments.
 
 # What is BBoxDB?
-BBoxDB is a highly available distributed storage manager, designed to handle multi-dimensional big data.  Primarily, the software is a research project to explore new ways to handle multi-dimensional data in a distributed environment. 
+BBoxDB is a highly available distributed storage manager, designed to handle multi-dimensional big data.  Primarily, the software is a research project to explore new ways to handle multi-dimensional data in a distributed environment.
 
 In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (e.g., non-point data / regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
+
+## Key features
+* BBoxDB is a key-bounding-box-value store, a distributed data store for multi-dimensional data. The key features of the software are:
+
+* The well-known key-value data model is enhanced by a bounding box to describe the location of n-dimensional data in space.
+
+* Data (point and non-point) of any dimension is supported.
+
+* The data is indexed, which enables efficient range query processing.
+
+* Multi-dimensional shards are created dynamically on the actual distribution of the data.
+
+* Data of multiple tables is stored co-partitioned, and spatial-joins can be executed efficiently without data shuffling between nodes.
+
+* Data is re-distributed in the background, without any service interruption.
 
 # BBoxDB in Action
 In the following screencast, the _command line interface_ of BBoxDB is used to create a 2-dimensional distribution group and two tables. Then some tuples are inserted and operations like key-queries, hyperrectangle-queries, deletes, and joins are executed on the stored data. For accessing BBoxDB from your application, see the [creating client code](https://jnidzwetzki.github.io/bboxdb/doc/client.html) section in the documentation.
 
 <p><a href="https://github.com/jnidzwetzki/bboxdb/blob/master/docs/images/screencast.gif?raw=true" target="_blank"><img src="docs/images/screencast.gif" ></a><br><i>If the font is difficult to read, please click on the image.</i></p>
 
-## Documentation 
+## Documentation
 The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
 ## Getting started
 For a guided tour through the features of BBoxDB, see the [getting started](https://jnidzwetzki.github.io/bboxdb/doc/gettingstarted.html) chapter in the documentation. We also recommend reading the [creating client code section](https://jnidzwetzki.github.io/bboxdb/doc/client.html). The [install guide](https://jnidzwetzki.github.io/bboxdb/doc/installation.html) explains the needed steps to deploy an own BBoxDB cluster. The guide also describes how you can setup a virtualized cluster with 5 BBoxDB nodes in under two minutes, by using [Docker](https://hub.docker.com/r/jnidzwetzki/bboxdb/) and [Docker Compose](https://docs.docker.com/compose/).
 
 ## Screenshots
-BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown. 
+BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown.
 
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
 <i>(The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)</i>
