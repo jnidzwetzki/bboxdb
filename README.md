@@ -24,8 +24,6 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
 In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (e.g., non-point data / regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
 
 ## Key features
-* BBoxDB is a key-bounding-box-value store, a distributed data store for multi-dimensional data. The key features of the software are:
-
 * The well-known key-value data model is enhanced by a bounding box to describe the location of n-dimensional data in space.
 
 * Data (point and non-point) of any dimension is supported.
