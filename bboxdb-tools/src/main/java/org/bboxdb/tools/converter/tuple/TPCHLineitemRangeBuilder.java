@@ -63,15 +63,15 @@ public class TPCHLineitemRangeBuilder extends TupleBuilder {
 		final String[] data = valueData.split("\\|");
 
 		try {
-			final Date commitDate = dateParser.parse(data[11]);
+			final Date shipDate = dateParser.parse(data[10]);
 			final Date receiptDate = dateParser.parse(data[12]);
 
-			final double commitDateTime = (double) commitDate.getTime();
+			final double shipDateTime = (double) shipDate.getTime();
 			final double receiptDateTime = (double) receiptDate.getTime();
 
 			final Hyperrectangle boundingBox = new Hyperrectangle(
-					Math.min(commitDateTime, receiptDateTime),
-					Math.max(commitDateTime, receiptDateTime));
+					Math.min(shipDateTime, receiptDateTime),
+					Math.max(shipDateTime, receiptDateTime));
 
 			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
 		} catch (ParseException e) {

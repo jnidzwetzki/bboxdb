@@ -267,13 +267,13 @@ public class TestTupleBuilder {
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
-		final Date commitDateTime = dateParser.parse("1994-01-07");
+		final Date shipDateTime = dateParser.parse("1993-12-04");
 		final Date receiptDateTime = dateParser.parse("1994-01-01");
 
-		final double doubleCommitDateTime = (double) commitDateTime.getTime();
+		final double doubleShipDateTime = (double) shipDateTime.getTime();
 		final double doublereceiptDateTime = (double) receiptDateTime.getTime();
 
-		final Hyperrectangle exptectedBox = new Hyperrectangle(doublereceiptDateTime, doubleCommitDateTime);
+		final Hyperrectangle exptectedBox = new Hyperrectangle(doubleShipDateTime, doublereceiptDateTime);
 
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
