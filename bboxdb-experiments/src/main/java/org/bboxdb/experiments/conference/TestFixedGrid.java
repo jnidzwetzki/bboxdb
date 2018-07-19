@@ -24,11 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.concurrent.ExecutorUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.experiments.ExperimentHelper;
 import org.bboxdb.storage.entity.CellGrid;
@@ -85,29 +83,25 @@ public class TestFixedGrid implements Runnable {
 
 			final TupleFileReader tupleFile = new TupleFileReader(file.getKey(), file.getValue());
 
-			final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(10, 100);
-
 			tupleFile.addTupleListener(t -> {
-				executor.submit(() -> {
-					final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
 
-					synchronized (bboxes) {
-						for(final Hyperrectangle box : intersectedBoxes) {
-							if(bboxes.containsKey(box)) {
-								final int oldValue = bboxes.get(box);
-								bboxes.put(box, oldValue + 1);
-							} else {
-								bboxes.put(box, 1);
-							}
+				final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
+
+				synchronized (bboxes) {
+					for(final Hyperrectangle box : intersectedBoxes) {
+						if(bboxes.containsKey(box)) {
+							final int oldValue = bboxes.get(box);
+							bboxes.put(box, oldValue + 1);
+						} else {
+							bboxes.put(box, 1);
 						}
 					}
-				});
+				}
 			});
 
 			try {
 				System.out.println("# Processing tuples in file: " + file.getKey());
 				tupleFile.processFile();
-				executor.shutdown();
 			} catch (Exception e) {
 				System.err.println("Got an Exception during experiment: " + e);
 				System.exit(-1);
