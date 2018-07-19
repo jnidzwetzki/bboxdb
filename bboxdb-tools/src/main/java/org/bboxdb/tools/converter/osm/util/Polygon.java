@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.tools.converter.osm.util;
 
@@ -34,34 +34,34 @@ public class Polygon implements Serializable {
 	 * The JSON constant for ID
 	 */
 	private static final String JSON_ID = "id";
-	
+
 	/**
 	 * The JSON constant for type
 	 */
 	private static final String JSON_TYPE = "type";
-	
+
 	/**
 	 * The JSON constant for properties
 	 */
 	private static final String JSON_PROPERTIES = "properties";
-	
+
 	/**
 	 * The JSON constant for geometry
 	 */
 	private static final String JSON_GEOMETRY = "geometry";
-	
+
 	/**
 	 * The JSON constant for coordinates
 	 */
 	private static final String JSON_COORDINATES = "coordinates";
-	
+
 	/**
 	 * The JSON constant for Feature
 	 */
 	private static final String JSON_FEATURE = "Feature";
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -25587980224359866L;
 
@@ -103,7 +103,7 @@ public class Polygon implements Serializable {
 
 	/**
 	 * Get the number of points
-	 * @return 
+	 * @return
 	 */
 	public int getNumberOfPoints() {
 		return pointList.size();
@@ -111,10 +111,10 @@ public class Polygon implements Serializable {
 
 	/**
 	 * Get the bounding box from the object
-	 * @param boxPadding 
+	 * @param boxPadding
 	 * @return
 	 */
-	public Hyperrectangle getBoundingBox(final double boxPadding) {
+	public Hyperrectangle getBoundingBox() {
 
 		if(pointList.isEmpty()) {
 			return Hyperrectangle.FULL_SPACE;
@@ -133,8 +133,7 @@ public class Polygon implements Serializable {
 			maxY = Math.max(maxY, osmPoint.getY());
 		}
 
-		return new Hyperrectangle(minX - boxPadding, maxX + boxPadding, 
-				minY - boxPadding, maxY + boxPadding);
+		return new Hyperrectangle(minX, maxX, minY, maxY);
 	}
 
 	/**
@@ -146,16 +145,16 @@ public class Polygon implements Serializable {
 	}
 
 	/**
-	 * Return the GEO JSON representation of the polygon 
+	 * Return the GEO JSON representation of the polygon
 	 * @return
 	 */
 	public String toFormatedGeoJson() {
 		final JSONObject featureJson = buildJSON();
 		return featureJson.toString(3);
 	}
-	
+
 	/**
-	 * Return the GEO JSON representation of the polygon 
+	 * Return the GEO JSON representation of the polygon
 	 * @return
 	 */
 	public String toGeoJson() {
@@ -174,7 +173,7 @@ public class Polygon implements Serializable {
 
 		final JSONObject geometryJson = new JSONObject();
 		final JSONArray coordinateJson = new JSONArray();
-		
+
 		geometryJson.put(JSON_COORDINATES, coordinateJson);
 		featureJson.put(JSON_GEOMETRY, geometryJson);
 
@@ -186,7 +185,7 @@ public class Polygon implements Serializable {
 			coordinateJson.put(pointList.get(0).getY());
 		} else {
 			geometryJson.put(JSON_TYPE, "Polygon");
-			
+
 			for(OSMPoint point : pointList) {
 				final JSONArray coordinatesJson = new JSONArray();
 				coordinateJson.put(coordinatesJson);
@@ -203,7 +202,7 @@ public class Polygon implements Serializable {
 		}
 		return featureJson;
 	}
-	
+
 	/**
 	 * Import an object from GeoJSON
 	 * @return
@@ -214,11 +213,11 @@ public class Polygon implements Serializable {
 		final Long objectId = jsonObject.getLong(JSON_ID);
 
 		final Polygon polygon = new Polygon(objectId);
-		
+
 		// Geometry
 		final JSONObject geometry = jsonObject.getJSONObject(JSON_GEOMETRY);
 		final JSONArray coordinates = geometry.getJSONArray(JSON_COORDINATES);
-				
+
 		if(coordinates.length() == 2 && coordinates.optJSONArray(0) == null) {
 			// Point
 			final double coordiante0 = coordinates.getDouble(0);
@@ -233,17 +232,17 @@ public class Polygon implements Serializable {
 				polygon.addPoint(coordiante0, coordiante1);
 			}
 		}
-		
+
 		// Properties
 		final JSONObject properties = jsonObject.getJSONObject(JSON_PROPERTIES);
 		for(final String key : properties.keySet()) {
 			final String value = properties.getString(key);
 			polygon.addProperty(key, value);
 		}
-		
+
 		return polygon;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -277,7 +276,7 @@ public class Polygon implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Polygon [id=" + id + ", pointList=" + pointList + ", properties=" + properties + "]";

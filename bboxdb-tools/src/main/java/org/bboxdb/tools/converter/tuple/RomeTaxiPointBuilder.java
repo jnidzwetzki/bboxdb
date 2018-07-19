@@ -55,12 +55,9 @@ public class RomeTaxiPointBuilder extends TupleBuilder {
 			final double latitude = Double.parseDouble(longLat[1]);
 
 			final Hyperrectangle boundingBox = new Hyperrectangle(dateSeconds, dateSeconds,
-					longitude - boxPadding, longitude + boxPadding,
-					latitude - boxPadding, latitude + boxPadding);
+					longitude, longitude, latitude, latitude);
 
-			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
-
-			return tuple;
+			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

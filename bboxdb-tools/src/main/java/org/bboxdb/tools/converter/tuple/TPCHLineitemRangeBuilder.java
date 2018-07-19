@@ -70,12 +70,10 @@ public class TPCHLineitemRangeBuilder extends TupleBuilder {
 			final double receiptDateTime = (double) receiptDate.getTime();
 
 			final Hyperrectangle boundingBox = new Hyperrectangle(
-					Math.min(shipDateTime, receiptDateTime) - boxPadding,
-					Math.max(shipDateTime, receiptDateTime) + boxPadding);
+					Math.min(shipDateTime, receiptDateTime),
+					Math.max(shipDateTime, receiptDateTime));
 
-			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
-
-			return tuple;
+			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
 		} catch (ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;
