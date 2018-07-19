@@ -30,7 +30,9 @@ In contrast to existing key-value stores, BBoxDB can handle multi-dimensional ef
 
 * The data is indexed, which enables efficient range query processing.
 
-* Multi-dimensional shards are created dynamically on the actual distribution of the data.
+* BigData is supported by spreading the data across a cluster of systems. Each node stores only a small part of the whole dataset.
+
+* Multi-dimensional shards are created dynamically on the actual distribution of the data (automatically scale-up/scale-down).
 
 * Data of multiple tables is stored co-partitioned, and spatial-joins can be executed efficiently without data shuffling between nodes.
 
