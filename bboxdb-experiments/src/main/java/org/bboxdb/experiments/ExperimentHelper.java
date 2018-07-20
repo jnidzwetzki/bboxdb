@@ -27,6 +27,11 @@ import org.bboxdb.tools.TupleFileReader;
 public class ExperimentHelper {
 
 	/**
+	 * The amount of unprocessed boxes in memory
+	 */
+	private final static int MAX_UNPROCESSED_BOXES = 10;
+
+	/**
 	 * Determine global bounding box
 	 * @param sampleSize
 	 * @return
@@ -40,6 +45,15 @@ public class ExperimentHelper {
 
 		tupleFile.addTupleListener(t -> {
 			bboxes.add(t.getBoundingBox());
+
+			// Merge all known boxes and free memory
+			if(bboxes.size() > MAX_UNPROCESSED_BOXES) {
+				final List<Hyperrectangle> oldBoxes = bboxes;
+				bboxes.clear();
+				Hyperrectangle coveringBox = Hyperrectangle.getCoveringBox(oldBoxes);
+				bboxes.add(coveringBox);
+			}
+
 		});
 
 		try {
