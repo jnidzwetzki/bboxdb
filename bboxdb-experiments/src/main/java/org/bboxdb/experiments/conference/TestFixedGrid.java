@@ -84,7 +84,14 @@ public class TestFixedGrid implements Runnable {
 			final TupleFileReader tupleFile = new TupleFileReader(file.getKey(), file.getValue());
 
 			tupleFile.addTupleListener(t -> {
-				final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
+				Hyperrectangle boundingBox = t.getBoundingBox();
+				final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(boundingBox);
+
+				if(intersectedBoxes.isEmpty()) {
+					System.err.println("Unable to find Boundig Box for " + boundingBox
+							+ " / World: " + cellGrid.getCoveringBox());
+					System.exit(-1);
+				}
 
 				for(final Hyperrectangle box : intersectedBoxes) {
 					final int oldValue = bboxes.getOrDefault(box, 0);
