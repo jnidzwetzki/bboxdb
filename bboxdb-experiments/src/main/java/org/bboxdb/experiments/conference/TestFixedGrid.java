@@ -65,7 +65,8 @@ public class TestFixedGrid implements Runnable {
 				.orElseThrow(() -> new IllegalArgumentException("Unable to calculate bounding box"));
 
 		for(final Integer cellsPerDimension: cellSizes) {
-			System.out.println("Cells per Dimension: " + cellsPerDimension);
+			System.out.println("Cells per Dimension: " + cellsPerDimension
+					+ " BBox: " + boundingBox.toCompactString());
 			final CellGrid cellGrid = CellGrid.buildWithFixedAmountOfCells(boundingBox, cellsPerDimension);
 			runExperiment(cellGrid);
 		}
