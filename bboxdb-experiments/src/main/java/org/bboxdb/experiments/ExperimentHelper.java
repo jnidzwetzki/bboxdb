@@ -29,7 +29,7 @@ public class ExperimentHelper {
 	/**
 	 * The amount of unprocessed boxes in memory
 	 */
-	private final static int MAX_UNPROCESSED_BOXES = 10;
+	private final static int MAX_UNPROCESSED_BOXES = 100;
 
 	/**
 	 * Determine global bounding box
