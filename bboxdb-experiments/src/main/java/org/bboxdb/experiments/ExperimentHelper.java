@@ -48,7 +48,7 @@ public class ExperimentHelper {
 
 			// Merge all known boxes and free memory
 			if(bboxes.size() > MAX_UNPROCESSED_BOXES) {
-				final List<Hyperrectangle> oldBoxes = bboxes;
+				final List<Hyperrectangle> oldBoxes = new ArrayList<>(bboxes);
 				bboxes.clear();
 				Hyperrectangle coveringBox = Hyperrectangle.getCoveringBox(oldBoxes);
 				bboxes.add(coveringBox);
