@@ -50,7 +50,7 @@ public class ExperimentHelper {
 			if(bboxes.size() > MAX_UNPROCESSED_BOXES) {
 				final List<Hyperrectangle> oldBoxes = new ArrayList<>(bboxes);
 				bboxes.clear();
-				Hyperrectangle coveringBox = Hyperrectangle.getCoveringBox(oldBoxes);
+				final Hyperrectangle coveringBox = Hyperrectangle.getCoveringBox(oldBoxes);
 				bboxes.add(coveringBox);
 			}
 
