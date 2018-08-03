@@ -333,7 +333,7 @@ public class DataRedistributionLoader implements Runnable {
 	 */
 	public static void main(final String[] args) {
 
-		if(args.length < 4) {
+		if(args.length != 4) {
 			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <Number of files to load> "
 					+ "<ZookeeperEndpoint> <Clustername>");
 			System.exit(-1);
