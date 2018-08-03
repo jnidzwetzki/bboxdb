@@ -397,6 +397,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * Get the number of needed executions
 	 * @return
 	 */
+	@Override
 	public int getNeededExecutions() {
 		return globalRetryCounter + 1;
 	}
