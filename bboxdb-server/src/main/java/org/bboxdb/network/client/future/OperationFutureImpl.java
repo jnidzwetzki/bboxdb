@@ -398,6 +398,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	public int getNeededExecutions() {
-		return globalRetryCounter;
+		return globalRetryCounter + 1;
 	}
 }
