@@ -257,9 +257,17 @@ public class DistributionRegionSyncer implements Watcher {
 				final DistributionRegionState regionState 
 					= distributionRegionAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
 			
-				region.setState(regionState);
-			
+				final boolean writeAccessEnabled 
+					= DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE.test(regionState);
+				
+				// Ensure parent region write access  is still enabled before we update the children
+				if(writeAccessEnabled) {
+					region.setState(regionState);
+				}
+				
 				updateChildrenForRegion(nodePath, region);
+				
+				region.setState(regionState);
 				
 			} catch(ZookeeperNotFoundException e) {
 				// Node is deleted, let the deletion callback remove the node
