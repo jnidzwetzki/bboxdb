@@ -95,12 +95,14 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			distributionRegionZookeeperAdapter.createNewChild(parentPath, 0, leftBoundingBox, distributionGroupName);
 			distributionRegionZookeeperAdapter.createNewChild(parentPath, 1, rightBoundingBox, distributionGroupName);
 			
-			// Update state
-			distributionRegionZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
-			
+			// Made children ready
 			waitUntilChildrenAreCreated(regionToSplit, 2);
 			allocateSystems(regionToSplit, 2);
+			
+			// Children ready, update state and redirect operations
+			distributionRegionZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 			setStateToRedistributionActiveAndWait(regionToSplit, 2);
+			
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} catch (InterruptedException e) {

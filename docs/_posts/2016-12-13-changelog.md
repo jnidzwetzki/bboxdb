@@ -15,6 +15,7 @@ order: 1
 - Improvement: Added baseline experiment
 - Improvement: Added baseline importer
 - Improvement: Added a future statistics writer
+- Bugfix: Made children regions ready before parent region is set into split state
 
 ### Version 0.8.1 - 01.07.2018
 - Improvement: Updated dependencies (Prometheus 0.3.0 -> 0.4.0, Zookeeper 3.4.11 -> 3.4.12, snakeyaml 1.20 -> 1.21, Guava 24.0 -> 25.1, Mockito 2.18 -> 2.19)
