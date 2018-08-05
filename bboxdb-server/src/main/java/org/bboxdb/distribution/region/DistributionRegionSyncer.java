@@ -200,8 +200,9 @@ public class DistributionRegionSyncer implements Watcher {
 			
 			final long localVersion = versions.getOrDefault(region, 0l);
 			
+			// Update might be alreay read before the watcher was processed
 			if(localVersion > remoteVersion) {
-				logger.error("Local version {} for {} is newer than remote version {}", 
+				logger.debug("Local version {} for {} is newer than remote version {}", 
 						localVersion, nodePath, remoteVersion);
 				return;
 			}
