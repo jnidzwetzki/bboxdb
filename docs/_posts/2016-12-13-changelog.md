@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.8.2 - TBA
+### Version 0.8.2 - 05.09.2018
 - Improvement: Bounding boxes can be padded in dataset import
 - Improvement: Added 'ulimit -a' output in bboxdb.out server log
 - Improvement: Added multiple file support for fixed grid experiment
