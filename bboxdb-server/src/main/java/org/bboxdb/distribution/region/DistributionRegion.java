@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -371,17 +370,6 @@ public class DistributionRegion {
 
 		// Replace systems atomically
 		this.systems = newSystemsList;
-	}
-
-	/**
-	 * Get the DistributionRegions for a given bounding box
-	 * @param boundingBox
-	 * @return
-	 */
-	public List<DistributionRegion> getDistributionRegionsForBoundingBox(final Hyperrectangle boundingBox) {
-		return getThisAndChildRegions().stream()
-			.filter(r -> r.getConveringBox().intersects(boundingBox))
-			.collect(Collectors.toList());
 	}
 
 	/**
