@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.8.3 - TBA
 - Bugfix: Filter distribution regions directly in the tree to prevent race conditions
+- Bugfix: Fixed wrong write operation redirect order in KD Tree space partitioner
 
 ### Version 0.8.2 - 05.09.2018
 - Improvement: Bounding boxes can be padded in dataset import

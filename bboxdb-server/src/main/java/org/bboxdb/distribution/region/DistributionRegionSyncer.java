@@ -254,22 +254,26 @@ public class DistributionRegionSyncer implements Watcher {
 						+ " with " + regionId + " on " + nodePath);
 				}
 
-				final DistributionRegionState regionState
+				final DistributionRegionState oldState = region.getState();
+
+				final DistributionRegionState newState
 					= distributionRegionAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
 
 				final boolean writeAccessEnabled
-					= DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE.test(regionState);
+					= DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE.test(newState);
 
-				logger.info("Replacing state {} to {} on node{}", region.getState(), regionState, region);
+				if(oldState != newState) {
+					logger.info("Replacing state {} to {} on node {}", oldState, newState, region.getIdentifier());
+				}
 
 				// Ensure parent region write access  is still enabled before we update the children
 				if(writeAccessEnabled) {
-					region.setState(regionState);
+					region.setState(newState);
 				}
 
 				updateChildrenForRegion(nodePath, region);
 
-				region.setState(regionState);
+				region.setState(newState);
 
 			} catch(ZookeeperNotFoundException e) {
 				// Node is deleted, let the deletion callback remove the node
