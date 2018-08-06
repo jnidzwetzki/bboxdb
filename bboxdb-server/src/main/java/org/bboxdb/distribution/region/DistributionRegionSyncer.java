@@ -263,7 +263,7 @@ public class DistributionRegionSyncer implements Watcher {
 					= DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE.test(newState);
 
 				if(oldState != newState) {
-					logger.info("Replacing state {} to {} on node {}", oldState, newState, region.getIdentifier());
+					logger.debug("Replacing state {} to {} on node {}", oldState, newState, region.getIdentifier());
 				}
 
 				// Ensure parent region write access  is still enabled before we update the children
