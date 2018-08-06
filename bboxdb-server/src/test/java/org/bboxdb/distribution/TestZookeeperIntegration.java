@@ -474,38 +474,38 @@ public class TestZookeeperIntegration {
 		final DistributionRegion level0 = spacepartitionier.getRootNode();
 		
 		spacepartitionier.splitNode(level0, 50);	
-		level0.makeChildsActive();
+		level0.makeChildrenActive();
 
 		// Level 1
 		final DistributionRegion level1l = level0.getDirectChildren().get(0);
 		spacepartitionier.splitNode(level1l, 40);
-		level1l.makeChildsActive();
+		level1l.makeChildrenActive();
 		
 		final DistributionRegion level1r = level0.getDirectChildren().get(1);
 		spacepartitionier.splitNode(level1r, 50);	
-		level1r.makeChildsActive();
+		level1r.makeChildrenActive();
 
 		// Level 2
 		final DistributionRegion level2ll = level1l.getDirectChildren().get(0);
 		spacepartitionier.splitNode(level2ll, 30);	
-		level2ll.makeChildsActive();
+		level2ll.makeChildrenActive();
 
 		final DistributionRegion level2rl = level1r.getDirectChildren().get(0);
 		spacepartitionier.splitNode(level2rl, 60);
-		level2rl.makeChildsActive();
+		level2rl.makeChildrenActive();
 
 		final DistributionRegion level2lr = level1l.getDirectChildren().get(1);
 		spacepartitionier.splitNode(level2lr, 30);
-		level2lr.makeChildsActive();
+		level2lr.makeChildrenActive();
 
 		final DistributionRegion level2rr = level1r.getDirectChildren().get(1);
 		spacepartitionier.splitNode(level2rr, 60);
-		level2rr.makeChildsActive();
+		level2rr.makeChildrenActive();
 		
 		// Level 3
 		final DistributionRegion level3lll = level2ll.getDirectChildren().get(0);
 		spacepartitionier.splitNode(level3lll, 35);
-		level3lll.makeChildsActive();
+		level3lll.makeChildrenActive();
 		
 		final String path0 = distributionRegionAdapter.getZookeeperPathForDistributionRegion(level0);
 		final String path1 = distributionRegionAdapter.getZookeeperPathForDistributionRegion(level1l);

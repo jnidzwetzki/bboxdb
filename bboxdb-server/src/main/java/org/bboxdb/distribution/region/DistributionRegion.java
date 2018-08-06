@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.distribution.region;
 
@@ -40,7 +40,7 @@ public class DistributionRegion {
 	 * The left child
 	 */
 	private final Map<Long, DistributionRegion> children;
-		
+
 	/**
 	 * The parent of this node
 	 */
@@ -50,22 +50,22 @@ public class DistributionRegion {
 	 * The area that is covered
 	 */
 	private final Hyperrectangle converingBox;
-	
+
 	/**
 	 * The state of the region
 	 */
 	private DistributionRegionState state = DistributionRegionState.CREATING;
-	
+
 	/**
 	 * The systems
 	 */
 	private Collection<BBoxDBInstance> systems;
-	
+
 	/**
 	 * The id of the region
 	 */
 	private final long regionid;
-	
+
 	/**
 	 * The root pointer of the root element of the tree
 	 */
@@ -74,19 +74,19 @@ public class DistributionRegion {
 	public DistributionRegion(final String name, final Hyperrectangle boundingBox) {
 		this(name, ROOT_NODE_ROOT_POINTER, boundingBox, 0);
 	}
-	
+
 	/**
 	 * @param name
-	 * @param boundingBox 
+	 * @param boundingBox
 	 * @param level
 	 */
 	public DistributionRegion(final String name, final DistributionRegion parent,
 			final Hyperrectangle boundingBox, final long regionid) {
-		
+
 		if(! DistributionGroupHelper.validateDistributionGroupName(name)) {
 			throw new IllegalArgumentException("Invalid distribution group specified");
 		}
-		
+
 		this.distributionGroupName = name;
 		this.converingBox = boundingBox;
 		this.parent = parent;
@@ -110,22 +110,22 @@ public class DistributionRegion {
 	public List<DistributionRegion> getDirectChildren() {
 		return new ArrayList<>(children.values());
 	}
-	
+
 	/**
 	 * Get all the children of the region
 	 * @return
 	 */
 	public List<DistributionRegion> getAllChildren() {
 		final List<DistributionRegion> result = new ArrayList<>();
-		
+
 		for(final DistributionRegion child : children.values()) {
 			result.add(child);
 			result.addAll(child.getAllChildren());
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * Get all distribution regions
 	 * @return
@@ -136,14 +136,12 @@ public class DistributionRegion {
 		result.addAll(getAllChildren());
 		return result;
 	}
-	
+
 	/**
-	 * Set the childs to state active
+	 * Set the children to state active
 	 */
-	public void makeChildsActive() {
-		for(final DistributionRegion child : children.values()) {
-			child.setState(DistributionRegionState.ACTIVE);
-		}
+	public void makeChildrenActive() {
+		children.values().forEach(c -> c.setState(DistributionRegionState.ACTIVE));
 	}
 
 	/**
@@ -152,7 +150,7 @@ public class DistributionRegion {
 	public void merge() {
 		children.clear();
 	}
-	
+
 	/**
 	 * Get the state of the node
 	 * @return
@@ -175,29 +173,29 @@ public class DistributionRegion {
 	 */
 	public int getLevel() {
 		int levelCounter = 0;
-		
+
 		DistributionRegion parent = this.getParent();
-		
+
 		while(parent != null) {
 			parent = parent.getParent();
 			levelCounter++;
 		}
-		
+
 		return levelCounter;
 	}
-	
+
 	/**
 	 * Get the number of levels in this tree
 	 * @return
 	 */
-	public int getTotalLevel() {		
+	public int getTotalLevel() {
 		return getRootRegion().getAllChildren()
 				.stream()
 				.mapToInt(d -> d.getLevel())
 				.max()
 				.orElse(0) + 1;
 	}
-	
+
 	/**
 	 * Get the highest child number
 	 */
@@ -217,15 +215,15 @@ public class DistributionRegion {
 	 */
 	public DistributionRegion getRootRegion() {
 		DistributionRegion currentElement = this;
-		
+
 		// Follow the links to the root element
 		while(currentElement.parent != ROOT_NODE_ROOT_POINTER) {
 			currentElement = currentElement.parent;
 		}
-		
+
 		return currentElement;
 	}
-	
+
 	/**
 	 * Is this a leaf region node?
 	 * @return
@@ -233,24 +231,24 @@ public class DistributionRegion {
 	public boolean isLeafRegion() {
 		return getDirectChildren().isEmpty();
 	}
-	
+
 	/**
 	 * Add a new child
 	 * @param newChild
 	 */
 	public void addChildren(final long childNumber, final DistributionRegion newChild) {
-		
+
 		if(newChild.getParent() != this) {
 			throw new IllegalArgumentException("Parent of child " + newChild + " is not this " + this);
 		}
-		
+
 		if(children.containsKey(childNumber)) {
 			throw new IllegalArgumentException("Child with id " + childNumber + " already exists");
 		}
-		
+
 		children.put(childNumber, newChild);
 	}
-	
+
 	/**
 	 * Get the child with the given number
 	 * @param childNumber
@@ -259,7 +257,7 @@ public class DistributionRegion {
 	public DistributionRegion getChildNumber(final long childNumber) {
 		return children.get(childNumber);
 	}
-	
+
 	/**
 	 * Get all known children numbers
 	 * @return
@@ -267,7 +265,7 @@ public class DistributionRegion {
 	public List<Long> getAllChildrenNumbers() {
 		return new ArrayList<>(children.keySet());
 	}
-	
+
 	/**
 	 * Has this node childs?
 	 * @return
@@ -275,17 +273,17 @@ public class DistributionRegion {
 	public boolean hasChilds() {
 		return ! children.isEmpty();
 	}
-	
+
 	/**
 	 * Remove the children
 	 */
 	public void removeAllChildren() {
 		children.clear();
 	}
-	
+
 	/**
 	 * Remove the children
-	 * @return 
+	 * @return
 	 */
 	public DistributionRegion removeChildren(final long childrenNumber) {
 		return children.remove(childrenNumber);
@@ -297,18 +295,18 @@ public class DistributionRegion {
 	public boolean isRootElement() {
 		return (parent == ROOT_NODE_ROOT_POINTER);
 	}
-	
+
 	/**
 	 * Get the child number
 	 * @return
 	 */
 	public long getChildNumberOfParent() {
-		
+
 		// This is the root element
 		if(isRootElement()) {
 			return 0;
 		}
-		
+
 		return getParent().children.entrySet()
 			.stream()
 			.filter(e -> e.getValue() == this)
@@ -332,7 +330,7 @@ public class DistributionRegion {
 	public String getDistributionGroupName() {
 		return distributionGroupName;
 	}
-	
+
 	/**
 	 * Get a unique identifier for this region
 	 * @return
@@ -340,7 +338,7 @@ public class DistributionRegion {
 	public String getIdentifier() {
 		return distributionGroupName + "_" + regionid;
 	}
-	
+
 	/**
 	 * Get all systems that are responsible for this DistributionRegion
 	 * @return
@@ -348,7 +346,7 @@ public class DistributionRegion {
 	public List<BBoxDBInstance> getSystems() {
 		return new ArrayList<>(systems);
 	}
-	
+
 	/**
 	 * Add a system to this DistributionRegion
 	 * @param system
@@ -356,27 +354,27 @@ public class DistributionRegion {
 	public void addSystem(final BBoxDBInstance system) {
 		systems.add(system);
 	}
-	
+
 	/**
 	 * Set the systems for this DistributionRegion
 	 * @param newSystems
 	 */
 	public void setSystems(final Collection<BBoxDBInstance> newSystems) {
-		
+
 		if(newSystems == null || newSystems.isEmpty()) {
 			systems.clear();
 			return;
 		}
-		
+
 		final List<BBoxDBInstance> newSystemsList = new ArrayList<>(newSystems.size());
 		newSystemsList.addAll(newSystems);
-		
+
 		// Replace systems atomically
 		this.systems = newSystemsList;
 	}
-	
+
 	/**
-	 * Get the DistributionRegions for a given bounding box 
+	 * Get the DistributionRegions for a given bounding box
 	 * @param boundingBox
 	 * @return
 	 */
@@ -385,7 +383,7 @@ public class DistributionRegion {
 			.filter(r -> r.getConveringBox().intersects(boundingBox))
 			.collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * Get the region id of the node
 	 * @return
