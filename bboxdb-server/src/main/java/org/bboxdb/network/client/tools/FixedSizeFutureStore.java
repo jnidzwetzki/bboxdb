@@ -55,6 +55,11 @@ public class FixedSizeFutureStore {
 	private Writer statisticsWriter;
 
 	/**
+	 * The start time of the statistics
+	 */
+	private long statisticsStartTime;
+
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FixedSizeFutureStore.class);
@@ -72,6 +77,7 @@ public class FixedSizeFutureStore {
 	 */
 	public void writeStatistics(final Writer writer) {
 		this.statisticsWriter = writer;
+		this.statisticsStartTime = System.nanoTime();
 	}
 
 	/**
@@ -141,10 +147,9 @@ public class FixedSizeFutureStore {
 		}
 
 		for(final OperationFuture future : doneFutures) {
-			final long time = System.nanoTime();
+			final long time = System.nanoTime() - statisticsStartTime;
 			final long completionTime = future.getCompletionTime(TimeUnit.MILLISECONDS);
 			final int executions = future.getNeededExecutions();
-
 
 			final String outputValue = String.format("%d\t%d\t%d%n", time, completionTime, executions);
 
