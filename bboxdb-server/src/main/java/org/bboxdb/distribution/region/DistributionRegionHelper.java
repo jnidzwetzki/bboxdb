@@ -90,18 +90,13 @@ public class DistributionRegionHelper {
 
 		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
 
-		final List<DistributionRegion> regions = rootRegion.getThisAndChildRegions();
+		final Predicate<DistributionRegion> predicate = (d) -> {
+			return statePredicate.test(d.getState()) && d.getConveringBox().intersects(boundingBox);
+		};
+
+		final List<DistributionRegion> regions = rootRegion.getThisAndChildRegions(predicate);
 
 		for(final DistributionRegion region : regions) {
-
-			if(! boundingBox.intersects(region.getConveringBox())) {
-				continue;
-			}
-
-			if(! statePredicate.test(region.getState())) {
-				continue;
-			}
-
 			for(final BBoxDBInstance system : region.getSystems()) {
 				if(! hops.containsKey(system.getInetSocketAddress())) {
 					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
@@ -121,12 +116,11 @@ public class DistributionRegionHelper {
 	 * @param boundingBox
 	 * @return
 	 */
-	public static List<DistributionRegion> getDistributionRegionsForBoundingBox(final DistributionRegion rootRegion,
+	public static List<DistributionRegion> getDistributionRegionsForBoundingBox(
+			final DistributionRegion rootRegion,
 			final Hyperrectangle boundingBox) {
 
-		return rootRegion.getThisAndChildRegions().stream()
-			.filter(r -> r.getConveringBox().intersects(boundingBox))
-			.collect(Collectors.toList());
+		return rootRegion.getThisAndChildRegions((d) -> d.getConveringBox().intersects(boundingBox));
 	}
 
 	/**

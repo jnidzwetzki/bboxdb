@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -133,6 +134,26 @@ public class DistributionRegion {
 		final List<DistributionRegion> result = new ArrayList<>();
 		result.add(this);
 		result.addAll(getAllChildren());
+		return result;
+	}
+
+	/**
+	 * Get this and all children matching the predicate
+	 * @param predicate
+	 * @return
+	 */
+	public List<DistributionRegion> getThisAndChildRegions(final Predicate<DistributionRegion> predicate) {
+		final List<DistributionRegion> result = new ArrayList<>();
+
+		if(predicate.test(this)) {
+			result.add(this);
+		}
+
+		final Collection<DistributionRegion> directChildren = children.values();
+		for(final DistributionRegion children : directChildren) {
+			result.addAll(children.getThisAndChildRegions(predicate));
+		}
+
 		return result;
 	}
 
