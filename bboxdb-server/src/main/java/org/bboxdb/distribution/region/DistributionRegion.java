@@ -266,10 +266,10 @@ public class DistributionRegion {
 	}
 
 	/**
-	 * Has this node childs?
+	 * Has this node children?
 	 * @return
 	 */
-	public boolean hasChilds() {
+	public boolean hasChildren() {
 		return ! children.isEmpty();
 	}
 
