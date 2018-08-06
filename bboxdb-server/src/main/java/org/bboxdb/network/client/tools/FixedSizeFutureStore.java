@@ -21,8 +21,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -50,14 +53,19 @@ public class FixedSizeFutureStore {
 	private final List<Consumer<OperationFuture>> failedFutureCallbacks;
 
 	/**
+	 * The future counter
+	 */
+	private final AtomicLong futureCounter;
+
+	/**
+	 * The future counter
+	 */
+	private final Map<OperationFuture, Long> futureCounterMap;
+
+	/**
 	 * The statistics writer
 	 */
 	private Writer statisticsWriter;
-
-	/**
-	 * The start time of the statistics
-	 */
-	private long statisticsStartTime;
 
 	/**
 	 * The Logger
@@ -69,6 +77,8 @@ public class FixedSizeFutureStore {
 		this.pendingFutures = new CopyOnWriteArrayList<>();
 		this.failedFutureCallbacks = new ArrayList<>();
 		this.statisticsWriter = null;
+		this.futureCounter = new AtomicLong();
+		this.futureCounterMap = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -77,7 +87,6 @@ public class FixedSizeFutureStore {
 	 */
 	public void writeStatistics(final Writer writer) {
 		this.statisticsWriter = writer;
-		this.statisticsStartTime = System.nanoTime();
 	}
 
 	/**
@@ -87,6 +96,7 @@ public class FixedSizeFutureStore {
 	 */
 	public void put(final OperationFuture futureToAdd) {
 		pendingFutures.add(futureToAdd);
+		futureCounterMap.put(futureToAdd, futureCounter.getAndIncrement());
 		checkAndCleanupRunningFuture();
 	}
 
@@ -142,21 +152,21 @@ public class FixedSizeFutureStore {
 	 * @param doneFutures
 	 */
 	private void writeStatistics(final List<OperationFuture> doneFutures) {
-		if(statisticsWriter == null) {
-			return;
-		}
 
 		for(final OperationFuture future : doneFutures) {
-			final long time = System.nanoTime() - statisticsStartTime;
+			final long futureNumber = futureCounterMap.remove(future);
 			final long completionTime = future.getCompletionTime(TimeUnit.MILLISECONDS);
 			final int executions = future.getNeededExecutions();
 
-			final String outputValue = String.format("%d\t%d\t%d%n", time, completionTime, executions);
+			if(statisticsWriter != null) {
+				final String outputValue = String.format("%d\t%d\t%d%n", futureNumber,
+						completionTime, executions);
 
-			try {
-				statisticsWriter.write(outputValue);
-			} catch (IOException e) {
-				logger.error("Got IO exception while writing statistics", e);
+				try {
+					statisticsWriter.write(outputValue);
+				} catch (IOException e) {
+					logger.error("Got IO exception while writing statistics", e);
+				}
 			}
 		}
 
