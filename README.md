@@ -21,7 +21,11 @@ __Please Note:__ The master branch may be in an unstable state during developmen
 # What is BBoxDB?
 BBoxDB is a highly available distributed storage manager, designed to handle multi-dimensional big data.  Primarily, the software is a research project to explore new ways to handle multi-dimensional data in a distributed environment.
 
-In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (non-point data / regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
+In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (non-point data / regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed
+to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
+
+<p><img src="docs/images/space.jpg" width="400"></p>
+
 
 ## Key features
 * The well-known key-value data model is enhanced by a bounding box to describe the location of n-dimensional data in space.
@@ -37,11 +41,6 @@ In contrast to existing key-value stores, BBoxDB can handle multi-dimensional ef
 * Data of multiple tables is stored co-partitioned, and spatial-joins can be executed efficiently without data shuffling between nodes.
 
 * Data are re-distributed in the background without any service interruption.
-
-# BBoxDB in Action
-In the following screencast, the _command line interface_ of BBoxDB is used to create a 2-dimensional distribution group and two tables. Then some tuples are inserted and operations like key-queries, hyperrectangle-queries, deletes, and joins are executed on the stored data. For accessing BBoxDB from your application, see the [creating client code](https://jnidzwetzki.github.io/bboxdb/doc/client.html) section in the documentation.
-
-<p><a href="https://github.com/jnidzwetzki/bboxdb/blob/master/docs/images/screencast.gif?raw=true" target="_blank"><img src="docs/images/screencast.gif" ></a><br><i>If the font is difficult to read, please click on the image.</i></p>
 
 ## Documentation
 The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.

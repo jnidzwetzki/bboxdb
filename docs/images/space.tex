@@ -1,0 +1,78 @@
+\documentclass[tikz, border=10pt]{standalone}
+\usepackage[latin1]{inputenc}
+\usepackage[german]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx,float,wrapfig}
+\usepackage{graphicx}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{shadows}
+\usetikzlibrary{3d}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations.pathreplacing}
+
+\begin{document}
+\begin{tikzpicture}[scale=1, every node/.style={transform shape}]
+
+
+\draw[line width=0.3mm] (0,0) -- (0,8);
+\draw[line width=0.3mm] (0,8) -- (8,8);
+\draw[line width=0.3mm] (8,8) -- (8,0);
+\draw[line width=0.3mm] (0,0) -- (8,0);
+
+\draw (4.4,4.9) rectangle (5.6, 5.5);
+\node[draw, fill, trapezium, minimum size=5mm, anchor=center] (b) at (5,5.2){};
+\node[above=0mm of b] {Tuple H};
+
+\draw (3.3,3.2) rectangle (4.8,4.7);
+\node[draw, fill, starburst, minimum size=15mm, anchor=center] (d) at (4,4){};
+\node[below=5mm of d] {Tuple G};
+
+\draw (0.5,4.5) rectangle (1.5,5.5);
+\node[draw, fill, cloud, minimum size=10mm, anchor=center] (e) at (1,5){};
+\node[below=1mm of e] {Tuple A};
+
+\draw (6.5,4.5) rectangle (7.5,5.5);
+\node[draw, fill, diamond, minimum size=10mm, anchor=center] (c) at (7,5){};
+\node[below=0mm of c] {Tuple B};
+
+\draw (4.7,0.7) rectangle (5.7,1.9);
+\node[draw, fill, kite, minimum size=10mm, anchor=center] (e) at (5.2,1.5){};
+\node[below=1mm of e] {Tuple C};
+
+\draw (6.5,1.5) rectangle (7.5,2.5);
+\node[draw, fill, cloud, minimum size=10mm, anchor=center] (e) at (7,2){};
+\node[below=1mm of e] {Tuple D};
+
+\draw (1.5,1.5) rectangle (2.5,2.6);
+\node[draw, fill, star, minimum size=10mm, anchor=center] (e) at (2,2){};
+\node[below=2mm of e] {Tuple E};
+
+\draw (6.7,6.4) rectangle (7.4, 7.0);
+\node[draw, fill, dart, minimum size=5mm, anchor=center] (a) at (7,6.7) {};
+\node[below=1mm of a] {Tuple F};
+
+\draw[line width=0.2mm, dashed] (6,0) -- (6,8);
+\draw[line width=0.2mm, dashed] (0,3.7) -- (6,3.7);
+
+\node[anchor=center, text width=3cm] at(7.6, 7.6) {\scriptsize\texttt{Distribution\\ region 0}};
+\node[anchor=center] at(1.5, 7.7) {\scriptsize\texttt{Distribution region 1}};
+\node[anchor=center] at(1.5, 3.4) {\scriptsize\texttt{Distribution region 2}};
+
+\node[cylinder, draw, shape border rotate=90, aspect=0.25, fill=white, drop shadow, text width=2cm, text centered] (sysc) at (11,2) {\texttt{node c}};
+\node[cylinder, draw, shape border rotate=90, aspect=0.25, fill=white, drop shadow, text width=2cm, text centered] (sysb) at (11,4) {\texttt{node b}};
+\node[cylinder, draw, shape border rotate=90, aspect=0.25, fill=white, drop shadow, text width=2cm, text centered] (sysa) at (11,6) {\texttt{node a}};
+
+\draw[-triangle 90] let \p1 = (sysb.170) in (8, \y1) -- (sysb.170);
+\draw[-triangle 90] (4, 8) .. controls(9, 9) .. (sysa);
+\draw[-triangle 90] (5, 0) .. controls(9, -1) ..  (sysc);
+\end{tikzpicture}
+\end{document}
+
