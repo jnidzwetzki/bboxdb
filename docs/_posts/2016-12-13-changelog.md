@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.8.3 - TBA
+- Improvement: Refactored future retry to supplier
 - Bugfix: Filter distribution regions directly in the tree to prevent race conditions
 - Bugfix: Fixed wrong write operation redirect order on split in KD Tree space partitioner
 - Bugfix: Fixed wrong write operation redirect order on split in Quad-Tree space partitioner

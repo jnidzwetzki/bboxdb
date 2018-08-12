@@ -27,6 +27,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -344,7 +345,7 @@ public class BBoxDBConnection {
 					NetworkConst.PROTOCOL_VERSION, clientCapabilities);
 		});
 
-		final HelloFuture helloFuture = new HelloFuture(operationFuture);
+		final HelloFuture helloFuture = new HelloFuture(() -> Arrays.asList(operationFuture));
 		helloFuture.waitForCompletion();
 
 		if(operationFuture.isFailed()) {

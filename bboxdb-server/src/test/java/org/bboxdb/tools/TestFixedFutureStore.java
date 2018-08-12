@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -89,7 +90,7 @@ public class TestFixedFutureStore {
 
 		for(int i = 0; i < 20; i++) {
 			final NetworkOperationFuture networkOperationFuture = TestFuture.getFailingNetworkFuture();
-			final EmptyResultFuture future = new EmptyResultFuture(networkOperationFuture);
+			final EmptyResultFuture future = new EmptyResultFuture(() -> Arrays.asList(networkOperationFuture));
 			futureStore.put(future);
 		}
 
@@ -117,7 +118,7 @@ public class TestFixedFutureStore {
 
 		for(int i = 0; i < 20; i++) {
 			final NetworkOperationFuture networkOperationFuture = TestFuture.getFailingNetworkFuture();
-			final EmptyResultFuture future = new EmptyResultFuture(networkOperationFuture);
+			final EmptyResultFuture future = new EmptyResultFuture(() -> Arrays.asList(networkOperationFuture));
 			futureStore.put(future);
 		}
 

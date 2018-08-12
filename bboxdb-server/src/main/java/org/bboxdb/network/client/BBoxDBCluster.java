@@ -171,10 +171,10 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 
-				final NetworkOperationFuture future
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
 
-				return Arrays.asList(future);
+				return future.get();
 			}
 		};
 
@@ -206,14 +206,17 @@ public class BBoxDBCluster implements BBoxDB {
 					boundingBox);
 
 			final List<NetworkOperationFuture> futures = new ArrayList<>();
+
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
-				final NetworkOperationFuture future
+
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
-				futures.add(future);
+
+				futures.addAll(future.get());
 			}
 
 			return futures;
@@ -242,11 +245,11 @@ public class BBoxDBCluster implements BBoxDB {
 
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final NetworkOperationFuture future
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().createLockTupleFuture(
 							table, tuple, deleteOnTimeout, routingHeader);
 
-				futures.add(future);
+				futures.addAll(future.get());
 			}
 
 			return futures;
@@ -328,9 +331,11 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
-				final NetworkOperationFuture future
+
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getQueryKeyFuture(table, key, routingHeader);
-				futures.add(future);
+
+				futures.addAll(future.get());
 			}
 
 			return futures;
@@ -363,9 +368,11 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
-				final NetworkOperationFuture future
+
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getQueryBoundingBoxFuture(table, boundingBox, routingHeader);
-				futures.add(future);
+
+				futures.addAll(future.get());
 			}
 
 			return futures;
@@ -427,10 +434,12 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
-				final NetworkOperationFuture future
+
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getBoundingBoxAndTimeFuture(table, boundingBox,
 							timestamp, routingHeader);
-				futures.add(future);
+
+				futures.addAll(future.get());
 			}
 
 			return futures;
@@ -463,9 +472,11 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
-				final NetworkOperationFuture future
+
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getVersionTimeFuture(table, timestamp, routingHeader);
-				futures.add(future);
+
+				futures.addAll(future.get());
 			}
 
 			return futures;
@@ -498,10 +509,12 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
-				final NetworkOperationFuture future
+
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getInsertedTimeFuture(table,
 							timestamp, routingHeader);
-				futures.add(future);
+
+				futures.addAll(future.get());
 			}
 
 			return futures;
@@ -540,10 +553,12 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
-				final NetworkOperationFuture future
+
+				final Supplier<List<NetworkOperationFuture>> future
 					= connection.getBboxDBClient().getJoinFuture(tableNames,
 							boundingBox, routingHeader);
-				futures.add(future);
+
+				futures.addAll(future.get());
 			}
 
 			return futures;
