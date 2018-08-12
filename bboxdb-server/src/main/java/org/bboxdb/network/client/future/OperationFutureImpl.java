@@ -36,7 +36,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
     /**
      * The tuple send delayer
      */
-    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final static ScheduledExecutorService scheduler;
+
+    static {
+    	scheduler = Executors.newScheduledThreadPool(1);
+    }
 
 	/**
 	 * The futures
