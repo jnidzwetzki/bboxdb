@@ -75,7 +75,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 			final FutureRetryPolicy retryPolicy) {
 
 		this.futureSupplier = futureSupplier;
-		this.futures = futureSupplier.get();
 		this.retryPolicy = retryPolicy;
 
 		execute();
@@ -85,6 +84,10 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * Execute the network operation futures
 	 */
 	public void execute() {
+
+		// Get futures from supplier
+		futures = futureSupplier.get();
+
 		// Set callbacks
 		futures.forEach(f -> f.setErrorCallback(this));
 		futures.forEach(f -> f.setSuccessCallback((c) -> handleNetworkFutureSuccess()));
@@ -373,7 +376,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		final Runnable futureTask = () -> {
 			cancelAllFutures();
-			futures = futureSupplier.get();
 			execute();
 		};
 
