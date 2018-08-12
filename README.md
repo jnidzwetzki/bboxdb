@@ -1,4 +1,4 @@
-<img src="docs/logo/logo.png" width="400"> <br>
+<img src="docs/logo/logo.jpg" width="400"> <br>
 
 <a href="https://travis-ci.org/jnidzwetzki/bboxdb">
   <img alt="Build Status" src="https://travis-ci.org/jnidzwetzki/bboxdb.svg?branch=master">
