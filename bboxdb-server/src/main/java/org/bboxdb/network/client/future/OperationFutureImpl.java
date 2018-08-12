@@ -104,7 +104,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	private void handleNetworkFutureSuccess() {
 		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
 
-		// If some futures are failed, cancel the successfull ones
+		// If some futures are failed, cancel the successful ones
 		if(isFailed()) {
 			cancelAllFutures();
 		}
