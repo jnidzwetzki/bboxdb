@@ -138,16 +138,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	}
 
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.OperationFuture#setMessage(int, java.lang.String)
-	 */
-	@Override
-	public void setMessage(final int resultId, final String message) {
-		checkFutureSize(resultId);
-
-		futures.get(resultId).setMessage(message);
-	}
-
-	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#getMessage(int)
 	 */
 	@Override
@@ -162,14 +152,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		checkFutureSize(resultId);
 
 		return futures.get(resultId).getConnection();
-	}
-
-
-	@Override
-	public void setCompleteResult(int resultId, boolean completeResult) {
-		checkFutureSize(resultId);
-
-		futures.get(resultId).setCompleteResult(completeResult);
 	}
 
 	@Override

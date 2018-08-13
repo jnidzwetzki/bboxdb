@@ -37,25 +37,11 @@ public interface OperationFuture {
 	public short getRequestId(final int resultId);
 
 	/**
-	 * Set the additional message
-	 * @param resultId
-	 * @param message
-	 */
-	public void setMessage(final int resultId, final String message);
-
-	/**
 	 * Get the additional message
 	 * @param resultId
 	 * @return
 	 */
 	public String getMessage(final int resultId);
-
-	/**
-	 * Is the result complete?
-	 * @param resultId
-	 * @param complete
-	 */
-	public void setCompleteResult(final int resultId, final boolean complete);
 
 	/**
 	 * Is the given result complete?
