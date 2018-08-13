@@ -189,7 +189,7 @@ public class BBoxDBConnection {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBConnection.class);
 
 
 	@VisibleForTesting
