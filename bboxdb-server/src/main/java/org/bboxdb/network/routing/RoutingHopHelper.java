@@ -23,14 +23,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceState;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoutingHopHelper {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(RoutingHopHelper.class);
 
 	/**
 	 * Get the a list of systems for the bounding box
@@ -39,7 +49,9 @@ public class RoutingHopHelper {
 	public static List<RoutingHop> getRoutingHopsForRead(final DistributionRegion rootRegion,
 			final Hyperrectangle boundingBox) {
 
-		return getHopListForPredicateAndBox(rootRegion, boundingBox,
+		final List<BBoxDBInstance> instances = MembershipConnectionService.getInstance().getAllInstances();
+
+		return getHopListForPredicateAndBox(rootRegion, boundingBox, instances,
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
 	}
 
@@ -50,7 +62,9 @@ public class RoutingHopHelper {
 	public static List<RoutingHop> getRoutingHopsForWrite(final DistributionRegion rootRegion,
 			final Hyperrectangle boundingBox) {
 
-		return getHopListForPredicateAndBox(rootRegion, boundingBox,
+		final List<BBoxDBInstance> instances = MembershipConnectionService.getInstance().getAllInstances();
+
+		return getHopListForPredicateAndBox(rootRegion, boundingBox, instances,
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE);
 	}
 
@@ -64,6 +78,7 @@ public class RoutingHopHelper {
 	 */
 	public static List<RoutingHop> getHopListForPredicateAndBox(
 			final DistributionRegion rootRegion, final Hyperrectangle boundingBox,
+			final List<BBoxDBInstance> knownInstances,
 			final Predicate<DistributionRegionState> statePredicate) {
 
 		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
@@ -76,6 +91,7 @@ public class RoutingHopHelper {
 
 		for(final DistributionRegion region : regions) {
 			for(final BBoxDBInstance system : region.getSystems()) {
+
 				if(! hops.containsKey(system.getInetSocketAddress())) {
 					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
 					hops.put(system.getInetSocketAddress(), routingHop);
@@ -86,6 +102,35 @@ public class RoutingHopHelper {
 			}
 		}
 
-		return new ArrayList<>(hops.values());
+
+		return buildHopList(knownInstances, hops);
+	}
+
+	/**
+	 * Build a list with hops
+	 * @param knownInstances
+	 * @param hops
+	 * @return
+	 */
+	private static List<RoutingHop> buildHopList(final List<BBoxDBInstance> knownInstances,
+			final Map<InetSocketAddress, RoutingHop> hops) {
+
+		// Build a list with active connection points
+		final List<InetSocketAddress> knownConnectionPoints = knownInstances.stream()
+				.filter(i -> i.getState() == BBoxDBInstanceState.READY)
+				.map(i -> i.getInetSocketAddress())
+				.collect(Collectors.toList());
+
+		// Send data only to active instances
+		final List<RoutingHop> hopList = hops.entrySet().stream()
+				.filter(e -> knownConnectionPoints.contains(e.getKey()))
+				.map(e -> e.getValue())
+				.collect(Collectors.toList());
+
+		if(logger.isDebugEnabled()) {
+			logger.debug("Hop list for {} is {}", hops, hopList);
+		}
+
+		return hopList;
 	}
 }
