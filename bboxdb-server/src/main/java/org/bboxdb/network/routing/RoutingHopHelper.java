@@ -19,7 +19,9 @@ package org.bboxdb.network.routing;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -115,11 +117,11 @@ public class RoutingHopHelper {
 	private static List<RoutingHop> buildHopList(final List<BBoxDBInstance> knownInstances,
 			final Map<InetSocketAddress, RoutingHop> hops) {
 
-		// Build a list with active connection points
-		final List<InetSocketAddress> knownConnectionPoints = knownInstances.stream()
+		// Build a hashset with active connection points
+		final Collection<InetSocketAddress> knownConnectionPoints = knownInstances.stream()
 				.filter(i -> i.getState() == BBoxDBInstanceState.READY)
 				.map(i -> i.getInetSocketAddress())
-				.collect(Collectors.toList());
+				.collect(Collectors.toCollection(HashSet::new));
 
 		// Send data only to active instances
 		final List<RoutingHop> hopList = hops.entrySet().stream()
@@ -129,6 +131,10 @@ public class RoutingHopHelper {
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Hop list for {} is {}", hops, hopList);
+		}
+
+		if(hopList.isEmpty()) {
+			logger.error("Hop list is empty {} / {}", hops, hopList);
 		}
 
 		return hopList;
