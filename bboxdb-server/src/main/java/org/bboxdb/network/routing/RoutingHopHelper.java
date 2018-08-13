@@ -39,7 +39,7 @@ public class RoutingHopHelper {
 	public static List<RoutingHop> getRoutingHopsForRead(final DistributionRegion rootRegion,
 			final Hyperrectangle boundingBox) {
 
-		return getRegionsForPredicateAndBox(rootRegion, boundingBox,
+		return getHopListForPredicateAndBox(rootRegion, boundingBox,
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
 	}
 
@@ -50,18 +50,19 @@ public class RoutingHopHelper {
 	public static List<RoutingHop> getRoutingHopsForWrite(final DistributionRegion rootRegion,
 			final Hyperrectangle boundingBox) {
 
-		return getRegionsForPredicateAndBox(rootRegion, boundingBox,
+		return getHopListForPredicateAndBox(rootRegion, boundingBox,
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE);
 	}
 
 	/**
-	 * Add the leaf nodes systems that are covered by the bounding box
+	 * Get a routing list for the given predicate
+	 *
 	 * @param rootRegion
 	 * @param boundingBox
 	 * @param systems
 	 * @return
 	 */
-	public static List<RoutingHop> getRegionsForPredicateAndBox(
+	public static List<RoutingHop> getHopListForPredicateAndBox(
 			final DistributionRegion rootRegion, final Hyperrectangle boundingBox,
 			final Predicate<DistributionRegionState> statePredicate) {
 
