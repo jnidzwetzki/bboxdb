@@ -117,6 +117,12 @@ public class RoutingHopHelper {
 	private static List<RoutingHop> buildHopList(final List<BBoxDBInstance> knownInstances,
 			final Map<InetSocketAddress, RoutingHop> hops) {
 
+		// No instances are known, this is this the case when a direct connection without
+		// the membership instance manager is established.
+		if(knownInstances.isEmpty()) {
+			return new ArrayList<>(hops.values());
+		}
+
 		// Build a hashset with active connection points
 		final Collection<InetSocketAddress> knownConnectionPoints = knownInstances.stream()
 				.filter(i -> i.getState() == BBoxDBInstanceState.READY)
