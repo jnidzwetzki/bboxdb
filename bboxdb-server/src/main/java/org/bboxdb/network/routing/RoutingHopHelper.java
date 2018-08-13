@@ -130,11 +130,12 @@ public class RoutingHopHelper {
 				.collect(Collectors.toList());
 
 		if(logger.isDebugEnabled()) {
-			logger.debug("Hop list for {} is {}", hops, hopList);
+			logger.debug("Hop list for {} is {} / known instances {}", hops, hopList, knownInstances);
 		}
 
 		if(hopList.isEmpty()) {
-			logger.error("Hop list is empty {} / {}", hops, hopList);
+			logger.error("Hop list is empty hops {} / filtered hop list {} / known instances {}",
+					hops, hopList, knownInstances);
 		}
 
 		return hopList;
