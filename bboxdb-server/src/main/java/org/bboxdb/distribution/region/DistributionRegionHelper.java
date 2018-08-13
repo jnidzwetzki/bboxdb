@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution.region;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,7 +40,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.routing.RoutingHop;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
@@ -77,39 +75,6 @@ public class DistributionRegionHelper {
 	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE
 		= (s) -> (STATES_WRITE.contains(s));
 
-	/**
-	 * Add the leaf nodes systems that are covered by the bounding box
-	 * @param rootRegion
-	 * @param boundingBox
-	 * @param systems
-	 * @return
-	 */
-	public static List<RoutingHop> getRegionsForPredicateAndBox(
-			final DistributionRegion rootRegion, final Hyperrectangle boundingBox,
-			final Predicate<DistributionRegionState> statePredicate) {
-
-		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
-
-		final Predicate<DistributionRegion> predicate = (d) -> {
-			return statePredicate.test(d.getState()) && d.getConveringBox().intersects(boundingBox);
-		};
-
-		final List<DistributionRegion> regions = rootRegion.getThisAndChildRegions(predicate);
-
-		for(final DistributionRegion region : regions) {
-			for(final BBoxDBInstance system : region.getSystems()) {
-				if(! hops.containsKey(system.getInetSocketAddress())) {
-					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
-					hops.put(system.getInetSocketAddress(), routingHop);
-				}
-
-				final RoutingHop routingHop = hops.get(system.getInetSocketAddress());
-				routingHop.addRegion(region.getRegionId());
-			}
-		}
-
-		return new ArrayList<>(hops.values());
-	}
 
 	/**
 	 * Get the DistributionRegions for a given bounding box
