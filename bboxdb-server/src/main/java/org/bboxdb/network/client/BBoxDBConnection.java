@@ -417,7 +417,7 @@ public class BBoxDBConnection {
 					return;
 				}
 
-				logger.info("Waiting up to {} seconds for pending requests to settle "
+				logger.info("Waiting up to {} milliseconds for pending requests to settle "
 						+ "(pending {} / server {})", timeLeft,
 						getInFlightCalls(), getConnectionName());
 
