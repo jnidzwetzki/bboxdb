@@ -51,7 +51,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 	 */
 	private final String tablename;
 
-	public TupleListFuture(final Supplier<List<NetworkOperationFutureImpl>> futures,
+	public TupleListFuture(final Supplier<List<NetworkOperationFuture>> futures,
 			final DuplicateResolver<Tuple> duplicateResolver, final String tablename) {
 
 		super(futures);

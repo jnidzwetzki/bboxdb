@@ -34,7 +34,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbstractListFuture.class);
 
-	public AbstractListFuture(final Supplier<List<NetworkOperationFutureImpl>> futures) {
+	public AbstractListFuture(final Supplier<List<NetworkOperationFuture>> futures) {
 		super(futures);
 	}
 

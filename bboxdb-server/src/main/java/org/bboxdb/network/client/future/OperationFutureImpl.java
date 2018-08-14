@@ -44,7 +44,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * The futures
 	 */
-	protected List<NetworkOperationFutureImpl> futures;
+	protected List<NetworkOperationFuture> futures;
 
 	/**
 	 * The default retry policy
@@ -65,13 +65,13 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * The future supplier
 	 */
-	private Supplier<List<NetworkOperationFutureImpl>> futureSupplier;
+	private Supplier<List<NetworkOperationFuture>> futureSupplier;
 
-	public OperationFutureImpl(final Supplier<List<NetworkOperationFutureImpl>> futures) {
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures) {
 		this(futures, FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
 	}
 
-	public OperationFutureImpl(final Supplier<List<NetworkOperationFutureImpl>> futureSupplier,
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futureSupplier,
 			final FutureRetryPolicy retryPolicy) {
 
 		this.futureSupplier = futureSupplier;

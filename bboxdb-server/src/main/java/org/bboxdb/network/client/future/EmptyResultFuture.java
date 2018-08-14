@@ -24,11 +24,11 @@ import java.util.function.Supplier;
 
 public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 
-	public EmptyResultFuture(final Supplier<List<NetworkOperationFutureImpl>> futures) {
+	public EmptyResultFuture(final Supplier<List<NetworkOperationFuture>> futures) {
 		super(futures);
 	}
 
-	public EmptyResultFuture(final Supplier<List<NetworkOperationFutureImpl>> futures,
+	public EmptyResultFuture(final Supplier<List<NetworkOperationFuture>> futures,
 			final FutureRetryPolicy retryPolicy) {
 		super(futures, retryPolicy);
 	}

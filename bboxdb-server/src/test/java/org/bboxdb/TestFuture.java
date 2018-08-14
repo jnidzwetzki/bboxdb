@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.OperationFutureImpl;
@@ -50,10 +51,10 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testNoRetry2() throws InterruptedException {
-		final NetworkOperationFutureImpl networkFuture1 = getFailingNetworkFuture();
-		final NetworkOperationFutureImpl networkFuture2 = getReadyNetworkFuture();
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
 
-		final Supplier<List<NetworkOperationFutureImpl>> supplier
+		final Supplier<List<NetworkOperationFuture>> supplier
 			= () -> (Arrays.asList(networkFuture1, networkFuture2));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
@@ -81,10 +82,10 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testOneRetry2() throws InterruptedException {
-		final NetworkOperationFutureImpl networkFuture1 = getFailingNetworkFuture();
-		final NetworkOperationFutureImpl networkFuture2 = getReadyNetworkFuture();
+		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
 
-		final Supplier<List<NetworkOperationFutureImpl>> supplier
+		final Supplier<List<NetworkOperationFuture>> supplier
 			= () -> (Arrays.asList(networkFuture1, networkFuture2));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
@@ -102,7 +103,7 @@ public class TestFuture {
 	public void testAllRetry1() throws InterruptedException {
 		final NetworkOperationFutureImpl networkFuture = getFailingNetworkFuture();
 
-		final Supplier<List<NetworkOperationFutureImpl>> supplier
+		final Supplier<List<NetworkOperationFuture>> supplier
 		= () -> (Arrays.asList(networkFuture));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
@@ -119,7 +120,7 @@ public class TestFuture {
 		final NetworkOperationFutureImpl networkFuture1 = getFailingNetworkFuture();
 		final NetworkOperationFutureImpl networkFuture2 = getReadyNetworkFuture();
 
-		final Supplier<List<NetworkOperationFutureImpl>> supplier
+		final Supplier<List<NetworkOperationFuture>> supplier
 			= () -> (Arrays.asList(networkFuture1, networkFuture2));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,

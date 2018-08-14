@@ -32,6 +32,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -96,7 +97,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration)
 			throws BBoxDBException {
 
-		final NetworkOperationFutureImpl future = getCreateTableFugure(table, configuration);
+		final NetworkOperationFuture future = getCreateTableFugure(table, configuration);
 
 		return new EmptyResultFuture(() -> Arrays.asList(future));
 	}
@@ -106,7 +107,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param configuration
 	 * @return
 	 */
-	public NetworkOperationFutureImpl getCreateTableFugure(final String table,
+	public NetworkOperationFuture getCreateTableFugure(final String table,
 			final TupleStoreConfiguration configuration) {
 
 		return new NetworkOperationFutureImpl(connection, () -> {
@@ -127,7 +128,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param table
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getDeleteTableFuture(final String table) {
+	public Supplier<List<NetworkOperationFuture>> getDeleteTableFuture(final String table) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
@@ -155,7 +156,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple,
 			final RoutingHeader routingHeader) {
 
-		final Supplier<List<NetworkOperationFutureImpl>> future = getInsertTupleFuture(table, tuple, routingHeader);
+		final Supplier<List<NetworkOperationFuture>> future = getInsertTupleFuture(table, tuple, routingHeader);
 
 		return new EmptyResultFuture(future);
 	}
@@ -167,7 +168,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 
-		final Supplier<List<NetworkOperationFutureImpl>> future =
+		final Supplier<List<NetworkOperationFuture>> future =
 				createLockTupleFuture(table, tuple, deleteOnTimeout, routingHeader);
 
 		// When version locking fails, try again with another version
@@ -183,7 +184,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> createLockTupleFuture(final String table, final Tuple tuple,
+	public Supplier<List<NetworkOperationFuture>> createLockTupleFuture(final String table, final Tuple tuple,
 			final boolean deleteOnTimeout, final RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -205,7 +206,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getInsertTupleFuture(final String table, final Tuple tuple,
+	public Supplier<List<NetworkOperationFuture>> getInsertTupleFuture(final String table, final Tuple tuple,
 			final RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -255,7 +256,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup,
 			final DistributionGroupConfiguration distributionGroupConfiguration) {
 
-		final Supplier<List<NetworkOperationFutureImpl>> future
+		final Supplier<List<NetworkOperationFuture>> future
 			= getCreateDistributionGroupFuture(distributionGroup, distributionGroupConfiguration);
 
 		return new EmptyResultFuture(future);
@@ -266,7 +267,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param distributionGroupConfiguration
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getCreateDistributionGroupFuture(final String distributionGroup,
+	public Supplier<List<NetworkOperationFuture>> getCreateDistributionGroupFuture(final String distributionGroup,
 			final DistributionGroupConfiguration distributionGroupConfiguration) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -285,7 +286,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
-		final Supplier<List<NetworkOperationFutureImpl>> future
+		final Supplier<List<NetworkOperationFuture>> future
 			= getDeleteDistributionGroupFuture(distributionGroup);
 
 		return new EmptyResultFuture(future);
@@ -295,7 +296,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param distributionGroup
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getDeleteDistributionGroupFuture(final String distributionGroup) {
+	public Supplier<List<NetworkOperationFuture>> getDeleteDistributionGroupFuture(final String distributionGroup) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
@@ -314,7 +315,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 
-		final Supplier<List<NetworkOperationFutureImpl>> future = getQueryKeyFuture(table, key, routingHeader);
+		final Supplier<List<NetworkOperationFuture>> future = getQueryKeyFuture(table, key, routingHeader);
 
 		final DuplicateResolver<Tuple> duplicateResolver
 			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
@@ -327,7 +328,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param key
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getQueryKeyFuture(final String table, final String key,
+	public Supplier<List<NetworkOperationFuture>> getQueryKeyFuture(final String table, final String key,
 			final RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -348,7 +349,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, boundingBox, false, connection.getServerAddress());
 
-		final Supplier<List<NetworkOperationFutureImpl>> future
+		final Supplier<List<NetworkOperationFuture>> future
 			= getQueryBoundingBoxFuture(table, boundingBox, routingHeader);
 
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
@@ -361,7 +362,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getQueryBoundingBoxFuture(final String table,
+	public Supplier<List<NetworkOperationFuture>> getQueryBoundingBoxFuture(final String table,
 			final Hyperrectangle boundingBox, RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -380,7 +381,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox) {
-		final Supplier<List<NetworkOperationFutureImpl>> future
+		final Supplier<List<NetworkOperationFuture>> future
 			= getQueryBoundingBoxContinousFuture(table, boundingBox);
 
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
@@ -391,7 +392,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param boundingBox
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getQueryBoundingBoxContinousFuture(final String table,
+	public Supplier<List<NetworkOperationFuture>> getQueryBoundingBoxContinousFuture(final String table,
 			final Hyperrectangle boundingBox) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -417,7 +418,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, boundingBox, false, connection.getServerAddress());
 
-		final Supplier<List<NetworkOperationFutureImpl>> future = getBoundingBoxAndTimeFuture(table, boundingBox,
+		final Supplier<List<NetworkOperationFuture>> future = getBoundingBoxAndTimeFuture(table, boundingBox,
 				timestamp, routingHeader);
 
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
@@ -430,7 +431,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getBoundingBoxAndTimeFuture(final String table, final Hyperrectangle boundingBox,
+	public Supplier<List<NetworkOperationFuture>> getBoundingBoxAndTimeFuture(final String table, final Hyperrectangle boundingBox,
 			final long timestamp, RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -451,7 +452,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader =  RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 
-		final Supplier<List<NetworkOperationFutureImpl>> future
+		final Supplier<List<NetworkOperationFuture>> future
 			= getVersionTimeFuture(table, timestamp, routingHeader);
 
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
@@ -463,7 +464,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getVersionTimeFuture(final String table, final long timestamp,
+	public Supplier<List<NetworkOperationFuture>> getVersionTimeFuture(final String table, final long timestamp,
 			final RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -484,7 +485,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
 
-		final Supplier<List<NetworkOperationFutureImpl>> future
+		final Supplier<List<NetworkOperationFuture>> future
 			= getInsertedTimeFuture(table, timestamp, routingHeader);
 
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
@@ -496,7 +497,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader2
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getInsertedTimeFuture(final String table, final long timestamp,
+	public Supplier<List<NetworkOperationFuture>> getInsertedTimeFuture(final String table, final long timestamp,
 			final RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -516,7 +517,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				tableNames.get(0), boundingBox, true, connection.getServerAddress());
 
-		final Supplier<List<NetworkOperationFutureImpl>> future
+		final Supplier<List<NetworkOperationFuture>> future
 			= getJoinFuture(tableNames, boundingBox, routingHeader);
 
 		return new JoinedTupleListFuture(future);
@@ -528,7 +529,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param routingHeader2
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getJoinFuture(final List<String> tableNames, final Hyperrectangle boundingBox,
+	public Supplier<List<NetworkOperationFuture>> getJoinFuture(final List<String> tableNames, final Hyperrectangle boundingBox,
 			final RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
@@ -562,7 +563,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture sendKeepAlivePackage(final String tablename, final List<Tuple> tuples) {
-		final Supplier<List<NetworkOperationFutureImpl>> future = getKeepAliveFuture(tablename, tuples);
+		final Supplier<List<NetworkOperationFuture>> future = getKeepAliveFuture(tablename, tuples);
 		final EmptyResultFuture resultFuture = new EmptyResultFuture(future);
 
 		// Unsuccessful means only we have to send gossip data
@@ -576,7 +577,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param tuples
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getKeepAliveFuture(final String tablename, final List<Tuple> tuples) {
+	public Supplier<List<NetworkOperationFuture>> getKeepAliveFuture(final String tablename, final List<Tuple> tuples) {
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new KeepAliveRequest(nextSequenceNumber, tablename, tuples);
@@ -591,7 +592,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public OperationFuture getNextPage(final short queryPackageId) {
-		final Supplier<List<NetworkOperationFutureImpl>> future = getNextPageFuture(queryPackageId);
+		final Supplier<List<NetworkOperationFuture>> future = getNextPageFuture(queryPackageId);
 
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), "");
 	}
@@ -601,7 +602,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param queryPackageId
 	 * @return
 	 */
-	private Supplier<List<NetworkOperationFutureImpl>> getNextPageFuture(final short queryPackageId) {
+	private Supplier<List<NetworkOperationFuture>> getNextPageFuture(final short queryPackageId) {
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
@@ -617,7 +618,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture cancelRequest(final short queryPackageId) {
-		final Supplier<List<NetworkOperationFutureImpl>> future = getCancelQueryFuture(queryPackageId);
+		final Supplier<List<NetworkOperationFuture>> future = getCancelQueryFuture(queryPackageId);
 		return new EmptyResultFuture(future, FutureRetryPolicy.RETRY_POLICY_NONE);
 	}
 
@@ -625,7 +626,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param queryPackageId
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFutureImpl>> getCancelQueryFuture(final short queryPackageId) {
+	public Supplier<List<NetworkOperationFuture>> getCancelQueryFuture(final short queryPackageId) {
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new CancelRequest(nextSequenceNumber, queryPackageId);
