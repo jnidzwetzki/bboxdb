@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 import org.bboxdb.TestFuture;
 import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.junit.Assert;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public class TestFixedFutureStore {
 		futureStore.addFailedFutureCallback(c -> {atomicInteger.incrementAndGet();});
 
 		for(int i = 0; i < 20; i++) {
-			final NetworkOperationFuture networkOperationFuture = TestFuture.getFailingNetworkFuture();
+			final NetworkOperationFutureImpl networkOperationFuture = TestFuture.getFailingNetworkFuture();
 			final EmptyResultFuture future = new EmptyResultFuture(() -> Arrays.asList(networkOperationFuture));
 			futureStore.put(future);
 		}
@@ -117,7 +117,7 @@ public class TestFixedFutureStore {
 		futureStore.writeStatistics(bw);
 
 		for(int i = 0; i < 20; i++) {
-			final NetworkOperationFuture networkOperationFuture = TestFuture.getFailingNetworkFuture();
+			final NetworkOperationFutureImpl networkOperationFuture = TestFuture.getFailingNetworkFuture();
 			final EmptyResultFuture future = new EmptyResultFuture(() -> Arrays.asList(networkOperationFuture));
 			futureStore.put(future);
 		}

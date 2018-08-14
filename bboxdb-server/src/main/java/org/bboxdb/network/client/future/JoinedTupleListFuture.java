@@ -26,7 +26,7 @@ import org.bboxdb.storage.util.EntityDuplicateTracker;
 
 public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 
-	public JoinedTupleListFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+	public JoinedTupleListFuture(final Supplier<List<NetworkOperationFutureImpl>> futures) {
 		super(futures);
 	}
 

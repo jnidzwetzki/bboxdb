@@ -34,7 +34,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbstractListFuture.class);
 
-	public AbstractListFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+	public AbstractListFuture(final Supplier<List<NetworkOperationFutureImpl>> futures) {
 		super(futures);
 	}
 
@@ -68,7 +68,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	@Override
 	public Iterator<T> iterator() {
 		if(! isDone() ) {
-			throw new IllegalStateException("NetworkOperationFuture is not done, unable to build iterator");
+			throw new IllegalStateException("NetworkOperationFutureImpl is not done, unable to build iterator");
 		}
 
 		if( isFailed() ) {

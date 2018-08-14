@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.OperationFutureImpl;
 import org.bboxdb.network.packages.NetworkRequestPackage;
@@ -37,7 +37,7 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testNoRetry1() throws InterruptedException {
-		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture = getFailingNetworkFuture();
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(() -> Arrays.asList(networkFuture),
 				FutureRetryPolicy.RETRY_POLICY_NONE);
@@ -50,10 +50,10 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testNoRetry2() throws InterruptedException {
-		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
-		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture2 = getReadyNetworkFuture();
 
-		final Supplier<List<NetworkOperationFuture>> supplier
+		final Supplier<List<NetworkOperationFutureImpl>> supplier
 			= () -> (Arrays.asList(networkFuture1, networkFuture2));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
@@ -68,7 +68,7 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testOneRetry1() throws InterruptedException {
-		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture = getFailingNetworkFuture();
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(() -> Arrays.asList(networkFuture),
 				FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE);
@@ -81,10 +81,10 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testOneRetry2() throws InterruptedException {
-		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
-		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture2 = getReadyNetworkFuture();
 
-		final Supplier<List<NetworkOperationFuture>> supplier
+		final Supplier<List<NetworkOperationFutureImpl>> supplier
 			= () -> (Arrays.asList(networkFuture1, networkFuture2));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
@@ -100,9 +100,9 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testAllRetry1() throws InterruptedException {
-		final NetworkOperationFuture networkFuture = getFailingNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture = getFailingNetworkFuture();
 
-		final Supplier<List<NetworkOperationFuture>> supplier
+		final Supplier<List<NetworkOperationFutureImpl>> supplier
 		= () -> (Arrays.asList(networkFuture));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
@@ -116,10 +116,10 @@ public class TestFuture {
 
 	@Test(timeout=60000)
 	public void testAllRetry2() throws InterruptedException {
-		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
-		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture2 = getReadyNetworkFuture();
 
-		final Supplier<List<NetworkOperationFuture>> supplier
+		final Supplier<List<NetworkOperationFutureImpl>> supplier
 			= () -> (Arrays.asList(networkFuture1, networkFuture2));
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
@@ -142,10 +142,10 @@ public class TestFuture {
 	 *
 	 * @return
 	 */
-	public static NetworkOperationFuture getFailingNetworkFuture() {
+	public static NetworkOperationFutureImpl getFailingNetworkFuture() {
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 
-		return new NetworkOperationFuture(MOCKED_CONNECTION, supplier) {
+		return new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
 			public void execute() {
 				super.execute();
 				setFailedState();
@@ -159,10 +159,10 @@ public class TestFuture {
 	 *
 	 * @return
 	 */
-	public static NetworkOperationFuture getReadyNetworkFuture() {
+	public static NetworkOperationFutureImpl getReadyNetworkFuture() {
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 
-		return new NetworkOperationFuture(MOCKED_CONNECTION, supplier) {
+		return new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
 			public void execute() {
 				super.execute();
 				fireCompleteEvent();

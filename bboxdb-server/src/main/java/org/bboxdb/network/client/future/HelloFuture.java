@@ -24,7 +24,7 @@ import org.bboxdb.network.packages.response.HelloResponse;
 
 public class HelloFuture extends OperationFutureImpl<HelloResponse> {
 
-	public HelloFuture(final Supplier<List<NetworkOperationFuture>> futures) {
+	public HelloFuture(final Supplier<List<NetworkOperationFutureImpl>> futures) {
 		super(futures);
 	}
 

@@ -17,143 +17,33 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Stopwatch;
-
-public class NetworkOperationFuture {
-	
-	/**
-	 * The id of the operation
-	 */
-	private short requestId;
-	
-	/**
-	 * The result of the operation
-	 */
-	private volatile Object operationResult = null;
-	
-	/**
-	 * The latch for sync operations
-	 */
-	private final CountDownLatch latch = new CountDownLatch(1);
-	
-	/**
-	 * The error flag for the operation
-	 */
-	private volatile boolean failed = false;
-	
-	/**
-	 * The done flag
-	 */
-	private volatile boolean done = false;
-	
-	/**
-	 * The complete / partial result flag
-	 */
-	private volatile boolean complete = true;
-	
-	/**
-	 * Additional message
-	 */
-	private String message;
-	
-	/**
-	 * The future start time
-	 */
-	private final Stopwatch stopwatch;
-	
-	/**
-	 * The associated connection
-	 */
-	private final BBoxDBConnection connection;
-	
-	/**
-	 * The package supplier
-	 */
-	private Supplier<NetworkRequestPackage> packageSupplier;
-
-	/**
-	 * The executions
-	 */
-	private final AtomicInteger executions = new AtomicInteger(0);
-	
-	/**
-	 * The last send package
-	 */
-	private NetworkRequestPackage lastTransmittedPackage;
-	
-	/**
-	 * The success callback
-	 */
-	protected Consumer<NetworkOperationFuture> successCallback;
-	
-	/**
-	 * The error callback
-	 */
-	protected FutureErrorCallback errorCallback;
-
-	/**
-	 * The Logger
-	 */
-	protected final static Logger logger = LoggerFactory.getLogger(NetworkOperationFuture.class);
-
-	/**
-	 * Empty constructor
-	 */
-	public NetworkOperationFuture(final BBoxDBConnection connection, 
-			final Supplier<NetworkRequestPackage> packageSupplier) {
-		
-		this.packageSupplier = packageSupplier;
-		this.stopwatch = Stopwatch.createStarted();
-		this.connection = connection;
-	}
+public interface NetworkOperationFuture {
 
 	/**
 	 * Is the operation done?
 	 * @return
 	 */
-	public boolean isDone() {
-		return done;
-	}
+	boolean isDone();
 
 	/**
 	 * Reexecute
 	 */
-	public void execute() {		
-		this.lastTransmittedPackage = packageSupplier.get();
-		this.failed = false;		
-		this.executions.incrementAndGet();
-		
-		// Can be null in some unit tests
-		if(lastTransmittedPackage != null) {
-			this.requestId = lastTransmittedPackage.getSequenceNumber();
-		}
-		
-		connection.registerPackageCallback(lastTransmittedPackage, this);
-		connection.sendPackageToServer(lastTransmittedPackage, this);
-	}
-	
+	void execute();
+
 	/**
 	 * Get (and wait) for the result
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public Object get() throws InterruptedException {
-		latch.await();
-		return operationResult;
-	}
+	Object get() throws InterruptedException;
 
 	/**
 	 * Get (and wait) for the result
@@ -163,45 +53,28 @@ public class NetworkOperationFuture {
 	 * @throws InterruptedException
 	 * @throws TimeoutException 
 	 */
-	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
-
-		latch.await(timeout, unit);
-		
-		if(! done) {
-			throw new TimeoutException("Unable to receive data in " + timeout + " " + unit);
-		}
-				
-		return operationResult;
-	}
+	Object get(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
 
 	/**
 	 * Returns the request id
 	 */
-	public short getRequestId() {
-		return requestId;
-	}
+	short getRequestId();
 
 	/**
 	 * Set the result of the operation
 	 */
-	public void setOperationResult(final Object result) {
-		this.operationResult = result;
-	}
+	void setOperationResult(Object result);
 
 	/**
 	 * Is the operation successful
 	 * @return
 	 */
-	public boolean isFailed() {
-		return failed;
-	}
+	boolean isFailed();
 
 	/**
 	 * Set the error flag for the operation
 	 */
-	public void setFailedState() {
-		failed = true;
-	}
+	void setFailedState();
 
 	/**
 	 * Wait for the completion of the future
@@ -209,150 +82,78 @@ public class NetworkOperationFuture {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	public boolean waitForCompletion() throws InterruptedException {
-		get();
-		return true;
-	}
+	boolean waitForCompletion() throws InterruptedException;
 
 	/**
 	 * Fire the completion event
 	 */
-	public void fireCompleteEvent() {
-		
-		// Is already be done
-		if(done) {
-			return;
-		}
-				
-		// Run error handler
-		if(errorCallback != null && failed) {
-			final boolean couldBeHandled = errorCallback.handleError(this);
-			if(couldBeHandled) {
-				failed = false;
-				return;
-			}						
-		}
-				
-		done = true;
-		stopwatch.stop();
-		latch.countDown();
-		
-		// Run success handler
-		if(successCallback != null) {
-			successCallback.accept(this);
-		}		
-	}
+	void fireCompleteEvent();
 
 	/**
 	 * Get the message of the result
 	 * @return
 	 */
-	public String getMessage() {
-		return message;
-	}
+	String getMessage();
 
 	/**
 	 * Set the message of the result
 	 * @param message
 	 */
-	public void setMessage(final String message) {
-		this.message = message;
-	}
+	void setMessage(String message);
 
 	/**
 	 * Is the given result complete?
 	 * @return
 	 */
-	public boolean isCompleteResult() {
-		return complete;
-	}
+	boolean isCompleteResult();
 
 	/**
 	 * Set the complete flag
 	 * @param complete
 	 */
-	public void setCompleteResult(final boolean complete) {
-		this.complete = complete;
-	}
-
-	@Override
-	public String toString() {
-		return "NetworkOperationFuture [requestId=" + requestId + ", operationResult=" + operationResult + ", latch="
-				+ latch + ", failed=" + failed + ", done=" + done + ", complete=" + complete + ", message=" + message
-				+ ", stopwatch=" + stopwatch + ", connection=" + connection + "]";
-	}
+	void setCompleteResult(boolean complete);
 
 	/**
 	 * Get the needed time for task completion
 	 * @return
 	 */
-	public long getCompletionTime(final TimeUnit timeUnit) {
-		if (! isDone()) {
-			throw new IllegalArgumentException("The future is not done. Unable to calculate completion time");
-		}
-		
-		return stopwatch.elapsed(timeUnit);
-	}
+	long getCompletionTime(TimeUnit timeUnit);
 
 	/**
 	 * Get the id of the connection
 	 * @return
 	 */
-	public BBoxDBConnection getConnection() {
-		return connection;
-	}
-	
+	BBoxDBConnection getConnection();
+
 	/**
 	 * The last transmitted package
 	 * @return
 	 */
-	public NetworkRequestPackage getTransmittedPackage() {
-		return lastTransmittedPackage;
-	}
+	NetworkRequestPackage getTransmittedPackage();
 
 	/**
 	 * Get the message and the connection id in a human readable format
 	 * @return
 	 */
-	public String getMessageWithConnectionName() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append("[message=");
-		sb.append(getMessage());
-		sb.append(", connection=");
-		
-		if(getConnection() == null) {
-			sb.append("null");
-		} else {
-			sb.append(connection.getConnectionName());
-		}
-		
-		sb.append("]");
-		return sb.toString();
-	}
-	
+	String getMessageWithConnectionName();
+
 	/**
 	 * The error callback
 	 * 
 	 * @param errorCallback
 	 */
-	public void setErrorCallback(final FutureErrorCallback errorCallback) {
-		this.errorCallback = errorCallback;
-	}
-	
+	void setErrorCallback(FutureErrorCallback errorCallback);
+
 	/**
 	 * The success callback
 	 * @param successCallback
 	 */
-	public void setSuccessCallback(final Consumer<NetworkOperationFuture> successCallback) {
-		this.successCallback = successCallback;
-	}
-	
+	void setSuccessCallback(Consumer<NetworkOperationFutureImpl> successCallback);
+
 	/**
 	 * Get the number of executions
 	 * @return
 	 */
-	public int getExecutions() {
-		return executions.get();
-	}
-	
+	int getExecutions();
+
 }

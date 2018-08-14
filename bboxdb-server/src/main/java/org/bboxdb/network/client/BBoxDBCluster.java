@@ -42,7 +42,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
@@ -155,7 +155,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> supplier = () -> {
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion,
 					tuple.getBoundingBox());
@@ -171,7 +171,7 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection
 					= membershipConnectionService.getConnectionForInstance(instance);
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
 
 				return future.get();
@@ -201,11 +201,11 @@ public class BBoxDBCluster implements BBoxDB {
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> supplier = () -> {
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion,
 					boundingBox);
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -213,7 +213,7 @@ public class BBoxDBCluster implements BBoxDB {
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
 
 				futures.addAll(future.get());
@@ -231,11 +231,11 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> supplier = () -> {
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion,
 					tuple.getBoundingBox());
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -245,7 +245,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().createLockTupleFuture(
 							table, tuple, deleteOnTimeout, routingHeader);
 
@@ -319,12 +319,12 @@ public class BBoxDBCluster implements BBoxDB {
 		final DeletedTuple tuple = new DeletedTuple(key);
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> futureProvider = () -> {
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion,
 					tuple.getBoundingBox());
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -332,7 +332,7 @@ public class BBoxDBCluster implements BBoxDB {
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getQueryKeyFuture(table, key, routingHeader);
 
 				futures.addAll(future.get());
@@ -356,12 +356,12 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> futureProvider = () -> {
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion,
 					boundingBox);
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -369,7 +369,7 @@ public class BBoxDBCluster implements BBoxDB {
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getQueryBoundingBoxFuture(table, boundingBox, routingHeader);
 
 				futures.addAll(future.get());
@@ -422,12 +422,12 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> futureProvider = () -> {
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion,
 					boundingBox);
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -435,7 +435,7 @@ public class BBoxDBCluster implements BBoxDB {
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getBoundingBoxAndTimeFuture(table, boundingBox,
 							timestamp, routingHeader);
 
@@ -460,12 +460,12 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> futureProvider = () -> {
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion,
 					Hyperrectangle.FULL_SPACE);
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -473,7 +473,7 @@ public class BBoxDBCluster implements BBoxDB {
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getVersionTimeFuture(table, timestamp, routingHeader);
 
 				futures.addAll(future.get());
@@ -497,12 +497,12 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DistributionRegion distributionRegion = getRootNode(table);
 
-		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> futureProvider = () -> {
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion,
 					Hyperrectangle.FULL_SPACE);
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -510,7 +510,7 @@ public class BBoxDBCluster implements BBoxDB {
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getInsertedTimeFuture(table,
 							timestamp, routingHeader);
 
@@ -541,12 +541,12 @@ public class BBoxDBCluster implements BBoxDB {
 		final String fullname = tableNames.get(0);
 		final DistributionRegion distributionRegion = getRootNode(fullname);
 
-		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
+		final Supplier<List<NetworkOperationFutureImpl>> futureProvider = () -> {
 
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion,
 					boundingBox);
 
-			final List<NetworkOperationFuture> futures = new ArrayList<>();
+			final List<NetworkOperationFutureImpl> futures = new ArrayList<>();
 
 			for(final RoutingHop hop : hops) {
 				final BBoxDBInstance instance = hop.getDistributedInstance();
@@ -554,7 +554,7 @@ public class BBoxDBCluster implements BBoxDB {
 					= membershipConnectionService.getConnectionForInstance(instance);
 				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
-				final Supplier<List<NetworkOperationFuture>> future
+				final Supplier<List<NetworkOperationFutureImpl>> future
 					= connection.getBboxDBClient().getJoinFuture(tableNames,
 							boundingBox, routingHeader);
 

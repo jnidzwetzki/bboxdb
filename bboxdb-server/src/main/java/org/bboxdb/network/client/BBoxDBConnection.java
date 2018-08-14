@@ -46,6 +46,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.future.HelloFuture;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.response.CompressionHandler;
 import org.bboxdb.network.client.response.ErrorHandler;
 import org.bboxdb.network.client.response.HelloHandler;
@@ -97,7 +98,7 @@ public class BBoxDBConnection {
 	/**
 	 * The pending calls
 	 */
-	private final Map<Short, NetworkOperationFuture> pendingCalls;
+	private final Map<Short, NetworkOperationFutureImpl> pendingCalls;
 
 	/**
 	 * The result buffer
@@ -340,7 +341,7 @@ public class BBoxDBConnection {
 		clientCapabilities.freeze();
 
 
-		final NetworkOperationFuture operationFuture = new NetworkOperationFuture(this, () -> {
+		final NetworkOperationFutureImpl operationFuture = new NetworkOperationFutureImpl(this, () -> {
 			return new HelloRequest(getNextSequenceNumber(),
 					NetworkConst.PROTOCOL_VERSION, clientCapabilities);
 		});
@@ -383,7 +384,7 @@ public class BBoxDBConnection {
 			logger.info("Disconnecting from server: {}", getConnectionName());
 			connectionState.dispatchToStopping();
 
-			final NetworkOperationFuture future = new NetworkOperationFuture(this, () -> {
+			final NetworkOperationFuture future = new NetworkOperationFutureImpl(this, () -> {
 				return new DisconnectRequest(getNextSequenceNumber());
 			});
 
@@ -673,7 +674,7 @@ public class BBoxDBConnection {
 	 * @return
 	 */
 	public short registerPackageCallback(final NetworkRequestPackage requestPackage,
-			final NetworkOperationFuture future) {
+			final NetworkOperationFutureImpl future) {
 
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 

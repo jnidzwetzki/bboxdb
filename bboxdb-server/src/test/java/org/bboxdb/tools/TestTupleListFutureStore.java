@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
 import org.bboxdb.network.packages.NetworkRequestPackage;
@@ -60,7 +60,7 @@ public class TestTupleListFutureStore {
 		tupleListFutureStore.shutdown();
 		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
-		final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier);
+		final NetworkOperationFutureImpl networkOperationFuture = new NetworkOperationFutureImpl(connection, supplier);
 
 		tupleListFutureStore.put(new TupleListFuture(() -> Arrays.asList(networkOperationFuture),
 				new DoNothingDuplicateResolver(), ""));
@@ -121,10 +121,10 @@ class TestTupleListFuture extends TupleListFuture {
 	/**
 	 * @return
 	 */
-	private static NetworkOperationFuture getFuture() {
+	private static NetworkOperationFutureImpl getFuture() {
 		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
-		final NetworkOperationFuture networkOperationFuture = new NetworkOperationFuture(connection, supplier);
+		final NetworkOperationFutureImpl networkOperationFuture = new NetworkOperationFutureImpl(connection, supplier);
 		return networkOperationFuture;
 	}
 
