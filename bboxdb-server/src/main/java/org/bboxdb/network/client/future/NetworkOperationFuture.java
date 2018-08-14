@@ -52,7 +52,8 @@ public interface NetworkOperationFuture {
 	 * @throws InterruptedException
 	 * @throws TimeoutException 
 	 */
-	public Object get(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
+	public Object get(final long timeout, final TimeUnit unit) 
+			throws InterruptedException, TimeoutException;
 
 	/**
 	 * Returns the request id
@@ -62,7 +63,7 @@ public interface NetworkOperationFuture {
 	/**
 	 * Set the result of the operation
 	 */
-	public void setOperationResult(Object result);
+	public void setOperationResult(final Object result);
 
 	/**
 	 * Is the operation successful
@@ -90,7 +91,7 @@ public interface NetworkOperationFuture {
 	 * Set the message of the result
 	 * @param message
 	 */
-	public void setMessage(String message);
+	public void setMessage(final String message);
 
 	/**
 	 * Is the given result complete?
@@ -102,13 +103,13 @@ public interface NetworkOperationFuture {
 	 * Set the complete flag
 	 * @param complete
 	 */
-	public void setCompleteResult(boolean complete);
+	public void setCompleteResult(final boolean complete);
 
 	/**
 	 * Get the needed time for task completion
 	 * @return
 	 */
-	public long getCompletionTime(TimeUnit timeUnit);
+	public long getCompletionTime(final TimeUnit timeUnit);
 
 	/**
 	 * Get the id of the connection
@@ -133,13 +134,13 @@ public interface NetworkOperationFuture {
 	 * 
 	 * @param errorCallback
 	 */
-	public void setErrorCallback(FutureErrorCallback errorCallback);
+	public void setErrorCallback(final FutureErrorCallback errorCallback);
 
 	/**
 	 * The success callback
 	 * @param successCallback
 	 */
-	public void setSuccessCallback(Consumer<NetworkOperationFutureImpl> successCallback);
+	public void setSuccessCallback(final Consumer<NetworkOperationFutureImpl> successCallback);
 
 	/**
 	 * Get the number of executions
