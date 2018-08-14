@@ -202,15 +202,6 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#waitForCompletion()
-	 */
-	@Override
-	public boolean waitForCompletion() throws InterruptedException {
-		get();
-		return true;
-	}
-
-	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#fireCompleteEvent()
 	 */
 	@Override

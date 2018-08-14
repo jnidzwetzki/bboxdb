@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -75,14 +74,6 @@ public interface NetworkOperationFuture {
 	 * Set the error flag for the operation
 	 */
 	public void setFailedState();
-
-	/**
-	 * Wait for the completion of the future
-	 * @return
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-	public boolean waitForCompletion() throws InterruptedException;
 
 	/**
 	 * Fire the completion event
