@@ -140,7 +140,7 @@ public interface NetworkOperationFuture {
 	 * The success callback
 	 * @param successCallback
 	 */
-	public void setSuccessCallback(final Consumer<NetworkOperationFutureImpl> successCallback);
+	public void setSuccessCallback(final Consumer<NetworkOperationFuture> successCallback);
 
 	/**
 	 * Get the number of executions

@@ -96,7 +96,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	/**
 	 * The success callback
 	 */
-	protected Consumer<NetworkOperationFutureImpl> successCallback;
+	protected Consumer<NetworkOperationFuture> successCallback;
 	
 	/**
 	 * The error callback
@@ -330,7 +330,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#setSuccessCallback(java.util.function.Consumer)
 	 */
 	@Override
-	public void setSuccessCallback(final Consumer<NetworkOperationFutureImpl> successCallback) {
+	public void setSuccessCallback(final Consumer<NetworkOperationFuture> successCallback) {
 		this.successCallback = successCallback;
 	}
 	
