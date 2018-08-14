@@ -31,19 +31,19 @@ public interface NetworkOperationFuture {
 	 * Is the operation done?
 	 * @return
 	 */
-	boolean isDone();
+	public boolean isDone();
 
 	/**
 	 * Reexecute
 	 */
-	void execute();
+	public void execute();
 
 	/**
 	 * Get (and wait) for the result
 	 * @return
 	 * @throws InterruptedException
 	 */
-	Object get() throws InterruptedException;
+	public Object get() throws InterruptedException;
 
 	/**
 	 * Get (and wait) for the result
@@ -53,28 +53,28 @@ public interface NetworkOperationFuture {
 	 * @throws InterruptedException
 	 * @throws TimeoutException 
 	 */
-	Object get(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
+	public Object get(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
 
 	/**
 	 * Returns the request id
 	 */
-	short getRequestId();
+	public short getRequestId();
 
 	/**
 	 * Set the result of the operation
 	 */
-	void setOperationResult(Object result);
+	public void setOperationResult(Object result);
 
 	/**
 	 * Is the operation successful
 	 * @return
 	 */
-	boolean isFailed();
+	public boolean isFailed();
 
 	/**
 	 * Set the error flag for the operation
 	 */
-	void setFailedState();
+	public void setFailedState();
 
 	/**
 	 * Wait for the completion of the future
@@ -82,78 +82,78 @@ public interface NetworkOperationFuture {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	boolean waitForCompletion() throws InterruptedException;
+	public boolean waitForCompletion() throws InterruptedException;
 
 	/**
 	 * Fire the completion event
 	 */
-	void fireCompleteEvent();
+	public void fireCompleteEvent();
 
 	/**
 	 * Get the message of the result
 	 * @return
 	 */
-	String getMessage();
+	public String getMessage();
 
 	/**
 	 * Set the message of the result
 	 * @param message
 	 */
-	void setMessage(String message);
+	public void setMessage(String message);
 
 	/**
 	 * Is the given result complete?
 	 * @return
 	 */
-	boolean isCompleteResult();
+	public boolean isCompleteResult();
 
 	/**
 	 * Set the complete flag
 	 * @param complete
 	 */
-	void setCompleteResult(boolean complete);
+	public void setCompleteResult(boolean complete);
 
 	/**
 	 * Get the needed time for task completion
 	 * @return
 	 */
-	long getCompletionTime(TimeUnit timeUnit);
+	public long getCompletionTime(TimeUnit timeUnit);
 
 	/**
 	 * Get the id of the connection
 	 * @return
 	 */
-	BBoxDBConnection getConnection();
+	public BBoxDBConnection getConnection();
 
 	/**
 	 * The last transmitted package
 	 * @return
 	 */
-	NetworkRequestPackage getTransmittedPackage();
+	public NetworkRequestPackage getTransmittedPackage();
 
 	/**
 	 * Get the message and the connection id in a human readable format
 	 * @return
 	 */
-	String getMessageWithConnectionName();
+	public String getMessageWithConnectionName();
 
 	/**
 	 * The error callback
 	 * 
 	 * @param errorCallback
 	 */
-	void setErrorCallback(FutureErrorCallback errorCallback);
+	public void setErrorCallback(FutureErrorCallback errorCallback);
 
 	/**
 	 * The success callback
 	 * @param successCallback
 	 */
-	void setSuccessCallback(Consumer<NetworkOperationFutureImpl> successCallback);
+	public void setSuccessCallback(Consumer<NetworkOperationFutureImpl> successCallback);
 
 	/**
 	 * Get the number of executions
 	 * @return
 	 */
-	int getExecutions();
+	public int getExecutions();
 
 }
