@@ -52,6 +52,11 @@ public class KeepAliveHandler implements RequestHandler {
 	 * The client connection
 	 */
 	private ClientConnectionHandler clientConnectionHandler;
+	
+	/**
+	 * Gossip enabled
+	 */
+	protected static boolean gossipEnabled = false;
 
 	/**
 	 * Handle the keep alive package. Simply send a success response package back
@@ -62,6 +67,13 @@ public class KeepAliveHandler implements RequestHandler {
 					throws IOException, PackageEncodeException {
 
 		this.clientConnectionHandler = clientConnectionHandler;
+		
+		if(! gossipEnabled) {
+			final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
+			clientConnectionHandler.writeResultPackage(responsePackage);
+			return true;
+		}
+		
 		final KeepAliveRequest keepAliveRequst = KeepAliveRequest.decodeTuple(encodedPackage);
 
 		boolean gossipResult = true;
