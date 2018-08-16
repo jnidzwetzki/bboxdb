@@ -145,7 +145,7 @@ public class KeepAliveHandler implements RequestHandler {
 
 				return checkLocalTupleVersions(localVersions, gossipTupleVersion, key);
 			} catch (StorageManagerException e) {
-				logger.error("Got exception while reading tuples", e);
+				logger.debug("Got exception while processing tuples", e);
 			}
 		}
 
