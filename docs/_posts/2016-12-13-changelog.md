@@ -12,6 +12,7 @@ order: 1
 - Bugfix: Filter distribution regions directly in the tree to prevent race conditions
 - Bugfix: Fixed wrong write operation redirect order on split in KD Tree space partitioner
 - Bugfix: Fixed wrong write operation redirect order on split in Quad-Tree space partitioner
+- Bugfix: 
 
 ### Version 0.8.2 - 05.09.2018
 - Improvement: Bounding boxes can be padded in dataset import

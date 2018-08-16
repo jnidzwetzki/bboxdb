@@ -205,7 +205,11 @@ public class MembershipConnectionService implements BBoxDBService {
 		final String instanceName = distributedInstance.getStringValue();
 
 		if(serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
-			logger.info("We have already a connection to: {}", instanceName);
+			logger.debug("We have already a connection to: {}", instanceName);
+			
+			// Update instance data (e.g. outdated -> ready)
+			knownInstances.put(distributedInstance.getInetSocketAddress(), distributedInstance);
+
 			return;
 		}
 
