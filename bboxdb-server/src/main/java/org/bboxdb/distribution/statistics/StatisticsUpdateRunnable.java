@@ -179,7 +179,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 		
 		final long totalSizeInMb = totalSize / (1024 * 1024);
 		
-		logger.info("Updating region statistics: {} / {}. Size in MB: {} / Tuples: {}", 
+		logger.debug("Updating region statistics: {} / {}. Size in MB: {} / Tuples: {}", 
 				distributionGroup, regionId, totalSizeInMb, totalTuples);
 										
 		regionAdapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
