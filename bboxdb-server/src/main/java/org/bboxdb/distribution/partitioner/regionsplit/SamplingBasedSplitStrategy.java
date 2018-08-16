@@ -42,7 +42,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 
 	public SamplingBasedSplitStrategy(final Collection<Hyperrectangle> samples) {
 		this.samples = samples;
-		assert (! samples.isEmpty()) : "Samples list is emoty";
+		assert (! samples.isEmpty()) : "Samples list is empty";
 	}
 
 	@Override
