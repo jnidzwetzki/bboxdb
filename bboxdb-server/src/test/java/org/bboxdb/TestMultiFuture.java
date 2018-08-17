@@ -18,8 +18,10 @@
 package org.bboxdb;
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.future.NetworkOperationFutureMultiImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -82,4 +84,28 @@ public class TestMultiFuture {
 		Assert.assertTrue(multiFuture2.isDone());
 		Assert.assertTrue(multiFuture2.isFailed());
 	}
+	
+	@Test(timeout=60000)
+	public void testSuccessCallback() throws InterruptedException {
+		final NetworkOperationFutureImpl future1 = new NetworkOperationFutureImpl(null, null);
+		final NetworkOperationFutureImpl future2 = new NetworkOperationFutureImpl(null, null);
+
+		final NetworkOperationFutureMultiImpl multiFuture2 = new NetworkOperationFutureMultiImpl(
+				Arrays.asList(future1, future2));
+		
+		final CountDownLatch latch = new CountDownLatch(1);
+		
+		multiFuture2.setSuccessCallback((c) -> {
+			if(c == future1) {
+				latch.countDown();
+			}
+		});
+		
+		Assert.assertFalse(multiFuture2.isDone());
+		future1.fireCompleteEvent();
+		Assert.assertTrue(multiFuture2.isDone());
+
+		latch.await();
+	}
+	
 }
