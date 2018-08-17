@@ -30,7 +30,7 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	/**
 	 * The futures
 	 */
-	private final List<NetworkOperationFutureImpl> futures;
+	private final List<NetworkOperationFuture> futures;
 	
 	/**
 	 * The first completed future
@@ -47,7 +47,7 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	 */
 	private Consumer<NetworkOperationFuture> successCallback;
 	
-	public NetworkOperationFutureMultiImpl(final List<NetworkOperationFutureImpl> futures) {
+	public NetworkOperationFutureMultiImpl(final List<NetworkOperationFuture> futures) {
 		this.futures = futures;
 		
 		this.futures.forEach(f -> f.setErrorCallback(this::handleErrorCallback));
