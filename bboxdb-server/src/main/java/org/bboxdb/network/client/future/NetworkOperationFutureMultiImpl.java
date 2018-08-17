@@ -83,7 +83,6 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	@Override
 	public boolean isDone() {
 		return futures.stream()
-			.filter(f -> ! f.isFailed())
 			.anyMatch(f -> f.isDone());
 	}
 
@@ -147,7 +146,7 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	@Override
 	public boolean isFailed() {
 		return futures.stream()
-				.allMatch(f -> ! f.isFailed());
+				.anyMatch(f -> f.isFailed());
 	}
 
 	/* (non-Javadoc)
