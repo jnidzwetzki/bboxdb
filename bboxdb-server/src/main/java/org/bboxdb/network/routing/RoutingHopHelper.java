@@ -83,13 +83,25 @@ public class RoutingHopHelper {
 			final List<BBoxDBInstance> knownInstances,
 			final Predicate<DistributionRegionState> statePredicate) {
 
-		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
-
 		final Predicate<DistributionRegion> predicate = (d) -> {
 			return statePredicate.test(d.getState()) && d.getConveringBox().intersects(boundingBox);
 		};
 
 		final List<DistributionRegion> regions = rootRegion.getThisAndChildRegions(predicate);
+
+		final Map<InetSocketAddress, RoutingHop> hops = mergeHops(regions);
+
+		return removeUnavailableHops(knownInstances, hops);
+	}
+
+	/**
+	 * Merge hops per node
+	 * 
+	 * @param regions
+	 * @return
+	 */
+	private static Map<InetSocketAddress, RoutingHop> mergeHops(final List<DistributionRegion> regions) {
+		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
 
 		for(final DistributionRegion region : regions) {
 			for(final BBoxDBInstance system : region.getSystems()) {
@@ -103,9 +115,8 @@ public class RoutingHopHelper {
 				routingHop.addRegion(region.getRegionId());
 			}
 		}
-
-
-		return buildHopList(knownInstances, hops);
+		
+		return hops;
 	}
 
 	/**
@@ -114,7 +125,7 @@ public class RoutingHopHelper {
 	 * @param hops
 	 * @return
 	 */
-	private static List<RoutingHop> buildHopList(final List<BBoxDBInstance> knownInstances,
+	private static List<RoutingHop> removeUnavailableHops(final List<BBoxDBInstance> knownInstances,
 			final Map<InetSocketAddress, RoutingHop> hops) {
 
 		// No instances are known, this is this the case when a direct connection without
