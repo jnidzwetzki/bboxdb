@@ -1,0 +1,148 @@
+/*******************************************************************************
+ *
+ *    Copyright (C) 2015-2018 the BBoxDB project
+ *  
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License. 
+ *    
+ *******************************************************************************/
+package org.bboxdb.network.client.tools;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
+
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.network.routing.RoutingHop;
+import org.bboxdb.network.routing.RoutingHopHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class AbtractClusterFutureBuilder {
+	
+	/**
+	 * The distribution region
+	 */
+	protected final DistributionRegion distributionRegion;
+	
+	/**
+	 * The bounding box
+	 */
+	protected final Hyperrectangle boundingBox;
+
+	/**
+	 * The membership connection service
+	 */
+	protected final MembershipConnectionService membershipConnectionService;
+
+	/**
+	 * THe table name
+	 */
+	protected final String table;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(AbtractClusterFutureBuilder.class);
+
+	public AbtractClusterFutureBuilder(final String table, 
+			final Hyperrectangle boundingBox) throws BBoxDBException {
+		
+		this.table = table;
+		this.distributionRegion = SpacePartitionerHelper.getRootNode(table);
+		this.boundingBox = boundingBox;
+		this.membershipConnectionService = MembershipConnectionService.getInstance();
+	}
+
+	public Supplier<List<NetworkOperationFuture>> getSupplier() {
+		
+		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
+			
+			final List<NetworkOperationFuture> futures = new ArrayList<>();
+
+			final List<RoutingHop> hops = getHops();
+			
+			if(hops.isEmpty()) {
+				logger.error("Got empty hop list by bbox {} read {}", boundingBox, isReadOperation());
+			}
+
+			for(final RoutingHop hop : hops) {
+				final BBoxDBInstance instance = hop.getDistributedInstance();
+
+				final BBoxDBConnection connection
+					= membershipConnectionService.getConnectionForInstance(instance);
+
+				final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
+
+				final Supplier<List<NetworkOperationFuture>> future = buildFuture(connection, routingHeader);
+
+				futures.addAll(future.get());
+			}
+
+			return futures;
+		};
+		
+		return supplier;
+	}
+	
+	/**
+	 * Is this a read or a write operation
+	 * @return
+	 */
+	protected abstract boolean isReadOperation();
+	
+	/**
+	 * Build the future
+	 * @param routingHeader 
+	 * @param connection 
+	 * @return
+	 */
+	protected abstract Supplier<List<NetworkOperationFuture>> buildFuture(
+			final BBoxDBConnection connection, final RoutingHeader routingHeader);
+	
+	/**
+	 * Get the hops for read
+	 * @return
+	 */
+	protected List<RoutingHop> getWriteHops() {
+		return RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox);
+	}
+	
+	/**
+	 * Get the hops for write
+	 * @return
+	 */
+	protected List<RoutingHop> getReadHops() {
+		return RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
+	}
+	
+	/**
+	 * Get the hop for the operation
+	 * @return
+	 */
+	protected List<RoutingHop> getHops() {
+		if(isReadOperation()) {
+			return getReadHops();
+		} else {
+			return getWriteHops();
+		}
+	}
+}
