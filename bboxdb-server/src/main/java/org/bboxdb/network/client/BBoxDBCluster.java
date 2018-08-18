@@ -30,8 +30,7 @@ import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
 import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
@@ -51,7 +50,6 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +151,7 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 
@@ -199,7 +197,7 @@ public class BBoxDBCluster implements BBoxDB {
 			final Hyperrectangle boundingBox) throws BBoxDBException {
 
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion,
@@ -229,7 +227,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture lockTuple(final String table, final Tuple tuple,
 			final boolean deleteOnTimeout) throws BBoxDBException {
 
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion,
@@ -317,7 +315,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final DeletedTuple tuple = new DeletedTuple(key);
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 
@@ -354,7 +352,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
 		}
 
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 
@@ -390,7 +388,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public TupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox)
 			throws BBoxDBException {
 
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final List<DistributionRegion> regions = DistributionRegionHelper
 				.getDistributionRegionsForBoundingBox(distributionRegion, boundingBox);
@@ -420,7 +418,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
 		}
 
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 
@@ -458,7 +456,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 
@@ -495,7 +493,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 
-		final DistributionRegion distributionRegion = getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 
@@ -539,7 +537,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 
 		final String fullname = tableNames.get(0);
-		final DistributionRegion distributionRegion = getRootNode(fullname);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(fullname);
 
 		final Supplier<List<NetworkOperationFuture>> futureProvider = () -> {
 
@@ -565,23 +563,6 @@ public class BBoxDBCluster implements BBoxDB {
 		};
 
 		return new JoinedTupleListFuture(futureProvider);
-	}
-
-	/**
-	 * Get the root node from space partitioner
-	 *
-	 * @param fullname
-	 * @return
-	 * @throws BBoxDBException
-	 */
-	private DistributionRegion getRootNode(final String fullname) throws BBoxDBException {
-		final TupleStoreName tupleStoreName = new TupleStoreName(fullname);
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-
-		final SpacePartitioner distributionAdapter = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
-
-		return distributionAdapter.getRootNode();
 	}
 
 	@Override

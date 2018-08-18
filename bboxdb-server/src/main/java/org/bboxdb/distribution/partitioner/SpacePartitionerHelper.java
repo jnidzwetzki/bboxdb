@@ -28,10 +28,13 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,4 +112,22 @@ public class SpacePartitionerHelper {
 		zookeeperClient.getDistributionRegionAdapter()
 			.allocateSystemsToRegion(regionPath, allocationSystems);
 	}
+	
+	/**
+	 * Get the root node from space partitioner
+	 *
+	 * @param fullname
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	public static DistributionRegion getRootNode(final String fullname) throws BBoxDBException {
+		final TupleStoreName tupleStoreName = new TupleStoreName(fullname);
+		final String distributionGroup = tupleStoreName.getDistributionGroup();
+
+		final SpacePartitioner distributionAdapter = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+
+		return distributionAdapter.getRootNode();
+	}
+
 }
