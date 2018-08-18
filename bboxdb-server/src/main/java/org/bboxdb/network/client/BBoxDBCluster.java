@@ -211,7 +211,7 @@ public class BBoxDBCluster implements BBoxDB {
 			final boolean deleteOnTimeout) throws BBoxDBException {
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, 
-				Hyperrectangle.FULL_SPACE) {
+				tuple.getBoundingBox()) {
 
 			@Override
 			protected boolean isReadOperation() {
