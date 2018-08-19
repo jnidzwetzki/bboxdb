@@ -67,9 +67,9 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 		return false;
 	}
 
-	public void handleSuccessCallback(final NetworkOperationFuture future) {
+	public synchronized void handleSuccessCallback(final NetworkOperationFuture future) {
 		if(this.completeFuture == null) {
-			this.completeFuture = future;
+			this.completeFuture = future;			
 		}
 		
 		if(successCallback != null) {
