@@ -121,13 +121,9 @@ public class RoutingHopHelper {
 		for(final DistributionRegion region : regions) {
 			for(final BBoxDBInstance system : region.getSystems()) {
 
-				if(! hops.containsKey(system.getInetSocketAddress())) {
-					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
-					hops.put(system.getInetSocketAddress(), routingHop);
-				}
-
-				final RoutingHop routingHop = hops.get(system.getInetSocketAddress());
-				routingHop.addRegion(region.getRegionId());
+				hops.computeIfAbsent(system.getInetSocketAddress(), 
+						(i) -> new RoutingHop(system, new ArrayList<Long>()))
+					.addRegion(region.getRegionId());
 			}
 		}
 		
