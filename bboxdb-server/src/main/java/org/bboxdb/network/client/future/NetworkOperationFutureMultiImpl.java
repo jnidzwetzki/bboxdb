@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.packages.NetworkRequestPackage;
@@ -71,10 +72,22 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 		if(this.completeFuture == null) {
 			this.completeFuture = future;
 			
-			// Cancel other operations
-			futures.stream()
+			// Cancel all other operations
+			final List<NetworkOperationFuture> futuresToCancel = futures.stream()
 				.filter(f -> ! f.equals(completeFuture))
-				.forEach(n -> n.getConnection().getBboxDBClient().cancelRequest(n.getRequestId()));
+				.collect(Collectors.toList());
+			
+			for(final NetworkOperationFuture futureToCancel : futuresToCancel) {
+				final BBoxDBConnection connection = futureToCancel.getConnection();
+				
+				if(connection == null) {
+					continue;
+				}
+				
+				final short requestId = futureToCancel.getRequestId();
+				
+				connection.getBboxDBClient().cancelRequest(requestId);
+			}
 		}
 		
 		if(successCallback != null) {
