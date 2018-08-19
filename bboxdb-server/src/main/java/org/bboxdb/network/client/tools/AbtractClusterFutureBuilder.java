@@ -59,13 +59,19 @@ public abstract class AbtractClusterFutureBuilder {
 	protected final String table;
 	
 	/**
+	 * The cluster operation type
+	 */
+	private ClusterOperationType clusterOperationType;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbtractClusterFutureBuilder.class);
 
-	public AbtractClusterFutureBuilder(final String table, 
-			final Hyperrectangle boundingBox) throws BBoxDBException {
+	public AbtractClusterFutureBuilder(final ClusterOperationType clusterOperationType, 
+			final String table, final Hyperrectangle boundingBox) throws BBoxDBException {
 		
+		this.clusterOperationType = clusterOperationType;
 		this.table = table;
 		this.distributionRegion = SpacePartitionerHelper.getRootNode(table);
 		this.boundingBox = boundingBox;
@@ -81,7 +87,7 @@ public abstract class AbtractClusterFutureBuilder {
 			final List<RoutingHop> hops = getHops();
 			
 			if(hops.isEmpty()) {
-				logger.error("Got empty hop list by bbox {} read {}", boundingBox, isReadOperation());
+				logger.error("Got empty hop list by bbox {} read {}", boundingBox, clusterOperationType);
 			}
 
 			for(final RoutingHop hop : hops) {
@@ -102,12 +108,6 @@ public abstract class AbtractClusterFutureBuilder {
 		
 		return supplier;
 	}
-	
-	/**
-	 * Is this a read or a write operation
-	 * @return
-	 */
-	protected abstract boolean isReadOperation();
 	
 	/**
 	 * Build the future
@@ -139,10 +139,13 @@ public abstract class AbtractClusterFutureBuilder {
 	 * @return
 	 */
 	protected List<RoutingHop> getHops() {
-		if(isReadOperation()) {
-			return getReadHops();
-		} else {
-			return getWriteHops();
+		switch(clusterOperationType) {
+			case READ_FROM_NODES:
+				return getReadHops();
+			case WRITE_TO_NODES:
+				return getWriteHops();
+				default:
+				throw new IllegalArgumentException("Unknown type: " + clusterOperationType);
 		}
 	}
 }

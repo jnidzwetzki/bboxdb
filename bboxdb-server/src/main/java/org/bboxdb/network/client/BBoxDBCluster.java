@@ -43,6 +43,7 @@ import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
+import org.bboxdb.network.client.tools.ClusterOperationType;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -149,13 +150,8 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 		
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, 
-				tuple.getBoundingBox()) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return false;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.WRITE_TO_NODES, table, tuple.getBoundingBox()) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -187,13 +183,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
 		
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, 
-				Hyperrectangle.FULL_SPACE) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return false;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.WRITE_TO_NODES, table, Hyperrectangle.FULL_SPACE) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -210,13 +201,8 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture lockTuple(final String table, final Tuple tuple,
 			final boolean deleteOnTimeout) throws BBoxDBException {
 
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, 
-				tuple.getBoundingBox()) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return false;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.WRITE_TO_NODES, table, tuple.getBoundingBox()) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -288,13 +274,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for key {} in table {}", key, table);
 		}
 		
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, 
-				Hyperrectangle.FULL_SPACE) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return true;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -317,12 +298,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
 		}
 		
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, boundingBox) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return true;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.READ_FROM_NODES, table, boundingBox) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -375,12 +352,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
 		}
 
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, boundingBox) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return true;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.READ_FROM_NODES, table, boundingBox) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -404,13 +377,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 		
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, 
-				Hyperrectangle.FULL_SPACE) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return true;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -433,13 +401,8 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(table, 
-				Hyperrectangle.FULL_SPACE) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return true;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -469,12 +432,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final String fullname = tableNames.get(0);
 		
-		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(fullname, boundingBox) {
-
-			@Override
-			protected boolean isReadOperation() {
-				return true;
-			}
+		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
+				ClusterOperationType.READ_FROM_NODES, fullname, boundingBox) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
