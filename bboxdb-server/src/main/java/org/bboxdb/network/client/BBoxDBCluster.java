@@ -299,7 +299,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.READ_FROM_NODES, table, boundingBox) {
+				ClusterOperationType.READ_FROM_NODES_HA_IF_REPLICATED, table, boundingBox) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
