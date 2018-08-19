@@ -105,11 +105,9 @@ public class StatisticsHelper {
 	public static void updateStatisticsHistory(final String regionIdentifier, final double regionSize) {
 		
 		synchronized (statisticsHistory) {
-			if(! statisticsHistory.containsKey(regionIdentifier)) {
-				statisticsHistory.put(regionIdentifier, EvictingQueue.create(HISTORY_LENGTH));
-			}
-			
-			statisticsHistory.get(regionIdentifier).add(regionSize);
+			statisticsHistory
+				.computeIfAbsent(regionIdentifier, (e) -> EvictingQueue.create(HISTORY_LENGTH))
+				.add(regionSize);
 		}
 
 	}
