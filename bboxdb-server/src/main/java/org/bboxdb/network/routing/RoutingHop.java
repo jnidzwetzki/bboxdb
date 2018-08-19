@@ -26,12 +26,12 @@ public class RoutingHop {
 	/**
 	 * The distributed instance
 	 */
-	protected final BBoxDBInstance distributedInstance;
+	private final BBoxDBInstance distributedInstance;
 	
 	/**
 	 * The distribution regions
 	 */
-	protected final List<Long> distributionRegions;
+	private final List<Long> distributionRegions;
 
 	public RoutingHop(final BBoxDBInstance distributedInstance, final List<Long> distributionRegions) {
 		this.distributedInstance = distributedInstance;
