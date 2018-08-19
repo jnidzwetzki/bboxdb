@@ -19,5 +19,6 @@ package org.bboxdb.network.client.tools;
 
 public enum ClusterOperationType {
 	READ_FROM_NODES,
+	READ_FROM_NODES_HA_IF_REPLICATED,
 	WRITE_TO_NODES;
 }
