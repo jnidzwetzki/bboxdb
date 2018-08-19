@@ -69,7 +69,12 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 
 	public synchronized void handleSuccessCallback(final NetworkOperationFuture future) {
 		if(this.completeFuture == null) {
-			this.completeFuture = future;			
+			this.completeFuture = future;
+			
+			// Cancel other operations
+			futures.stream()
+				.filter(f -> ! f.equals(completeFuture))
+				.forEach(n -> n.getConnection().getBboxDBClient().cancelRequest(n.getRequestId()));
 		}
 		
 		if(successCallback != null) {
