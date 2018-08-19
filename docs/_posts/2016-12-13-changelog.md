@@ -14,6 +14,7 @@ order: 1
 - Bugfix: Fixed wrong write operation redirect order on split in KD Tree space partitioner
 - Bugfix: Fixed wrong write operation redirect order on split in Quad-Tree space partitioner
 - Bugfix: Update instance data in MembershipConnectionService
+- Bugfix: Fixed NPE on resuming non existing queries
 
 ### Version 0.8.2 - 05.09.2018
 - Improvement: Bounding boxes can be padded in dataset import

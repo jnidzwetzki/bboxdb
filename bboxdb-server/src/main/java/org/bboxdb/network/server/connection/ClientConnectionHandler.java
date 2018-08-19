@@ -608,6 +608,12 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			@Override
 			protected void runThread() throws IOException, PackageEncodeException {
 				final ClientQuery clientQuery = getActiveQueries().get(querySequence);
+				
+				if(clientQuery == null) {
+					logger.error("Unable to resume query {}, not found", querySequence);
+					return;
+				}
+				
 				clientQuery.fetchAndSendNextTuples(packageSequence);
 				
 				if(clientQuery.isQueryDone()) {
