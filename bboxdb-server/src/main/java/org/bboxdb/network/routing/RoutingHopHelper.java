@@ -83,15 +83,30 @@ public class RoutingHopHelper {
 			final List<BBoxDBInstance> knownInstances,
 			final Predicate<DistributionRegionState> statePredicate) {
 
-		final Predicate<DistributionRegion> predicate = (d) -> {
-			return statePredicate.test(d.getState()) && d.getConveringBox().intersects(boundingBox);
-		};
-
-		final List<DistributionRegion> regions = rootRegion.getThisAndChildRegions(predicate);
+		final List<DistributionRegion> regions = getRegionsForPredicate(rootRegion, boundingBox, 
+				statePredicate);
 
 		final Map<InetSocketAddress, RoutingHop> hops = mergeHops(regions);
 
 		return removeUnavailableHops(knownInstances, hops);
+	}
+
+	/**
+	 * Get systems for the given predicate
+	 * 
+	 * @param rootRegion
+	 * @param boundingBox
+	 * @param statePredicate
+	 * @return
+	 */
+	public static List<DistributionRegion> getRegionsForPredicate(final DistributionRegion rootRegion,
+			final Hyperrectangle boundingBox, final Predicate<DistributionRegionState> statePredicate) {
+		
+		final Predicate<DistributionRegion> predicate = (d) -> {
+			return statePredicate.test(d.getState()) && d.getConveringBox().intersects(boundingBox);
+		};
+
+		return rootRegion.getThisAndChildRegions(predicate);
 	}
 
 	/**

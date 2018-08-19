@@ -27,9 +27,11 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.NetworkOperationFutureMultiImpl;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
@@ -41,23 +43,18 @@ public abstract class AbtractClusterFutureBuilder {
 	/**
 	 * The distribution region
 	 */
-	protected final DistributionRegion distributionRegion;
+	private final DistributionRegion distributionRegion;
 	
 	/**
 	 * The bounding box
 	 */
-	protected final Hyperrectangle boundingBox;
+	private final Hyperrectangle boundingBox;
 
 	/**
 	 * The membership connection service
 	 */
-	protected final MembershipConnectionService membershipConnectionService;
+	private final MembershipConnectionService membershipConnectionService;
 
-	/**
-	 * THe table name
-	 */
-	protected final String table;
-	
 	/**
 	 * The cluster operation type
 	 */
@@ -72,7 +69,6 @@ public abstract class AbtractClusterFutureBuilder {
 			final String table, final Hyperrectangle boundingBox) throws BBoxDBException {
 		
 		this.clusterOperationType = clusterOperationType;
-		this.table = table;
 		this.distributionRegion = SpacePartitionerHelper.getRootNode(table);
 		this.boundingBox = boundingBox;
 		this.membershipConnectionService = MembershipConnectionService.getInstance();
@@ -80,6 +76,72 @@ public abstract class AbtractClusterFutureBuilder {
 
 	public Supplier<List<NetworkOperationFuture>> getSupplier() {
 		
+		if(clusterOperationType == ClusterOperationType.READ_FROM_NODES_HA_IF_REPLICATED) {
+			return getReplicatedSupplier();
+		} else {
+			return getUnreplicatedSupplier();
+		}
+	}
+
+	/**
+	 * Get the replicated supplier 
+	 * Only one read operation per replicate needs to be successful
+	 * 
+	 * @return
+	 */
+	private Supplier<List<NetworkOperationFuture>> getReplicatedSupplier() {
+		
+		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
+			
+			final List<NetworkOperationFuture> futures = new ArrayList<>();
+
+			final List<DistributionRegion> regions = RoutingHopHelper.getRegionsForPredicate(
+					distributionRegion, boundingBox, DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
+						
+			if(regions.isEmpty()) {
+				logger.error("Got empty hop list by bbox {} read {}", boundingBox, clusterOperationType);
+			}
+
+			for(final DistributionRegion region : regions) {
+				final List<NetworkOperationFuture> futuresPerReplicate = new ArrayList<>();
+
+				for(final BBoxDBInstance instance : region.getSystems()) {
+					final BBoxDBConnection connection
+						= membershipConnectionService.getConnectionForInstance(instance);
+					
+					// Node is down
+					if(connection == null) {
+						continue;
+					}
+					
+					final RoutingHop hop = new RoutingHop(instance, Arrays.asList(region.getRegionId()));
+
+					final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
+
+					final Supplier<List<NetworkOperationFuture>> future = buildFuture(connection, routingHeader);
+					futuresPerReplicate.addAll(future.get());
+				}
+				
+				// Only one future of the list needs to be successful
+				final NetworkOperationFutureMultiImpl future = new NetworkOperationFutureMultiImpl(
+						futuresPerReplicate);
+				
+				futures.add(future);
+			}
+
+			return futures;
+		};
+		
+		return supplier;
+	}
+
+	/**
+	 * Get the unreplicated supplier
+	 * All operations needs to be successful
+	 * 
+	 * @return
+	 */
+	private Supplier<List<NetworkOperationFuture>> getUnreplicatedSupplier() {
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 			
 			final List<NetworkOperationFuture> futures = new ArrayList<>();
@@ -105,7 +167,6 @@ public abstract class AbtractClusterFutureBuilder {
 
 			return futures;
 		};
-		
 		return supplier;
 	}
 	
@@ -119,32 +180,16 @@ public abstract class AbtractClusterFutureBuilder {
 			final BBoxDBConnection connection, final RoutingHeader routingHeader);
 	
 	/**
-	 * Get the hops for read
-	 * @return
-	 */
-	protected List<RoutingHop> getWriteHops() {
-		return RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox);
-	}
-	
-	/**
-	 * Get the hops for write
-	 * @return
-	 */
-	protected List<RoutingHop> getReadHops() {
-		return RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
-	}
-	
-	/**
 	 * Get the hop for the operation
 	 * @return
 	 */
-	protected List<RoutingHop> getHops() {
+	private List<RoutingHop> getHops() {
 		switch(clusterOperationType) {
 			case READ_FROM_NODES:
-				return getReadHops();
+				return RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
 			case WRITE_TO_NODES:
-				return getWriteHops();
-				default:
+				return RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox);
+			default:
 				throw new IllegalArgumentException("Unknown type: " + clusterOperationType);
 		}
 	}

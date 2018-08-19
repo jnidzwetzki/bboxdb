@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.8.3 - TBA
+- Improvement: Made reads on replicated data HA (only one replicate needs to be available)
 - Improvement: Refactored future retry to supplier
 - Improvement: Send read and write operations only to active instances
 - Bugfix: Filter distribution regions directly in the tree to prevent race conditions
