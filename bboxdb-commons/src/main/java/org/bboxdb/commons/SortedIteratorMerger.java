@@ -55,9 +55,7 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 
 		@Override
 		public E next() {
-			
-			assert (hasNext() == true);
-			
+						
 			// Consume the duplicates first 
 			if(! unconsumedDuplicates.isEmpty()) {
 				return unconsumedDuplicates.remove(0);
