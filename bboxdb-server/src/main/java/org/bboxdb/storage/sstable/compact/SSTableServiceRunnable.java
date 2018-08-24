@@ -178,7 +178,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 			throws StorageManagerException, InterruptedException {
 		
 		if(! tupleStoreName.isDistributedTable()) {
-			return false;
+			return true;
 		}
 		
 		return CompactorHelper.isRegionActive(tupleStoreName);
