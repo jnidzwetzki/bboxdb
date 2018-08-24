@@ -75,6 +75,7 @@ public class SSTableReader extends AbstractTableReader {
 		logger.info("Scanning table " + tablenumber + " for " + key);
 
 		try {
+			acquire();
 			resetPosition();
 			
 			while(memory.hasRemaining()) {
@@ -94,6 +95,8 @@ public class SSTableReader extends AbstractTableReader {
 		
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
+		} finally {
+			release();
 		}
 		
 		return null;
@@ -110,11 +113,12 @@ public class SSTableReader extends AbstractTableReader {
 		
 		try {
 			// The memory was unmapped
-			if(memory == null) {
+			if(! serviceState.isInRunningState()) {
 				logger.warn("Read request to unmapped memory for relation: " + name);
 				return null;
 			}
 			
+			acquire();
 			memory.position(position);
 			
 			final Tuple tuple = TupleHelper.decodeTuple(memory);
@@ -130,7 +134,9 @@ public class SSTableReader extends AbstractTableReader {
 				throw new StorageManagerException("Exception while decoding Position: " + position +  " Size "  + fileChannel.size(), e);
 			} catch (IOException e1) {
 				throw new StorageManagerException(e);
-			}
+			} 
+		} finally {
+			release();
 		}
 	}
 	
@@ -141,23 +147,31 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	public synchronized String decodeOnlyKeyFromTupleAtPosition(final int position) throws IOException {
 		
-		memory.position(position);
+		acquire();
 		
-		final short keyLength = memory.getShort();
-
-		final int sizeToSkip = DataEncoderHelper.INT_BYTES          // BBOX-Length
-				+ DataEncoderHelper.INT_BYTES 						// Data-Length
-				+ DataEncoderHelper.LONG_BYTES						// Version Timestamp
-				+ DataEncoderHelper.LONG_BYTES;						// Received Timetamp		
-		
-		memory.position(memory.position() + sizeToSkip);
-		
-		final byte[] keyBytes = new byte[keyLength];
-		memory.get(keyBytes, 0, keyBytes.length);
-		
-		readTupleKeysTotal.inc();
-		
-		return new String(keyBytes);
+		try {
+			memory.position(position);
+			
+			final short keyLength = memory.getShort();
+	
+			final int sizeToSkip = DataEncoderHelper.INT_BYTES			// BBOX-Length
+					+ DataEncoderHelper.INT_BYTES 						// Data-Length
+					+ DataEncoderHelper.LONG_BYTES						// Version Timestamp
+					+ DataEncoderHelper.LONG_BYTES;						// Received Timetamp		
+			
+			memory.position(memory.position() + sizeToSkip);
+			
+			final byte[] keyBytes = new byte[keyLength];
+			memory.get(keyBytes, 0, keyBytes.length);
+			
+			readTupleKeysTotal.inc();
+			
+			return new String(keyBytes);
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			release();
+		}
 	}
 	
 	/**
