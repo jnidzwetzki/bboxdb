@@ -142,11 +142,6 @@ class TestTupleListFuture extends TupleListFuture {
 	protected int iteratorCalls = 0;
 
 	public int getIteratorCalls() {
-		
-		if(iteratorCalls != ELEMENTS) {
-			System.out.println(iteratorCalls + " / " + ELEMENTS);
-		}
-		
 		return iteratorCalls;
 	}
 
