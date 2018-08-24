@@ -87,10 +87,12 @@ public abstract class AbstractTableReader implements BBoxDBService, AcquirableRe
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
 	
-	public AbstractTableReader(final String directory, final TupleStoreName name, final int tablenumer) throws StorageManagerException {
+	public AbstractTableReader(final String directory, final TupleStoreName name, 
+			final int tablenumber) throws StorageManagerException {
+		
 		this.name = name;
 		this.directory = directory;
-		this.tablenumber = tablenumer;
+		this.tablenumber = tablenumber;
 		this.file = constructFileToRead();
 		this.serviceState = new ServiceState();
 
