@@ -23,8 +23,10 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import java.util.concurrent.Phaser;
 
 import org.bboxdb.commons.ServiceState;
+import org.bboxdb.commons.concurrent.AcquirableResource;
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
@@ -33,7 +35,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTableReader implements BBoxDBService {
+public abstract class AbstractTableReader implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * The number of the table
@@ -74,6 +76,11 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 * Service state
 	 */
 	protected final ServiceState serviceState;
+	
+	/**
+	 * The usage counter
+	 */
+	private Phaser usage;
 	
 	/**
 	 * The Logger
@@ -154,6 +161,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 		try {
 			serviceState.reset();
 			serviceState.dipatchToStarting();
+			usage = new Phaser(1);
 			
 			randomAccessFile = new RandomAccessFile(file, "r");
 			fileChannel = randomAccessFile.getChannel();
@@ -179,6 +187,10 @@ public abstract class AbstractTableReader implements BBoxDBService {
 		}
 		
 		serviceState.dispatchToStopping();
+		
+		// Wait until nobody uses the instance
+		assert (! usage.isTerminated()) : "Usage counter is terminated";
+		usage.arriveAndAwaitAdvance();
 
 		shutdownFileChannel();
 		shutdownRandomAccessFile();
@@ -302,6 +314,27 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 */
 	public MappedByteBuffer getMemory() {
 		return memory;
+	}
+	
+	@Override
+	public boolean acquire() {
+		
+		if(! serviceState.isInRunningState()) {
+			return false;
+		}
+		
+		assert (! usage.isTerminated()) : "Usage counter is terminated";
+
+		usage.register();
+		return true;
+	}
+
+	@Override
+	public void release() {
+		assert (usage.getUnarrivedParties() > 0) : "Usage counter is: " + usage.getUnarrivedParties();
+		assert (! usage.isTerminated()) : "Usage counter is terminated";
+		
+		usage.arriveAndDeregister();
 	}
 	
 }
