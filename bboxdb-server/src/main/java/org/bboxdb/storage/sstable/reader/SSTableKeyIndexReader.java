@@ -264,7 +264,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 		
 		// Memory was unmapped
 		if(! serviceState.isInRunningState()) {
-			return -1;
+			throw new IOException("Not in running state");
 		}
 
 		final byte[] magicBytes = getMagicBytes();
