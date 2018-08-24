@@ -77,7 +77,7 @@ public class LocalSelftest {
 				final TupleStoreManager storageManager = storageRegistry.createTable(tupleStoreName, config);
 				logger.info("Running iteration {}", iteration);
 				testInsertDelete(storageManager);
-				storageRegistry.deleteTable(tupleStoreName, true);
+				storageRegistry.deleteTable(tupleStoreName, false);
 			}
 			
 			storageRegistry.shutdown();
