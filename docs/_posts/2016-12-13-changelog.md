@@ -11,6 +11,7 @@ order: 1
 - Improvement: Refactored future retry to supplier
 - Improvement: Send read and write operations only to active instances
 - Improvement: Updated simpleclient from 0.4.0 to 0.5.0, zookeeper from 3.4.12 to 3.4.13, json from 20180130 to 20180813, Guava from 25.1-jre to 26.0-jre, mockito from 2.19.0 to 2.21.0
+- Improvement: Added usage coutner to memory-mapped IO resources
 - Bugfix: Filter distribution regions directly in the tree to prevent race conditions
 - Bugfix: Fixed wrong write operation redirect order on split in KD Tree space partitioner
 - Bugfix: Fixed wrong write operation redirect order on split in Quad-Tree space partitioner
@@ -19,6 +20,7 @@ order: 1
 - Bugfix: Fixed race condition in TupleListFutureStore waitForCompletion
 - Bugfix: Fixed local selftest
 - Bugfix: Local tables are also compacted
+- Bugfix: Fixed JVM crash when memory-mapped IO was unmapped
 
 ### Version 0.8.2 - 05.09.2018
 - Improvement: Bounding boxes can be padded in dataset import
