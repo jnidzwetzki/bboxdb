@@ -18,6 +18,7 @@ order: 1
 - Bugfix: Fixed NPE on resuming non existing queries
 - Bugfix: Fixed race condition in TupleListFutureStore waitForCompletion
 - Bugfix: Fixed local selftest
+- Bugfix: Local tables are also compacted
 
 ### Version 0.8.2 - 05.09.2018
 - Improvement: Bounding boxes can be padded in dataset import

@@ -151,7 +151,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 					continue;
 				}
 			
-				if(! CompactorHelper.isRegionActive(tupleStoreName)) {
+				if(skipCompact(tupleStoreName)) {
 					logger.info("Skipping compact run, because region is not active {}", tupleStoreName);
 					continue;
 				}
@@ -165,6 +165,23 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 				logger.error("Error while merging tables", e);	
 			} 
 		}		
+	}
+	
+	/**
+	 * Should the compact run be skipped?
+	 * @param tupleStoreName
+	 * @return
+	 * @throws StorageManagerException
+	 * @throws InterruptedException
+	 */
+	private boolean skipCompact(TupleStoreName tupleStoreName) 
+			throws StorageManagerException, InterruptedException {
+		
+		if(! tupleStoreName.isDistributedTable()) {
+			return false;
+		}
+		
+		return CompactorHelper.isRegionActive(tupleStoreName);
 	}
 
 	/**
