@@ -24,6 +24,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
+import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
@@ -70,6 +71,11 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	protected FileChannel fileChannel;
 	
 	/**
+	 * Service state
+	 */
+	protected final ServiceState serviceState;
+	
+	/**
 	 * The Logger
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
@@ -79,7 +85,8 @@ public abstract class AbstractTableReader implements BBoxDBService {
 		this.directory = directory;
 		this.tablebumber = tablenumer;
 		this.file = constructFileToRead();
-		
+		this.serviceState = new ServiceState();
+
 		if(! UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable()) {
 			logger.error("Memory unmapper not available, please use a oracle JVM");
 			System.exit(-1);
@@ -147,24 +154,39 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	@Override
 	public void init() {
 		try {
+			serviceState.reset();
+			serviceState.dipatchToStarting();
+			
 			randomAccessFile = new RandomAccessFile(file, "r");
 			fileChannel = randomAccessFile.getChannel();
 			memory = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
 			memory.order(Const.APPLICATION_BYTE_ORDER);
 			validateFile();
+			
+			serviceState.dispatchToRunning();
 		} catch (Exception e) {
 			if(! Thread.currentThread().isInterrupted()) {
 				logger.error("Error during an IO operation", e);
 			}
+			serviceState.dispatchToFailed(e);
 			shutdown();
 		} 
 	}
 
 	@Override
 	public void shutdown() {
+		if (! serviceState.isInRunningState()) {
+			logger.warn("Unable to shutdown, service is in {} state", serviceState);
+			return;
+		}
+		
+		serviceState.dispatchToStopping();
+
 		shutdownFileChannel();
 		shutdownRandomAccessFile();
 		shutdownMemory();
+		
+		serviceState.dispatchToTerminated();
 	}
 
 	/**
@@ -283,4 +305,5 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	public MappedByteBuffer getMemory() {
 		return memory;
 	}
+	
 }
