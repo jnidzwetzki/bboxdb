@@ -49,7 +49,8 @@ public class LocalSelftest {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(LocalSelftest.class);
 	
-	public static void main(final String[] args) throws InterruptedException, ExecutionException, BBoxDBException, StorageManagerException, RejectedException {
+	public static void main(final String[] args) throws InterruptedException, 
+		ExecutionException, BBoxDBException, StorageManagerException, RejectedException {
 		
 		if(args.length != 1) {
 			logger.error("Usage: LocalSelftest <Iterations>");
@@ -100,6 +101,13 @@ public class LocalSelftest {
 		
 		Thread.sleep(1000);
 		
+		logger.info("Key query...");
+		for(int i = 0; i < TUPLES; i++) {
+			final List<Tuple> resultTuples = storageManager.get(Integer.toString(i));	
+			assert (resultTuples.size() == 1);
+			assert (resultTuples.get(0).getKey().equals(Integer.toString(i)));
+		}
+
 		logger.info("Deleting tuples...");
 		for(int i = 0; i < TUPLES; i++) {
 			storageManager.delete(Integer.toString(i), MicroSecondTimestampProvider.getNewTimestamp());
@@ -107,10 +115,10 @@ public class LocalSelftest {
 		
 		for(int iteration = 0; iteration < 4; iteration++) {
 			logger.info("Query deleted keys ({})...", iteration);
-			// Fetch the deleted tuples
+			
+			// Fetch the deleted tuples by key
 			for(int i = 0; i < TUPLES; i++) {
-				final List<Tuple> resultTuples = storageManager.get(Integer.toString(i));
-				
+				final List<Tuple> resultTuples = storageManager.get(Integer.toString(i));	
 				assert (resultTuples.isEmpty()) : "List is not empty";
 			}
 		}
