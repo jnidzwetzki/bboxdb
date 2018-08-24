@@ -74,7 +74,7 @@ public class SSTableCheckpointRunnable extends ExceptionSafeRunnable {
 						storage.getBasedir().getAbsolutePath());
 
 				for(final TupleStoreName ssTableName : allTables) {
-					logger.info("Executing checkpoint check for: {}", ssTableName);
+					logger.debug("Executing checkpoint check for: {}", ssTableName);
 					
 					if(Thread.currentThread().isInterrupted()) {
 						return;
