@@ -140,9 +140,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 * Reset the position to the first element
 	 */
 	protected void resetPosition() {
-		
 		final byte[] magicBytes = getMagicBytes();
-		
 		memory.position(magicBytes.length);
 	}
 

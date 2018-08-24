@@ -257,9 +257,10 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	protected synchronized int convertEntryToPosition(final long entry) {
 		
 		// Memory was unmapped
-		if(memory == null) {
+		if(! serviceState.isInRunningState()) {
 			return -1;
 		}
+
 		
 		final byte[] magicBytes = getMagicBytes();
 		
