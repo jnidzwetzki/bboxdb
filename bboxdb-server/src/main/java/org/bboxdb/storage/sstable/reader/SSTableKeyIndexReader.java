@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -201,9 +200,12 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 		}
 		
 		// Convert index positions
-		return resultList.stream()
-			.map((e) -> convertEntryToPosition(e))
-			.collect(Collectors.toList());
+		final List<Integer> positions = new ArrayList<>();
+		for(final int pos : resultList) {
+			positions.add(convertEntryToPosition(pos));
+		}
+		
+		return positions;
 	}
 
 	/**
@@ -253,9 +255,12 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * Convert the index entry to index file position
 	 * @param entry
 	 * @return
+	 * @throws IOException 
 	 */
-	protected synchronized int convertEntryToPosition(final long entry) {
-		acquire();
+	protected synchronized int convertEntryToPosition(final long entry) throws IOException {
+		if(! acquire()) {
+			throw new IOException("Unable to aquire");
+		}
 		
 		// Memory was unmapped
 		if(! serviceState.isInRunningState()) {
@@ -328,7 +333,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 					final Tuple tuple = sstableReader.getTupleAtPosition(convertEntryToPosition(entry));
 					entry++;
 					return tuple;
-				} catch (StorageManagerException e) {
+				} catch (Exception e) {
 					logger.error("Got exception while iterating (requesting entry " + (entry - 1) + " of " + lastEntry + ")", e);
 				}
 								

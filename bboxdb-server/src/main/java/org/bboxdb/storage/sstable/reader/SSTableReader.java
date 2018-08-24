@@ -75,7 +75,10 @@ public class SSTableReader extends AbstractTableReader {
 		logger.info("Scanning table " + tablenumber + " for " + key);
 
 		try {
-			acquire();
+			if(! acquire()) {
+				throw new IOException("Unable to aquire");
+			}
+			
 			resetPosition();
 			
 			while(memory.hasRemaining()) {
@@ -147,7 +150,9 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	public synchronized String decodeOnlyKeyFromTupleAtPosition(final int position) throws IOException {
 		
-		acquire();
+		if(! acquire()) {
+			throw new IOException("Unable to aquire");
+		}
 		
 		try {
 			memory.position(position);
