@@ -107,7 +107,7 @@ public class TestTupleListFutureStore {
 	
 	@Test(timeout=60000)
 	public void testFiftyFuturesLoop() throws InterruptedException, RejectedException {
-		for(int i = 0; i < 100000; i++) {
+		for(int i = 0; i < 1000; i++) {
 			testFiftyFutures();
 		}
 	}
