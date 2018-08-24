@@ -30,8 +30,8 @@ public class TestThreadHelper {
 	@Test(timeout=60000)
 	public void testEmptyList() {
 		final List<Thread> threads = new ArrayList<>();
-		final boolean result = ThreadHelper.stopThreads(threads);
-		Assert.assertTrue(result);
+		final List<Thread> result = ThreadHelper.stopThreads(threads);
+		Assert.assertTrue(result.isEmpty());
 	}
 	
 	@Test(timeout=60000)
@@ -39,8 +39,8 @@ public class TestThreadHelper {
 		final Thread thread = getInterruptibleThread();	
 		final List<Thread> threads = new ArrayList<>();
 		threads.add(thread);
-		final boolean result = ThreadHelper.stopThreads(threads);
-		Assert.assertTrue(result);
+		final List<Thread> result = ThreadHelper.stopThreads(threads);
+		Assert.assertTrue(result.isEmpty());
 	}
 	
 	@Test(timeout=20000)
@@ -53,8 +53,8 @@ public class TestThreadHelper {
 		// we will interrupt the regular testcase thread
 		Thread.currentThread().interrupt();
 		
-		final boolean result = ThreadHelper.stopThreads(threads);
-		Assert.assertFalse(result);
+		final List<Thread> result = ThreadHelper.stopThreads(threads);
+		Assert.assertFalse(result.isEmpty());
 	}
 	
 	@Test(timeout=20000)
@@ -62,8 +62,9 @@ public class TestThreadHelper {
 		final Thread thread = getNonInterruptibleThread();	
 		final List<Thread> threads = new ArrayList<>();
 		threads.add(thread);
-		final boolean result = ThreadHelper.stopThreads(threads);
-		Assert.assertFalse(result);
+		final List<Thread> result = ThreadHelper.stopThreads(threads);
+		Assert.assertEquals(1, result.size());
+		Assert.assertTrue(result.contains(thread));
 	}
 
 	/**

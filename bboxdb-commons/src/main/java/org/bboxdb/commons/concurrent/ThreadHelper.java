@@ -19,6 +19,7 @@ package org.bboxdb.commons.concurrent;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,34 +41,32 @@ public class ThreadHelper {
 	 * @param runningThreads
 	 * @return
 	 */
-	public static boolean stopThreads(final List<? extends Thread> runningThreads) {
-		
-		boolean result = true;
-		
+	public static List<Thread> stopThreads(final List<? extends Thread> runningThreads) {
+				
 		// Interrupt the running threads
-		logger.info("Interrupt running service threads");
+		logger.debug("Interrupt running threads");
 		runningThreads.forEach(t -> t.interrupt());
 		
 		// Join threads
 		for(final Thread thread : runningThreads) {
 			try {
-				logger.info("Join thread: {}", thread.getName());
-
+				logger.debug("Join thread: {}", thread.getName());
 				thread.join(THREAD_WAIT_TIMEOUT);
-				
-				// Is the thread still alive?
-				if(thread.isAlive()) {
-					logger.error("Unable to stop thread: {}", thread.getName());
-					result = false;
-				}
-				
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
-				result = false;
 			}
 		}
 		
-		return result;
+		final List<Thread> stillActiveThreads = runningThreads.stream()
+				.filter(t -> t.isAlive())
+				.collect(Collectors.toList());
+		
+		// Is the thread still alive?
+		if(! stillActiveThreads.isEmpty()) {
+			logger.error("Unable to stop threads: {}", stillActiveThreads);
+		}
+		
+		return stillActiveThreads;
 	}
 }

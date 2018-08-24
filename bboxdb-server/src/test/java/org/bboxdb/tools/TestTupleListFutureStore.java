@@ -104,6 +104,13 @@ public class TestTupleListFutureStore {
 
 		Assert.assertFalse(hasNonFinishedIterators);
 	}
+	
+	@Test(timeout=60000)
+	public void testFiftyFuturesLoop() throws InterruptedException, RejectedException {
+		for(int i = 0; i < 100000; i++) {
+			testFiftyFutures();
+		}
+	}
 
 }
 
