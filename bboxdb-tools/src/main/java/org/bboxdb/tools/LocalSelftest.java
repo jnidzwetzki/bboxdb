@@ -26,6 +26,8 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -64,12 +66,17 @@ public class LocalSelftest {
 			final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
 			storageRegistry.init();
 			
-			final TupleStoreName sstable = new TupleStoreName(TABLENAME);
-			final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(sstable);
+			final TupleStoreName tupleStoreName = new TupleStoreName(TABLENAME);
+			
+			final TupleStoreConfiguration config = TupleStoreConfigurationBuilder
+					.create()
+					.allowDuplicates(false)
+					.build();
 
 			for(int iteration = 0; iteration < iterations; iteration++) {
+				final TupleStoreManager storageManager = storageRegistry.createTable(tupleStoreName, config);
 				logger.info("Running iteration {}", iteration);
-				storageRegistry.deleteTable(sstable, true);
+				storageRegistry.deleteTable(tupleStoreName, true);
 				testInsertDelete(storageManager);
 			}
 			
