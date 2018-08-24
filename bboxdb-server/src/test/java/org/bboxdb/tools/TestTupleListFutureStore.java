@@ -105,12 +105,14 @@ public class TestTupleListFutureStore {
 		Assert.assertFalse(hasNonFinishedIterators);
 	}
 	
+	/*
+	 * Needed to find race-conditions
 	@Test(timeout=60000)
 	public void testFiftyFuturesLoop() throws InterruptedException, RejectedException {
-		for(int i = 0; i < 1000; i++) {
+		for(int i = 0; i < 10000; i++) {
 			testFiftyFutures();
 		}
-	}
+	}*/
 
 }
 
@@ -140,6 +142,11 @@ class TestTupleListFuture extends TupleListFuture {
 	protected int iteratorCalls = 0;
 
 	public int getIteratorCalls() {
+		
+		if(iteratorCalls != ELEMENTS) {
+			System.out.println(iteratorCalls + " / " + ELEMENTS);
+		}
+		
 		return iteratorCalls;
 	}
 

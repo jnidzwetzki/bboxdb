@@ -54,9 +54,14 @@ public class TupleListFutureStore {
 	private final List<Thread> runningThreads;
 	
 	/**
-	 * The amount of active worker
+	 * The amount of submitted tasks
 	 */
-	private final AtomicInteger activeWorker;
+	private final AtomicInteger submittedTasks;
+	
+	/**
+	 * The amount of completed tasks
+	 */
+	private final AtomicInteger completedTasks;
 	
 	/**
 	 * The service state
@@ -83,12 +88,13 @@ public class TupleListFutureStore {
 		this.maxQueueSize = maxQueueSize;
 		this.futureQueue = new LinkedBlockingQueue<>(maxQueueSize);
 		this.runningThreads = new ArrayList<>(requestWorker);
-		this.activeWorker = new AtomicInteger(0);
-		
+		this.submittedTasks = new AtomicInteger(0);
+		this.completedTasks = new AtomicInteger(0);
+
 		serviceState.dipatchToStarting();
 		
 		for(int i = 0; i < requestWorker; i++) {
-			final RequestWorker requestWorkerInstance = new RequestWorker(futureQueue, activeWorker);
+			final RequestWorker requestWorkerInstance = new RequestWorker(futureQueue, completedTasks);
 			final Thread thread = new Thread(requestWorkerInstance);
 			thread.start();
 			runningThreads.add(thread);
@@ -110,10 +116,8 @@ public class TupleListFutureStore {
 			throw new RejectedException("Service is in state: " + serviceState.getState());
 		}
 		
-		synchronized (futureQueue) {
-			futureQueue.put(tupleListFuture);
-			futureQueue.notifyAll();
-		}
+		submittedTasks.incrementAndGet();
+		futureQueue.put(tupleListFuture);	
 	}
 	
 	/**
@@ -138,9 +142,9 @@ public class TupleListFutureStore {
 	 * @throws InterruptedException
 	 */
 	public void waitForCompletion() throws InterruptedException {
-		synchronized (activeWorker) {
-			while(activeWorker.get() != 0 || ! futureQueue.isEmpty()) {
-				activeWorker.wait();
+		synchronized (completedTasks) {
+			while(submittedTasks.get() != completedTasks.get()) {
+				completedTasks.wait();
 			}
 		}
 	}
@@ -175,16 +179,16 @@ class RequestWorker extends ExceptionSafeRunnable {
 	/**
 	 * The queue
 	 */
-	private BlockingQueue<TupleListFuture> queue;
+	private final BlockingQueue<TupleListFuture> queue;
 	
 	/**
-	 * The active worker counter
+	 * The completed tasks counter
 	 */
-	private AtomicInteger activeWorker;
+	private final AtomicInteger completedTasks;
 
-	public RequestWorker(final BlockingQueue<TupleListFuture> queue, final AtomicInteger activeWorker) {
+	public RequestWorker(final BlockingQueue<TupleListFuture> queue, final AtomicInteger completedTasks) {
 		this.queue = queue;
-		this.activeWorker = activeWorker;
+		this.completedTasks = completedTasks;
 	}
 
 	@Override
@@ -193,30 +197,26 @@ class RequestWorker extends ExceptionSafeRunnable {
 		while(! Thread.currentThread().isInterrupted()) {
 			try {
 				final TupleListFuture future = queue.take();
-				
-				synchronized (activeWorker) {
-					activeWorker.incrementAndGet();
-					activeWorker.notifyAll();
-				}
 
 				if(future != null) {
 					future.waitForCompletion();
 					final Iterator<Tuple> iter = future.iterator();
+					
 					while(iter.hasNext()) {
 						iter.next();
 					}
 				}
 				
-				synchronized (activeWorker) {
-					activeWorker.decrementAndGet();
-					activeWorker.notifyAll();
+				synchronized (completedTasks) {
+					completedTasks.incrementAndGet();
+					completedTasks.notifyAll();
 				}
+				
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				return;
 			}
 		}
-		
 	}
 	
 }
