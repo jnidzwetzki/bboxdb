@@ -72,7 +72,7 @@ public class SSTableReader extends AbstractTableReader {
 	 * @throws StorageManagerException 
 	 */
 	public synchronized Tuple scanForTuple(final String key) throws StorageManagerException {
-		logger.info("Scanning table " + tablebumber + " for " + key);
+		logger.info("Scanning table " + tablenumber + " for " + key);
 
 		try {
 			resetPosition();
@@ -165,7 +165,7 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	@Override
 	public String toString() {
-		return "SSTableReader [tablebumber=" + tablebumber + ", name=" + name
+		return "SSTableReader [tablenumber=" + tablenumber + ", name=" + name
 				+ ", directory=" + directory + "]";
 	}
 
@@ -179,7 +179,7 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	@Override
 	protected File constructFileToRead() {
-		final String filename = SSTableHelper.getSSTableFilename(directory, name, tablebumber);
+		final String filename = SSTableHelper.getSSTableFilename(directory, name, tablenumber);
 		return new File(filename);
 	}
 

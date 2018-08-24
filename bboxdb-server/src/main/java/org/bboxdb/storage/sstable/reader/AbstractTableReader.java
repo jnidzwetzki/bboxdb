@@ -38,7 +38,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	/**
 	 * The number of the table
 	 */
-	protected final int tablebumber;
+	protected final int tablenumber;
 	
 	/**
 	 * The name of the table
@@ -83,7 +83,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	public AbstractTableReader(final String directory, final TupleStoreName name, final int tablenumer) throws StorageManagerException {
 		this.name = name;
 		this.directory = directory;
-		this.tablebumber = tablenumer;
+		this.tablenumber = tablenumer;
 		this.file = constructFileToRead();
 		this.serviceState = new ServiceState();
 
@@ -106,7 +106,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 * @return
 	 */
 	public int getTablebumber() {
-		return tablebumber;
+		return tablenumber;
 	}
 
 
