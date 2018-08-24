@@ -48,7 +48,7 @@ public class CompactorHelper {
 		
 		try {
 			if(! tupleStoreName.isDistributedTable()) {
-				logger.error("Tuple store {} is not a distributed table, untable to split", 
+				logger.error("Tuple store {} is not a distributed table, unable to split", 
 						tupleStoreName);
 				return false;
 			}
