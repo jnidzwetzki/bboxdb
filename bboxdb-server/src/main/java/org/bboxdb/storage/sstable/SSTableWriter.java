@@ -96,7 +96,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The meta data file
 	 */
-	private File metadatafile;
+	private File metadataFile;
 	
 	/**
 	 * A counter for the written tuples
@@ -160,7 +160,7 @@ public class SSTableWriter implements AutoCloseable {
 		
 		// Metadata
 		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name, tablenumber);
-		this.metadatafile = new File(ssTableMetadataFilename);
+		this.metadataFile = new File(ssTableMetadataFilename);
 	}
 	
 	/**
@@ -273,8 +273,8 @@ public class SSTableWriter implements AutoCloseable {
 			spatialIndexFile.delete();
 		}
 		
-		if(metadatafile != null && metadatafile.exists()) {
-			metadatafile.delete();
+		if(metadataFile != null && metadataFile.exists()) {
+			metadataFile.delete();
 		}
 	}
 	
@@ -313,7 +313,7 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	private void writeMetadata() throws IOException {
 		final TupleStoreMetaData metadata = metadataBuilder.getMetaData();
-		metadata.exportToYamlFile(metadatafile);
+		metadata.exportToYamlFile(metadataFile);
 	}
 	
 	/**
@@ -414,6 +414,14 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	public File getSstableIndexFile() {
 		return sstableIndexFile;
+	}
+	
+	/**
+	 * Get the metadata file
+	 * @return
+	 */
+	public File getMetadataFile() {
+		return metadataFile;
 	}
 	
 	/**

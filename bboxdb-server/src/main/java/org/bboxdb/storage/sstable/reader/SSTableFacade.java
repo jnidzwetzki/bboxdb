@@ -483,4 +483,5 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	public boolean isDeletePending() {
 		return deleteOnClose;
 	}
+	
 }
