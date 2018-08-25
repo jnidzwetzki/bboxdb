@@ -239,7 +239,7 @@ public class TestStorageManager {
 	 * @throws InterruptedException
 	 * @throws RejectedException 
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=120000)
 	public void testDeleteTuple3() throws StorageManagerException, InterruptedException, RejectedException {
 		int MAX_TUPLES = getNumberOfTuplesForBigInsert();
 		
