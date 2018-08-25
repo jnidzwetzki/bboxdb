@@ -81,11 +81,11 @@ public class TestSSTable {
 	}
 	
 	/**
-	 * Test written files
+	 * Test written files - version with exception handling
 	 * @throws Exception
 	 */
 	@Test(timeout=60000)
-	public void testWrittenFilesWithExceiton() throws Exception {
+	public void testWrittenFilesWithException() throws Exception {
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
 		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
