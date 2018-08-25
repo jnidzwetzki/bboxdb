@@ -194,7 +194,7 @@ public class TestZookeeperIntegration {
 
 		final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
-		storageRegistry.deleteTable(tupleStoreName0, true);
+		storageRegistry.deleteTable(tupleStoreName0);
 		storageRegistry.createTable(tupleStoreName0, configuration);
 
 		storageRegistry.getTupleStoreManager(tupleStoreName0);

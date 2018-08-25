@@ -22,14 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedTransferQueue;
 
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.concurrent.ThreadHelper;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.memtable.MemtableWriterRunnable;
 import org.bboxdb.storage.sstable.SSTableCheckpointRunnable;
 import org.bboxdb.storage.sstable.SSTableConst;
@@ -56,11 +54,6 @@ public class DiskStorage implements BBoxDBService {
 	 * The queue for the memtable flush thread
 	 */
 	private final BlockingQueue<MemtableAndTupleStoreManagerPair> memtablesToFlush;
-	
-	/**
-	 * The pending table deletions
-	 */
-	private final LinkedTransferQueue<TupleStoreName> pendingTableDeletions;
 	
 	/**
 	 * The storage base dir
@@ -111,7 +104,6 @@ public class DiskStorage implements BBoxDBService {
 		this.basedir = basedir;
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
-		this.pendingTableDeletions = new LinkedTransferQueue<>();
 		this.performanceCounterLabel = basedir.toString();
 	}
 
@@ -250,14 +242,6 @@ public class DiskStorage implements BBoxDBService {
 	 */
 	public TupleStoreManagerRegistry getTupleStoreManagerRegistry() {
 		return tupleStoreManagerRegistry;
-	}
-		
-	/**
-	 * Get the pending table deletions queue
-	 * @return
-	 */
-	public LinkedTransferQueue<TupleStoreName> getPendingTableDeletions() {
-		return pendingTableDeletions;
 	}
 	
 }

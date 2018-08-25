@@ -20,7 +20,6 @@ package org.bboxdb.storage.tuplestore.manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -255,8 +254,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @throws StorageManagerException 
 	 */
-	public void deleteTable(final TupleStoreName table, final boolean synchronous) 
-			throws StorageManagerException {
+	public void deleteTable(final TupleStoreName table) throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
@@ -277,16 +275,9 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			storageDirectory = tupleStoreLocations.get(table);
 			tupleStoreLocations.remove(table);	
 		}
-			
-		//final DiskStorage storage = storages.get(storageDirectory);
 		
-		logger.info("Deleting table {} synchronous {}", table.getFullname(), synchronous);
-		
-		//if(synchronous) {
-			TupleStoreManager.deletePersistentTableData(storageDirectory, table);
-		//} else {
-		//	storage.getPendingTableDeletions().add(table);
-		//}
+		logger.info("Deleting table {}", table.getFullname());	
+		TupleStoreManager.deletePersistentTableData(storageDirectory, table);
 	}
 	
 	/**
@@ -353,15 +344,13 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
 				-> (t.getDistributionGroup().equals(distributionGroupName));
 		
-		shutdownAndDeleteTablesForPredicate(deleteTablePredicate, true);
+		shutdownAndDeleteTablesForPredicate(deleteTablePredicate);
 		
 		// Delete the group dir
 		for(final String directory : storages.keySet()) {
 			logger.info("Deleting all local stored data for distribution group {} in path {} ",
 					distributionGroupName, directory);
-			
-			executePendingDeletes(directory);
-			
+						
 			deleteMedatadaOfDistributionGroup(distributionGroupName, directory);
 	
 			final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupName);
@@ -382,24 +371,11 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	}
 
 	/**
-	 * Execute the pending deletes immediately
-	 * 
-	 * @param directory
-	 */
-	private void executePendingDeletes(final String directory) {
-		final Collection<TupleStoreName> pendingDeletes = new ArrayList<>();
-		storages.get(directory).getPendingTableDeletions().drainTo(pendingDeletes);
-		logger.info("Executing pending deleted immediately {}", pendingDeletes);
-		
-		pendingDeletes.forEach(t -> TupleStoreManager.deletePersistentTableData(directory, t));
-	}
-	
-	/**
 	 * Delete all data of a distribution region
 	 * @throws StorageManagerException 
 	 */
 	public synchronized void deleteDataOfDistributionRegion(final String distributionGroup, 
-			final long region, final boolean synchronous) throws StorageManagerException {
+			final long region) throws StorageManagerException {
 		
 		logger.info("Deleting all data for: {} / {}", distributionGroup, region);
 		
@@ -412,7 +388,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
 				-> namePredicate.test(t) && regionPredicate.test(t);
 		
-		shutdownAndDeleteTablesForPredicate(deleteTablePredicate, synchronous);
+		shutdownAndDeleteTablesForPredicate(deleteTablePredicate);
 	}
 
 	/**
@@ -420,8 +396,8 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param deleteTablePredicate
 	 * @throws StorageManagerException
 	 */
-	private void shutdownAndDeleteTablesForPredicate(final Predicate<TupleStoreName> deleteTablePredicate, 
-			final boolean synchronous) throws StorageManagerException {
+	private void shutdownAndDeleteTablesForPredicate(final Predicate<TupleStoreName> deleteTablePredicate) 
+			throws StorageManagerException {
 		
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
 		final Set<TupleStoreName> copyOfInstances = new HashSet<>(managerInstances.keySet());
@@ -435,7 +411,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		final List<TupleStoreName> allTables = getAllTables();
 		for(final TupleStoreName tupleStoreName : allTables) {
 			if(deleteTablePredicate.test(tupleStoreName)) {
-				deleteTable(tupleStoreName, synchronous);
+				deleteTable(tupleStoreName);
 			}
 		}
 	}

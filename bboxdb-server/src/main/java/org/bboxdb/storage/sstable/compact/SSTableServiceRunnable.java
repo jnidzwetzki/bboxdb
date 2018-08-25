@@ -20,7 +20,6 @@ package org.bboxdb.storage.sstable.compact;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.LinkedTransferQueue;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
@@ -112,23 +111,6 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 				
 		processTupleStores(storageRegistry, tupleStores);
 		processRegionMerges();
-		processScheduldedDeletions();
-	}
-
-	/**
-	 * Process the schedules table deletions
-	 */
-	private void processScheduldedDeletions() {
-		final LinkedTransferQueue<TupleStoreName> pendingTableDeletions 
-			= storage.getPendingTableDeletions();
-		
-		while(! pendingTableDeletions.isEmpty()) {
-			final TupleStoreName tableName = pendingTableDeletions.poll();
-			if(tableName != null) {
-				logger.info("Deleting table {}", tableName.getFullname());
-				TupleStoreManager.deletePersistentTableData(storage.getBasedir().getAbsolutePath(), tableName);
-			}
-		}
 	}
 
 	/**

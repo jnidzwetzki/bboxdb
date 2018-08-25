@@ -90,7 +90,7 @@ public class TestTableCompactor {
 	
 	@Before
 	public void clearData() throws StorageManagerException {
-		storageRegistry.deleteTable(TEST_RELATION, true);
+		storageRegistry.deleteTable(TEST_RELATION);
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
 		relationDirectoryFile.mkdirs();
@@ -106,7 +106,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", Hyperrectangle.FULL_SPACE, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
-		storageRegistry.deleteTable(TEST_RELATION, true);
+		storageRegistry.deleteTable(TEST_RELATION);
 		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		
@@ -380,7 +380,7 @@ public class TestTableCompactor {
 			final SSTableKeyIndexReader reader2, final boolean majorCompaction)
 			throws StorageManagerException {
 		
-		storageRegistry.deleteTable(TEST_RELATION, true);
+		storageRegistry.deleteTable(TEST_RELATION);
 		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		

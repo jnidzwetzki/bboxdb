@@ -174,7 +174,7 @@ public class TupleStoreZookeeperObserver {
 				final Collection<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(localTable);
 				
 				for(final TupleStoreName ssTableName : localTables) {
-					registry.deleteTable(ssTableName, false);	
+					registry.deleteTable(ssTableName);	
 				}
 			}
 		}
@@ -241,11 +241,11 @@ public class TupleStoreZookeeperObserver {
 			if(event == DistributionRegionEvent.REMOVED) {
 				if(callbackEntity.equals(entityToObserver)) {
 					logger.info("The region {} has merged, deleted local data", callbackEntity);
-					registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId(), false);
+					registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId());
 				}
 			} else if(eventEntity.getState() == DistributionRegionState.SPLIT) {
 				logger.info("The region {} has split, deleted local data", callbackEntity);
-				registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId(), false);
+				registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId());
 			}
 			
 			storeAdapter.getAllTables(groupName, w -> handleTableDelete(w));

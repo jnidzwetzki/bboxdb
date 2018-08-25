@@ -80,7 +80,7 @@ public class TestStorageManager {
 	@Before
 	public void init() throws StorageManagerException {
 		// Delete the old table
-		storageRegistry.deleteTable(TEST_RELATION, true);
+		storageRegistry.deleteTable(TEST_RELATION);
 		
 		// Create a new table
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder.create().build();
@@ -311,7 +311,7 @@ public class TestStorageManager {
 	public void testWithDuplicates() throws StorageManagerException, RejectedException {
 		
 		// Delete the old table
-		storageRegistry.deleteTable(TEST_RELATION, true);
+		storageRegistry.deleteTable(TEST_RELATION);
 		
 		// Create a new table
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
@@ -358,7 +358,7 @@ public class TestStorageManager {
 	public void testVersionDuplicates() throws StorageManagerException, RejectedException {
 		
 		// Delete the old table
-		storageRegistry.deleteTable(TEST_RELATION, true);
+		storageRegistry.deleteTable(TEST_RELATION);
 		
 		// Create a new table
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
@@ -408,7 +408,7 @@ public class TestStorageManager {
 		final int TTL_IN_MS = 5000;
 		
 		// Delete the old table
-		storageRegistry.deleteTable(TEST_RELATION, true);
+		storageRegistry.deleteTable(TEST_RELATION);
 		
 		// Create a new table
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
