@@ -278,15 +278,15 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			tupleStoreLocations.remove(table);	
 		}
 			
-		final DiskStorage storage = storages.get(storageDirectory);
+		//final DiskStorage storage = storages.get(storageDirectory);
 		
 		logger.info("Deleting table {} synchronous {}", table.getFullname(), synchronous);
 		
-		if(synchronous) {
+		//if(synchronous) {
 			TupleStoreManager.deletePersistentTableData(storageDirectory, table);
-		} else {
-			storage.getPendingTableDeletions().add(table);
-		}
+		//} else {
+		//	storage.getPendingTableDeletions().add(table);
+		//}
 	}
 	
 	/**
