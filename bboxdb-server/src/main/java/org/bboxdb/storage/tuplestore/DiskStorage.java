@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.concurrent.ThreadHelper;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;

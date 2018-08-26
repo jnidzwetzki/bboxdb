@@ -20,7 +20,7 @@ package org.bboxdb.network.server.connection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.bboxdb.commons.ServiceState;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;

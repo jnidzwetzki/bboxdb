@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.NetworkInterfaceHelper;
 import org.bboxdb.commons.Retryer;
-import org.bboxdb.commons.ServiceState;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;

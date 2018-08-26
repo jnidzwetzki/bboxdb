@@ -27,8 +27,8 @@ import java.util.function.Consumer;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.ServiceState;
-import org.bboxdb.commons.ServiceState.State;
+import org.bboxdb.commons.service.ServiceState;
+import org.bboxdb.commons.service.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.NodeMutationHelper;

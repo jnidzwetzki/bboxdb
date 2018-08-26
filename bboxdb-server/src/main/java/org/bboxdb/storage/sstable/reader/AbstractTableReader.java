@@ -25,9 +25,9 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.concurrent.Phaser;
 
-import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.concurrent.AcquirableResource;
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;

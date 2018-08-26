@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.commons;
+package org.bboxdb.commons.service;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

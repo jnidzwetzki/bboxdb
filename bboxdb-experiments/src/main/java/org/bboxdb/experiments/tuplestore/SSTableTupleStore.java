@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bboxdb.commons.ServiceState;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;

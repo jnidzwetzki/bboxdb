@@ -20,8 +20,8 @@ package org.bboxdb;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
-import org.bboxdb.commons.ServiceState;
-import org.bboxdb.commons.ServiceState.State;
+import org.bboxdb.commons.service.ServiceState;
+import org.bboxdb.commons.service.ServiceState.State;
 import org.junit.Assert;
 import org.junit.Test;
 

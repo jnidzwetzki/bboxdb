@@ -31,9 +31,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.CloseableHelper;
-import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.concurrent.ExecutorUtil;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
