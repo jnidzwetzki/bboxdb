@@ -23,11 +23,10 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
-import java.util.concurrent.Phaser;
 
 import org.bboxdb.commons.concurrent.AcquirableResource;
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
-import org.bboxdb.commons.service.ServiceState;
+import org.bboxdb.commons.service.AcquirableService;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
@@ -75,12 +74,7 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 	/**
 	 * Service state
 	 */
-	protected final ServiceState serviceState;
-	
-	/**
-	 * The usage counter
-	 */
-	private Phaser usage;
+	protected final AcquirableService serviceState;
 	
 	/**
 	 * The Logger
@@ -94,7 +88,7 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 		this.directory = directory;
 		this.tablenumber = tablenumber;
 		this.file = constructFileToRead();
-		this.serviceState = new ServiceState();
+		this.serviceState = new AcquirableService();
 
 		if(! UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable()) {
 			logger.error("Memory unmapper not available, please use a oracle JVM");
@@ -157,13 +151,13 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 	 * Init the resources
 	 * 
 	 * The file channel resource is closed in the shutdown method
+	 * @throws InterruptedException 
 	 */
 	@Override
-	public void init() {
+	public void init() throws InterruptedException {
 		try {
 			serviceState.reset();
 			serviceState.dipatchToStarting();
-			usage = new Phaser(1);
 			
 			randomAccessFile = new RandomAccessFile(file, "r");
 			fileChannel = randomAccessFile.getChannel();
@@ -182,7 +176,7 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 	}
 
 	@Override
-	public void shutdown() {
+	public void shutdown() throws InterruptedException {
 		if (! serviceState.isInRunningState()) {
 			logger.warn("Unable to shutdown, service is in {} state", serviceState);
 			return;
@@ -191,8 +185,7 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 		serviceState.dispatchToStopping();
 		
 		// Wait until nobody uses the instance
-		assert (! usage.isTerminated()) : "Usage counter is terminated";
-		usage.arriveAndAwaitAdvance();
+		serviceState.waitUntilUnused();
 
 		shutdownFileChannel();
 		shutdownRandomAccessFile();
@@ -281,9 +274,15 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 
 	/**
 	 * Delete the file
+	 * @throws InterruptedException 
 	 */
 	public void delete() {
-		shutdown();
+		
+		try {
+			shutdown();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 
 		synchronized (this) {
 			if(file != null) {
@@ -317,26 +316,21 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 	public MappedByteBuffer getMemory() {
 		return memory;
 	}
-	
-	@Override
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.bboxdb.commons.concurrent.AcquirableResource#acquire()
+	 */
 	public boolean acquire() {
-		
-		if(! serviceState.isInRunningState()) {
-			return false;
-		}
-		
-		assert (! usage.isTerminated()) : "Usage counter is terminated";
-
-		usage.register();
-		return true;
+		return serviceState.acquire();
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see org.bboxdb.commons.concurrent.AcquirableResource#release()
+	 */
 	public void release() {
-		assert (usage.getUnarrivedParties() > 0) : "Usage counter is: " + usage.getUnarrivedParties();
-		assert (! usage.isTerminated()) : "Usage counter is terminated";
-		
-		usage.arriveAndDeregister();
+		serviceState.release();
 	}
-	
+
 }
