@@ -236,30 +236,34 @@ public class TestServiceState {
 	}
 	
 	@Test(timeout=60000)
-	public void testAcquirableService() {
+	public void testAcquirableService() throws InterruptedException {
 		final AcquirableService state = new AcquirableService();
 		
 		Assert.assertFalse(state.acquire());
 		Assert.assertEquals(0, state.getUsageCounter());
-		
+		state.waitUntilUnused();
+
 		state.dipatchToStarting();
 		Assert.assertFalse(state.acquire());
 		Assert.assertEquals(0, state.getUsageCounter());
-		
+		state.waitUntilUnused();
+
 		state.dispatchToRunning();
 		Assert.assertTrue(state.acquire());
 		Assert.assertEquals(1, state.getUsageCounter());
 		
 		state.release();
 		Assert.assertEquals(0, state.getUsageCounter());
+		state.waitUntilUnused();
 		
 		state.dispatchToStopping();
 		Assert.assertFalse(state.acquire());
 		Assert.assertEquals(0, state.getUsageCounter());
-		
+		state.waitUntilUnused();
+
 		state.dispatchToTerminated();
 		Assert.assertFalse(state.acquire());
 		Assert.assertEquals(0, state.getUsageCounter());
-		
+		state.waitUntilUnused();
 	}
 }

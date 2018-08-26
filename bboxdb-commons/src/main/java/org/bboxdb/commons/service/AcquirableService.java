@@ -40,7 +40,10 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 			return false;
 		}
 		
-		usageCounter.incrementAndGet();
+		synchronized (usageCounter) {
+			usageCounter.incrementAndGet();
+			usageCounter.notifyAll();
+		}
 		
 		return true;
 	}
@@ -49,7 +52,10 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 	public void release() {
 		assert (usageCounter.get() > 0) : "Usage counter is 0";
 		
-		usageCounter.decrementAndGet();
+		synchronized (usageCounter) {
+			usageCounter.decrementAndGet();
+			usageCounter.notifyAll();
+		}
 	}
 	
 	/**
@@ -59,6 +65,20 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 	 */
 	public int getUsageCounter() {
 		return usageCounter.get();
+	}
+	
+	/**
+	 * Wait until the resource is unused
+	 * @throws InterruptedException
+	 */
+	public void waitUntilUnused() throws InterruptedException {
+		
+		while(usageCounter.get() > 0) {
+			synchronized (usageCounter) {
+				usageCounter.wait();
+			}
+		}
+		
 	}
 
 }
