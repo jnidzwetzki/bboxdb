@@ -208,7 +208,15 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	protected void closeRessources() {
 		setToReadOnly();
-		tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());
+		
+		for(final BBoxDBService service : tupleStoreInstances.getSstableFacades()) {
+			try {
+				service.shutdown();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		
 		tupleStoreInstances.clear();
 	}
 

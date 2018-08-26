@@ -58,7 +58,7 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 	}
 
 	@Override
-	public void init() {
+	public void init() throws InterruptedException {
 		super.init();
 		logger.debug("Opened index for relation: {} with {} entries", name.getFullname(), getNumberOfEntries());
 	}

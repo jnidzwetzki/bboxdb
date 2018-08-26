@@ -28,7 +28,7 @@ public interface BBoxDBService {
 	/**
 	 * Shutdown the service
 	 */
-	public void shutdown();
+	public void shutdown() throws InterruptedException;
 	
 	/**
 	 * Get the name of the service

@@ -231,7 +231,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	}
 
 	@Override
-	public void shutdown() {
+	public void shutdown() throws InterruptedException {
 		if(ssTableKeyIndexReader != null) {
 			ssTableKeyIndexReader.shutdown();
 		}
@@ -311,7 +311,11 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 		if(deleteOnClose && usage.get() == 0) {
 			logger.info("Delete service facade for: {} / {}", tablename.getFullname(), tablenumber);
 			
-			shutdown();
+			try {
+				shutdown();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 			
 			// Delete key index reader
 			if(ssTableKeyIndexReader != null) {

@@ -97,7 +97,7 @@ public class TestTableCompactor {
 	}
 
 	@Test(timeout=60000)
-	public void testCompactTestFileCreation() throws StorageManagerException {
+	public void testCompactTestFileCreation() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -127,7 +127,7 @@ public class TestTableCompactor {
 	}
 	
 	@Test(timeout=60000)
-	public void testCompactTestMerge() throws StorageManagerException {
+	public void testCompactTestMerge() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -148,7 +148,7 @@ public class TestTableCompactor {
 	}
 	
 	@Test(timeout=60000)
-	public void testCompactTestMergeBig() throws StorageManagerException {
+	public void testCompactTestMergeBig() throws StorageManagerException, InterruptedException {
 		
 		SSTableKeyIndexReader reader1 = null;
 		SSTableKeyIndexReader reader2 = null;
@@ -186,7 +186,7 @@ public class TestTableCompactor {
 	
 	
 	@Test(timeout=60000)
-	public void testCompactTestFileOneEmptyfile1() throws StorageManagerException {
+	public void testCompactTestFileOneEmptyfile1() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -205,7 +205,7 @@ public class TestTableCompactor {
 	}
 	
 	@Test(timeout=60000)
-	public void testCompactTestFileOneEmptyfile2() throws StorageManagerException {
+	public void testCompactTestFileOneEmptyfile2() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
@@ -224,7 +224,7 @@ public class TestTableCompactor {
 	}
 	
 	@Test(timeout=60000)
-	public void testCompactTestSameKey() throws StorageManagerException {
+	public void testCompactTestSameKey() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 1));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -248,9 +248,10 @@ public class TestTableCompactor {
 	/**
 	 * Run the compactification with one deleted tuple
 	 * @throws StorageManagerException
+	 * @throws InterruptedException 
 	 */
 	@Test(timeout=60000)
-	public void testCompactTestWithDeletedTuple() throws StorageManagerException {
+	public void testCompactTestWithDeletedTuple() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -273,9 +274,10 @@ public class TestTableCompactor {
 	/**
 	 * Test a minor compactation
 	 * @throws StorageManagerException
+	 * @throws InterruptedException 
 	 */
 	@Test(timeout=60000)
-	public void testCompactationMinor() throws StorageManagerException {
+	public void testCompactationMinor() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -303,9 +305,10 @@ public class TestTableCompactor {
 	/**
 	 * Test a major compactation
 	 * @throws StorageManagerException
+	 * @throws InterruptedException 
 	 */
 	@Test(timeout=60000)
-	public void testCompactationMajor1() throws StorageManagerException {
+	public void testCompactationMajor1() throws StorageManagerException, InterruptedException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -333,9 +336,10 @@ public class TestTableCompactor {
 	/**
 	 * Test a major compactation
 	 * @throws StorageManagerException
+	 * @throws InterruptedException 
 	 */
 	@Test(timeout=60000)
-	public void testCompactationMajor2() throws StorageManagerException {
+	public void testCompactationMajor2() throws StorageManagerException, InterruptedException {
 		
 		final List<Tuple> tupleList1 = new ArrayList<>();
 
@@ -374,11 +378,12 @@ public class TestTableCompactor {
 	 * @param major 
 	 * @return
 	 * @throws StorageManagerException
+	 * @throws InterruptedException 
 	 */
 	protected SSTableKeyIndexReader exectuteCompactAndGetReader(
 			final SSTableKeyIndexReader reader1,
 			final SSTableKeyIndexReader reader2, final boolean majorCompaction)
-			throws StorageManagerException {
+			throws StorageManagerException, InterruptedException {
 		
 		storageRegistry.deleteTable(TEST_RELATION);
 		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
@@ -408,9 +413,10 @@ public class TestTableCompactor {
 	 * @param number
 	 * @return
 	 * @throws StorageManagerException
+	 * @throws InterruptedException 
 	 */
 	protected SSTableKeyIndexReader addTuplesToFileAndGetReader(final List<Tuple> tupleList, int number)
-			throws StorageManagerException {
+			throws StorageManagerException, InterruptedException {
 
 		Collections.sort(tupleList);
 		
