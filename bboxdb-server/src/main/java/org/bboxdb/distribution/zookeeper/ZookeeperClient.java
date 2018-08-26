@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -35,6 +34,7 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 import org.bboxdb.commons.concurrent.AcquirableResource;
+import org.bboxdb.commons.service.AcquirableService;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.slf4j.Logger;
@@ -60,12 +60,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	/**
 	 * Service state
 	 */
-	private final ServiceState serviceState;
-	
-	/**
-	 * The usage counter
-	 */
-	private Phaser usage;
+	private final AcquirableService serviceState;
 
 	/**
 	 * The timeout for the zookeeper session in milliseconds
@@ -92,7 +87,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 		
 		this.connectionString = zookeeperHosts.stream().collect(Collectors.joining(","));
 		this.clustername = Objects.requireNonNull(clustername);
-		this.serviceState = new ServiceState();
+		this.serviceState = new AcquirableService();
 	}
 
 	/**
@@ -104,7 +99,6 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 		try {
 			serviceState.reset();
 			serviceState.dipatchToStarting();
-			usage = new Phaser(1);
 
 			final CountDownLatch connectLatch = new CountDownLatch(1);
 			
@@ -165,8 +159,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			logger.info("Disconnecting from zookeeper");
 			
 			// Wait until nobody uses the instance
-			assert (! usage.isTerminated()) : "Usage counter is terminated";
-			usage.arriveAndAwaitAdvance();
+			serviceState.waitUntilUnused();
 			
 			zookeeper.close();
 		} catch (InterruptedException e) {
@@ -699,25 +692,20 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 		return new TupleStoreAdapter(this);
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see org.bboxdb.commons.concurrent.AcquirableResource#acquire()
+	 */
 	public boolean acquire() {
-		
-		if(! serviceState.isInRunningState()) {
-			return false;
-		}
-		
-		assert (! usage.isTerminated()) : "Usage counter is terminated";
-
-		usage.register();
-		return true;
+		return serviceState.acquire();
 	}
 
-	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see org.bboxdb.commons.concurrent.AcquirableResource#release()
+	 */
 	public void release() {
-		assert (usage.getUnarrivedParties() > 0) : "Usage counter is: " + usage.getUnarrivedParties();
-		assert (! usage.isTerminated()) : "Usage counter is terminated";
-		
-		usage.arriveAndDeregister();
+		serviceState.release();
 	}
 
 }
