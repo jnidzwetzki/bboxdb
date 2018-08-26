@@ -20,6 +20,7 @@ package org.bboxdb;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
+import org.bboxdb.commons.service.AcquirableService;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.commons.service.ServiceState.State;
 import org.junit.Assert;
@@ -232,5 +233,33 @@ public class TestServiceState {
 		final ServiceState state = new ServiceState();
 		state.dipatchToStarting();
 		state.dipatchToStarting();
+	}
+	
+	@Test(timeout=60000)
+	public void testAcquirableService() {
+		final AcquirableService state = new AcquirableService();
+		
+		Assert.assertFalse(state.acquire());
+		Assert.assertEquals(0, state.getUsageCounter());
+		
+		state.dipatchToStarting();
+		Assert.assertFalse(state.acquire());
+		Assert.assertEquals(0, state.getUsageCounter());
+		
+		state.dispatchToRunning();
+		Assert.assertTrue(state.acquire());
+		Assert.assertEquals(1, state.getUsageCounter());
+		
+		state.release();
+		Assert.assertEquals(0, state.getUsageCounter());
+		
+		state.dispatchToStopping();
+		Assert.assertFalse(state.acquire());
+		Assert.assertEquals(0, state.getUsageCounter());
+		
+		state.dispatchToTerminated();
+		Assert.assertFalse(state.acquire());
+		Assert.assertEquals(0, state.getUsageCounter());
+		
 	}
 }
