@@ -186,7 +186,7 @@ public class TestServiceState {
 		
 		};
 		
-		// Callback is unkown
+		// Callback is unknown
 		Assert.assertFalse(state.removeCallback(consumer));
 		
 		state.registerCallback(consumer);
@@ -194,7 +194,7 @@ public class TestServiceState {
 		// Callback is known
 		Assert.assertTrue(state.removeCallback(consumer));
 		
-		// Callback is unkown
+		// Callback is unknown
 		Assert.assertFalse(state.removeCallback(consumer));
 	}
 
@@ -213,7 +213,7 @@ public class TestServiceState {
 	}
 	
 	/**
-	 * Dispath to starting
+	 * Dispatch to starting
 	 */
 	@Test(timeout=60000)
 	public void testDispatchToStarting1() {
@@ -225,7 +225,7 @@ public class TestServiceState {
 	}
 	
 	/**
-	 * Dispath to starting
+	 * Dispatch to starting
 	 */
 	@Test(expected=IllegalStateException.class)
 	public void testDispatchToStarting2() {
