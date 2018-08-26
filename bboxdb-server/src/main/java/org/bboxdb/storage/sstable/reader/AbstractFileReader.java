@@ -35,7 +35,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTableReader implements BBoxDBService, AcquirableResource {
+public abstract class AbstractFileReader implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * The number of the table
@@ -85,9 +85,9 @@ public abstract class AbstractTableReader implements BBoxDBService, AcquirableRe
 	/**
 	 * The Logger
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractFileReader.class);
 	
-	public AbstractTableReader(final String directory, final TupleStoreName name, 
+	public AbstractFileReader(final String directory, final TupleStoreName name, 
 			final int tablenumber) throws StorageManagerException {
 		
 		this.name = name;

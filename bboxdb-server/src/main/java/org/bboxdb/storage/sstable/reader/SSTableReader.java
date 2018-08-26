@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import io.prometheus.client.Counter;
 
-public class SSTableReader extends AbstractTableReader {
+public class SSTableReader extends AbstractFileReader {
 	
 	/**
 	 * The total read tuple keys counter

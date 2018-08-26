@@ -35,7 +35,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-public class SSTableKeyIndexReader extends AbstractTableReader implements Iterable<Tuple> {
+public class SSTableKeyIndexReader extends AbstractFileReader implements Iterable<Tuple> {
 	
 	/**
 	 * The corresponding sstable reader
