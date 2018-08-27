@@ -134,18 +134,7 @@ public class SSTableCompactor {
 
 			readTuples = sortedIteratorMerger.getReadElements();
 		} catch (StorageManagerException e) {
-			handleErrorDuringCompact();
-			
-			final boolean oneNotReady = sstableIndexReader
-				.stream()
-				.anyMatch(r -> ! r.isReady());
-			
-			if(oneNotReady) {
-				logger.debug("Suppressing exception on shutdown reader", e);
-			} else {
-				throw e;
-			}
-			
+			handleErrorDuringCompact(e);
 		} finally {
 			closeSSTableWriter();
 		}
@@ -198,8 +187,12 @@ public class SSTableCompactor {
 
 	/**
 	 * Handle the error during compact
+	 * @param e 
+	 * @throws StorageManagerException 
 	 */
-	protected void handleErrorDuringCompact() {
+	protected void handleErrorDuringCompact(final StorageManagerException e) 
+			throws StorageManagerException {
+		
 		successfully = false;
 
 		closeSSTableWriter();
@@ -208,6 +201,16 @@ public class SSTableCompactor {
 		logger.debug("Deleting partial written results");
 		resultList.forEach(s -> s.deleteFromDisk());
 		resultList.clear();
+		
+		final boolean oneNotReady = sstableIndexReader
+				.stream()
+				.anyMatch(r -> ! r.isReady());
+			
+		if(oneNotReady) {
+			logger.debug("Suppressing exception on shutdown reader", e);
+		} else {
+			throw e;
+		}
 	}
 
 	/**
