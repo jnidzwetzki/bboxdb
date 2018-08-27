@@ -42,42 +42,42 @@ public class SSTableCompactor {
 	 * Major or minor compaction? In a major compaction, the deleted tuple
 	 * marker can be removed.
 	 */
-	protected boolean majorCompaction = false;
+	private boolean majorCompaction = false;
 	
 	/**
 	 * The amount of read tuples
 	 */
-	protected int readTuples;
+	private int readTuples;
 	
 	/**
 	 * The amount of written tuples
 	 */
-	protected int writtenTuples;
+	private int writtenTuples;
 	
 	/**
 	 * The list of sstables to compact
 	 */
-	protected final List<SSTableKeyIndexReader> sstableIndexReader;
+	private final List<SSTableKeyIndexReader> sstableIndexReader;
 
 	/**
 	 * The current SStable writer
 	 */
-	protected SSTableWriter sstableWriter;
+	private SSTableWriter sstableWriter;
 	
 	/**
 	 * The SStable manager
 	 */
-	protected final TupleStoreManager tupleStoreManager;
+	private final TupleStoreManager tupleStoreManager;
 	
 	/**
 	 * The resulting writer
 	 */
-	protected final List<SSTableWriter> resultList = new ArrayList<>();
+	private final List<SSTableWriter> resultList = new ArrayList<>();
 	
 	/**
 	 * Was the compactification successfully
 	 */
-	protected boolean successfully = true;
+	private boolean successfully = true;
 	
 	/**
 	 * The logger
@@ -98,7 +98,7 @@ public class SSTableCompactor {
 	 * @param tables
 	 * @return
 	 */
-	protected long calculateNumberOfEntries(final List<SSTableKeyIndexReader> indexReader) {
+	private long calculateNumberOfEntries(final List<SSTableKeyIndexReader> indexReader) {
 		return indexReader
 			.stream()
 			.mapToInt(r -> r.getNumberOfEntries())
@@ -145,7 +145,7 @@ public class SSTableCompactor {
 	 * Check for the thread termination
 	 * @throws StorageManagerException 
 	 */
-	protected void checkForThreadTermination() throws StorageManagerException {
+	private void checkForThreadTermination() throws StorageManagerException {
 		if(Thread.currentThread().isInterrupted()) {
 			throw new StorageManagerException("The curent thread is interrupted, stop compact");
 		}
@@ -157,7 +157,7 @@ public class SSTableCompactor {
 	 *  invalidate tuples in the tuple history
 	 * @return
 	 */
-	protected boolean skipDeletedTuplesToOutput() {
+	private boolean skipDeletedTuplesToOutput() {
 		if(! isMajorCompaction()) {
 			return false;
 		}
@@ -174,7 +174,7 @@ public class SSTableCompactor {
 	 * @param tuple
 	 * @throws StorageManagerException
 	 */
-	protected void addTupleToWriter(final Tuple tuple) throws StorageManagerException {
+	private void addTupleToWriter(final Tuple tuple) throws StorageManagerException {
 		
 		if(tuple instanceof DeletedTuple && skipDeletedTuplesToOutput()) {
 			return;
@@ -190,7 +190,7 @@ public class SSTableCompactor {
 	 * @param e 
 	 * @throws StorageManagerException 
 	 */
-	protected void handleErrorDuringCompact(final StorageManagerException e) 
+	private void handleErrorDuringCompact(final StorageManagerException e) 
 			throws StorageManagerException {
 		
 		successfully = false;
@@ -216,7 +216,7 @@ public class SSTableCompactor {
 	/**
 	 * Close the open sstable writer
 	 */
-	protected void closeSSTableWriter() {
+	private void closeSSTableWriter() {
 		// Close open writer
 		if(sstableWriter == null) {
 			return;
@@ -236,7 +236,7 @@ public class SSTableCompactor {
 	 * @param tuple
 	 * @throws StorageManagerException
 	 */
-	protected void openNewWriterIfNeeded(final Tuple tuple)
+	private void openNewWriterIfNeeded(final Tuple tuple)
 			throws StorageManagerException {
 		
 		if(sstableWriter == null) {
@@ -257,7 +257,7 @@ public class SSTableCompactor {
 	 * @return 
 	 * @throws StorageManagerException
 	 */
-	protected SSTableWriter openNewSSTableWriter() 
+	private SSTableWriter openNewSSTableWriter() 
 			throws StorageManagerException {
 		
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(sstableIndexReader);
