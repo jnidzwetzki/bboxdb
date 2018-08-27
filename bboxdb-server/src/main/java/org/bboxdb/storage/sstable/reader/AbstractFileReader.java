@@ -244,8 +244,8 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 	/**
 	 * Is the reader ready?
 	 */
-	protected boolean isReady() {
-		return memory != null;
+	public boolean isReady() {
+		return serviceState.isInRunningState();
 	}
 
 	/**
