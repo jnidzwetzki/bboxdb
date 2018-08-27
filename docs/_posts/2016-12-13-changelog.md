@@ -22,6 +22,7 @@ order: 1
 - Bugfix: Fixed local selftest
 - Bugfix: Local tables are also compacted
 - Bugfix: Fixed JVM crash when memory-mapped IO was unmapped
+- Bugfix: Fixed closed socket exceptions on connection termination
 
 ### Version 0.8.2 - 05.09.2018
 - Improvement: Bounding boxes can be padded in dataset import
