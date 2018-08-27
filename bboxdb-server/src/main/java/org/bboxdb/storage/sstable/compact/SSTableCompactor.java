@@ -135,7 +135,17 @@ public class SSTableCompactor {
 			readTuples = sortedIteratorMerger.getReadElements();
 		} catch (StorageManagerException e) {
 			handleErrorDuringCompact();
-			throw e;
+			
+			final boolean allReaderReady = sstableIndexReader
+			.stream()
+			.anyMatch(r -> ! r.isReady());
+			
+			if(allReaderReady) {
+				throw e;
+			} else {
+				logger.debug("Suppressing exception on shutdown reader", e);
+			}
+			
 		} finally {
 			closeSSTableWriter();
 		}
