@@ -101,6 +101,8 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testBBoxQuery1() throws StorageManagerException, RejectedException, IOException {
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -147,6 +149,8 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testBBoxQuery2() throws StorageManagerException, RejectedException, IOException {
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -185,6 +189,8 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException, IOException {
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -225,6 +231,8 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException, IOException {
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -263,6 +271,12 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testJoin1() throws StorageManagerException, RejectedException {
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
+		
+		storageRegistry.deleteTable(TABLE_2);
+		storageRegistry.createTable(TABLE_2, new TupleStoreConfiguration());
+		
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
@@ -287,6 +301,12 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testJoin3() throws StorageManagerException, RejectedException {
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
+		
+		storageRegistry.deleteTable(TABLE_2);
+		storageRegistry.createTable(TABLE_2, new TupleStoreConfiguration());
+		
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
@@ -329,6 +349,16 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testDoubleJoin1() throws StorageManagerException, RejectedException {
+		
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
+		
+		storageRegistry.deleteTable(TABLE_2);
+		storageRegistry.createTable(TABLE_2, new TupleStoreConfiguration());
+		
+		storageRegistry.deleteTable(TABLE_3);
+		storageRegistry.createTable(TABLE_3, new TupleStoreConfiguration());
+		
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 		final TupleStoreManager storageManager3 = storageRegistry.getTupleStoreManager(TABLE_3);
@@ -383,6 +413,13 @@ public class TestQueryProcessing {
 	 */
 	@Test(timeout=60000)
 	public void testJoinWithChangedTuple1() throws StorageManagerException, RejectedException {
+		
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
+		
+		storageRegistry.deleteTable(TABLE_2);
+		storageRegistry.createTable(TABLE_2, new TupleStoreConfiguration());
+		
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
