@@ -473,12 +473,14 @@ public class BBoxDBConnection {
 
 		killPendingCalls();
 		getResultBuffer().clear();
-
-		closeSocket();
-
-		logger.info("Disconnected from server: {}", getConnectionName());
+		
+		// Stop the maintenance thread before the socket is closed
 		connectionState.forceDispatchToTerminated();
 		mainteinanceThread.interrupt();
+
+		closeSocket();
+		
+		logger.info("Disconnected from server: {}", getConnectionName());
 	}
 
 	/* (non-Javadoc)
