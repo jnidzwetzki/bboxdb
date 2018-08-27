@@ -136,14 +136,14 @@ public class SSTableCompactor {
 		} catch (StorageManagerException e) {
 			handleErrorDuringCompact();
 			
-			final boolean allReaderReady = sstableIndexReader
-			.stream()
-			.anyMatch(r -> ! r.isReady());
+			final boolean oneNotReady = sstableIndexReader
+				.stream()
+				.anyMatch(r -> ! r.isReady());
 			
-			if(allReaderReady) {
-				throw e;
-			} else {
+			if(oneNotReady) {
 				logger.debug("Suppressing exception on shutdown reader", e);
+			} else {
+				throw e;
 			}
 			
 		} finally {
