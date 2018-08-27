@@ -10,7 +10,7 @@ order: 1
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)
 - Improvement: Refactored future retry to supplier
 - Improvement: Send read and write operations only to active instances
-- Improvement: Updated simpleclient from 0.4.0 to 0.5.0, zookeeper from 3.4.12 to 3.4.13, json from 20180130 to 20180813, Guava from 25.1-jre to 26.0-jre, mockito from 2.19.0 to 2.21.0
+- Improvement: Updated simpleclient from 0.4.0 to 0.5.0, zookeeper from 3.4.12 to 3.4.13, json from 20180130 to 20180813, Guava from 25.1-jre to 26.0-jre, mockito from 2.19.0 to 2.21.0, snakeyaml from 1.21 to 1.22
 - Improvement: Added usage counter to memory-mapped IO resources
 - Improvement: Simplified table deletion code
 - Bugfix: Filter distribution regions directly in the tree to prevent race conditions
