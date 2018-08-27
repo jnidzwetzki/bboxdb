@@ -444,18 +444,20 @@ public class BBoxDBConnection {
 	 */
 	private void killPendingCalls() {
 		synchronized (pendingCalls) {
-			if(! pendingCalls.isEmpty()) {
-				logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
-
-				for(final short requestId : pendingCalls.keySet()) {
-					final NetworkOperationFuture future = pendingCalls.get(requestId);
-					future.setFailedState();
-					future.fireCompleteEvent();
-				}
-
-				pendingCalls.clear();
-				pendingCalls.notifyAll();
+			if(pendingCalls.isEmpty()) {
+				return;
 			}
+			
+			logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
+
+			for(final short requestId : pendingCalls.keySet()) {
+				final NetworkOperationFuture future = pendingCalls.get(requestId);
+				future.setFailedState();
+				future.fireCompleteEvent();
+			}
+
+			pendingCalls.clear();
+			pendingCalls.notifyAll();
 		}
 	}
 
@@ -464,6 +466,7 @@ public class BBoxDBConnection {
 	 * regular disconnect, see the disconnect() method.
 	 */
 	public void terminateConnection() {
+		
 		if(connectionState.isInRunningState()) {
 			connectionState.dispatchToStopping();
 		}
