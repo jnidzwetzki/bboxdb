@@ -18,6 +18,7 @@
 package org.bboxdb.network.client;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.network.NetworkConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,8 @@ public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 	
 	@Override
 	protected void runThread() throws Exception {
-		while(! bboxDBClient.getConnectionState().isInTerminatedState()) {
+		while(flushActive()) {
+			
 			// Write all waiting for compression packages
 			bboxDBClient.flushPendingCompressionPackages();
 			
@@ -61,6 +63,30 @@ public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 				return;
 			}
 		}
+	}
+
+	/**
+	 * Is the flush thread active
+	 * @return
+	 */
+	private boolean flushActive() {
+		if(getState().isInTerminatedState()) {
+			return false;
+		}
+		
+		if(getState().isInShutdownState()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Get the connection state
+	 * @return
+	 */
+	private ServiceState getState() {
+		return bboxDBClient.getConnectionState();
 	}
 
 }
