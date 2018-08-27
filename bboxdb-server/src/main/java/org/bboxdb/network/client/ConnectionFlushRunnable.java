@@ -74,10 +74,6 @@ public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 			return false;
 		}
 		
-		if(getState().isInShutdownState()) {
-			return false;
-		}
-		
 		return true;
 	}
 	
