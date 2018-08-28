@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 0.8.4 - TBA
+
 ### Version 0.8.3 - 28.09.2018
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)
 - Improvement: Refactored future retry to supplier
