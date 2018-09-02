@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.8.4 - TBA
+- Bugfix: Fixed data redistribution
 
 ### Version 0.8.3 - 28.09.2018
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)
