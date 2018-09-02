@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Stopwatch;
 
 public class FixedSizeFutureStore {
 
@@ -66,6 +67,11 @@ public class FixedSizeFutureStore {
 	 * The statistics writer
 	 */
 	private Writer statisticsWriter;
+	
+	/**
+	 * The stopwatch
+	 */
+	private final Stopwatch stopwatch;
 
 	/**
 	 * The Logger
@@ -79,6 +85,7 @@ public class FixedSizeFutureStore {
 		this.statisticsWriter = null;
 		this.futureCounter = new AtomicLong();
 		this.futureCounterMap = new ConcurrentHashMap<>();
+		this.stopwatch = Stopwatch.createStarted();
 	}
 
 	/**
@@ -159,8 +166,9 @@ public class FixedSizeFutureStore {
 			final int executions = future.getNeededExecutions();
 
 			if(statisticsWriter != null) {
-				final String outputValue = String.format("%d\t%d\t%d%n", futureNumber,
-						completionTime, executions);
+				final String outputValue = String.format("%d\t%d\t%d\t%d%n", 
+						stopwatch.elapsed(TimeUnit.MICROSECONDS), 
+						futureNumber, completionTime, executions);
 
 				try {
 					statisticsWriter.write(outputValue);
