@@ -163,7 +163,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 			return false;
 		}
 		
-		return CompactorHelper.isRegionActive(tupleStoreName);
+		return ! CompactorHelper.isRegionActive(tupleStoreName);
 	}
 
 	/**
