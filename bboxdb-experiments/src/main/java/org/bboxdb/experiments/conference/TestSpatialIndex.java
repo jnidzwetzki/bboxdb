@@ -194,7 +194,8 @@ public class TestSpatialIndex implements Runnable, Closeable {
 			}
 		}
 		
-		System.out.println("Import done in (ms) " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+		System.out.println("Import done in (ms) " + stopwatch.elapsed(TimeUnit.MILLISECONDS) 
+			+ " / " + tupleCounter.get());
 	}
 	
 	private void insertTuple(final Tuple tuple, final long key) {
@@ -240,7 +241,7 @@ public class TestSpatialIndex implements Runnable, Closeable {
 
 		final Map<String, String> filesAndFormats = new HashMap<>();
 
-		for(int pos = 2; pos < args.length; pos++) {
+		for(int pos = 1; pos < args.length; pos++) {
 
 			final String element = args[pos];
 
