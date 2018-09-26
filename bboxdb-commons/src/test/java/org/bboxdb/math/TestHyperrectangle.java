@@ -22,14 +22,26 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestHyperrectangle {
 
 	protected final static float EQUALS_DELTA = 0.001f;
+
+	@BeforeClass
+	public static void beforeClass() {
+		Hyperrectangle.enableChecks = true;
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		Hyperrectangle.enableChecks = false;
+	}
 
 	/**
 	 * Create some invalid bounding boxes

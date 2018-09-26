@@ -20,6 +20,7 @@ package org.bboxdb.commons.math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringTokenizer;
 
 import org.bboxdb.commons.StringUtil;
@@ -36,6 +37,11 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 * The return value of an invalid dimension
 	 */
 	public final static int INVALID_DIMENSION = -1;
+
+	/**
+	 * Enable advanced (expensive and additional) consistency checks
+	 */
+	public static boolean enableChecks = false;
 
 	/**
 	 * The boundingBox contains a interval for each dimension
@@ -465,7 +471,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 * @return
 	 */
 	public static Hyperrectangle getCoveringBox(final Hyperrectangle... boundingBoxes) {
-		return getCoveringBox(Arrays.asList(boundingBoxes));
+		return getCoveringBox(new ArrayList<>(Arrays.asList(boundingBoxes)));
 	}
 
 	/**
@@ -496,18 +502,18 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		final int dimensions = boundingBoxes.get(0).getDimension();
 
-		/*
-		final Optional<Hyperrectangle> result = boundingBoxes.stream()
-				.filter(b -> b.getDimension() != dimensions)
-				.findAny();
+		if(enableChecks) {
+			final Optional<Hyperrectangle> result = boundingBoxes.stream()
+					.filter(b -> b.getDimension() != dimensions)
+					.findAny();
 
-		if(result.isPresent()) {
-			final String errorMessage = "Merging bounding boxes with different dimensions: "
-					+ dimensions + "/" + result.get().getDimension();
+			if(result.isPresent()) {
+				final String errorMessage = "Merging bounding boxes with different dimensions: "
+						+ dimensions + "/" + result.get().getDimension();
 
-			throw new IllegalArgumentException(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}
 		}
-		*/
 
 		// Array with data for the result box
 		final double[] coverBox = new double[dimensions * 2];
