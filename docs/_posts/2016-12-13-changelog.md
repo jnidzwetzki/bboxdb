@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.8.4 - TBA
+- Improvement: Speed up hyperrectangle covering box calculation
 - Bugfix: Fixed data redistribution
 
 ### Version 0.8.3 - 28.09.2018
