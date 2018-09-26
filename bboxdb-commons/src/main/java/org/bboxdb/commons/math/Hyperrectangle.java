@@ -574,9 +574,19 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 			return 0;
 		}
 
-		final double ourVolume = getVolume();
+		final int dimensions = getDimension();
 
-		final Hyperrectangle mergedBox = Hyperrectangle.getCoveringBox(this, otherBox);
+		// Array with data for the result box
+		final double[] coverBox = new double[dimensions * 2];
+
+		for(int d = 0; d < dimensions; d++) {
+			coverBox[2 * d] = Math.min(getCoordinateLow(d), otherBox.getCoordinateLow(d));
+			coverBox[2 * d + 1] = Math.max(getCoordinateHigh(d), otherBox.getCoordinateHigh(d));
+		}
+
+		final Hyperrectangle mergedBox = new Hyperrectangle(coverBox);
+
+		final double ourVolume = getVolume();
 
 		return mergedBox.getVolume() - ourVolume;
 	}
