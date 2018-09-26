@@ -21,6 +21,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.bboxdb.commons.io.FileUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -55,7 +58,7 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	 * The dimension of the input data
 	 */
 	private Hyperrectangle sample;
-	
+
 	/**
 	 * The destination table
 	 */
@@ -69,7 +72,7 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	private TupleStoreManager storageManager;
 
 	private final TupleStoreManagerRegistry storageRegistry;
-	
+
 
 	public TestSpatialIndex(final File tmpDir, final Map<String, String> filesAndFormats) throws Exception {
 
@@ -78,18 +81,22 @@ public class TestSpatialIndex implements Runnable, Closeable {
 		// Setup database dir
 		tmpDir.mkdirs();
 		FileUtil.deleteDirOnExit(tmpDir.toPath());
-		tupleCounter = new AtomicLong(0);
-		
-		storageRegistry = new TupleStoreManagerRegistry();
+		this.tupleCounter = new AtomicLong(0);
+
+		// Set the storage path
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+		configuration.setStorageDirectories(Arrays.asList(tmpDir.getAbsoluteFile().toString()));
+
+		this.storageRegistry = new TupleStoreManagerRegistry(configuration);
 		storageRegistry.init();
-		
+
 		final TupleStoreName tupleStoreName = new TupleStoreName(TABLENAME);
-		
+
 		final TupleStoreConfiguration config = TupleStoreConfigurationBuilder
 				.create()
 				.allowDuplicates(false)
 				.build();
-		
+
 		storageManager = storageRegistry.createTable(tupleStoreName, config);
 	}
 
@@ -100,61 +107,61 @@ public class TestSpatialIndex implements Runnable, Closeable {
 		queryDataWithIndex();
 	}
 
-	/** 
+	/**
 	 * Query data with spatial index
 	 */
 	private void queryDataWithIndex() {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
-		
+
 		List<ReadOnlyTupleStore> storages = null;
 		long results = 0;
 		try {
 			 storages = storageManager.aquireStorage();
-			 
+
 			 for(final ReadOnlyTupleStore storge : storages) {
 				 final Iterator<Tuple> resultIterator = storge.getAllTuplesInBoundingBox(sample);
 				 final ArrayList<Tuple> resultTuples = Lists.newArrayList(resultIterator);
 				 results = results + resultTuples.size();
 			 }
-			 
-			System.out.println("Query with index done in (ms) / results" 
+
+			System.out.println("Query with index done in (ms) / results"
 					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + " / " + results);
-			
+
 		} catch (StorageManagerException e) {
 			System.err.println("Got an Exception during query");
 			e.printStackTrace();
 			System.exit(-1);
-		} finally { 
+		} finally {
 			storageManager.releaseStorage(storages);
 		}
-		
-	
+
+
 	}
 
 	/**
 	 * Query data without spatial index
 	 */
 	private void queryDataWithoutIndex() {
-		
+
 		try {
 			final Stopwatch stopwatch = Stopwatch.createStarted();
-			
+
 			long results = 0;
 
 			for(long key = 0; key < tupleCounter.get(); key++) {
 				final String keyString = Long.toString(key);
-				final List<Tuple> resultTuples = storageManager.get(keyString);	
-				
+				final List<Tuple> resultTuples = storageManager.get(keyString);
+
 				for(final Tuple tuple : resultTuples) {
 					if(sample.intersects(tuple.getBoundingBox())) {
 						results++;
 					}
 				}
 			}
-			
-			System.out.println("Query without index done in (ms) / results" 
+
+			System.out.println("Query without index done in (ms) / results"
 					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + " / " + results);
-			
+
 		} catch (StorageManagerException e) {
 			System.err.println("Got an Exception during query");
 			e.printStackTrace();
@@ -165,9 +172,9 @@ public class TestSpatialIndex implements Runnable, Closeable {
 
 	private void importData() {
 		System.out.println("Importing data");
-		
+
 		final Stopwatch stopwatch = Stopwatch.createStarted();
-		
+
 		for(final Entry<String, String> elements : filesAndFormats.entrySet()) {
 			final String filename = elements.getKey();
 			final String format = elements.getValue();
@@ -178,7 +185,7 @@ public class TestSpatialIndex implements Runnable, Closeable {
 			tupleFile.addTupleListener(t -> {
 				final long counter = tupleCounter.incrementAndGet();
 				insertTuple(t, counter);
-				
+
 				// Take sample
 				if(counter == 1000) {
 					sample = t.getBoundingBox();
@@ -193,11 +200,11 @@ public class TestSpatialIndex implements Runnable, Closeable {
 				System.exit(-1);
 			}
 		}
-		
-		System.out.println("Import done in (ms) " + stopwatch.elapsed(TimeUnit.MILLISECONDS) 
+
+		System.out.println("Import done in (ms) " + stopwatch.elapsed(TimeUnit.MILLISECONDS)
 			+ " / " + tupleCounter.get());
 	}
-	
+
 	private void insertTuple(final Tuple tuple, final long key) {
 		try {
 			final Tuple createdTuple = new Tuple(Long.toString(key), tuple.getBoundingBox(), tuple.getDataBytes());
