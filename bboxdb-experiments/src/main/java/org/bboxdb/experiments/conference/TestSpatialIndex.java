@@ -241,8 +241,8 @@ public class TestSpatialIndex implements Runnable, Closeable {
 		final String tmpDir = args[0];
 		final File dir = new File(tmpDir);
 
-		if(dir.exists()) {
-			System.err.format("Dir %s already exists, exiting%n", tmpDir);
+		if(! dir.exists()) {
+			System.err.format("Dir %s does not exist, exiting%n", tmpDir);
 			System.exit(-1);
 		}
 
