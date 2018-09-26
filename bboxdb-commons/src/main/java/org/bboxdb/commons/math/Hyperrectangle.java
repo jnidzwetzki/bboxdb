@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 import org.bboxdb.commons.StringUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
@@ -471,19 +470,19 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 	/**
 	 * Get the bounding box of two bounding boxes
+	 *
+	 * Warning: the argument will be destroyed. Copying the argument
+	 * takes a lot of time.
+	 *
 	 * @param boundingBox1
 	 * @param boundingBox2
 	 * @return
 	 */
-	public static Hyperrectangle getCoveringBox(final List<Hyperrectangle> argumentBoundingBoxes) {
+	public static Hyperrectangle getCoveringBox(final List<Hyperrectangle> boundingBoxes) {
 
 		// Bounding box could be null, e.g. for DeletedTuple instances.
 		// And don't merge empty boxes
-		final List<Hyperrectangle> boundingBoxes = argumentBoundingBoxes
-				.stream()
-				.filter(b -> b != null)
-				.filter(b -> b != FULL_SPACE)
-				.collect(Collectors.toList());
+		boundingBoxes.removeIf(p -> p == null || p == FULL_SPACE);
 
 		// No argument
 		if(boundingBoxes.isEmpty()) {
@@ -497,21 +496,25 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		final int dimensions = boundingBoxes.get(0).getDimension();
 
-		// All bounding boxes need the same dimension
-		for(final Hyperrectangle currentBox : boundingBoxes) {
-			if(dimensions != currentBox.getDimension()) {
-				final String errorMessage = "Merging bounding boxes with different dimensions: "
-						+ dimensions + "/" + currentBox.getDimension();
+		/*
+		final Optional<Hyperrectangle> result = boundingBoxes.stream()
+				.filter(b -> b.getDimension() != dimensions)
+				.findAny();
 
-				throw new IllegalArgumentException(errorMessage);
-			}
+		if(result.isPresent()) {
+			final String errorMessage = "Merging bounding boxes with different dimensions: "
+					+ dimensions + "/" + result.get().getDimension();
+
+			throw new IllegalArgumentException(errorMessage);
 		}
+		*/
 
 		// Array with data for the result box
 		final double[] coverBox = new double[dimensions * 2];
 
 		// Construct the covering bounding box
 		for(int d = 0; d < dimensions; d++) {
+
 			double resultMin = Double.MAX_VALUE;
 			double resultMax = Double.MIN_VALUE;
 
