@@ -480,6 +480,15 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 			return hyperrectangle1;
 		}
 
+		if(enableChecks) {
+			if(hyperrectangle1.getDimension() != hyperrectangle2.getDimension()) {
+				final String errorMessage = "Merging bounding boxes with different dimensions: "
+						+ hyperrectangle1 + "/" + hyperrectangle2;
+
+				throw new IllegalArgumentException(errorMessage);
+			}
+		}
+
 		final int dimensions = hyperrectangle1.getDimension();
 
 		// Array with data for the result box
