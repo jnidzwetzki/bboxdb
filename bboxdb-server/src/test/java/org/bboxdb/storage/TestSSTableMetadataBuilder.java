@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.storage;
 
@@ -25,10 +25,23 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreMetaData;
 import org.bboxdb.storage.sstable.SSTableMetadataBuilder;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestSSTableMetadataBuilder {
+
+	@BeforeClass
+	public static void beforeClass() {
+		Hyperrectangle.enableChecks = true;
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		Hyperrectangle.enableChecks = false;
+	}
+
 
 	/**
 	 * Build empty index
@@ -47,10 +60,10 @@ public class TestSSTableMetadataBuilder {
 	@Test(timeout=60000)
 	public void testSSTableIndexBuilder2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
-		
+
 		ssTableIndexBuilder.addTuple(tuple1);
 		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
@@ -58,33 +71,33 @@ public class TestSSTableMetadataBuilder {
 		Assert.assertEquals(1, metadata.getTuples());
 		Assert.assertEquals(tuple1.getReceivedTimestamp(), metadata.getNewestTupleInsertedTimstamp());
 	}
-	
+
 	/**
 	 * Build index with two tuples
 	 */
 	@Test(timeout=60000)
 	public void testSSTableIndexBuilder3() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		final Tuple tuple2 = new Tuple("def", boundingBox1, "".getBytes());
 
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
-		
+
 		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
-	
+
 	/**
 	 * Build index with two tuples
 	 */
 	@Test(timeout=60000)
 	public void testSSTableIndexBuilder4() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 3d);
@@ -92,19 +105,19 @@ public class TestSSTableMetadataBuilder {
 
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
-		
+
 		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox2.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
-	
+
 	/**
 	 * Build index with two tuples
 	 */
 	@Test(timeout=60000)
 	public void testSSTableIndexBuilder5() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d);
@@ -112,19 +125,19 @@ public class TestSSTableMetadataBuilder {
 
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
-		
+
 		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
-	
+
 	/**
 	 * Build index with two tuples - bounding boxes are differ in the dimension
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testSSTableIndexBuilder6() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d);
@@ -132,28 +145,28 @@ public class TestSSTableMetadataBuilder {
 
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
-		
+
 		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new double[] {}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
-	
-	
+
+
 	/**
 	 * Build index with two tuples - bounding boxes are differ in the dimension
 	 */
 	@Test(timeout=60000)
 	public void testSSTableIndexBuilder7() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		addTwoTuples(ssTableIndexBuilder);
-		
+
 		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 5f}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
-	
-	
+
+
 	/**
 	 * Build index with multiple tuples - check timestamps
 	 */
@@ -184,7 +197,7 @@ public class TestSSTableMetadataBuilder {
 		Assert.assertEquals(2, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());
 		Assert.assertEquals(tuple4.getReceivedTimestamp(), ssTableIndexBuilder.getMetaData().getNewestTupleInsertedTimstamp());
 	}
-	
+
 	/**
 	 * Dump the index to yaml
 	 */
@@ -194,60 +207,60 @@ public class TestSSTableMetadataBuilder {
 		final String yamlData = ssTableIndexBuilder.getMetaData().exportToYaml();
 		Assert.assertTrue(yamlData.length() > 10);
 	}
-	
+
 	/**
 	 * Dump the index to yaml
 	 */
 	@Test(timeout=60000)
 	public void testDumpToYaml2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		ssTableIndexBuilder.addTuple(tuple1);
-			
+
 		final String yamlData = ssTableIndexBuilder.getMetaData().exportToYaml();
 		Assert.assertTrue(yamlData.length() > 10);
 	}
-	
+
 	/**
 	 * Dump the index to yaml and reread the data
 	 */
 	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlString1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		ssTableIndexBuilder.addTuple(tuple1);
 
 		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		final String yamlData = metaData.exportToYaml();
-				
+
 		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYaml(yamlData);
 		Assert.assertEquals(metaData, metaDataRead);
 		Assert.assertEquals(2, metaData.getDimensions());
-		
+
 		Assert.assertTrue(metaData.toString().length() > 10);
 		Assert.assertEquals(metaData.hashCode(), metaDataRead.hashCode());
 	}
-	
+
 	/**
 	 * Dump the index to yaml and reread the data
 	 */
 	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlStrig2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		addTwoTuples(ssTableIndexBuilder);
 
 		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		final String yamlData = metaData.exportToYaml();
-			
+
 		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYaml(yamlData);
 		Assert.assertEquals(metaData, metaDataRead);
 	}
-	
+
 	/**
 	 * Read from non existing file
 	 */
@@ -257,41 +270,41 @@ public class TestSSTableMetadataBuilder {
 		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYamlFile(tmpFile);
 		Assert.assertTrue(metaDataRead == null);
 	}
-	
+
 	/**
 	 * Dump the index to yaml file and reread the data - zero tuples
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlFile1() throws IOException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-				
+
 		final File tmpFile = File.createTempFile("test", ".tmp");
 
 		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		metaData.exportToYamlFile(tmpFile);
-			
+
 		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYamlFile(tmpFile);
 		Assert.assertEquals(metaData, metaDataRead);
 		tmpFile.delete();
 	}
 
-	
+
 	/**
 	 * Dump the index to yaml file and reread the data - two tuple
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Test(timeout=60000)
 	public void testDumpAndReadFromYamlFile2() throws IOException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		
+
 		addTwoTuples(ssTableIndexBuilder);
-		
+
 		final File tmpFile = File.createTempFile("test", ".tmp");
 
 		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		metaData.exportToYamlFile(tmpFile);
-			
+
 		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYamlFile(tmpFile);
 		Assert.assertEquals(metaData, metaDataRead);
 		tmpFile.delete();
@@ -306,9 +319,9 @@ public class TestSSTableMetadataBuilder {
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d, 1d, 5d);
 		final Tuple tuple2 = new Tuple("def", boundingBox2, "".getBytes());
-		
+
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 	}
-	
+
 }
