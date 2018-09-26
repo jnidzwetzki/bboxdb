@@ -18,7 +18,6 @@
 package org.bboxdb.commons.math;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -470,8 +469,28 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 * @param boundingBox2
 	 * @return
 	 */
-	public static Hyperrectangle getCoveringBox(final Hyperrectangle... boundingBoxes) {
-		return getCoveringBox(new ArrayList<>(Arrays.asList(boundingBoxes)));
+	public static Hyperrectangle getCoveringBox(final Hyperrectangle hyperrectangle1,
+			final Hyperrectangle hyperrectangle2) {
+
+		if(hyperrectangle1 == FULL_SPACE) {
+			return hyperrectangle2;
+		}
+
+		if(hyperrectangle2 == FULL_SPACE) {
+			return hyperrectangle1;
+		}
+
+		final int dimensions = hyperrectangle1.getDimension();
+
+		// Array with data for the result box
+		final double[] coverBox = new double[dimensions * 2];
+
+		for(int d = 0; d < dimensions; d++) {
+			coverBox[2 * d] = Math.min(hyperrectangle1.getCoordinateLow(d), hyperrectangle2.getCoordinateLow(d));
+			coverBox[2 * d + 1] = Math.max(hyperrectangle1.getCoordinateHigh(d), hyperrectangle2.getCoordinateHigh(d));
+		}
+
+		return new Hyperrectangle(coverBox);
 	}
 
 	/**
@@ -574,17 +593,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 			return 0;
 		}
 
-		final int dimensions = getDimension();
-
-		// Array with data for the result box
-		final double[] coverBox = new double[dimensions * 2];
-
-		for(int d = 0; d < dimensions; d++) {
-			coverBox[2 * d] = Math.min(getCoordinateLow(d), otherBox.getCoordinateLow(d));
-			coverBox[2 * d + 1] = Math.max(getCoordinateHigh(d), otherBox.getCoordinateHigh(d));
-		}
-
-		final Hyperrectangle mergedBox = new Hyperrectangle(coverBox);
+		final Hyperrectangle mergedBox = getCoveringBox(this, otherBox);
 
 		final double ourVolume = getVolume();
 

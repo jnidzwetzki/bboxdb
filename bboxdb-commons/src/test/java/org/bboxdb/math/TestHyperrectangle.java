@@ -223,14 +223,6 @@ public class TestHyperrectangle {
 		final Hyperrectangle boundingBox3 = new Hyperrectangle(1d, 4d, 1d, 4d, 1d, 4d);
 		final Hyperrectangle boundingBox4 = new Hyperrectangle(-1d, 2d, -1d, 2d, -1d, 2d);
 
-		final Hyperrectangle boundingBoxResult1 = Hyperrectangle.getCoveringBox();
-		Assert.assertEquals(Hyperrectangle.FULL_SPACE, boundingBoxResult1);
-
-		Assert.assertEquals(boundingBox1, Hyperrectangle.getCoveringBox(boundingBox1));
-		Assert.assertEquals(boundingBox2, Hyperrectangle.getCoveringBox(boundingBox2));
-		Assert.assertEquals(boundingBox3, Hyperrectangle.getCoveringBox(boundingBox3));
-		Assert.assertEquals(boundingBox4, Hyperrectangle.getCoveringBox(boundingBox4));
-
 		final Hyperrectangle boundingBoxResult2 = Hyperrectangle.getCoveringBox(boundingBox1, boundingBox2);
 		Assert.assertEquals(2, boundingBoxResult2.getDimension());
 		Assert.assertEquals(boundingBoxResult2, boundingBox2);
@@ -251,12 +243,33 @@ public class TestHyperrectangle {
 	@Test(timeout=60000)
 	public void testCoverBoundingBox2() {
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 3d, 1d, 3d);
-		Assert.assertEquals(boundingBox1, Hyperrectangle.getCoveringBox(boundingBox1));
-		Assert.assertEquals(boundingBox1, Hyperrectangle.getCoveringBox(boundingBox1, null));
-		Assert.assertEquals(boundingBox1, Hyperrectangle.getCoveringBox(null, boundingBox1));
 		Assert.assertEquals(boundingBox1, Hyperrectangle.getCoveringBox(boundingBox1, Hyperrectangle.FULL_SPACE));
-		Assert.assertEquals(boundingBox1, Hyperrectangle.getCoveringBox(Hyperrectangle.FULL_SPACE, boundingBox1, Hyperrectangle.FULL_SPACE));
-		Assert.assertEquals(boundingBox1, Hyperrectangle.getCoveringBox(Hyperrectangle.FULL_SPACE, null, boundingBox1, Hyperrectangle.FULL_SPACE));
+	}
+
+	/**
+	 * Test the creation of the covering bounding box
+	 */
+	@Test(timeout=60000)
+	public void testCoverBoundingBox3() {
+		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 3d, 1d, 3d, 1d, 1d);
+		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 4d, 1d, 4d, 1d, 1d);
+		final Hyperrectangle boundingBox3 = new Hyperrectangle(1d, 4d, 1d, 4d, 1d, 4d);
+		final Hyperrectangle boundingBox4 = new Hyperrectangle(-1d, 2d, -1d, 2d, -1d, 2d);
+
+		final List<Hyperrectangle> boxes = new ArrayList<>();
+		boxes.add(boundingBox1);
+		boxes.add(boundingBox2);
+		boxes.add(boundingBox3);
+		boxes.add(boundingBox4);
+
+		final Hyperrectangle boundingBoxResult2 = Hyperrectangle.getCoveringBox(boxes);
+		Assert.assertEquals(3, boundingBoxResult2.getDimension());
+		Assert.assertEquals(-1.0d, boundingBoxResult2.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(4.0d, boundingBoxResult2.getCoordinateHigh(0), EQUALS_DELTA);
+		Assert.assertEquals(-1.0d, boundingBoxResult2.getCoordinateLow(1), EQUALS_DELTA);
+		Assert.assertEquals(4.0d, boundingBoxResult2.getCoordinateHigh(1), EQUALS_DELTA);
+		Assert.assertEquals(-1.0d, boundingBoxResult2.getCoordinateLow(2), EQUALS_DELTA);
+		Assert.assertEquals(4.0d, boundingBoxResult2.getCoordinateHigh(2), EQUALS_DELTA);
 	}
 
 	/**
@@ -267,7 +280,9 @@ public class TestHyperrectangle {
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 3d, 1d, 3d);
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 4d, 1d, 4d, 1d, 4d);
 
-		final Hyperrectangle boundingBoxResult3 = Hyperrectangle.getCoveringBox(boundingBox1, boundingBox2);
+		final Hyperrectangle boundingBoxResult3 = Hyperrectangle.getCoveringBox(
+				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2)));
+
 		Assert.assertTrue(boundingBoxResult3 == null);
 	}
 
@@ -284,7 +299,8 @@ public class TestHyperrectangle {
 		final Hyperrectangle boundingBox4 = new Hyperrectangle(-1d, 2d, -1d, 2d, -1d, 2d);
 
 		// Wrong dimensions
-		final Hyperrectangle boundingBoxResult5 = Hyperrectangle.getCoveringBox(boundingBox1, boundingBox2, boundingBox3, boundingBox4);
+		final Hyperrectangle boundingBoxResult5 = Hyperrectangle.getCoveringBox(
+				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2, boundingBox3, boundingBox4)));
 		Assert.assertTrue(boundingBoxResult5 == null);
 	}
 
@@ -293,7 +309,7 @@ public class TestHyperrectangle {
 	 */
 	@Test(timeout=60000)
 	public void testMergeBoxes0() {
-		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox();
+		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(new ArrayList<>());
 		Assert.assertEquals(Hyperrectangle.FULL_SPACE, resultBox);
 	}
 
@@ -304,7 +320,9 @@ public class TestHyperrectangle {
 	public void testMergeBoxes1() {
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 1d);
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d, 1d, 4d);
-		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(boundingBox1, boundingBox2);
+		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(
+				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2)));
+
 		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 
@@ -315,7 +333,9 @@ public class TestHyperrectangle {
 	public void testMergeBoxes2() {
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 1d);
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d, 1d, 4d);
-		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(boundingBox1, boundingBox2, null);
+		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(
+				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2, null)));
+
 		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 
@@ -326,7 +346,10 @@ public class TestHyperrectangle {
 	public void testMergeBoxes3() {
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 1d);
 		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d, 1d, 4d);
-		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(boundingBox1, boundingBox2, Hyperrectangle.FULL_SPACE);
+
+		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(
+				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2, Hyperrectangle.FULL_SPACE)));
+
 		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 
@@ -335,14 +358,13 @@ public class TestHyperrectangle {
 	 */
 	@Test(timeout=60000)
 	public void testMergeBoxes4() {
-		final Hyperrectangle resultBox1 = Hyperrectangle.getCoveringBox();
+
+		final Hyperrectangle resultBox1 = Hyperrectangle.getCoveringBox(
+				new ArrayList<>(Arrays.asList(Hyperrectangle.FULL_SPACE, Hyperrectangle.FULL_SPACE)));
 		Assert.assertEquals(Hyperrectangle.FULL_SPACE, resultBox1);
 
-		final Hyperrectangle resultBox2 = Hyperrectangle.getCoveringBox(Hyperrectangle.FULL_SPACE);
+		final Hyperrectangle resultBox2 = Hyperrectangle.getCoveringBox(Hyperrectangle.FULL_SPACE, Hyperrectangle.FULL_SPACE);
 		Assert.assertEquals(Hyperrectangle.FULL_SPACE, resultBox2);
-
-		final Hyperrectangle resultBox3 = Hyperrectangle.getCoveringBox(Hyperrectangle.FULL_SPACE, Hyperrectangle.FULL_SPACE);
-		Assert.assertEquals(Hyperrectangle.FULL_SPACE, resultBox3);
 	}
 
 	/**
