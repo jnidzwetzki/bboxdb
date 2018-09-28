@@ -153,7 +153,8 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 */
 	public List<Hyperrectangle> getAllChildBoundingBoxes() {
 
-		final List<Hyperrectangle> resultList = new ArrayList<>();
+		final int initialCapacity = directoryNodeChilds.size() + indexEntries.size();
+		final List<Hyperrectangle> resultList = new ArrayList<>(initialCapacity);
 
 		for(final RTreeDirectoryNode node : directoryNodeChilds) {
 			resultList.add(node.getBoundingBox());
