@@ -26,7 +26,7 @@ public class BenchmarkHyperrectangle {
 
 		final List<Long> elapsedBenchmarks = new ArrayList<>();
 
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 100; i++) {
 		final Stopwatch watch = Stopwatch.createStarted();
 			Hyperrectangle.getCoveringBox(rectangles);
 
