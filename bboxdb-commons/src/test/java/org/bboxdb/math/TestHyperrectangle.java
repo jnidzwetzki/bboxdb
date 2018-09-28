@@ -47,7 +47,7 @@ public class TestHyperrectangle {
 	 * Create some invalid bounding boxes
 	 */
 	@SuppressWarnings("unused")
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected=AssertionError.class)
 	public void testBoundingBoxCreateInvalid1() {
 		final Hyperrectangle bb1 = new Hyperrectangle(1d, 2d, 3d, 4d, 5d);
 	}

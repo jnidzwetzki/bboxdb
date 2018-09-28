@@ -53,9 +53,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 */
 	public Hyperrectangle(final Double... args) {
 
-		if(args.length % 2 != 0) {
-			throw new IllegalArgumentException("Even number of arguments expected");
-		}
+		assert(args.length % 2 == 0) : "Even number of arguments expected";
 
 		this.boundingBox = new ArrayList<>(args.length / 2);
 
