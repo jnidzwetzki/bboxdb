@@ -465,6 +465,9 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 	/**
 	 * Get the bounding box of two bounding boxes
+	 *
+	 * (run-time optimized version for 2 arguments)
+	 *
 	 * @param boundingBox1
 	 * @param boundingBox2
 	 * @return
