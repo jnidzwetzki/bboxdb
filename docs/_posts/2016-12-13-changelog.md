@@ -9,6 +9,7 @@ order: 1
 ### Version 0.8.4 - TBA
 - Improvement: Speed up hyperrectangle covering box calculation
 - Improvement: Switched mockito-core from 2.21.0 to 2.22.0
+- Improvement: Added a lot of performance related improvements
 - Bugfix: Fixed data redistribution
 
 ### Version 0.8.3 - 28.09.2018
