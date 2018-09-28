@@ -505,8 +505,6 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	/**
 	 * Get the bounding box of two bounding boxes
 	 *
-	 * Warning: the argument will be destroyed. Copying the argument
-	 * takes a lot of time.
 	 *
 	 * @param boundingBox1
 	 * @param boundingBox2
@@ -514,17 +512,13 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 */
 	public static Hyperrectangle getCoveringBox(final List<Hyperrectangle> boundingBoxes) {
 
-		// Bounding box could be null, e.g. for DeletedTuple instances.
-		// And don't merge empty boxes
-		boundingBoxes.removeIf(p -> p == null || p == FULL_SPACE);
+		final int elements = boundingBoxes.size();
 
-		// No argument
-		if(boundingBoxes.isEmpty()) {
+		if(elements == 0) {
 			return Hyperrectangle.FULL_SPACE;
 		}
 
-		// Only 1 argument
-		if(boundingBoxes.size() == 1) {
+		if(elements == 1) {
 			return boundingBoxes.get(0);
 		}
 

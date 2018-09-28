@@ -330,33 +330,6 @@ public class TestHyperrectangle {
 	 * Test merge on array
 	 */
 	@Test(timeout=60000)
-	public void testMergeBoxes2() {
-		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 1d);
-		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d, 1d, 4d);
-		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(
-				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2, null)));
-
-		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
-	}
-
-	/**
-	 * Test merge on array
-	 */
-	@Test(timeout=60000)
-	public void testMergeBoxes3() {
-		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 1d, 1d);
-		final Hyperrectangle boundingBox2 = new Hyperrectangle(1d, 1.1d, 1d, 4d);
-
-		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(
-				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2, Hyperrectangle.FULL_SPACE)));
-
-		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
-	}
-
-	/**
-	 * Test merge on array
-	 */
-	@Test(timeout=60000)
 	public void testMergeBoxes4() {
 
 		final Hyperrectangle resultBox1 = Hyperrectangle.getCoveringBox(
