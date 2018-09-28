@@ -548,6 +548,11 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 			double resultMax = Double.MIN_VALUE;
 
 			for(final Hyperrectangle currentBox : boundingBoxes) {
+
+				if(currentBox == FULL_SPACE) {
+					continue;
+				}
+
 				resultMin = Math.min(resultMin, currentBox.getCoordinateLow(d));
 				resultMax = Math.max(resultMax, currentBox.getCoordinateHigh(d));
 			}
