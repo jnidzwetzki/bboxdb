@@ -643,10 +643,6 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		throwExceptionIfDimensionNotMatch(otherBox);
 
-		if(isCovering(otherBox)) {
-			return 0;
-		}
-
 		final Hyperrectangle mergedBox = getCoveringBox(this, otherBox);
 
 		final double ourVolume = getVolume();
