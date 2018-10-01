@@ -103,8 +103,8 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	@Override
 	public void run() {
 		importData();
-		queryDataWithoutIndex();
 		queryDataWithIndex();
+		queryDataWithoutIndex();
 	}
 
 	/**
