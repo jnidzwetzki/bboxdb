@@ -623,14 +623,50 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		throwExceptionIfDimensionNotMatch(otherBox);
 
 		for(int d = 0; d < getDimension(); d++) {
-			if(! getIntervalForDimension(d).isCovering(otherBox.getIntervalForDimension(d))) {
+			
+			if(otherBox.getCoordinateLow(d) < getCoordinateLow(d)) {
 				return false;
+			}
+			
+			if(otherBox.getCoordinateHigh(d) > getCoordinateHigh(d)) {
+				return false;
+			}
+			
+			if(otherBox.getCoordinateLow(d) == getCoordinateLow(d)) {
+				if(isLowPointIncluded(d) == false && otherBox.isLowPointIncluded(d) == true) {
+					return false;
+				}
+			}
+			
+			if(otherBox.getCoordinateHigh(d) == getCoordinateHigh(d)) {
+				if(isHighPointIncluded(d) == false && otherBox.isHighPointIncluded(d) == true) {
+					return false;
+				}
 			}
 		}
 
 		return true;
 	}
 
+	/**
+	 * Is the low point included
+	 * @param dimension
+	 * @return
+	 */
+	public boolean isLowPointIncluded(final int dimension) {
+		return pointIncluded[dimension * 2];
+	}
+	
+	/**
+	 * Is the high point included
+	 * @param dimension
+	 * @return
+	 */
+	public boolean isHighPointIncluded(final int dimension) {
+		return pointIncluded[dimension * 2 + 1];
+	}
+	
+	
 	/**
 	 * Calculated the needed space for the enlargement to cover the other box
 	 * @param otherBox
@@ -642,6 +678,10 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		}
 
 		throwExceptionIfDimensionNotMatch(otherBox);
+
+		if(isCovering(otherBox)) {
+			return 0;
+		}
 
 		final Hyperrectangle mergedBox = getCoveringBox(this, otherBox);
 
