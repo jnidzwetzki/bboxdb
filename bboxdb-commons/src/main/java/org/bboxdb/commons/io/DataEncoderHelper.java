@@ -48,6 +48,11 @@ public class DataEncoderHelper {
 	public final static int SHORT_BYTES = Short.SIZE / Byte.SIZE;
 	
 	/**
+	 * Size of a boolean in bytes
+	 */
+	public final static int BOOLEAN_BYTES = 1;
+	
+	/**
 	 * The Byte order for encoded values
 	 */
 	public final static ByteOrder APPLICATION_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
