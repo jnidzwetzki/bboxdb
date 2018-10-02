@@ -124,7 +124,7 @@ public class TestSpatialIndex implements Runnable, Closeable {
 				 results = results + resultTuples.size();
 			 }
 
-			System.out.println("Query with index done in (ms) / results"
+			System.out.println("Query with index done in (ms) / results: "
 					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + " / " + results);
 
 		} catch (StorageManagerException e) {
@@ -159,7 +159,7 @@ public class TestSpatialIndex implements Runnable, Closeable {
 				}
 			}
 
-			System.out.println("Query without index done in (ms) / results"
+			System.out.println("Query without index done in (ms) / results: "
 					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + " / " + results);
 
 		} catch (StorageManagerException e) {
