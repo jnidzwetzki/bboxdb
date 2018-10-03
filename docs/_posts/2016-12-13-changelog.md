@@ -12,6 +12,7 @@ order: 1
 - Improvement: Added a lot of performance related improvements
 - Bugfix: Fixed data redistribution
 - Bugfix: Prevent exceptions during compactifications on shutdown
+- Bugfix: Handle null tuples during compact
 
 ### Version 0.8.3 - 28.09.2018
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)
