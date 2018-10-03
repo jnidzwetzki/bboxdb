@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.storage.sstable.reader;
 
@@ -36,17 +36,17 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 public class SSTableKeyIndexReader extends AbstractFileReader implements Iterable<Tuple> {
-	
+
 	/**
 	 * The corresponding sstable reader
 	 */
 	protected final SSTableReader sstableReader;
-	
+
 	/**
 	 * The key cache <Tuple Number, Key>
 	 */
 	protected LoadingCache<Long, String> keyCache;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -68,16 +68,16 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 	 * @param elements
 	 */
 	public void activateKeyCache(final int elements) {
-		
+
 		if(keyCache != null) {
 			throw new RuntimeException("Keycache was already be initiliazed");
 		}
-		
+
 		// Don't activate the cache
 		if(elements == 0) {
 			return;
 		}
-		
+
 		keyCache = CacheBuilder.newBuilder()
 				.maximumSize(elements)
 				.build(new CacheLoader<Long, String>() {
@@ -86,39 +86,39 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 			public String load(final Long tupleNumber) throws Exception {
 				return readKeyFromBytePos(tupleNumber);
 			}
-			
+
 		});
 	}
-	
+
 	/**
 	 * Scan the index file for the tuple position
 	 * @param key
 	 * @return
-	 * @throws StorageManagerException 
+	 * @throws StorageManagerException
 	 */
 	public List<Integer> getPositionsForTuple(final String key) throws StorageManagerException {
 
 		try {
 			int firstEntry = 0;
 			int lastEntry = getNumberOfEntries() - 1;
-			
+
 			// Check key is > then first value
 			final String firstValue = getKeyForIndexEntry(firstEntry);
 			if(firstValue.equals(key)) {
 				return fillKeyPositionArrayFromIndexEntry(key, firstEntry);
 			}
-			
+
 			// Not found
 			if(firstValue.compareTo(key) > 0) {
 				return new ArrayList<>();
 			}
-			
+
 			// Check if key is < then first value
 			final String lastValue = getKeyForIndexEntry(lastEntry);
 			if(lastValue.equals(key)) {
 				return fillKeyPositionArrayFromIndexEntry(key, lastEntry);
 			}
-			
+
 			// Not found
 			if(lastValue.compareTo(key) < 0) {
 				return new ArrayList<>();
@@ -127,84 +127,84 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 			// Binary search for key
 			do {
 				int curEntry = (int) ((lastEntry - firstEntry) / 2.0) + firstEntry;
-				
+
 /*				if(logger.isDebugEnabled()) {
 					logger.debug("Low: " + firstEntry + " Up: " + lastEntry + " Pos: " + curEntry);
 				}*/
-				
+
 				final String curEntryValue = getKeyForIndexEntry(curEntry);
-				
+
 				if(curEntryValue.equals(key)) {
 					return fillKeyPositionArrayFromIndexEntry(key, curEntry);
 				}
-				
+
 				if(key.compareTo(curEntryValue) > 0) {
 					firstEntry = curEntry + 1;
 				} else {
 					lastEntry = curEntry - 1;
 				}
-				
+
 			} while(firstEntry <= lastEntry);
 
 		} catch (IOException e) {
 			throw new StorageManagerException("Error while reading index file", e);
 		}
-		
+
 		// Not found during binary scan
 		return new ArrayList<>();
 	}
-	
+
 	/**
-	 * The SSTable can contain duplicates, so we nee to scan up and down from 
+	 * The SSTable can contain duplicates, so we nee to scan up and down from
 	 * the given position to retrive all keys
-	 * 
+	 *
 	 * @param indexEntry
-	 * @throws StorageManagerException 
-	 * @throws IOException 
+	 * @throws StorageManagerException
+	 * @throws IOException
 	 */
-	protected List<Integer> fillKeyPositionArrayFromIndexEntry(final String key, final int indexEntry) 
+	protected List<Integer> fillKeyPositionArrayFromIndexEntry(final String key, final int indexEntry)
 			throws IOException, StorageManagerException {
-		
+
 		final List<Integer> resultList = new ArrayList<>();
 		final int lastEntry = getNumberOfEntries() - 1;
 
 		resultList.add(indexEntry);
-		
+
 		// Scan upper index entries
 		int indexEntryTest = indexEntry + 1;
 		while(indexEntryTest <= lastEntry) {
 			final String curEntryValue = getKeyForIndexEntry(indexEntryTest);
-			
+
 			if(curEntryValue.equals(key)) {
 				resultList.add(indexEntryTest);
 			} else {
 				break;
 			}
-			
+
 			indexEntryTest++;
 		}
-		
+
 		// Scan lower index entries
 		indexEntryTest = indexEntry - 1;
-				
+
 		while(indexEntryTest >= 0) {
 			final String curEntryValue = getKeyForIndexEntry(indexEntryTest);
-			
+
 			if(curEntryValue.equals(key)) {
 				resultList.add(indexEntryTest);
 			} else {
 				break;
 			}
-			
+
 			indexEntryTest--;
 		}
-		
+
 		// Convert index positions
 		final List<Integer> positions = new ArrayList<>();
 		for(final int pos : resultList) {
 			positions.add(convertEntryToPosition(pos));
 		}
-		
+
 		return positions;
 	}
 
@@ -213,10 +213,10 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 	 * @param entry
 	 * @return
 	 * @throws IOException
-	 * @throws StorageManagerException 
+	 * @throws StorageManagerException
 	 */
 	public String getKeyForIndexEntry(final long entry) throws IOException, StorageManagerException {
-		
+
 		if(keyCache != null) {
 			try {
 				return keyCache.get(entry);
@@ -224,7 +224,7 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 				throw new StorageManagerException(e);
 			}
 		}
-		
+
 		return readKeyFromBytePos(entry);
 	}
 
@@ -238,13 +238,13 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 		final int position = convertEntryToPosition(entry);
 		return sstableReader.decodeOnlyKeyFromTupleAtPosition(position);
 	}
-	
+
 	/**
 	 * Get the tuple at the given position
 	 * @param entry
 	 * @return
 	 * @throws IOException
-	 * @throws StorageManagerException 
+	 * @throws StorageManagerException
 	 */
 	public Tuple getTupleForIndexEntry(final long entry) throws IOException, StorageManagerException {
 		final int position = convertEntryToPosition(entry);
@@ -255,25 +255,25 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 	 * Convert the index entry to index file position
 	 * @param entry
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	protected synchronized int convertEntryToPosition(final long entry) throws IOException {
 		if(! acquire()) {
 			throw new IOException("Unable to aquire");
 		}
-		
+
 		// Memory was unmapped
 		if(! serviceState.isInRunningState()) {
 			throw new IOException("Not in running state");
 		}
 
 		final byte[] magicBytes = getMagicBytes();
-		
+
 		memory.position((int) ((entry * SSTableConst.INDEX_ENTRY_BYTES) + magicBytes.length));
 		final int position = memory.getInt();
-		
+
 		release();
-		
+
 		return position;
 	}
 
@@ -287,14 +287,14 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 				logger.warn("getNumberOfEntries() called on closed sstableindexreader for relation: {}", name);
 				return 0;
 			}
-			
+
 			final byte[] magicBytes = getMagicBytes();
-			
+
 			return (int) ((fileChannel.size() - magicBytes.length) / SSTableConst.INDEX_ENTRY_BYTES);
 		} catch (IOException e) {
 			logger.error("IO Exception while reading from index", e);
 		}
-		
+
 		return 0;
 	}
 
@@ -305,18 +305,18 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 	public SSTableReader getSstableReader() {
 		return sstableReader;
 	}
-	
+
 	/**
 	 * Iterate over the tuples in the sstable
 	 */
 	@Override
 	public Iterator<Tuple> iterator() {
-		
+
 		return new Iterator<Tuple>() {
 
 			protected int entry = 0;
 			protected int lastEntry = getNumberOfEntries() - 1;
-			
+
 			@Override
 			public boolean hasNext() {
 				return entry <= lastEntry;
@@ -324,19 +324,23 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 
 			@Override
 			public Tuple next() {
-				
+
 				if(entry > lastEntry) {
 					throw new IllegalStateException("Requesting wrong position: " + entry + " of " + lastEntry);
 				}
-				
+
 				try {
 					final Tuple tuple = sstableReader.getTupleAtPosition(convertEntryToPosition(entry));
 					entry++;
 					return tuple;
 				} catch (Exception e) {
-					logger.error("Got exception while iterating (requesting entry " + (entry - 1) + " of " + lastEntry + ")", e);
+					if(sstableReader.isReady()) {
+						logger.error("Got exception while iterating (requesting entry " + (entry - 1) + " of " + lastEntry + ")", e);
+					} else {
+						logger.debug("Catching exception on non ready reader", e);
+					}
 				}
-								
+
 				return null;
 			}
 
@@ -346,12 +350,12 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 			}
 		};
 	}
-	
+
 	@Override
 	public String getServicename() {
 		return "SSTable key index reader";
 	}
-	
+
 	/**
 	 * Construct the filename of the index file
 	 * @param sstableFacades

@@ -11,6 +11,7 @@ order: 1
 - Improvement: Switched mockito-core from 2.21.0 to 2.22.0 and osmosis-pbf from 0.46 to 0.47
 - Improvement: Added a lot of performance related improvements
 - Bugfix: Fixed data redistribution
+- Bugfix: Prevent exceptions during compactifications on shutdown
 
 ### Version 0.8.3 - 28.09.2018
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)
