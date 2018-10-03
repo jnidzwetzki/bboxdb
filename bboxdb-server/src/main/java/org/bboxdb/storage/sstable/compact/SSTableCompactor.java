@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.storage.sstable.compact;
 
@@ -43,17 +43,17 @@ public class SSTableCompactor {
 	 * marker can be removed.
 	 */
 	private boolean majorCompaction = false;
-	
+
 	/**
 	 * The amount of read tuples
 	 */
 	private int readTuples;
-	
+
 	/**
 	 * The amount of written tuples
 	 */
 	private int writtenTuples;
-	
+
 	/**
 	 * The list of sstables to compact
 	 */
@@ -63,36 +63,36 @@ public class SSTableCompactor {
 	 * The current SStable writer
 	 */
 	private SSTableWriter sstableWriter;
-	
+
 	/**
 	 * The SStable manager
 	 */
 	private final TupleStoreManager tupleStoreManager;
-	
+
 	/**
 	 * The resulting writer
 	 */
 	private final List<SSTableWriter> resultList = new ArrayList<>();
-	
+
 	/**
 	 * Was the compactification successfully
 	 */
 	private boolean successfully = true;
-	
+
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactor.class);
 
-	public SSTableCompactor(final TupleStoreManager sstableManager, 
+	public SSTableCompactor(final TupleStoreManager sstableManager,
 			final List<SSTableKeyIndexReader> sstableIndexReader) {
-		
+
 		this.tupleStoreManager = sstableManager;
 		this.sstableIndexReader = sstableIndexReader;
 		this.readTuples = 0;
 		this.writtenTuples = 0;
 	}
-	
+
 	/**
 	 * Calculate max the number of entries in the output
 	 * @param tables
@@ -104,31 +104,31 @@ public class SSTableCompactor {
 			.mapToInt(r -> r.getNumberOfEntries())
 			.sum();
 	}
-	
-	/** 
+
+	/**
 	 * Execute the compactation of the input sstables
-	 * 
+	 *
 	 * @return success or failure
 	 */
 	public void executeCompactation() throws StorageManagerException {
-	
+
 		try {
 			// The iterators
 			final List<Iterator<Tuple>> iterators = sstableIndexReader
 					.stream()
 					.map(r -> r.iterator())
 					.collect(Collectors.toList());
-			
+
 			final DuplicateResolver<Tuple> newestKeyResolver = TupleDuplicateResolverFactory.build(
 					tupleStoreManager.getTupleStoreConfiguration());
-			
+
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(
-					iterators, 
-					TupleHelper.TUPLE_KEY_COMPARATOR, 
+					iterators,
+					TupleHelper.TUPLE_KEY_COMPARATOR,
 					newestKeyResolver);
-						
+
 			for(final Tuple tuple : sortedIteratorMerger) {
-				checkForThreadTermination();
+				checkForTermination(tuple);
 				addTupleToWriter(tuple);
 			}
 
@@ -140,20 +140,26 @@ public class SSTableCompactor {
 		}
 	}
 
-	
+
 	/**
 	 * Check for the thread termination
-	 * @throws StorageManagerException 
+	 * @param tuple
+	 * @throws StorageManagerException
 	 */
-	private void checkForThreadTermination() throws StorageManagerException {
+	private void checkForTermination(final Tuple tuple) throws StorageManagerException {
+
 		if(Thread.currentThread().isInterrupted()) {
 			throw new StorageManagerException("The curent thread is interrupted, stop compact");
+		}
+
+		if(tuple == null) {
+			throw new StorageManagerException("Got a null tuple, stop compact");
 		}
 	}
 
 	/**
 	 *  Deleted tuples can be removed in a major compactification
-	 *  only when no duplicate keys are allowed. Otherwise this is needed to 
+	 *  only when no duplicate keys are allowed. Otherwise this is needed to
 	 *  invalidate tuples in the tuple history
 	 * @return
 	 */
@@ -161,25 +167,25 @@ public class SSTableCompactor {
 		if(! isMajorCompaction()) {
 			return false;
 		}
-		
+
 		if(tupleStoreManager.getTupleStoreConfiguration().isAllowDuplicates()) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Add the given tuple to the output file
 	 * @param tuple
 	 * @throws StorageManagerException
 	 */
 	private void addTupleToWriter(final Tuple tuple) throws StorageManagerException {
-		
+
 		if(tuple instanceof DeletedTuple && skipDeletedTuplesToOutput()) {
 			return;
 		}
-		
+
 		openNewWriterIfNeeded(tuple);
 		sstableWriter.addNextTuple(tuple);
 		writtenTuples++;
@@ -187,25 +193,25 @@ public class SSTableCompactor {
 
 	/**
 	 * Handle the error during compact
-	 * @param e 
-	 * @throws StorageManagerException 
+	 * @param e
+	 * @throws StorageManagerException
 	 */
-	private void handleErrorDuringCompact(final StorageManagerException e) 
+	private void handleErrorDuringCompact(final StorageManagerException e)
 			throws StorageManagerException {
-		
+
 		successfully = false;
 
 		closeSSTableWriter();
-		
+
 		// Delete partial written results
 		logger.debug("Deleting partial written results");
 		resultList.forEach(s -> s.deleteFromDisk());
 		resultList.clear();
-		
+
 		final boolean oneNotReady = sstableIndexReader
 				.stream()
 				.anyMatch(r -> ! r.isReady());
-			
+
 		if(oneNotReady) {
 			logger.debug("Suppressing exception on shutdown reader", e);
 		} else {
@@ -221,13 +227,13 @@ public class SSTableCompactor {
 		if(sstableWriter == null) {
 			return;
 		}
-		
+
 		try {
 			sstableWriter.close();
 			sstableWriter = null;
 		} catch (StorageManagerException e) {
 			logger.error("Got an exception while closing writer in error handler", e);
-		} 
+		}
 	}
 
 	/**
@@ -238,12 +244,12 @@ public class SSTableCompactor {
 	 */
 	private void openNewWriterIfNeeded(final Tuple tuple)
 			throws StorageManagerException {
-		
+
 		if(sstableWriter == null) {
 			sstableWriter = openNewSSTableWriter();
 			return;
 		}
-		
+
 		// Check max table size limit
 		if(sstableWriter.getWrittenBytes() + tuple.getSize() > SSTableConst.MAX_SSTABLE_SIZE) {
 			sstableWriter.close();
@@ -253,21 +259,21 @@ public class SSTableCompactor {
 
 	/**
 	 * Open a new SSTable writer
-	 * @param resultList 
-	 * @return 
+	 * @param resultList
+	 * @return
 	 * @throws StorageManagerException
 	 */
-	private SSTableWriter openNewSSTableWriter() 
+	private SSTableWriter openNewSSTableWriter()
 			throws StorageManagerException {
-		
+
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(sstableIndexReader);
 
-		final String directory = sstableIndexReader.get(0).getDirectory();		
+		final String directory = sstableIndexReader.get(0).getDirectory();
 		final int tablenumber = tupleStoreManager.increaseTableNumber();
-		
-		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreManager.getTupleStoreName(), 
+
+		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreManager.getTupleStoreName(),
 				tablenumber, estimatedMaxNumberOfEntries);
-				
+
 		sstableWriter.open();
 		resultList.add(sstableWriter);
 		logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
@@ -290,7 +296,7 @@ public class SSTableCompactor {
 	public void setMajorCompaction(boolean majorCompaction) {
 		this.majorCompaction = majorCompaction;
 	}
-	
+
 	/**
 	 * Get the amount of read tuples
 	 * @return
@@ -298,7 +304,7 @@ public class SSTableCompactor {
 	public int getReadTuples() {
 		return readTuples;
 	}
-	
+
 	/**
 	 * Get the amount of written tuples
 	 * @return
@@ -306,7 +312,7 @@ public class SSTableCompactor {
 	public int getWrittenTuples() {
 		return writtenTuples;
 	}
-	
+
 	/**
 	 * Get the writer result list
 	 * @return
@@ -314,7 +320,7 @@ public class SSTableCompactor {
 	public List<SSTableWriter> getResultList() {
 		return resultList;
 	}
-	
+
 	/**
 	 * Was the compact successfully finished
 	 * @return
