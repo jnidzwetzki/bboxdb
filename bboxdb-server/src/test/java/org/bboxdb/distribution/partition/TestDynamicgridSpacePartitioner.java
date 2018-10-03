@@ -164,21 +164,21 @@ public class TestDynamicgridSpacePartitioner {
 		Assert.assertEquals(2, newRegions.size());
 
 		final int newChilden1 = regionToSplit.getParent().getThisAndChildRegions().size();
-		Assert.assertTrue(oldChildren + 2 == newChilden1);
+		Assert.assertEquals(oldChildren + 2, newChilden1);
 
 		spacePartitioner.splitComplete(regionToSplit, newRegions);
 
 		final int newChilden2 = regionToSplit.getParent().getThisAndChildRegions().size();
-		Assert.assertTrue(oldChildren + 1 == newChilden2);
+		Assert.assertEquals(oldChildren + 1, newChilden2);
 
 		// Merge failed
 		final DistributionRegion mergeRegion1 = spacePartitioner.getDestinationForMerge(newRegions);
-		Assert.assertTrue(mergeRegion1 != null);
+		Assert.assertNotNull(mergeRegion1);
 		spacePartitioner.mergeFailed(newRegions, mergeRegion1);
 
 		// Merge successfully
 		final DistributionRegion mergeRegion2 = spacePartitioner.getDestinationForMerge(newRegions);
-		Assert.assertTrue(mergeRegion2 != null);
+		Assert.assertNotNull(mergeRegion2);
 		spacePartitioner.mergeComplete(newRegions, mergeRegion2);
 	}
 
