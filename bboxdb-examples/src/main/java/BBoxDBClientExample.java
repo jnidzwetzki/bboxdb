@@ -137,10 +137,8 @@ public class BBoxDBClientExample {
 		}
 		
 		// Output all tuples
-		for(final Tuple tuple : resultFuture1) {
-			System.out.println(tuple);
-		}
-		
+		resultFuture1.forEach(t -> System.out.println(t));
+
 		// Query by bounding box
 		final TupleListFuture resultFuture2 = bboxdbClient.queryRectangle(mytable, new Hyperrectangle(-0.5d, 1d, -0.5d, 1d));
 		
@@ -153,9 +151,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Output all tuples
-		for(final Tuple tuple : resultFuture2) {
-			System.out.println("Tuple: " + tuple);
-		}
+		resultFuture2.forEach(t -> System.out.println(t));
 
 		bboxdbClient.close();
 	}
