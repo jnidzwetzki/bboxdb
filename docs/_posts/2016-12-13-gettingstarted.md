@@ -78,7 +78,7 @@ Query done
 The tuple is loaded from BBoxDB and printed on the console. The Key, the Bounding Box and the GeoJSON data (the value) of the tuple are printed. The area around the Alexanderplatz can be roughly expressed by a square with the following coordinates: 13.410, 52.520 for the lower left corner and 13.415, 52.525 for the upper right corner. The following command can be used, to fetch all trees, which lie inside of the square:
 
 ```bash
-$BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_germanytree -bbox 13.410,52.520:13.415,52.525
+$BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_germanytree -bbox 52.520,52.525:13.410,13.415
 
 [...]
 Key 37587, BoundingBox=[52.4558036:52.4558036,13.4450991:13.4450991], value={"geometry":{"coordinates":[52.4558036,13.4450991],"type":"Point"},"id":3451433771,"type":"Feature","properties":{"natural":"tree","leaf_cycle":"deciduous","leaf_type":"broadleaved"}}, version timestamp=1493788236276020
