@@ -186,10 +186,13 @@ public class Polygon implements Serializable {
 		} else {
 			geometryJson.put(JSON_TYPE, "Polygon");
 
+			final JSONArray pointsJson = new JSONArray();
+			coordinateJson.put(pointsJson);
+			
 			for(OSMPoint point : pointList) {
 				final JSONArray coordinatesJson = new JSONArray();
-				coordinateJson.put(coordinatesJson);
-
+				pointsJson.put(coordinatesJson);
+				
 				coordinatesJson.put(point.getX());
 				coordinatesJson.put(point.getY());
 			}
@@ -223,10 +226,12 @@ public class Polygon implements Serializable {
 			final double coordiante0 = coordinates.getDouble(0);
 			final double coordiante1 = coordinates.getDouble(1);
 			polygon.addPoint(coordiante0, coordiante1);
-		} else if(coordinates.length() > 1) {
+		} else if(coordinates.length() == 1) {
+			final JSONArray coordinatesArray = coordinates.getJSONArray(0);
+			
 			// Polygon
-			for(int i = 0; i < coordinates.length(); i++) {
-				final JSONArray jsonArray = coordinates.getJSONArray(i);
+			for(int i = 0; i < coordinatesArray.length(); i++) {
+				final JSONArray jsonArray = coordinatesArray.getJSONArray(i);
 				final double coordiante0 = jsonArray.getDouble(0);
 				final double coordiante1 = jsonArray.getDouble(1);
 				polygon.addPoint(coordiante0, coordiante1);

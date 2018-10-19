@@ -13,6 +13,7 @@ order: 1
 - Bugfix: Fixed data redistribution
 - Bugfix: Prevent exceptions during compactifications on shutdown
 - Bugfix: Handle null tuples during compact
+- Bugfix: Fixed JSON polygon encoding
 
 ### Version 0.8.3 - 28.09.2018
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)

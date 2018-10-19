@@ -141,7 +141,7 @@ public class TestPolygon {
 	 */
 	@Test
 	public void testOSMEncoding() {
-		final String testLine = "{\"geometry\":{\"coordinates\":[[52.512283800000006,13.4482379],[52.512195000000006,13.4483031],[52.512145200000006,13.4483396],[52.5118676,13.448543500000001],[52.5117856,13.448603700000001],[52.511732300000006,13.4486428],[52.5116651,13.4486921],[52.511389,13.4488949],[52.511228100000004,13.449013]],\"type\":\"Polygon\"},\"id\":1,\"type\":\"Feature\",\"properties\":{\"surface\":\"asphalt\"}}";
+		final String testLine = "{\"geometry\":{\"coordinates\":[[[52.512283800000006,13.4482379],[52.512195000000006,13.4483031],[52.512145200000006,13.4483396],[52.5118676,13.448543500000001],[52.5117856,13.448603700000001],[52.511732300000006,13.4486428],[52.5116651,13.4486921],[52.511389,13.4488949],[52.511228100000004,13.449013]]],\"type\":\"Polygon\"},\"id\":1,\"type\":\"Feature\",\"properties\":{\"surface\":\"asphalt\"}}";
 		final Polygon polygon = Polygon.fromGeoJson(testLine);
 		Assert.assertEquals(2, polygon.getBoundingBox().getDimension());
 		Assert.assertTrue(polygon.getBoundingBox().getExtent(0) > 0);
