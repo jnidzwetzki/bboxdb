@@ -254,7 +254,7 @@ public class DataRedistributionLoader implements Runnable {
 					logger.error("Got error while inserting tuple", e);
 				}
 
-				if(lineNumber.get() % 1000 == 0) {
+				if(lineNumber.get() % 5000 == 0) {
 					System.out.format("Loaded %d elements\n", lineNumber.get());
 				}
 			});
