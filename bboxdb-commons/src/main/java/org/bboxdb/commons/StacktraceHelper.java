@@ -23,11 +23,19 @@ public class StacktraceHelper {
 	 * Print the full stack trace
 	 */
 	public static String getFormatedStacktrace() {
+		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		return getFormatedStacktrace(stackTrace);
+	}
+
+	/**
+	 * Get a formated stack trace
+	 * @param stackTrace
+	 * @return
+	 */
+	public static String getFormatedStacktrace(final StackTraceElement[] stackTrace) {
 		final StringBuilder sb = new StringBuilder();
 		
 		sb.append("=======================\n");
-		
-		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		
 		for(final StackTraceElement stackTraceElement : stackTrace) {
 			sb.append(stackTraceElement.toString());
