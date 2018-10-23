@@ -19,13 +19,16 @@ package org.bboxdb.storage.memtable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
@@ -39,8 +42,6 @@ import org.bboxdb.storage.wal.WriteAheadLogWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.hash.BloomFilter;
-
 public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	
 	/**
@@ -52,11 +53,6 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	 * The memtable
 	 */
 	private final Tuple[] data;
-	
-	/**
-	 * The bloom filter
-	 */
-	private final BloomFilter<String> bloomFilter;
 	
 	/**
 	 * The spatial index
@@ -114,6 +110,11 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	private final WriteAheadLogWriter walWriter;
 	
 	/**
+	 * The key position map
+	 */
+	private final Map<String, Set<Integer>> keyPositions;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
@@ -130,7 +131,6 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		this.freePos = -1;
 		this.sizeInMemory = 0;
 		
-		this.bloomFilter = BloomFilterBuilder.buildBloomFilter(entries);
 		this.spatialIndex = SpatialIndexBuilderFactory.getInstance();
 		
 		this.createdTimestamp = System.currentTimeMillis();
@@ -139,6 +139,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		
 		this.usage = new AtomicInteger(0);
 		this.pendingDelete = false;
+		this.keyPositions = new HashMap<>();
 	}
 
 	@Override
@@ -158,7 +159,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	}
 
 	@Override
-	public void put(final Tuple value) throws StorageManagerException {
+	public void put(final Tuple tuple) throws StorageManagerException {
 		
 		assert (usage.get() > 0);
 		
@@ -167,27 +168,28 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		}
 		
 		if(walWriter != null) {
-			walWriter.addTuple(value);
+			walWriter.addTuple(tuple);
 		}
 
-		data[freePos] = value;
-		bloomFilter.put(value.getKey());
-		final SpatialIndexEntry indexEntry = new SpatialIndexEntry(value.getBoundingBox(), freePos);
+		data[freePos] = tuple;
+		final SpatialIndexEntry indexEntry = new SpatialIndexEntry(tuple.getBoundingBox(), freePos);
 		spatialIndex.insert(indexEntry);
 		
+		keyPositions.computeIfAbsent(tuple.getKey(), (e) -> new HashSet<>()).add(freePos);
+		
 		freePos++;
-		sizeInMemory = sizeInMemory + value.getSize();
+		sizeInMemory = sizeInMemory + tuple.getSize();
 		
 		if(oldestTupleTimestamp == -1) {
-			oldestTupleTimestamp = value.getVersionTimestamp();
+			oldestTupleTimestamp = tuple.getVersionTimestamp();
 		} else {
-			oldestTupleTimestamp = Math.min(oldestTupleTimestamp, value.getVersionTimestamp());
+			oldestTupleTimestamp = Math.min(oldestTupleTimestamp, tuple.getVersionTimestamp());
 		}
 		
 		if(newestTupleTimestamp == -1) {
-			newestTupleTimestamp = value.getVersionTimestamp();
+			newestTupleTimestamp = tuple.getVersionTimestamp();
 		} else {
-			newestTupleTimestamp = Math.max(newestTupleTimestamp, value.getVersionTimestamp());
+			newestTupleTimestamp = Math.max(newestTupleTimestamp, tuple.getVersionTimestamp());
 		}
 	}
 
@@ -201,18 +203,14 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		assert (usage.get() > 0) : "Usage is 0";
 		
 		final List<Tuple> resultList = new ArrayList<>();
+		final Set<Integer> positions = keyPositions.get(key);
 		
-		// The element is not contained in the bloom filter
-		if(! bloomFilter.mightContain(key)) {
+		if(positions == null || positions.isEmpty()) {
 			return resultList;
 		}
-				
-		for(int i = 0; i < freePos; i++) {
-			final Tuple possibleTuple = data[i];
-			
-			if(possibleTuple != null && possibleTuple.getKey().equals(key)) {
-				resultList.add(possibleTuple);
-			}
+		
+		for(final int pos : positions) {
+			resultList.add(data[pos]);
 		}
 		
 		return resultList;
