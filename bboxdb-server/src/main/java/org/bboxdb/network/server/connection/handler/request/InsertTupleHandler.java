@@ -87,7 +87,7 @@ public class InsertTupleHandler implements RequestHandler {
 		} catch(RejectedException e) {
 			final String stacktrace = StacktraceHelper.getFormatedStacktrace(e.getStackTrace());
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
-					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY + " " + stacktrace);
+					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY + "" + e.getMessage() + " " + stacktrace);
 			clientConnectionHandler.writeResultPackage(responsePackage);	
 		} catch (Throwable e) {
 			logger.error("Error while inserting tuple", e);
