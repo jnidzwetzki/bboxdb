@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.commons.StacktraceHelper;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -84,8 +85,9 @@ public class InsertTupleHandler implements RequestHandler {
 			processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
 			
 		} catch(RejectedException e) {
+			final String stacktrace = StacktraceHelper.getFormatedStacktrace(e.getStackTrace());
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
-					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY + " " + e.getMessage());
+					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY + " " + stacktrace);
 			clientConnectionHandler.writeResultPackage(responsePackage);	
 		} catch (Throwable e) {
 			logger.error("Error while inserting tuple", e);
