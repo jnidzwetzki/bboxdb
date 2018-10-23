@@ -715,7 +715,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		if(getDimension() == 0 || otherBox.getDimension() == 0) {
 			return FULL_SPACE;
-		}
+		}	
 
 		throwExceptionIfDimensionNotMatch(otherBox);
 
@@ -745,7 +745,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		if(getDimension() != otherBox.getDimension()) {
 			throw new IllegalArgumentException(
-					"Unable to calculate intersection for boundig boxes with differnet dimensions: "
+					"Unable to perform operation for boundig boxes with differnet dimensions: "
 					+ getDimension() + " " + otherBox.getDimension());
 		}
 
