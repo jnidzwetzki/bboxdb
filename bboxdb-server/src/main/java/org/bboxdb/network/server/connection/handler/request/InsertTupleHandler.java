@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -84,15 +85,19 @@ public class InsertTupleHandler implements RequestHandler {
 			final DistributionGroupConfiguration groupConfiguration = DistributionGroupConfigurationCache
 					.getInstance().getDistributionGroupConfiguration(distributionGroup);
 			
-			final int groupDimensions = groupConfiguration.getDimensions();
-			final int tupleDimensions = insertTupleRequest.getTuple().getBoundingBox().getDimension();
-			
-			if(groupDimensions != tupleDimensions) {
-				final String errorMessage = ErrorMessages.ERROR_TUPLE_HAS_WRONG_DIMENSION 
-						+ " Group " + groupDimensions + " tuple " + tupleDimensions;
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
-				clientConnectionHandler.writeResultPackage(responsePackage);				
-				return true;
+			final Hyperrectangle boundingBox = insertTupleRequest.getTuple().getBoundingBox();
+
+			if(! boundingBox.equals(Hyperrectangle.FULL_SPACE)) {
+				final int groupDimensions = groupConfiguration.getDimensions();
+				final int tupleDimensions = boundingBox.getDimension();
+				
+				if(groupDimensions != tupleDimensions) {
+					final String errorMessage = ErrorMessages.ERROR_TUPLE_HAS_WRONG_DIMENSION 
+							+ " Group " + groupDimensions + " tuple " + tupleDimensions;
+					final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+					clientConnectionHandler.writeResultPackage(responsePackage);				
+					return true;
+				}
 			}
 			
 			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
