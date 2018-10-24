@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.8.5 - TBA
+- Improvement: Automatically repair defective GeoJSON geometries (automatically close polygons)
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation

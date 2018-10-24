@@ -149,7 +149,16 @@ public class Polygon implements Serializable {
 	 * @return
 	 */
 	public String toFormatedGeoJson() {
-		final JSONObject featureJson = buildJSON();
+		return toFormatedGeoJson(true);
+	}
+
+	/**
+	 * Convert to formated geoJson
+	 * @param repair
+	 * @return
+	 */
+	public String toFormatedGeoJson(final boolean repair) {
+		final JSONObject featureJson = buildJSON(repair);
 		return featureJson.toString(3);
 	}
 
@@ -158,15 +167,25 @@ public class Polygon implements Serializable {
 	 * @return
 	 */
 	public String toGeoJson() {
-		final JSONObject featureJson = buildJSON();
+		return toGeoJson(true);
+	}
+
+	/**
+	 * Convert to geojson and repair defective geometries
+	 * @param b
+	 * @return
+	 */
+	public String toGeoJson(final boolean repair) {
+		final JSONObject featureJson = buildJSON(repair);
 		return featureJson.toString();
 	}
 
 	/**
 	 * Build the JSON representation
+	 * @param repair 
 	 * @return
 	 */
-	protected JSONObject buildJSON() {
+	protected JSONObject buildJSON(final boolean repair) {
 		final JSONObject featureJson = new JSONObject();
 		featureJson.put(JSON_TYPE, JSON_FEATURE);
 		featureJson.put(JSON_ID, id);
@@ -196,6 +215,18 @@ public class Polygon implements Serializable {
 				coordinatesJson.put(point.getX());
 				coordinatesJson.put(point.getY());
 			}
+			
+			// Repair: Close the polygon if needed
+			if(repair)  {
+				if(! pointList.get(0).equals(pointList.get(pointList.size() - 1))) {
+					final OSMPoint point = pointList.get(0);
+					final JSONArray coordinatesJson = new JSONArray();
+					pointsJson.put(coordinatesJson);
+					
+					coordinatesJson.put(point.getX());
+					coordinatesJson.put(point.getY());
+				}
+			}
 		}
 
 		final JSONObject propertiesJson = new JSONObject();
@@ -203,6 +234,7 @@ public class Polygon implements Serializable {
 		for(final String key : properties.keySet()) {
 			propertiesJson.put(key, properties.get(key));
 		}
+		
 		return featureJson;
 	}
 
@@ -246,6 +278,14 @@ public class Polygon implements Serializable {
 		}
 
 		return polygon;
+	}
+	
+	/**
+	 * Get the point list
+	 * @return
+	 */
+	public List<OSMPoint> getPointList() {
+		return pointList;
 	}
 
 	@Override
