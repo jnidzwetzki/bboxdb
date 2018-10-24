@@ -136,6 +136,7 @@
 	<modules>
 		<module>bboxdb-commons</module>
 		<module>bboxdb-server</module>
+		<module>bboxdb-network-proxy</module>
 		<module>bboxdb-tools</module>
 		<module>bboxdb-experiments</module>
 		<module>bboxdb-examples</module>
