@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
@@ -27,6 +28,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
+import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -219,5 +221,17 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	@VisibleForTesting
 	public DistributionRegionSyncer getDistributionRegionSyncer() {
 		return distributionRegionSyncer;
+	}
+	
+	/**
+	 * Wait until the node state is
+	 * @param region
+	 * @param state
+	 * @throws InterruptedException 
+	 */
+	@VisibleForTesting
+	public void waitUntilNodeStateIs(final DistributionRegion region, final DistributionRegionState state) throws InterruptedException {
+		final Predicate<DistributionRegion> predicate = (r) -> r.getState() == state;
+		DistributionRegionSyncerHelper.waitForPredicate(predicate, region, distributionRegionSyncer);
 	}
 }
