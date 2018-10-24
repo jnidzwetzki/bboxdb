@@ -83,4 +83,14 @@ public class ErrorMessages {
 	 * The tuple is already locked
 	 */
 	public final static String ERROR_LOCK_FAILED_ALREADY_LOCKED = "Tuple is already locked";
+	
+	/**
+	 * The package is not routed
+	 */
+	public final static String ERROR_PACKAGE_NOT_ROUTED = "Package is not routed";
+	
+	/**
+	 * The tuple has the wrong dimension for the group
+	 */
+	public final static String ERROR_TUPLE_HAS_WRONG_DIMENSION = "The tuple has the wrong dimension for the group";
 }

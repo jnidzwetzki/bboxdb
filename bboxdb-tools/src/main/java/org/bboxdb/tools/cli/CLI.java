@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -673,7 +672,6 @@ public class CLI implements Runnable, AutoCloseable {
 				() -> "Untable to parse: " + paddingString);
 
 		System.out.format("Importing file: %s with padding %f%n", filename, padding);
-		final AtomicLong failedLines = new AtomicLong(0);
 		
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format, padding);
 		tupleFile.addTupleListener(t -> {
@@ -682,11 +680,6 @@ public class CLI implements Runnable, AutoCloseable {
 				System.out.format("Read %d lines%n", tupleFile.getProcessedLines());
 			}
 
-			if(t == null) {
-				failedLines.incrementAndGet();
-				return;
-			}
-			
 			try {
 				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, t);
 				pendingFutures.put(result);
@@ -699,8 +692,11 @@ public class CLI implements Runnable, AutoCloseable {
 		try {
 			tupleFile.processFile();
 			pendingFutures.waitForCompletion();
+			final long skippedLines = tupleFile.getSkippedLines();
+			final long processedLines = tupleFile.getProcessedLines();
+			
 			System.out.format("Successfully imported %d lines (and skipped %d invalid lines) %n", 
-					tupleFile.getProcessedLines() - failedLines.get(), failedLines.get());
+					processedLines - skippedLines, skippedLines);
 		} catch (IOException e) {
 			logger.error("Got IO Exception while reading data", e);
 			System.exit(-1);

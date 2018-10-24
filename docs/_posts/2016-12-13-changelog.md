@@ -18,6 +18,7 @@ order: 1
 - Bugfix: Prevent exceptions during compactifications on shutdown
 - Bugfix: Handle null tuples during compact
 - Bugfix: Fixed JSON polygon encoding
+- Bugfix: Prevent the insertion of tuples with the wrong dimension for the distribution group
 
 ### Version 0.8.3 - 28.09.2018
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)
