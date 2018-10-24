@@ -32,9 +32,11 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.RoutingHeaderHelper;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -346,8 +348,12 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
 		System.out.println("Insert tuple - with dimension 1 into group with dimension 2");
+		
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+				table, Hyperrectangle.FULL_SPACE, false, bboxdbConnection.getServerAddress());
+		
 		final Tuple tuple = new Tuple("key12", new Hyperrectangle(1.2, 5.0), "abc".getBytes());
-		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader);
 
 		// Prevent retries
 		insertResult.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
