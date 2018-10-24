@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -40,6 +41,7 @@ import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.lock.LockManager;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -77,10 +79,26 @@ public class InsertTupleHandler implements RequestHandler {
 		try {			
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
+			// Does the tuple have the right dimension?
+			final String distributionGroup = insertTupleRequest.getTable().getDistributionGroup();
+			final DistributionGroupConfiguration groupConfiguration = DistributionGroupConfigurationCache
+					.getInstance().getDistributionGroupConfiguration(distributionGroup);
+			
+			final int groupDimensions = groupConfiguration.getDimensions();
+			final int tupleDimensions = insertTupleRequest.getTuple().getBoundingBox().getDimension();
+			
+			if(groupDimensions != tupleDimensions) {
+				final String errorMessage = ErrorMessages.ERROR_TUPLE_HAS_WRONG_DIMENSION 
+						+ " Group " + groupDimensions + " tuple " + tupleDimensions;
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+				clientConnectionHandler.writeResultPackage(responsePackage);				
+				return true;
+			}
+			
 			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 	
 			if(! routingHeader.isRoutedPackage()) {
-				final String errorMessage = "Error while inserting tuple - package is not routed";
+				final String errorMessage = ErrorMessages.ERROR_PACKAGE_NOT_ROUTED;
 				logger.error(errorMessage);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 				clientConnectionHandler.writeResultPackage(responsePackage);

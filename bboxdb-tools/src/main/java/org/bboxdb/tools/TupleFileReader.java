@@ -57,6 +57,11 @@ public class TupleFileReader {
 	 * The amount of processed lines
 	 */
 	private long lineNumber;
+	
+	/**
+	 * The number of skipped lines
+	 */
+	private long skippedLines;
 
 	/**
 	 * The last read file
@@ -109,12 +114,17 @@ public class TupleFileReader {
 		
 		try(final Stream<String> fileStream = Files.lines(Paths.get(filename))) {
 			lineNumber = 1;
+			skippedLines = 0;
 			
 			for (final Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
 				fileLine = iterator.next();
 				final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), fileLine);
 				
-				callbacks.forEach(c -> c.accept(tuple));
+				if(tuple == null) {
+					skippedLines++;
+				} else {
+					callbacks.forEach(c -> c.accept(tuple));
+				}
 				
 				lineNumber++;
 				
@@ -131,6 +141,14 @@ public class TupleFileReader {
 	 */
 	public long getProcessedLines() {
 		return lineNumber;
+	}
+	
+	/**
+	 * Get the amount of skipped lines
+	 * @return
+	 */
+	public long getSkippedLines() {
+		return skippedLines;
 	}
 	
 	/**
