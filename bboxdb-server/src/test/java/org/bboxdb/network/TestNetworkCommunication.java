@@ -63,6 +63,9 @@ public class TestNetworkCommunication {
 	 */
 	public final static short REPLICATION_FACTOR = 1;
 
+	/**
+	 * The name of the distribution group
+	 */
 	private static final String DISTRIBUTION_GROUP = "testgroup";
 
 	@BeforeClass
@@ -322,6 +325,44 @@ public class TestNetworkCommunication {
 		bboxDBClient.close();
 
 		System.out.println("=== End testInsertIntoNonExstingTable");
+	}
+	
+	/**
+	 * Test insert with the wrong dimension
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	@Test(timeout=60000)
+	public void testInsertWithWrongDimension() throws BBoxDBException, InterruptedException {
+		System.out.println("=== Running testInsertWithWrongDimension");
+
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_mytableinsert";
+
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForCompletion();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		System.out.println("Insert tuple - with dimension 1 into group with dimension 2");
+		final Tuple tuple = new Tuple("key12", new Hyperrectangle(1.2, 5.0), "abc".getBytes());
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+
+		// Prevent retries
+		insertResult.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+
+		insertResult.waitForCompletion();
+		final String message = insertResult.getMessage(0);
+		System.out.println(message);
+
+		Assert.assertTrue(insertResult.isFailed());
+		Assert.assertTrue(insertResult.isDone());
+		Assert.assertTrue(message.contains(ErrorMessages.ERROR_TUPLE_HAS_WRONG_DIMENSION));
+
+		bboxDBClient.close();
+
+		System.out.println("=== End testInsertWithWrongDimension");
 	}
 
 	/**
