@@ -699,7 +699,7 @@ public class CLI implements Runnable, AutoCloseable {
 		try {
 			tupleFile.processFile();
 			pendingFutures.waitForCompletion();
-			System.out.format("Successfully imported %d lines (and %d failed) lines %n", 
+			System.out.format("Successfully imported %d lines (and skipped %d invalid lines) %n", 
 					tupleFile.getProcessedLines(), failedLines.get());
 		} catch (IOException e) {
 			logger.error("Got IO Exception while reading data", e);
