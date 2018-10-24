@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>org.bboxdb</groupId>
 		<artifactId>bboxdb-parent</artifactId>
-		<version>0.8.4</version>
+		<version>0.8.5</version>
 	</parent>
 
 	<dependencies>
