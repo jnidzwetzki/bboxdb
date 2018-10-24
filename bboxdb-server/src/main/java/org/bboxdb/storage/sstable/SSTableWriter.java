@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.List;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.storage.BloomFilterBuilder;
@@ -112,7 +111,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The spatial index
 	 */
-	private SpatialIndexBuilder spatialIndex;
+	private final SpatialIndexBuilder spatialIndex;
 	
 	/**
 	 * The error flag
@@ -318,29 +317,6 @@ public class SSTableWriter implements AutoCloseable {
 	}
 	
 	/**
-	 * Add the list of indexed tuples to the sstable
-	 * @param tuples
-	 * @throws StorageManagerException
-	 */
-	public void insertIndexedData(final List<Tuple> tuples, final SpatialIndexBuilder spatialIndexBuilder) 
-			throws StorageManagerException {
-		
-		assert(sstableIndexOutputStream != null) : "Output stream has to be open";
-		assert(getWrittenBytes() == SSTableConst.MAGIC_BYTES_SSTABLE.length) : "The insert bulk operation can be only called one time";
-			
-		try {
-			for(final Tuple tuple : tuples) {
-				addTupleWithoutSpatialIndex(tuple);
-			}
-			
-			this.spatialIndex = spatialIndexBuilder;
-		} catch(StorageManagerException e) {
-			exceptionDuringWrite = true;
-			throw e;
-		}
-	}
-
-	/**
 	 * Set the error flag
 	 */
 	@VisibleForTesting
@@ -370,8 +346,17 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws StorageManagerException
 	 */
 	public void addTuples(final Collection<Tuple> tuples) throws StorageManagerException {
-		for(final Tuple tuple : tuples) {
-			addTuple(tuple);
+		
+		assert(sstableOutputStream != null) : "The output stream has to be open";
+			
+		try {
+			for(final Tuple tuple : tuples) {
+				addTuple(tuple);
+			}
+			
+		} catch(StorageManagerException e) {
+			exceptionDuringWrite = true;
+			throw e;
 		}
 	}
 
