@@ -11,6 +11,7 @@ order: 1
 - Improvement: Switched mockito-core from 2.21.0 to 2.23.0, from 26.0-jre to 27.0-jre and osmosis-pbf from 0.46 to 0.47
 - Improvement: Added a lot of performance related improvements
 - Improvement: Full stacktraces can be included in insert operation errors
+- Improvement: Added failed lines counter to CLI import operation
 - Bugfix: Fixed data redistribution
 - Bugfix: Prevent exceptions during compactifications on shutdown
 - Bugfix: Handle null tuples during compact

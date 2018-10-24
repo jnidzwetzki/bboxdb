@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -672,15 +673,16 @@ public class CLI implements Runnable, AutoCloseable {
 				() -> "Untable to parse: " + paddingString);
 
 		System.out.format("Importing file: %s with padding %f%n", filename, padding);
-
+		final AtomicLong failedLines = new AtomicLong(0);
+		
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format, padding);
 		tupleFile.addTupleListener(t -> {
 
 			if(t == null) {
-				logger.error("Unable to parse line: {}", tupleFile.getLastReadLine());
+				failedLines.incrementAndGet();
 				return;
 			}
-
+			
 			if(tupleFile.getProcessedLines() % 1000 == 0) {
 				System.out.format("Read %d lines%n", tupleFile.getProcessedLines());
 			}
@@ -697,7 +699,8 @@ public class CLI implements Runnable, AutoCloseable {
 		try {
 			tupleFile.processFile();
 			pendingFutures.waitForCompletion();
-			System.out.format("Successfully imported %d lines%n", tupleFile.getProcessedLines());
+			System.out.format("Successfully imported %d lines (and %d failed) lines %n", 
+					tupleFile.getProcessedLines(), failedLines.get());
 		} catch (IOException e) {
 			logger.error("Got IO Exception while reading data", e);
 			System.exit(-1);
