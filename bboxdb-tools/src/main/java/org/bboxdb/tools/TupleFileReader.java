@@ -114,9 +114,7 @@ public class TupleFileReader {
 				fileLine = iterator.next();
 				final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), fileLine);
 				
-				if(tuple != null) {
-					callbacks.forEach(c -> c.accept(tuple));
-				}
+				callbacks.forEach(c -> c.accept(tuple));
 				
 				lineNumber++;
 				
