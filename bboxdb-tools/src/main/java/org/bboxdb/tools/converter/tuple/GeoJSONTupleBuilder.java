@@ -27,6 +27,10 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 		final Polygon polygon = Polygon.fromGeoJson(valueData);
 		final byte[] tupleBytes = polygon.toGeoJson().getBytes();
 
+		if(polygon.getBoundingBox().getDimension() == 0) {
+			return null;
+		}
+		
 		return new Tuple(keyData, polygon.getBoundingBox().enlarge(boxPadding), tupleBytes);
 	}
 

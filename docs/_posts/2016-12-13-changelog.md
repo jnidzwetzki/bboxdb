@@ -12,6 +12,7 @@ order: 1
 - Improvement: Added a lot of performance related improvements
 - Improvement: Full stacktraces can be included in insert operation errors
 - Improvement: Added failed lines counter to CLI import operation
+- Improvement: The GeoJSON importet skips lines with an invalid dimension
 - Bugfix: Fixed data redistribution
 - Bugfix: Prevent exceptions during compactifications on shutdown
 - Bugfix: Handle null tuples during compact
