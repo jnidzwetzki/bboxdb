@@ -53,10 +53,14 @@ import com.google.common.base.Throwables;
 public class InsertTupleHandler implements RequestHandler {
 	
 	/**
+	 * Should full stacktrace be included in the error message
+	 */
+	public static boolean includeStacktraceInError = true;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(InsertTupleHandler.class);
-	
 
 	@Override
 	/**
@@ -86,17 +90,37 @@ public class InsertTupleHandler implements RequestHandler {
 			processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
 			
 		} catch(RejectedException e) {
-			final String stacktrace = Throwables.getStackTraceAsString(e);
-			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
-					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY + "" + e.getMessage() + " " + stacktrace);
+			final String errorMessage = buildErrorMessage(ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY, e);
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 			clientConnectionHandler.writeResultPackage(responsePackage);	
 		} catch (Throwable e) {
 			logger.error("Error while inserting tuple", e);
-			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
+			final String errorMessage = buildErrorMessage(ErrorMessages.ERROR_EXCEPTION, e);
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 			clientConnectionHandler.writeResultPackage(responsePackage);	
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Build the error message
+	 * @param message
+	 * @param e
+	 * @return
+	 */
+	private String buildErrorMessage(final String message, final Throwable e) {
+		final StringBuilder sb = new StringBuilder(message);
+		
+		sb.append(" ");
+		sb.append(e.getMessage());
+		
+		if(includeStacktraceInError) {
+			sb.append(" ");
+			sb.append(Throwables.getStackTraceAsString(e));
+		}
+		
+		return sb.toString();
 	}
 
 	/**
@@ -120,7 +144,7 @@ public class InsertTupleHandler implements RequestHandler {
 		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 		final RoutingHop localHop = routingHeader.getRoutingHop();
 		
-		PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);		
+		PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);
 		
 		// Remove old locks
 		final LockManager lockManager = clientConnectionHandler.getLockManager();
@@ -166,7 +190,7 @@ public class InsertTupleHandler implements RequestHandler {
 			final String fullname = requestTable.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
 					.getInstance().getSpacePartitionerForGroupName(fullname);
-			
+						
 			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
 					.getDistributionRegionIdMapper();
 
