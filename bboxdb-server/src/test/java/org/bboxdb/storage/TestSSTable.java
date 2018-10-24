@@ -71,7 +71,7 @@ public class TestSSTable {
 		
 		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
-		ssTableWriter.addData(tupleList);
+		ssTableWriter.addTuples(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
 		ssTableWriter.close();
@@ -98,7 +98,7 @@ public class TestSSTable {
 		
 		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
-		ssTableWriter.addData(tupleList);
+		ssTableWriter.addTuples(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
 		
@@ -128,7 +128,7 @@ public class TestSSTable {
 		
 		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
-		ssTableWriter.addData(tupleList);
+		ssTableWriter.addTuples(tupleList);
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
 		ssTableWriter.close();
 		
@@ -190,7 +190,7 @@ public class TestSSTable {
 		
 		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
-		ssTableWriter.addData(tupleList);
+		ssTableWriter.addTuples(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
 		ssTableWriter.close();

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
@@ -111,7 +112,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The spatial index
 	 */
-	private final SpatialIndexBuilder spatialIndex;
+	private SpatialIndexBuilder spatialIndex;
 	
 	/**
 	 * The error flag
@@ -317,21 +318,22 @@ public class SSTableWriter implements AutoCloseable {
 	}
 	
 	/**
-	 * Add the list of tuples to the sstable
+	 * Add the list of indexed tuples to the sstable
 	 * @param tuples
 	 * @throws StorageManagerException
 	 */
-	public void addData(final List<Tuple> tuples) throws StorageManagerException {
-		if(sstableOutputStream == null) {
-			final String error = "Trying to add a memtable to a non ready SSTable writer";
-			logger.error(error);
-			throw new StorageManagerException(error);
-		}
-
+	public void insertIndexedData(final List<Tuple> tuples, final SpatialIndexBuilder spatialIndexBuilder) 
+			throws StorageManagerException {
+		
+		assert(sstableIndexOutputStream != null) : "Output stream has to be open";
+		assert(writtenTuplesTotal.get() == 0) : "The insert bulk operation can be only called one time";
+			
 		try {
 			for(final Tuple tuple : tuples) {
-				addNextTuple(tuple);
+				addTupleWithoutSpatialIndex(tuple);
 			}
+			
+			this.spatialIndex = spatialIndexBuilder;
 		} catch(StorageManagerException e) {
 			exceptionDuringWrite = true;
 			throw e;
@@ -352,7 +354,35 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws IOException
 	 * @throws StorageManagerException 
 	 */
-	public void addNextTuple(final Tuple tuple) throws StorageManagerException {
+	public void addTuple(final Tuple tuple) throws StorageManagerException {
+		final int tuplePosition = addTupleWithoutSpatialIndex(tuple);
+		
+		// Add tuple to the spatial index
+		final SpatialIndexEntry sIndexentry 
+			= new SpatialIndexEntry(tuple.getBoundingBox(), tuplePosition);
+		
+		spatialIndex.insert(sIndexentry);
+	}
+	
+	/**
+	 * Add a list of tuples
+	 * @param tuples
+	 * @throws StorageManagerException
+	 */
+	public void addTuples(final Collection<Tuple> tuples) throws StorageManagerException {
+		for(final Tuple tuple : tuples) {
+			addTuple(tuple);
+		}
+	}
+
+	/**
+	 * Write the tuple without building the spatial index 
+	 * (e.g., for writing pre indexed data) 
+	 * @param tuple
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public int addTupleWithoutSpatialIndex(final Tuple tuple) throws StorageManagerException {
 		try {
 			// Add Tuple to the index
 			final int tuplePosition = (int) sstableOutputStream.getCount();
@@ -368,13 +398,10 @@ public class SSTableWriter implements AutoCloseable {
 			// Add tuple to the bloom filter
 			bloomFilter.put(tuple.getKey());
 			
-			// Add tuple to the spatial index
-			final SpatialIndexEntry sIndexentry 
-				= new SpatialIndexEntry(tuple.getBoundingBox(), tuplePosition);
-			spatialIndex.insert(sIndexentry);
-
 			writtenTuplesTotal.inc();
 			writtenTuplesBytes.inc(writtenBytes);
+			
+			return tuplePosition;
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to write tuple to SSTable", e);

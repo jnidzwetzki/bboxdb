@@ -187,7 +187,7 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 				memtable.getMaxEntries())) {
 
 			ssTableWriter.open();
-			ssTableWriter.addData(memtable.getSortedTupleList());
+			ssTableWriter.insertIndexedData(memtable.getSortedTupleList(), memtable.getSpatialIndexBuilder());
 			return tableNumber;
 		} catch (Exception e) {
 			throw e;

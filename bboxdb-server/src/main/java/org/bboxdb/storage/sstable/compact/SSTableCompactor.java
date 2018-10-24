@@ -187,7 +187,7 @@ public class SSTableCompactor {
 		}
 
 		openNewWriterIfNeeded(tuple);
-		sstableWriter.addNextTuple(tuple);
+		sstableWriter.addTuple(tuple);
 		writtenTuples++;
 	}
 

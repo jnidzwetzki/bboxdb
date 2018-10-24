@@ -422,7 +422,7 @@ public class TestTableCompactor {
 		
 		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, number, EXPECTED_TUPLES);
 		ssTableWriter.open();
-		ssTableWriter.addData(tupleList);
+		ssTableWriter.addTuples(tupleList);
 		ssTableWriter.close();
 		
 		final SSTableReader sstableReader = new SSTableReader(STORAGE_DIRECTORY, TEST_RELATION, number);

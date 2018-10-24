@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.8.5 - TBA
+- Improvement: Prevent double indexing written tuples (the memtable spatial index is reused for the SSTable)
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation

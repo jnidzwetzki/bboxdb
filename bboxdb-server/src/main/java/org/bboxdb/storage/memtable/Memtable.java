@@ -57,7 +57,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * The spatial index
 	 */
-	private final SpatialIndexBuilder spatialIndex;
+	private final SpatialIndexBuilder spatialIndexBuilder;
 	
 	/**
 	 * The next free position in the data array
@@ -131,7 +131,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		this.freePos = -1;
 		this.sizeInMemory = 0;
 		
-		this.spatialIndex = SpatialIndexBuilderFactory.getInstance();
+		this.spatialIndexBuilder = SpatialIndexBuilderFactory.getInstance();
 		
 		this.createdTimestamp = System.currentTimeMillis();
 		this.oldestTupleTimestamp = -1;
@@ -173,7 +173,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 		data[freePos] = tuple;
 		final SpatialIndexEntry indexEntry = new SpatialIndexEntry(tuple.getBoundingBox(), freePos);
-		spatialIndex.insert(indexEntry);
+		spatialIndexBuilder.insert(indexEntry);
 		
 		keyPositions.computeIfAbsent(tuple.getKey(), (e) -> new HashSet<>()).add(freePos);
 		
@@ -471,7 +471,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	public Iterator<Tuple> getAllTuplesInBoundingBox(final Hyperrectangle boundingBox) {
 		assert (usage.get() > 0);
 
-		final List<? extends SpatialIndexEntry> matchingKeys = spatialIndex.getEntriesForRegion(boundingBox);
+		final List<? extends SpatialIndexEntry> matchingKeys = spatialIndexBuilder.getEntriesForRegion(boundingBox);
 		
 		final Iterator<? extends SpatialIndexEntry> keyIterator = matchingKeys.iterator();
 		
@@ -499,5 +499,13 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	@Override
 	public boolean isDeletePending() {
 		return pendingDelete;
+	}
+	
+	/**
+	 * Get the spatial index builder
+	 * @return
+	 */
+	public SpatialIndexBuilder getSpatialIndexBuilder() {
+		return spatialIndexBuilder;
 	}
 }
