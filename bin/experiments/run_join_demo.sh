@@ -43,4 +43,6 @@ $BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-german
 
 $BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_road -bbox  52.520,52.525:13.410,13.415
 
+$BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_forrest -bbox  52.520,52.525:13.410,13.415
+
 $BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox 52.4,52.6:13.3,13.6
