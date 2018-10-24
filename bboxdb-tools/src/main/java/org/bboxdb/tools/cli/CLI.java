@@ -678,15 +678,15 @@ public class CLI implements Runnable, AutoCloseable {
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format, padding);
 		tupleFile.addTupleListener(t -> {
 
+			if(tupleFile.getProcessedLines() % 1000 == 0) {
+				System.out.format("Read %d lines%n", tupleFile.getProcessedLines());
+			}
+
 			if(t == null) {
 				failedLines.incrementAndGet();
 				return;
 			}
 			
-			if(tupleFile.getProcessedLines() % 1000 == 0) {
-				System.out.format("Read %d lines%n", tupleFile.getProcessedLines());
-			}
-
 			try {
 				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, t);
 				pendingFutures.put(result);
