@@ -326,7 +326,7 @@ public class SSTableWriter implements AutoCloseable {
 			throws StorageManagerException {
 		
 		assert(sstableIndexOutputStream != null) : "Output stream has to be open";
-		assert(writtenTuplesTotal.get() == 0) : "The insert bulk operation can be only called one time";
+		assert(getWrittenBytes() == SSTableConst.MAGIC_BYTES_SSTABLE.length) : "The insert bulk operation can be only called one time";
 			
 		try {
 			for(final Tuple tuple : tuples) {
