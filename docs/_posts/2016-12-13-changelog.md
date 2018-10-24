@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.8.4 - TBA
+### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation
 - Improvement: Switched mockito-core from 2.21.0 to 2.23.0, from 26.0-jre to 27.0-jre and osmosis-pbf from 0.46 to 0.47
 - Improvement: Added a lot of performance related improvements
