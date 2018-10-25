@@ -229,4 +229,9 @@ public class CellGrid {
 		return coveringBox;
 	}
 
+	@Override
+	public String toString() {
+		return "CellGrid [coveringBox=" + coveringBox + ", allBoxes=" + allBoxes.size() + "]";
+	}
+	
 }

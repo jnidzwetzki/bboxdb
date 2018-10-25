@@ -44,12 +44,6 @@ public class TestFixedGrid implements Runnable {
 	 */
 	private final Map<String, String> filesAndFormats;
 
-	/**
-	 * The number of storing nodes
-	 */
-	public final static int NODES = 385;
-
-
 	public TestFixedGrid(final Map<String, String> filesAndFormats, final List<Integer> cellSizes) {
 		this.filesAndFormats = filesAndFormats;
 		this.cellSizes = cellSizes;
@@ -109,29 +103,22 @@ public class TestFixedGrid implements Runnable {
 			}
 		}
 
-		calculateResult(bboxes);
+		calculateResult(bboxes, cellGrid);
 	}
 
 	/**
 	 *  Calculate the result
+	 * @param cellGrid 
 	 */
-	private void calculateResult(final Map<Hyperrectangle, Integer> bboxes) {
-		System.out.println("# Calculating node results");
+	private void calculateResult(final Map<Hyperrectangle, Integer> bboxes, final CellGrid cellGrid) {
+		System.out.println("# Calculating node results: " + cellGrid);
 
-		final int[] boxesPerNode = new int[NODES];
-		for(int i = 0; i < boxesPerNode.length; i++) {
-			boxesPerNode[i] = 0;
+		System.out.println("#Cell\tValues");
+		for(final int cellSize : bboxes.values()) {
+			System.out.format("%d%n", cellSize);
 		}
-
-		for(final Entry<Hyperrectangle, Integer> entry : bboxes.entrySet()) {
-			final int pos = Math.abs(entry.getKey().hashCode() % NODES);
-			boxesPerNode[pos] += entry.getValue();
-		}
-
-		System.out.println("#Node\tValues");
-		for(int i = 0; i < boxesPerNode.length; i++) {
-			System.out.format("%d\t%d%n", i, boxesPerNode[i]);
-		}
+		
+		System.out.println("");
 	}
 
 	/**
