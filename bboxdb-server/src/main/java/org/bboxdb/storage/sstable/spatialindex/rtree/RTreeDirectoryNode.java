@@ -19,8 +19,6 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
@@ -210,31 +208,45 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @return
 	 */
 	public List<SpatialIndexEntry> getEntriesForRegion(final Hyperrectangle boundingBox) {
-
+		
 		assert(boundingBox != null) : "Query bounding box has to be != null";
 		assert(indexEntries != null) : "Index entries has to be != null";
 		assert(directoryNodeChilds != null) : "Directory node childs has to be != null";
-
+		
+		// One result list for all nodes of the tree 
+		// (prevents expensive list merging)
+		final List<SpatialIndexEntry> result = new ArrayList<>();
+		
+		getEntriesForRegion(boundingBox, result);
+		
+		return result;
+	}
+	
+	/**
+	 * Get the entries for the region (without creating new lists)
+	 * @param boundingBox
+	 * @param result
+	 */
+	private void getEntriesForRegion(final Hyperrectangle boundingBox, final List<SpatialIndexEntry> result) {
+		
 		try {
-		final List<SpatialIndexEntry> nodeMatches = indexEntries
-			.stream()
-			.filter(c -> c.getBoundingBox().intersects(boundingBox))
-			.collect(Collectors.toList());
-
-		final List<SpatialIndexEntry> childMatches = directoryNodeChilds
-			.stream()
-			.filter(c -> c.getBoundingBox().intersects(boundingBox))
-			.map(c -> c.getEntriesForRegion(boundingBox))
-			.flatMap(List::stream)
-			.collect(Collectors.toList());
-
-		return Stream.concat(nodeMatches.stream(), childMatches.stream())
-				.collect(Collectors.toList());
-		} catch(NullPointerException e) {
-			System.out.println(e);
-			System.out.println(directoryNodeChilds);
-			return null;
-		}
+			for(final SpatialIndexEntry entry : indexEntries) {
+				if(entry.getBoundingBox().intersects(boundingBox)) {
+					result.add(entry);
+				}
+			}
+			
+			for(final RTreeDirectoryNode entry : directoryNodeChilds) {
+				if(entry.getBoundingBox().intersects(boundingBox)) {
+					entry.getEntriesForRegion(boundingBox, result);
+				}
+			}
+			
+			} catch(NullPointerException e) {
+				System.out.println(e);
+				System.out.println(directoryNodeChilds);
+				return;
+			}		
 	}
 
 	/**
