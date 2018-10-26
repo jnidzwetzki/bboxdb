@@ -117,7 +117,7 @@ public class OSMDataConverter {
 	/**
 	 * The Blocking queue
 	 */
-	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(200);
+	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(5000);
 	
 	static class Backend {
 		/**
@@ -248,7 +248,16 @@ public class OSMDataConverter {
 							// Ways are expensive to handle
 							
 							final Way way = (Way) entityContainer.getEntity();
-							queue.put(way);
+							
+							synchronized (queue) {
+								while(queue.remainingCapacity() == 0) {
+									queue.wait();
+								}
+								
+								queue.put(way);
+								queue.notifyAll();
+							}
+							
 							statistics.incProcessedWays();
 						}
 					} catch (InterruptedException e) {
