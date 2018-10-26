@@ -62,7 +62,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	 * Removing elements before they are stored into the BDB could 
 	 * cause missing elements.
 	 */
-	protected List<List<SerializableNode>> pendingWriteQueues = new ArrayList<>();
+	protected List<List<SerializableNode>> pendingWriteQueues = new LinkedList<>();
 	
 	/**
 	 * Max elements per pending write queue
