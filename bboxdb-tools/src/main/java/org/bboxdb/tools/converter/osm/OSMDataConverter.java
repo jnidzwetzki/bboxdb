@@ -112,12 +112,12 @@ public class OSMDataConverter {
 	/**
 	 * The amount of consumer threads
 	 */
-	protected final int CONSUMER_THREADS = 20;
+	protected final int CONSUMER_THREADS = 5;
 	
 	/**
 	 * The Blocking queue
 	 */
-	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(5000);
+	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(1000);
 	
 	static class Backend {
 		/**
@@ -247,16 +247,8 @@ public class OSMDataConverter {
 						} else if(entityContainer.getEntity() instanceof Way) {
 							// Ways are expensive to handle
 							
-							final Way way = (Way) entityContainer.getEntity();
-							
-							synchronized (queue) {
-								while(queue.remainingCapacity() == 0) {
-									queue.wait();
-								}
-								
-								queue.put(way);
-								queue.notifyAll();
-							}
+							final Way way = (Way) entityContainer.getEntity();	
+							queue.put(way);
 							
 							statistics.incProcessedWays();
 						}
