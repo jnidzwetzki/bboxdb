@@ -29,9 +29,15 @@ import org.bboxdb.storage.sstable.reader.SSTableFacade;
 public class SimpleMergeStrategy implements MergeStrategy {
 	
 	/**
-	 * The number of tables to merge per task
+	 * The number of tables to merge per minor task
 	 */
-	protected final static int MAX_MERGE_TABLES_PER_JOB = 10;
+	protected final static int MAX_MERGE_TABLES_PER_MINOR_JOB = 10;
+	
+	/**
+	 * The number of tables per major merge task
+	 */
+	protected final static int MAX_MERGE_TABLES_PER_MAJOR_JOB = 25;
+
 	
 	@Override
 	public MergeTask getMergeTask(final List<SSTableFacade> sstables) {
@@ -81,9 +87,14 @@ public class SimpleMergeStrategy implements MergeStrategy {
 			
 		final List<SSTableFacade> bigCompacts = new ArrayList<>();
 		
-		// One table can't be merged
+		/**
+		 * When there are to much tables, wait for minor merges
+		 */
 		if(bigCompactNeeded) {
-			bigCompacts.addAll(sstables);
+			final int tablesToMerge = sstables.size();
+			if(tablesToMerge > 1 && tablesToMerge < MAX_MERGE_TABLES_PER_MAJOR_JOB) {
+				bigCompacts.addAll(sstables);
+			}
 		}
 		
 		return bigCompacts;
@@ -110,7 +121,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 		final List<SSTableFacade> smallCompacts = sstables
 			.stream()
 			.filter(f -> f.getSsTableMetadata().getTuples() < smallTableThreshold)
-			.limit(MAX_MERGE_TABLES_PER_JOB)
+			.limit(MAX_MERGE_TABLES_PER_MINOR_JOB)
 			.collect(Collectors.toList());
 
 		return smallCompacts;

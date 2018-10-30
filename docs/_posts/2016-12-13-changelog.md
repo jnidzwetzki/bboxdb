@@ -9,6 +9,7 @@ order: 1
 ### Version 0.8.5 - TBA
 - Improvement: Automatically repair defective GeoJSON geometries (automatically close polygons)
 - Improvement: Speed up r-tree index lookups
+- Improvement: Limit the number of tables in major compact tasks 
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation
