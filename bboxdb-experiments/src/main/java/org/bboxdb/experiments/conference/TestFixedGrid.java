@@ -117,7 +117,7 @@ public class TestFixedGrid implements Runnable {
 		System.out.println("#Cell\tValues");
 		
 		for(final Hyperrectangle cell : cellGrid.getAllCells()) {
-			System.out.format("%d%n", bboxes.get(cell));
+			System.out.format("%d%n", bboxes.getOrDefault(cell, 0));
 		}
 		
 		System.out.println("");
