@@ -9,6 +9,7 @@ import sys
 import re
 import math
 import numpy
+from array import array
 
 # Check args
 if len(sys.argv) < 2:
@@ -16,35 +17,47 @@ if len(sys.argv) < 2:
         sys.exit(0)
 
 # Regex
-cellsPattern = re.compile(".*Cells per Dimension: ([\d\.]+)");
-experimentPattern = re.compile("^(\d+)\s(\d+)")
+experimentStartPattern = re.compile("#Cell");
+experimentPattern = re.compile("^(\d+)")
 
+# Number of buckets 
+allBuckets = array("i", [128, 256, 512, 1024, 2048, 4096, 8096])
 
 class Experiment(object):
 
-	cellSize = -1
+	cells = -1
 	experimntResult = []
 
-	def __init__(self, cellSize):
-		self.cellSize = cellSize
+	def __init__(self):
 		self.experimentResult = []
 
-	def get_std_str(self):
+	def get_std_str(self, noOfBuckets):
 		'''Total elements'''
 		totalElements = 0;
 		for result in self.experimentResult:
 			totalElements = totalElements + result 
 
+		if totalElements == 0:
+			return "Error: Elements is 0"
+
+		'''Init Buckets'''
+		buckets = [] 
+		for no in range(0, noOfBuckets):
+			buckets.append(0)
+
+		'''Assign data'''
+		element = 0
+		for result in self.experimentResult:
+			buckets[element % noOfBuckets] += result;
+			element += 1;
+
 		'''Std devision'''
-		stdArray = numpy.array(self.experimentResult)
+		stdArray = numpy.array(buckets)
 		stdDiv = numpy.std(stdArray, ddof=1)
 		
 		stdPer = float(stdDiv) / float(totalElements) * 100.0
 
-		return self.cellSize + "\t" + str(len(self.experimentResult)) + "\t" + str(totalElements) + "\t" + str(stdDiv)
-
-	def __str__(self):
-		return self.get_std_str()
+		return str(len(self.experimentResult)) + "\t" + str(noOfBuckets) + "\t" + str(totalElements) + "\t" + str(stdDiv)
 
 	def append_experiment_result(self, result):
 		self.experimentResult.append(int(result))
@@ -60,16 +73,16 @@ def handleLine(line):
 	experimentMatcher = experimentPattern.match(line)
 	if experimentMatcher:
 		experimentBucket = experimentMatcher.group(1)
-		experimentBucketSize = experimentMatcher.group(2)
-		experiment.append_experiment_result(experimentBucketSize)
+		experiment.append_experiment_result(experimentBucket)
 
-	cellMatcher = cellsPattern.match(line)
-	if cellMatcher:
+	experimentStartMatcher = experimentStartPattern.match(line)
+	if experimentStartMatcher:
 		if not experiment is None:
-			print experiment
-		experiment = Experiment(cellMatcher.group(1))
+			for bucket in allBuckets:
+				print experiment.get_std_str(bucket)
+		experiment = Experiment()
 
-print	"#Cell size	total buckets	total elements	STD"
+print	"#total cells	total buckets	total elements	STD"
 
 ''' Read file '''
 filename = sys.argv[1]
@@ -80,5 +93,6 @@ fh.close();
 
 ''' Print last experiment '''
 if not experiment is None:
-	print experiment
+	for bucket in allBuckets:
+		print experiment.get_std_str(bucket)
 
