@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.concurrent.ExecutorUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.experiments.ExperimentHelper;
 import org.bboxdb.storage.entity.CellGrid;
@@ -78,7 +78,7 @@ public class TestFixedGrid implements Runnable {
 
 		final Map<Hyperrectangle, AtomicLong> bboxes = new HashMap<>();
 
-		final ExecutorService executor = Executors.newFixedThreadPool(20);
+		final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(20, 200);
 		
 		for(final Entry<String, String> file : filesAndFormats.entrySet()) {
 
