@@ -82,6 +82,15 @@ public class TestCellGrid {
 	public void testGetCells1() {
 		final CellGrid cellGrid1D = CellGrid.buildWithFixedAmountOfCells(new Hyperrectangle(0.0, 10.0), 10);
 		Assert.assertEquals(10, cellGrid1D.getAllCells().size());
+		
+		final CellGrid cellGrid1D2 = CellGrid.buildWithFixedAmountOfCells(new Hyperrectangle(0.0, 20.0), 10);
+		Assert.assertEquals(10, cellGrid1D2.getAllCells().size());
+
+		final CellGrid cellGrid1D3 = CellGrid.buildWithFixedAmountOfCells(new Hyperrectangle(-10.0, 25.0), 10);
+		Assert.assertEquals(10, cellGrid1D3.getAllCells().size());
+
+		final CellGrid cellGrid1D4 = CellGrid.buildWithFixedAmountOfCells(new Hyperrectangle(-10.0, 25.0), 50);
+		Assert.assertEquals(50, cellGrid1D4.getAllCells().size());
 
 		final CellGrid cellGrid2D = CellGrid.buildWithFixedAmountOfCells(new Hyperrectangle(0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(100, cellGrid2D.getAllCells().size());
