@@ -107,15 +107,17 @@ public class TestFixedGrid implements Runnable {
 	}
 
 	/**
-	 *  Calculate the result
+	 * Calculate the result
+	 * @param bboxes 
 	 * @param cellGrid 
 	 */
 	private void calculateResult(final Map<Hyperrectangle, Integer> bboxes, final CellGrid cellGrid) {
 		System.out.println("# Calculating node results: " + cellGrid);
 
 		System.out.println("#Cell\tValues");
-		for(final int cellSize : bboxes.values()) {
-			System.out.format("%d%n", cellSize);
+		
+		for(final Hyperrectangle cell : cellGrid.getAllCells()) {
+			System.out.format("%d%n", bboxes.get(cell));
 		}
 		
 		System.out.println("");
