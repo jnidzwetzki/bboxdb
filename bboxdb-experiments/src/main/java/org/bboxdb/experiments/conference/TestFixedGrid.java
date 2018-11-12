@@ -79,28 +79,27 @@ public class TestFixedGrid implements Runnable {
 		final Map<Hyperrectangle, AtomicLong> bboxes = new HashMap<>();
 
 		final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(20, 200);
-		
+
 		for(final Entry<String, String> file : filesAndFormats.entrySet()) {
 
 			final TupleFileReader tupleFile = new TupleFileReader(file.getKey(), file.getValue());
 
 			tupleFile.addTupleListener(t -> {
-				
+
 				final Runnable runable = () -> {
 					final Hyperrectangle boundingBox = t.getBoundingBox();
 					final Set<Hyperrectangle> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(boundingBox);
-	
+
 					if(intersectedBoxes.isEmpty()) {
 						System.err.println("Unable to find Boundig Box for " + boundingBox
 								+ " / World: " + cellGrid.getCoveringBox());
-						System.exit(-1);
 					}
-	
+
 					for(final Hyperrectangle box : intersectedBoxes) {
 						bboxes.computeIfAbsent(box, (k) -> new AtomicLong(0)).incrementAndGet();
 					}
 				};
-				
+
 				executor.submit(runable);
 			});
 
@@ -120,18 +119,18 @@ public class TestFixedGrid implements Runnable {
 
 	/**
 	 * Calculate the result
-	 * @param bboxes 
-	 * @param cellGrid 
+	 * @param bboxes
+	 * @param cellGrid
 	 */
 	private void calculateResult(final Map<Hyperrectangle, AtomicLong> bboxes, final CellGrid cellGrid) {
 		System.out.println("# Calculating node results: " + cellGrid);
 
 		System.out.println("#Cell\tValues");
-		
+
 		for(final Hyperrectangle cell : cellGrid.getAllCells()) {
 			System.out.format("%d%n", bboxes.getOrDefault(cell, new AtomicLong(0)).get());
 		}
-		
+
 		System.out.println("");
 	}
 
