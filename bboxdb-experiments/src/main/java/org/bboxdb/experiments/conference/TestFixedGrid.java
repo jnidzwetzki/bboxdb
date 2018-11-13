@@ -106,12 +106,18 @@ public class TestFixedGrid implements Runnable {
 			try {
 				System.out.println("# Processing tuples in file: " + file.getKey());
 				tupleFile.processFile();
-				executor.shutdown();
-				executor.awaitTermination(10000, TimeUnit.DAYS);
 			} catch (Exception e) {
 				System.err.println("Got an Exception during experiment: " + e);
 				System.exit(-1);
 			}
+		}
+
+		try {
+			executor.shutdown();
+			executor.awaitTermination(10000, TimeUnit.DAYS);
+		} catch (InterruptedException e) {
+			System.err.println("Got an Exception during experiment: " + e);
+			System.exit(-1);
 		}
 
 		calculateResult(bboxes, cellGrid);
