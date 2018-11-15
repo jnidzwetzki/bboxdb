@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -61,7 +62,7 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The elements
 	 */
-	private final Map<Hyperrectangle, Long> elementCounter;
+	private final Map<Hyperrectangle, AtomicLong> elementCounter;
 
 	/**
 	 * Box dimensions
@@ -155,13 +156,13 @@ public class TestKDTreeSplit implements Runnable {
 			}
 		}
 
-		final ArrayList<Long> elements = new ArrayList<>(elementCounter.values());
+		final ArrayList<AtomicLong> elements = new ArrayList<>(elementCounter.values());
 
 		IntStream.range(0, elements.size()).forEach(
 				i -> System.out.format("%d\t%d\n", i, elements.get(i))
 		);
 
-		System.out.format("#Total %d\n", elements.stream().mapToLong(l -> l).sum());
+		System.out.format("#Total %d\n", elements.stream().mapToLong(l -> l.get()).sum());
 	}
 
 
@@ -194,15 +195,14 @@ public class TestKDTreeSplit implements Runnable {
 			.stream()
 			.filter(e -> e.getKey().intersects(boundingBox))
 			.forEach(e -> {
-				final Long oldValue = elementCounter.getOrDefault(e.getKey(), 0l);
-				elementCounter.put(e.getKey(), oldValue + 1);
+				elementCounter.computeIfAbsent(e.getKey(), l -> new AtomicLong(0)).incrementAndGet();
 				e.getValue().put(null, key, value);
 			});
 
 		// Split and remove full boxes
 		final List<Hyperrectangle> boxesToSplit = elementCounter.entrySet()
 			.stream()
-			.filter(e -> e.getValue() >= maxRegionSize)
+			.filter(e -> e.getValue().get() >= maxRegionSize)
 			.map(e -> e.getKey())
 			.collect(Collectors.toList());
 
@@ -255,8 +255,6 @@ public class TestKDTreeSplit implements Runnable {
 	    final DatabaseEntry foundKey = new DatabaseEntry();
 	    final DatabaseEntry foundData = new DatabaseEntry();
 
-
-
 	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 	        final Hyperrectangle box = Hyperrectangle.fromByteArray(foundData.getData());
 
@@ -264,11 +262,13 @@ public class TestKDTreeSplit implements Runnable {
 
 	        if(leftBBox.intersects(box)) {
 				elements.get(leftBBox).put(null, foundKey, foundData);
+				elementCounter.computeIfAbsent(leftBBox, l -> new AtomicLong(0)).incrementAndGet();
 				redistributed = true;
 			}
 
 			if(rightBBox.intersects(box)) {
 				elements.get(rightBBox).put(null, foundKey, foundData);
+				elementCounter.computeIfAbsent(rightBBox, l -> new AtomicLong(0)).incrementAndGet();
 				redistributed = true;
 			}
 
