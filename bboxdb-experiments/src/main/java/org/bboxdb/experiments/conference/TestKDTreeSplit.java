@@ -160,6 +160,8 @@ public class TestKDTreeSplit implements Runnable {
 		IntStream.range(0, elements.size()).forEach(
 				i -> System.out.format("%d\t%d\n", i, elements.get(i))
 		);
+
+		System.out.format("#Total %d\n", elements.stream().mapToLong(l -> l).sum());
 	}
 
 
