@@ -253,15 +253,26 @@ public class TestKDTreeSplit implements Runnable {
 	    final DatabaseEntry foundKey = new DatabaseEntry();
 	    final DatabaseEntry foundData = new DatabaseEntry();
 
+
+
 	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 	        final Hyperrectangle box = Hyperrectangle.fromByteArray(foundData.getData());
 
+	        boolean redistributed = false;
+
 	        if(leftBBox.intersects(box)) {
 				elements.get(leftBBox).put(null, foundKey, foundData);
+				redistributed = true;
 			}
 
 			if(rightBBox.intersects(box)) {
 				elements.get(rightBBox).put(null, foundKey, foundData);
+				redistributed = true;
+			}
+
+			if(! redistributed) {
+				System.err.println("Unable to redistribute: " + box + " left / right "
+						+ leftBBox + " " + rightBBox);
 			}
 	    }
 
