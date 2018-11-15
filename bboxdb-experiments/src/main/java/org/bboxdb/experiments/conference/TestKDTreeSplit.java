@@ -159,7 +159,7 @@ public class TestKDTreeSplit implements Runnable {
 		final ArrayList<AtomicLong> elements = new ArrayList<>(elementCounter.values());
 
 		IntStream.range(0, elements.size()).forEach(
-				i -> System.out.format("%d\t%d\n", i, elements.get(i))
+				i -> System.out.format("%d\t%d\n", i, elements.get(i).get())
 		);
 
 		System.out.format("#Total %d\n", elements.stream().mapToLong(l -> l.get()).sum());
@@ -255,8 +255,6 @@ public class TestKDTreeSplit implements Runnable {
 	    final DatabaseEntry foundKey = new DatabaseEntry();
 	    final DatabaseEntry foundData = new DatabaseEntry();
 
-	    long redistributedTuples = 0;
-
 	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 	        final Hyperrectangle box = Hyperrectangle.fromByteArray(foundData.getData());
 
@@ -278,12 +276,8 @@ public class TestKDTreeSplit implements Runnable {
 				System.err.println("Unable to redistribute: " + box + " left / right "
 						+ leftBBox + " " + rightBBox);
 			}
-
-			redistributedTuples++;
 	    }
 
-
-	    System.out.println("Redistributed: " + redistributedTuples);
 
 	    cursor.close();
 
