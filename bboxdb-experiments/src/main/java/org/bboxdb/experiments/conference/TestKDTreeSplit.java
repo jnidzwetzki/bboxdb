@@ -255,6 +255,8 @@ public class TestKDTreeSplit implements Runnable {
 	    final DatabaseEntry foundKey = new DatabaseEntry();
 	    final DatabaseEntry foundData = new DatabaseEntry();
 
+	    long redistributedTuples = 0;
+
 	    while(cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 	        final Hyperrectangle box = Hyperrectangle.fromByteArray(foundData.getData());
 
@@ -276,7 +278,12 @@ public class TestKDTreeSplit implements Runnable {
 				System.err.println("Unable to redistribute: " + box + " left / right "
 						+ leftBBox + " " + rightBBox);
 			}
+
+			redistributedTuples++;
 	    }
+
+
+	    System.out.println("Redistributed: " + redistributedTuples);
 
 	    cursor.close();
 
