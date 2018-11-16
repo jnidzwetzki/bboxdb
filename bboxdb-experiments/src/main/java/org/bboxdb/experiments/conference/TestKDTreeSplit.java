@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -34,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.Pair;
 import org.bboxdb.commons.io.FileUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.tools.TupleFileReader;
@@ -52,7 +52,7 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The file to import
 	 */
-	private final Map<String, String> filesAndFormats;
+	private final List<Pair<String, String>> filesAndFormats;
 
 	/**
 	 * The elements
@@ -94,7 +94,7 @@ public class TestKDTreeSplit implements Runnable {
 	 */
 	private DatabaseConfig dbConfig;
 
-	public TestKDTreeSplit(final File tmpDir, final Map<String, String> filesAndFormats,
+	public TestKDTreeSplit(final File tmpDir, final List<Pair<String, String>> filesAndFormats,
 			final List<Integer> experimentSize) {
 
 		this.filesAndFormats = filesAndFormats;
@@ -136,9 +136,9 @@ public class TestKDTreeSplit implements Runnable {
 		elementCounter.clear();
 		boxDimension.clear();
 
-		for(Entry<String, String> elements : filesAndFormats.entrySet()) {
-			final String filename = elements.getKey();
-			final String format = elements.getValue();
+		for(final Pair<String, String> entry : filesAndFormats) {
+			final String filename = entry.getElement1();
+			final String format = entry.getElement2();
 
 			System.out.println("Processing file: " + filename);
 			final TupleFileReader tupleFile = new TupleFileReader(filename, format);
@@ -376,7 +376,7 @@ public class TestKDTreeSplit implements Runnable {
 				.map(e -> MathUtil.tryParseIntOrExit(e))
 				.collect(Collectors.toList());
 
-		final Map<String, String> filesAndFormats = new HashMap<>();
+		final List<Pair<String, String>> filesAndFormats = new ArrayList<>();
 
 		for(int pos = 2; pos < args.length; pos++) {
 
@@ -394,7 +394,7 @@ public class TestKDTreeSplit implements Runnable {
 				System.exit(-1);
 			}
 
-			filesAndFormats.put(splitFile[0], splitFile[1]);
+			filesAndFormats.add(new Pair<>(splitFile[0], splitFile[1]));
 		}
 
 		final TestKDTreeSplit testSplit = new TestKDTreeSplit(dir, filesAndFormats, experimentSize);

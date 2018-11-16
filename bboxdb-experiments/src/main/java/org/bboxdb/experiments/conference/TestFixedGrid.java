@@ -18,11 +18,11 @@
 package org.bboxdb.experiments.conference;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.Pair;
 import org.bboxdb.commons.concurrent.ExecutorUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.experiments.ExperimentHelper;
@@ -46,9 +47,9 @@ public class TestFixedGrid implements Runnable {
 	/**
 	 * The files to process
 	 */
-	private final Map<String, String> filesAndFormats;
+	private final List<Pair<String, String>> filesAndFormats;
 
-	public TestFixedGrid(final Map<String, String> filesAndFormats, final List<Integer> cellSizes) {
+	public TestFixedGrid(final List<Pair<String, String>> filesAndFormats, final List<Integer> cellSizes) {
 		this.filesAndFormats = filesAndFormats;
 		this.cellSizes = cellSizes;
 	}
@@ -56,9 +57,8 @@ public class TestFixedGrid implements Runnable {
 	@Override
 	public void run() {
 		final Hyperrectangle boundingBox = filesAndFormats
-				.entrySet()
 				.stream()
-				.map(e -> ExperimentHelper.determineBoundingBox(e.getKey(), e.getValue()))
+				.map(e -> ExperimentHelper.determineBoundingBox(e.getElement1(), e.getElement2()))
 				.reduce((b1, b2) -> Hyperrectangle.getCoveringBox(b1, b2))
 				.orElseThrow(() -> new IllegalArgumentException("Unable to calculate bounding box"));
 
@@ -80,9 +80,11 @@ public class TestFixedGrid implements Runnable {
 
 		final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(20, 200);
 
-		for(final Entry<String, String> file : filesAndFormats.entrySet()) {
+		for(final Pair<String, String> entry : filesAndFormats) {
+			final String filename = entry.getElement1();
+			final String format = entry.getElement2();
 
-			final TupleFileReader tupleFile = new TupleFileReader(file.getKey(), file.getValue());
+			final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 
 			tupleFile.addTupleListener(t -> {
 
@@ -104,7 +106,7 @@ public class TestFixedGrid implements Runnable {
 			});
 
 			try {
-				System.out.println("# Processing tuples in file: " + file.getKey());
+				System.out.println("# Processing tuples in file: " + filename);
 				tupleFile.processFile();
 			} catch (Exception e) {
 				System.err.println("Got an Exception during experiment: " + e);
@@ -157,9 +159,9 @@ public class TestFixedGrid implements Runnable {
 				.collect(Collectors.toList());
 
 
-		final Map<String, String> filesAndFormats = new HashMap<>();
+		final List<Pair<String, String>> filesAndFormats = new ArrayList<>();
 
-		for(int pos = 1; pos < args.length; pos++) {
+		for(int pos = 2; pos < args.length; pos++) {
 
 			final String element = args[pos];
 
@@ -175,7 +177,7 @@ public class TestFixedGrid implements Runnable {
 				System.exit(-1);
 			}
 
-			filesAndFormats.put(splitFile[0], splitFile[1]);
+			filesAndFormats.add(new Pair<>(splitFile[0], splitFile[1]));
 		}
 
 		final TestFixedGrid testSplit = new TestFixedGrid(filesAndFormats, cellSizes);
