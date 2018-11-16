@@ -11,6 +11,7 @@ order: 1
 - Improvement: Speed up r-tree index lookups
 - Improvement: Limit the number of tables in major compact tasks
 - Bugfix: Fixed the KD-Tree split experiment
+- Bugfix: Allow experiments with duplicate file and different formats
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation
