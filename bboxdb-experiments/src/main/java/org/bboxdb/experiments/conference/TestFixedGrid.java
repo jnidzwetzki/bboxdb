@@ -161,7 +161,7 @@ public class TestFixedGrid implements Runnable {
 
 		final List<Pair<String, String>> filesAndFormats = new ArrayList<>();
 
-		for(int pos = 2; pos < args.length; pos++) {
+		for(int pos = 1; pos < args.length; pos++) {
 
 			final String element = args[pos];
 
