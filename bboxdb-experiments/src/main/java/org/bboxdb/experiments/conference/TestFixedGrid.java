@@ -180,7 +180,7 @@ public class TestFixedGrid implements Runnable {
 			filesAndFormats.add(new Pair<>(splitFile[0], splitFile[1]));
 		}
 
-		System.out.println("Files to process:"
+		System.out.println("Files to process: "
 				+ filesAndFormats.stream().map(e -> e.getElement1()).collect(Collectors.toList()));
 
 		final TestFixedGrid testSplit = new TestFixedGrid(filesAndFormats, cellSizes);
