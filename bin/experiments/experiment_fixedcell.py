@@ -21,7 +21,7 @@ experimentStartPattern = re.compile("#Cell");
 experimentPattern = re.compile("^(\d+)")
 
 # Number of buckets 
-allBuckets = array("i", [128, 256, 512, 1024, 2048, 4096, 8096])
+allBuckets = array("i", [16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8096])
 
 class Experiment(object):
 
