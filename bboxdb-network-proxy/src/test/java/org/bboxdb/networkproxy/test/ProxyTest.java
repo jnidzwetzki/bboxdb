@@ -15,8 +15,8 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.networkproxy;
+package org.bboxdb.networkproxy.test;
 
-public class Main {
+public class ProxyTest {
 
 }
