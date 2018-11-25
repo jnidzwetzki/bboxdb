@@ -17,11 +17,33 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy;
 
-public class ProxyConst {
+import java.net.Socket;
+
+import org.bboxdb.commons.CloseableHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ProxyConnectionRunable implements Runnable {
 
 	/**
-	 * The proxy port
+	 * The client socket
 	 */
-	public final static int PROXY_PORT = 10051;
+	private Socket clientSocket;
 	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(ProxyConnectionRunable.class);
+
+
+	public ProxyConnectionRunable(final Socket clientSocket) {
+		this.clientSocket = clientSocket;
+	}
+
+	@Override
+	public void run() {
+		logger.info("Closing connection to: {}", clientSocket.getRemoteSocketAddress());
+		CloseableHelper.closeWithoutException(clientSocket);
+	}
+
 }
