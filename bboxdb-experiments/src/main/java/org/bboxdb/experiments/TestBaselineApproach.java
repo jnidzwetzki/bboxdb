@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.experiments.conference;
+package org.bboxdb.experiments;
 
 import java.io.BufferedReader;
 import java.io.File;
