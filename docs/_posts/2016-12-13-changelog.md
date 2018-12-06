@@ -14,6 +14,7 @@ order: 1
 - Bugfix: Fixed the KD-Tree split experiment
 - Bugfix: Allow experiments with duplicate file and different formats
 - Bugfix: Fixed several bugs in the experiments
+- Bugfix: Fixed zoom factor in GUI (closes #119)
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation

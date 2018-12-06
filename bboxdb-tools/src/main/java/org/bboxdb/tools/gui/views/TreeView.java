@@ -77,12 +77,13 @@ public class TreeView implements View {
 	 */
 	protected JButton getZoomInButton(final TreeJPanel jTreeComponent, final JTextField textField) {
 		final JButton zoomInButton = new JButton("Zoom in");
+		
 		zoomInButton.addActionListener((l) -> {
-			jTreeComponent.setZoomFactor(jTreeComponent.getZoomFactor() + 0.1);
+			jTreeComponent.setZoomFactor(jTreeComponent.getZoomFactor() * 1.1);
 			textField.setText(Double.toString(jTreeComponent.getZoomFactor()));
 			textField.setText(Double.toString(MathUtil.round(jTreeComponent.getZoomFactor(), 1)));
-		}
-		); 
+		}); 
+		
 		return zoomInButton;
 	}
 
@@ -94,11 +95,12 @@ public class TreeView implements View {
 	 */
 	protected JButton getZoomOutButton(TreeJPanel jTreeComponent, JTextField textField) {
 		final JButton zoomOutButton = new JButton("Zoom out");
+		
 		zoomOutButton.addActionListener((l) -> {
-			jTreeComponent.setZoomFactor(jTreeComponent.getZoomFactor() - 0.1);
+			jTreeComponent.setZoomFactor(jTreeComponent.getZoomFactor() * 0.9);
 			textField.setText(Double.toString(MathUtil.round(jTreeComponent.getZoomFactor(), 1)));
-		}
-		); 
+		}); 
+		
 		return zoomOutButton;
 	}
 }
