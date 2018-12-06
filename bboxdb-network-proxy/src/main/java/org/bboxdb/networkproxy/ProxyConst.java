@@ -24,4 +24,14 @@ public class ProxyConst {
 	 */
 	public final static int PROXY_PORT = 10051;
 	
+	/**
+	 * Result OK
+	 */
+	public final static String RESULT_OK = "OK";
+	
+	/**
+	 * Result failed
+	 */
+	public final static String RESULT_FAILED = "FAILED";
+	
 }

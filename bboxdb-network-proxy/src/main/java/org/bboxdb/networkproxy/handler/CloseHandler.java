@@ -17,14 +17,18 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy.handler;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+
+import org.bboxdb.networkproxy.ProxyConst;
 
 public class CloseHandler implements ProxyCommandHandler {
 
 	@Override
-	public void handleCommand(final Reader reader, final Writer writer) {
-		
+	public void handleCommand(final Reader reader, final Writer writer) throws IOException {
+		writer.write(ProxyConst.RESULT_OK);
+		Thread.currentThread().interrupt();
 	}
 
 }
