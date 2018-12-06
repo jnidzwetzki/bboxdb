@@ -17,6 +17,15 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy.handler;
 
-public interface ProxyCommandHandler {
+import java.io.Reader;
+import java.io.Writer;
 
+public interface ProxyCommandHandler {
+	
+	/**
+	 * Handle the command
+	 * @param reader
+	 * @param writer
+	 */
+	public void handleCommand(final Reader reader, final Writer writer);
 }

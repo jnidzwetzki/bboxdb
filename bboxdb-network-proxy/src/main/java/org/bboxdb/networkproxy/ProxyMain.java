@@ -108,9 +108,13 @@ public class ProxyMain implements Runnable, Closeable {
 	 * @param clientSocket
 	 */
 	private void handleConnection(final Socket clientSocket) {
-		logger.debug("Handle new connection from: {}", clientSocket.getRemoteSocketAddress());
-		final ProxyConnectionRunable proxyConnectionRunable = new ProxyConnectionRunable(clientSocket);
-		threadPool.submit(proxyConnectionRunable);
+		try {
+			logger.debug("Handle new connection from: {}", clientSocket.getRemoteSocketAddress());
+			final ProxyConnectionRunable proxyConnectionRunable = new ProxyConnectionRunable(clientSocket);
+			threadPool.submit(proxyConnectionRunable);
+		} catch (IOException e) {
+			logger.error("Got exception while handling connection", e);
+		}
 	}
 
 	/**

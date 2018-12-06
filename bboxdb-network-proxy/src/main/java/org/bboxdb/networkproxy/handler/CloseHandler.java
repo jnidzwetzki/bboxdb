@@ -20,10 +20,11 @@ package org.bboxdb.networkproxy.handler;
 import java.io.Reader;
 import java.io.Writer;
 
-public class RangeQueryHandler implements ProxyCommandHandler {
-	
+public class CloseHandler implements ProxyCommandHandler {
+
 	@Override
 	public void handleCommand(final Reader reader, final Writer writer) {
 		
 	}
+
 }
