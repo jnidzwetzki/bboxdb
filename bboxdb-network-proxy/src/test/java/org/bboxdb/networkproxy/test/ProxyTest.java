@@ -37,7 +37,7 @@ public class ProxyTest {
 		}
 		
 		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
-		proxyMain.run();
+	//	proxyMain.run();
 	}
 	
 	@After
