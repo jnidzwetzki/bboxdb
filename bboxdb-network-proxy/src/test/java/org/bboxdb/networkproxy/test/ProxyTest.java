@@ -17,6 +17,37 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy.test;
 
-public class ProxyTest {
+import org.bboxdb.networkproxy.ProxyMain;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
+public class ProxyTest {
+	
+	/**
+	 * The proxy class
+	 */
+	private ProxyMain proxyMain;
+
+	@Before
+	public synchronized void startProxyServer() {
+		
+		if(proxyMain != null) {
+			throw new IllegalStateException("Proxy is already running");
+		}
+		
+		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
+		proxyMain.run();
+	}
+	
+	@After
+	public synchronized void stopProxyServer() {
+		proxyMain.close();
+		proxyMain = null;
+	}
+
+	@Test
+	public void testDisconnect() {
+		
+	}
 }
