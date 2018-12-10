@@ -65,6 +65,11 @@ public class ProxyMain implements Runnable, Closeable {
 	private final ExecutorService threadPool;
 	
 	/**
+	 * Server thread
+	 */
+	private Thread serverThread;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ProxyMain.class);
@@ -86,21 +91,25 @@ public class ProxyMain implements Runnable, Closeable {
 		bboxdbClient = new BBoxDBCluster(connectPoints, clustername);
 		bboxdbClient.connect();
 		
-	    try {
-			serverSocket = new ServerSocket(port);
-			
-		    while(isThreadActive()) {
-		    		final Socket clientSocket = serverSocket.accept();
-				handleConnection(clientSocket);
-		    }
-		    
-		} catch (IOException e) {
-			logger.error("Unable to handle server socket", e);
-			System.exit(-1);
-		} finally {
-			close();
-		}
-	    
+		final Runnable run = () -> {
+		    try {
+				serverSocket = new ServerSocket(port);
+				
+			    while(isThreadActive()) {
+			    		final Socket clientSocket = serverSocket.accept();
+					handleConnection(clientSocket);
+			    }
+			    
+			} catch (IOException e) {
+				logger.error("Unable to handle server socket", e);
+				System.exit(-1);
+			} finally {
+				close();
+			}
+		};
+		
+		serverThread = new Thread(run);
+		serverThread.start();
 	}
 	
 	/**
@@ -139,6 +148,11 @@ public class ProxyMain implements Runnable, Closeable {
 	 */
 	public void close() {
 		logger.info("Shutting down the BBoxDB proxy on port: {}", port);
+		
+		if(serverThread != null) {
+			serverThread.interrupt();
+			serverThread = null;
+		}
 		
 		if(bboxdbClient != null) {
 			bboxdbClient.close();
