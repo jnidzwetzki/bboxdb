@@ -25,8 +25,12 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bboxdb.commons.CloseableHelper;
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.storage.entity.Tuple;
 
 public class NetworkProxyClient implements AutoCloseable {
 	
@@ -76,4 +80,56 @@ public class NetworkProxyClient implements AutoCloseable {
 		socketWriter.write(string);
 		socketWriter.flush();
 	}
-}
+	
+	/**
+	 * The get call
+	 * @param key
+	 * @param table
+	 * @return
+	 * @throws IOException 
+	 */
+	public List<Tuple> get(final String key, final String table) throws IOException {
+		sendToServer("GET " + table + " " + key);
+		
+		return new ArrayList<>();
+	}
+	
+	/**
+	 * The get local call
+	 * @param key
+	 * @param table
+	 * @return
+	 * @throws IOException 
+	 */
+	public List<Tuple> getLocal(final String key, final String table) throws IOException {
+		sendToServer("GET_LOCAL " + table + " " + key);
+		
+		return new ArrayList<>();
+	}
+	
+	/**
+	 * The put call
+	 * @param tuple
+	 * @param table
+	 * @throws IOException 
+	 */
+	public void put(final Tuple tuple, final String table) throws IOException {
+		sendToServer("PUT " + table + " " + tuple);
+
+	}
+	
+	/**
+	 * The range query call
+	 * @param queryRectangle
+	 * @param table
+	 * @return
+	 * @throws IOException 
+	 */
+	public List<Tuple> rangeQuery(final Hyperrectangle queryRectangle, final String table) 
+			throws IOException {
+		
+		sendToServer("GET:RANGE " + table + " " + queryRectangle);
+		
+		return new ArrayList<>();
+	}
+ }
