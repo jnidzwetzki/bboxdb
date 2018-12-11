@@ -17,17 +17,52 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy.test;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+
+import org.bboxdb.BBoxDBMain;
+import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
+import org.bboxdb.networkproxy.client.NetworkProxyClient;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ProxyTest {
 	
 	/**
+	 * The BBoxDB Main
+	 */
+	private static BBoxDBMain bboxDBMain;
+	
+	/**
 	 * The proxy class
 	 */
 	private ProxyMain proxyMain;
+	
+	@BeforeClass
+	public static void init() throws Exception {
+		bboxDBMain = new BBoxDBMain();
+		bboxDBMain.init();
+		bboxDBMain.start();
+
+		Thread.currentThread();
+		// Wait some time to let the server process start
+		Thread.sleep(5000);
+	}
+
+	@AfterClass
+	public static void shutdown() throws Exception {
+		if(bboxDBMain != null) {
+			bboxDBMain.stop();
+			bboxDBMain = null;
+		}
+
+		// Wait some time for socket re-use
+		Thread.sleep(5000);
+	}
 
 	@Before
 	public synchronized void startProxyServer() {
@@ -37,7 +72,7 @@ public class ProxyTest {
 		}
 		
 		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
-	//	proxyMain.run();
+		proxyMain.run();
 	}
 	
 	@After
@@ -47,7 +82,8 @@ public class ProxyTest {
 	}
 
 	@Test
-	public void testDisconnect() {
-		
+	public void testDisconnect() throws UnknownHostException, IOException {
+		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
+		networkProxyClient.close();
 	}
 }
