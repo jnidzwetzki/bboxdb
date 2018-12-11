@@ -378,7 +378,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Delete all data of a distribution region
 	 * @throws StorageManagerException
 	 */
-	public synchronized void deleteDataOfDistributionRegion(final String distributionGroup,
+	public void deleteDataOfDistributionRegion(final String distributionGroup,
 			final long region) throws StorageManagerException {
 
 		logger.info("Deleting all data for: {} / {}", distributionGroup, region);
