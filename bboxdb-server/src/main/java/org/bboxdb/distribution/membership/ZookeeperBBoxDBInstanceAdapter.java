@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -86,8 +87,10 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 				final Set<BBoxDBInstance> instanceSet = new HashSet<>();
 				
 				for (final String instanceName : instances) {
-					final BBoxDBInstance distributedInstance = readInstance(instanceName);
-					instanceSet.add(distributedInstance);
+					final Optional<BBoxDBInstance> distributedInstance = readInstance(instanceName);
+					if(distributedInstance.isPresent()) {
+						instanceSet.add(distributedInstance.get());
+					}
 				}
 	
 				distributedInstanceManager.updateInstanceList(instanceSet);
@@ -112,10 +115,16 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @throws ZookeeperNotFoundException
 	 * @throws ZookeeperException 
 	 */
-	private BBoxDBInstance readInstance(final String instanceName) 
+	private Optional<BBoxDBInstance> readInstance(final String instanceName) 
 			throws ZookeeperException, InterruptedException {
 		
 		final BBoxDBInstance instance = new BBoxDBInstance(instanceName);
+		
+		final String instancePath = pathHelper.getInstanceDetailsPath(instance);
+		
+		if(! zookeeperClient.exists(instancePath)) {
+			return Optional.empty();
+		}
 		
 		// After the instance is registered, it can take some time until the
 		// complete ressource data is available in zookeeper			
@@ -146,11 +155,11 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		final boolean result = retryer.execute();
 		
 		if(! result) {
-			throw new ZookeeperException("Unable to read instance " + instanceName, 
-					retryer.getLastException());
+			logger.debug("Unable to read instance " + instanceName, retryer.getLastException());
+			return Optional.empty();
 		}
 		
-		return instance;
+		return Optional.of(instance);
 	}
 
 	/**
