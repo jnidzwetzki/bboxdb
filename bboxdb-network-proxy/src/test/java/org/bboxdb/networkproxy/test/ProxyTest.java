@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import org.bboxdb.BBoxDBMain;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;
@@ -47,6 +48,9 @@ public class ProxyTest {
 		bboxDBMain = new BBoxDBMain();
 		bboxDBMain.init();
 		bboxDBMain.start();
+		
+		// Allow connections to localhost (needed for travis CI test)
+		MembershipConnectionService.getInstance().clearBlacklist();
 
 		Thread.currentThread();
 		// Wait some time to let the server process start
