@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;
@@ -45,6 +46,10 @@ public class ProxyTest {
 	
 	@BeforeClass
 	public static void init() throws Exception {
+		
+		// Cleanup Zookeeper
+		ZookeeperClientFactory.getZookeeperClient().deleteCluster();
+		
 		bboxDBMain = new BBoxDBMain();
 		bboxDBMain.init();
 		bboxDBMain.start();
@@ -53,6 +58,7 @@ public class ProxyTest {
 		MembershipConnectionService.getInstance().clearBlacklist();
 
 		Thread.currentThread();
+		
 		// Wait some time to let the server process start
 		Thread.sleep(5000);
 	}

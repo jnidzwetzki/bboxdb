@@ -51,6 +51,7 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -92,6 +93,12 @@ public class TestZookeeperIntegration {
 
 		distributionRegionAdapter
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
+	}
+	
+	@AfterClass
+	public static void afterClass() throws ZookeeperException {
+		// Cleanup Zookeeper
+		zookeeperClient.deleteCluster();
 	}
 
 	@Before
