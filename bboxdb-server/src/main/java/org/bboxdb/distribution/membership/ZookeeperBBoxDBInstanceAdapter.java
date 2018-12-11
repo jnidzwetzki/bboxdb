@@ -68,32 +68,37 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * the watch is reregistered on each method call.
 	 */
 	public boolean readMembershipAndRegisterWatch() {
+		
+		final String activeInstancesPath = zookeeperClient.getActiveInstancesPath();
 
 		try {
-			final BBoxDBInstanceManager distributedInstanceManager 
-				= BBoxDBInstanceManager.getInstance();
-
-			// Reregister watch on membership
-			final String activeInstancesPath = zookeeperClient.getActiveInstancesPath();
-			zookeeperClient.getChildren(activeInstancesPath, this);
-			
-			// Read version data
-			final String detailsPath = zookeeperClient.getDetailsPath();
-			final List<String> instances = zookeeperClient.getChildren(detailsPath, this);
-			
-			final Set<BBoxDBInstance> instanceSet = new HashSet<>();
-			
-			for (final String instanceName : instances) {
-				final BBoxDBInstance distributedInstance = readInstance(instanceName);
-				instanceSet.add(distributedInstance);
+			try {
+				final BBoxDBInstanceManager distributedInstanceManager 
+					= BBoxDBInstanceManager.getInstance();
+	
+				// Reregister watch on membership
+				zookeeperClient.getChildren(activeInstancesPath, this);
+				
+				// Read version data
+				final String detailsPath = zookeeperClient.getDetailsPath();
+				final List<String> instances = zookeeperClient.getChildren(detailsPath, this);
+				
+				final Set<BBoxDBInstance> instanceSet = new HashSet<>();
+				
+				for (final String instanceName : instances) {
+					final BBoxDBInstance distributedInstance = readInstance(instanceName);
+					instanceSet.add(distributedInstance);
+				}
+	
+				distributedInstanceManager.updateInstanceList(instanceSet);
+			}  catch(InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return false;
+			} catch (ZookeeperNotFoundException e) {
+				zookeeperClient.createDirectoryStructureRecursive(activeInstancesPath);
 			}
-
-			distributedInstanceManager.updateInstanceList(instanceSet);
-		} catch (ZookeeperNotFoundException | ZookeeperException e) {
+		} catch (ZookeeperException e) {
 			logger.warn("Unable to read membership and create a watch", e);
-			return false;
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
 			return false;
 		}
  

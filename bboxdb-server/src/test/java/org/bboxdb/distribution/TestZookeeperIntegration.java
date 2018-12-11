@@ -26,6 +26,7 @@ import java.util.OptionalDouble;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.membership.ZookeeperInstancePathHelper;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
@@ -670,5 +671,9 @@ public class TestZookeeperIntegration {
 		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 		final List<String> tables = tupleStoreAdapter.getAllTables("abc");
 		Assert.assertTrue(tables.isEmpty());
+		
+		ZookeeperBBoxDBInstanceAdapter instanceAdapter = new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+		final boolean resultRead = instanceAdapter.readMembershipAndRegisterWatch();
+		Assert.assertTrue(resultRead);
 	}
 }

@@ -17,6 +17,7 @@ order: 1
 - Bugfix: Fixed zoom factor in GUI (closes #119)
 - Bugfix: Fixed exception in tuple store read after cluster deletion in ZooKeeper
 - Bugfix: Fixed table read from non existing distribution group
+- Bugfix: Fixed instance read after cluster clear
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation
