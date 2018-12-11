@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import java.util.Map;
 import java.util.OptionalDouble;
 
 import org.bboxdb.commons.InputParseException;
-import org.bboxdb.commons.io.FileUtil;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.membership.ZookeeperInstancePathHelper;
@@ -46,7 +44,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -55,6 +52,7 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -89,12 +87,10 @@ public class TestZookeeperIntegration {
 	private static final String TEST_GROUP = "abc";
 
 	@BeforeClass
-	public static void beforeClass() throws ZookeeperException {
-		zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+	public static void beforeClass() throws ZookeeperException {		
+		EnvironmentHelper.resetTestEnvironment();
 		
-		zookeeperClient.deleteCluster();
-		final File relationDirectory = new File(BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0));
-		FileUtil.deleteRecursive(relationDirectory.toPath());
+		zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		
 		distributionGroupZookeeperAdapter
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();

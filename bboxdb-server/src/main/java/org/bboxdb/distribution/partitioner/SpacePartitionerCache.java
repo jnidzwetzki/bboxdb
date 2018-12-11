@@ -218,7 +218,7 @@ public class SpacePartitionerCache implements Watcher {
 	 * 
 	 * @param groupname
 	 */
-	private void resetSpacePartitioner(final String groupname) {
+	public void resetSpacePartitioner(final String groupname) {
 		
 		final SpacePartitioner deletedSpacePartitioner = spacePartitioner.remove(groupname);
 		

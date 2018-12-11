@@ -22,10 +22,10 @@ import java.net.UnknownHostException;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;
+import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,7 +48,7 @@ public class ProxyTest {
 	public static void init() throws Exception {
 		
 		// Cleanup Zookeeper
-		ZookeeperClientFactory.getZookeeperClient().deleteCluster();
+		EnvironmentHelper.resetTestEnvironment();
 		
 		bboxDBMain = new BBoxDBMain();
 		bboxDBMain.init();
