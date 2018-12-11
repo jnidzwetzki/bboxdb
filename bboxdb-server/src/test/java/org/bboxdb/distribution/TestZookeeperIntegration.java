@@ -663,8 +663,12 @@ public class TestZookeeperIntegration {
 	public void testDeleteCluster() throws ZookeeperException, ZookeeperNotFoundException {
 		zookeeperClient.deleteCluster();
 		
-		final DistributionGroupAdapter adapter = new DistributionGroupAdapter(ZookeeperClientFactory.getZookeeperClient());
-		final List<String> groups = adapter.getDistributionGroups();
+		final DistributionGroupAdapter groupAdapter = new DistributionGroupAdapter(zookeeperClient);
+		final List<String> groups = groupAdapter.getDistributionGroups();
 		Assert.assertTrue(groups.isEmpty());
+		
+		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+		final List<String> tables = tupleStoreAdapter.getAllTables("abc");
+		Assert.assertTrue(tables.isEmpty());
 	}
 }

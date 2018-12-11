@@ -17,11 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TupleStoreAdapter {
 	
@@ -59,7 +62,12 @@ public class TupleStoreAdapter {
 	 * The distribution group adapter
 	 */
 	private final DistributionGroupAdapter distributionGroupAdapter;
-
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreAdapter.class);
+	
 	public TupleStoreAdapter(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupAdapter = new DistributionGroupAdapter(zookeeperClient);
@@ -158,13 +166,20 @@ public class TupleStoreAdapter {
 	public List<String> getAllTables(final String distributionGroup, final Watcher watcher) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final String allTablesPath = getAllTablesPath(distributionGroup);
-		NodeMutationHelper.getNodeMutationVersion(zookeeperClient, allTablesPath, watcher);
-				
-		final List<String> children = zookeeperClient.getChildren(allTablesPath);
-		children.removeIf(c -> c.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION));
+		try {
+			final String allTablesPath = getAllTablesPath(distributionGroup);
+			NodeMutationHelper.getNodeMutationVersion(zookeeperClient, allTablesPath, watcher);
+					
+			final List<String> children = zookeeperClient.getChildren(allTablesPath);
+			children.removeIf(c -> c.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION));
+			
+			return children;
+		} catch (ZookeeperNotFoundException e) {
+			// Request data for non existing group
+			logger.debug("Path does not exist", e);
+		}
 		
-		return children;
+		return new ArrayList<>();
 	}
 	
 	/**
