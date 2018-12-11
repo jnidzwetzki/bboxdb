@@ -51,11 +51,13 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreZookeeperObserver;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestZookeeperIntegration {
 
@@ -652,5 +654,19 @@ public class TestZookeeperIntegration {
 			= distributionGroupZookeeperAdapter.getDistributionGroupConfiguration(TEST_GROUP);
 
 		Assert.assertEquals(configuration, readConfiguration);
+	}
+	
+	/**
+	 * Test the cluster deletion
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	@Test(timeout=60000)
+	public void testDeleteCluster() throws ZookeeperException, ZookeeperNotFoundException {
+		zookeeperClient.deleteCluster();
+		
+		final DistributionGroupAdapter adapter = new DistributionGroupAdapter(ZookeeperClientFactory.getZookeeperClient());
+		final List<String> groups = adapter.getDistributionGroups();
+		Assert.assertTrue(groups.isEmpty());
 	}
 }

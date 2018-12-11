@@ -251,6 +251,10 @@ public class DistributionGroupAdapter {
 		
 		final List<String> groups = new ArrayList<>();
 		final String clusterPath = zookeeperClient.getClusterPath();
+		
+		// Create cluster structure if not available
+		zookeeperClient.createDirectoryStructureRecursive(clusterPath);
+
 		final List<String> nodes = zookeeperClient.getChildren(clusterPath, watcher);
 		
 		for(final String groupName : nodes) {
