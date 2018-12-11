@@ -478,8 +478,10 @@ public class TestZookeeperIntegration {
 	public void testPathDecodeAndEncode() throws ZookeeperException, BBoxDBException,
 		ZookeeperNotFoundException, ResourceAllocationException {
 
+		System.out.println("--> Getting root node");
 		final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion level0 = spacepartitionier.getRootNode();
+		System.out.println("--> Getting root node - DONE");
 
 		spacepartitionier.splitNode(level0, 50);
 		level0.makeChildrenActive();
@@ -514,6 +516,8 @@ public class TestZookeeperIntegration {
 		final DistributionRegion level3lll = level2ll.getDirectChildren().get(0);
 		spacepartitionier.splitNode(level3lll, 35);
 		level3lll.makeChildrenActive();
+		
+		System.out.println("--> Splits - DONE");
 
 		final String path0 = distributionRegionAdapter.getZookeeperPathForDistributionRegion(level0);
 		final String path1 = distributionRegionAdapter.getZookeeperPathForDistributionRegion(level1l);
@@ -524,6 +528,8 @@ public class TestZookeeperIntegration {
 		final String path6 = distributionRegionAdapter.getZookeeperPathForDistributionRegion(level2rr);
 		final String path7 = distributionRegionAdapter.getZookeeperPathForDistributionRegion(level3lll);
 
+		System.out.println("--> getZookeeperPathForDistributionRegion - DONE");
+		
 		Assert.assertEquals(level0, distributionRegionAdapter.getNodeForPath(level0, path0));
 		Assert.assertEquals(level1l, distributionRegionAdapter.getNodeForPath(level0, path1));
 		Assert.assertEquals(level1r, distributionRegionAdapter.getNodeForPath(level0, path2));
@@ -532,6 +538,8 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(level2lr, distributionRegionAdapter.getNodeForPath(level0, path5));
 		Assert.assertEquals(level2rr, distributionRegionAdapter.getNodeForPath(level0, path6));
 		Assert.assertEquals(level3lll, distributionRegionAdapter.getNodeForPath(level0, path7));
+		
+		System.out.println("--> getNodeForPath - DONE");
 	}
 
 
