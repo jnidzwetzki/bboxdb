@@ -114,8 +114,36 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @throws IOException 
 	 */
 	public void put(final Tuple tuple, final String table) throws IOException {
-		sendToServer("PUT " + table + " " + tuple);
+		final StringBuilder sb = new StringBuilder("PUT ");
+		sb.append(table);
+		sb.append(" ");
+		sb.append(tupleToProxyString(tuple));
 
+		sendToServer(sb.toString());
+	}
+
+	/**
+	 * Convert the tuple into a string
+	 * @param tuple
+	 * @param sb
+	 * @return
+	 */
+	private String tupleToProxyString(final Tuple tuple) {
+		final StringBuilder sb = new StringBuilder();
+		
+		sb.append(tuple.getKey().length());
+		sb.append(" ");
+		sb.append(tuple.getKey());
+		sb.append(" ");
+		sb.append(tuple.getBoundingBox().toCompactString());
+		sb.append(" ");
+		sb.append(tuple.getDataBytes().length);
+		sb.append(" ");
+		sb.append(tuple.getDataBytes());
+		sb.append(" ");
+		sb.append(tuple.getVersionTimestamp());
+		
+		return sb.toString();
 	}
 	
 	/**
@@ -128,7 +156,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	public List<Tuple> rangeQuery(final Hyperrectangle queryRectangle, final String table) 
 			throws IOException {
 		
-		sendToServer("GET:RANGE " + table + " " + queryRectangle);
+		sendToServer("GET_RANGE " + table + " " + queryRectangle.toCompactString());
 		
 		return new ArrayList<>();
 	}
