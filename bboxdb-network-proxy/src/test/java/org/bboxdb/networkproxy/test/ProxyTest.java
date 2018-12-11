@@ -91,7 +91,7 @@ public class ProxyTest {
 		proxyMain = null;
 	}
 
-	@Test
+	@Test(timeout=60000)
 	public void testDisconnect() throws UnknownHostException, IOException {
 		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
 		networkProxyClient.close();
