@@ -27,7 +27,7 @@ public class CloseHandler implements ProxyCommandHandler {
 
 	@Override
 	public void handleCommand(final Reader reader, final Writer writer) throws IOException {
-		writer.write(ProxyConst.RESULT_OK);
+		writer.write(ProxyConst.RESULT_OK + "\n");
 		Thread.currentThread().interrupt();
 	}
 

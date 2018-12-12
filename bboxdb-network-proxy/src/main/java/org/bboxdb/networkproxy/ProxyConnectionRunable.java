@@ -120,6 +120,9 @@ public class ProxyConnectionRunable implements Runnable {
 		}
 		
 		commandHandler.handleCommand(socketReader, socketWriter);
+		
+		// Flush written data
+		socketWriter.flush();
 	}
 
 }
