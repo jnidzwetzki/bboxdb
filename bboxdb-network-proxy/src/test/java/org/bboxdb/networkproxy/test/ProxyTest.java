@@ -28,6 +28,7 @@ import org.bboxdb.networkproxy.client.NetworkProxyClient;
 import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -94,6 +95,8 @@ public class ProxyTest {
 	@Test(timeout=60000)
 	public void testDisconnect() throws UnknownHostException, IOException {
 		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
+		String result = networkProxyClient.disconnect();
+		Assert.assertEquals(ProxyConst.RESULT_OK, result);
 		networkProxyClient.close();
 	}
 }

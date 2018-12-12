@@ -67,10 +67,14 @@ public class NetworkProxyClient implements AutoCloseable {
 	
 	/**
 	 * Disconnect from server
+	 * @return 
 	 * @throws IOException 
 	 */
-	public void disconnect() throws IOException {
+	public String disconnect() throws IOException {
 		sendToServer("CLOSE");
+		final String result = socketReader.readLine();
+		close();
+		return result;
 	}
 
 	/**
