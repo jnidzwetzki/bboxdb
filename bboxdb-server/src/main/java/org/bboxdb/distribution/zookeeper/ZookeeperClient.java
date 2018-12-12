@@ -284,7 +284,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * @throws KeeperException
 	 * @throws InterruptedException
 	 */
-	private void createDirectoryStructureIfNeeded() throws ZookeeperException {
+	public void createDirectoryStructureIfNeeded() throws ZookeeperException {
 
 		// Active instances
 		final String activeInstancesPath = getActiveInstancesPath();

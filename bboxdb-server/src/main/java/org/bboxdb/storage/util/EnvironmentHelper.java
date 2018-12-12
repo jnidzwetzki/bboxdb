@@ -38,6 +38,7 @@ public class EnvironmentHelper {
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 
 		zookeeperClient.deleteCluster();
+		zookeeperClient.createDirectoryStructureIfNeeded();
 		
 		final Set<String> groups = SpacePartitionerCache.getInstance().getAllKnownDistributionGroups();
 		
