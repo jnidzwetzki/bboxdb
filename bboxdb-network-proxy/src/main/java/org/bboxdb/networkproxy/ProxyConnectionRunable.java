@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.networkproxy.handler.CloseHandler;
+import org.bboxdb.networkproxy.handler.DeleteHandler;
 import org.bboxdb.networkproxy.handler.GetHandler;
 import org.bboxdb.networkproxy.handler.GetLocalDataHandler;
 import org.bboxdb.networkproxy.handler.ProxyCommandHandler;
@@ -63,6 +64,7 @@ public class ProxyConnectionRunable implements Runnable {
 		handler = new HashMap<>();
 		handler.put("PUT", new PutHandler());
 		handler.put("GET", new GetHandler());
+		handler.put("DELETE", new DeleteHandler());
 		handler.put("GET_LOCAL_DATA", new GetLocalDataHandler());
 		handler.put("RANGE_QUERY", new RangeQueryHandler());
 		handler.put("CLOSE", new CloseHandler());

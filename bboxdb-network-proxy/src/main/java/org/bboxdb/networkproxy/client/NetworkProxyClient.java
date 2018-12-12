@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.networkproxy.misc.TupleSerializer;
 import org.bboxdb.storage.entity.Tuple;
 
 public class NetworkProxyClient implements AutoCloseable {
@@ -117,33 +118,19 @@ public class NetworkProxyClient implements AutoCloseable {
 		final StringBuilder sb = new StringBuilder("PUT ");
 		sb.append(table);
 		sb.append(" ");
-		sb.append(tupleToProxyString(tuple));
+		sb.append(TupleSerializer.tupleToProxyString(tuple));
 
 		sendToServer(sb.toString());
 	}
-
+	
 	/**
-	 * Convert the tuple into a string
-	 * @param tuple
-	 * @param sb
-	 * @return
+	 * Delete the tuple for the given key
+	 * @param key
+	 * @param table
+	 * @throws IOException
 	 */
-	private String tupleToProxyString(final Tuple tuple) {
-		final StringBuilder sb = new StringBuilder();
-		
-		sb.append(tuple.getKey().length());
-		sb.append(" ");
-		sb.append(tuple.getKey());
-		sb.append(" ");
-		sb.append(tuple.getBoundingBox().toCompactString());
-		sb.append(" ");
-		sb.append(tuple.getDataBytes().length);
-		sb.append(" ");
-		sb.append(tuple.getDataBytes());
-		sb.append(" ");
-		sb.append(tuple.getVersionTimestamp());
-		
-		return sb.toString();
+	public void delete(final String key, final String table) throws IOException {
+		sendToServer("DELETE " + table + " " + key);
 	}
 	
 	/**
