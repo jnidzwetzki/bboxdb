@@ -101,8 +101,11 @@ public class ProxyMain implements Runnable, Closeable {
 			    }
 			    
 			} catch (IOException e) {
-				logger.error("Unable to handle server socket", e);
-				System.exit(-1);
+				if(! Thread.currentThread().isInterrupted()) {
+					logger.error("IOException while reading from socket", e);
+				} else {
+					logger.debug("Exception while reading from interrupted thread socket", e);
+				}
 			} finally {
 				close();
 			}
