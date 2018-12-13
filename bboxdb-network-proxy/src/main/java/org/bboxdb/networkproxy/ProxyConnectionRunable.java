@@ -110,7 +110,7 @@ public class ProxyConnectionRunable implements Runnable {
 	 */
 	private void readNextCommand() throws IOException {
 		final String command = socketReader.readLine();
-		logger.debug("Read command {}", command);
+		logger.info("------> Read command {}", command);
 		
 		final ProxyCommandHandler commandHandler = handler.get(command);
 		

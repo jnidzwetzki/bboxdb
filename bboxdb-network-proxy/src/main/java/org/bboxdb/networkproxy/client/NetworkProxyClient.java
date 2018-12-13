@@ -77,12 +77,28 @@ public class NetworkProxyClient implements AutoCloseable {
 		return result;
 	}
 
+	
 	/**
 	 * Send data to server
 	 * @throws IOException 
 	 */
-	private synchronized void sendToServer(final String string) throws IOException {
+	private void sendToServer(final String string) throws IOException {
+		sendToServer(string, true);
+	}
+
+	/**
+	 * Send data to server
+	 * @throws IOException 
+	 */
+	private synchronized void sendToServer(final String string, final boolean lineFeed) 
+			throws IOException {
+		
 		socketWriter.write(string);
+		
+		if(lineFeed) {
+			socketWriter.write("\n");
+		}
+		
 		socketWriter.flush();
 	}
 	
