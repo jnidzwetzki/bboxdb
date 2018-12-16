@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.commons;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class MathUtil {
@@ -98,6 +99,24 @@ public class MathUtil {
 			throw new InputParseException(errorMessageSupplier.get());
 		}
 	}
+	
+	/**
+	 * Try to parse an integer
+	 * @param valueToParse
+	 * @return
+	 */
+	public static Optional<Integer> tryParseInt(final String valueToParse) {
+		
+		if(valueToParse == null) {
+			return Optional.empty();
+		}
+		
+		try {
+			return Optional.of(Integer.parseInt(valueToParse));
+		} catch (NumberFormatException e) {
+			return Optional.empty();
+		}
+	}
 
 	/**
 	 * Try to convert the given string into a double
@@ -149,7 +168,24 @@ public class MathUtil {
 			throw new InputParseException(errorMessageSupplier.get());
 		}
 	}
-
+	
+	/**
+	 * Try to parse a long
+	 * @param valueToParse
+	 * @return
+	 */
+	public static Optional<Long> tryParseLong(final String valueToParse) {
+		
+		if(valueToParse == null) {
+			return Optional.empty();
+		}
+		
+		try {
+			return Optional.of(Long.parseLong(valueToParse));
+		} catch (NumberFormatException e) {
+			return Optional.empty();
+		}
+	}
 
 	/**
 	 * Try to convert the given string into a long
@@ -202,6 +238,24 @@ public class MathUtil {
 		}
 	}
 
+	/**
+	 * Try to parse ad double
+	 * @param valueToParse
+	 * @return
+	 */
+	public static Optional<Double> tryParseDouble(final String valueToParse) {
+		
+		if(valueToParse == null) {
+			return Optional.empty();
+		}
+		
+		try {
+			return Optional.of(Double.parseDouble(valueToParse));
+		} catch (NumberFormatException e) {
+			return Optional.empty();
+		}
+	}
+	
 	/**
 	 * Try to convert the given string into a double
 	 * @param valueToParse

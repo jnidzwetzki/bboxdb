@@ -72,6 +72,10 @@ public class TestMathUtil {
 		} catch (InputParseException e) {
 			Assert.fail();
 		}
+				
+		Assert.assertEquals(234, (int) MathUtil.tryParseInt("234").get());
+		Assert.assertFalse(MathUtil.tryParseInt(null).isPresent());
+		Assert.assertFalse(MathUtil.tryParseInt("abc").isPresent());
 	}
 
 	
@@ -97,6 +101,10 @@ public class TestMathUtil {
 		} catch (InputParseException e) {
 			Assert.fail();
 		}
+		
+		Assert.assertEquals(234.567, (double) MathUtil.tryParseDouble("234.567").get(), DEFAULT_ASSERT_DELTA);
+		Assert.assertFalse(MathUtil.tryParseDouble(null).isPresent());
+		Assert.assertFalse(MathUtil.tryParseDouble("abc").isPresent());
 	}
 	
 	@Test(timeout=60000)
@@ -128,6 +136,10 @@ public class TestMathUtil {
 		} catch (InputParseException e) {
 			Assert.fail();
 		}
+		
+		Assert.assertEquals(454545435l, (long) MathUtil.tryParseLong("454545435").get(), DEFAULT_ASSERT_DELTA);
+		Assert.assertFalse(MathUtil.tryParseLong(null).isPresent());
+		Assert.assertFalse(MathUtil.tryParseLong("abc").isPresent());
 	}
 	
 	@Test(timeout=60000)
