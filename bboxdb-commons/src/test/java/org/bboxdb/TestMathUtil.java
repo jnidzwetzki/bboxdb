@@ -54,14 +54,14 @@ public class TestMathUtil {
 	public void testParseInteger(){
 		try {
 			MathUtil.tryParseInt("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
 			MathUtil.tryParseInt(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
@@ -70,7 +70,7 @@ public class TestMathUtil {
 			final int result2 = MathUtil.tryParseInt("234", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertEquals(234, result2);
 		} catch (InputParseException e) {
-			Assert.assertTrue(false);
+			Assert.fail();
 		}
 	}
 
@@ -79,14 +79,14 @@ public class TestMathUtil {
 	public void testParseDouble() {
 		try {
 			MathUtil.tryParseDouble("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
 			MathUtil.tryParseDouble(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
@@ -95,7 +95,7 @@ public class TestMathUtil {
 			final double result2 = MathUtil.tryParseDouble("234.567", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertEquals(234.567, result2, DEFAULT_ASSERT_DELTA);
 		} catch (InputParseException e) {
-			Assert.assertTrue(false);
+			Assert.fail();
 		}
 	}
 	
@@ -103,21 +103,21 @@ public class TestMathUtil {
 	public void testParseLong() {
 		try {
 			MathUtil.tryParseLong("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
 			MathUtil.tryParseLong(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
 			MathUtil.tryParseLong("3.14159", MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
@@ -126,7 +126,7 @@ public class TestMathUtil {
 			final long result2 = MathUtil.tryParseLong("454545435", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertEquals(454545435l, result2);
 		} catch (InputParseException e) {
-			Assert.assertTrue(false);
+			Assert.fail();
 		}
 	}
 	
@@ -134,14 +134,14 @@ public class TestMathUtil {
 	public void testParseBoolean() {
 		try {
 			MathUtil.tryParseBoolean("true1234", MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
 			MathUtil.tryParseBoolean(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
-			Assert.assertTrue(false);
+			Assert.fail();
 		} catch(InputParseException e) {
 			
 		}
@@ -171,7 +171,7 @@ public class TestMathUtil {
 			final boolean result8 = MathUtil.tryParseBoolean("0", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertFalse(result8);
 		} catch (InputParseException e) {
-			Assert.assertTrue(false);
+			Assert.fail();
 		}
 	}
 }
