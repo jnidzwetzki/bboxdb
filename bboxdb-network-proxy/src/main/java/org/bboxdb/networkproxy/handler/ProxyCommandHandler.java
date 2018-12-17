@@ -21,15 +21,18 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.bboxdb.network.client.BBoxDB;
+
 public interface ProxyCommandHandler {
 
 	/**
 	 * Handle the command
+	 * @param bboxdbClient
 	 * @param commandLine
 	 * @param reader
 	 * @param writer
 	 * @throws IOException
 	 */
-	public void handleCommand(final String commandLine, final Reader reader,
-			final Writer writer) throws IOException;
+	public void handleCommand(final BBoxDB bboxdbClient, final String commandLine,
+			final Reader reader, final Writer writer) throws IOException;
 }

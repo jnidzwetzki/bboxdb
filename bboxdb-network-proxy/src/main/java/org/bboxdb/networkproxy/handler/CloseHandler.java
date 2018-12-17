@@ -21,13 +21,14 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.networkproxy.ProxyConst;
 
 public class CloseHandler implements ProxyCommandHandler {
 
 	@Override
-	public void handleCommand(final String commandLine, final Reader reader,
-			final Writer writer) throws IOException {
+	public void handleCommand(final BBoxDB bboxdbClient, final String commandLine,
+			final Reader reader, final Writer writer) throws IOException {
 
 		writer.write(ProxyConst.RESULT_OK + "\n");
 		Thread.currentThread().interrupt();
