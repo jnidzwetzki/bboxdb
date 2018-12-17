@@ -127,7 +127,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 * Create a bounding box from a string value
 	 * @param stringValue
 	 */
-	public Hyperrectangle(final String stringValue) {
+	public static Hyperrectangle fromString(final String stringValue) {
 
 		if(! stringValue.startsWith("[")) {
 			throw new IllegalArgumentException("Bounding box have to start with [");
@@ -140,9 +140,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		if("[]".equals(stringValue)) {
 			// Cover complete space bounding box
-			this.boundingBox = new double[0];
-			this.pointIncluded = new boolean[0];
-			return;
+			return FULL_SPACE;
 		}
 
 		if(StringUtil.countCharOccurrence(stringValue, ',') < 1) {
@@ -161,12 +159,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 			values.add(interval);
 		}
 		
-		final int elements = values.size() * 2;
-		
-		this.boundingBox = new double[elements];
-		this.pointIncluded = new boolean[elements];
-		
-		intervalsToArray(values);
+		return new Hyperrectangle(values);
 	}
 
 	/**

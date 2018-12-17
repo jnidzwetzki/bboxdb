@@ -60,7 +60,7 @@ public class TestBaselineSelect implements Runnable {
 			System.exit(-1);
 		}
 
-		final Hyperrectangle range = new Hyperrectangle(args[2]);
+		final Hyperrectangle range = Hyperrectangle.fromString(args[2]);
 
 		final TestBaselineSelect baselineSelect = new TestBaselineSelect(file, args[1], range);
 		baselineSelect.run();

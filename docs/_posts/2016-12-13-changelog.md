@@ -19,6 +19,7 @@ order: 1
 - Bugfix: Fixed exception in tuple store read after cluster deletion in ZooKeeper
 - Bugfix: Fixed table read from non existing distribution group
 - Bugfix: Fixed instance read after cluster clear
+- Bugfix: Hyperrectangle from string now creates a correct FULL_SPACE hyperrectangle
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation

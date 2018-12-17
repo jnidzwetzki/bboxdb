@@ -91,7 +91,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		
 		if(! spConfig.isEmpty()) {
 			if(spConfig.contains("[") && spConfig.contains("]")) {
-				return new Hyperrectangle(spConfig);	
+				return Hyperrectangle.fromString(spConfig);	
 			} else {
 				logger.error("Got invalid space partitoner config {}", spConfig);
 			}

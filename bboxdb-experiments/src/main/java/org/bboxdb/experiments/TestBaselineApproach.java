@@ -112,7 +112,7 @@ public class TestBaselineApproach implements AutoCloseable {
 			System.exit(-1);
 		}
 
-		final Hyperrectangle hyperrectangle = new Hyperrectangle(args[3]);
+		final Hyperrectangle hyperrectangle = Hyperrectangle.fromString(args[3]);
 
 		executeRangeQuery(args[1], args[2], hyperrectangle);
 	}
@@ -170,7 +170,7 @@ public class TestBaselineApproach implements AutoCloseable {
 			System.exit(-1);
 		}
 
-		final Hyperrectangle hyperrectangle = new Hyperrectangle(args[4]);
+		final Hyperrectangle hyperrectangle = Hyperrectangle.fromString(args[4]);
 
 		final double padding = MathUtil.tryParseDouble(args[5], () -> "Unable to parse " + args[5]);
 

@@ -30,7 +30,7 @@ import java.util.List;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.networkproxy.misc.TupleSerializer;
+import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.Tuple;
 
 public class NetworkProxyClient implements AutoCloseable {
@@ -138,7 +138,7 @@ public class NetworkProxyClient implements AutoCloseable {
 		final StringBuilder sb = new StringBuilder("PUT ");
 		sb.append(table);
 		sb.append(" ");
-		sb.append(TupleSerializer.tupleToProxyString(tuple));
+		sb.append(TupleStringSerializer.tupleToProxyString(tuple));
 
 		sendToServer(sb.toString());
 	}

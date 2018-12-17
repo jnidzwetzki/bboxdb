@@ -56,7 +56,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 					"".getBytes());
 					
-			final Hyperrectangle rootBox = new Hyperrectangle(splitConfig[0]);
+			final Hyperrectangle rootBox = Hyperrectangle.fromString(splitConfig[0]);
 			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
 			
 			// Create grid

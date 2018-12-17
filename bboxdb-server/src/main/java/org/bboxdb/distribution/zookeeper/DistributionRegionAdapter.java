@@ -68,7 +68,7 @@ public class DistributionRegionAdapter {
 		
 		try {			
 			boundingBoxString = zookeeperClient.readPathAndReturnString(splitPathName);
-			return new Hyperrectangle(boundingBoxString);
+			return Hyperrectangle.fromString(boundingBoxString);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse bounding box '" + boundingBoxString + "' for " + splitPathName);
 		}		

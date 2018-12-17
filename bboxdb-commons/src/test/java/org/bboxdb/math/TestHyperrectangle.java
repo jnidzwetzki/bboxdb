@@ -577,14 +577,16 @@ public class TestHyperrectangle {
 		final Hyperrectangle boundingBox7 = new Hyperrectangle(Arrays.asList(new DoubleInterval(1, 2, true, false), new DoubleInterval(1, 2, false, false)));
 		final Hyperrectangle boundingBox8 = Hyperrectangle.createFullCoveringDimensionBoundingBox(3);
 
-		Assert.assertEquals(boundingBox1, new Hyperrectangle(boundingBox1.toCompactString()));
-		Assert.assertEquals(boundingBox2, new Hyperrectangle(boundingBox2.toCompactString()));
-		Assert.assertEquals(boundingBox3, new Hyperrectangle(boundingBox3.toCompactString()));
-		Assert.assertEquals(boundingBox4, new Hyperrectangle(boundingBox4.toCompactString()));
-		Assert.assertEquals(boundingBox5, new Hyperrectangle(boundingBox5.toCompactString()));
-		Assert.assertEquals(boundingBox6, new Hyperrectangle(boundingBox6.toCompactString()));
-		Assert.assertEquals(boundingBox7, new Hyperrectangle(boundingBox7.toCompactString()));
-		Assert.assertEquals(boundingBox8, new Hyperrectangle(boundingBox8.toCompactString()));
+		Assert.assertEquals(boundingBox1, Hyperrectangle.fromString(boundingBox1.toCompactString()));
+		Assert.assertEquals(boundingBox2, Hyperrectangle.fromString(boundingBox2.toCompactString()));
+		Assert.assertEquals(boundingBox3, Hyperrectangle.fromString(boundingBox3.toCompactString()));
+		Assert.assertEquals(boundingBox4, Hyperrectangle.fromString(boundingBox4.toCompactString()));
+		Assert.assertEquals(boundingBox5, Hyperrectangle.fromString(boundingBox5.toCompactString()));
+		Assert.assertEquals(boundingBox6, Hyperrectangle.fromString(boundingBox6.toCompactString()));
+		Assert.assertEquals(boundingBox7, Hyperrectangle.fromString(boundingBox7.toCompactString()));
+		Assert.assertEquals(boundingBox8, Hyperrectangle.fromString(boundingBox8.toCompactString()));
+		
+		Assert.assertTrue(Hyperrectangle.FULL_SPACE == Hyperrectangle.fromString(boundingBox1.toCompactString()));
 	}
 
 	/**
@@ -592,7 +594,7 @@ public class TestHyperrectangle {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testFromToString2() {
-		new Hyperrectangle("sdsfsd");
+		Hyperrectangle.fromString("sdsfsd");
 	}
 
 	/**

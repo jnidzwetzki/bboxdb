@@ -157,7 +157,7 @@ public class TestIndexedTupleUpdate {
 		
 		final Optional<Tuple> oldIndexEntry = indexedTupleUpdateHelper.getOldIndexEntry(TABLENAME_INDEX, tuple1.getKey());
 		final byte[] boundingBoxData1 = oldIndexEntry.get().getDataBytes();
-		final Hyperrectangle boundingBox1 = new Hyperrectangle(new String(boundingBoxData1));
+		final Hyperrectangle boundingBox1 = Hyperrectangle.fromString(new String(boundingBoxData1));
 		
 		Assert.assertEquals(Hyperrectangle.FULL_SPACE, boundingBox1);
 		
@@ -181,7 +181,7 @@ public class TestIndexedTupleUpdate {
 		
 		final Optional<Tuple> oldIndexEntry1 = indexedTupleUpdateHelper.getOldIndexEntry(TABLENAME_INDEX, tuple1.getKey());
 		final byte[] boundingBoxData1 = oldIndexEntry1.get().getDataBytes();
-		final Hyperrectangle boundingBox1 = new Hyperrectangle(new String(boundingBoxData1));
+		final Hyperrectangle boundingBox1 = Hyperrectangle.fromString(new String(boundingBoxData1));
 		Assert.assertEquals(tuple1.getBoundingBox(), boundingBox1);
 		
 		final Tuple tuple2 = new Tuple("abc", new Hyperrectangle(7d, 9d, 4d, 50d), "value2".getBytes());
@@ -193,7 +193,7 @@ public class TestIndexedTupleUpdate {
 
 		final Optional<Tuple> oldIndexEntry2 = indexedTupleUpdateHelper.getOldIndexEntry(TABLENAME_INDEX, tuple2.getKey());
 		final byte[] boundingBoxData2 = oldIndexEntry2.get().getDataBytes();
-		final Hyperrectangle boundingBox2 = new Hyperrectangle(new String(boundingBoxData2));
+		final Hyperrectangle boundingBox2 = Hyperrectangle.fromString(new String(boundingBoxData2));
 		Assert.assertEquals(tuple2.getBoundingBox(), boundingBox2);
 		
 		disconnect(cluster);

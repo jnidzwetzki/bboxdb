@@ -221,13 +221,7 @@ public class TupleHelper {
 	 * @return
 	 */
 	public static boolean isDeletedTuple(final Tuple tuple) {
-		if(tuple.getBoundingBox() == Hyperrectangle.FULL_SPACE) {
-			if(Arrays.equals(tuple.getDataBytes(), SSTableConst.DELETED_MARKER)) {
-				return true;
-			}
-		}
-		
-		return false;
+		return isDeletedTuple(tuple.getBoundingBox(), tuple.getDataBytes());
 	}
 	
 	/**
@@ -237,7 +231,7 @@ public class TupleHelper {
 	 * @return
 	 */
 	public static boolean isDeletedTuple(final byte[] boxBytes, final byte[] dataBytes) {
-		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
+		if(Arrays.equals(dataBytes, SSTableConst.DELETED_MARKER)) {
 			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
 				return true;
 			}
@@ -245,5 +239,20 @@ public class TupleHelper {
 		
 		return false;
 	}
-	
+
+	/**
+	 * Is deleted tuple
+	 * @param bbox
+	 * @param value
+	 * @return
+	 */
+	public static boolean isDeletedTuple(final Hyperrectangle bbox, byte[] value) {
+		if(bbox == Hyperrectangle.FULL_SPACE) {
+			if(Arrays.equals(value, SSTableConst.DELETED_MARKER)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }

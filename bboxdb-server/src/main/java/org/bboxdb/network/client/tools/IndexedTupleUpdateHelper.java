@@ -247,7 +247,7 @@ public class IndexedTupleUpdateHelper {
 			// Lock was successful
 			if(! lockResult.isFailed()) {
 				final byte[] boundingBoxData = oldIndexEntry.getDataBytes();
-				return new Hyperrectangle(new String(boundingBoxData));
+				return Hyperrectangle.fromString(new String(boundingBoxData));
 			}
 		}
 
