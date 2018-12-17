@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.networkproxy;
 
@@ -44,22 +44,22 @@ public class ProxyConnectionRunable implements Runnable {
 	 * The client socket
 	 */
 	private final Socket clientSocket;
-	
+
 	/**
 	 * The socket reader
 	 */
 	private final BufferedReader socketReader;
-	
+
 	/**
 	 * The socket writer
 	 */
 	private final Writer socketWriter;
-	
+
 	/**
 	 * The command handler
 	 */
 	private final static Map<String, ProxyCommandHandler> handler;
-	
+
 	static {
 		handler = new HashMap<>();
 		handler.put("PUT", new PutHandler());
@@ -69,7 +69,7 @@ public class ProxyConnectionRunable implements Runnable {
 		handler.put("RANGE_QUERY", new RangeQueryHandler());
 		handler.put("CLOSE", new CloseHandler());
 	}
-	
+
 	/**
 	 * The Logger
 	 */
@@ -94,7 +94,7 @@ public class ProxyConnectionRunable implements Runnable {
 		}
 	}
 
-	/** 
+	/**
 	 * Close the connection
 	 */
 	private void closeConnection() {
@@ -106,21 +106,23 @@ public class ProxyConnectionRunable implements Runnable {
 
 	/**
 	 * Read the next command from socket
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void readNextCommand() throws IOException {
-		final String command = socketReader.readLine();
+		final String commandLine = socketReader.readLine();
+		final String command = commandLine.split(" ")[0];
+
 		logger.info("------> Read command {}", command);
-		
+
 		final ProxyCommandHandler commandHandler = handler.get(command);
-		
+
 		if(commandHandler == null) {
 			logger.error("Got unknown command: {}", command);
 			throw new IllegalArgumentException();
 		}
-		
-		commandHandler.handleCommand(socketReader, socketWriter);
-		
+
+		commandHandler.handleCommand(commandLine, socketReader, socketWriter);
+
 		// Flush written data
 		socketWriter.flush();
 	}
