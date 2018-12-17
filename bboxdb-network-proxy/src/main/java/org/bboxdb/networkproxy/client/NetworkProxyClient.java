@@ -17,21 +17,20 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy.client;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.CloseableHelper;
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.networkproxy.ProxyConst;
-import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.Tuple;
 
 public class NetworkProxyClient implements AutoCloseable {
@@ -44,25 +43,25 @@ public class NetworkProxyClient implements AutoCloseable {
 	/**
 	 * The socket reader
 	 */
-	private final BufferedReader socketReader;
+	private final InputStream socketInputStream;
 
 	/**
 	 * The socket writer
 	 */
-	private final Writer socketWriter;
+	private final OutputStream socketOutputStream;
 
 	public NetworkProxyClient(final String hostname, final int port)
 			throws UnknownHostException, IOException {
 
 		this.clientSocket = new Socket(hostname, port);
-		this.socketReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		this.socketWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+		this.socketInputStream = new BufferedInputStream(clientSocket.getInputStream());
+		this.socketOutputStream = new BufferedOutputStream(clientSocket.getOutputStream());
 	}
 
 	@Override
 	public void close() throws IOException {
-		CloseableHelper.closeWithoutException(socketReader);
-		CloseableHelper.closeWithoutException(socketWriter);
+		CloseableHelper.closeWithoutException(socketInputStream);
+		CloseableHelper.closeWithoutException(socketOutputStream);
 		CloseableHelper.closeWithoutException(clientSocket);
 	}
 
@@ -70,24 +69,24 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * Send data to server
 	 * @throws IOException
 	 */
-	private void sendToServer(final String string) throws IOException {
-		sendToServer(string, true);
+	private synchronized void sendToServer(final byte byteData)
+			throws IOException {
+
+		socketOutputStream.write(byteData);
+		socketOutputStream.flush();
 	}
 
 	/**
 	 * Send data to server
 	 * @throws IOException
 	 */
-	private synchronized void sendToServer(final String string, final boolean lineFeed)
+	private synchronized void sendToServer(final String string)
 			throws IOException {
 
-		socketWriter.write(string);
-
-		if(lineFeed) {
-			socketWriter.write("\n");
-		}
-
-		socketWriter.flush();
+		final int stringLength = string.length();
+		socketOutputStream.write(DataEncoderHelper.intToByteBuffer(stringLength).array());
+		socketOutputStream.write(string.getBytes());
+		socketOutputStream.flush();
 	}
 
 	/**
@@ -95,9 +94,9 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public synchronized void waitForServerOkResult() throws IOException {
-		final String serverResult = socketReader.readLine();
+		final byte serverResult = (byte) socketInputStream.read();
 
-		if(! ProxyConst.RESULT_OK.equals(serverResult)) {
+		if(ProxyConst.RESULT_OK != serverResult) {
 			throw new IOException("Read " + serverResult
 					+ " from server instead of: " + ProxyConst.RESULT_OK);
 		}
@@ -110,8 +109,10 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public List<Tuple> get(final String key, final String table) throws IOException {
-		sendToServer("GET " + table + " " + key);
+	public synchronized List<Tuple> get(final String key, final String table) throws IOException {
+		sendToServer(ProxyConst.COMMAND_GET);
+		sendToServer(table);
+		sendToServer(key);
 
 		return new ArrayList<>();
 	}
@@ -123,8 +124,10 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public List<Tuple> getLocal(final String key, final String table) throws IOException {
-		sendToServer("GET_LOCAL " + table + " " + key);
+	public synchronized List<Tuple> getLocal(final String key, final String table) throws IOException {
+		sendToServer(ProxyConst.COMMAND_GET_LOCAL);
+		sendToServer(table);
+		sendToServer(key);
 
 		return new ArrayList<>();
 	}
@@ -136,10 +139,12 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public List<Tuple> rangeQuery(final Hyperrectangle queryRectangle, final String table)
+	public synchronized List<Tuple> rangeQuery(final Hyperrectangle queryRectangle, final String table)
 			throws IOException {
 
-		sendToServer("GET_RANGE " + table + " " + queryRectangle.toCompactString());
+		sendToServer(ProxyConst.COMMAND_RANGE_QUERY);
+		sendToServer(table);
+		sendToServer(queryRectangle.toCompactString());
 
 		return new ArrayList<>();
 	}
@@ -150,17 +155,10 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @param table
 	 * @throws IOException
 	 */
-	public void put(final Tuple tuple, final String table) throws IOException {
-		final StringBuilder sb = new StringBuilder("PUT ");
-		sb.append(table);
-		sb.append("\n");
+	public synchronized void put(final Tuple tuple, final String table) throws IOException {
+		sendToServer(ProxyConst.COMMAND_PUT);
+		sendToServer(table);
 
-		final String tupleData = TupleStringSerializer.tupleToProxyString(tuple);
-		sb.append(Long.toString(tupleData.length()));
-		sb.append("\n");
-		sb.append(tupleData);
-
-		sendToServer(sb.toString());
 		waitForServerOkResult();
 	}
 
@@ -170,8 +168,11 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @param table
 	 * @throws IOException
 	 */
-	public void delete(final String key, final String table) throws IOException {
-		sendToServer("DELETE " + table + " " + key);
+	public synchronized void delete(final String key, final String table) throws IOException {
+		sendToServer(ProxyConst.COMMAND_DELETE);
+		sendToServer(table);
+		sendToServer(key);
+
 		waitForServerOkResult();
 	}
 
@@ -180,8 +181,8 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public void disconnect() throws IOException {
-		sendToServer("CLOSE");
+	public synchronized void disconnect() throws IOException {
+		sendToServer(ProxyConst.COMMAND_CLOSE);
 
 		try {
 			waitForServerOkResult();

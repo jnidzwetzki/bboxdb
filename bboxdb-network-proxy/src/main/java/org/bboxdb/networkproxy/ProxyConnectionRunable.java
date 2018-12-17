@@ -17,12 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,12 +48,12 @@ public class ProxyConnectionRunable implements Runnable {
 	/**
 	 * The socket reader
 	 */
-	private final BufferedReader socketReader;
+	private final InputStream socketInputStream;
 
 	/**
 	 * The socket writer
 	 */
-	private final Writer socketWriter;
+	private final OutputStream socketOutputStream;
 
 	/**
 	 * The bboxDB client
@@ -64,16 +63,16 @@ public class ProxyConnectionRunable implements Runnable {
 	/**
 	 * The command handler
 	 */
-	private final static Map<String, ProxyCommandHandler> handler;
+	private final static Map<Byte, ProxyCommandHandler> handler;
 
 	static {
 		handler = new HashMap<>();
-		handler.put("PUT", new PutHandler());
-		handler.put("GET", new GetHandler());
-		handler.put("DELETE", new DeleteHandler());
-		handler.put("GET_LOCAL_DATA", new GetLocalDataHandler());
-		handler.put("RANGE_QUERY", new RangeQueryHandler());
-		handler.put("CLOSE", new CloseHandler());
+		handler.put(ProxyConst.COMMAND_PUT, new PutHandler());
+		handler.put(ProxyConst.COMMAND_GET, new GetHandler());
+		handler.put(ProxyConst.COMMAND_DELETE, new DeleteHandler());
+		handler.put(ProxyConst.COMMAND_GET_LOCAL, new GetLocalDataHandler());
+		handler.put(ProxyConst.COMMAND_RANGE_QUERY, new RangeQueryHandler());
+		handler.put(ProxyConst.COMMAND_CLOSE, new CloseHandler());
 	}
 
 	/**
@@ -84,8 +83,8 @@ public class ProxyConnectionRunable implements Runnable {
 	public ProxyConnectionRunable(final BBoxDB bboxdbClient, final Socket clientSocket) throws IOException {
 		this.bboxdbClient = bboxdbClient;
 		this.clientSocket = clientSocket;
-		this.socketReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		this.socketWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+		this.socketInputStream = new BufferedInputStream(clientSocket.getInputStream());
+		this.socketOutputStream = new BufferedOutputStream(clientSocket.getOutputStream());
 	}
 
 	@Override
@@ -106,8 +105,8 @@ public class ProxyConnectionRunable implements Runnable {
 	 */
 	private void closeConnection() {
 		logger.info("Closing connection to: {}", clientSocket.getRemoteSocketAddress());
-		CloseableHelper.closeWithoutException(socketReader);
-		CloseableHelper.closeWithoutException(socketWriter);
+		CloseableHelper.closeWithoutException(socketInputStream);
+		CloseableHelper.closeWithoutException(socketOutputStream);
 		CloseableHelper.closeWithoutException(clientSocket);
 	}
 
@@ -116,10 +115,9 @@ public class ProxyConnectionRunable implements Runnable {
 	 * @throws IOException
 	 */
 	private void readNextCommand() throws IOException {
-		final String commandLine = socketReader.readLine();
-		final String command = commandLine.split(" ")[0];
+		final byte command = (byte) socketInputStream.read();
 
-		logger.info("Read command line {} / command {}", commandLine, command);
+		logger.info("Read command {}", command);
 
 		final ProxyCommandHandler commandHandler = handler.get(command);
 
@@ -127,10 +125,10 @@ public class ProxyConnectionRunable implements Runnable {
 			throw new IllegalArgumentException("Got unknown command: " + command);
 		}
 
-		commandHandler.handleCommand(bboxdbClient, commandLine, socketReader, socketWriter);
+		commandHandler.handleCommand(bboxdbClient, socketInputStream, socketOutputStream);
 
 		// Flush written data
-		socketWriter.flush();
+		socketOutputStream.flush();
 	}
 
 }

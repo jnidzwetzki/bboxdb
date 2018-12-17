@@ -27,16 +27,42 @@ public class ProxyConst {
 	/**
 	 * Result - OK
 	 */
-	public final static String RESULT_OK = "OK";
-
-	/**
-	 * Result - Another object will follow
-	 */
-	public final static String RESULT_FOLLOW = "FOLLOW";
+	public final static byte RESULT_OK = 0x00;
 
 	/**
 	 * Result - failed
 	 */
-	public final static String RESULT_FAILED = "FAILED";
+	public final static byte RESULT_FAILED = 0x01;
+
+
+	/**
+	 * Command - put
+	 */
+	public final static byte COMMAND_PUT = 0x01;
+
+	/**
+	 * Command - get
+	 */
+	public final static byte COMMAND_GET = 0x02;
+
+	/**
+	 * Command - delete
+	 */
+	public final static byte COMMAND_DELETE = 0x03;
+
+	/**
+	 * Command - get local data
+	 */
+	public final static byte COMMAND_GET_LOCAL = 0x04;
+
+	/**
+	 * Command - get local data
+	 */
+	public final static byte COMMAND_RANGE_QUERY = 0x05;
+
+	/**
+	 * Command - close
+	 */
+	public final static byte COMMAND_CLOSE = 0x06;
 
 }
