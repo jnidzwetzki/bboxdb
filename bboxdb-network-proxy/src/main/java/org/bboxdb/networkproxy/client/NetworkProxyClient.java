@@ -153,8 +153,12 @@ public class NetworkProxyClient implements AutoCloseable {
 	public void put(final Tuple tuple, final String table) throws IOException {
 		final StringBuilder sb = new StringBuilder("PUT ");
 		sb.append(table);
-		sb.append(" ");
-		sb.append(TupleStringSerializer.tupleToProxyString(tuple));
+		sb.append("\n");
+
+		final String tupleData = TupleStringSerializer.tupleToProxyString(tuple);
+		sb.append(Long.toString(tupleData.length()));
+		sb.append("\n");
+		sb.append(tupleData);
 
 		sendToServer(sb.toString());
 		waitForServerOkResult();

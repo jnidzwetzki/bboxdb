@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.networkproxy.ProxyConst;
 
 public class GetHandler implements ProxyCommandHandler {
 
@@ -29,5 +30,15 @@ public class GetHandler implements ProxyCommandHandler {
 	public void handleCommand(final BBoxDB bboxdbClient, final String commandLine,
 			final Reader reader, final Writer writer) throws IOException {
 
+		final String[] commands = commandLine.split(" ");
+
+		if(commands.length != 3) {
+			throw new IOException("Unable to split data into 3 parts: " + commands);
+		}
+
+		final String table = commands[1];
+		final String key = commands[2];
+
+		writer.write(ProxyConst.RESULT_OK);
 	}
 }

@@ -119,13 +119,12 @@ public class ProxyConnectionRunable implements Runnable {
 		final String commandLine = socketReader.readLine();
 		final String command = commandLine.split(" ")[0];
 
-		logger.info("------> Read command {}", command);
+		logger.info("Read command line {} / command {}", commandLine, command);
 
 		final ProxyCommandHandler commandHandler = handler.get(command);
 
 		if(commandHandler == null) {
-			logger.error("Got unknown command: {}", command);
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Got unknown command: " + command);
 		}
 
 		commandHandler.handleCommand(bboxdbClient, commandLine, socketReader, socketWriter);
