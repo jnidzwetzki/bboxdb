@@ -21,9 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
+import org.bboxdb.networkproxy.misc.TupleStringSerializer;
+import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +45,26 @@ public class GetLocalDataHandler implements ProxyCommandHandler {
 		final String table = ProxyHelper.readStringFromServer(socketInputStream);
 
 		logger.info("Got local call for table {}", table);
+
+		try {
+			// TODO: Fixme
+			final TupleListFuture tupleResult = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE);
+			tupleResult.waitForCompletion();
+
+			for(final Tuple tuple : tupleResult) {
+				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
+				TupleStringSerializer.write(tuple, socketOutputStream);
+			}
+
+			socketOutputStream.write(ProxyConst.RESULT_OK);
+		} catch(InterruptedException e) {
+			logger.debug("Got interrupted exception while handling bboxdb call");
+			Thread.currentThread().interrupt();
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		} catch (Exception e) {
+			logger.error("Got exception while proessing bboxdb call", e);
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		}
 
 		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}

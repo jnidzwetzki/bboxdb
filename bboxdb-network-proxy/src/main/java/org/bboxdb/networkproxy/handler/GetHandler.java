@@ -22,8 +22,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
+import org.bboxdb.networkproxy.misc.TupleStringSerializer;
+import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,25 @@ public class GetHandler implements ProxyCommandHandler {
 		final String key = ProxyHelper.readStringFromServer(socketInputStream);
 
 		logger.info("Got get call for table {} and key {}", table, key);
+
+		try {
+			final TupleListFuture tupleResult = bboxdbClient.queryKey(table, key);
+			tupleResult.waitForCompletion();
+
+			for(final Tuple tuple : tupleResult) {
+				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
+				TupleStringSerializer.write(tuple, socketOutputStream);
+			}
+
+			socketOutputStream.write(ProxyConst.RESULT_OK);
+		} catch(InterruptedException e) {
+			logger.debug("Got interrupted exception while handling bboxdb call");
+			Thread.currentThread().interrupt();
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		} catch (Exception e) {
+			logger.error("Got exception while proessing bboxdb call", e);
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		}
 
 		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}

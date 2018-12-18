@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
@@ -44,6 +45,19 @@ public class PutHandler implements ProxyCommandHandler {
 		final Tuple tuple = TupleStringSerializer.read(socketInputStream);
 
 		logger.info("Got put call for table {} and tuple {}", table, tuple);
+
+		try {
+			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(table, tuple);
+			insertResult.waitForCompletion();
+			socketOutputStream.write(ProxyConst.RESULT_OK);
+		} catch(InterruptedException e) {
+			logger.debug("Got interrupted exception while handling bboxdb call");
+			Thread.currentThread().interrupt();
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		} catch (Exception e) {
+			logger.error("Got exception while proessing bboxdb call", e);
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		}
 
 		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}
