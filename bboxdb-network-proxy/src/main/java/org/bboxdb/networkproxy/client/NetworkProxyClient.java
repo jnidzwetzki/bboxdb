@@ -31,6 +31,7 @@ import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.networkproxy.ProxyConst;
+import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.Tuple;
 
 public class NetworkProxyClient implements AutoCloseable {
@@ -93,13 +94,49 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * Wait for the server result
 	 * @throws IOException
 	 */
-	public synchronized void waitForServerOkResult() throws IOException {
+	public synchronized void checkServerOkResult() throws IOException {
 		final byte serverResult = (byte) socketInputStream.read();
 
 		if(ProxyConst.RESULT_OK != serverResult) {
 			throw new IOException("Read " + serverResult
 					+ " from server instead of: " + ProxyConst.RESULT_OK);
 		}
+	}
+
+	/**
+	 * Read a tuple list from Server
+	 * @return
+	 * @throws IOException
+	 */
+	private List<Tuple> readTupleListFromServer() throws IOException {
+		final List<Tuple> tupleList = new ArrayList<>();
+
+		boolean continueRead = true;
+
+		while(continueRead) {
+			final byte serverResult = (byte) socketInputStream.read();
+
+			switch(serverResult) {
+				case ProxyConst.RESULT_FAILED:
+					throw new IOException("Got result failed result");
+
+				case ProxyConst.RESULT_FOLLOW:
+					continueRead = true;
+					final Tuple tuple = TupleStringSerializer.read(socketInputStream);
+					tupleList.add(tuple);
+					break;
+
+				case ProxyConst.RESULT_OK:
+					continueRead = false;
+					break;
+
+				default:
+					throw new IOException("Read unexcepted result from server: " + serverResult);
+			}
+
+		}
+
+		return tupleList;
 	}
 
 	/**
@@ -114,22 +151,20 @@ public class NetworkProxyClient implements AutoCloseable {
 		sendToServer(table);
 		sendToServer(key);
 
-		return new ArrayList<>();
+		return readTupleListFromServer();
 	}
 
 	/**
 	 * The get local call
-	 * @param key
 	 * @param table
 	 * @return
 	 * @throws IOException
 	 */
-	public synchronized List<Tuple> getLocal(final String key, final String table) throws IOException {
+	public synchronized List<Tuple> getLocal(final String table) throws IOException {
 		sendToServer(ProxyConst.COMMAND_GET_LOCAL);
 		sendToServer(table);
-		sendToServer(key);
 
-		return new ArrayList<>();
+		return readTupleListFromServer();
 	}
 
 	/**
@@ -146,7 +181,7 @@ public class NetworkProxyClient implements AutoCloseable {
 		sendToServer(table);
 		sendToServer(queryRectangle.toCompactString());
 
-		return new ArrayList<>();
+		return readTupleListFromServer();
 	}
 
 	/**
@@ -158,8 +193,9 @@ public class NetworkProxyClient implements AutoCloseable {
 	public synchronized void put(final Tuple tuple, final String table) throws IOException {
 		sendToServer(ProxyConst.COMMAND_PUT);
 		sendToServer(table);
+		TupleStringSerializer.write(tuple, socketOutputStream);
 
-		waitForServerOkResult();
+		checkServerOkResult();
 	}
 
 	/**
@@ -173,7 +209,7 @@ public class NetworkProxyClient implements AutoCloseable {
 		sendToServer(table);
 		sendToServer(key);
 
-		waitForServerOkResult();
+		checkServerOkResult();
 	}
 
 	/**
@@ -185,7 +221,7 @@ public class NetworkProxyClient implements AutoCloseable {
 		sendToServer(ProxyConst.COMMAND_CLOSE);
 
 		try {
-			waitForServerOkResult();
+			checkServerOkResult();
 		} catch(Exception e) {
 			throw e;
 		} finally {

@@ -22,13 +22,28 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.networkproxy.ProxyConst;
+import org.bboxdb.networkproxy.ProxyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeleteHandler implements ProxyCommandHandler {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(DeleteHandler.class);
+
 
 	@Override
 	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
+		final String table = ProxyHelper.readStringFromServer(socketInputStream);
+		final String key = ProxyHelper.readStringFromServer(socketInputStream);
 
+		logger.info("Got delete call for table {} and key {}", table, key);
+
+		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}
 }

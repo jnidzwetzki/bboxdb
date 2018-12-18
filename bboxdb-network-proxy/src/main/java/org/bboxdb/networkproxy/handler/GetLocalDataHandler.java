@@ -22,13 +22,26 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.networkproxy.ProxyConst;
+import org.bboxdb.networkproxy.ProxyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GetLocalDataHandler implements ProxyCommandHandler {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(GetLocalDataHandler.class);
 
 	@Override
 	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
+		final String table = ProxyHelper.readStringFromServer(socketInputStream);
 
+		logger.info("Got local call for table {}", table);
+
+		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}
 }

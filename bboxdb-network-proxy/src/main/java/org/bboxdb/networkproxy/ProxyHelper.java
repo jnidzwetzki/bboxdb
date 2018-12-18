@@ -15,32 +15,31 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.networkproxy.handler;
+package org.bboxdb.networkproxy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.networkproxy.ProxyConst;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bboxdb.commons.io.DataEncoderHelper;
 
-public class CloseHandler implements ProxyCommandHandler {
+import com.google.common.io.ByteStreams;
+
+public class ProxyHelper {
 
 	/**
-	 * The Logger
+	 * Read a string from a input stream
+	 *
+	 * @param inputStream
+	 * @return
+	 * @throws IOException
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(CloseHandler.class);
+	public static String readStringFromServer(final InputStream inputStream) throws IOException {
+		final int stringLength = DataEncoderHelper.readIntFromStream(inputStream);
 
-	@Override
-	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
-			final OutputStream socketOutputStream) throws IOException {
+		final byte[] stringBytes = new byte[stringLength];
+		ByteStreams.readFully(inputStream, stringBytes, 0, stringBytes.length);
 
-		logger.info("Got close call");
-
-		socketOutputStream.write(ProxyConst.RESULT_OK);
-		Thread.currentThread().interrupt();
+		return new String(stringBytes);
 	}
 
 }

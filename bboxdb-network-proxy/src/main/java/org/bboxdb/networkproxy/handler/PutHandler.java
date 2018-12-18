@@ -22,14 +22,29 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.networkproxy.ProxyConst;
+import org.bboxdb.networkproxy.ProxyHelper;
+import org.bboxdb.networkproxy.misc.TupleStringSerializer;
+import org.bboxdb.storage.entity.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PutHandler implements ProxyCommandHandler {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(PutHandler.class);
 
 	@Override
 	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
+		final String table = ProxyHelper.readStringFromServer(socketInputStream);
+		final Tuple tuple = TupleStringSerializer.read(socketInputStream);
 
+		logger.info("Got put call for table {} and tuple {}", table, tuple);
 
+		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}
 }

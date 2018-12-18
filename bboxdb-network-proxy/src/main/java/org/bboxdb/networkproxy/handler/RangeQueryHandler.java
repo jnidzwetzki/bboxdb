@@ -21,13 +21,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.networkproxy.ProxyConst;
+import org.bboxdb.networkproxy.ProxyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RangeQueryHandler implements ProxyCommandHandler {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(RangeQueryHandler.class);
 
 	@Override
 	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
+		final String table = ProxyHelper.readStringFromServer(socketInputStream);
+		final String boundingBoxString = ProxyHelper.readStringFromServer(socketInputStream);
+
+		final Hyperrectangle bbox = Hyperrectangle.fromString(boundingBoxString);
+
+		logger.info("Got range query call for table {} and box {}", table, bbox);
+
+		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}
 }

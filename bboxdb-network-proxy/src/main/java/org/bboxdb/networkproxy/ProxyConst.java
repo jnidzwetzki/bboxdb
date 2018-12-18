@@ -34,6 +34,10 @@ public class ProxyConst {
 	 */
 	public final static byte RESULT_FAILED = 0x01;
 
+	/**
+	 * Result - follow
+	 */
+	public final static byte RESULT_FOLLOW = 0x02;
 
 	/**
 	 * Command - put
