@@ -65,7 +65,5 @@ public class GetLocalDataHandler implements ProxyCommandHandler {
 			logger.error("Got exception while proessing bboxdb call", e);
 			socketOutputStream.write(ProxyConst.RESULT_FAILED);
 		}
-
-		socketOutputStream.write(ProxyConst.RESULT_OK);
 	}
 }
