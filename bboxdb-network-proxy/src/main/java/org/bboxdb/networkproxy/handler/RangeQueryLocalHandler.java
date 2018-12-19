@@ -21,7 +21,6 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.slf4j.Logger;
@@ -38,8 +37,7 @@ public class RangeQueryLocalHandler extends AbstractRangeQueryHandler {
 	public BBoxDB getConnection(final BBoxDBCluster bboxdbClient) {
 		final MembershipConnectionService connectionService = MembershipConnectionService.getInstance();
 		final BBoxDBConnection localConnection = connectionService.getConnectionForInstance(ZookeeperClientFactory.getLocalInstanceName());
-		
-		return new BBoxDBClient(localConnection);		
+		return localConnection.getBboxDBClient();
 	}
 
 	@Override
