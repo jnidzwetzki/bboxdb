@@ -28,12 +28,39 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.sstable.SSTableHelper;
+import org.junit.Assert;
 
 public class EnvironmentHelper {
+	
+	/**
+	 * The cluster contact point
+	 */
+	private static final String CLUSTER_CONTACT_POINT = "localhost:2181";
+
+	/**
+	 * Build a new connection to the bboxdb server
+	 * 
+	 * @return
+	 * @throws InterruptedException 
+	 */
+	public static BBoxDBCluster connectToServer() throws InterruptedException {
+		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
+		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(CLUSTER_CONTACT_POINT, clusterName);
+	
+		final boolean result = bboxdbCluster.connect();
+		Assert.assertTrue(result);
+		
+		Thread.sleep(50);
+		
+		Assert.assertTrue(bboxdbCluster.isConnected());
+		
+		return bboxdbCluster;
+	}
 	
 	/** 
 	 * Hard reset test environment

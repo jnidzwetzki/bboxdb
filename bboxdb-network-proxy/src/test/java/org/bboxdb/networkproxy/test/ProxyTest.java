@@ -18,15 +18,12 @@
 package org.bboxdb.networkproxy.test;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
@@ -82,23 +79,23 @@ public class ProxyTest {
 		// Allow connections to localhost (needed for travis CI test)
 		MembershipConnectionService.getInstance().clearBlacklist();
 
-		Thread.currentThread();
-
 		// Wait some time to let the server process start
 		Thread.sleep(5000);
 		
 		// Create distribution group and tables
-		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
-		final BBoxDBConnection bboxDBconnection = new BBoxDBConnection(new InetSocketAddress("127.0.0.1", port));
-		final BBoxDB client = bboxDBconnection.getBboxDBClient();
+		System.out.println("==> Connect to server");
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();		
 		
-		EnvironmentHelper.recreateDistributionGroup(client, TEST_GROUP);
+		System.out.println("==> Create distribution group");
+		EnvironmentHelper.recreateDistributionGroup(bboxDBClient, TEST_GROUP);
 		
-		final EmptyResultFuture resultCreateTable1 = client.createTable(TEST_TABLE_1, new TupleStoreConfiguration());
+		System.out.println("===> Create new table1");
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(TEST_TABLE_1, new TupleStoreConfiguration());
 		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 
-		final EmptyResultFuture resultCreateTable2 = client.createTable(TEST_TABLE_2, new TupleStoreConfiguration());
+		System.out.println("===> Create new table2");
+		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(TEST_TABLE_2, new TupleStoreConfiguration());
 		resultCreateTable2.waitForCompletion();
 		Assert.assertFalse(resultCreateTable2.isFailed());
 	}

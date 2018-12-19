@@ -22,7 +22,6 @@ import java.util.concurrent.ExecutionException;
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -38,11 +37,7 @@ import org.junit.Test;
 
 public class TestBBoxDBCluster {
 
-	/**
-	 * The cluster contact point
-	 */
-	private static final String CLUSTER_CONTACT_POINT = "localhost:2181";
-
+	
 	/**
 	 * The distribution group
 	 */
@@ -86,7 +81,7 @@ public class TestBBoxDBCluster {
 	 */
 	@Before
 	public void before() throws InterruptedException, BBoxDBException {
-		final BBoxDB bboxdbClient = connectToServer();
+		final BBoxDB bboxdbClient = EnvironmentHelper.connectToServer();
 		EnvironmentHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
 		disconnect(bboxdbClient);
 	}
@@ -100,7 +95,7 @@ public class TestBBoxDBCluster {
 	public void testSendDisconnectPackage() throws InterruptedException {
 		System.out.println("=== Running cluster testSendDisconnectPackage");
 
-		final BBoxDBCluster bboxdbClient = connectToServer();
+		final BBoxDBCluster bboxdbClient = EnvironmentHelper.connectToServer();
 		Assert.assertTrue(bboxdbClient.isConnected());
 		bboxdbClient.close();
 		Assert.assertFalse(bboxdbClient.isConnected());
@@ -119,33 +114,13 @@ public class TestBBoxDBCluster {
 	public void testInsertAndBoundingBoxTimeQuery() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running cluster testInsertAndBoundingBoxTimeQuery");
 
-		final BBoxDB bboxDBClient = connectToServer();
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();
 
 		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 
 		System.out.println("=== End cluster testInsertAndBoundingBoxTimeQuery");
 		
 		disconnect(bboxDBClient);
-	}
-	
-	/**
-	 * Build a new connection to the bboxdb server
-	 * 
-	 * @return
-	 * @throws InterruptedException 
-	 */
-	protected BBoxDBCluster connectToServer() throws InterruptedException {
-		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
-		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(CLUSTER_CONTACT_POINT, clusterName);
-	
-		final boolean result = bboxdbCluster.connect();
-		Assert.assertTrue(result);
-		
-		Thread.sleep(50);
-		
-		Assert.assertTrue(bboxdbCluster.isConnected());
-		
-		return bboxdbCluster;
 	}
 	
 	/**
@@ -158,7 +133,7 @@ public class TestBBoxDBCluster {
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running cluster testInsertAndDelete");
 
-		final BBoxDB bboxdbClient = connectToServer();
+		final BBoxDB bboxdbClient = EnvironmentHelper.connectToServer();
 
 		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient, DISTRIBUTION_GROUP);
 		System.out.println("=== End cluster testInsertAndDelete");
@@ -176,7 +151,7 @@ public class TestBBoxDBCluster {
 	public void testJoin() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running cluster testJoin");
 
-		final BBoxDB bboxdbClient = connectToServer();
+		final BBoxDB bboxdbClient = EnvironmentHelper.connectToServer();
 
 		NetworkQueryHelper.executeJoinQuery(bboxdbClient, DISTRIBUTION_GROUP);
 		
@@ -192,7 +167,7 @@ public class TestBBoxDBCluster {
 	 */
 	@Test(timeout=60000)
 	public void testVersionTimeQuery() throws InterruptedException, BBoxDBException {
-		final BBoxDB bboxDBClient = connectToServer();
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();
 
 		NetworkQueryHelper.testVersionTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
@@ -205,7 +180,7 @@ public class TestBBoxDBCluster {
 	 */
 	@Test(timeout=60000)
 	public void testInsertedTimeQuery() throws InterruptedException, BBoxDBException {
-		final BBoxDB bboxDBClient = connectToServer();
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();
 
 		NetworkQueryHelper.testInsertedTimeQuery(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
@@ -230,7 +205,7 @@ public class TestBBoxDBCluster {
 	public void testInsertAndBoundingBoxContinousQuery() throws InterruptedException, 
 	ExecutionException, BBoxDBException {
 		
-		final BBoxDB bboxDBClient = connectToServer();
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();
 		
 		final String table = DISTRIBUTION_GROUP + "_relation9991";
 		
@@ -253,7 +228,7 @@ public class TestBBoxDBCluster {
 	 */
 	@Test(timeout=60000)
 	public void testMiscMethods() throws InterruptedException {
-		final BBoxDB bboxDBClient = connectToServer();
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();
 		Assert.assertTrue(bboxDBClient.toString().length() > 10);
 		Assert.assertTrue(bboxDBClient.getTuplesPerPage() >= -1);
 		bboxDBClient.isPagingEnabled();
