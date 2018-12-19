@@ -22,7 +22,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
@@ -39,7 +43,7 @@ public class GetLocalDataHandler implements ProxyCommandHandler {
 	private final static Logger logger = LoggerFactory.getLogger(GetLocalDataHandler.class);
 
 	@Override
-	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
+	public void handleCommand(final BBoxDBCluster bboxdbCluster, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
 		final String table = ProxyHelper.readStringFromServer(socketInputStream);
@@ -47,8 +51,14 @@ public class GetLocalDataHandler implements ProxyCommandHandler {
 		logger.info("Got local call for table {}", table);
 
 		try {
-			// TODO: Fixme
-			final TupleListFuture tupleResult = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE);
+			final MembershipConnectionService connectionService = MembershipConnectionService.getInstance();
+			final BBoxDBConnection localConnection = connectionService.getConnectionForInstance(ZookeeperClientFactory.getLocalInstanceName());
+			
+			// Connection is still used in the cluster, therefore the client is not closed
+			@SuppressWarnings("resource")
+			final BBoxDBClient localClient = new BBoxDBClient(localConnection);
+			
+			final TupleListFuture tupleResult = localClient.queryRectangle(table, Hyperrectangle.FULL_SPACE);
 			tupleResult.waitForCompletion();
 
 			for(final Tuple tuple : tupleResult) {

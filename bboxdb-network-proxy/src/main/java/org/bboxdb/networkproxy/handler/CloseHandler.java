@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class CloseHandler implements ProxyCommandHandler {
 	private final static Logger logger = LoggerFactory.getLogger(CloseHandler.class);
 
 	@Override
-	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
+	public void handleCommand(final BBoxDBCluster bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
 		logger.info("Got close call");

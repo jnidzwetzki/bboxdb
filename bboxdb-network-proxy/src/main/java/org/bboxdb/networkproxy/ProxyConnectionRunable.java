@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bboxdb.commons.CloseableHelper;
-import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.networkproxy.handler.CloseHandler;
 import org.bboxdb.networkproxy.handler.DeleteHandler;
 import org.bboxdb.networkproxy.handler.GetHandler;
@@ -58,7 +58,7 @@ public class ProxyConnectionRunable implements Runnable {
 	/**
 	 * The bboxDB client
 	 */
-	private final BBoxDB bboxdbClient;
+	private final BBoxDBCluster bboxdbClient;
 
 	/**
 	 * The command handler
@@ -80,7 +80,7 @@ public class ProxyConnectionRunable implements Runnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ProxyConnectionRunable.class);
 
-	public ProxyConnectionRunable(final BBoxDB bboxdbClient, final Socket clientSocket) throws IOException {
+	public ProxyConnectionRunable(final BBoxDBCluster bboxdbClient, final Socket clientSocket) throws IOException {
 		this.bboxdbClient = bboxdbClient;
 		this.clientSocket = clientSocket;
 		this.socketInputStream = new BufferedInputStream(clientSocket.getInputStream());

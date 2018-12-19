@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.bboxdb.commons.CloseableHelper;
-import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,7 @@ public class ProxyMain implements Runnable, Closeable {
 	/**
 	 * The BBoxDB client
 	 */
-	private BBoxDB bboxdbClient;
+	private BBoxDBCluster bboxdbClient;
 
 	/**
 	 * The server socket

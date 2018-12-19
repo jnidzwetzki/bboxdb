@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 
 public interface ProxyCommandHandler {
 
@@ -31,6 +31,6 @@ public interface ProxyCommandHandler {
 	 * @param socketInputStream
 	 * @param socketOutputStream
 	 */
-	public void handleCommand(final BBoxDB bboxdbClient, final InputStream socketInputStream,
+	public void handleCommand(final BBoxDBCluster bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException;
 }
