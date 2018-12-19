@@ -32,6 +32,7 @@ import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 
 public class NetworkProxyClient implements AutoCloseable {
@@ -138,6 +139,42 @@ public class NetworkProxyClient implements AutoCloseable {
 
 		return tupleList;
 	}
+	
+	/**
+	 * Read a joined tuple from server
+	 * @return
+	 * @throws IOException 
+	 */
+	private List<JoinedTuple> readJoinedTupleListFromServer() throws IOException {
+		final List<JoinedTuple> tupleList = new ArrayList<>();
+
+		boolean continueRead = true;
+
+		while(continueRead) {
+			final byte serverResult = (byte) socketInputStream.read();
+
+			switch(serverResult) {
+				case ProxyConst.RESULT_FAILED:
+					throw new IOException("Got result failed result");
+
+				case ProxyConst.RESULT_FOLLOW:
+					continueRead = true;
+					final JoinedTuple tuple = TupleStringSerializer.readJoinedTuple(socketInputStream);
+					tupleList.add(tuple);
+					break;
+
+				case ProxyConst.RESULT_OK:
+					continueRead = false;
+					break;
+
+				default:
+					throw new IOException("Read unexcepted result from server: " + serverResult);
+			}
+
+		}
+
+		return tupleList;
+	}
 
 	/**
 	 * The get call
@@ -192,7 +229,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public synchronized List<Tuple> join(final Hyperrectangle queryRectangle, final String table1,
+	public synchronized List<JoinedTuple> join(final Hyperrectangle queryRectangle, final String table1,
 			final String table2) throws IOException {
 	
 		sendToServer(ProxyConst.COMMAND_JOIN);
@@ -200,9 +237,9 @@ public class NetworkProxyClient implements AutoCloseable {
 		sendToServer(table2);
 		sendToServer(queryRectangle.toCompactString());
 
-		return readTupleListFromServer();
+		return readJoinedTupleListFromServer();
 	}
-	
+
 	/**
 	 * Perform a spatial join on local data
 	 * @param queryRectangle
@@ -211,7 +248,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public synchronized List<Tuple> joinLocal(final Hyperrectangle queryRectangle, final String table1,
+	public synchronized List<JoinedTuple> joinLocal(final Hyperrectangle queryRectangle, final String table1,
 			final String table2) throws IOException {
 	
 		sendToServer(ProxyConst.COMMAND_JOIN_LOCAL);
@@ -219,7 +256,7 @@ public class NetworkProxyClient implements AutoCloseable {
 		sendToServer(table2);
 		sendToServer(queryRectangle.toCompactString());
 
-		return readTupleListFromServer();
+		return readJoinedTupleListFromServer();
 	}
 
 	/**

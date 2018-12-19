@@ -20,43 +20,60 @@ package org.bboxdb.networkproxy.handler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
-import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
+public abstract class AbstractJoinHandler implements ProxyCommandHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RangeQueryHandler.class);
+	private final static Logger logger = LoggerFactory.getLogger(AbstractJoinHandler.class);
 
+	/**
+	 * Perform the logging
+	 * @param table
+	 * @param bbox
+	 */
+	protected abstract void executeLogging(final String table1, final String table2, final Hyperrectangle bbox);
+	
+	/**
+	 * Get the connection
+	 * @param bboxdbClient 
+	 * @return
+	 */
+	public abstract BBoxDB getConnection(final BBoxDBCluster bboxdbClient);
+	
 	@Override
 	public void handleCommand(final BBoxDBCluster bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
-		final String table = ProxyHelper.readStringFromServer(socketInputStream);
+		final String table1 = ProxyHelper.readStringFromServer(socketInputStream);
+		final String table2 = ProxyHelper.readStringFromServer(socketInputStream);
 		final String boundingBoxString = ProxyHelper.readStringFromServer(socketInputStream);
+
 		final Hyperrectangle bbox = Hyperrectangle.fromString(boundingBoxString);
 
-		executeLogging(table, bbox);
-
+		executeLogging(table1, table2, bbox);
+		
 		try {
-			final BBoxDB connection = getConnection(bboxdbClient);
-			final TupleListFuture tupleResult = connection.queryRectangle(table, bbox);
+			final BBoxDB client = getConnection(bboxdbClient);
+			final JoinedTupleListFuture tupleResult = client.queryJoin(Arrays.asList(table1, table2), bbox);
 			tupleResult.waitForCompletion();
 
-			for(final Tuple tuple : tupleResult) {
+			for(final JoinedTuple tuple : tupleResult) {
 				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
-				TupleStringSerializer.writeTuple(tuple, socketOutputStream);
+				TupleStringSerializer.writeJoinedTuple(tuple, socketOutputStream);
 			}
 
 			socketOutputStream.write(ProxyConst.RESULT_OK);
@@ -70,19 +87,4 @@ public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
 		}
 	}
 
-	/**
-	 * Perform the logging
-	 * @param table
-	 * @param bbox
-	 */
-	protected abstract void executeLogging(final String table, final Hyperrectangle bbox);
-	
-	/**
-	 * Get the connection
-	 * @param bboxdbClient 
-	 * @return
-	 */
-	public abstract BBoxDB getConnection(final BBoxDBCluster bboxdbClient);
-
-	
 }

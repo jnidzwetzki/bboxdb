@@ -39,9 +39,7 @@ public class RangeQueryLocalHandler extends AbstractRangeQueryHandler {
 		final MembershipConnectionService connectionService = MembershipConnectionService.getInstance();
 		final BBoxDBConnection localConnection = connectionService.getConnectionForInstance(ZookeeperClientFactory.getLocalInstanceName());
 		
-		final BBoxDBClient localClient = new BBoxDBClient(localConnection);
-		
-		return localClient;
+		return new BBoxDBClient(localConnection);		
 	}
 
 	@Override
