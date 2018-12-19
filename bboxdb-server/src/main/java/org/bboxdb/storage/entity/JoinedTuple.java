@@ -167,5 +167,36 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	public EntityIdentifier getEntityIdentifier() {
 		return new JoinedTupleIdentifier(tuples, tupleStoreNames);
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((tupleStoreNames == null) ? 0 : tupleStoreNames.hashCode());
+		result = prime * result + ((tuples == null) ? 0 : tuples.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JoinedTuple other = (JoinedTuple) obj;
+		if (tupleStoreNames == null) {
+			if (other.tupleStoreNames != null)
+				return false;
+		} else if (!tupleStoreNames.equals(other.tupleStoreNames))
+			return false;
+		if (tuples == null) {
+			if (other.tuples != null)
+				return false;
+		} else if (!tuples.equals(other.tuples))
+			return false;
+		return true;
+	}
 	
 }
