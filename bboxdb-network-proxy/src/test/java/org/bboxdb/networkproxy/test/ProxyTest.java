@@ -18,16 +18,26 @@
 package org.bboxdb.networkproxy.test;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import org.bboxdb.BBoxDBMain;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.network.TestHelper;
+import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,6 +53,22 @@ public class ProxyTest {
 	 * The proxy class
 	 */
 	private ProxyMain proxyMain;
+	
+	/**
+	 * The name of the testgroup
+	 */
+	private static final String TEST_GROUP = "proxytestgroup";
+
+	/**
+	 * Test name of the first testtable
+	 */
+	private static final String TEST_TABLE_1 = TEST_GROUP + "_testtable1";
+	
+	/**
+	 * Test name of the second testtable
+	 */
+	private static final String TEST_TABLE_2 = TEST_GROUP + "_testtable2";
+
 
 	@BeforeClass
 	public static void init() throws Exception {
@@ -61,6 +87,21 @@ public class ProxyTest {
 
 		// Wait some time to let the server process start
 		Thread.sleep(5000);
+		
+		// Create distribution group and tables
+		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
+		final BBoxDBConnection bboxDBconnection = new BBoxDBConnection(new InetSocketAddress("127.0.0.1", port));
+		final BBoxDB client = bboxDBconnection.getBboxDBClient();
+		
+		TestHelper.recreateDistributionGroup(client, TEST_GROUP);
+		
+		final EmptyResultFuture resultCreateTable1 = client.createTable(TEST_TABLE_1, new TupleStoreConfiguration());
+		resultCreateTable1.waitForCompletion();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+
+		final EmptyResultFuture resultCreateTable2 = client.createTable(TEST_TABLE_2, new TupleStoreConfiguration());
+		resultCreateTable2.waitForCompletion();
+		Assert.assertFalse(resultCreateTable2.isFailed());
 	}
 
 	@AfterClass
@@ -94,6 +135,17 @@ public class ProxyTest {
 	@Test(timeout=60000)
 	public void testDisconnect() throws UnknownHostException, IOException {
 		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
+		networkProxyClient.disconnect();
+		networkProxyClient.close();
+	}
+	
+	@Test(timeout=60000)
+	public void testPutAndGet() throws UnknownHostException, IOException {
+		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
+		
+		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
+		networkProxyClient.put(tuple, TEST_TABLE_1);
+		
 		networkProxyClient.disconnect();
 		networkProxyClient.close();
 	}
