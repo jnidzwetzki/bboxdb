@@ -33,7 +33,6 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.junit.Assert;
 
 public class EnvironmentHelper {
 	
@@ -53,11 +52,11 @@ public class EnvironmentHelper {
 		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(CLUSTER_CONTACT_POINT, clusterName);
 	
 		final boolean result = bboxdbCluster.connect();
-		Assert.assertTrue(result);
+		assert (result == true) : "Connection failed";
 		
 		Thread.sleep(50);
 		
-		Assert.assertTrue(bboxdbCluster.isConnected());
+		assert (bboxdbCluster.isConnected() == true): "Client is not connected";
 		
 		return bboxdbCluster;
 	}
