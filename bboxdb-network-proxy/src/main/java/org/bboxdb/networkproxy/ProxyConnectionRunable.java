@@ -31,7 +31,9 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.networkproxy.handler.CloseHandler;
 import org.bboxdb.networkproxy.handler.DeleteHandler;
 import org.bboxdb.networkproxy.handler.GetHandler;
-import org.bboxdb.networkproxy.handler.GetLocalDataHandler;
+import org.bboxdb.networkproxy.handler.JoinHandler;
+import org.bboxdb.networkproxy.handler.JoinLocalHandler;
+import org.bboxdb.networkproxy.handler.RangeQueryLocalHandler;
 import org.bboxdb.networkproxy.handler.ProxyCommandHandler;
 import org.bboxdb.networkproxy.handler.PutHandler;
 import org.bboxdb.networkproxy.handler.RangeQueryHandler;
@@ -70,9 +72,11 @@ public class ProxyConnectionRunable implements Runnable {
 		handler.put(ProxyConst.COMMAND_PUT, new PutHandler());
 		handler.put(ProxyConst.COMMAND_GET, new GetHandler());
 		handler.put(ProxyConst.COMMAND_DELETE, new DeleteHandler());
-		handler.put(ProxyConst.COMMAND_GET_LOCAL, new GetLocalDataHandler());
+		handler.put(ProxyConst.COMMAND_RANGE_QUERY_LOCAL, new RangeQueryLocalHandler());
 		handler.put(ProxyConst.COMMAND_RANGE_QUERY, new RangeQueryHandler());
 		handler.put(ProxyConst.COMMAND_CLOSE, new CloseHandler());
+		handler.put(ProxyConst.COMMAND_JOIN, new JoinHandler());
+		handler.put(ProxyConst.COMMAND_JOIN_LOCAL, new JoinLocalHandler());
 	}
 
 	/**

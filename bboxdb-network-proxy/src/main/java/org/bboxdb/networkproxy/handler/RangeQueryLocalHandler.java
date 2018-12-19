@@ -35,20 +35,22 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GetLocalDataHandler implements ProxyCommandHandler {
+public class RangeQueryLocalHandler implements ProxyCommandHandler {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(GetLocalDataHandler.class);
+	private final static Logger logger = LoggerFactory.getLogger(RangeQueryLocalHandler.class);
 
 	@Override
 	public void handleCommand(final BBoxDBCluster bboxdbCluster, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
 		final String table = ProxyHelper.readStringFromServer(socketInputStream);
+		final String boundingBoxString = ProxyHelper.readStringFromServer(socketInputStream);
+		final Hyperrectangle bbox = Hyperrectangle.fromString(boundingBoxString);
 
-		logger.info("Got local call for table {}", table);
+		logger.info("Got local call for table {} and bbox {}", table, bbox);
 
 		try {
 			final MembershipConnectionService connectionService = MembershipConnectionService.getInstance();
@@ -58,7 +60,7 @@ public class GetLocalDataHandler implements ProxyCommandHandler {
 			@SuppressWarnings("resource")
 			final BBoxDBClient localClient = new BBoxDBClient(localConnection);
 			
-			final TupleListFuture tupleResult = localClient.queryRectangle(table, Hyperrectangle.FULL_SPACE);
+			final TupleListFuture tupleResult = localClient.queryRectangle(table, bbox);
 			tupleResult.waitForCompletion();
 
 			for(final Tuple tuple : tupleResult) {

@@ -23,48 +23,27 @@ import java.io.OutputStream;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
-import org.bboxdb.networkproxy.misc.TupleStringSerializer;
-import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RangeQueryHandler implements ProxyCommandHandler {
+public class JoinLocalHandler implements ProxyCommandHandler {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RangeQueryHandler.class);
+	private final static Logger logger = LoggerFactory.getLogger(JoinLocalHandler.class);
 
 	@Override
 	public void handleCommand(final BBoxDBCluster bboxdbClient, final InputStream socketInputStream,
 			final OutputStream socketOutputStream) throws IOException {
 
-		final String table = ProxyHelper.readStringFromServer(socketInputStream);
+		final String table1 = ProxyHelper.readStringFromServer(socketInputStream);
+		final String table2 = ProxyHelper.readStringFromServer(socketInputStream);
 		final String boundingBoxString = ProxyHelper.readStringFromServer(socketInputStream);
+
 		final Hyperrectangle bbox = Hyperrectangle.fromString(boundingBoxString);
 
-		logger.info("Got range query call for table {} and box {}", table, bbox);
-
-		try {
-			final TupleListFuture tupleResult = bboxdbClient.queryRectangle(table, bbox);
-			tupleResult.waitForCompletion();
-
-			for(final Tuple tuple : tupleResult) {
-				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
-				TupleStringSerializer.write(tuple, socketOutputStream);
-			}
-
-			socketOutputStream.write(ProxyConst.RESULT_OK);
-		} catch(InterruptedException e) {
-			logger.debug("Got interrupted exception while handling bboxdb call");
-			Thread.currentThread().interrupt();
-			socketOutputStream.write(ProxyConst.RESULT_FAILED);
-		} catch (Exception e) {
-			logger.error("Got exception while proessing bboxdb call", e);
-			socketOutputStream.write(ProxyConst.RESULT_FAILED);
-		}
+		logger.info("Got get local join for table1 {} / table2 {} and bbox {}", table1, table2, bbox);
 	}
 }

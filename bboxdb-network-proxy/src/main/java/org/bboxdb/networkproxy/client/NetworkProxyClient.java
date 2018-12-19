@@ -155,19 +155,6 @@ public class NetworkProxyClient implements AutoCloseable {
 	}
 
 	/**
-	 * The get local call
-	 * @param table
-	 * @return
-	 * @throws IOException
-	 */
-	public synchronized List<Tuple> getLocal(final String table) throws IOException {
-		sendToServer(ProxyConst.COMMAND_GET_LOCAL);
-		sendToServer(table);
-
-		return readTupleListFromServer();
-	}
-
-	/**
 	 * The range query call
 	 * @param queryRectangle
 	 * @param table
@@ -179,6 +166,57 @@ public class NetworkProxyClient implements AutoCloseable {
 
 		sendToServer(ProxyConst.COMMAND_RANGE_QUERY);
 		sendToServer(table);
+		sendToServer(queryRectangle.toCompactString());
+
+		return readTupleListFromServer();
+	}
+	
+	/**
+	 * The get local call
+	 * @param table
+	 * @return
+	 * @throws IOException
+	 */
+	public synchronized List<Tuple> rangeQueryLocal(final String table) throws IOException {
+		sendToServer(ProxyConst.COMMAND_RANGE_QUERY_LOCAL);
+		sendToServer(table);
+
+		return readTupleListFromServer();
+	}
+	
+	/**
+	 * Perform a spatial join
+	 * @param queryRectangle
+	 * @param table1
+	 * @param table2
+	 * @return
+	 * @throws IOException
+	 */
+	public synchronized List<Tuple> join(final Hyperrectangle queryRectangle, final String table1,
+			final String table2) throws IOException {
+	
+		sendToServer(ProxyConst.COMMAND_JOIN);
+		sendToServer(table1);
+		sendToServer(table2);
+		sendToServer(queryRectangle.toCompactString());
+
+		return readTupleListFromServer();
+	}
+	
+	/**
+	 * Perform a spatial join on local data
+	 * @param queryRectangle
+	 * @param table1
+	 * @param table2
+	 * @return
+	 * @throws IOException
+	 */
+	public synchronized List<Tuple> joinLocal(final Hyperrectangle queryRectangle, final String table1,
+			final String table2) throws IOException {
+	
+		sendToServer(ProxyConst.COMMAND_JOIN_LOCAL);
+		sendToServer(table1);
+		sendToServer(table2);
 		sendToServer(queryRectangle.toCompactString());
 
 		return readTupleListFromServer();

@@ -57,16 +57,26 @@ public class ProxyConst {
 	/**
 	 * Command - get local data
 	 */
-	public final static byte COMMAND_GET_LOCAL = 0x04;
-
+	public final static byte COMMAND_RANGE_QUERY = 0x04;
+	
 	/**
 	 * Command - get local data
 	 */
-	public final static byte COMMAND_RANGE_QUERY = 0x05;
+	public final static byte COMMAND_RANGE_QUERY_LOCAL = 0x05;
+	
+	/**
+	 * Command - join
+	 */
+	public final static byte COMMAND_JOIN = 0x06;
+
+	/**
+	 * Command - join local
+	 */
+	public final static byte COMMAND_JOIN_LOCAL = 0x07;
 
 	/**
 	 * Command - close
 	 */
-	public final static byte COMMAND_CLOSE = 0x06;
+	public final static byte COMMAND_CLOSE = 0x08;
 
 }
