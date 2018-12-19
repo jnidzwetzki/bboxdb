@@ -41,7 +41,7 @@ public class TupleStringSerializer {
 	 * @param writer
 	 * @throws IOException
 	 */
-	public static void write(final Tuple tuple, final OutputStream outputStream) throws IOException {
+	public static void writeTuple(final Tuple tuple, final OutputStream outputStream) throws IOException {
 		final byte[] tupleData = TupleStringSerializer.tupleToProxyBytes(tuple);
 
 		outputStream.write(DataEncoderHelper.intToByteBuffer(tupleData.length).array());
@@ -54,7 +54,7 @@ public class TupleStringSerializer {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Tuple read(final InputStream reader) throws IOException {
+	public static Tuple readTuple(final InputStream reader) throws IOException {
 		final int tupleLength = DataEncoderHelper.readIntFromStream(reader);
 		final byte[] tupleBytes = new byte[tupleLength];
 

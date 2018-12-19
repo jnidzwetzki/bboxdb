@@ -122,7 +122,7 @@ public class NetworkProxyClient implements AutoCloseable {
 
 				case ProxyConst.RESULT_FOLLOW:
 					continueRead = true;
-					final Tuple tuple = TupleStringSerializer.read(socketInputStream);
+					final Tuple tuple = TupleStringSerializer.readTuple(socketInputStream);
 					tupleList.add(tuple);
 					break;
 
@@ -231,7 +231,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	public synchronized void put(final Tuple tuple, final String table) throws IOException {
 		sendToServer(ProxyConst.COMMAND_PUT);
 		sendToServer(table);
-		TupleStringSerializer.write(tuple, socketOutputStream);
+		TupleStringSerializer.writeTuple(tuple, socketOutputStream);
 
 		checkServerOkResult();
 	}

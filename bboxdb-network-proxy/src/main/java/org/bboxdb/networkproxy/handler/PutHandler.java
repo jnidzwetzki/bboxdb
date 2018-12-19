@@ -42,7 +42,7 @@ public class PutHandler implements ProxyCommandHandler {
 			final OutputStream socketOutputStream) throws IOException {
 
 		final String table = ProxyHelper.readStringFromServer(socketInputStream);
-		final Tuple tuple = TupleStringSerializer.read(socketInputStream);
+		final Tuple tuple = TupleStringSerializer.readTuple(socketInputStream);
 
 		logger.info("Got put call for table {} and tuple {}", table, tuple);
 

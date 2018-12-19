@@ -65,7 +65,7 @@ public class RangeQueryLocalHandler implements ProxyCommandHandler {
 
 			for(final Tuple tuple : tupleResult) {
 				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
-				TupleStringSerializer.write(tuple, socketOutputStream);
+				TupleStringSerializer.writeTuple(tuple, socketOutputStream);
 			}
 
 			socketOutputStream.write(ProxyConst.RESULT_OK);

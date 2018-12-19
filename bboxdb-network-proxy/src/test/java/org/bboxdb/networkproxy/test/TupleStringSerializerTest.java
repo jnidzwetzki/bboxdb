@@ -101,10 +101,10 @@ public class TupleStringSerializerTest {
 	public void testTupleStream1() throws IOException {
 		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes());
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		TupleStringSerializer.write(tuple, bos);
+		TupleStringSerializer.writeTuple(tuple, bos);
 		bos.close();
 		final ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-		final Tuple unserializedTuple = TupleStringSerializer.read(bis);
+		final Tuple unserializedTuple = TupleStringSerializer.readTuple(bis);
 		Assert.assertEquals(tuple, unserializedTuple);
 	}
 
@@ -112,10 +112,10 @@ public class TupleStringSerializerTest {
 	public void testTupleStream2() throws IOException {
 		final Tuple tuple = new Tuple("key2", new Hyperrectangle(1.0, 2.0, -1.0, 5.0), "".getBytes());
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		TupleStringSerializer.write(tuple, bos);
+		TupleStringSerializer.writeTuple(tuple, bos);
 		bos.close();
 		final ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-		final Tuple unserializedTuple = TupleStringSerializer.read(bis);
+		final Tuple unserializedTuple = TupleStringSerializer.readTuple(bis);
 		Assert.assertEquals(tuple, unserializedTuple);
 	}
 }
