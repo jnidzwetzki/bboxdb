@@ -29,6 +29,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -86,7 +87,7 @@ public class TestBBoxDBCluster {
 	@Before
 	public void before() throws InterruptedException, BBoxDBException {
 		final BBoxDB bboxdbClient = connectToServer();
-		TestHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
+		EnvironmentHelper.recreateDistributionGroup(bboxdbClient, DISTRIBUTION_GROUP);
 		disconnect(bboxdbClient);
 	}
 	

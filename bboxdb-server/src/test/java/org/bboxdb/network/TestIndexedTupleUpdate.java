@@ -32,6 +32,7 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.tools.IndexedTupleUpdateHelper;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
+import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -102,7 +103,7 @@ public class TestIndexedTupleUpdate {
 	@Before
 	public void before() throws InterruptedException, BBoxDBException {
 		final BBoxDB bboxdbConnection = connectToServer();
-		TestHelper.recreateDistributionGroup(bboxdbConnection, DISTRIBUTION_GROUP);
+		EnvironmentHelper.recreateDistributionGroup(bboxdbConnection, DISTRIBUTION_GROUP);
 		
 		final String indexGroupName = IndexedTupleUpdateHelper.IDX_DGROUP_PREFIX + DISTRIBUTION_GROUP;
 		final EmptyResultFuture resultDelete = bboxdbConnection.deleteDistributionGroup(indexGroupName);

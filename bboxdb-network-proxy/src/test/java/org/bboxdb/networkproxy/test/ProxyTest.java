@@ -25,7 +25,6 @@ import org.bboxdb.BBoxDBMain;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.network.TestHelper;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -93,7 +92,7 @@ public class ProxyTest {
 		final BBoxDBConnection bboxDBconnection = new BBoxDBConnection(new InetSocketAddress("127.0.0.1", port));
 		final BBoxDB client = bboxDBconnection.getBboxDBClient();
 		
-		TestHelper.recreateDistributionGroup(client, TEST_GROUP);
+		EnvironmentHelper.recreateDistributionGroup(client, TEST_GROUP);
 		
 		final EmptyResultFuture resultCreateTable1 = client.createTable(TEST_TABLE_1, new TupleStoreConfiguration());
 		resultCreateTable1.waitForCompletion();
