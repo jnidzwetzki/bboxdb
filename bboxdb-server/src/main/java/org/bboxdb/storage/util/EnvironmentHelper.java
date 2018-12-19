@@ -32,7 +32,6 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.junit.Assert;
 
 public class EnvironmentHelper {
 	
@@ -73,7 +72,7 @@ public class EnvironmentHelper {
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = client.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		resultDelete.waitForCompletion();
-		Assert.assertFalse(resultDelete.isFailed());
+		assert resultDelete.isFailed() == false : "Delete distribution group is failed";
 		
 		// Create distribution group
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
@@ -84,6 +83,6 @@ public class EnvironmentHelper {
 				configuration);
 		
 		resultCreate.waitForCompletion();
-		Assert.assertFalse(resultCreate.isFailed());
+		assert resultCreate.isFailed() == false : "Create distribution group is failed";
 	}
 }
