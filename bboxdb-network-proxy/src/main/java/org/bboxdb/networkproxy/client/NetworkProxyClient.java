@@ -269,6 +269,7 @@ public class NetworkProxyClient implements AutoCloseable {
 		sendToServer(ProxyConst.COMMAND_PUT);
 		sendToServer(table);
 		TupleStringSerializer.writeTuple(tuple, socketOutputStream);
+		socketOutputStream.flush();
 
 		checkServerOkResult();
 	}
