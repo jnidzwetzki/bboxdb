@@ -1,0 +1,71 @@
+package org.bboxdb.networkproxy.handler;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.networkproxy.ProxyConst;
+import org.bboxdb.networkproxy.ProxyHelper;
+import org.bboxdb.networkproxy.misc.TupleStringSerializer;
+import org.bboxdb.storage.entity.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler{
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(RangeQueryHandler.class);
+
+	@Override
+	public void handleCommand(final BBoxDBCluster bboxdbClient, final InputStream socketInputStream,
+			final OutputStream socketOutputStream) throws IOException {
+
+		final String table = ProxyHelper.readStringFromServer(socketInputStream);
+		final String boundingBoxString = ProxyHelper.readStringFromServer(socketInputStream);
+		final Hyperrectangle bbox = Hyperrectangle.fromString(boundingBoxString);
+
+		executeLogging(table, bbox);
+
+		try {
+			final BBoxDB connection = getConnection(bboxdbClient);
+			final TupleListFuture tupleResult = connection.queryRectangle(table, bbox);
+			tupleResult.waitForCompletion();
+
+			for(final Tuple tuple : tupleResult) {
+				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
+				TupleStringSerializer.writeTuple(tuple, socketOutputStream);
+			}
+
+			socketOutputStream.write(ProxyConst.RESULT_OK);
+		} catch(InterruptedException e) {
+			logger.debug("Got interrupted exception while handling bboxdb call");
+			Thread.currentThread().interrupt();
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		} catch (Exception e) {
+			logger.error("Got exception while proessing bboxdb call", e);
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		}
+	}
+
+	/**
+	 * Perform the logging
+	 * @param table
+	 * @param bbox
+	 */
+	protected abstract void executeLogging(final String table, final Hyperrectangle bbox);
+	
+	/**
+	 * Get the connection
+	 * @param bboxdbClient 
+	 * @return
+	 */
+	public abstract BBoxDB getConnection(final BBoxDBCluster bboxdbClient);
+
+	
+}
