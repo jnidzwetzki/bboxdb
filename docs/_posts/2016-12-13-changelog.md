@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.8.5 - TBA
+- New Feature: Added network proxy with a central coordinator
 - Improvement: Automatically repair defective GeoJSON geometries (automatically close polygons)
 - Improvement: Speed up r-tree index lookups
 - Improvement: Limit the number of tables in major compact tasks
