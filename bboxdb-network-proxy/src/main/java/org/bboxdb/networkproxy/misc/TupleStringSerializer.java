@@ -23,11 +23,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DeletedTuple;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.TupleHelper;
 
@@ -62,6 +65,34 @@ public class TupleStringSerializer {
 
 		return proxyBytesToTuple(tupleBytes);
 	}
+	
+	/**
+	 * Write a joined tuple to the writer
+	 * @param tuple
+	 * @param writer
+	 * @throws IOException
+	 */
+	public static void writeJoinedTuple(final JoinedTuple tuple, final OutputStream outputStream) throws IOException {
+		final byte[] tupleData = TupleStringSerializer.joinedTupleToProxyBytes(tuple);
+
+		outputStream.write(DataEncoderHelper.intToByteBuffer(tupleData.length).array());
+		outputStream.write(tupleData);
+	}
+
+	/**
+	 * Read joined from reader
+	 * @param reader
+	 * @return
+	 * @throws IOException
+	 */
+	public static JoinedTuple readJoinedTuple(final InputStream reader) throws IOException {
+		final int tupleLength = DataEncoderHelper.readIntFromStream(reader);
+		final byte[] tupleBytes = new byte[tupleLength];
+
+		ByteStreams.readFully(reader, tupleBytes);
+
+		return proxyBytesToJoinedTuple(tupleBytes);
+	}
 
 	/**
 	 * Convert the tuple into a string
@@ -91,7 +122,40 @@ public class TupleStringSerializer {
 
 		return bos.toByteArray();
 	}
+	
 
+	/**
+	 * Convert a joined tuple into the proxy representation
+	 * @param joinedTuple
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] joinedTupleToProxyBytes(final JoinedTuple joinedTuple) throws IOException {
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		
+		// Amount of tuples in the joined tuple
+		final int numberOfStores = joinedTuple.getTupleStoreNames().size();
+		bos.write(DataEncoderHelper.intToByteBuffer(numberOfStores).array());
+		
+		// Write tuple names
+		for(final String tupleStoreName : joinedTuple.getTupleStoreNames()) {
+			final byte[] nameBytes = tupleStoreName.getBytes();
+			final int nameLength = nameBytes.length;
+			bos.write(DataEncoderHelper.intToByteBuffer(nameLength).array());
+			bos.write(nameBytes);
+		}
+		
+		// Tuples
+		for(final Tuple tuple : joinedTuple.getTuples()) {
+			final byte[] tupleBytes = tupleToProxyBytes(tuple);
+			final int tupleLength = tupleBytes.length;
+			bos.write(DataEncoderHelper.intToByteBuffer(tupleLength).array());
+			bos.write(tupleBytes);
+		}
+		
+		return bos.toByteArray();
+	}
+	
 	/**
 	 * Convert the proxy string back to a tuple
 	 * @param string
@@ -138,6 +202,49 @@ public class TupleStringSerializer {
 				return new Tuple(key, bbox, valueBytes, timestamp);
 			}
 
+		} catch (BufferUnderflowException e) {
+			throw new IOException(e);
+		}
+	}
+
+	/**
+	 * Convert the proxy bytes back into a joined tuple
+	 * @param bytes
+	 * @return
+	 * @throws IOException
+	 */
+	public static JoinedTuple proxyBytesToJoinedTuple(final byte[] bytes) throws IOException {
+		try {
+			if(bytes == null) {
+				throw new IOException("Unable to handle a null argument");
+			}
+	
+			final ByteBuffer bb = ByteBuffer.wrap(bytes);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
+			
+			final int amountOfEntries = bb.getInt();
+			
+			// Read tuple store names
+			final List<String> tupleStoreNames = new ArrayList<>();
+			for(int i = 0; i < amountOfEntries; i++) {
+				final int nameLength = bb.getInt();
+				final byte[] nameBytes = new byte[nameLength];
+				bb.get(nameBytes, 0, nameBytes.length);
+				final String tableName = new String(nameBytes);
+				tupleStoreNames.add(tableName);
+			}
+			
+			// Read tuples
+			final List<Tuple> tupleList = new ArrayList<>();
+			for(int i = 0; i < amountOfEntries; i++) {
+				final int tupleLength = bb.getInt();
+				final byte[] tupleBytes = new byte[tupleLength];
+				bb.get(tupleBytes, 0, tupleBytes.length);
+				final Tuple tuple = proxyBytesToTuple(tupleBytes);
+				tupleList.add(tuple);
+			}
+			
+			return new JoinedTuple(tupleList, tupleStoreNames);
 		} catch (BufferUnderflowException e) {
 			throw new IOException(e);
 		}
