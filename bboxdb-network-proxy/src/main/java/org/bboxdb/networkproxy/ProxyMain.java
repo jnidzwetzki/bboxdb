@@ -85,6 +85,32 @@ public class ProxyMain implements Runnable, Closeable {
 		this.threadPool = Executors.newCachedThreadPool();
 		this.port = ProxyConst.PROXY_PORT;
 		this.serviceState = new ServiceState();
+
+		// Close socket on service down
+		serviceState.registerCallback((s) -> {
+			if(s.isInFinishedState()) {
+				logger.info("Executing shutdown callback");
+
+				if(serverThread != null) {
+					serverThread.interrupt();
+					serverThread = null;
+				}
+
+				if(bboxdbClient != null) {
+					bboxdbClient.close();
+					bboxdbClient = null;
+				}
+
+				if(serverSocket != null) {
+					CloseableHelper.closeWithoutException(serverSocket);
+					serverSocket = null;
+				}
+
+				if(threadPool != null) {
+					threadPool.shutdown();
+				}
+			}
+		});
 	}
 
 	@Override
@@ -167,27 +193,7 @@ public class ProxyMain implements Runnable, Closeable {
 			return;
 		}
 
-		logger.info("Shutting down the BBoxDB proxy on port: {}", port);
 		serviceState.dispatchToStopping();
-
-		if(serverThread != null) {
-			serverThread.interrupt();
-			serverThread = null;
-		}
-
-		if(bboxdbClient != null) {
-			bboxdbClient.close();
-			bboxdbClient = null;
-		}
-
-		if(serverSocket != null) {
-			CloseableHelper.closeWithoutException(serverSocket);
-			serverSocket = null;
-		}
-
-		if(threadPool != null) {
-			threadPool.shutdown();
-		}
 
 		serviceState.dispatchToTerminated();
 	}
