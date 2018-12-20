@@ -296,10 +296,11 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public synchronized void disconnect() throws IOException {
-		sendToServer(ProxyConst.COMMAND_CLOSE);
-
 		try {
-			checkServerOkResult();
+			if(isConnected()) {
+				sendToServer(ProxyConst.COMMAND_CLOSE);
+				checkServerOkResult();
+			}
 		} catch(Exception e) {
 			throw e;
 		} finally {
