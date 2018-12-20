@@ -105,15 +105,9 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 		} catch(IOException e) {
 
 			// Print exception only if the exception is really unexpected
-			if(Thread.currentThread().isInterrupted() == true) {
-				return;
+			if(isThreadActive()) {
+				logger.error("Got an IO exception while reading from server socket ", e);
 			}
-
-			if(shutdownPending) {
-				return;
-			}
-
-			logger.error("Got an IO exception while reading from server socket ", e);
 
 		} finally {
 			closeSocketNE();
