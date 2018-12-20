@@ -312,6 +312,6 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 */
 	public boolean isConnected() {
-		return clientSocket.isConnected();
+		return ! clientSocket.isClosed();
 	}
  }
