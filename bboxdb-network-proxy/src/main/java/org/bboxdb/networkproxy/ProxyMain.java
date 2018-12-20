@@ -128,6 +128,8 @@ public class ProxyMain implements Runnable, Closeable {
 		final Runnable run = () -> {
 		    try {
 				serverSocket = new ServerSocket(port);
+				serverSocket.setReuseAddress(true);
+
 				serviceState.dispatchToRunning();
 
 			    while(isThreadActive()) {
