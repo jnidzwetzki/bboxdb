@@ -210,13 +210,15 @@ public class NetworkProxyClient implements AutoCloseable {
 
 	/**
 	 * The get local call
+	 * @param hyperrectangle
 	 * @param table
 	 * @return
 	 * @throws IOException
 	 */
-	public synchronized List<Tuple> rangeQueryLocal(final String table) throws IOException {
+	public synchronized List<Tuple> rangeQueryLocal(final Hyperrectangle queryRectangle, final String table) throws IOException {
 		sendToServer(ProxyConst.COMMAND_RANGE_QUERY_LOCAL);
 		sendToServer(table);
+		sendToServer(queryRectangle.toCompactString());
 
 		return readTupleListFromServer();
 	}
