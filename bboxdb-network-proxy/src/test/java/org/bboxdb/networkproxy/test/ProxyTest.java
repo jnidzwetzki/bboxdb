@@ -161,7 +161,7 @@ public class ProxyTest {
 	}
 
 	@Test(timeout=60_000)
-	public void testPutAndGet() throws UnknownHostException, IOException {
+	public void testPutAndGet1() throws UnknownHostException, IOException {
 		final List<Tuple> result1 = networkProxyClient.get("abc", TEST_TABLE_1);
 		Assert.assertTrue(result1.isEmpty());
 
@@ -171,6 +171,19 @@ public class ProxyTest {
 		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
 		Assert.assertEquals(1, result2.size());
 		Assert.assertEquals(tuple, result2.get(0));
+	}
+
+	@Test(timeout=60_000)
+	public void testPutAndGet2() throws UnknownHostException, IOException {
+		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
+		networkProxyClient.put(tuple, TEST_TABLE_1);
+
+		final Tuple tuple2 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "efg".getBytes());
+		networkProxyClient.put(tuple2, TEST_TABLE_1);
+
+		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
+		Assert.assertEquals(1, result2.size());
+		Assert.assertEquals(tuple2, result2.get(0));
 	}
 
 	@Test(timeout=60_000)
@@ -189,7 +202,44 @@ public class ProxyTest {
 	}
 
 	@Test(timeout=60_000)
-	public void testRangeQuery() {
+	public void testRangeQuery() throws UnknownHostException, IOException {
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "efg".getBytes());
+		final Tuple tuple2 = new Tuple("efg", new Hyperrectangle(10.0d, 20.0d, 10.0d, 20.0d), "efg".getBytes());
 
+		networkProxyClient.put(tuple1, TEST_TABLE_1);
+		networkProxyClient.put(tuple2, TEST_TABLE_1);
+
+		final List<Tuple> result1 = networkProxyClient.rangeQuery(new Hyperrectangle(1.5d, 1.6d, 1.5d, 1.6d), TEST_TABLE_1);
+		Assert.assertEquals(1, result1.size());
+		Assert.assertEquals(tuple1, result1.get(0));
+
+		final List<Tuple> result2 = networkProxyClient.rangeQuery(new Hyperrectangle(15d, 16d, 15d, 16d), TEST_TABLE_1);
+		Assert.assertEquals(1, result2.size());
+		Assert.assertEquals(tuple2, result2.get(0));
+
+		final List<Tuple> result3 = networkProxyClient.rangeQuery(Hyperrectangle.FULL_SPACE, TEST_TABLE_1);
+		Assert.assertEquals(2, result3.size());
+	}
+
+	@Test(timeout=60_000)
+	public void testRangeQueryLocal() throws UnknownHostException, IOException {
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "efg".getBytes());
+		final Tuple tuple2 = new Tuple("efg", new Hyperrectangle(10.0d, 20.0d, 10.0d, 20.0d), "efg".getBytes());
+
+		networkProxyClient.put(tuple1, TEST_TABLE_1);
+		networkProxyClient.put(tuple2, TEST_TABLE_1);
+
+		final List<Tuple> result1 = networkProxyClient.rangeQueryLocal(new Hyperrectangle(1.5d, 1.6d, 1.5d, 1.6d), TEST_TABLE_1);
+		Assert.assertEquals(1, result1.size());
+		Assert.assertEquals(tuple1, result1.get(0));
+
+		final List<Tuple> result2 = networkProxyClient.rangeQueryLocal(new Hyperrectangle(15d, 16d, 15d, 16d), TEST_TABLE_1);
+		Assert.assertEquals(1, result2.size());
+		Assert.assertEquals(tuple2, result2.get(0));
+
+		final List<Tuple> result3 = networkProxyClient.rangeQueryLocal(Hyperrectangle.FULL_SPACE, TEST_TABLE_1);
+		Assert.assertEquals(2, result3.size());
+		Assert.assertTrue(result3.contains(tuple1));
+		Assert.assertTrue(result3.contains(tuple2));
 	}
 }
