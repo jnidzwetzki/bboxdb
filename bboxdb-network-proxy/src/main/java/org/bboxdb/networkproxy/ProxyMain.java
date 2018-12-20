@@ -162,6 +162,11 @@ public class ProxyMain implements Runnable, Closeable {
 	 * Close / Shutdown the instance
 	 */
 	public void close() {
+
+		if(! serviceState.isInRunningState()) {
+			return;
+		}
+
 		logger.info("Shutting down the BBoxDB proxy on port: {}", port);
 		serviceState.dispatchToStopping();
 
