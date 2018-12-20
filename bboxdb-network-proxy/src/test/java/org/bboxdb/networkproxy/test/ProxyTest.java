@@ -182,10 +182,14 @@ public class ProxyTest {
 
 	@Test(timeout=60_000)
 	public void testPutAndGet2() throws UnknownHostException, IOException {
-		final Tuple tuple = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, "abcd".getBytes());
-		networkProxyClient.put(tuple, TEST_TABLE_1);
+		final Tuple tuple1 = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, "abcd".getBytes());
+		networkProxyClient.put(tuple1, TEST_TABLE_1);
 
-		final Tuple tuple2 = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, KEY2.getBytes());
+		final List<Tuple> result1 = networkProxyClient.get(KEY1, TEST_TABLE_1);
+		Assert.assertEquals(1, result1.size());
+		Assert.assertEquals(tuple1, result1.get(0));
+
+		final Tuple tuple2 = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, "efgh".getBytes());
 		networkProxyClient.put(tuple2, TEST_TABLE_1);
 
 		final List<Tuple> result2 = networkProxyClient.get(KEY1, TEST_TABLE_1);
