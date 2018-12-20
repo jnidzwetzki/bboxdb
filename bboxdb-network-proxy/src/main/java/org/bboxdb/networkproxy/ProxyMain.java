@@ -199,7 +199,7 @@ public class ProxyMain implements Runnable, Closeable {
 	public void close() {
 
 		if(! serviceState.isInRunningState()) {
-			return;
+			serviceState.forceDispatchToTerminated();
 		}
 
 		// Socket close will be called in terminated state callback
