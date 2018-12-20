@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
@@ -56,7 +56,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * The zookeeper client instance
 	 */
 	private ZooKeeper zookeeper;
-	
+
 	/**
 	 * Service state
 	 */
@@ -78,13 +78,13 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
 	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername) {
-		
+
 		Objects.requireNonNull(zookeeperHosts);
-		
+
 		if (zookeeperHosts.isEmpty()) {
 			throw new IllegalArgumentException("No Zookeeper hosts are defined");
 		}
-		
+
 		this.connectionString = zookeeperHosts.stream().collect(Collectors.joining(","));
 		this.clustername = Objects.requireNonNull(clustername);
 		this.serviceState = new AcquirableService();
@@ -101,7 +101,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			serviceState.dipatchToStarting();
 
 			final CountDownLatch connectLatch = new CountDownLatch(1);
-			
+
 			zookeeper = new ZooKeeper(connectionString, ZOOKEEPER_SESSION_TIMEOUT, new Watcher() {
 				@Override
 				public void process(final WatchedEvent event) {
@@ -114,12 +114,12 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 
 			if (waitResult == false) {
-				throw new ZookeeperException("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC 
+				throw new ZookeeperException("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC
 						+" seconds. Connect string is: " + connectionString);
 			}
 
 			createDirectoryStructureIfNeeded();
-			
+
 			serviceState.dispatchToRunning();
 		} catch (Exception e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
@@ -130,7 +130,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Disconnect from zookeeper
-	 * 
+	 *
 	 * This method is synchronized to guarantee that all running callbacks are
 	 * completed before the shutdown is executed
 	 */
@@ -157,10 +157,10 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 		try {
 			logger.info("Disconnecting from zookeeper");
-			
+
 			// Wait until nobody uses the instance
 			serviceState.waitUntilUnused();
-			
+
 			zookeeper.close();
 		} catch (InterruptedException e) {
 			logger.warn("Got exception while closing zookeeper connection", e);
@@ -169,19 +169,19 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 		zookeeper = null;
 	}
-	
+
 	/**
 	 * Get the children and register without creating a watch
 	 */
 	public List<String> getChildren(final String path)
 			throws ZookeeperException, ZookeeperNotFoundException {
-		
+
 		return getChildren(path, null);
 	}
-	
+
 	/**
 	 * Get the children and register a watch
-	 * 
+	 *
 	 * @param path
 	 * @param watcher
 	 * @return
@@ -190,7 +190,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 */
 	public List<String> getChildren(final String path, final Watcher watcher)
 			throws ZookeeperException, ZookeeperNotFoundException {
-		
+
 		if(! serviceState.isInRunningState()) {
 			throw new ZookeeperException("Zookeeper is not connected");
 		}
@@ -214,7 +214,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Write the given data to zookeeper
-	 * 
+	 *
 	 * @param path
 	 * @param value
 	 * @throws ZookeeperException
@@ -225,7 +225,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Write the given data to zookeeper if the version matches
-	 * 
+	 *
 	 * @param path
 	 * @param value
 	 * @throws ZookeeperException
@@ -252,7 +252,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Read the data and the stat from the given path
-	 * 
+	 *
 	 * @throws ZookeeperException
 	 */
 	public String getData(final String path, final Stat stat) throws ZookeeperException {
@@ -268,7 +268,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Read the data from the given path
-	 * 
+	 *
 	 * @param path
 	 * @return
 	 * @throws ZookeeperException
@@ -279,7 +279,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Register the name of the cluster in the zookeeper directory
-	 * 
+	 *
 	 * @throws ZookeeperException
 	 * @throws KeeperException
 	 * @throws InterruptedException
@@ -292,12 +292,12 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 		// Details of the instances
 		final String detailsPath = getDetailsPath();
-		createDirectoryStructureRecursive(detailsPath);		
+		createDirectoryStructureRecursive(detailsPath);
 	}
 
 	/**
 	 * Get the path of the zookeeper clustername
-	 * 
+	 *
 	 * @param clustername
 	 * @return
 	 */
@@ -307,7 +307,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Get the path for the systems
-	 * 
+	 *
 	 * @param clustername
 	 * @return
 	 */
@@ -329,7 +329,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public String getDetailsPath() {
 		return getInstancesPath() + "/details";
 	}
-	
+
 	@Override
 	public String getServicename() {
 		return "Zookeeper Client";
@@ -337,7 +337,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Create the given directory structure recursive
-	 * 
+	 *
 	 * @param path
 	 * @throws ZookeeperException
 	 */
@@ -386,34 +386,34 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * Reat the given path and return a string - simple version
 	 * @param pathName
 	 * @return
-	 * @throws ZookeeperNotFoundException 
-	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException
+	 * @throws ZookeeperException
 	 */
-	public String readPathAndReturnString(final String pathName) 
+	public String readPathAndReturnString(final String pathName)
 			throws ZookeeperException, ZookeeperNotFoundException {
-		
+
 		return readPathAndReturnString(pathName, null);
 	}
-	
+
 	/**
 	 * Read the given path and returns a string result
-	 * 
+	 *
 	 * @param pathName
 	 * @param watcher
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	public String readPathAndReturnString(final String pathName, final Watcher watcher) 
+	public String readPathAndReturnString(final String pathName, final Watcher watcher)
 			throws ZookeeperException, ZookeeperNotFoundException {
-		
+
 		final byte[] bytes = readPathAndReturnBytes(pathName, watcher);
 		return new String(bytes);
 	}
 
 	/**
 	 * Read the given path and returns a byte array result
-	 * 
+	 *
 	 * @param pathName
 	 * @return
 	 * @throws ZookeeperException
@@ -445,7 +445,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Dies the given path exists?
-	 * 
+	 *
 	 * @param pathName
 	 * @return
 	 * @throws ZookeeperException
@@ -467,7 +467,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Delete the node recursive
-	 * 
+	 *
 	 * @param path
 	 * @throws ZookeeperException
 	 */
@@ -489,6 +489,9 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			if (e.code() == KeeperException.Code.NONODE) {
 				// We try to delete concurrently deleted
 				// nodes. So we can ignore the exception.
+			} else if(e.code() == KeeperException.Code.NOTEMPTY) {
+				// Some data is created during deletion, try again
+				deleteNodesRecursive(path);
 			} else {
 				throw new ZookeeperException(e);
 			}
@@ -497,7 +500,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Delete all known data about a cluster
-	 * 
+	 *
 	 * @param distributionGroup
 	 * @throws ZookeeperException
 	 */
@@ -508,7 +511,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Create a new persistent node
-	 * 
+	 *
 	 * @param path
 	 * @param bytes
 	 * @return
@@ -527,7 +530,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Create a new persistent sequential node
-	 * 
+	 *
 	 * @param path
 	 * @param bytes
 	 * @return
@@ -543,12 +546,12 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			throw new ZookeeperException(e);
 		}
 	}
-	
+
 	/**
 	 * Replace the persistent node
 	 * @param path
 	 * @param bytes
-	 * @throws ZookeeperException 
+	 * @throws ZookeeperException
 	 */
 	public void replacePersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
 		try {
@@ -565,7 +568,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			throw new ZookeeperException(e);
 		}
 	}
-	
+
 	/**
 	 * Replace the ephemeral node
 	 * @param path
@@ -573,14 +576,14 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * @throws ZookeeperException
 	 */
 	public void replaceEphemeralNode(final String path, final byte[] bytes) throws ZookeeperException {
-		
+
 		try {
 			// Delete old state if exists (e.g. caused by a fast restart of the
 			// service)
 			if (zookeeper.exists(path, false) != null) {
 				zookeeper.delete(path, -1);
 			}
-	
+
 			// Register new state
 			zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 		} catch (KeeperException e) {
@@ -594,7 +597,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	/**
 	 * Replace the value for the given path, only if the old value matches. This
 	 * operation is performed atomic.
-	 * 
+	 *
 	 * @param path
 	 * @param oldValue
 	 * @param newValue
@@ -641,7 +644,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Is the zookeeper client connected?
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isConnected() {
@@ -654,7 +657,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * Returns the name of the cluster
-	 * 
+	 *
 	 * @return
 	 */
 	public String getClustername() {
@@ -668,7 +671,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public ServiceState getServiceState() {
 		return serviceState;
 	}
-	
+
 	/**
 	 * Get the group adapter
 	 * @return
@@ -676,15 +679,15 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public DistributionGroupAdapter getDistributionGroupAdapter() {
 		return new DistributionGroupAdapter(this);
 	}
-	
+
 	/**
 	 * Get the distribution region adapter
-	 * @return 
+	 * @return
 	 */
 	public DistributionRegionAdapter getDistributionRegionAdapter() {
 		return new DistributionRegionAdapter(this);
 	}
-	
+
 	/**
 	 * Get the tuple store adapter
 	 */
