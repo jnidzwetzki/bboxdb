@@ -19,6 +19,7 @@ package org.bboxdb.networkproxy.test;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.BBoxDBMain;
@@ -29,6 +30,7 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;
@@ -70,6 +72,21 @@ public class ProxyTest {
 	 * Test name of the second testtable
 	 */
 	private static final String TEST_TABLE_2 = TEST_GROUP + "_testtable2";
+
+	/**
+	 * The name of the first key
+	 */
+	private static final String KEY1 = "key1";
+
+	/**
+	 * The name of the second key
+	 */
+	private static final String KEY2 = "key2";
+
+	/**
+	 * The name of the third key
+	 */
+	private static final String KEY3 = "key3";
 
 
 	@BeforeClass
@@ -164,49 +181,49 @@ public class ProxyTest {
 
 	@Test(timeout=60_000)
 	public void testPutAndGet1() throws UnknownHostException, IOException {
-		final List<Tuple> result1 = networkProxyClient.get("abc", TEST_TABLE_1);
+		final List<Tuple> result1 = networkProxyClient.get(KEY1, TEST_TABLE_1);
 		Assert.assertTrue(result1.isEmpty());
 
-		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
+		final Tuple tuple = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, "abcd".getBytes());
 		networkProxyClient.put(tuple, TEST_TABLE_1);
 
-		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
+		final List<Tuple> result2 = networkProxyClient.get(KEY1, TEST_TABLE_1);
 		Assert.assertEquals(1, result2.size());
 		Assert.assertEquals(tuple, result2.get(0));
 	}
 
 	@Test(timeout=60_000)
 	public void testPutAndGet2() throws UnknownHostException, IOException {
-		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
+		final Tuple tuple = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, "abcd".getBytes());
 		networkProxyClient.put(tuple, TEST_TABLE_1);
 
-		final Tuple tuple2 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "efg".getBytes());
+		final Tuple tuple2 = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, KEY2.getBytes());
 		networkProxyClient.put(tuple2, TEST_TABLE_1);
 
-		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
+		final List<Tuple> result2 = networkProxyClient.get(KEY1, TEST_TABLE_1);
 		Assert.assertEquals(1, result2.size());
 		Assert.assertEquals(tuple2, result2.get(0));
 	}
 
 	@Test(timeout=60_000)
 	public void testPutAndDelete() throws UnknownHostException, IOException {
-		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
+		final Tuple tuple = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, "abcd".getBytes());
 		networkProxyClient.put(tuple, TEST_TABLE_1);
 
-		final List<Tuple> result1 = networkProxyClient.get("abc", TEST_TABLE_1);
+		final List<Tuple> result1 = networkProxyClient.get(KEY1, TEST_TABLE_1);
 		Assert.assertEquals(1, result1.size());
 		Assert.assertEquals(tuple, result1.get(0));
 
-		networkProxyClient.delete("abc", TEST_TABLE_1);
+		networkProxyClient.delete(KEY1, TEST_TABLE_1);
 
-		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
+		final List<Tuple> result2 = networkProxyClient.get(KEY1, TEST_TABLE_1);
 		Assert.assertTrue(result2.isEmpty());
 	}
 
 	@Test(timeout=60_000)
 	public void testRangeQuery() throws UnknownHostException, IOException {
-		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "efg".getBytes());
-		final Tuple tuple2 = new Tuple("efg", new Hyperrectangle(10.0d, 20.0d, 10.0d, 20.0d), "efg".getBytes());
+		final Tuple tuple1 = new Tuple(KEY1, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), KEY2.getBytes());
+		final Tuple tuple2 = new Tuple(KEY2, new Hyperrectangle(10.0d, 20.0d, 10.0d, 20.0d), KEY2.getBytes());
 
 		networkProxyClient.put(tuple1, TEST_TABLE_1);
 		networkProxyClient.put(tuple2, TEST_TABLE_1);
@@ -225,8 +242,8 @@ public class ProxyTest {
 
 	@Test(timeout=60_000)
 	public void testRangeQueryLocal() throws UnknownHostException, IOException {
-		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "efg".getBytes());
-		final Tuple tuple2 = new Tuple("efg", new Hyperrectangle(10.0d, 20.0d, 10.0d, 20.0d), "efg".getBytes());
+		final Tuple tuple1 = new Tuple(KEY1, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), KEY2.getBytes());
+		final Tuple tuple2 = new Tuple(KEY2, new Hyperrectangle(10.0d, 20.0d, 10.0d, 20.0d), KEY2.getBytes());
 
 		networkProxyClient.put(tuple1, TEST_TABLE_1);
 		networkProxyClient.put(tuple2, TEST_TABLE_1);
@@ -244,4 +261,65 @@ public class ProxyTest {
 		Assert.assertTrue(result3.contains(tuple1));
 		Assert.assertTrue(result3.contains(tuple2));
 	}
+
+	@Test(timeout=60_000)
+	public void testJoin0() throws Exception {
+		networkProxyClient.delete(KEY1, TEST_TABLE_1);
+		networkProxyClient.delete(KEY2, TEST_TABLE_1);
+		networkProxyClient.delete(KEY3, TEST_TABLE_1);
+
+		final List<JoinedTuple> joinResult = networkProxyClient.join(
+				Hyperrectangle.FULL_SPACE, TEST_TABLE_1, TEST_TABLE_2);
+
+		Assert.assertTrue(joinResult.isEmpty());
+	}
+
+	@Test(timeout=60_000)
+	public void testJoin1() throws Exception {
+		final Tuple tuple1Table1 = new Tuple(KEY1, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "".getBytes());
+		final Tuple tuple2Table1 = new Tuple(KEY2, new Hyperrectangle(5.0d, 6.0d, 5.0d, 6.0d), "".getBytes());
+		final Tuple tuple1Table2 = new Tuple(KEY3, new Hyperrectangle(3.0d, 5.5d, 3.0d, 5.5d), "".getBytes());
+
+		networkProxyClient.put(tuple1Table1, TEST_TABLE_1);
+		networkProxyClient.put(tuple2Table1, TEST_TABLE_1);
+		networkProxyClient.put(tuple1Table2, TEST_TABLE_2);
+
+		final List<JoinedTuple> joinResult1 = networkProxyClient.join(
+				new Hyperrectangle(100d, 200d, 100d, 200d), TEST_TABLE_1, TEST_TABLE_2);
+
+		Assert.assertTrue(joinResult1.isEmpty());
+
+		final List<JoinedTuple> joinResult2 = networkProxyClient.join(
+				Hyperrectangle.FULL_SPACE, TEST_TABLE_1, TEST_TABLE_2);
+
+		Assert.assertEquals(1, joinResult2.size());
+
+		final JoinedTuple resultTuple = new JoinedTuple(Arrays.asList(tuple2Table1, tuple1Table2), Arrays.asList(TEST_TABLE_1, TEST_TABLE_2));
+		Assert.assertEquals(resultTuple, joinResult2.get(0));
+	}
+
+	@Test(timeout=60_000)
+	public void testJoin2() throws Exception {
+		final Tuple tuple1Table1 = new Tuple(KEY1, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "".getBytes());
+		final Tuple tuple2Table1 = new Tuple(KEY2, new Hyperrectangle(5.0d, 6.0d, 5.0d, 6.0d), "".getBytes());
+		final Tuple tuple1Table2 = new Tuple(KEY3, new Hyperrectangle(3.0d, 5.5d, 3.0d, 5.5d), "".getBytes());
+
+		networkProxyClient.put(tuple1Table1, TEST_TABLE_1);
+		networkProxyClient.put(tuple2Table1, TEST_TABLE_1);
+		networkProxyClient.put(tuple1Table2, TEST_TABLE_2);
+
+		final List<JoinedTuple> joinResult1 = networkProxyClient.joinLocal(
+				new Hyperrectangle(100d, 200d, 100d, 200d), TEST_TABLE_1, TEST_TABLE_2);
+
+		Assert.assertTrue(joinResult1.isEmpty());
+
+		final List<JoinedTuple> joinResult2 = networkProxyClient.joinLocal(
+				Hyperrectangle.FULL_SPACE, TEST_TABLE_1, TEST_TABLE_2);
+
+		Assert.assertEquals(1, joinResult2.size());
+
+		final JoinedTuple resultTuple = new JoinedTuple(Arrays.asList(tuple2Table1, tuple1Table2), Arrays.asList(TEST_TABLE_1, TEST_TABLE_2));
+		Assert.assertEquals(resultTuple, joinResult2.get(0));
+	}
+
 }
