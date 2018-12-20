@@ -21,6 +21,7 @@ order: 1
 - Bugfix: Fixed table read from non existing distribution group
 - Bugfix: Fixed instance read after cluster clear
 - Bugfix: Hyperrectangle from string now creates a correct FULL_SPACE hyperrectangle
+- Bugfix: Fixed "socket closed" exception on regular shutdown
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation
