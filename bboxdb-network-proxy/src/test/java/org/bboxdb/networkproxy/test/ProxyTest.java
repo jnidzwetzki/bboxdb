@@ -19,6 +19,7 @@ package org.bboxdb.networkproxy.test;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -49,7 +50,7 @@ public class ProxyTest {
 	 * The proxy class
 	 */
 	private ProxyMain proxyMain;
-	
+
 	/**
 	 * The name of the testgroup
 	 */
@@ -59,7 +60,7 @@ public class ProxyTest {
 	 * Test name of the first testtable
 	 */
 	private static final String TEST_TABLE_1 = TEST_GROUP + "_testtable1";
-	
+
 	/**
 	 * Test name of the second testtable
 	 */
@@ -81,14 +82,14 @@ public class ProxyTest {
 
 		// Wait some time to let the server process start
 		Thread.sleep(5000);
-		
+
 		// Create distribution group and tables
 		System.out.println("==> Connect to server");
-		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();		
-		
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();
+
 		System.out.println("==> Create distribution group");
 		EnvironmentHelper.recreateDistributionGroup(bboxDBClient, TEST_GROUP);
-		
+
 		System.out.println("===> Create new table1");
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(TEST_TABLE_1, new TupleStoreConfiguration());
 		resultCreateTable1.waitForCompletion();
@@ -134,14 +135,21 @@ public class ProxyTest {
 		networkProxyClient.disconnect();
 		networkProxyClient.close();
 	}
-	
+
 	@Test(timeout=60000)
 	public void testPutAndGet() throws UnknownHostException, IOException {
 		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
-		
+
+		final List<Tuple> result1 = networkProxyClient.get("abc", TEST_TABLE_1);
+		Assert.assertTrue(result1.isEmpty());
+
 		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
 		networkProxyClient.put(tuple, TEST_TABLE_1);
-		
+
+		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
+		Assert.assertEquals(1, result2.size());
+		Assert.assertEquals(tuple, result2.get(0));
+
 		networkProxyClient.disconnect();
 		networkProxyClient.close();
 	}
