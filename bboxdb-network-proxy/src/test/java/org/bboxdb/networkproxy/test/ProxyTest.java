@@ -52,6 +52,11 @@ public class ProxyTest {
 	private ProxyMain proxyMain;
 
 	/**
+	 * The proxy client
+	 */
+	private NetworkProxyClient networkProxyClient;
+
+	/**
 	 * The name of the testgroup
 	 */
 	private static final String TEST_GROUP = "proxytestgroup";
@@ -113,33 +118,50 @@ public class ProxyTest {
 	}
 
 	@Before
-	public synchronized void startProxyServer() {
-
+	public synchronized void startProxyServer() throws UnknownHostException, IOException {
 		if(proxyMain != null) {
 			throw new IllegalStateException("Proxy is already running");
 		}
 
 		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
 		proxyMain.run();
+
+		if(proxyMain != null) {
+			throw new IllegalStateException("Client is already active");
+		}
+
+		networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
 	}
 
 	@After
-	public synchronized void stopProxyServer() {
-		proxyMain.close();
-		proxyMain = null;
+	public synchronized void stopProxyServer() throws IOException {
+		// Close proxy connection
+		if(networkProxyClient != null) {
+			networkProxyClient.disconnect();
+			networkProxyClient.close();
+			networkProxyClient = null;
+		}
+
+		// Shutdown proxy
+		if(proxyMain != null) {
+			proxyMain.close();
+			proxyMain = null;
+		}
 	}
 
 	@Test(timeout=60000)
 	public void testDisconnect() throws UnknownHostException, IOException {
-		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
+		Assert.assertTrue(networkProxyClient.isConnected());
+
 		networkProxyClient.disconnect();
 		networkProxyClient.close();
+		Assert.assertFalse(networkProxyClient.isConnected());
+
+		networkProxyClient = null;
 	}
 
 	@Test(timeout=60000)
 	public void testPutAndGet() throws UnknownHostException, IOException {
-		final NetworkProxyClient networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
-
 		final List<Tuple> result1 = networkProxyClient.get("abc", TEST_TABLE_1);
 		Assert.assertTrue(result1.isEmpty());
 
@@ -149,8 +171,20 @@ public class ProxyTest {
 		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
 		Assert.assertEquals(1, result2.size());
 		Assert.assertEquals(tuple, result2.get(0));
+	}
 
-		networkProxyClient.disconnect();
-		networkProxyClient.close();
+	@Test(timeout=60000)
+	public void testPutAndDelete() throws UnknownHostException, IOException {
+		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
+		networkProxyClient.put(tuple, TEST_TABLE_1);
+
+		final List<Tuple> result1 = networkProxyClient.get("abc", TEST_TABLE_1);
+		Assert.assertEquals(1, result1.size());
+		Assert.assertEquals(tuple, result1.get(0));
+
+		networkProxyClient.delete("abc", TEST_TABLE_1);
+
+		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
+		Assert.assertTrue(result2.isEmpty());
 	}
 }

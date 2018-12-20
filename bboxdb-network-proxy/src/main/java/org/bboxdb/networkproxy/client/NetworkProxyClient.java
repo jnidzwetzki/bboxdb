@@ -139,11 +139,11 @@ public class NetworkProxyClient implements AutoCloseable {
 
 		return tupleList;
 	}
-	
+
 	/**
 	 * Read a joined tuple from server
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private List<JoinedTuple> readJoinedTupleListFromServer() throws IOException {
 		final List<JoinedTuple> tupleList = new ArrayList<>();
@@ -207,7 +207,7 @@ public class NetworkProxyClient implements AutoCloseable {
 
 		return readTupleListFromServer();
 	}
-	
+
 	/**
 	 * The get local call
 	 * @param table
@@ -220,7 +220,7 @@ public class NetworkProxyClient implements AutoCloseable {
 
 		return readTupleListFromServer();
 	}
-	
+
 	/**
 	 * Perform a spatial join
 	 * @param queryRectangle
@@ -231,7 +231,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	 */
 	public synchronized List<JoinedTuple> join(final Hyperrectangle queryRectangle, final String table1,
 			final String table2) throws IOException {
-	
+
 		sendToServer(ProxyConst.COMMAND_JOIN);
 		sendToServer(table1);
 		sendToServer(table2);
@@ -250,7 +250,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	 */
 	public synchronized List<JoinedTuple> joinLocal(final Hyperrectangle queryRectangle, final String table1,
 			final String table2) throws IOException {
-	
+
 		sendToServer(ProxyConst.COMMAND_JOIN_LOCAL);
 		sendToServer(table1);
 		sendToServer(table2);
@@ -303,5 +303,13 @@ public class NetworkProxyClient implements AutoCloseable {
 		} finally {
 			close();
 		}
+	}
+
+	/**
+	 * Is the client connected?
+	 * @return
+	 */
+	public boolean isConnected() {
+		return clientSocket.isConnected();
 	}
  }
