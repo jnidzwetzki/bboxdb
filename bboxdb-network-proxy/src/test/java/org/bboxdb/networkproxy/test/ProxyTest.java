@@ -126,7 +126,7 @@ public class ProxyTest {
 		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
 		proxyMain.run();
 
-		if(proxyMain != null) {
+		if(networkProxyClient != null) {
 			throw new IllegalStateException("Client is already active");
 		}
 
@@ -149,7 +149,7 @@ public class ProxyTest {
 		}
 	}
 
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testDisconnect() throws UnknownHostException, IOException {
 		Assert.assertTrue(networkProxyClient.isConnected());
 
@@ -160,7 +160,7 @@ public class ProxyTest {
 		networkProxyClient = null;
 	}
 
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testPutAndGet() throws UnknownHostException, IOException {
 		final List<Tuple> result1 = networkProxyClient.get("abc", TEST_TABLE_1);
 		Assert.assertTrue(result1.isEmpty());
@@ -173,7 +173,7 @@ public class ProxyTest {
 		Assert.assertEquals(tuple, result2.get(0));
 	}
 
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testPutAndDelete() throws UnknownHostException, IOException {
 		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abcd".getBytes());
 		networkProxyClient.put(tuple, TEST_TABLE_1);
@@ -186,5 +186,10 @@ public class ProxyTest {
 
 		final List<Tuple> result2 = networkProxyClient.get("abc", TEST_TABLE_1);
 		Assert.assertTrue(result2.isEmpty());
+	}
+
+	@Test(timeout=60_000)
+	public void testRangeQuery() {
+
 	}
 }
