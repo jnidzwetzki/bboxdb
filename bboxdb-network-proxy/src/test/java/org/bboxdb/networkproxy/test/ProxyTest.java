@@ -51,7 +51,7 @@ public class ProxyTest {
 	/**
 	 * The proxy class
 	 */
-	private ProxyMain proxyMain;
+	private static ProxyMain proxyMain;
 
 	/**
 	 * The proxy client
@@ -121,10 +121,24 @@ public class ProxyTest {
 		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(TEST_TABLE_2, new TupleStoreConfiguration());
 		resultCreateTable2.waitForCompletion();
 		Assert.assertFalse(resultCreateTable2.isFailed());
+
+		if(proxyMain != null) {
+			throw new IllegalStateException("Proxy is already running");
+		}
+
+		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
+		proxyMain.run();
 	}
 
 	@AfterClass
 	public static void shutdown() throws Exception {
+
+		// Shutdown proxy
+		if(proxyMain != null) {
+			proxyMain.close();
+			proxyMain = null;
+		}
+
 		if(bboxDBMain != null) {
 			bboxDBMain.stop();
 			bboxDBMain = null;
@@ -135,13 +149,7 @@ public class ProxyTest {
 	}
 
 	@Before
-	public synchronized void startProxyServer() throws Exception {
-		if(proxyMain != null) {
-			throw new IllegalStateException("Proxy is already running");
-		}
-
-		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
-		proxyMain.run();
+	public synchronized void startProxyClient() throws Exception {
 
 		if(networkProxyClient != null) {
 			throw new IllegalStateException("Client is already active");
@@ -159,12 +167,6 @@ public class ProxyTest {
 			networkProxyClient.disconnect();
 			networkProxyClient.close();
 			networkProxyClient = null;
-		}
-
-		// Shutdown proxy
-		if(proxyMain != null) {
-			proxyMain.close();
-			proxyMain = null;
 		}
 	}
 
