@@ -118,7 +118,7 @@ public class ProxyTest {
 	}
 
 	@Before
-	public synchronized void startProxyServer() throws UnknownHostException, IOException {
+	public synchronized void startProxyServer() throws Exception {
 		if(proxyMain != null) {
 			throw new IllegalStateException("Proxy is already running");
 		}
@@ -129,6 +129,8 @@ public class ProxyTest {
 		if(networkProxyClient != null) {
 			throw new IllegalStateException("Client is already active");
 		}
+
+		proxyMain.getServiceState().awaitRunning();
 
 		networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
 	}

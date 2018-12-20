@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.bboxdb.commons.CloseableHelper;
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,11 @@ public class ProxyMain implements Runnable, Closeable {
 	private Thread serverThread;
 
 	/**
+	 * The service state
+	 */
+	private final ServiceState serviceState;
+
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ProxyMain.class);
@@ -78,11 +84,14 @@ public class ProxyMain implements Runnable, Closeable {
 		this.clustername = clustername;
 		this.threadPool = Executors.newCachedThreadPool();
 		this.port = ProxyConst.PROXY_PORT;
+		this.serviceState = new ServiceState();
 	}
 
 	@Override
 	public void run() {
 		logger.info("Starting BBoxDB proxy on port: {}", port);
+		serviceState.reset();
+		serviceState.dipatchToStarting();
 
 		final List<String> connectPoints = Arrays.asList(contactpoint);
 
@@ -93,6 +102,7 @@ public class ProxyMain implements Runnable, Closeable {
 		final Runnable run = () -> {
 		    try {
 				serverSocket = new ServerSocket(port);
+				serviceState.dispatchToRunning();
 
 			    while(isThreadActive()) {
 			    		final Socket clientSocket = serverSocket.accept();
@@ -121,10 +131,10 @@ public class ProxyMain implements Runnable, Closeable {
 	private void handleConnection(final Socket clientSocket) {
 		try {
 			logger.debug("Handle new connection from: {}", clientSocket.getRemoteSocketAddress());
-			
+
 			final ProxyConnectionRunable proxyConnectionRunable = new ProxyConnectionRunable(
 					bboxdbClient, clientSocket);
-			
+
 			threadPool.submit(proxyConnectionRunable);
 		} catch (IOException e) {
 			logger.error("Got exception while handling connection", e);
@@ -153,6 +163,7 @@ public class ProxyMain implements Runnable, Closeable {
 	 */
 	public void close() {
 		logger.info("Shutting down the BBoxDB proxy on port: {}", port);
+		serviceState.dispatchToStopping();
 
 		if(serverThread != null) {
 			serverThread.interrupt();
@@ -172,6 +183,16 @@ public class ProxyMain implements Runnable, Closeable {
 		if(threadPool != null) {
 			threadPool.shutdown();
 		}
+
+		serviceState.dispatchToTerminated();
+	}
+
+	/**
+	 * Get the service state
+	 * @return
+	 */
+	public ServiceState getServiceState() {
+		return serviceState;
 	}
 
 	/**
