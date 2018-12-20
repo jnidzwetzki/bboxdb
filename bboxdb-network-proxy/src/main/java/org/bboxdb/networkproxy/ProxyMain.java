@@ -89,28 +89,35 @@ public class ProxyMain implements Runnable, Closeable {
 		// Close socket on service down
 		serviceState.registerCallback((s) -> {
 			if(s.isInFinishedState()) {
-				logger.info("Executing shutdown callback");
-
-				if(serverThread != null) {
-					serverThread.interrupt();
-					serverThread = null;
-				}
-
-				if(bboxdbClient != null) {
-					bboxdbClient.close();
-					bboxdbClient = null;
-				}
-
-				if(serverSocket != null) {
-					CloseableHelper.closeWithoutException(serverSocket);
-					serverSocket = null;
-				}
-
-				if(threadPool != null) {
-					threadPool.shutdown();
-				}
+				shutdownCallback();
 			}
 		});
+	}
+
+	/**
+	 * Close all sockets
+	 */
+	private void shutdownCallback() {
+		logger.info("Executing shutdown callback");
+
+		if(serverThread != null) {
+			serverThread.interrupt();
+			serverThread = null;
+		}
+
+		if(bboxdbClient != null) {
+			bboxdbClient.close();
+			bboxdbClient = null;
+		}
+
+		if(serverSocket != null) {
+			CloseableHelper.closeWithoutException(serverSocket);
+			serverSocket = null;
+		}
+
+		if(threadPool != null) {
+			threadPool.shutdown();
+		}
 	}
 
 	@Override
@@ -195,8 +202,8 @@ public class ProxyMain implements Runnable, Closeable {
 			return;
 		}
 
+		// Socket close will be called in terminated state callback
 		serviceState.dispatchToStopping();
-
 		serviceState.dispatchToTerminated();
 	}
 
