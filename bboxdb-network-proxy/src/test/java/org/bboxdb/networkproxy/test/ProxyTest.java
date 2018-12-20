@@ -128,6 +128,7 @@ public class ProxyTest {
 
 		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
 		proxyMain.run();
+		proxyMain.getServiceState().awaitRunning();
 	}
 
 	@AfterClass
@@ -154,8 +155,6 @@ public class ProxyTest {
 		if(networkProxyClient != null) {
 			throw new IllegalStateException("Client is already active");
 		}
-
-		proxyMain.getServiceState().awaitRunning();
 
 		networkProxyClient = new NetworkProxyClient("localhost", ProxyConst.PROXY_PORT);
 	}
