@@ -29,11 +29,12 @@ import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
-	
+
 	/**
 	 * The Logger
 	 */
@@ -55,6 +56,11 @@ public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
 			tupleResult.waitForCompletion();
 
 			for(final Tuple tuple : tupleResult) {
+
+				if(TupleHelper.isDeletedTuple(tuple)) {
+					continue;
+				}
+
 				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
 				TupleStringSerializer.writeTuple(tuple, socketOutputStream);
 			}
@@ -76,13 +82,13 @@ public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
 	 * @param bbox
 	 */
 	protected abstract void executeLogging(final String table, final Hyperrectangle bbox);
-	
+
 	/**
 	 * Get the connection
-	 * @param bboxdbClient 
+	 * @param bboxdbClient
 	 * @return
 	 */
 	public abstract BBoxDB getConnection(final BBoxDBCluster bboxdbClient);
 
-	
+
 }

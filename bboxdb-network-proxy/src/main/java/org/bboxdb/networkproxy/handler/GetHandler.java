@@ -27,6 +27,7 @@ import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,11 @@ public class GetHandler implements ProxyCommandHandler {
 			tupleResult.waitForCompletion();
 
 			for(final Tuple tuple : tupleResult) {
+
+				if(TupleHelper.isDeletedTuple(tuple)) {
+					continue;
+				}
+
 				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
 				TupleStringSerializer.writeTuple(tuple, socketOutputStream);
 			}
