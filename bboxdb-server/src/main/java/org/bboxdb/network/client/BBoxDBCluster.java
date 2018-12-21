@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -149,18 +150,18 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
-		
+
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.WRITE_TO_NODES, table, tuple.getBoundingBox()) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
-			}	
+			}
 		};
-		
+
 		return new EmptyResultFuture(builder.getSupplier());
 	}
 
@@ -182,18 +183,18 @@ public class BBoxDBCluster implements BBoxDB {
 			final Hyperrectangle boundingBox) throws BBoxDBException {
 
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
-		
+
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.WRITE_TO_NODES, table, Hyperrectangle.FULL_SPACE) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
-			}	
+			}
 		};
-		
+
 		return new EmptyResultFuture(builder.getSupplier());
 	}
 
@@ -207,12 +208,12 @@ public class BBoxDBCluster implements BBoxDB {
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().createLockTupleFuture(
 						table, tuple, deleteOnTimeout, routingHeader);
-			}	
+			}
 		};
-		
+
 		// When version locking fails, try again with another version
 		return new EmptyResultFuture(builder.getSupplier(), FutureRetryPolicy.RETRY_POLICY_NONE);
 	}
@@ -273,16 +274,16 @@ public class BBoxDBCluster implements BBoxDB {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key {} in table {}", key, table);
 		}
-		
+
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().getQueryKeyFuture(table, key, routingHeader);
-			}	
+			}
 		};
 
 		final DuplicateResolver<Tuple> duplicateResolver
@@ -297,17 +298,17 @@ public class BBoxDBCluster implements BBoxDB {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
 		}
-		
+
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.READ_FROM_NODES_HA_IF_REPLICATED, table, boundingBox) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
-				return connection.getBboxDBClient().getQueryBoundingBoxFuture(table, boundingBox, 
+
+				return connection.getBboxDBClient().getQueryBoundingBoxFuture(table, boundingBox,
 						routingHeader);
-			}	
+			}
 		};
 
 		return new TupleListFuture(builder.getSupplier(), new DoNothingDuplicateResolver(), table);
@@ -327,17 +328,25 @@ public class BBoxDBCluster implements BBoxDB {
 		final List<DistributionRegion> regions = DistributionRegionHelper
 				.getDistributionRegionsForBoundingBox(distributionRegion, boundingBox);
 
-		if(regions.size() != 1) {
-			throw new BBoxDBException("The bounding box belongs to more than one distribution region, "
-					+ "this is not supported in continuous queries");
-		}
+		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 
-		final DistributionRegion region = regions.get(0);
+			final List<NetworkOperationFuture> resultList = new ArrayList<>();
 
-		final BBoxDBInstance firstSystem = region.getSystems().get(0);
-		final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
+			for(final DistributionRegion regionToQuery : regions) {
 
-		return connection.getBboxDBClient().queryRectangleContinuous(table, boundingBox);
+				final BBoxDBInstance firstSystem = regionToQuery.getSystems().get(0);
+				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
+
+				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+				final Supplier<List<NetworkOperationFuture>> future = bboxDBClient.getQueryBoundingBoxContinousFuture(table, boundingBox);
+
+				resultList.addAll(future.get());
+			}
+
+			return resultList;
+		};
+
+		return new TupleListFuture(supplier, new DoNothingDuplicateResolver(), table);
 	}
 
 	@Override
@@ -358,10 +367,10 @@ public class BBoxDBCluster implements BBoxDB {
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().getBoundingBoxAndTimeFuture(table, boundingBox,
 						timestamp, routingHeader);
-			}	
+			}
 		};
 
 		return new TupleListFuture(builder.getSupplier(), new DoNothingDuplicateResolver(), table);
@@ -376,16 +385,16 @@ public class BBoxDBCluster implements BBoxDB {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
-		
+
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().getVersionTimeFuture(table, timestamp, routingHeader);
-			}	
+			}
 		};
 
 		return new TupleListFuture(builder.getSupplier(), new DoNothingDuplicateResolver(), table);
@@ -407,11 +416,11 @@ public class BBoxDBCluster implements BBoxDB {
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().getInsertedTimeFuture(table, timestamp, routingHeader);
-			}	
+			}
 		};
-		
+
 		return new TupleListFuture(builder.getSupplier(), new DoNothingDuplicateResolver(), table);
 	}
 
@@ -419,7 +428,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
 	 */
 	@Override
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) 
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox)
 			throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
@@ -431,16 +440,16 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final String fullname = tableNames.get(0);
-		
+
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.READ_FROM_NODES, fullname, boundingBox) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
-				
+
 				return connection.getBboxDBClient().getJoinFuture(tableNames, boundingBox, routingHeader);
-			}	
+			}
 		};
 
 		return new JoinedTupleListFuture(builder.getSupplier());
