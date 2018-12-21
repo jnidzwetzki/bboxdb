@@ -27,9 +27,6 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
-import org.bboxdb.networkproxy.misc.TupleStringSerializer;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,19 +50,7 @@ public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
 		try {
 			final BBoxDB connection = getConnection(bboxdbClient);
 			final TupleListFuture tupleResult = connection.queryRectangle(table, bbox);
-			tupleResult.waitForCompletion();
-
-			for(final Tuple tuple : tupleResult) {
-
-				if(TupleHelper.isDeletedTuple(tuple)) {
-					continue;
-				}
-
-				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
-				TupleStringSerializer.writeTuple(tuple, socketOutputStream);
-			}
-
-			socketOutputStream.write(ProxyConst.RESULT_OK);
+			ProxyHelper.writeTupleResult(socketOutputStream, tupleResult);
 		} catch(InterruptedException e) {
 			logger.debug("Got interrupted exception while handling bboxdb call");
 			Thread.currentThread().interrupt();

@@ -19,12 +19,24 @@ package org.bboxdb.networkproxy;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
+import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.networkproxy.misc.TupleStringSerializer;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.util.TupleHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
 public class ProxyHelper {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(ProxyHelper.class);
 
 	/**
 	 * Read a string from a input stream
@@ -40,6 +52,37 @@ public class ProxyHelper {
 		ByteStreams.readFully(inputStream, stringBytes, 0, stringBytes.length);
 
 		return new String(stringBytes);
+	}
+
+
+	/**
+	 * Write a tuple result to the client
+	 * @param socketOutputStream
+	 * @param tupleResult
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	public static void writeTupleResult(final OutputStream socketOutputStream,
+			final TupleListFuture tupleResult) throws InterruptedException, IOException {
+
+		tupleResult.waitForCompletion();
+
+		if(tupleResult.isFailed()) {
+			logger.error("Got error while receiving tupeles: {}", tupleResult.getAllMessages());
+			socketOutputStream.write(ProxyConst.RESULT_FAILED);
+		} else {
+			for(final Tuple tuple : tupleResult) {
+
+				if(TupleHelper.isDeletedTuple(tuple)) {
+					continue;
+				}
+
+				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
+				TupleStringSerializer.writeTuple(tuple, socketOutputStream);
+			}
+
+			socketOutputStream.write(ProxyConst.RESULT_OK);
+		}
 	}
 
 }
