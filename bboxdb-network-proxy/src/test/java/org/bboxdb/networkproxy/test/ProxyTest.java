@@ -74,6 +74,11 @@ public class ProxyTest {
 	private static final String TEST_TABLE_2 = TEST_GROUP + "_testtable2";
 
 	/**
+	 * Test name of the second testtable
+	 */
+	private static final String TEST_TABLE_UNUSED = TEST_GROUP + "_testtableunused";
+
+	/**
 	 * The name of the first key
 	 */
 	private static final String KEY1 = "key1";
@@ -122,6 +127,11 @@ public class ProxyTest {
 		resultCreateTable2.waitForCompletion();
 		Assert.assertFalse(resultCreateTable2.isFailed());
 
+		System.out.println("===> Create new unused");
+		final EmptyResultFuture resultCreateTable3 = bboxDBClient.createTable(TEST_TABLE_UNUSED, new TupleStoreConfiguration());
+		resultCreateTable3.waitForCompletion();
+		Assert.assertFalse(resultCreateTable3.isFailed());
+
 		if(proxyMain != null) {
 			throw new IllegalStateException("Proxy is already running");
 		}
@@ -144,9 +154,6 @@ public class ProxyTest {
 			bboxDBMain.stop();
 			bboxDBMain = null;
 		}
-
-		// Wait some time for socket re-use
-		Thread.sleep(5000);
 	}
 
 	@Before
@@ -181,7 +188,13 @@ public class ProxyTest {
 	}
 
 	@Test(timeout=60_000)
-	public void testPutAndGet2() throws UnknownHostException, IOException {
+	public void testGetNonexisting() throws UnknownHostException, IOException {
+		final List<Tuple> result1 = networkProxyClient.get(KEY1, TEST_TABLE_UNUSED);
+		Assert.assertTrue(result1.isEmpty());
+	}
+
+	@Test(timeout=60_000)
+	public void testPutAndGet1() throws UnknownHostException, IOException {
 		final Tuple tuple1 = new Tuple(KEY1, Hyperrectangle.FULL_SPACE, "abcd".getBytes());
 		networkProxyClient.put(tuple1, TEST_TABLE_1);
 
