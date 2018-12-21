@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.8.5 - TBA
+### Version 0.8.5 - 21.12.2018
 - New Feature: Added network proxy with a central coordinator
 - Improvement: Automatically repair defective GeoJSON geometries (automatically close polygons)
 - Improvement: Speed up r-tree index lookups
