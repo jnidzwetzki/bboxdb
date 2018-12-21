@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
@@ -44,7 +45,8 @@ public class PutHandler implements ProxyCommandHandler {
 		final String table = ProxyHelper.readStringFromServer(socketInputStream);
 		final Tuple tuple = TupleStringSerializer.readTuple(socketInputStream);
 
-		logger.info("Got put call for table {} and tuple {}", table, tuple);
+		logger.info("Got put call for table {} and tuple {} (is full box {})",
+				table, tuple, tuple.getBoundingBox() == Hyperrectangle.FULL_SPACE);
 
 		try {
 			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(table, tuple);
