@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.network.server;
 
@@ -52,7 +52,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 * The query plan to execute
 	 */
 	protected final OperatorTreeBuilder operatorTreeBuilder;
-	
+
 	/**
 	 * The active operator
 	 */
@@ -62,49 +62,49 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 * The current iterator
 	 */
 	protected Iterator<JoinedTuple> activeOperatorIterator;
-	
+
 	/**
 	 * Page the result
 	 */
 	protected final boolean pageResult;
-	
+
 	/**
 	 * The amount of tuples per page
 	 */
 	protected final short tuplesPerPage;
-	
+
 	/**
 	 * The local tables to query
 	 */
 	protected final Map<TupleStoreName, List<TupleStoreName>> localTables;
-	
+
 	/**
 	 * The client connection handler
 	 */
 	protected final ClientConnectionHandler clientConnectionHandler;
-	
+
 	/**
 	 * The package sequence of the query
 	 */
 	protected final short querySequence;
-	
+
 	/**
 	 * The total amount of send tuples
 	 */
 	protected long totalSendTuples;
-	
+
 	/**
 	 * The request tables
 	 */
 	private final List<TupleStoreName> requestTables;
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(StreamClientQuery.class);
 
 	public StreamClientQuery(final OperatorTreeBuilder operatorTreeBuilder, final boolean pageResult,
-			final short tuplesPerPage, final ClientConnectionHandler clientConnectionHandler, 
+			final short tuplesPerPage, final ClientConnectionHandler clientConnectionHandler,
 			final short querySequence, final List<TupleStoreName> requestTables) {
 
 		this.operatorTreeBuilder = operatorTreeBuilder;
@@ -116,7 +116,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 		this.localTables = new HashMap<TupleStoreName, List<TupleStoreName>>();
 
 		determineLocalTables(requestTables);
-		
+
 		this.totalSendTuples = 0;
 	}
 
@@ -126,26 +126,26 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 */
 	private void determineLocalTables(final List<TupleStoreName> requestTables) {
 		try {
-			for(final TupleStoreName requestTable : requestTables) {				
+			for(final TupleStoreName requestTable : requestTables) {
 				final String fullname = requestTable.getDistributionGroup();
-				
+
 				final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 						.getSpacePartitionerForGroupName(fullname);
-				
+
 				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
-			
+
 				final List<TupleStoreName> localTablesForTable = regionIdMapper.getAllLocalTables(requestTable);
 				localTablesForTable.sort((c1, c2) -> c1.compareTo(c2));
 				localTables.put(requestTable, localTablesForTable);
 			}
-			
+
 			// Check all tables have the same amount of local tables
 			int elementSize = -1;
 			for(final List<TupleStoreName> elements : localTables.values()) {
 				if(elementSize == -1) {
 					elementSize = elements.size();
 				}
-				
+
 				if(elementSize != elements.size()) {
 					throw new IllegalArgumentException("Got invalid element size: " + elementSize + " / " + elements.size());
 				}
@@ -154,7 +154,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 			logger.error("Got exception while reading local tables", e);
 		}
 	}
-	
+
 	/**
 	 * Get the number of tables to process
 	 * @return
@@ -167,13 +167,13 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 * Close the iterator
 	 */
 	protected void closeIteratorNE() {
-		CloseableHelper.closeWithoutException(activeOperator, 
-				(e) -> logger.warn("Got an exception while closing operator", e)); 
-		
+		CloseableHelper.closeWithoutException(activeOperator,
+				(e) -> logger.warn("Got an exception while closing operator", e));
+
 		activeOperator = null;
 		activeOperatorIterator = null;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.server.ClientQuery#fetchAndSendNextTuples(short)
 	 */
@@ -182,18 +182,18 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 
 		long sendTuplesInThisPage = 0;
 		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-		
+
 		while(! isDataExhausted()) {
-			
+
 			if(activeOperatorIterator == null) {
 				setupNewIterator();
 			}
-			
+
 			// Unable to set up a new iterator
 			if(activeOperatorIterator == null) {
 				break;
 			}
-			
+
 			while(activeOperatorIterator.hasNext()) {
 				// Handle page end
 				if(pageResult == true && sendTuplesInThisPage >= tuplesPerPage) {
@@ -201,20 +201,20 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 					clientConnectionHandler.flushPendingCompressionPackages();
 					return;
 				}
-				
+
 				// Send next tuple
 				final JoinedTuple tuple = activeOperatorIterator.next();
-								
-				clientConnectionHandler.writeResultTuple(packageSequence, tuple);
+
+				clientConnectionHandler.writeResultTuple(packageSequence, tuple, false);
 				totalSendTuples++;
 				sendTuplesInThisPage++;
 			}
-			
+
 			closeIteratorNE();
 		}
-		
+
 		// All tuples are send
-		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));	
+		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 		clientConnectionHandler.flushPendingCompressionPackages();
 	}
 
@@ -226,11 +226,11 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 		if(getNumberOfTablesToProcess() > 0) {
 			return false;
 		}
-		
+
 		if(activeOperatorIterator != null && activeOperatorIterator.hasNext()) {
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -242,37 +242,37 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 			logger.warn("setupNewIterator() called, but old iterator is not exhaustet. Ignoring call");
 			return false;
 		}
-		
+
 		if(getNumberOfTablesToProcess() == 0) {
 			logger.warn("setupNewIterator() called, but localTables are empty");
 			return false;
 		}
-		
+
 		try {
 			final List<TupleStoreManager> storageManagers = new ArrayList<>();
-			
+
 			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler
 					.getStorageRegistry();
-			
+
 			for(final TupleStoreName tupleStoreName : requestTables) {
 				final TupleStoreName sstableName = localTables.get(tupleStoreName).remove(0);
-				
-				final TupleStoreManager storageManager 
+
+				final TupleStoreManager storageManager
 					= QueryHelper.getTupleStoreManager(storageRegistry, sstableName);
 
 				storageManagers.add(storageManager);
 			}
-			
+
 			activeOperator = operatorTreeBuilder.buildOperatorTree(storageManagers);
 			activeOperatorIterator = activeOperator.iterator();
 			return true;
 		} catch (StorageManagerException | ZookeeperException e) {
 			logger.warn("Got exception while fetching tuples", e);
 		}
-		
+
 		return false;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.server.ClientQuery#isQueryDone()
 	 */

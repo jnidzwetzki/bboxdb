@@ -380,11 +380,11 @@ public class BBoxDBClient implements BBoxDB {
 	 *
 	 */
 	@Override
-	public TupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox) {
+	public JoinedTupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox) {
 		final Supplier<List<NetworkOperationFuture>> future
 			= getQueryBoundingBoxContinousFuture(table, boundingBox);
 
-		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
+		return new JoinedTupleListFuture(future);
 	}
 
 	/**

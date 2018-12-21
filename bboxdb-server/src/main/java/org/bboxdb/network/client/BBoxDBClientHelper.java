@@ -18,8 +18,8 @@
 package org.bboxdb.network.client;
 
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.future.AbstractListFuture;
 import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.network.client.future.TupleListFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class BBoxDBClientHelper {
 	 * @param future
 	 * @throws InterruptedException
 	 */
-	public static void cancelQuery(final TupleListFuture future)
+	public static void cancelQuery(final AbstractListFuture<? extends Object> future)
 			throws BBoxDBException, InterruptedException {
 
 		for(int i = 0; i < future.getNumberOfResultObjets(); i++) {

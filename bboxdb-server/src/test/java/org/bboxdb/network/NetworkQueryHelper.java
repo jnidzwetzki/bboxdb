@@ -169,7 +169,7 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 
-		final TupleListFuture future = bboxDBClient.queryRectangleContinuous(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
+		final JoinedTupleListFuture future = bboxDBClient.queryRectangleContinuous(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
 
 		Thread.sleep(1000);
 

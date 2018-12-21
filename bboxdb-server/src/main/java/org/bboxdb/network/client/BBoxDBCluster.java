@@ -320,7 +320,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 *
 	 */
 	@Override
-	public TupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox)
+	public JoinedTupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox)
 			throws BBoxDBException {
 
 		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
@@ -346,7 +346,7 @@ public class BBoxDBCluster implements BBoxDB {
 			return resultList;
 		};
 
-		return new TupleListFuture(supplier, new DoNothingDuplicateResolver(), table);
+		return new JoinedTupleListFuture(supplier);
 	}
 
 	@Override

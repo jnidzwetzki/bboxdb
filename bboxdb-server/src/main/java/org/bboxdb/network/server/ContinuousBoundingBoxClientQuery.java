@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.network.server;
 
@@ -54,12 +54,12 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	 * The client connection handler
 	 */
 	protected final ClientConnectionHandler clientConnectionHandler;
-	
+
 	/**
 	 * The package sequence of the query
 	 */
 	protected final short querySequence;
-	
+
 	/**
 	 * The request table
 	 */
@@ -69,27 +69,27 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	 * The total amount of send tuples
 	 */
 	protected long totalSendTuples;
-	
+
 	/**
 	 * The number of tuples per page
 	 */
 	protected final long tuplesPerPage = 1;
-	
+
 	/**
 	 * Is the continuous query active
 	 */
 	protected boolean queryActive = true;
-	
+
 	/**
 	 * The tuples for the given key
 	 */
 	protected final BlockingQueue<Tuple> tupleQueue;
-	
+
 	/**
 	 * The maximal queue capacity
 	 */
 	protected final static int MAX_QUEUE_CAPACITY = 1024;
-	
+
 	/**
 	 * The tuple insert callback
 	 */
@@ -99,7 +99,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	 * The tuple store manager
 	 */
 	protected TupleStoreManager storageManager;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -107,32 +107,32 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 
 
 	public ContinuousBoundingBoxClientQuery(final Hyperrectangle boundingBox,
-			final ClientConnectionHandler clientConnectionHandler, 
+			final ClientConnectionHandler clientConnectionHandler,
 			final short querySequence, final TupleStoreName requestTable) {
-		
+
 			this.boundingBox = boundingBox;
 			this.clientConnectionHandler = clientConnectionHandler;
 			this.querySequence = querySequence;
 			this.requestTable = requestTable;
 			this.tupleQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
-			
+
 			this.totalSendTuples = 0;
-			
+
 			// Add each tuple to our tuple queue
 			this.tupleInsertCallback = (t) -> {
-				
+
 				// Is the tuple important for the query?
 				if(! t.getBoundingBox().intersects(boundingBox)) {
 					return;
 				}
-				
+
 				final boolean insertResult = tupleQueue.offer(t);
-				
+
 				if(! insertResult) {
 					logger.error("Unable to add tuple to continuous query, queue is full");
 				}
 			};
-			
+
 			try {
 				init();
 			} catch (BBoxDBException e) {
@@ -140,28 +140,28 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 				queryActive = false;
 			}
 	}
-	
+
 	/**
 	 * Init the query
-	 * @param tupleStoreManagerRegistry 
-	 * @throws BBoxDBException 
+	 * @param tupleStoreManagerRegistry
+	 * @throws BBoxDBException
 	 */
 	protected void init() throws BBoxDBException {
-		
+
 		try {
-			final TupleStoreManagerRegistry storageRegistry 
+			final TupleStoreManagerRegistry storageRegistry
 				= clientConnectionHandler.getStorageRegistry();
-			
+
 			final String fullname = requestTable.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(fullname);
-			
+
 			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
 					.getDistributionRegionIdMapper();
-		
-			final List<TupleStoreName> localTables 
+
+			final List<TupleStoreName> localTables
 				= regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
-			
+
 			if(localTables.size() != 1) {
 				logger.error("Got more than one table for the continuous query {}", localTables);
 				close();
@@ -169,11 +169,11 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 			}
 
 			final TupleStoreName tupleStoreName = localTables.get(0);
-			
+
 			storageManager = QueryHelper.getTupleStoreManager(storageRegistry, tupleStoreName);
-			
+
 			storageManager.registerInsertCallback(tupleInsertCallback);
-			
+
 			// Remove tuple store insert listener on connection close
 			clientConnectionHandler.addConnectionClosedHandler((c) -> close());
 		} catch (StorageManagerException | ZookeeperException e) {
@@ -184,32 +184,32 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 
 	@Override
 	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
-		
+
 		try {
 			long sendTuplesInThisPage = 0;
 			clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-						
+
 			while(queryActive) {
 				if(sendTuplesInThisPage >= tuplesPerPage) {
 					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 					clientConnectionHandler.flushPendingCompressionPackages();
 					return;
 				}
-				
+
 				// Send next tuple or wait
 				final Tuple tuple = tupleQueue.take();
-				
+
 				final JoinedTuple joinedTuple = new JoinedTuple(tuple, requestTable.getFullname());
-				
-				clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple);
+
+				clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple, true);
 				totalSendTuples++;
 				sendTuplesInThisPage++;
 			}
-			
+
 			// All tuples are send
-			clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));	
+			clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 			clientConnectionHandler.flushPendingCompressionPackages();
-			
+
 		} catch (InterruptedException e) {
 			logger.debug("Got interrupted excetion");
 			close();
@@ -225,11 +225,11 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	@Override
 	public void close() {
 		logger.debug("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
-	
+
 		if(storageManager != null) {
 			storageManager.removeInsertCallback(tupleInsertCallback);
 		}
-		
+
 		queryActive = false;
 	}
 

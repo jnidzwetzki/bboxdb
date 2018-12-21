@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.network.client;
 
@@ -30,7 +30,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 
 public interface BBoxDB extends Closeable {
-	
+
 	/**
 	 * Connect to the server
 	 * @return true or false, depending on the connection state
@@ -51,7 +51,7 @@ public interface BBoxDB extends Closeable {
 	 * @throws BBoxDBException
 	 */
 	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException;
-	
+
 	/**
 	 * Delete a table on the bboxdb server
 	 * @param table
@@ -74,7 +74,7 @@ public interface BBoxDB extends Closeable {
 	 * @param deleteOnTimeout
 	 * @return
 	 */
-	public EmptyResultFuture lockTuple(final String table, final Tuple tuple, 
+	public EmptyResultFuture lockTuple(final String table, final Tuple tuple,
 			final boolean deleteOnTimeout) throws BBoxDBException;
 
 	/**
@@ -93,7 +93,7 @@ public interface BBoxDB extends Closeable {
 	 * @param timestamp
 	 * @return
 	 */
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp, 
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp,
 			final Hyperrectangle boundingBox) throws BBoxDBException;
 
 	/**
@@ -111,7 +111,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 */
 	public EmptyResultFuture createDistributionGroup(
-			final String distributionGroup, final DistributionGroupConfiguration distributionGroupConfiguration) 
+			final String distributionGroup, final DistributionGroupConfiguration distributionGroupConfiguration)
 					throws BBoxDBException;
 
 	/**
@@ -138,7 +138,7 @@ public interface BBoxDB extends Closeable {
 	 */
 	public TupleListFuture queryRectangle(final String table,
 			final Hyperrectangle boundingBox) throws BBoxDBException;
-	
+
 	/**
 	 * Execute a continuous bounding box query on the given table
 	 * @param table
@@ -146,7 +146,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 * @throws BBoxDBException
 	 */
-	public TupleListFuture queryRectangleContinuous(final String table,
+	public JoinedTupleListFuture queryRectangleContinuous(final String table,
 			final Hyperrectangle boundingBox) throws BBoxDBException;
 
 	/**
@@ -164,7 +164,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 */
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) throws BBoxDBException;
-	
+
 	/**
 	 * Query the given table for all tuples newer than timestamp and inside of the bounding box
 	 * @param table
@@ -180,7 +180,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 */
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) throws BBoxDBException;
-	
+
 	/**
 	 * Is the client connected?
 	 * @return

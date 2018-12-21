@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.8.6 - TBA
 - Improvement: Allow continuous queries over multiple nodes (closes #120)
+- Improvement: Continuous queries are now returning a joined tuple result (closes #122)
 
 ### Version 0.8.5 - 21.12.2018
 - New Feature: Added network proxy with a central coordinator

@@ -194,7 +194,7 @@ public class KeyClientQuery implements ClientQuery {
 
 			final JoinedTuple joinedTuple = new JoinedTuple(tuple, requestTable.getFullname());
 
-			clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple);
+			clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple, false);
 			totalSendTuples++;
 			sendTuplesInThisPage++;
 		}

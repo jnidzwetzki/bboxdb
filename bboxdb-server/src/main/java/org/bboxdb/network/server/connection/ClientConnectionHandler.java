@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.network.server.connection;
 
@@ -87,17 +87,17 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * The client socket
 	 */
 	public final Socket clientSocket;
-	
+
 	/**
 	 * The output stream of the socket
 	 */
 	private BufferedOutputStream outputStream;
-	
+
 	/**
 	 * The input stream of the socket
 	 */
 	private InputStream inputStream;
-	
+
 	/**
 	 * The connection state
 	 */
@@ -107,23 +107,23 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * The capabilities of the connection
 	 */
 	private PeerCapabilities connectionCapabilities = new PeerCapabilities();
-	
+
 	/**
 	 * The open query iterators, i.e., the queries that are not finished and waiting
 	 * to send the next page
 	 */
 	private final Map<Short, ClientQuery> activeQueries;
-	
+
 	/**
 	 * The thread pool
 	 */
 	private final ExecutorService threadPool;
-	
+
 	/**
 	 * The package router
 	 */
 	private final PackageRouter packageRouter;
-	
+
 	/**
 	 * The pending packages for compression
 	 */
@@ -138,7 +138,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Number of maximal running queries
 	 */
 	private final static int MAX_RUNNING_QUERIES = 25;
-	
+
 	/**
 	 * The request handlers
 	 */
@@ -148,12 +148,12 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * The query handlers
 	 */
 	private Map<Byte, QueryHandler> queryHandlerList;
-	
+
 	/**
 	 * The connection maintenance thread
 	 */
 	private ConnectionMaintenanceRunnable maintenanceThread;
-	
+
 	/**
 	 * The storage reference
 	 */
@@ -163,45 +163,45 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * The lock manager
 	 */
 	private final LockManager lockManager;
-	
+
 	/**
 	 * The read bytes counter
 	 */
 	private final static Gauge readBytesCounter = Gauge.build()
 			.name("bboxdb_network_read_bytes")
 			.help("Total read bytes from network").register();
-	
+
 	/**
 	 * The written bytes counter
 	 */
 	private final static Gauge writtenBytesCounter = Gauge.build()
 			.name("bboxdb_network_write_bytes")
 			.help("Total written bytes to network").register();
-	
+
 	/**
 	 * The active connections counter
 	 */
 	private final static Gauge activeConnectionsTotal = Gauge.build()
 			.name("bboxdb_network_connections_total")
 			.help("Total amount of active network connections").register();
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
-	public ClientConnectionHandler(final TupleStoreManagerRegistry storageRegistry, 
+	public ClientConnectionHandler(final TupleStoreManagerRegistry storageRegistry,
 			final Socket clientSocket, final LockManager lockManager) {
-		
+
 		// Client socket
 		this.clientSocket = clientSocket;
-		
+
 		// The storage reference
 		this.storageRegistry = storageRegistry;
-		
+
 		// The lock manager
 		this.lockManager = lockManager;
-		
+
 		// Connection state set to starting until handshake is ready
 		this.serviceState = new ServiceState();
 		serviceState.registerCallback((s) -> { if(s.isInStartingState()) { activeConnectionsTotal.inc(); }});
@@ -209,7 +209,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { LockHelper.handleLockRemove(this); }});
 
 		serviceState.dipatchToStarting();
-		
+
 		try {
 			this.outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
 			this.inputStream = new BufferedInputStream(clientSocket.getInputStream());
@@ -219,26 +219,26 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			serviceState.dispatchToFailed(e);
 			logger.error("Exception while creating IO stream", e);
 		}
-		
+
 		// The active queries
 		this.activeQueries = new HashMap<>();
-		
+
 		// Create a thread pool that blocks after submitting more than MAX_PENDING_REQUESTS
 		this.threadPool = ExecutorUtil.getBoundThreadPoolExecutor(25, MAX_PENDING_REQUESTS);
 
 		// The package router
 		this.packageRouter = new PackageRouter(threadPool, this);
-		
-		// The pending packages for compression 
+
+		// The pending packages for compression
 		this.pendingCompressionPackages = new ArrayList<>();
 		this.maintenanceThread = new ConnectionMaintenanceRunnable();
-		
+
 		final Thread thread = new Thread(maintenanceThread);
 		thread.start();
 
-		// Init the request handler map 
+		// Init the request handler map
 		initRequestHandlerMap();
-		
+
 		// Init the query handler map
 		initQueryHandlerMap();
 	}
@@ -247,30 +247,30 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Read the next package header from the socket
 	 * @return The package header, wrapped in a ByteBuffer
 	 * @throws IOException
-	 * @throws PackageEncodeException 
+	 * @throws PackageEncodeException
 	 */
 	private ByteBuffer readNextPackageHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
 		ByteStreams.readFully(inputStream, bb.array(), 0, bb.limit());
-		
+
 		final RoutingHeader routingHeader = RoutingHeaderParser.decodeRoutingHeader(inputStream);
 		final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(routingHeader);
-		
+
 		final ByteBuffer header = ByteBuffer.allocate(bb.limit() + routingHeaderBytes.length);
 		header.put(bb.array());
 		header.put(routingHeaderBytes);
-		
+
 		return header;
 	}
 
 	/**
 	 * Write all pending compression packages to server, called by the maintainance thread
-	 * 
+	 *
 	 */
 	public void flushPendingCompressionPackages() {
-		
+
 		final List<NetworkResponsePackage> packagesToWrite = new ArrayList<>();
-		
+
 		// We have to ensure that the buffer clear and socket write
 		// are perfomed in one synchronized block otherwise
 		// we will create out of order packages
@@ -278,17 +278,17 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			if(pendingCompressionPackages.isEmpty()) {
 				return;
 			}
-			
+
 			packagesToWrite.addAll(pendingCompressionPackages);
 			pendingCompressionPackages.clear();
-			
+
 			if(logger.isDebugEnabled()) {
 				logger.debug("Chunk size is: {}", packagesToWrite.size());
 			}
-			
-			final NetworkResponsePackage compressionEnvelopeRequest 
+
+			final NetworkResponsePackage compressionEnvelopeRequest
 				= new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
-			
+
 			try {
 				writePackageToSocket(compressionEnvelopeRequest);
 			} catch (PackageEncodeException | IOException e) {
@@ -296,34 +296,34 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Write a response package to the client
 	 * @param responsePackage
-	 * @throws PackageEncodeException 
-	 * @throws IOException 
+	 * @throws PackageEncodeException
+	 * @throws IOException
 	 */
-	public synchronized void writeResultPackage(final NetworkResponsePackage responsePackage) 
+	public synchronized void writeResultPackage(final NetworkResponsePackage responsePackage)
 			throws IOException, PackageEncodeException {
-		
+
 		if(connectionCapabilities.hasGZipCompression()) {
 			boolean uncompressedQueueFull = false;
-			
+
 			synchronized (pendingCompressionPackages) {
 				// Schedule for batch compression
 				pendingCompressionPackages.add(responsePackage);
 				uncompressedQueueFull = pendingCompressionPackages.size() >= Const.MAX_UNCOMPRESSED_QUEUE_SIZE;
 			}
-			
+
 			if(uncompressedQueueFull) {
 				flushPendingCompressionPackages();
 			}
-			
+
 		} else {
 			writePackageToSocket(responsePackage);
 		}
 	}
-	
+
 	/**
 	 * Send a package and catch the exception
 	 * @param responsePackage
@@ -339,19 +339,19 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * Write a network package uncompressed
 	 * @param responsePackage
-	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws IOException
+	 * @throws PackageEncodeException
 	 */
-	private void writePackageToSocket(final NetworkResponsePackage responsePackage) 
+	private void writePackageToSocket(final NetworkResponsePackage responsePackage)
 			throws IOException, PackageEncodeException {
-		
+
 		synchronized (outputStream) {
 			final long writtenBytes = responsePackage.writeToOutputStream(outputStream);
 			writtenBytesCounter.inc(writtenBytes);
 			outputStream.flush();
 		}
 	}
-	
+
 	@Override
 	public void runThread() {
 		try {
@@ -363,52 +363,52 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 
 			// Flush all pending results to client
 			flushPendingCompressionPackages();
-			
+
 			// Connection is down
 			if(! serviceState.isInStoppingState()) {
 				serviceState.dispatchToStopping();
 			}
-			
+
 			serviceState.dispatchToTerminated();
-			
+
 			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
 		} catch (IOException | PackageEncodeException e) {
 			// Ignore exception on closing sockets
 			if(serviceState.isInRunningState()) {
-				
+
 				logger.error("Socket to {} closed unexpectly (state: {}), closing connection",
 						clientSocket.getInetAddress(), getConnectionState());
 
 				logger.debug("Socket exception", e);
 			}
-		} 
-		
+		}
+
 		getThreadPool().shutdown();
-		
+
 		// Close active query iterators
 		getActiveQueries().values().forEach(i -> i.close());
-		getActiveQueries().clear();	
-		
+		getActiveQueries().clear();
+
 		CloseableHelper.closeWithoutException(clientSocket);
 	}
-	
+
 	/**
 	 * Read the full package. The total length of the package is read from the package header.
 	 * @param packageHeader
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	private ByteBuffer readFullPackage(final ByteBuffer packageHeader, 
+	private ByteBuffer readFullPackage(final ByteBuffer packageHeader,
 			final InputStream inputStream) throws IOException {
-		
+
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
 		final int headerLength = packageHeader.limit();
 		final int packageLength = headerLength + bodyLength;
-		
+
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageLength);
-		
+
 		try {
-			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());			
+			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());
 			encodedPackage.put(packageHeader.array());
 			ByteStreams.readFully(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 			readBytesCounter.inc(packageLength);
@@ -416,21 +416,21 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			serviceState.dispatchToStopping();
 			throw e;
 		}
-		 
+
 		return encodedPackage;
 	}
 
 	/**
 	 * Handle the next request package
 	 * @throws IOException
-	 * @throws PackageEncodeException 
+	 * @throws PackageEncodeException
 	 */
 	public void handleNextPackage(final InputStream inputStream) throws IOException, PackageEncodeException {
 		final ByteBuffer packageHeader = readNextPackageHeader(inputStream);
-		
+
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
-		
+
 		if(serviceState.isInStartingState()) {
 			if(packageType != NetworkConst.REQUEST_TYPE_HELLO) {
 				final String errorMessage = "Connection is in handshake state but got package: " + packageType;
@@ -439,14 +439,14 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 				return;
 			}
 		}
-		
+
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader, inputStream);
 
 		final boolean readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);
 
 		if(readFurtherPackages == false) {
 			serviceState.dispatchToStopping();
-		}	
+		}
 	}
 
 	/**
@@ -454,26 +454,26 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @param packageSequence
 	 * @param requestTable
 	 * @param tuple
-	 * @throws PackageEncodeException 
-	 * @throws IOException 
+	 * @throws PackageEncodeException
+	 * @throws IOException
 	 */
-	public void writeResultTuple(final short packageSequence, final JoinedTuple joinedTuple) 
-			throws IOException, PackageEncodeException {
-		
-		if(joinedTuple.getNumberOfTuples() == 1) {
-			final TupleResponse responsePackage = new TupleResponse(
-					packageSequence, 
-					joinedTuple.getTupleStoreName(0), 
-					joinedTuple.getTuple(0));
-			
-			writeResultPackage(responsePackage);
-		} else {
+	public void writeResultTuple(final short packageSequence, final JoinedTuple joinedTuple,
+			final boolean forceJoinedTupleResult) throws IOException, PackageEncodeException {
+
+		if(joinedTuple.getNumberOfTuples() > 1 || forceJoinedTupleResult) {
 			final JoinedTupleResponse responsePackage = new JoinedTupleResponse(
 					packageSequence, joinedTuple);
-			
+
+			writeResultPackage(responsePackage);
+		} else {
+			final TupleResponse responsePackage = new TupleResponse(
+					packageSequence,
+					joinedTuple.getTupleStoreName(0),
+					joinedTuple.getTuple(0));
+
 			writeResultPackage(responsePackage);
 		}
-		
+
 	}
 
 	/**
@@ -481,38 +481,38 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @param bb
 	 * @param packageSequence
 	 * @return
-	 * @throws PackageEncodeException 
-	 * @throws IOException 
+	 * @throws PackageEncodeException
+	 * @throws IOException
 	 */
-	private boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) 
+	private boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence)
 			throws IOException, PackageEncodeException {
-	
+
 		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
 
 		if(! queryHandlerList.containsKey(queryType)) {
 			logger.warn("Unsupported query type: {}", queryType);
-			
-			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, 
+
+			final ErrorResponse errorResponse = new ErrorResponse(packageSequence,
 					ErrorMessages.ERROR_UNSUPPORTED_PACKAGE_TYPE);
-			
+
 			writeResultPackage(errorResponse);
 			return false;
 		}
-		
+
 		if(activeQueries.size() > MAX_RUNNING_QUERIES) {
 			logger.warn("Client requested more than {} parallel queries", MAX_RUNNING_QUERIES);
-			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, 
+			final ErrorResponse errorResponse = new ErrorResponse(packageSequence,
 					ErrorMessages.ERROR_QUERY_TO_MUCH);
-			
+
 			writeResultPackage(errorResponse);
 		} else {
 			final QueryHandler queryHandler = queryHandlerList.get(queryType);
 			queryHandler.handleQuery(encodedPackage, packageSequence, this);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Handle a buffered package
 	 * @param encodedPackage
@@ -520,31 +520,31 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @param packageType
 	 * @return
 	 * @throws IOException
-	 * @throws PackageEncodeException 
+	 * @throws PackageEncodeException
 	 */
-	private boolean handleBufferedPackage(final ByteBuffer encodedPackage, 
-			final short packageSequence, 
+	private boolean handleBufferedPackage(final ByteBuffer encodedPackage,
+			final short packageSequence,
 			final short packageType) throws PackageEncodeException, IOException {
-				
+
 		// Handle the different query types
 		if(packageType == NetworkConst.REQUEST_TYPE_QUERY) {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Got query package");
 			}
-			
+
 			return handleQuery(encodedPackage, packageSequence);
 		}
 
 		if(requestHandlers.containsKey(packageType)) {
 			final RequestHandler requestHandler = requestHandlers.get(packageType);
-			
+
 			if(logger.isDebugEnabled()) {
 				logger.debug("Dispatching package to handler: {}", requestHandler);
 			}
-			
-			final boolean handleFurtherPackages 
+
+			final boolean handleFurtherPackages
 				= requestHandler.handleRequest(encodedPackage, packageSequence, this);
-			
+
 			return handleFurtherPackages;
 		} else {
 			logger.error("Got unknown package type, closing connection: " + packageType);
@@ -572,7 +572,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_CANCEL_QUERY, new CancelRequestHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_LOCK_TUPLE, new LockTupleHandler());
 	}
-	
+
 	/**
 	 * Init the query handler map
 	 */
@@ -590,41 +590,41 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * Send next results for the given query
 	 * @param packageSequence
-	 * @param  
-	 * @throws PackageEncodeException 
-	 * @throws IOException 
+	 * @param
+	 * @throws PackageEncodeException
+	 * @throws IOException
 	 */
-	public void sendNextResultsForQuery(final short packageSequence, final short querySequence) 
+	public void sendNextResultsForQuery(final short packageSequence, final short querySequence)
 			throws IOException, PackageEncodeException {
-			
+
 		if(! getActiveQueries().containsKey(querySequence)) {
 			logger.error("Unable to resume query {} - package {} - not found", querySequence, packageSequence);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			return;
 		}
-		
+
 		final Runnable queryRunable = new ExceptionSafeRunnable() {
 
 			@Override
 			protected void runThread() throws IOException, PackageEncodeException {
 				final ClientQuery clientQuery = getActiveQueries().get(querySequence);
-				
+
 				if(clientQuery == null) {
 					logger.error("Unable to resume query {}, not found", querySequence);
 					return;
 				}
-				
+
 				clientQuery.fetchAndSendNextTuples(packageSequence);
-				
+
 				if(clientQuery.isQueryDone()) {
-					logger.info("Query {} is done with {} tuples, removing iterator ", 
+					logger.info("Query {} is done with {} tuples, removing iterator ",
 							querySequence,
 							clientQuery.getTotalSendTuples());
 					clientQuery.close();
 					getActiveQueries().remove(querySequence);
 				}
 			}
-			
+
 			@Override
 			protected void afterExceptionHook() {
 				try {
@@ -643,7 +643,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			getThreadPool().submit(queryRunable);
 		}
 	}
-	
+
 	/**
 	 * Get the connection Capabilities
 	 * @return
@@ -679,13 +679,13 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	public PackageRouter getPackageRouter() {
 		return packageRouter;
 	}
-	
+
 	/**
 	 * Get the name of the connection
 	 * @return
 	 */
 	public String getConnectionName() {
-		
+
 		final StringBuilder sb = new StringBuilder("Connection: ");
 
 		if(clientSocket != null) {
@@ -695,7 +695,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			} else {
 				sb.append("-");
 			}
-			
+
 			sb.append(" to: ");
 			if(clientSocket.getLocalAddress() != null) {
 				sb.append(clientSocket.getLocalAddress().toString());
@@ -703,17 +703,17 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 				sb.append("-");
 			}
 		}
-		
+
 		return sb.toString();
 	}
-	
+
 	class ConnectionMaintenanceRunnable extends ExceptionSafeRunnable {
-		
+
 		@Override
 		protected void beginHook() {
 			logger.debug("Starting connection mainteinance thread for: {}", getConnectionName());
 		}
-		
+
 		@Override
 		protected void endHook() {
 			logger.debug("Mainteinance thread for {} has terminated", getConnectionName());
@@ -722,10 +722,10 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		@Override
 		protected void runThread() throws Exception {
 			while(serviceState.isInStartingState() || serviceState.isInRunningState()) {
-				
+
 				// Write all waiting for compression packages
 				flushPendingCompressionPackages();
-		
+
 				try {
 					Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
 				} catch (InterruptedException e) {
@@ -735,7 +735,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			}
 		}
 	};
-	
+
 	/**
 	 * Get the storage registry
 	 * @return
@@ -743,7 +743,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
 	}
-	
+
 	/**
 	 * Get the lock manager
 	 * @return
@@ -751,15 +751,15 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	public LockManager getLockManager() {
 		return lockManager;
 	}
-	
+
 	/**
 	 * The connection shutdown handler
 	 * @param handler
 	 */
 	public void addConnectionClosedHandler(final Consumer<ClientConnectionHandler> handler) {
 		serviceState.registerCallback(c -> {
-			if(c.isInFinishedState()) { 
-				handler.accept(this); 
+			if(c.isInFinishedState()) {
+				handler.accept(this);
 			}
 		});
 	}

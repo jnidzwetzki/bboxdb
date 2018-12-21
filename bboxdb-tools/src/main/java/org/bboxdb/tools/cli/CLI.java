@@ -445,7 +445,7 @@ public class CLI implements Runnable, AutoCloseable {
 
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 
-			final TupleListFuture resultFuture = bboxDbConnection.queryRectangleContinuous
+			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryRectangleContinuous
 					(table, boundingBox);
 
 			if(resultFuture == null) {
@@ -460,8 +460,8 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 
-			for(final Tuple tuple : resultFuture) {
-				printTuple(tuple);
+			for(final JoinedTuple tuple : resultFuture) {
+				printJoinedTuple(tuple);
 			}
 
 			System.out.println("Query done");
@@ -672,7 +672,7 @@ public class CLI implements Runnable, AutoCloseable {
 				() -> "Untable to parse: " + paddingString);
 
 		System.out.format("Importing file: %s with padding %f%n", filename, padding);
-		
+
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format, padding);
 		tupleFile.addTupleListener(t -> {
 
@@ -694,8 +694,8 @@ public class CLI implements Runnable, AutoCloseable {
 			pendingFutures.waitForCompletion();
 			final long skippedLines = tupleFile.getSkippedLines();
 			final long processedLines = tupleFile.getProcessedLines();
-			
-			System.out.format("Successfully imported %d lines (and skipped %d invalid lines) %n", 
+
+			System.out.format("Successfully imported %d lines (and skipped %d invalid lines) %n",
 					processedLines - skippedLines, skippedLines);
 		} catch (IOException e) {
 			logger.error("Got IO Exception while reading data", e);
