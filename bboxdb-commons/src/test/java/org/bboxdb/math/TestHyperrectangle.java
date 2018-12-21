@@ -585,7 +585,7 @@ public class TestHyperrectangle {
 		Assert.assertEquals(boundingBox6, Hyperrectangle.fromString(boundingBox6.toCompactString()));
 		Assert.assertEquals(boundingBox7, Hyperrectangle.fromString(boundingBox7.toCompactString()));
 		Assert.assertEquals(boundingBox8, Hyperrectangle.fromString(boundingBox8.toCompactString()));
-		
+
 		Assert.assertTrue(Hyperrectangle.FULL_SPACE == Hyperrectangle.fromString(boundingBox1.toCompactString()));
 	}
 
@@ -633,13 +633,24 @@ public class TestHyperrectangle {
 	 * Test from and to byte array
 	 */
 	@Test(timeout=60000)
-	public void testFromAndToByteArray() {
+	public void testFromAndToByteArray1() {
 		final Hyperrectangle boundingBox1 = new Hyperrectangle(1d, 2d, 3d, 4d);
 		final byte[] bytes = boundingBox1.toByteArray();
 		final Hyperrectangle boundingBox2 = Hyperrectangle.fromByteArray(bytes);
 		Assert.assertEquals(boundingBox1, boundingBox2);
 	}
 
+	/**
+	 * Test from and to byte array - full dimension box
+	 */
+	@Test(timeout=60000)
+	public void testFromAndToByteArray2() {
+		final Hyperrectangle boundingBox1 = Hyperrectangle.FULL_SPACE;
+		final byte[] bytes = boundingBox1.toByteArray();
+		final Hyperrectangle boundingBox2 = Hyperrectangle.fromByteArray(bytes);
+		Assert.assertEquals(boundingBox1, boundingBox2);
+		Assert.assertTrue(boundingBox1 == boundingBox2);
+	}
 
 	/**
 	 * Test the enlarge function

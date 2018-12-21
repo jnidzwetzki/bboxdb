@@ -47,7 +47,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 * The boundingBox contains a interval for each dimension
 	 */
 	private final double[] boundingBox;
-	
+
 	/**
 	 * The points included information
 	 */
@@ -65,12 +65,12 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		this.pointIncluded = new boolean[args.length];
 
 		for(int i = 0; i < args.length; i++) {
-			
+
 			boundingBox[i] = args[i];
 			pointIncluded[i] = true;
-			
+
 			if(i % 2 == 1 && boundingBox[i - 1] > boundingBox[i]) {
-				throw new IllegalArgumentException(boundingBox[i - 1]  + 
+				throw new IllegalArgumentException(boundingBox[i - 1]  +
 						" shuould be smaller than " + boundingBox[i]);
 			}
 		}
@@ -101,10 +101,10 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	public Hyperrectangle(final List<DoubleInterval> values) {
 
 		final int elements = values.size() * 2;
-		
+
 		this.boundingBox = new double[elements];
 		this.pointIncluded = new boolean[elements];
-		
+
 		intervalsToArray(values);
 	}
 
@@ -115,7 +115,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	private void intervalsToArray(final List<DoubleInterval> values) {
 		for(int i = 0; i < values.size(); i++) {
 			final DoubleInterval interval = values.get(i);
-			
+
 			boundingBox[i * 2] = interval.getBegin();
 			boundingBox[i * 2 + 1] = interval.getEnd();
 			pointIncluded[i * 2] = interval.isBeginIncluded();
@@ -152,13 +152,13 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		final StringTokenizer stringTokenizer = new StringTokenizer(shortString, ":");
 
 		final List<DoubleInterval> values = new ArrayList<>();
-		
+
 		while(stringTokenizer.hasMoreTokens()) {
 			final String nextToken = stringTokenizer.nextToken();
 			final DoubleInterval interval = new DoubleInterval(nextToken);
 			values.add(interval);
 		}
-		
+
 		return new Hyperrectangle(values);
 	}
 
@@ -168,7 +168,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 * @return
 	 */
 	public int getSize() {
-		return (boundingBox.length * DataEncoderHelper.DOUBLE_BYTES) 
+		return (boundingBox.length * DataEncoderHelper.DOUBLE_BYTES)
 				+ (pointIncluded.length * DataEncoderHelper.BOOLEAN_BYTES);
 	}
 
@@ -199,6 +199,11 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 */
 	public static Hyperrectangle fromByteArray(final byte[] boxBytes) {
 		final double[] doubleArray = DataEncoderHelper.readDoubleArrayFromByte(boxBytes);
+
+		if(doubleArray.length == 0) {
+			return FULL_SPACE;
+		}
+
 		return new Hyperrectangle(doubleArray);
 	}
 
@@ -313,14 +318,14 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	public double getExtent(final int dimension) {
 		return getCoordinateHigh(dimension) - getCoordinateLow(dimension);
 	}
-	
+
 	/**
 	 * Get the double interval for the given dimension
 	 * @param dimension
 	 * @return
 	 */
 	public DoubleInterval getIntervalForDimension(final int dimension) {
-		return new DoubleInterval(getCoordinateLow(dimension), getCoordinateHigh(dimension), 
+		return new DoubleInterval(getCoordinateLow(dimension), getCoordinateHigh(dimension),
 				pointIncluded[dimension * 2], pointIncluded[dimension * 2 + 1]);
 	}
 
@@ -368,11 +373,11 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		}
 
 		final List<DoubleInterval> intervals = new ArrayList<>(getDimension());
-		
+
 		for(int i = 0; i < getDimension(); i++) {
 			intervals.add(getIntervalForDimension(i));
 		}
-		
+
 		final DoubleInterval splitInterval = intervals.get(splitDimension);
 		final DoubleInterval newInterval = splitInterval.splitAndGetLeftPart(splitPosition, splitPositionIncluded);
 		intervals.set(splitDimension, newInterval);
@@ -395,11 +400,11 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		}
 
 		final List<DoubleInterval> intervals = new ArrayList<>(getDimension());
-		
+
 		for(int i = 0; i < getDimension(); i++) {
 			intervals.add(getIntervalForDimension(i));
 		}
-		
+
 		final DoubleInterval splitInterval = intervals.get(splitDimension);
 		final DoubleInterval newInterval = splitInterval.splitAndGetRightPart(splitPosition, splitPositionIncluded);
 		intervals.set(splitDimension, newInterval);
@@ -447,7 +452,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		return sb.toString();
 	}
 
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -616,21 +621,21 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		throwExceptionIfDimensionNotMatch(otherBox);
 
 		for(int d = 0; d < getDimension(); d++) {
-			
+
 			if(otherBox.getCoordinateLow(d) < getCoordinateLow(d)) {
 				return false;
 			}
-			
+
 			if(otherBox.getCoordinateHigh(d) > getCoordinateHigh(d)) {
 				return false;
 			}
-			
+
 			if(otherBox.getCoordinateLow(d) == getCoordinateLow(d)) {
 				if(isLowPointIncluded(d) == false && otherBox.isLowPointIncluded(d) == true) {
 					return false;
 				}
 			}
-			
+
 			if(otherBox.getCoordinateHigh(d) == getCoordinateHigh(d)) {
 				if(isHighPointIncluded(d) == false && otherBox.isHighPointIncluded(d) == true) {
 					return false;
@@ -649,7 +654,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	public boolean isLowPointIncluded(final int dimension) {
 		return pointIncluded[dimension * 2];
 	}
-	
+
 	/**
 	 * Is the high point included
 	 * @param dimension
@@ -658,8 +663,8 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	public boolean isHighPointIncluded(final int dimension) {
 		return pointIncluded[dimension * 2 + 1];
 	}
-	
-	
+
+
 	/**
 	 * Calculated the needed space for the enlargement to cover the other box
 	 * @param otherBox
@@ -708,7 +713,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		if(getDimension() == 0 || otherBox.getDimension() == 0) {
 			return FULL_SPACE;
-		}	
+		}
 
 		throwExceptionIfDimensionNotMatch(otherBox);
 
