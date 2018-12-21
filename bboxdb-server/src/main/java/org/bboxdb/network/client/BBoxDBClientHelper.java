@@ -20,8 +20,15 @@ package org.bboxdb.network.client;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BBoxDBClientHelper {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClientHelper.class);
 
 	/**
 	 * Cancel a complete query
@@ -33,7 +40,7 @@ public class BBoxDBClientHelper {
 
 		for(int i = 0; i < future.getNumberOfResultObjets(); i++) {
 			final short queryId = future.getRequestId(i);
-			System.out.println("Canceling query: " + queryId);
+			logger.info("Canceling query: {}", queryId);
 
 			final BBoxDBConnection connection = future.getConnection(i);
 			final BBoxDBClient client = connection.getBboxDBClient();
