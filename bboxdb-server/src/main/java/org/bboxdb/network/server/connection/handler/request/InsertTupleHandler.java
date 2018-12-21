@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.network.server.connection.handler.request;
 
@@ -28,9 +28,6 @@ import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
@@ -44,22 +41,22 @@ import org.bboxdb.network.server.connection.lock.LockManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 
 public class InsertTupleHandler implements RequestHandler {
-	
+
 	/**
 	 * Should full stacktrace be included in the error message
 	 */
 	public static boolean includeStacktraceInError = true;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -69,60 +66,60 @@ public class InsertTupleHandler implements RequestHandler {
 	/**
 	 * Handle the insert tuple request
 	 */
-	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+	public boolean handleRequest(final ByteBuffer encodedPackage,
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler)
 					throws IOException, PackageEncodeException {
-		
+
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got insert tuple request");
 		}
-		
-		try {			
+
+		try {
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
-			
+
 			// Does the tuple have the right dimension?
 			final String distributionGroup = insertTupleRequest.getTable().getDistributionGroup();
 			final DistributionGroupConfiguration groupConfiguration = DistributionGroupConfigurationCache
 					.getInstance().getDistributionGroupConfiguration(distributionGroup);
-			
+
 			final Hyperrectangle boundingBox = insertTupleRequest.getTuple().getBoundingBox();
 
 			if(! boundingBox.equals(Hyperrectangle.FULL_SPACE)) {
 				final int groupDimensions = groupConfiguration.getDimensions();
 				final int tupleDimensions = boundingBox.getDimension();
-				
+
 				if(groupDimensions != tupleDimensions) {
-					final String errorMessage = ErrorMessages.ERROR_TUPLE_HAS_WRONG_DIMENSION 
+					final String errorMessage = ErrorMessages.ERROR_TUPLE_HAS_WRONG_DIMENSION
 							+ " Group " + groupDimensions + " tuple " + tupleDimensions;
 					final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
-					clientConnectionHandler.writeResultPackage(responsePackage);				
+					clientConnectionHandler.writeResultPackage(responsePackage);
 					return true;
 				}
 			}
-			
+
 			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
-	
+
 			if(! routingHeader.isRoutedPackage()) {
 				final String errorMessage = ErrorMessages.ERROR_PACKAGE_NOT_ROUTED;
 				logger.error(errorMessage);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 				clientConnectionHandler.writeResultPackage(responsePackage);
 				return true;
-			} 
-			
+			}
+
 			processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
-			
+
 		} catch(RejectedException e) {
 			final String errorMessage = buildErrorMessage(ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY, e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
-			clientConnectionHandler.writeResultPackage(responsePackage);	
+			clientConnectionHandler.writeResultPackage(responsePackage);
 		} catch (Throwable e) {
 			logger.error("Error while inserting tuple", e);
 			final String errorMessage = buildErrorMessage(ErrorMessages.ERROR_EXCEPTION, e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
-			clientConnectionHandler.writeResultPackage(responsePackage);	
+			clientConnectionHandler.writeResultPackage(responsePackage);
 		}
-		
+
 		return true;
 	}
 
@@ -134,15 +131,15 @@ public class InsertTupleHandler implements RequestHandler {
 	 */
 	private String buildErrorMessage(final String message, final Throwable e) {
 		final StringBuilder sb = new StringBuilder(message);
-		
+
 		sb.append(" ");
 		sb.append(e.getMessage());
-		
+
 		if(includeStacktraceInError) {
 			sb.append(" ");
 			sb.append(Throwables.getStackTraceAsString(e));
 		}
-		
+
 		return sb.toString();
 	}
 
@@ -153,28 +150,28 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @param routingHeader
 	 * @throws BBoxDBException
 	 * @throws RejectedException
-	 * @throws PackageEncodeException 
+	 * @throws PackageEncodeException
 	 */
 	private void processPackageLocally(final short packageSequence,
-			final ClientConnectionHandler clientConnectionHandler, 
-			final InsertTupleRequest insertTupleRequest) 
+			final ClientConnectionHandler clientConnectionHandler,
+			final InsertTupleRequest insertTupleRequest)
 			throws BBoxDBException, RejectedException, PackageEncodeException {
-		
-		final Tuple tuple = insertTupleRequest.getTuple();			
+
+		final Tuple tuple = insertTupleRequest.getTuple();
 		final TupleStoreName requestTable = insertTupleRequest.getTable();
 		final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
-		
+
 		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 		final RoutingHop localHop = routingHeader.getRoutingHop();
-		
+
 		PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);
-		
+
 		// Remove old locks
 		final LockManager lockManager = clientConnectionHandler.getLockManager();
 		final String table = insertTupleRequest.getTable().getFullnameWithoutPrefix();
 		final String key = insertTupleRequest.getTuple().getKey();
 		lockManager.removeLockForConnectionAndKey(clientConnectionHandler, table, key);
-		
+
 		final List<Long> distributionRegions = localHop.getDistributionRegions();
 		processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
 		forwardRoutedPackage(packageSequence, clientConnectionHandler, insertTupleRequest);
@@ -182,15 +179,15 @@ public class InsertTupleHandler implements RequestHandler {
 
 	/**
 	 * Forward the routed package
-	 * 
+	 *
 	 * @param packageSequence
 	 * @param clientConnectionHandler
 	 * @param insertTupleRequest
 	 */
-	private void forwardRoutedPackage(final short packageSequence, 
+	private void forwardRoutedPackage(final short packageSequence,
 			final ClientConnectionHandler clientConnectionHandler,
 			final InsertTupleRequest insertTupleRequest) {
-		
+
 		final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
 		packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest);
 	}
@@ -205,73 +202,38 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws RejectedException
 	 * @throws BBoxDBException
 	 */
-	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable, 
+	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable,
 			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions) throws RejectedException {
-		
+
 		try {
-			
+
 			final String fullname = requestTable.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
 					.getInstance().getSpacePartitionerForGroupName(fullname);
-						
+
 			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
 					.getDistributionRegionIdMapper();
 
 			final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 						requestTable, distributionRegions);
-			
+
 			if(localTables.isEmpty()) {
 				throw new BBoxDBException("Got no local tables for routed package");
 			}
-						
+
 			// Are some tables unknown and needs to be created?
-			final boolean unknownTables = localTables.stream()
-				.anyMatch((t) -> ! storageRegistry.isStorageManagerKnown(t)); 
-			
-			// Expensive call (involves Zookeeper interaction)
-			if(unknownTables) {
-				createMissingTables(requestTable, storageRegistry, localTables);
-			}
-			
+			TupleStoreManagerRegistryHelper.createMissingTables(requestTable, storageRegistry,
+					localTables);
+
 			// Insert tuples
 			for(final TupleStoreName tupleStoreName : localTables) {
 				final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
-				storageManager.put(tuple);			
+				storageManager.put(tuple);
 			}
 		} catch (RejectedException e) {
 			throw e;
 		} catch (Throwable e) {
 			throw new RejectedException(e);
-		} 
-	}
-
-	/**
-	 * Create all missing tables
-	 */
-	protected void createMissingTables(final TupleStoreName requestTable,
-			final TupleStoreManagerRegistry storageRegistry, final Collection<TupleStoreName> localTables)
-			throws StorageManagerException {
-		
-		try {
-			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
-					.getZookeeperClient().getTupleStoreAdapter();
-			
-			if(! tupleStoreAdapter.isTableKnown(requestTable)) {
-				throw new StorageManagerException("Table: " + requestTable.getFullname() + " is unkown");
-			}
-			
-			final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(requestTable);
-
-			for(final TupleStoreName tupleStoreName : localTables) {
-				final boolean alreadyKnown = storageRegistry.isStorageManagerKnown(tupleStoreName);
-				
-				if(! alreadyKnown) {
-					storageRegistry.createTableIfNotExist(tupleStoreName, config);
-				}
-			}
-		} catch (ZookeeperException e) {
-			throw new StorageManagerException(e);
 		}
 	}
-
 }

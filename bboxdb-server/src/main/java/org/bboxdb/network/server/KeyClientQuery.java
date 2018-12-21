@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.network.server;
 
@@ -38,13 +38,15 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The key query is implemented in an own class, because the 
+ * The key query is implemented in an own class, because the
  * result can not be lazy evacuated from the tuple stores.
- * 
+ *
  * All tuples for a given key needs to be computed at once
  * so that the duplicates can be removed
  *
@@ -55,12 +57,12 @@ public class KeyClientQuery implements ClientQuery {
 	 * The key to query
 	 */
 	protected final String key;
-	
+
 	/**
 	 * Page the result
 	 */
 	protected final boolean pageResult;
-	
+
 	/**
 	 * The amount of tuples per page
 	 */
@@ -70,12 +72,12 @@ public class KeyClientQuery implements ClientQuery {
 	 * The client connection handler
 	 */
 	protected final ClientConnectionHandler clientConnectionHandler;
-	
+
 	/**
 	 * The package sequence of the query
 	 */
 	protected final short querySequence;
-	
+
 	/**
 	 * The request table
 	 */
@@ -85,34 +87,34 @@ public class KeyClientQuery implements ClientQuery {
 	 * The total amount of send tuples
 	 */
 	protected long totalSendTuples;
-	
+
 	/**
 	 * The tuples for the given key
 	 */
 	protected final List<Tuple> tuplesForKey = new ArrayList<>();
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KeyClientQuery.class);
 
 
-	public KeyClientQuery(final String key, final boolean pageResult, final short tuplesPerPage, 
-			final ClientConnectionHandler clientConnectionHandler, 
+	public KeyClientQuery(final String key, final boolean pageResult, final short tuplesPerPage,
+			final ClientConnectionHandler clientConnectionHandler,
 			final short querySequence, final TupleStoreName requestTable) {
-		
+
 			this.key = key;
 			this.pageResult = pageResult;
 			this.tuplesPerPage = tuplesPerPage;
 			this.clientConnectionHandler = clientConnectionHandler;
 			this.querySequence = querySequence;
 			this.requestTable = requestTable;
-			
+
 			this.totalSendTuples = 0;
-			
+
 			computeTuples();
 	}
-	
+
 	/**
 	 * Fetch the tuples for the given key and remove the duplicates
 	 */
@@ -121,17 +123,23 @@ public class KeyClientQuery implements ClientQuery {
 			final String fullname = requestTable.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
 					.getInstance().getSpacePartitionerForGroupName(fullname);
-			
+
 			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
 					.getDistributionRegionIdMapper();
-		
+
+			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler
+					.getStorageRegistry();
+
 			final List<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(requestTable);
-			
+
+			// Are some tables unknown and needs to be created?
+			TupleStoreManagerRegistryHelper.createMissingTables(requestTable, storageRegistry,
+					localTables);
+
 			for(final TupleStoreName tupleStoreName : localTables) {
-				final TupleStoreManager storageManager = clientConnectionHandler
-						.getStorageRegistry()
+				final TupleStoreManager storageManager = storageRegistry
 						.getTupleStoreManager(tupleStoreName);
-				
+
 				final List<Tuple> tuplesInTable = storageManager.get(key);
 				tuplesForKey.addAll(tuplesInTable);
 			}
@@ -140,7 +148,7 @@ public class KeyClientQuery implements ClientQuery {
 		} catch (BBoxDBException | StorageManagerException e) {
 			logger.error("Got an exception while fetching tuples for key " + key, e);
 			tuplesForKey.clear();
-		} 
+		}
 	}
 
 	/**
@@ -149,50 +157,50 @@ public class KeyClientQuery implements ClientQuery {
 	 * @throws StorageManagerException
 	 */
 	protected void removeDuplicates(final List<TupleStoreName> localTables) throws StorageManagerException {
-		
+
 		// No local table is known, so no configuration is known
 		if(localTables.isEmpty()) {
 			return;
 		}
-		
+
 		final TupleStoreManager storageManager = clientConnectionHandler
 				.getStorageRegistry()
 				.getTupleStoreManager(localTables.get(0));
-		
-		final DuplicateResolver<Tuple> duplicateResolver 
+
+		final DuplicateResolver<Tuple> duplicateResolver
 			= TupleDuplicateResolverFactory.build(storageManager.getTupleStoreConfiguration());
-		
+
 		duplicateResolver.removeDuplicates(tuplesForKey);
 	}
-	
+
 	@Override
 	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
-		
+
 		long sendTuplesInThisPage = 0;
 		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-		
+
 		final Iterator<Tuple> tupleListIterator = tuplesForKey.iterator();
-		
+
 		while(tupleListIterator.hasNext()) {
 	 		if(pageResult == true && sendTuplesInThisPage >= tuplesPerPage) {
 				clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 				clientConnectionHandler.flushPendingCompressionPackages();
 				return;
 			}
-			
+
 			// Send next tuple
 			final Tuple tuple = tupleListIterator.next();
 			tupleListIterator.remove();
-			
+
 			final JoinedTuple joinedTuple = new JoinedTuple(tuple, requestTable.getFullname());
-			
+
 			clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple);
 			totalSendTuples++;
 			sendTuplesInThisPage++;
 		}
-	
+
 		// All tuples are send
-		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));	
+		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 		clientConnectionHandler.flushPendingCompressionPackages();
 	}
 

@@ -23,6 +23,7 @@ order: 1
 - Bugfix: Hyperrectangle from string now creates a correct FULL_SPACE hyperrectangle
 - Bugfix: Hyperrectangle from bytes now creates a correct FULL_SPACE hyperrectangle
 - Bugfix: Fixed "socket closed" exception on regular shutdown
+- Bugfix: Fixed "Unknown location for table" for get operations on empty tables
 
 ### Version 0.8.4 - 24.10.2019
 - Improvement: Speed up hyperrectangle covering box calculation
