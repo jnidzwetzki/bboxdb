@@ -49,7 +49,13 @@ public class PutHandler implements ProxyCommandHandler {
 		try {
 			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(table, tuple);
 			insertResult.waitForCompletion();
-			socketOutputStream.write(ProxyConst.RESULT_OK);
+
+			if(insertResult.isFailed()) {
+				logger.error("--> Got failed put result: {}", insertResult.getAllMessages());
+				socketOutputStream.write(ProxyConst.RESULT_FAILED);
+			} else {
+				socketOutputStream.write(ProxyConst.RESULT_OK);
+			}
 		} catch(InterruptedException e) {
 			logger.debug("Got interrupted exception while handling bboxdb call");
 			Thread.currentThread().interrupt();
