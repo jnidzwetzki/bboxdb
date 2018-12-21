@@ -298,6 +298,42 @@ public class TestNetworkCommunication {
 	}
 
 	/**
+	 * Test the double insert and check for newerst version
+	 * @throws Exception
+	 */
+	@Test(timeout=60000)
+	public void testDoubleInsert() throws Exception {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDB bboxdbClient = bboxdbConnection.getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_relationdoubleinsert";
+
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForCompletion();
+		Assert.assertFalse(resultCreateTable.isFailed());
+
+		// Insert first version
+		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abc".getBytes());
+		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
+		insertResult1.waitForCompletion();
+		Assert.assertFalse(insertResult1.isFailed());
+		Assert.assertTrue(insertResult1.isDone());
+
+		// Insert second version
+		final Tuple tuple2 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "efg".getBytes());
+		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
+		insertResult2.waitForCompletion();
+		Assert.assertFalse(insertResult2.isFailed());
+		Assert.assertTrue(insertResult2.isDone());
+
+		final TupleListFuture getResult = bboxdbClient.queryKey(table, "abc");
+		getResult.waitForCompletion();
+		final List<Tuple> resultList = Lists.newArrayList(getResult.iterator());
+		Assert.assertEquals(tuple2, resultList.get(0));
+	}
+
+	/**
 	 * Test insert into non existing table
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
@@ -329,7 +365,7 @@ public class TestNetworkCommunication {
 
 		System.out.println("=== End testInsertIntoNonExstingTable");
 	}
-	
+
 	/**
 	 * Test insert with the wrong dimension
 	 * @throws BBoxDBException
@@ -347,12 +383,12 @@ public class TestNetworkCommunication {
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
 		resultCreateTable1.waitForCompletion();
 		Assert.assertFalse(resultCreateTable1.isFailed());
-		
+
 		System.out.println("Insert tuple - with dimension 1 into group with dimension 2");
-		
+
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, Hyperrectangle.FULL_SPACE, false, bboxdbConnection.getServerAddress());
-		
+
 		final Tuple tuple = new Tuple("key12", new Hyperrectangle(1.2, 5.0), "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader);
 
