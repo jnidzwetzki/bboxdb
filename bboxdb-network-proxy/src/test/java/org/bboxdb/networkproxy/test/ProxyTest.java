@@ -188,6 +188,13 @@ public class ProxyTest {
 	}
 
 	@Test(timeout=60_000)
+	public void testQueryNonexisting() throws UnknownHostException, IOException {
+		final Hyperrectangle queryRectangle = new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d);
+		final List<Tuple> result1 = networkProxyClient.rangeQuery(queryRectangle, TEST_TABLE_UNUSED);
+		Assert.assertTrue(result1.isEmpty());
+	}
+
+	@Test(timeout=60_000)
 	public void testGetNonexisting() throws UnknownHostException, IOException {
 		final List<Tuple> result1 = networkProxyClient.get(KEY1, TEST_TABLE_UNUSED);
 		Assert.assertTrue(result1.isEmpty());
