@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.future.AbstractListFuture;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -180,6 +181,12 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 */
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) throws BBoxDBException;
+
+	/**
+	 * Cancel a given query
+	 * @param future
+	 */
+	public void cancelQuery(final AbstractListFuture<? extends Object> future) throws BBoxDBException, InterruptedException;
 
 	/**
 	 * Is the client connected?

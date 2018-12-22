@@ -29,6 +29,7 @@ import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.future.AbstractListFuture;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
@@ -633,6 +634,15 @@ public class BBoxDBClient implements BBoxDB {
 		};
 
 		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
+	}
+
+	/**
+	 * Cancel the given query
+	 */
+	public void cancelQuery(final AbstractListFuture<? extends Object> future)
+			throws BBoxDBException, InterruptedException {
+
+		BBoxDBClientHelper.cancelQuery(future);
 	}
 
 	@Override

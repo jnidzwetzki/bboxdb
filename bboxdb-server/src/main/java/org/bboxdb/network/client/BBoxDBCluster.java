@@ -38,6 +38,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.future.AbstractListFuture;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
@@ -453,6 +454,15 @@ public class BBoxDBCluster implements BBoxDB {
 		};
 
 		return new JoinedTupleListFuture(builder.getSupplier());
+	}
+
+	/**
+	 * Cancel the given query
+	 */
+	public void cancelQuery(final AbstractListFuture<? extends Object> future)
+			throws BBoxDBException, InterruptedException {
+
+		BBoxDBClientHelper.cancelQuery(future);
 	}
 
 	@Override
