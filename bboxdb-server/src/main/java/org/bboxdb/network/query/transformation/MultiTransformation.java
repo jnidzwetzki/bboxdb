@@ -15,37 +15,34 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.query;
+package org.bboxdb.network.query.transformation;
 
 import java.util.List;
 
-import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.query.transformation.TupleTransformation;
+public class MultiTransformation implements TupleTransformation {
 
-public class ContinuousTableQuery implements ContinuousQueryPlan {
+	/**
+	 * The transformations
+	 */
+	private final List<TupleTransformation> transformations;
 
-	private final String streamTable;
-
-	private final List<TupleTransformation> streamTransformation;
-
-	private final Hyperrectangle compareRectangle;
-
-	private boolean reportPositiveNegative;
-
-	public ContinuousTableQuery(final String streamTable,
-			final List<TupleTransformation> streamTransformation,
-			final Hyperrectangle compareRectangle,
-			final boolean reportPositiveNegative) {
-
-				this.streamTable = streamTable;
-				this.streamTransformation = streamTransformation;
-				this.compareRectangle = compareRectangle;
-				this.reportPositiveNegative = reportPositiveNegative;
+	public MultiTransformation(final List<TupleTransformation> transformations) {
+		this.transformations = transformations;
 	}
 
 	@Override
-	public String toJSON() {
-		return null;
+	public TupleAndBoundingBox apply(final TupleAndBoundingBox input) {
+		
+		TupleAndBoundingBox result = input;
+		
+		for(final TupleTransformation transformation : transformations) {
+			result = transformation.apply(result);
+			
+			if(result == null) {
+				return null;
+			}
+		}
+		
+		return result;
 	}
-
 }

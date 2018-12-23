@@ -19,18 +19,20 @@ package org.bboxdb.network.query;
 
 import java.util.List;
 
+import org.bboxdb.network.query.transformation.TupleTransformation;
+
 public class ContinuousConstQuery implements ContinuousQueryPlan {
 
 	private final String streamTable;
-	private final List<HyperrectangleTransformation> streamTransformation;
+	private final List<TupleTransformation> streamTransformation;
 	private final String tableName;
-	private final List<HyperrectangleTransformation> tableTransformation;
+	private final List<TupleTransformation> tableTransformation;
 	private final boolean reportPositiveNegative;
 
 	public ContinuousConstQuery(final String streamTable,
-			final List<HyperrectangleTransformation> streamTransformation,
+			final List<TupleTransformation> streamTransformation,
 			final String tableName,
-			final List<HyperrectangleTransformation> tableTransformation,
+			final List<TupleTransformation> tableTransformation,
 			final boolean reportPositiveNegative) {
 
 				this.streamTable = streamTable;

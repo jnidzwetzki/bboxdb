@@ -15,17 +15,27 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.query;
+package org.bboxdb.network.query.transformation;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 
-public interface HyperrectangleTransformation {
-
-	/**
-	 * Transform the given tuple
-	 * @param hyperrectangle
-	 * @return
-	 */
-	public Hyperrectangle apply(final Hyperrectangle hyperrectangle);
+public class EnlargeTransformation implements TupleTransformation {
 	
+	/**
+	 * The enlargement factor
+	 */
+	private int factor;
+
+	public EnlargeTransformation(final int factor) {
+		this.factor = factor;
+	}
+
+	@Override
+	public TupleAndBoundingBox apply(final TupleAndBoundingBox input) {
+		
+		final Hyperrectangle inputBox = input.getBoundingBox();
+		final Hyperrectangle resultBox = inputBox.enlarge(factor);	
+		
+		return new TupleAndBoundingBox(input.getTuple(), resultBox);
+	}
 }

@@ -46,7 +46,6 @@ import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
-import org.bboxdb.network.query.HyperrectangleTransformation;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -167,9 +166,10 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @throws BBoxDBException
 	 */
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
-			final HyperrectangleTransformation transformation) throws BBoxDBException {
+			final double enlagement) throws BBoxDBException {
 		
-		final Hyperrectangle bbox = transformation.apply(tuple.getBoundingBox());
+		final Hyperrectangle bbox = tuple.getBoundingBox().enlarge(enlagement);
+		
 		return executeInsert(table, tuple, bbox);
 	}
 	
