@@ -24,7 +24,6 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBClientHelper;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -185,7 +184,7 @@ public class NetworkQueryHelper {
 
 		Assert.assertTrue(future.iterator().hasNext());
 
-		BBoxDBClientHelper.cancelQuery(future);
+		bboxDBClient.cancelQuery(future);
 
 		System.out.println("=== End testBoundingBoxQueryContinous");
 	}

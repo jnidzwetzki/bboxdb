@@ -24,7 +24,6 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.network.client.BBoxDBClientHelper;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
@@ -220,7 +219,7 @@ public class TestBBoxDBCluster {
 
 		Assert.assertFalse(future.isFailed());
 
-		BBoxDBClientHelper.cancelQuery(future);
+		bboxDBClient.cancelQuery(future);
 
 		disconnect(bboxDBClient);
 	}
