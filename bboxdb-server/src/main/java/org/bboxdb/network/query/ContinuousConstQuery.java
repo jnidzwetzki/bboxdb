@@ -22,15 +22,15 @@ import java.util.List;
 public class ContinuousConstQuery implements ContinuousQueryPlan {
 
 	private final String streamTable;
-	private final List<TupleTransformation> streamTransformation;
+	private final List<HyperrectangleTransformation> streamTransformation;
 	private final String tableName;
-	private final List<TupleTransformation> tableTransformation;
+	private final List<HyperrectangleTransformation> tableTransformation;
 	private final boolean reportPositiveNegative;
 
 	public ContinuousConstQuery(final String streamTable,
-			final List<TupleTransformation> streamTransformation,
+			final List<HyperrectangleTransformation> streamTransformation,
 			final String tableName,
-			final List<TupleTransformation> tableTransformation,
+			final List<HyperrectangleTransformation> tableTransformation,
 			final boolean reportPositiveNegative) {
 
 				this.streamTable = streamTable;

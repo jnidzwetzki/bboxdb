@@ -46,6 +46,7 @@ import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
+import org.bboxdb.network.query.HyperrectangleTransformation;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -151,9 +152,40 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
+		final Hyperrectangle boundingBox = tuple.getBoundingBox();
+		return executeInsert(table, tuple, boundingBox);
+	}
 
+	/**
+	 * Insert the tuple with a given transformation for the calculation
+	 * of the insert region.
+	 * 
+	 * @param table
+	 * @param tuple
+	 * @param transformation
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
+			final HyperrectangleTransformation transformation) throws BBoxDBException {
+		
+		final Hyperrectangle bbox = transformation.apply(tuple.getBoundingBox());
+		return executeInsert(table, tuple, bbox);
+	}
+	
+	/**
+	 * Execute a tuple insert
+	 * @param table
+	 * @param tuple
+	 * @param boundingBox
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	private EmptyResultFuture executeInsert(final String table, final Tuple tuple, 
+			final Hyperrectangle boundingBox) throws BBoxDBException {
+		
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.WRITE_TO_NODES, table, tuple.getBoundingBox()) {
+				ClusterOperationType.WRITE_TO_NODES, table, boundingBox) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,

@@ -17,6 +17,15 @@
  *******************************************************************************/
 package org.bboxdb.network.query;
 
-public interface TupleTransformation {
+import org.bboxdb.commons.math.Hyperrectangle;
 
+public interface HyperrectangleTransformation {
+
+	/**
+	 * Transform the given tuple
+	 * @param hyperrectangle
+	 * @return
+	 */
+	public Hyperrectangle apply(final Hyperrectangle hyperrectangle);
+	
 }

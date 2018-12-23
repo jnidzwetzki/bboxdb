@@ -25,14 +25,14 @@ public class ContinuousTableQuery implements ContinuousQueryPlan {
 
 	private final String streamTable;
 
-	private final List<TupleTransformation> streamTransformation;
+	private final List<HyperrectangleTransformation> streamTransformation;
 
 	private final Hyperrectangle compareRectangle;
 
 	private boolean reportPositiveNegative;
 
 	public ContinuousTableQuery(final String streamTable,
-			final List<TupleTransformation> streamTransformation,
+			final List<HyperrectangleTransformation> streamTransformation,
 			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative) {
 
