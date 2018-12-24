@@ -206,14 +206,13 @@ public class InsertTupleHandler implements RequestHandler {
 			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions) throws RejectedException {
 
 		try {
-
 			final String fullname = requestTable.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
 					.getInstance().getSpacePartitionerForGroupName(fullname);
 
 			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
 					.getDistributionRegionIdMapper();
-
+			
 			final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 						requestTable, distributionRegions);
 
@@ -227,8 +226,22 @@ public class InsertTupleHandler implements RequestHandler {
 
 			// Insert tuples
 			for(final TupleStoreName tupleStoreName : localTables) {
-				final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
-				storageManager.put(tuple);
+				
+				final long regionid = tupleStoreName.getRegionId().getAsLong();
+				
+				final Hyperrectangle space 
+					= regionIdMapper.getSpaceForRegionId(regionid);
+				
+				final Hyperrectangle tupleBBox = tuple.getBoundingBox();
+				
+				if(space.intersects(tupleBBox)) {
+					final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
+					storageManager.put(tuple);
+				} else { 
+					logger.debug("Not inserting into region {} because {} not insertect {}", regionid, 
+							tupleBBox, space);
+				}
+				
 			}
 		} catch (RejectedException e) {
 			throw e;

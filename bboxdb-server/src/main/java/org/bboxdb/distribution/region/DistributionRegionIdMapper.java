@@ -84,6 +84,15 @@ public class DistributionRegionIdMapper {
 	}
 	
 	/**
+	 * Get the space for the region
+	 * @param regionId
+	 * @return
+	 */
+	public Hyperrectangle getSpaceForRegionId(final long regionId) {
+		return regions.get(regionId);
+	}
+	
+	/**
 	 * Get the SSTables that are responsible for a given bounding box
 	 * @param region
 	 * @param ssTableName
