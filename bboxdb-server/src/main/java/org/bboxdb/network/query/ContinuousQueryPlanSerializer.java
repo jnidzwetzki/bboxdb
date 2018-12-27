@@ -17,8 +17,17 @@
  *******************************************************************************/
 package org.bboxdb.network.query;
 
-public class ContinuousQueryPlanDeserializer {
+public class ContinuousQueryPlanSerializer {
 
+	/**
+	 * Serialize to JSON
+	 * @param queryPlan
+	 * @return
+	 */
+	public static String toJSON(final ContinuousQueryPlan queryPlan) {
+		return null;
+	}
+	
 	/**
 	 * Deserialize query plan
 	 * @param json

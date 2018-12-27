@@ -19,33 +19,30 @@ package org.bboxdb.network.query;
 
 import java.util.List;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public class ContinuousConstQuery implements ContinuousQueryPlan {
+public class ContinuousConstQuery extends ContinuousQueryPlan {
 
-	private final String streamTable;
-	private final List<TupleTransformation> streamTransformation;
-	private final String tableName;
-	private final List<TupleTransformation> tableTransformation;
-	private final boolean reportPositiveNegative;
+	/**
+	 * The hyperrectangle to compare
+	 */
+	private final Hyperrectangle compareRectangle;
 
 	public ContinuousConstQuery(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
-			final String tableName,
-			final List<TupleTransformation> tableTransformation,
+			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative) {
-
-				this.streamTable = streamTable;
-				this.streamTransformation = streamTransformation;
-				this.tableName = tableName;
-				this.tableTransformation = tableTransformation;
-				this.reportPositiveNegative = reportPositiveNegative;
-
+		
+			super(streamTable, streamTransformation, streamTable, reportPositiveNegative);
+			this.compareRectangle = compareRectangle;
 	}
 
-	@Override
-	public String toJSON() {
-		return null;
+	/** 
+	 * Get the compare rectangle
+	 */
+	public Hyperrectangle getCompareRectangle() {
+		return compareRectangle;
 	}
-
+	
 }

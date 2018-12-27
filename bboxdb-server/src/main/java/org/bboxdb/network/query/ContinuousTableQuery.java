@@ -19,33 +19,33 @@ package org.bboxdb.network.query;
 
 import java.util.List;
 
-import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public class ContinuousTableQuery implements ContinuousQueryPlan {
+public class ContinuousTableQuery extends ContinuousQueryPlan {
 
-	private final String streamTable;
-
-	private final List<TupleTransformation> streamTransformation;
-
-	private final Hyperrectangle compareRectangle;
-
-	private boolean reportPositiveNegative;
-
+	/** 
+	 * The transformations of the tuples in the table
+	 */
+	private final List<TupleTransformation> tableTransformation;
+	
+	
 	public ContinuousTableQuery(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
-			final Hyperrectangle compareRectangle,
+			final String tableName,
+			final List<TupleTransformation> tableTransformation,
 			final boolean reportPositiveNegative) {
+		
+			super(streamTable, streamTransformation, tableName, reportPositiveNegative);
 
-				this.streamTable = streamTable;
-				this.streamTransformation = streamTransformation;
-				this.compareRectangle = compareRectangle;
-				this.reportPositiveNegative = reportPositiveNegative;
+
+			this.tableTransformation = tableTransformation;
 	}
 
-	@Override
-	public String toJSON() {
-		return null;
+	/**
+	 * Get the table transformations
+	 * @return
+	 */
+	public List<TupleTransformation> getTableTransformation() {
+		return tableTransformation;
 	}
-
 }

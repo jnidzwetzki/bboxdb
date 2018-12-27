@@ -17,12 +17,38 @@
  *******************************************************************************/
 package org.bboxdb.network.query;
 
-public interface ContinuousQueryPlan {
+import java.util.List;
+
+import org.bboxdb.network.query.transformation.TupleTransformation;
+
+public abstract class ContinuousQueryPlan {
 
 	/**
-	 * Convert the query plan into JSON representation
-	 * @return
+	 * The stream table
 	 */
-	public String toJSON();
+	protected final String streamTable;
+	
+	/**
+	 * The transformations of the stream entry
+	 */
+	protected final List<TupleTransformation> streamTransformation;
+	
+	/**
+	 * The table name to query
+	 */
+	protected final String tableName;
+	
+	/**
+	 * Report positive or negative elements to the user
+	 */
+	protected final boolean reportPositiveNegative;
 
+	public ContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
+			final String tableName, final boolean reportPositiveNegative) {
+		this.streamTable = streamTable;
+		this.streamTransformation = streamTransformation;
+		this.tableName = tableName;
+		this.reportPositiveNegative = reportPositiveNegative;
+	}	
+	
 }
