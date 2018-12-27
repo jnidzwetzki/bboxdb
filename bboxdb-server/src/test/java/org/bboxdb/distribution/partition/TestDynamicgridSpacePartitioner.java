@@ -151,7 +151,7 @@ public class TestDynamicgridSpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
 	 */
-	//@Test(timeout=80000)
+	@Test(timeout=60_000)
 	public void testSplitAndMergeRegion() throws BBoxDBException, ZookeeperException, ZookeeperNotFoundException, InterruptedException {
 		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
@@ -164,6 +164,7 @@ public class TestDynamicgridSpacePartitioner {
 		final List<DistributionRegion> newRegions = spacePartitioner.splitRegion(regionToSplit, samples);
 		Assert.assertEquals(2, newRegions.size());
 
+		System.out.println("---> Test-Debug (1): " + regionToSplit.getParent().getThisAndChildRegions());
 		final int newChilden1 = regionToSplit.getParent().getThisAndChildRegions().size();
 		Assert.assertEquals(oldChildren + 2, newChilden1);
 
@@ -173,7 +174,7 @@ public class TestDynamicgridSpacePartitioner {
 			spacePartitioner.waitUntilNodeStateIs(region, DistributionRegionState.ACTIVE);
 		}
 
-		// FIXME: Does not hold
+		System.out.println("---> Test-Debug (2): " + regionToSplit.getParent().getThisAndChildRegions());
 		final int newChilden2 = regionToSplit.getParent().getThisAndChildRegions().size();
 		Assert.assertEquals(oldChildren + 1, newChilden2);
 
@@ -183,7 +184,7 @@ public class TestDynamicgridSpacePartitioner {
 		spacePartitioner.mergeFailed(newRegions, mergeRegion1);
 
 		// Merge successfully
-		// FIXME: Timeout
+		System.out.println("---> Test-Debug: Waiting for get");
 		final DistributionRegion mergeRegion2 = spacePartitioner.getDestinationForMerge(newRegions);
 		Assert.assertNotNull(mergeRegion2);
 		spacePartitioner.mergeComplete(newRegions, mergeRegion2);
