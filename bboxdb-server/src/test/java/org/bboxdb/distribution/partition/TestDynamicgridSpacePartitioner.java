@@ -34,6 +34,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -53,6 +54,8 @@ public class TestDynamicgridSpacePartitioner {
 
 	@BeforeClass
 	public static void beforeClass() throws ZookeeperException {
+		EnvironmentHelper.resetTestEnvironment();
+
 		distributionGroupZookeeperAdapter
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 	}
