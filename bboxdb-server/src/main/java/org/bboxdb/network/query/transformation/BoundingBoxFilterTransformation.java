@@ -33,7 +33,7 @@ public class BoundingBoxFilterTransformation implements TupleTransformation {
 
 	@Override
 	public String toString() {
-		return "KeyFilterTransformation [hyperrectangle=" + hyperrectangle + "]";
+		return "BoundingBoxFilterTransformation [hyperrectangle=" + hyperrectangle + "]";
 	}
 
 	@Override
