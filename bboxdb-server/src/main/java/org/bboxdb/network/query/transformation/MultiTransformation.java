@@ -47,4 +47,35 @@ public class MultiTransformation implements TupleTransformation {
 		
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		return "MultiTransformation [transformations=" + transformations + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((transformations == null) ? 0 : transformations.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MultiTransformation other = (MultiTransformation) obj;
+		if (transformations == null) {
+			if (other.transformations != null)
+				return false;
+		} else if (!transformations.equals(other.transformations))
+			return false;
+		return true;
+	}
+	
 }

@@ -21,13 +21,12 @@ import java.util.List;
 
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public class ContinuousTableQuery extends ContinuousQueryPlan {
+public class ContinuousTableQuery extends AbstractContinuousQueryPlan {
 
 	/** 
 	 * The transformations of the tuples in the table
 	 */
 	private final List<TupleTransformation> tableTransformation;
-	
 	
 	public ContinuousTableQuery(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
@@ -36,7 +35,6 @@ public class ContinuousTableQuery extends ContinuousQueryPlan {
 			final boolean reportPositiveNegative) {
 		
 			super(streamTable, streamTransformation, tableName, reportPositiveNegative);
-
 
 			this.tableTransformation = tableTransformation;
 	}
@@ -48,4 +46,35 @@ public class ContinuousTableQuery extends ContinuousQueryPlan {
 	public List<TupleTransformation> getTableTransformation() {
 		return tableTransformation;
 	}
+
+	@Override
+	public String toString() {
+		return "ContinuousTableQuery [tableTransformation=" + tableTransformation + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((tableTransformation == null) ? 0 : tableTransformation.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ContinuousTableQuery other = (ContinuousTableQuery) obj;
+		if (tableTransformation == null) {
+			if (other.tableTransformation != null)
+				return false;
+		} else if (!tableTransformation.equals(other.tableTransformation))
+			return false;
+		return true;
+	}
+	
 }

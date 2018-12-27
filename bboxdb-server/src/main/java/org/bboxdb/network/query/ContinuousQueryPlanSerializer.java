@@ -24,7 +24,7 @@ public class ContinuousQueryPlanSerializer {
 	 * @param queryPlan
 	 * @return
 	 */
-	public static String toJSON(final ContinuousQueryPlan queryPlan) {
+	public static String toJSON(final AbstractContinuousQueryPlan queryPlan) {
 		return null;
 	}
 	
@@ -33,7 +33,7 @@ public class ContinuousQueryPlanSerializer {
 	 * @param json
 	 * @return
 	 */
-	public static ContinuousQueryPlan fromJSON(final String json) {
+	public static AbstractContinuousQueryPlan fromJSON(final String json) {
 		return null;
 	}
 	

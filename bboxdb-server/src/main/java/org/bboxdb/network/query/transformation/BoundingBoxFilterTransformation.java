@@ -45,4 +45,30 @@ public class BoundingBoxFilterTransformation implements TupleTransformation {
 		
 		return null;		
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((hyperrectangle == null) ? 0 : hyperrectangle.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BoundingBoxFilterTransformation other = (BoundingBoxFilterTransformation) obj;
+		if (hyperrectangle == null) {
+			if (other.hyperrectangle != null)
+				return false;
+		} else if (!hyperrectangle.equals(other.hyperrectangle))
+			return false;
+		return true;
+	}
+	
 }

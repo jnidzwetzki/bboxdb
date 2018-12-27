@@ -17,39 +17,34 @@
  *******************************************************************************/
 package org.bboxdb.network.query.transformation;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 
-public class KeyFilterTransformation implements TupleTransformation {
-
+public class EnlargeBoundingBoxTransformation implements TupleTransformation {
+	
 	/**
-	 * The key to filter
+	 * The enlargement factor
 	 */
-	private final String key;
+	private int factor;
 
-	public KeyFilterTransformation(final String key) {
-		this.key = key;
-	}
-
-	@Override
-	public String toString() {
-		return "KeyFilterTransformation [key=" + key + "]";
+	public EnlargeBoundingBoxTransformation(final int factor) {
+		this.factor = factor;
 	}
 
 	@Override
 	public TupleAndBoundingBox apply(final TupleAndBoundingBox input) {
 		
-		if(input.getTuple().getKey().equals(key)) {
-			return input;
-		}
+		final Hyperrectangle inputBox = input.getBoundingBox();
+		final Hyperrectangle resultBox = inputBox.enlarge(factor);	
 		
-		return null;		
+		return new TupleAndBoundingBox(input.getTuple(), resultBox);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + factor;
 		return result;
 	}
 
@@ -61,11 +56,8 @@ public class KeyFilterTransformation implements TupleTransformation {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		KeyFilterTransformation other = (KeyFilterTransformation) obj;
-		if (key == null) {
-			if (other.key != null)
-				return false;
-		} else if (!key.equals(other.key))
+		EnlargeBoundingBoxTransformation other = (EnlargeBoundingBoxTransformation) obj;
+		if (factor != other.factor)
 			return false;
 		return true;
 	}

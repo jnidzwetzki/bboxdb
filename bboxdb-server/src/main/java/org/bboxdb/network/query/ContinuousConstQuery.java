@@ -22,7 +22,7 @@ import java.util.List;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public class ContinuousConstQuery extends ContinuousQueryPlan {
+public class ContinuousConstQuery extends AbstractContinuousQueryPlan {
 
 	/**
 	 * The hyperrectangle to compare
@@ -43,6 +43,36 @@ public class ContinuousConstQuery extends ContinuousQueryPlan {
 	 */
 	public Hyperrectangle getCompareRectangle() {
 		return compareRectangle;
+	}
+
+	@Override
+	public String toString() {
+		return "ContinuousConstQuery [compareRectangle=" + compareRectangle + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((compareRectangle == null) ? 0 : compareRectangle.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ContinuousConstQuery other = (ContinuousConstQuery) obj;
+		if (compareRectangle == null) {
+			if (other.compareRectangle != null)
+				return false;
+		} else if (!compareRectangle.equals(other.compareRectangle))
+			return false;
+		return true;
 	}
 	
 }
