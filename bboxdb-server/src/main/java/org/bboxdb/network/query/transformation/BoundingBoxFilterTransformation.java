@@ -17,34 +17,32 @@
  *******************************************************************************/
 package org.bboxdb.network.query.transformation;
 
-import java.util.List;
-
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 
-public class MultiTransformation implements TupleTransformation {
+public class BoundingBoxFilterTransformation implements TupleTransformation {
 
 	/**
-	 * The transformations
+	 * The bounding box to filter
 	 */
-	private final List<TupleTransformation> transformations;
+	private final Hyperrectangle hyperrectangle;
 
-	public MultiTransformation(final List<TupleTransformation> transformations) {
-		this.transformations = transformations;
+	public BoundingBoxFilterTransformation(final Hyperrectangle hyperrectangle) {
+		this.hyperrectangle = hyperrectangle;
+	}
+
+	@Override
+	public String toString() {
+		return "KeyFilterTransformation [hyperrectangle=" + hyperrectangle + "]";
 	}
 
 	@Override
 	public TupleAndBoundingBox apply(final TupleAndBoundingBox input) {
 		
-		TupleAndBoundingBox result = input;
-		
-		for(final TupleTransformation transformation : transformations) {
-			result = transformation.apply(result);
-			
-			if(result == null) {
-				return null;
-			}
+		if(input.getTuple().getBoundingBox().intersects(hyperrectangle)) {
+			return input;
 		}
 		
-		return result;
+		return null;		
 	}
 }

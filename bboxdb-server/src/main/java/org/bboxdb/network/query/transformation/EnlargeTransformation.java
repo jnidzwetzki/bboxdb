@@ -18,6 +18,7 @@
 package org.bboxdb.network.query.transformation;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 
 public class EnlargeTransformation implements TupleTransformation {
 	

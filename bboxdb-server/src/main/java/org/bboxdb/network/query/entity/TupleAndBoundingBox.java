@@ -1,4 +1,4 @@
-package org.bboxdb.network.query.transformation;
+package org.bboxdb.network.query.entity;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;

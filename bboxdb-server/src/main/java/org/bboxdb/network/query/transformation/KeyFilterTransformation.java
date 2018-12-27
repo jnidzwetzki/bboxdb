@@ -17,8 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.query.transformation;
 
+import org.bboxdb.network.query.entity.TupleAndBoundingBox;
+
 public class KeyFilterTransformation implements TupleTransformation {
 
+	/**
+	 * The key to filter
+	 */
 	private final String key;
 
 	public KeyFilterTransformation(final String key) {
