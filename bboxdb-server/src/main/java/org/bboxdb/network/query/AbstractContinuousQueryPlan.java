@@ -19,6 +19,7 @@ package org.bboxdb.network.query;
 
 import java.util.List;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
 public abstract class AbstractContinuousQueryPlan {
@@ -32,23 +33,23 @@ public abstract class AbstractContinuousQueryPlan {
 	 * The transformations of the stream entry
 	 */
 	protected final List<TupleTransformation> streamTransformation;
-	
-	/**
-	 * The table name to query
-	 */
-	protected final String tableName;
-	
+
 	/**
 	 * Report positive or negative elements to the user
 	 */
 	protected final boolean reportPositiveNegative;
 
+	/**
+	 * The query range
+	 */
+	private Hyperrectangle queryRange;
+
 	public AbstractContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
-			final String tableName, final boolean reportPositiveNegative) {
+			final Hyperrectangle queryRange, final boolean reportPositiveNegative) {
 		
 		this.streamTable = streamTable;
 		this.streamTransformation = streamTransformation;
-		this.tableName = tableName;
+		this.queryRange = queryRange;
 		this.reportPositiveNegative = reportPositiveNegative;
 	}
 
@@ -60,8 +61,8 @@ public abstract class AbstractContinuousQueryPlan {
 		return streamTransformation;
 	}
 
-	public String getTableName() {
-		return tableName;
+	public Hyperrectangle getQueryRange() {
+		return queryRange;
 	}
 
 	public boolean isReportPositiveNegative() {
@@ -69,19 +70,13 @@ public abstract class AbstractContinuousQueryPlan {
 	}
 
 	@Override
-	public String toString() {
-		return "ContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation=" + streamTransformation
-				+ ", tableName=" + tableName + ", reportPositiveNegative=" + reportPositiveNegative + "]";
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((queryRange == null) ? 0 : queryRange.hashCode());
 		result = prime * result + (reportPositiveNegative ? 1231 : 1237);
 		result = prime * result + ((streamTable == null) ? 0 : streamTable.hashCode());
 		result = prime * result + ((streamTransformation == null) ? 0 : streamTransformation.hashCode());
-		result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
 		return result;
 	}
 
@@ -94,6 +89,11 @@ public abstract class AbstractContinuousQueryPlan {
 		if (getClass() != obj.getClass())
 			return false;
 		AbstractContinuousQueryPlan other = (AbstractContinuousQueryPlan) obj;
+		if (queryRange == null) {
+			if (other.queryRange != null)
+				return false;
+		} else if (!queryRange.equals(other.queryRange))
+			return false;
 		if (reportPositiveNegative != other.reportPositiveNegative)
 			return false;
 		if (streamTable == null) {
@@ -106,11 +106,15 @@ public abstract class AbstractContinuousQueryPlan {
 				return false;
 		} else if (!streamTransformation.equals(other.streamTransformation))
 			return false;
-		if (tableName == null) {
-			if (other.tableName != null)
-				return false;
-		} else if (!tableName.equals(other.tableName))
-			return false;
 		return true;
-	}	
+	}
+
+	@Override
+	public String toString() {
+		return "AbstractContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation="
+				+ streamTransformation + ", reportPositiveNegative=" + reportPositiveNegative + ", queryRange="
+				+ queryRange + "]";
+	}
+
+	
 }

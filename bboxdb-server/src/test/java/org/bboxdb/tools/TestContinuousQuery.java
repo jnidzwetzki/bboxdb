@@ -28,7 +28,7 @@ public class TestContinuousQuery {
 	@Test(timeout=60_000)
 	public void testQuery1() {
 		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("abc", null, 
-				Hyperrectangle.FULL_SPACE, false);
+				Hyperrectangle.FULL_SPACE, new Hyperrectangle(12d, 13d, 14d, 15d), false);
 		
 		final String serializedQueryPlan = ContinuousQueryPlanSerializer.toJSON(continuousQueryPlan);
 		

@@ -31,10 +31,11 @@ public class ContinuousConstQuery extends AbstractContinuousQueryPlan {
 
 	public ContinuousConstQuery(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
+			final Hyperrectangle queryRectangle,
 			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative) {
 		
-			super(streamTable, streamTransformation, streamTable, reportPositiveNegative);
+			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
 			this.compareRectangle = compareRectangle;
 	}
 

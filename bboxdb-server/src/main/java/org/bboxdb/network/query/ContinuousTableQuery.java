@@ -19,6 +19,7 @@ package org.bboxdb.network.query;
 
 import java.util.List;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
 public class ContinuousTableQuery extends AbstractContinuousQueryPlan {
@@ -30,11 +31,11 @@ public class ContinuousTableQuery extends AbstractContinuousQueryPlan {
 	
 	public ContinuousTableQuery(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
-			final String tableName,
+			final Hyperrectangle queryRectangle,
 			final List<TupleTransformation> tableTransformation,
 			final boolean reportPositiveNegative) {
 		
-			super(streamTable, streamTransformation, tableName, reportPositiveNegative);
+			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
 
 			this.tableTransformation = tableTransformation;
 	}

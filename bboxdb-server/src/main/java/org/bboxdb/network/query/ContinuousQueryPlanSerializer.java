@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.query;
 
+import org.json.JSONObject;
+
 public class ContinuousQueryPlanSerializer {
 
 	/**
@@ -25,7 +27,20 @@ public class ContinuousQueryPlanSerializer {
 	 * @return
 	 */
 	public static String toJSON(final AbstractContinuousQueryPlan queryPlan) {
-		return null;
+		final JSONObject json = new JSONObject();
+		json.put("type", "query-plan");
+		
+		if(queryPlan instanceof ContinuousConstQuery) {
+			json.put("query-type", "const-query");
+		} else if(queryPlan instanceof ContinuousTableQuery) {
+			json.put("query-type", "table-query");
+		} else {
+			throw new IllegalArgumentException("Unknown query type: " + queryPlan);
+		}
+		
+		json.put("query-range", queryPlan.getQueryRange().toCompactString());
+		
+		return json.toString();
 	}
 	
 	/**
