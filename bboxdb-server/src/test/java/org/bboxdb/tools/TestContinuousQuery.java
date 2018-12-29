@@ -22,10 +22,10 @@ import java.util.Arrays;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.query.AbstractContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousConstQuery;
+import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
-import org.bboxdb.network.query.ContinuousTableQuery;
+import org.bboxdb.network.query.ContinuousTableQueryPlan;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxTransformation;
 import org.bboxdb.network.query.transformation.KeyFilterTransformation;
@@ -73,7 +73,7 @@ public class TestContinuousQuery {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery1() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("abc", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousConstQueryPlan("abc", 
 				new ArrayList<>(), 
 				Hyperrectangle.FULL_SPACE, 
 				new Hyperrectangle(12d, 13d, 14d, 15d), false);
@@ -83,7 +83,7 @@ public class TestContinuousQuery {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery2() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousConstQueryPlan("testtable", 
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), true);
@@ -94,7 +94,7 @@ public class TestContinuousQuery {
 
 	@Test(timeout=60_000)
 	public void testConstQuery3() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousConstQueryPlan("testtable", 
 				Arrays.asList(new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d))), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), true);
@@ -104,7 +104,7 @@ public class TestContinuousQuery {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery4() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousConstQueryPlan("testtable", 
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd")), 
@@ -116,7 +116,7 @@ public class TestContinuousQuery {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery5() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousConstQueryPlan("testtable", 
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd"),
@@ -129,7 +129,7 @@ public class TestContinuousQuery {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery1() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousTableQuery("mytable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", 
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new ArrayList<>(), 
@@ -140,7 +140,7 @@ public class TestContinuousQuery {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery2() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousTableQuery("mytable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", 
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				Arrays.asList(
@@ -154,7 +154,7 @@ public class TestContinuousQuery {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery3() throws BBoxDBException {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousTableQuery("mytable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", 
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd")), 
@@ -173,14 +173,14 @@ public class TestContinuousQuery {
 	 * @param continuousQueryPlan
 	 * @throws BBoxDBException 
 	 */
-	private void serializeAndDeserialize(final AbstractContinuousQueryPlan continuousQueryPlan) throws BBoxDBException {
+	private void serializeAndDeserialize(final ContinuousQueryPlan continuousQueryPlan) throws BBoxDBException {
 		final String serializedQueryPlan = ContinuousQueryPlanSerializer.toJSON(continuousQueryPlan);
 		Assert.assertNotNull(serializedQueryPlan);
 				
 		// Write JSON to stdout
 		//System.out.println(serializedQueryPlan);
 		
-		final AbstractContinuousQueryPlan deserializedQueryPlan = ContinuousQueryPlanSerializer.fromJSON(serializedQueryPlan);
+		final ContinuousQueryPlan deserializedQueryPlan = ContinuousQueryPlanSerializer.fromJSON(serializedQueryPlan);
 		Assert.assertEquals(continuousQueryPlan, deserializedQueryPlan);
 	}
 	

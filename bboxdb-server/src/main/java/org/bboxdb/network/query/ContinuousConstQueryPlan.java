@@ -23,42 +23,40 @@ import java.util.Objects;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public class ContinuousTableQuery extends AbstractContinuousQueryPlan {
+public class ContinuousConstQueryPlan extends ContinuousQueryPlan {
 
-	/** 
-	 * The transformations of the tuples in the table
+	/**
+	 * The hyperrectangle to compare
 	 */
-	private final List<TupleTransformation> tableTransformation;
-	
-	public ContinuousTableQuery(final String streamTable,
+	private final Hyperrectangle compareRectangle;
+
+	public ContinuousConstQueryPlan(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
 			final Hyperrectangle queryRectangle,
-			final List<TupleTransformation> tableTransformation,
+			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative) {
 		
 			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
-
-			this.tableTransformation = Objects.requireNonNull(tableTransformation);
+			this.compareRectangle = Objects.requireNonNull(compareRectangle);
 	}
 
-	/**
-	 * Get the table transformations
-	 * @return
+	/** 
+	 * Get the compare rectangle
 	 */
-	public List<TupleTransformation> getTableTransformation() {
-		return tableTransformation;
+	public Hyperrectangle getCompareRectangle() {
+		return compareRectangle;
 	}
 
 	@Override
 	public String toString() {
-		return "ContinuousTableQuery [tableTransformation=" + tableTransformation + "]";
+		return "ContinuousConstQuery [compareRectangle=" + compareRectangle + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((tableTransformation == null) ? 0 : tableTransformation.hashCode());
+		result = prime * result + ((compareRectangle == null) ? 0 : compareRectangle.hashCode());
 		return result;
 	}
 
@@ -70,11 +68,11 @@ public class ContinuousTableQuery extends AbstractContinuousQueryPlan {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ContinuousTableQuery other = (ContinuousTableQuery) obj;
-		if (tableTransformation == null) {
-			if (other.tableTransformation != null)
+		ContinuousConstQueryPlan other = (ContinuousConstQueryPlan) obj;
+		if (compareRectangle == null) {
+			if (other.compareRectangle != null)
 				return false;
-		} else if (!tableTransformation.equals(other.tableTransformation))
+		} else if (!compareRectangle.equals(other.compareRectangle))
 			return false;
 		return true;
 	}

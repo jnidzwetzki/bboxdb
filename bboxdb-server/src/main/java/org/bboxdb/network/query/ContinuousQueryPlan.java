@@ -23,7 +23,7 @@ import java.util.Objects;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public abstract class AbstractContinuousQueryPlan {
+public abstract class ContinuousQueryPlan {
 
 	/**
 	 * The stream table
@@ -45,7 +45,7 @@ public abstract class AbstractContinuousQueryPlan {
 	 */
 	private Hyperrectangle queryRange;
 
-	public AbstractContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
+	public ContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
 			final Hyperrectangle queryRange, final boolean reportPositiveNegative) {
 		
 		this.streamTable = Objects.requireNonNull(streamTable);
@@ -89,7 +89,7 @@ public abstract class AbstractContinuousQueryPlan {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AbstractContinuousQueryPlan other = (AbstractContinuousQueryPlan) obj;
+		ContinuousQueryPlan other = (ContinuousQueryPlan) obj;
 		if (queryRange == null) {
 			if (other.queryRange != null)
 				return false;

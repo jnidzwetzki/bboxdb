@@ -46,6 +46,7 @@ import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
+import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -353,13 +354,13 @@ public class BBoxDBCluster implements BBoxDB {
 	 *
 	 */
 	@Override
-	public JoinedTupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox)
+	public JoinedTupleListFuture queryContinuous(final ContinuousQueryPlan queryPlan)
 			throws BBoxDBException {
 
-		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(table);
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(queryPlan.getStreamTable());
 
 		final List<DistributionRegion> regions = DistributionRegionHelper
-				.getDistributionRegionsForBoundingBox(distributionRegion, boundingBox);
+				.getDistributionRegionsForBoundingBox(distributionRegion, queryPlan.getQueryRange());
 
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 
@@ -371,7 +372,7 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
 
 				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-				final Supplier<List<NetworkOperationFuture>> future = bboxDBClient.getQueryBoundingBoxContinousFuture(table, boundingBox);
+				final Supplier<List<NetworkOperationFuture>> future = bboxDBClient.getQueryBoundingBoxContinousFuture(queryPlan);
 
 				resultList.addAll(future.get());
 			}

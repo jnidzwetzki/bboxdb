@@ -59,6 +59,7 @@ import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.packages.response.TupleLockedResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
+import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -544,9 +545,10 @@ public class TestNetworkClasses {
 	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PackageEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
+		final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, new ArrayList<>(), boundingBox, boundingBox, true);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-
-		final QueryHyperrectangleContinuousRequest queryRequest = new QueryHyperrectangleContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox);
+		
+		final QueryHyperrectangleContinuousRequest queryRequest = new QueryHyperrectangleContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, constQueryPlan);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -555,8 +557,7 @@ public class TestNetworkClasses {
 		Assert.assertTrue(result);
 
 		final QueryHyperrectangleContinuousRequest decodedPackage = QueryHyperrectangleContinuousRequest.decodeTuple(bb);
-		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
-		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(queryRequest.getQueryPlan(), decodedPackage.getQueryPlan());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 		Assert.assertTrue(queryRequest.toString().length() > 10);
 	}

@@ -75,19 +75,19 @@ public class ContinuousQueryPlanSerializer {
 	 * @param queryPlan
 	 * @return
 	 */
-	public static String toJSON(final AbstractContinuousQueryPlan queryPlan) {
+	public static String toJSON(final ContinuousQueryPlan queryPlan) {
 		final JSONObject json = new JSONObject();
 		json.put(TYPE_KEY, TYPE_VALUE);
 		
-		if(queryPlan instanceof ContinuousConstQuery) {
+		if(queryPlan instanceof ContinuousConstQueryPlan) {
 			json.put(QUERY_TYPE_KEY, QUERY_TYPE_CONST_VALUE);
 			
-			final ContinuousConstQuery constQueryPlan = (ContinuousConstQuery) queryPlan;
+			final ContinuousConstQueryPlan constQueryPlan = (ContinuousConstQueryPlan) queryPlan;
 			json.put(COMPARE_RECTANGLE_KEY, constQueryPlan.getCompareRectangle().toCompactString());
-		} else if(queryPlan instanceof ContinuousTableQuery) {
+		} else if(queryPlan instanceof ContinuousTableQueryPlan) {
 			json.put(QUERY_TYPE_KEY, QUERY_TYPE_TABLE_VALUE);
 
-			final ContinuousTableQuery tableQueryPlan = (ContinuousTableQuery) queryPlan;
+			final ContinuousTableQueryPlan tableQueryPlan = (ContinuousTableQueryPlan) queryPlan;
 			final List<TupleTransformation> transformations = tableQueryPlan.getTableTransformation();
 			final JSONArray tableTransformations = writeTransformationsToJSON(json, transformations);
 			json.put(TABLE_TRANSFORMATIONS_KEY, tableTransformations);
@@ -144,7 +144,7 @@ public class ContinuousQueryPlanSerializer {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public static AbstractContinuousQueryPlan fromJSON(final String jsonString) throws BBoxDBException {
+	public static ContinuousQueryPlan fromJSON(final String jsonString) throws BBoxDBException {
 		
 		Objects.requireNonNull(jsonString);
 		
@@ -167,7 +167,7 @@ public class ContinuousQueryPlanSerializer {
 			case QUERY_TYPE_CONST_VALUE:
 				final Hyperrectangle compareRectangle = Hyperrectangle.fromString(json.getString(COMPARE_RECTANGLE_KEY));
 				
-				final ContinuousConstQuery constQuery = new ContinuousConstQuery(streamTable, 
+				final ContinuousConstQueryPlan constQuery = new ContinuousConstQueryPlan(streamTable, 
 						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative);
 				
 				return constQuery;
@@ -175,7 +175,7 @@ public class ContinuousQueryPlanSerializer {
 				final List<TupleTransformation> tableTransformation 
 					= decodeTransformation(json, TABLE_TRANSFORMATIONS_KEY);
 				
-				final ContinuousTableQuery tableQuery = new ContinuousTableQuery(streamTable, 
+				final ContinuousTableQueryPlan tableQuery = new ContinuousTableQueryPlan(streamTable, 
 						streamTransformation, queryRectangle, tableTransformation, reportPositiveNegative);
 		
 				return tableQuery;

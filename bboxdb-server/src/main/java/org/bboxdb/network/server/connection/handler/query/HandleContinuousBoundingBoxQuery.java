@@ -58,13 +58,14 @@ public class HandleContinuousBoundingBoxQuery implements QueryHandler {
 			final QueryHyperrectangleContinuousRequest queryRequest 
 				= QueryHyperrectangleContinuousRequest.decodeTuple(encodedPackage);
 			
-			final TupleStoreName requestTable = queryRequest.getTable();
+			final String requestTableString = queryRequest.getQueryPlan().getStreamTable();
+			final TupleStoreName requestTable = new TupleStoreName(requestTableString);
 			
 			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
 				return;
 			}
 			
-			final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
+			final Hyperrectangle boundingBox = queryRequest.getQueryPlan().getQueryRange();
 			
 			final ClientQuery clientQuery = new ContinuousBoundingBoxClientQuery(boundingBox,
 					clientConnectionHandler, packageSequence, requestTable);

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
@@ -27,6 +28,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
+import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.AfterClass;
@@ -215,7 +217,9 @@ public class TestBBoxDBCluster {
 		Assert.assertFalse(resultCreateTable.isFailed());
 
 		// Execute query
-		final JoinedTupleListFuture future = bboxDBClient.queryRectangleContinuous(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
+		final Hyperrectangle bbox = new Hyperrectangle(-1d, 2d, -1d, 2d);
+		final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, new ArrayList<>(), bbox, bbox, true);
+		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
 
 		Assert.assertFalse(future.isFailed());
 

@@ -54,6 +54,7 @@ import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
 import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
+import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -381,9 +382,9 @@ public class BBoxDBClient implements BBoxDB {
 	 *
 	 */
 	@Override
-	public JoinedTupleListFuture queryRectangleContinuous(final String table, final Hyperrectangle boundingBox) {
+	public JoinedTupleListFuture queryContinuous(final ContinuousQueryPlan queryPlan) {
 		final Supplier<List<NetworkOperationFuture>> future
-			= getQueryBoundingBoxContinousFuture(table, boundingBox);
+			= getQueryBoundingBoxContinousFuture(queryPlan);
 
 		return new JoinedTupleListFuture(future);
 	}
@@ -393,17 +394,17 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param boundingBox
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFuture>> getQueryBoundingBoxContinousFuture(final String table,
-			final Hyperrectangle boundingBox) {
+	public Supplier<List<NetworkOperationFuture>> getQueryBoundingBoxContinousFuture(
+			final ContinuousQueryPlan queryPlan) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-					table, boundingBox, false, connection.getServerAddress());
+					queryPlan.getStreamTable(), queryPlan.getQueryRange(), false, connection.getServerAddress());
 
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new QueryHyperrectangleContinuousRequest(
-					nextSequenceNumber, routingHeaderSupplier, table, boundingBox);
+					nextSequenceNumber, routingHeaderSupplier, queryPlan);
 		};
 
 		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));

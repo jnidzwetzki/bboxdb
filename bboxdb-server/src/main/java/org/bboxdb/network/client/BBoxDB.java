@@ -26,6 +26,7 @@ import org.bboxdb.network.client.future.AbstractListFuture;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -141,14 +142,12 @@ public interface BBoxDB extends Closeable {
 			final Hyperrectangle boundingBox) throws BBoxDBException;
 
 	/**
-	 * Execute a continuous bounding box query on the given table
-	 * @param table
-	 * @param boundingBox
+	 * Execute a continuous query with the given query plan
+	 * @param query plan
 	 * @return
 	 * @throws BBoxDBException
 	 */
-	public JoinedTupleListFuture queryRectangleContinuous(final String table,
-			final Hyperrectangle boundingBox) throws BBoxDBException;
+	public JoinedTupleListFuture queryContinuous(final ContinuousQueryPlan queryPlan) throws BBoxDBException;
 
 	/**
 	 * Query the given table for all tuples that have a newer version timestamp

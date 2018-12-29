@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -168,7 +170,9 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 
-		final JoinedTupleListFuture future = bboxDBClient.queryRectangleContinuous(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
+		final Hyperrectangle bbox = new Hyperrectangle(-1d, 2d, -1d, 2d);
+		final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, new ArrayList<>(), bbox, bbox, true);
+		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
 
 		Thread.sleep(1000);
 

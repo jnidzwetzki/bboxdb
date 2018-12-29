@@ -18,6 +18,7 @@
 package org.bboxdb.tools.cli;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +50,7 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
+import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.JoinedTuple;
@@ -444,9 +446,11 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
-
-			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryRectangleContinuous
-					(table, boundingBox);
+			
+			final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, 
+					new ArrayList<>(), boundingBox, boundingBox, true);
+		
+			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryContinuous(constQueryPlan);
 
 			if(resultFuture == null) {
 				System.err.println("Unable to get query");

@@ -21,58 +21,50 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.TupleStoreName;
 
 public class QueryHyperrectangleContinuousRequest extends NetworkQueryRequestPackage {
 
 	/**
-	 * The name of the table
+	 * The query plan
 	 */
-	protected final TupleStoreName table;
+	private final ContinuousQueryPlan queryPlan;
 
-	/**
-	 * The the query bounding box
-	 */
-	protected final Hyperrectangle box;
-	
 	public QueryHyperrectangleContinuousRequest(final short sequenceNumber, 
-			final RoutingHeader routingHeader, final String table, final Hyperrectangle box) {
+			final RoutingHeader routingHeader, final ContinuousQueryPlan queryPlan) {
 		
 		super(sequenceNumber, routingHeader);
-		
-		this.table = new TupleStoreName(table);
-		this.box = box;
+		this.queryPlan = queryPlan;
 	}
 
 	@Override
 	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
-			final byte[] tableBytes = table.getFullnameBytes();
-			final byte[] bboxBytes = box.toByteArray();
+			final String queryPlanString = ContinuousQueryPlanSerializer.toJSON(queryPlan);
+			final byte[] queryPlanBytes = queryPlanString.getBytes();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(8);
+			final ByteBuffer bb = ByteBuffer.allocate(6);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
 			bb.put(NetworkConst.UNUSED_BYTE);
-			bb.putShort((short) tableBytes.length);
-			bb.putInt((int) bboxBytes.length);
+			bb.putInt((int) queryPlanBytes.length);
 			
-			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
+			final long bodyLength = bb.capacity() + queryPlanBytes.length;
 			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
-			outputStream.write(tableBytes);
-			outputStream.write(bboxBytes);
+			outputStream.write(queryPlanBytes);
 			
 			return headerLength + bodyLength;
 		} catch (IOException e) {
@@ -100,21 +92,16 @@ public class QueryHyperrectangleContinuousRequest extends NetworkQueryRequestPac
 	    final byte queryType = encodedPackage.get();
 	    
 	    if(queryType != NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX) {
-	    	throw new PackageEncodeException("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX);
+	    		throw new PackageEncodeException("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX);
 	    }
 	    
 	    // 1 unused byte
 	    encodedPackage.get();
-		final short tableLength = encodedPackage.getShort();
-	    final int bboxLength = encodedPackage.getInt();
+	    final int queryPlanLength = encodedPackage.getInt();
 
-		final byte[] tableBytes = new byte[tableLength];
-		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
-		
-		final byte[] bboxBytes = new byte[bboxLength];
-		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
-		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
+		final byte[] queryPlanBytes = new byte[queryPlanLength];
+		encodedPackage.get(queryPlanBytes, 0, queryPlanBytes.length);
+		final String queryPlanString = new String(queryPlanBytes);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
@@ -122,7 +109,13 @@ public class QueryHyperrectangleContinuousRequest extends NetworkQueryRequestPac
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
-		return new QueryHyperrectangleContinuousRequest(sequenceNumber, routingHeader, table, boundingBox);
+		try {
+			final ContinuousQueryPlan queryPlan = ContinuousQueryPlanSerializer.fromJSON(queryPlanString);
+
+			return new QueryHyperrectangleContinuousRequest(sequenceNumber, routingHeader, queryPlan);
+		} catch (BBoxDBException e) {
+			throw new PackageEncodeException(e);
+		}
 	}
 
 	@Override
@@ -135,12 +128,8 @@ public class QueryHyperrectangleContinuousRequest extends NetworkQueryRequestPac
 		return NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX;
 	}
 	
-	public TupleStoreName getTable() {
-		return table;
-	}
-
-	public Hyperrectangle getBoundingBox() {
-		return box;
+	public ContinuousQueryPlan getQueryPlan() {
+		return queryPlan;
 	}
 
 }
