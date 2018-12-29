@@ -644,8 +644,8 @@ public class TupleStoreManager implements BBoxDBService {
 			if(knownStorages.size() == aquiredStorages.size()) {
 				return aquiredStorages;
 			} else {
-					// one or more storages could not be acquired
-					// release storages and retry
+				// one or more storages could not be acquired
+				// release storages and retry
 				releaseStorage(aquiredStorages);
 				
 				throw new BBoxDBException("Unable to aquire all storages: Got " 
@@ -663,9 +663,7 @@ public class TupleStoreManager implements BBoxDBService {
 			return;
 		}
 
-		for(final ReadOnlyTupleStore storage : storagesToRelease) {
-			storage.release();
-		}
+		storagesToRelease.forEach(s -> s.release());
 	}
 
 	/**
