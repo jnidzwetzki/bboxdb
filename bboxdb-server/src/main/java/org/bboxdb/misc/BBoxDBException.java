@@ -32,4 +32,8 @@ public class BBoxDBException extends Exception {
 		super(cause);
 	}
 
+	public BBoxDBException(final String message, final Throwable cause) {
+		super(message, cause);
+	}
+	
 }
