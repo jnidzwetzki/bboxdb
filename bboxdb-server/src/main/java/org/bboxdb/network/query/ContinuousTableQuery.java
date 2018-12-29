@@ -18,6 +18,7 @@
 package org.bboxdb.network.query;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
@@ -37,7 +38,7 @@ public class ContinuousTableQuery extends AbstractContinuousQueryPlan {
 		
 			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
 
-			this.tableTransformation = tableTransformation;
+			this.tableTransformation = Objects.requireNonNull(tableTransformation);
 	}
 
 	/**

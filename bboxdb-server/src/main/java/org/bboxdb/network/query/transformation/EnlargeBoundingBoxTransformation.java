@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.query.transformation;
 
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 
@@ -29,6 +31,10 @@ public class EnlargeBoundingBoxTransformation implements TupleTransformation {
 
 	public EnlargeBoundingBoxTransformation(final int factor) {
 		this.factor = factor;
+	}
+	
+	public EnlargeBoundingBoxTransformation(final String factor) throws InputParseException {
+		this.factor = MathUtil.tryParseInt(factor, () -> "Unable to parse: " + factor);
 	}
 
 	@Override
@@ -60,6 +66,11 @@ public class EnlargeBoundingBoxTransformation implements TupleTransformation {
 		if (factor != other.factor)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String getSerializedData() {
+		return Integer.toString(factor);
 	}
 	
 }

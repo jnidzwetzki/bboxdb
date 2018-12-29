@@ -30,6 +30,10 @@ public class BoundingBoxFilterTransformation implements TupleTransformation {
 	public BoundingBoxFilterTransformation(final Hyperrectangle hyperrectangle) {
 		this.hyperrectangle = hyperrectangle;
 	}
+	
+	public BoundingBoxFilterTransformation(final String compactBox) {
+		this.hyperrectangle = Hyperrectangle.fromString(compactBox);
+	}
 
 	@Override
 	public String toString() {
@@ -69,6 +73,11 @@ public class BoundingBoxFilterTransformation implements TupleTransformation {
 		} else if (!hyperrectangle.equals(other.hyperrectangle))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String getSerializedData() {
+		return hyperrectangle.toCompactString();
 	}
 	
 }

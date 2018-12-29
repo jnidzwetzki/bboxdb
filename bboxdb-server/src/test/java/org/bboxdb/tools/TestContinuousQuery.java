@@ -17,22 +17,171 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.query.ContinuousConstQuery;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.query.AbstractContinuousQueryPlan;
+import org.bboxdb.network.query.ContinuousConstQuery;
 import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
+import org.bboxdb.network.query.ContinuousTableQuery;
+import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxTransformation;
+import org.bboxdb.network.query.transformation.KeyFilterTransformation;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestContinuousQuery {
 
+	@Test(timeout=60_000, expected=NullPointerException.class)
+	public void testInvliadQueryPlan1() throws BBoxDBException {
+		ContinuousQueryPlanSerializer.fromJSON(null);
+	}
+	
+	@Test(timeout=60_000, expected=BBoxDBException.class)
+	public void testInvliadQueryPlan2() throws BBoxDBException {
+		ContinuousQueryPlanSerializer.fromJSON("");
+	}
+	
+	@Test(timeout=60_000, expected=BBoxDBException.class)
+	public void testInvliadQueryPlan3() throws BBoxDBException {
+		ContinuousQueryPlanSerializer.fromJSON("{{{");
+	}
+	
+	@Test(timeout=60_000, expected=BBoxDBException.class)
+	public void testInvliadQueryPlan4() throws BBoxDBException {
+		ContinuousQueryPlanSerializer.fromJSON("{{{}}}");
+	}
+	
+	@Test(timeout=60_000, expected=BBoxDBException.class)
+	public void testInvliadQueryPlan5() throws BBoxDBException {
+		ContinuousQueryPlanSerializer.fromJSON("{\"abc\":2}");
+	}
+	
+	@Test(timeout=60_000, expected=BBoxDBException.class)
+	public void testInvliadQueryPlan6() throws BBoxDBException {
+		ContinuousQueryPlanSerializer.fromJSON("{\"query-type\":2, \"type\":\"query-plan\"}");
+	}
+	
+	@Test(timeout=60_000, expected=BBoxDBException.class)
+	public void testInvalidTransformationType() throws BBoxDBException {
+		// Invalid transformation type "bbox-filter1234"
+		final String json = "{\"query-range\":\"[]\",\"query-type\":\"const-query\",\"compare-rectangle\":\"[[12.0,13.0]:[14.0,15.0]]\",\"report-positive\":false,\"stream-transformations\":[{\"name\":\"bbox-filter1234\",\"value\":\"[[12.0,13.0]:[14.0,15.0]]\"}],\"type\":\"query-plan\",\"table\":\"abc\"}";
+		ContinuousQueryPlanSerializer.fromJSON(json);
+	}
+	
 	@Test(timeout=60_000)
-	public void testQuery1() {
-		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("abc", null, 
-				Hyperrectangle.FULL_SPACE, new Hyperrectangle(12d, 13d, 14d, 15d), false);
+	public void testConstQuery1() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("abc", 
+				new ArrayList<>(), 
+				Hyperrectangle.FULL_SPACE, 
+				new Hyperrectangle(12d, 13d, 14d, 15d), false);
 		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+	
+	@Test(timeout=60_000)
+	public void testConstQuery2() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+				new ArrayList<>(), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+	
+
+	@Test(timeout=60_000)
+	public void testConstQuery3() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+				Arrays.asList(new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d))), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+	
+	@Test(timeout=60_000)
+	public void testConstQuery4() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+				Arrays.asList(
+						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
+						new KeyFilterTransformation("abcd")), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+	
+	@Test(timeout=60_000)
+	public void testConstQuery5() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousConstQuery("testtable", 
+				Arrays.asList(
+						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
+						new KeyFilterTransformation("abcd"),
+						new EnlargeBoundingBoxTransformation(4)), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+	
+	@Test(timeout=60_000)
+	public void testTableQuery1() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousTableQuery("mytable", 
+				new ArrayList<>(), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), 
+				new ArrayList<>(), 
+				false);
+		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+	
+	@Test(timeout=60_000)
+	public void testTableQuery2() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousTableQuery("mytable", 
+				new ArrayList<>(), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), 
+				Arrays.asList(
+						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
+						new KeyFilterTransformation("abcd"),
+						new EnlargeBoundingBoxTransformation(4)), 
+				false);
+		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+	
+	@Test(timeout=60_000)
+	public void testTableQuery3() throws BBoxDBException {
+		final AbstractContinuousQueryPlan continuousQueryPlan = new ContinuousTableQuery("mytable", 
+				Arrays.asList(
+						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
+						new KeyFilterTransformation("abcd")), 
+				new Hyperrectangle(12d, 13d, 14d, 15d), 
+				Arrays.asList(
+						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
+						new KeyFilterTransformation("abcd"),
+						new EnlargeBoundingBoxTransformation(4)), 
+				false);
+		
+		serializeAndDeserialize(continuousQueryPlan);
+	}
+
+	/**
+	 * Serialize and desierialize the given query plan
+	 * @param continuousQueryPlan
+	 * @throws BBoxDBException 
+	 */
+	private void serializeAndDeserialize(final AbstractContinuousQueryPlan continuousQueryPlan) throws BBoxDBException {
 		final String serializedQueryPlan = ContinuousQueryPlanSerializer.toJSON(continuousQueryPlan);
+		Assert.assertNotNull(serializedQueryPlan);
+				
+		// Write JSON to stdout
+		//System.out.println(serializedQueryPlan);
 		
-		System.out.println(serializedQueryPlan);
+		final AbstractContinuousQueryPlan deserializedQueryPlan = ContinuousQueryPlanSerializer.fromJSON(serializedQueryPlan);
+		Assert.assertEquals(continuousQueryPlan, deserializedQueryPlan);
 	}
 	
 }

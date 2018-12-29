@@ -18,6 +18,7 @@
 package org.bboxdb.network.query;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
@@ -37,7 +38,7 @@ public abstract class AbstractContinuousQueryPlan {
 	/**
 	 * Report positive or negative elements to the user
 	 */
-	protected final boolean reportPositiveNegative;
+	protected final boolean reportPositive;
 
 	/**
 	 * The query range
@@ -47,10 +48,10 @@ public abstract class AbstractContinuousQueryPlan {
 	public AbstractContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
 			final Hyperrectangle queryRange, final boolean reportPositiveNegative) {
 		
-		this.streamTable = streamTable;
-		this.streamTransformation = streamTransformation;
-		this.queryRange = queryRange;
-		this.reportPositiveNegative = reportPositiveNegative;
+		this.streamTable = Objects.requireNonNull(streamTable);
+		this.streamTransformation = Objects.requireNonNull(streamTransformation);
+		this.queryRange = Objects.requireNonNull(queryRange);
+		this.reportPositive = Objects.requireNonNull(reportPositiveNegative);
 	}
 
 	public String getStreamTable() {
@@ -65,8 +66,8 @@ public abstract class AbstractContinuousQueryPlan {
 		return queryRange;
 	}
 
-	public boolean isReportPositiveNegative() {
-		return reportPositiveNegative;
+	public boolean isReportPositive() {
+		return reportPositive;
 	}
 
 	@Override
@@ -74,7 +75,7 @@ public abstract class AbstractContinuousQueryPlan {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((queryRange == null) ? 0 : queryRange.hashCode());
-		result = prime * result + (reportPositiveNegative ? 1231 : 1237);
+		result = prime * result + (reportPositive ? 1231 : 1237);
 		result = prime * result + ((streamTable == null) ? 0 : streamTable.hashCode());
 		result = prime * result + ((streamTransformation == null) ? 0 : streamTransformation.hashCode());
 		return result;
@@ -94,7 +95,7 @@ public abstract class AbstractContinuousQueryPlan {
 				return false;
 		} else if (!queryRange.equals(other.queryRange))
 			return false;
-		if (reportPositiveNegative != other.reportPositiveNegative)
+		if (reportPositive != other.reportPositive)
 			return false;
 		if (streamTable == null) {
 			if (other.streamTable != null)
@@ -112,7 +113,7 @@ public abstract class AbstractContinuousQueryPlan {
 	@Override
 	public String toString() {
 		return "AbstractContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation="
-				+ streamTransformation + ", reportPositiveNegative=" + reportPositiveNegative + ", queryRange="
+				+ streamTransformation + ", reportPositiveNegative=" + reportPositive + ", queryRange="
 				+ queryRange + "]";
 	}
 

@@ -17,10 +17,59 @@
  *******************************************************************************/
 package org.bboxdb.network.query;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxTransformation;
+import org.bboxdb.network.query.transformation.KeyFilterTransformation;
+import org.bboxdb.network.query.transformation.TupleTransformation;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ContinuousQueryPlanSerializer {
+	
+	/**
+	 * Query plan key and value
+	 */
+	private static final String TYPE_KEY = "type";
+	private static final String TYPE_VALUE = "query-plan";
 
+	/**
+	 * Query type key and values
+	 */
+	private static final String QUERY_TYPE_KEY = "query-type";
+	private static final String QUERY_TYPE_TABLE_VALUE = "table-query";
+	private static final String QUERY_TYPE_CONST_VALUE = "const-query";
+	
+	/**
+	 * Misc keys
+	 */
+	private static final String TABLE_TRANSFORMATIONS_KEY = "table-transformations";
+	private static final String STREAM_TRANSFORMATIONS_KEY = "stream-transformations";
+	private static final String REPORT_KEY = "report-positive";
+	private static final String TABLE_KEY = "table";
+	private static final String QUERY_RANGE_KEY = "query-range";
+	private static final String COMPARE_RECTANGLE_KEY = "compare-rectangle";
+	
+	/**
+	 * Transformation type
+	 */
+	private static final String TRANSFORMATION_NAME_KEY = "name";
+	private static final String TRANSFORMATION_KEY_FILTER_VALUE = "key-filter";
+	private static final String TRANSFORMATION_BBOX_ENLARGE_VALUE = "bbox-enlarge";
+	private static final String TRANSFORMATION_BBOX_FILTER_VALUE = "bbox-filter";
+	
+	/**
+	 * Transformation value
+	 */
+	private static final String TRANSFORMATION_VALUE_KEY = "value";
+	
 	/**
 	 * Serialize to JSON
 	 * @param queryPlan
@@ -28,28 +77,161 @@ public class ContinuousQueryPlanSerializer {
 	 */
 	public static String toJSON(final AbstractContinuousQueryPlan queryPlan) {
 		final JSONObject json = new JSONObject();
-		json.put("type", "query-plan");
+		json.put(TYPE_KEY, TYPE_VALUE);
 		
 		if(queryPlan instanceof ContinuousConstQuery) {
-			json.put("query-type", "const-query");
+			json.put(QUERY_TYPE_KEY, QUERY_TYPE_CONST_VALUE);
+			
+			final ContinuousConstQuery constQueryPlan = (ContinuousConstQuery) queryPlan;
+			json.put(COMPARE_RECTANGLE_KEY, constQueryPlan.getCompareRectangle().toCompactString());
 		} else if(queryPlan instanceof ContinuousTableQuery) {
-			json.put("query-type", "table-query");
+			json.put(QUERY_TYPE_KEY, QUERY_TYPE_TABLE_VALUE);
+
+			final ContinuousTableQuery tableQueryPlan = (ContinuousTableQuery) queryPlan;
+			final List<TupleTransformation> transformations = tableQueryPlan.getTableTransformation();
+			final JSONArray tableTransformations = writeTransformationsToJSON(json, transformations);
+			json.put(TABLE_TRANSFORMATIONS_KEY, tableTransformations);
 		} else {
 			throw new IllegalArgumentException("Unknown query type: " + queryPlan);
 		}
 		
-		json.put("query-range", queryPlan.getQueryRange().toCompactString());
+		json.put(QUERY_RANGE_KEY, queryPlan.getQueryRange().toCompactString());
+		json.put(TABLE_KEY, queryPlan.getStreamTable());
+		json.put(REPORT_KEY, queryPlan.isReportPositive());
 		
+		final List<TupleTransformation> transformations = queryPlan.getStreamTransformation();
+		final JSONArray streamTransformations = writeTransformationsToJSON(json, transformations);
+		json.put(STREAM_TRANSFORMATIONS_KEY, streamTransformations);
+
 		return json.toString();
+	}
+
+	/**
+	 * Write the transformations into a JSON array
+	 * @param json
+	 * @param transformations
+	 * @return 
+	 */
+	private static JSONArray writeTransformationsToJSON(final JSONObject json,
+			final List<TupleTransformation> transformations) {
+		
+		final JSONArray transfomationArray = new JSONArray();
+		
+		for(final TupleTransformation transformation : transformations) {
+			final JSONObject transformationJSON = new JSONObject();
+			
+			if(transformation instanceof BoundingBoxFilterTransformation) {
+				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_FILTER_VALUE);
+			} else if(transformation instanceof EnlargeBoundingBoxTransformation) {
+				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_ENLARGE_VALUE);
+			} else if(transformation instanceof KeyFilterTransformation) {
+				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_KEY_FILTER_VALUE);
+			} else {
+				throw new IllegalArgumentException("Unable to serialize type: " + transformation);
+			}
+			
+			transformationJSON.put(TRANSFORMATION_VALUE_KEY, transformation.getSerializedData());
+			
+			transfomationArray.put(transformationJSON);
+		}
+		
+		return transfomationArray;
 	}
 	
 	/**
 	 * Deserialize query plan
 	 * @param json
 	 * @return
+	 * @throws BBoxDBException 
 	 */
-	public static AbstractContinuousQueryPlan fromJSON(final String json) {
-		return null;
+	public static AbstractContinuousQueryPlan fromJSON(final String jsonString) throws BBoxDBException {
+		
+		Objects.requireNonNull(jsonString);
+		
+		try {
+			final JSONObject json = new JSONObject(jsonString);
+			
+			if(! json.getString(TYPE_KEY).equals(TYPE_VALUE)) {
+				throw new BBoxDBException("JSON does not contain a valid query plan: " + jsonString);
+			}
+			
+			final String queryType = json.getString(QUERY_TYPE_KEY);
+			final String streamTable = json.getString(TABLE_KEY);
+			final Hyperrectangle queryRectangle = Hyperrectangle.fromString(json.getString(QUERY_RANGE_KEY));
+			final boolean reportPositiveNegative = json.getBoolean(REPORT_KEY);
+			
+			final List<TupleTransformation> streamTransformation 
+				= decodeTransformation(json, STREAM_TRANSFORMATIONS_KEY);
+			
+			switch(queryType) {
+			case QUERY_TYPE_CONST_VALUE:
+				final Hyperrectangle compareRectangle = Hyperrectangle.fromString(json.getString(COMPARE_RECTANGLE_KEY));
+				
+				final ContinuousConstQuery constQuery = new ContinuousConstQuery(streamTable, 
+						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative);
+				
+				return constQuery;
+			case QUERY_TYPE_TABLE_VALUE:
+				final List<TupleTransformation> tableTransformation 
+					= decodeTransformation(json, TABLE_TRANSFORMATIONS_KEY);
+				
+				final ContinuousTableQuery tableQuery = new ContinuousTableQuery(streamTable, 
+						streamTransformation, queryRectangle, tableTransformation, reportPositiveNegative);
+		
+				return tableQuery;
+			default:
+				throw new BBoxDBException("Unknown query type: " + queryType);
+			}
+			
+		} catch(JSONException e) {
+			throw new BBoxDBException("Unable to handle json: " + jsonString, e);
+		}		
+	}
+	
+	/**
+	 * Decode the given transformations
+	 * @param json
+	 * @param key
+	 * @return
+	 * @throws BBoxDBException 
+	 */
+	private static List<TupleTransformation> decodeTransformation(final JSONObject json, final String key) 
+			throws BBoxDBException {
+		
+		final List<TupleTransformation> transformations = new ArrayList<>();
+		
+		final JSONArray transformationArray = json.getJSONArray(key);
+		
+		for(int i = 0; i < transformationArray.length(); i++) {
+			final JSONObject transformationObject = transformationArray.getJSONObject(i);
+			final String transformationType = transformationObject.getString(TRANSFORMATION_NAME_KEY);
+			final String transformationValue = transformationObject.getString(TRANSFORMATION_VALUE_KEY);
+			
+			try {
+				TupleTransformation transformation;
+				
+				switch(transformationType) {
+					case TRANSFORMATION_BBOX_ENLARGE_VALUE:
+						transformation = new EnlargeBoundingBoxTransformation(transformationValue);
+						break;
+					case TRANSFORMATION_BBOX_FILTER_VALUE:
+						transformation = new BoundingBoxFilterTransformation(transformationValue);
+						break;
+					case TRANSFORMATION_KEY_FILTER_VALUE:
+						transformation = new KeyFilterTransformation(transformationValue);
+						break;
+						
+					default:
+						throw new BBoxDBException("Unkown transformation type: " + transformationType);
+				}
+				
+				transformations.add(transformation);
+			} catch (InputParseException e) {
+				throw new BBoxDBException(e);
+			}
+		}
+		
+		return transformations;
 	}
 	
 }

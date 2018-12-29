@@ -18,6 +18,7 @@
 package org.bboxdb.network.query;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
@@ -36,7 +37,7 @@ public class ContinuousConstQuery extends AbstractContinuousQueryPlan {
 			final boolean reportPositiveNegative) {
 		
 			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
-			this.compareRectangle = compareRectangle;
+			this.compareRectangle = Objects.requireNonNull(compareRectangle);
 	}
 
 	/** 
@@ -54,7 +55,7 @@ public class ContinuousConstQuery extends AbstractContinuousQueryPlan {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((compareRectangle == null) ? 0 : compareRectangle.hashCode());
 		return result;
 	}
@@ -63,7 +64,7 @@ public class ContinuousConstQuery extends AbstractContinuousQueryPlan {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;

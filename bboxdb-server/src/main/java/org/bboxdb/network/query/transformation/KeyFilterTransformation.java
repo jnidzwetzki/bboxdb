@@ -69,5 +69,10 @@ public class KeyFilterTransformation implements TupleTransformation {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String getSerializedData() {
+		return key;
+	}
 	
 }

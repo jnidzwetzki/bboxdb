@@ -28,4 +28,9 @@ public interface TupleTransformation {
 	 */
 	public TupleAndBoundingBox apply(final TupleAndBoundingBox input);
 	
+	/**
+	 * Serialize the filter configuration
+	 * @return
+	 */
+	public String getSerializedData();
 }
