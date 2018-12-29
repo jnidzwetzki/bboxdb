@@ -22,11 +22,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.commons.service.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
@@ -597,8 +600,33 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	public List<ReadOnlyTupleStore> aquireStorage() throws StorageManagerException {
 
-		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
+		final Callable<List<ReadOnlyTupleStore>> callable = getTupleStoreAllocatorCallable();
+		
+		final Retryer<List<ReadOnlyTupleStore>> retryer = new Retryer<>(Const.OPERATION_RETRY, 
+				20, TimeUnit.MILLISECONDS, callable);
+		
+		try {
+			final boolean result = retryer.execute();
+			
+			if(! result) {
+				throw new StorageManagerException("Unable to aquire all sstables in "
+						+ Const.OPERATION_RETRY + " retries", retryer.getLastException());
+			}
+			
+			return retryer.getResult();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new StorageManagerException("Wait for storage was interrupted", e);
+		}
+	}
 
+	/**
+	 * Get the tuple store allocator runnable
+	 * @return
+	 */
+	private Callable<List<ReadOnlyTupleStore>> getTupleStoreAllocatorCallable() {
+		
+		return () -> {
 			final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<>();
 			final List<ReadOnlyTupleStore> knownStorages = tupleStoreInstances.getAllTupleStorages();
 
@@ -606,9 +634,6 @@ public class TupleStoreManager implements BBoxDBService {
 				final boolean canBeUsed = tupleStorage.acquire();
 
 				if(! canBeUsed ) {
-					if(execution == Const.OPERATION_RETRY - 1) {
-						logger.error("Unable to aquire: {} with {} retries", tupleStorage, execution);
-					}
 					break;
 				} else {
 					aquiredStorages.add(tupleStorage);
@@ -618,24 +643,14 @@ public class TupleStoreManager implements BBoxDBService {
 			if(knownStorages.size() == aquiredStorages.size()) {
 				return aquiredStorages;
 			} else {
-				// one or more storages could not be acquired
-				// release storages and retry
+					// one or more storages could not be acquired
+					// release storages and retry
 				releaseStorage(aquiredStorages);
-
-				try {
-					// Wait some time and try again
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					break;
-				}
+				
+				return null;
 			}
-		}
-
-		throw new StorageManagerException("Unable to aquire all sstables in "
-				+ Const.OPERATION_RETRY + " retries");
+		};		
 	}
-
 
 	/**
 	 * Release all acquired tables
