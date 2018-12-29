@@ -648,7 +648,8 @@ public class TupleStoreManager implements BBoxDBService {
 					// release storages and retry
 				releaseStorage(aquiredStorages);
 				
-				return null;
+				throw new BBoxDBException("Unable to aquire all storages: Got " 
+						+ aquiredStorages.size() + " of " + knownStorages.size());
 			}
 		};		
 	}
