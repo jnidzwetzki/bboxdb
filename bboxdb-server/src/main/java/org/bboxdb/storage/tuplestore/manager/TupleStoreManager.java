@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.Retryer;
+import org.bboxdb.commons.Retryer.RetryMode;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.commons.service.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
@@ -603,7 +604,7 @@ public class TupleStoreManager implements BBoxDBService {
 		final Callable<List<ReadOnlyTupleStore>> callable = getTupleStoreAllocatorCallable();
 		
 		final Retryer<List<ReadOnlyTupleStore>> retryer = new Retryer<>(Const.OPERATION_RETRY, 
-				20, TimeUnit.MILLISECONDS, callable);
+				20, TimeUnit.MILLISECONDS, callable, RetryMode.LINEAR);
 		
 		try {
 			final boolean result = retryer.execute();

@@ -21,6 +21,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class Retryer<T> {
+	
+	/**
+	 * The retry mode
+	 */
+	public enum RetryMode {
+		NORMAL,
+		LINEAR,
+		EXPONENTIAL
+	}
 
 	/**
 	 * The amount of max executions
@@ -62,11 +71,22 @@ public class Retryer<T> {
 	 */
 	protected Exception lastException;
 
-	
+	/**
+	 * The retry mode
+	 */
+	private RetryMode retryMode;
+
 	public Retryer(final int maxExecutions, final int waitTime, final TimeUnit timeUnit, 
 			final Callable<T> callable) {
 		
+		this(maxExecutions, waitTime, timeUnit, callable, RetryMode.NORMAL);
+	}
+	
+	public Retryer(final int maxExecutions, final int waitTime, final TimeUnit timeUnit, 
+			final Callable<T> callable, final RetryMode retryMode) {
+		
 		this.maxExecutions = maxExecutions;
+		this.retryMode = retryMode;
 		this.waitMillis = timeUnit.toMillis(waitTime);
 		this.callable = callable;
 		this.done = false;
@@ -91,7 +111,13 @@ public class Retryer<T> {
 				lastException = e;
 			}
 			
-			Thread.sleep(waitMillis);
+			if(retryMode == RetryMode.NORMAL) {
+				Thread.sleep(waitMillis);
+			} else if(retryMode == RetryMode.LINEAR) {
+				Thread.sleep(waitMillis * neededExecutions);
+			} else {
+				Thread.sleep((int) Math.pow(waitMillis, neededExecutions));
+			}
 		}
 		
 		done = true;
