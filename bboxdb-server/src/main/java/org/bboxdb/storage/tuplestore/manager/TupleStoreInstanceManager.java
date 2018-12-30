@@ -150,17 +150,22 @@ public class TupleStoreInstanceManager {
 	 * Get a list with all active storages
 	 * @return
 	 */
-	public synchronized List<ReadOnlyTupleStore> getAllTupleStorages() {
+	public List<ReadOnlyTupleStore> getAllTupleStorages() {
+		
+		// Expensive ArrayList creation operation is done 
+		// outside of the synchronized block
 		final List<ReadOnlyTupleStore> allStorages = new ArrayList<>();
 		
-		if(memtable != null) {
-			allStorages.add(memtable);
+		synchronized (this) {
+			if(memtable != null) {
+				allStorages.add(memtable);
+			}
+			
+			allStorages.addAll(unflushedMemtables);
+			allStorages.addAll(sstableFacades);
+			
+			return allStorages;
 		}
-		
-		allStorages.addAll(unflushedMemtables);
-		allStorages.addAll(sstableFacades);
-		
-		return allStorages;
 	}
 	
 	/**
