@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.commons;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -34,42 +38,42 @@ public class Retryer<T> {
 	/**
 	 * The amount of max executions
 	 */
-	protected final int maxExecutions;
+	private final int maxExecutions;
 	
 	/**
 	 * The amount of needed executions
 	 */
-	protected int neededExecutions;
+	private int neededExecutions;
 	
 	/**
 	 * Number of milliseconds to wait between retries
 	 */
-	protected final long waitMillis;
+	private final long waitMillis;
 	
 	/**
 	 * The Callable
 	 */
-	protected final Callable<T> callable;
+	private final Callable<T> callable;
 
 	/**
 	 * Is the task done
 	 */
-	protected boolean done; 
+	private boolean done; 
 	
 	/**
 	 * Is the task finished successfully
 	 */
-	protected boolean successfully;
+	private boolean successfully;
 	
 	/**
 	 * The result of the operation
 	 */
-	protected T result;
+	private T result;
 	
 	/**
 	 * The last thrown exception
 	 */
-	protected Exception lastException;
+	private final List<Exception> allExceptions;
 
 	/**
 	 * The retry mode
@@ -86,13 +90,13 @@ public class Retryer<T> {
 			final Callable<T> callable, final RetryMode retryMode) {
 		
 		this.maxExecutions = maxExecutions;
-		this.retryMode = retryMode;
 		this.waitMillis = timeUnit.toMillis(waitTime);
-		this.callable = callable;
+		this.callable = Objects.requireNonNull(callable);
 		this.done = false;
 		this.successfully = false;
 		this.neededExecutions = 0;
-		this.lastException = null;
+		this.retryMode = retryMode;
+		this.allExceptions = new ArrayList<>();
 	}
 	
 	/**
@@ -108,7 +112,7 @@ public class Retryer<T> {
 				successfully = true;
 				break;
 			} catch(Exception e) {
-				lastException = e;
+				allExceptions.add(e);
 			}
 			
 			if(retryMode == RetryMode.NORMAL) {
@@ -174,13 +178,25 @@ public class Retryer<T> {
 	 * @return
 	 */
 	public Exception getLastException() {
-		return lastException;
+		if(allExceptions.isEmpty()) {
+			return null;
+		}
+		
+		return allExceptions.get(allExceptions.size() - 1);
+	}
+	
+	/**
+	 * Return all exceptions
+	 * @return
+	 */
+	public List<Exception> getAllExceptions() {
+		return Collections.unmodifiableList(allExceptions);
 	}
 
 	@Override
 	public String toString() {
-		return "Retryer [maxExecutions=" + maxExecutions + ", neededExecutions=" + neededExecutions + ", done=" + done
-				+ ", successfully=" + successfully + "]";
+		return "Retryer [maxExecutions=" + maxExecutions + ", neededExecutions=" + neededExecutions + ", waitMillis="
+				+ waitMillis + ", callable=" + callable + ", done=" + done + ", successfully=" + successfully
+				+ ", result=" + result + ", allExceptions=" + allExceptions + ", retryMode=" + retryMode + "]";
 	}
-	
 }

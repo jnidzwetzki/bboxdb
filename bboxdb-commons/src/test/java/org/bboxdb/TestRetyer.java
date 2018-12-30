@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -96,7 +97,7 @@ public class TestRetyer {
 				execution++;
 				
 				if(execution < 20) {
-					throw new Exception("Error");
+					throw new Exception("Error: " + execution);
 				}
 				
 				return true;
@@ -116,6 +117,11 @@ public class TestRetyer {
 		Assert.assertTrue(retryer.getResult() == null);
 		Assert.assertEquals(10, retryer.getNeededExecutions());
 		Assert.assertTrue(retryer.getLastException() != null);
+		
+		final List<Exception> allExceptions = retryer.getAllExceptions();
+		final int numberOfExceptions = retryer.getAllExceptions().size();
+		Assert.assertEquals(9, numberOfExceptions);
+		Assert.assertEquals(retryer.getLastException(), allExceptions.get(numberOfExceptions - 1));
 	}
 
 
