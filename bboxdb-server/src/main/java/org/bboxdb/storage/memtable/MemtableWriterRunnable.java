@@ -93,8 +93,6 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 	 * 
 	 */
 	protected void flushMemtableToDisk(final Memtable memtable, final TupleStoreManager sstableManager) {
-
-		SSTableFacade facade = null;
 		
 		final boolean aquired = memtable.acquire();
 		
@@ -102,6 +100,8 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 			logger.error("Memtable should be flushed but can't aqired");
 			return;
 		}
+		
+		SSTableFacade facade = null;
 
 		try {				
 			// Don't write empty memtables to disk
@@ -124,21 +124,7 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 			memtable.deleteOnClose();
 			memtable.release();
 		}  catch (Throwable e) {
-			deleteWrittenFacade(facade);
-
-			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
-				logger.debug("Rejected memtable write:", e);
-				return;
-			}
-			
-			logger.error("Exception while flushing memtable", e);
-			
-			if (Thread.currentThread().isInterrupted()) {
-				logger.debug("Got Exception while flushing memtable, but thread was interrupted. "
-						+ "Ignoring exception.");
-				Thread.currentThread().interrupt();
-				return;
-			} 
+			handleErrorDuringMemtableWrite(sstableManager, facade, e); 
 		} finally {
 			// Release our aquire
 			memtable.release();
@@ -146,12 +132,31 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 	}
 
 	/**
-	 * Delete the written facade
+	 * Handle and error during the memtable write
+	 * @param sstableManager
 	 * @param facade
+	 * @param e
 	 */
-	protected void deleteWrittenFacade(final SSTableFacade facade) {
+	private void handleErrorDuringMemtableWrite(final TupleStoreManager sstableManager, 
+			final SSTableFacade facade, final Throwable e) {
+		
+		// Delete thr written facade
 		if(facade != null) {
 			facade.deleteOnClose();
+		}
+		
+		if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
+			logger.debug("Rejected memtable write:", e);
+			return;
+		}
+		
+		logger.error("Exception while flushing memtable", e);
+		
+		if (Thread.currentThread().isInterrupted()) {
+			logger.debug("Got Exception while flushing memtable, but thread was interrupted. "
+					+ "Ignoring exception.");
+			Thread.currentThread().interrupt();
+			return;
 		}
 	}
 
