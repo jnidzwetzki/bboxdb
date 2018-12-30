@@ -27,21 +27,21 @@ public class EnlargeBoundingBoxByAmountTransformation implements TupleTransforma
 	/**
 	 * The enlargement factor
 	 */
-	private int factor;
+	private final double amount;
 
-	public EnlargeBoundingBoxByAmountTransformation(final int factor) {
-		this.factor = factor;
+	public EnlargeBoundingBoxByAmountTransformation(final double amount) {
+		this.amount = amount;
 	}
 	
-	public EnlargeBoundingBoxByAmountTransformation(final String factor) throws InputParseException {
-		this.factor = MathUtil.tryParseInt(factor, () -> "Unable to parse: " + factor);
+	public EnlargeBoundingBoxByAmountTransformation(final String amount) throws InputParseException {
+		this.amount = MathUtil.tryParseDouble(amount, () -> "Unable to parse: " + amount);
 	}
 
 	@Override
 	public TupleAndBoundingBox apply(final TupleAndBoundingBox input) {
 		
 		final Hyperrectangle inputBox = input.getBoundingBox();
-		final Hyperrectangle resultBox = inputBox.enlargeByAmount(factor);	
+		final Hyperrectangle resultBox = inputBox.enlargeByAmount(amount);	
 		
 		return new TupleAndBoundingBox(input.getTuple(), resultBox);
 	}
@@ -50,7 +50,9 @@ public class EnlargeBoundingBoxByAmountTransformation implements TupleTransforma
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + factor;
+		long temp;
+		temp = Double.doubleToLongBits(amount);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -63,14 +65,14 @@ public class EnlargeBoundingBoxByAmountTransformation implements TupleTransforma
 		if (getClass() != obj.getClass())
 			return false;
 		EnlargeBoundingBoxByAmountTransformation other = (EnlargeBoundingBoxByAmountTransformation) obj;
-		if (factor != other.factor)
+		if (Double.doubleToLongBits(amount) != Double.doubleToLongBits(other.amount))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String getSerializedData() {
-		return Integer.toString(factor);
+		return Double.toString(amount);
 	}
 	
 }

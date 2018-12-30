@@ -27,9 +27,9 @@ public class EnlargeBoundingBoxByFactorTransformation implements TupleTransforma
 	/**
 	 * The enlargement factor
 	 */
-	private int factor;
+	private final double factor;
 
-	public EnlargeBoundingBoxByFactorTransformation(final int factor) {
+	public EnlargeBoundingBoxByFactorTransformation(final double factor) {
 		this.factor = factor;
 	}
 	
@@ -50,7 +50,9 @@ public class EnlargeBoundingBoxByFactorTransformation implements TupleTransforma
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + factor;
+		long temp;
+		temp = Double.doubleToLongBits(factor);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -63,14 +65,14 @@ public class EnlargeBoundingBoxByFactorTransformation implements TupleTransforma
 		if (getClass() != obj.getClass())
 			return false;
 		EnlargeBoundingBoxByFactorTransformation other = (EnlargeBoundingBoxByFactorTransformation) obj;
-		if (factor != other.factor)
+		if (Double.doubleToLongBits(factor) != Double.doubleToLongBits(other.factor))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String getSerializedData() {
-		return Integer.toString(factor);
+		return Double.toString(factor);
 	}
 	
 }
