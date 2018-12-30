@@ -13,6 +13,8 @@ order: 1
 - Improvement: Tuple insert with bounding box hyperrectangle transformation
 - Improvement: Added several delay modes to the retryer
 - Improvement: All exceptions are stored in the retryer
+- Improvement: Refactored tuple store aquire code
+- Improvement: Logging for failed tuple store aquire is more detailed
 - Bugfix: Rewrote tuple manager allocator retry code (closes #125)
 
 ### Version 0.8.5 - 21.12.2018

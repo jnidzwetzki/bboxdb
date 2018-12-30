@@ -42,6 +42,7 @@ import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.junit.AfterClass;
@@ -468,8 +469,9 @@ public class TestTableCompactor {
 		ssTableCompactorRunnable.forceMajorCompact(storageManager);
 		
 		// Test exception handler
-		final List<ReadOnlyTupleStore> writtenStorages = storageManager.aquireStorage();
-		storageManager.releaseStorage(writtenStorages);
+		final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(storageManager);
+		final List<ReadOnlyTupleStore> writtenStorages = tupleStoreAquirer.getTupleStores();
+		tupleStoreAquirer.close();
 		storageManager.shutdown();
 
 		final List<SSTableFacade> tupleStorages = writtenStorages.stream()

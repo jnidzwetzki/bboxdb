@@ -22,16 +22,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.DuplicateResolver;
-import org.bboxdb.commons.ExceptionHelper;
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.Retryer;
-import org.bboxdb.commons.Retryer.RetryMode;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.commons.service.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
@@ -44,7 +39,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
@@ -572,20 +566,14 @@ public class TupleStoreManager implements BBoxDBService {
 
 		final Summary.Timer requestTimer = getRequestLatency.startTimer();
 
-		final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<>();
 		final List<Tuple> tupleList = new ArrayList<>();
 
-		try {
-			aquiredStorages.addAll(aquireStorage());
-
-			for(final ReadOnlyTupleStore tupleStorage : aquiredStorages) {
+		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(this)) {
+			for(final ReadOnlyTupleStore tupleStorage : tupleStoreAquirer.getTupleStores()) {
 				final List<Tuple> resultTuples = tupleStorage.get(key);
 				tupleList.addAll(resultTuples);
 			}
-		} catch (Exception e) {
-			throw e;
 		} finally {
-			releaseStorage(aquiredStorages);
 			requestTimer.observeDuration();
 		}
 
@@ -593,77 +581,6 @@ public class TupleStoreManager implements BBoxDBService {
 		resolver.removeDuplicates(tupleList);
 
 		return tupleList;
-	}
-
-	/**
-	 * Try to acquire all needed tables
-	 * @return
-	 * @throws StorageManagerException
-	 */
-	public List<ReadOnlyTupleStore> aquireStorage() throws StorageManagerException {
-
-		final Callable<List<ReadOnlyTupleStore>> callable = getTupleStoreAllocatorCallable();
-		
-		final Retryer<List<ReadOnlyTupleStore>> retryer = new Retryer<>(Const.OPERATION_RETRY, 
-				20, TimeUnit.MILLISECONDS, callable, RetryMode.LINEAR);
-		
-		try {
-			final boolean result = retryer.execute();
-			
-			if(! result) {
-				final List<Exception> exceptions = retryer.getAllExceptions();
-				throw new StorageManagerException("Unable to aquire all sstables in "
-						+ Const.OPERATION_RETRY + " retries.\n " 
-						+ ExceptionHelper.getFormatedStacktrace(exceptions));
-			}
-			
-			return retryer.getResult();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new StorageManagerException("Wait for storage was interrupted", e);
-		}
-	}
-
-	/**
-	 * Get the tuple store allocator callable
-	 * @return
-	 */
-	private Callable<List<ReadOnlyTupleStore>> getTupleStoreAllocatorCallable() {
-		
-		return () -> {
-			final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<>();
-			final List<ReadOnlyTupleStore> knownStorages = tupleStoreInstances.getAllTupleStorages();
-
-			for(final ReadOnlyTupleStore tupleStorage : knownStorages) {
-				final boolean canBeUsed = tupleStorage.acquire();
-
-				if(! canBeUsed) {
-					// one or more storages could not be acquired
-					// release storages and retry
-					
-					releaseStorage(aquiredStorages);
-					
-					throw new BBoxDBException("The storage: " + tupleStorage.getInternalName() 
-						+ " can't be aquired");					
-				} else {
-					aquiredStorages.add(tupleStorage);
-				}
-			}
-
-			return aquiredStorages;
-		};		
-	}
-
-	/**
-	 * Release all acquired tables
-	 */
-	public void releaseStorage(List<ReadOnlyTupleStore> storagesToRelease) {
-
-		if(storagesToRelease == null) {
-			return;
-		}
-
-		storagesToRelease.forEach(s -> s.release());
 	}
 
 	/**
@@ -887,19 +804,11 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public long getSize() throws StorageManagerException {
-		List<ReadOnlyTupleStore> storages = null;
-
-		try {
-			storages = aquireStorage();
-
-			return storages.stream()
+		
+		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(this)) {
+			return tupleStoreAquirer.getTupleStores().stream()
 					.mapToLong(s -> s.getSize())
 					.sum();
-
-		} finally {
-			if(storages != null) {
-				releaseStorage(storages);
-			}
 		}
 	}
 
@@ -909,20 +818,12 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public long getNumberOfTuples() throws StorageManagerException {
-		List<ReadOnlyTupleStore> storages = null;
-
-		try {
-			storages = aquireStorage();
-
-			return storages.stream()
+		
+		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(this)) {
+			return tupleStoreAquirer.getTupleStores().stream()
 					.mapToLong(s -> s.getNumberOfTuples())
 					.sum();
-
-		} finally {
-			if(storages != null) {
-				releaseStorage(storages);
-			}
-		}
+		} 
 	}
 
 	/**
@@ -1000,23 +901,15 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	public List<Tuple> getAllTupleVersionsForKey(final String key) throws StorageManagerException {
 
-		List<ReadOnlyTupleStore> aquiredStorages = null;
-
-		try {
-			aquiredStorages = aquireStorage();
-
+		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(this)) {
 			final List<Tuple> resultTuples = new ArrayList<>();
 
-			for(final ReadOnlyTupleStore readOnlyTupleStorage : aquiredStorages) {
+			for(final ReadOnlyTupleStore readOnlyTupleStorage : tupleStoreAquirer.getTupleStores()) {
 				final List<Tuple> possibleTuples = readOnlyTupleStorage.get(key);
 				resultTuples.addAll(possibleTuples);
 			}
 
 			return resultTuples;
-		} catch(Exception e) {
-			throw e;
-		} finally {
-			releaseStorage(aquiredStorages);
-		}
+		} 
 	}
 }

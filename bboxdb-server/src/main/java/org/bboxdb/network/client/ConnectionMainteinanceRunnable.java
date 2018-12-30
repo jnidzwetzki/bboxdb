@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +29,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
@@ -131,12 +131,11 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 		
 		lastGossipTableName = ListHelper.getElementRandom(tables);
 		
-		List<ReadOnlyTupleStore> storages = new ArrayList<>();
 		try {
 			final TupleStoreManager tupleStoreManager = tupleStoreManagerRegistry.getTupleStoreManager(lastGossipTableName);
 
-			try {
-				storages = tupleStoreManager.aquireStorage();
+			try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(tupleStoreManager)) {
+				final List<ReadOnlyTupleStore> storages = tupleStoreAquirer.getTupleStores();
 				
 				if(storages.isEmpty()) {
 					return bboxDBClient.sendKeepAlivePackage();
@@ -148,11 +147,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 					return sendKeepAliveWithGossip(tupleStoreManager ,tupleStore);
 				}
 				
-			} catch (Exception e) {
-				throw e;
-			} finally {
-				tupleStoreManager.releaseStorage(storages);
-			}
+			} 
 		} catch (StorageManagerException e) {
 			logger.error("Got exception while reading tuples", e);
 		}

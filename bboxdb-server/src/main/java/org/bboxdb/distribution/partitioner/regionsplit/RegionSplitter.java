@@ -35,6 +35,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
@@ -273,14 +274,11 @@ public class RegionSplitter {
 	 * @param onlyInMemoryData 
 	 * @throws StorageManagerException 
 	 */
-	private void spreadTupleStores(final TupleStoreManager ssTableManager, 
+	private void spreadTupleStores(final TupleStoreManager tupleStoreManager, 
 			final TupleRedistributor tupleRedistributor) throws BBoxDBException {
 		
-		final List<ReadOnlyTupleStore> storages = new ArrayList<>();
-		
-		try {
-			final List<ReadOnlyTupleStore> aquiredStorages = ssTableManager.aquireStorage();
-			storages.addAll(aquiredStorages);
+		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(tupleStoreManager)) {
+			final List<ReadOnlyTupleStore> aquiredStorages = tupleStoreAquirer.getTupleStores();
 			
 			final int totalSotrages = aquiredStorages.size();
 			
@@ -292,14 +290,12 @@ public class RegionSplitter {
 			}
 
 			logger.info("Final statistics for spread ({}): {}", 
-					ssTableManager.getTupleStoreName().getFullname(),
+					tupleStoreManager.getTupleStoreName().getFullname(),
 					tupleRedistributor.getStatistics());
 			
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
-		} finally {
-			ssTableManager.releaseStorage(storages);
-		}
+		} 
 	}
 
 	/**

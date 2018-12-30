@@ -40,6 +40,7 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.tools.TupleFileReader;
@@ -113,12 +114,10 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	private void queryDataWithIndex() {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 
-		List<ReadOnlyTupleStore> storages = null;
 		long results = 0;
-		try {
-			 storages = storageManager.aquireStorage();
+		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(storageManager)) {
 
-			 for(final ReadOnlyTupleStore storge : storages) {
+			 for(final ReadOnlyTupleStore storge : tupleStoreAquirer.getTupleStores()) {
 				 final Iterator<Tuple> resultIterator = storge.getAllTuplesInBoundingBox(sample);
 				 final ArrayList<Tuple> resultTuples = Lists.newArrayList(resultIterator);
 				 results = results + resultTuples.size();
@@ -131,11 +130,7 @@ public class TestSpatialIndex implements Runnable, Closeable {
 			System.err.println("Got an Exception during query");
 			e.printStackTrace();
 			System.exit(-1);
-		} finally {
-			storageManager.releaseStorage(storages);
-		}
-
-
+		} 
 	}
 
 	/**

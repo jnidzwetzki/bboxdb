@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -38,6 +37,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
@@ -222,21 +222,13 @@ public class RegionMerger {
 		
 		final TupleStoreManager tupleStoreManager = registry.getTupleStoreManager(childRegionName);
 		
-		final List<ReadOnlyTupleStore> storages = new ArrayList<>();
-		
-		try {
-			storages.addAll(tupleStoreManager.aquireStorage());
-			
-			for(final ReadOnlyTupleStore storage : storages) {
+		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(tupleStoreManager)) {
+			for(final ReadOnlyTupleStore storage : tupleStoreAquirer.getTupleStores()) {
 				for(final Tuple tuple : storage) {
 					tupleRedistributor.redistributeTuple(tuple);
 				}
 			}
-		} catch(Exception e) {
-			throw e;
-		} finally {
-			tupleStoreManager.releaseStorage(storages);
-		}
+		} 
 	}
 
 	/**

@@ -29,6 +29,7 @@ import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +162,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 	/**
 	 * The aquired storages
 	 */
-	protected final List<ReadOnlyTupleStore> aquiredStorages;
+	protected TupleStoreAquirer tupleStoreAquirer;
 	
 	/**
 	 * The sstable manager
@@ -186,7 +187,6 @@ public abstract class AbstractTablescanOperator implements Operator {
 	public AbstractTablescanOperator(final TupleStoreManager tupleStoreManager) {
 		this.tupleStoreManager = tupleStoreManager;
 		this.ready = false;
-		this.aquiredStorages = new LinkedList<ReadOnlyTupleStore>();
 		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStore>();
 		this.seenTuples = new HashSet<>();
 	}
@@ -197,8 +197,11 @@ public abstract class AbstractTablescanOperator implements Operator {
 	@Override
 	public void close() {
 		ready = false;
-		tupleStoreManager.releaseStorage(aquiredStorages);
-		aquiredStorages.clear();
+		
+		if(tupleStoreAquirer != null) {
+			tupleStoreAquirer.close();
+		}
+		
 		unprocessedStorages.clear();
 		seenTuples.clear();
 	}
@@ -210,8 +213,8 @@ public abstract class AbstractTablescanOperator implements Operator {
 	protected void aquireStorage() {
 		try {
 			close();
-			aquiredStorages.addAll(tupleStoreManager.aquireStorage());			
-			unprocessedStorages.addAll(aquiredStorages);
+			tupleStoreAquirer = new TupleStoreAquirer(tupleStoreManager);
+			unprocessedStorages.addAll(tupleStoreAquirer.getTupleStores());
 			ready = true;		
 		} catch (StorageManagerException e) {
 			logger.error("Unable to aquire tables", e);
