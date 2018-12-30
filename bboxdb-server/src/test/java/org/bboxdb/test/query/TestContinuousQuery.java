@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.test.tools;
+package org.bboxdb.test.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -34,7 +34,7 @@ public class EnlargeBoundingBoxByFactorTransformation implements TupleTransforma
 	}
 	
 	public EnlargeBoundingBoxByFactorTransformation(final String factor) throws InputParseException {
-		this.factor = MathUtil.tryParseInt(factor, () -> "Unable to parse: " + factor);
+		this.factor = MathUtil.tryParseDouble(factor, () -> "Unable to parse: " + factor);
 	}
 
 	@Override
