@@ -22,12 +22,13 @@ import java.util.Arrays;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
 import org.bboxdb.network.query.ContinuousTableQueryPlan;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
 import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.junit.Assert;
 import org.junit.Test;
@@ -120,7 +121,7 @@ public class TestContinuousQuery {
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd"),
-						new EnlargeBoundingBoxTransformation(4)), 
+						new EnlargeBoundingBoxByAmountTransformation(4)), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), true);
 		
@@ -146,7 +147,8 @@ public class TestContinuousQuery {
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd"),
-						new EnlargeBoundingBoxTransformation(4)), 
+						new EnlargeBoundingBoxByAmountTransformation(4),
+						new EnlargeBoundingBoxByFactorTransformation(3)), 
 				false);
 		
 		serializeAndDeserialize(continuousQueryPlan);
@@ -162,7 +164,7 @@ public class TestContinuousQuery {
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd"),
-						new EnlargeBoundingBoxTransformation(4)), 
+						new EnlargeBoundingBoxByAmountTransformation(4)), 
 				false);
 		
 		serializeAndDeserialize(continuousQueryPlan);

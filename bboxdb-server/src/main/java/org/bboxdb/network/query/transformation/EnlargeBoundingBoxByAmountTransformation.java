@@ -22,18 +22,18 @@ import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 
-public class EnlargeBoundingBoxTransformation implements TupleTransformation {
+public class EnlargeBoundingBoxByAmountTransformation implements TupleTransformation {
 	
 	/**
 	 * The enlargement factor
 	 */
 	private int factor;
 
-	public EnlargeBoundingBoxTransformation(final int factor) {
+	public EnlargeBoundingBoxByAmountTransformation(final int factor) {
 		this.factor = factor;
 	}
 	
-	public EnlargeBoundingBoxTransformation(final String factor) throws InputParseException {
+	public EnlargeBoundingBoxByAmountTransformation(final String factor) throws InputParseException {
 		this.factor = MathUtil.tryParseInt(factor, () -> "Unable to parse: " + factor);
 	}
 
@@ -62,7 +62,7 @@ public class EnlargeBoundingBoxTransformation implements TupleTransformation {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		EnlargeBoundingBoxTransformation other = (EnlargeBoundingBoxTransformation) obj;
+		EnlargeBoundingBoxByAmountTransformation other = (EnlargeBoundingBoxByAmountTransformation) obj;
 		if (factor != other.factor)
 			return false;
 		return true;

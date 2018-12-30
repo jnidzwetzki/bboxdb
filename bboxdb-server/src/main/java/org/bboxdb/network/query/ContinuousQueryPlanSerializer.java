@@ -25,7 +25,8 @@ import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
 import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.json.JSONArray;
@@ -62,7 +63,8 @@ public class ContinuousQueryPlanSerializer {
 	 */
 	private static final String TRANSFORMATION_NAME_KEY = "name";
 	private static final String TRANSFORMATION_KEY_FILTER_VALUE = "key-filter";
-	private static final String TRANSFORMATION_BBOX_ENLARGE_VALUE = "bbox-enlarge";
+	private static final String TRANSFORMATION_BBOX_ENLARGE_AMOUNT_VALUE = "bbox-enlarge-by-amount";
+	private static final String TRANSFORMATION_BBOX_ENLARGE_FACTOR_VALUE = "bbox-enlarge-by-factor";
 	private static final String TRANSFORMATION_BBOX_FILTER_VALUE = "bbox-filter";
 	
 	/**
@@ -122,8 +124,10 @@ public class ContinuousQueryPlanSerializer {
 			
 			if(transformation instanceof BoundingBoxFilterTransformation) {
 				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_FILTER_VALUE);
-			} else if(transformation instanceof EnlargeBoundingBoxTransformation) {
-				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_ENLARGE_VALUE);
+			} else if(transformation instanceof EnlargeBoundingBoxByAmountTransformation) {
+				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_ENLARGE_AMOUNT_VALUE);
+			} else if(transformation instanceof EnlargeBoundingBoxByFactorTransformation) {
+				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_ENLARGE_FACTOR_VALUE);
 			} else if(transformation instanceof KeyFilterTransformation) {
 				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_KEY_FILTER_VALUE);
 			} else {
@@ -211,8 +215,11 @@ public class ContinuousQueryPlanSerializer {
 				TupleTransformation transformation;
 				
 				switch(transformationType) {
-					case TRANSFORMATION_BBOX_ENLARGE_VALUE:
-						transformation = new EnlargeBoundingBoxTransformation(transformationValue);
+					case TRANSFORMATION_BBOX_ENLARGE_AMOUNT_VALUE:
+						transformation = new EnlargeBoundingBoxByAmountTransformation(transformationValue);
+						break;
+					case TRANSFORMATION_BBOX_ENLARGE_FACTOR_VALUE:
+						transformation = new EnlargeBoundingBoxByFactorTransformation(transformationValue);
 						break;
 					case TRANSFORMATION_BBOX_FILTER_VALUE:
 						transformation = new BoundingBoxFilterTransformation(transformationValue);
