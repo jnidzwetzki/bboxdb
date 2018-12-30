@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.storage.tuplestore.manager;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -31,7 +30,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
-public class TupleStoreAquirer implements Closeable {
+public class TupleStoreAquirer implements AutoCloseable {
 
 	private List<ReadOnlyTupleStore> tupleStores;
 	
