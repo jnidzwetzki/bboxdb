@@ -30,9 +30,10 @@ public class TestQueryPlanBuilder {
 	@Test(timeout=60_000, expected=IllegalArgumentException.class)
 	public void testInvalidPlan() {
 		QueryPlanBuilder
-			.createQueryOnTableAndRegion("table", new Hyperrectangle(3d, 4d))
-			.compareWithStaticRegion(new Hyperrectangle(2d, 4d))
-			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
+			.createQueryOnTable("table")
+			.forAllTuplesStoredInRegion(3d, 4d)
+			.compareWithStaticRegion(2d, 4d)
+			.filterStreamTupleByBoundingBox(4d, 5d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.enlargeStoredTupleBoundBoxByAmount(4)
@@ -42,8 +43,9 @@ public class TestQueryPlanBuilder {
 	@Test(timeout=60_000)
 	public void testConstPlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
-			.createQueryOnTableAndRegion("table", new Hyperrectangle(3d, 4d))
-			.compareWithStaticRegion(new Hyperrectangle(2d, 4d))
+			.createQueryOnTable("table")
+			.forAllTuplesStoredInRegion(3d, 4d)
+			.compareWithStaticRegion(2d, 4d)
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
@@ -58,9 +60,10 @@ public class TestQueryPlanBuilder {
 	@Test(timeout=60_000)
 	public void testConstPlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
-			.createQueryOnTableAndRegion("table", new Hyperrectangle(3d, 4d))
-			.compareWithStaticRegion(new Hyperrectangle(2d, 4d))
-			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
+			.createQueryOnTable("table")
+			.forAllTuplesStoredInRegion(3d, 4d)
+			.compareWithStaticRegion(2d, 4d)
+			.filterStreamTupleByBoundingBox(3d, 5d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.build();
@@ -77,8 +80,9 @@ public class TestQueryPlanBuilder {
 	@Test(timeout=60_000)
 	public void testTablePlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
-			.createQueryOnTableAndRegion("table", new Hyperrectangle(3d, 4d))
-			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
+			.createQueryOnTable("table")
+			.forAllTuplesStoredInRegion(3d, 4d)
+			.filterStreamTupleByBoundingBox(1d, 5d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.reportPositiveMatches(false)
@@ -96,9 +100,10 @@ public class TestQueryPlanBuilder {
 	@Test(timeout=60_000)
 	public void testTablePlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
-			.createQueryOnTableAndRegion("table", new Hyperrectangle(3d, 4d))
-			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
-			.filterStoredTupleByBoundingBox(new Hyperrectangle(3d, 6d))
+			.createQueryOnTable("table")
+			.forAllTuplesStoredInRegion(3d, 4d)
+			.filterStreamTupleByBoundingBox(3d, 5d)
+			.filterStoredTupleByBoundingBox(3d, 6d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.enlargeStoredTupleBoundBoxByAmount(2)

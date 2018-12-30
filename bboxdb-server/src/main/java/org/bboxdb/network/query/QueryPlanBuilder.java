@@ -37,7 +37,7 @@ public class QueryPlanBuilder {
 	/**
 	 * The query region
 	 */
-	private final Hyperrectangle queryRegion;
+	private Hyperrectangle queryRegion;
 	
 	/**
 	 * The region to compare with
@@ -59,12 +59,12 @@ public class QueryPlanBuilder {
 	 */
 	private boolean reportPositiveMatches;
 
-	public QueryPlanBuilder(final String tablename, final Hyperrectangle region) {
+	public QueryPlanBuilder(final String tablename) {
 		this.tablename = tablename;
-		this.queryRegion = region;
 		this.streamTupleTransformation = new ArrayList<>();
 		this.storedTupleTransformation = new ArrayList<>();
 		this.reportPositiveMatches = true;
+		this.queryRegion = Hyperrectangle.FULL_SPACE;
 	}
 
 	/**
@@ -73,10 +73,18 @@ public class QueryPlanBuilder {
 	 * @param region
 	 * @return
 	 */
-	public static QueryPlanBuilder createQueryOnTableAndRegion(final String tablename, 
-			final Hyperrectangle region) {
-		
-		return new QueryPlanBuilder(tablename, region);
+	public static QueryPlanBuilder createQueryOnTable(final String tablename) {
+		return new QueryPlanBuilder(tablename);
+	}
+	
+	/**
+	 * Execute the query on region
+	 * @param values
+	 * @return
+	 */
+	public QueryPlanBuilder forAllTuplesStoredInRegion(final Double... values) {
+		this.queryRegion = new Hyperrectangle(values);
+		return this;
 	}
 	
 	/**
@@ -84,8 +92,8 @@ public class QueryPlanBuilder {
 	 * @param region
 	 * @return
 	 */
-	public QueryPlanBuilder compareWithStaticRegion(final Hyperrectangle region) {
-		this.regionConst = region;
+	public QueryPlanBuilder compareWithStaticRegion(final Double... values) {
+		this.regionConst = new Hyperrectangle(values);
 		return this;
 	}
 	
@@ -114,7 +122,8 @@ public class QueryPlanBuilder {
 	 * @param key
 	 * @return
 	 */
-	public QueryPlanBuilder filterStreamTupleByBoundingBox(final Hyperrectangle bbox) {
+	public QueryPlanBuilder filterStreamTupleByBoundingBox(final Double... values) {
+		final Hyperrectangle bbox = new Hyperrectangle(values);
 		streamTupleTransformation.add(new BoundingBoxFilterTransformation(bbox));
 		return this;
 	}
@@ -154,7 +163,8 @@ public class QueryPlanBuilder {
 	 * @param key
 	 * @return
 	 */
-	public QueryPlanBuilder filterStoredTupleByBoundingBox(final Hyperrectangle bbox) {
+	public QueryPlanBuilder filterStoredTupleByBoundingBox(final Double... values) {
+		final Hyperrectangle bbox = new Hyperrectangle(values);
 		storedTupleTransformation.add(new BoundingBoxFilterTransformation(bbox));
 		return this;
 	}
