@@ -68,7 +68,7 @@ public class TPCHLineitemPointBuilder extends TupleBuilder {
 			final double shipDateTime = (double) shipDate.getTime();
 			final Hyperrectangle boundingBox = new Hyperrectangle(shipDateTime, shipDateTime);
 
-			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
 		} catch (ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

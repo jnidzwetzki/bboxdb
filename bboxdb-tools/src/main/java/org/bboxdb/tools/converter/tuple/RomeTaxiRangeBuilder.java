@@ -83,7 +83,7 @@ public class RomeTaxiRangeBuilder extends TupleBuilder {
 			final Hyperrectangle boundingBox = new Hyperrectangle(beginTime, endTime,
 					beginLongitude, endLongitude, beginLatitude, endLatitude);
 
-			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

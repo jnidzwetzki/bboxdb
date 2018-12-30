@@ -61,7 +61,7 @@ public class TPCHOrderPointBuilder extends TupleBuilder {
 			final double orderDateTime = (double) orderDate.getTime();
 			final Hyperrectangle boundingBox = new Hyperrectangle(orderDateTime, orderDateTime);
 
-			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
 		} catch (ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

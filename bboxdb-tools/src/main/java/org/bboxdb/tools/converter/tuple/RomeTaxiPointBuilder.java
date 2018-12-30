@@ -57,7 +57,7 @@ public class RomeTaxiPointBuilder extends TupleBuilder {
 			final Hyperrectangle boundingBox = new Hyperrectangle(dateSeconds, dateSeconds,
 					longitude, longitude, latitude, latitude);
 
-			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

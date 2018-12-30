@@ -656,15 +656,36 @@ public class TestHyperrectangle {
 	 * Test the enlarge function
 	 */
 	@Test(timeout=60000)
-	public void testEnlarge() {
+	public void testEnlargeByAmount() {
 
 		final Hyperrectangle bb1 = new Hyperrectangle(-5d, 10d);
 		final Hyperrectangle bb2 = new Hyperrectangle(-10d, 10d, -50d, 50d);
 		final Hyperrectangle bb3 = new Hyperrectangle(0d, 10d, -50d, 50d, -100d, 10d);
 
-		Assert.assertEquals(new Hyperrectangle(-10d, 15d), bb1.enlarge(5));
-		Assert.assertEquals(new Hyperrectangle(-15d, 15d, -55d, 55d), bb2.enlarge(5));
-		Assert.assertEquals(new Hyperrectangle(-5d, 15d, -55d, 55d, -105d, 15d), bb3.enlarge(5));
+		Assert.assertEquals(new Hyperrectangle(-10d, 15d), bb1.enlargeByAmount(5));
+		Assert.assertEquals(new Hyperrectangle(-15d, 15d, -55d, 55d), bb2.enlargeByAmount(5));
+		Assert.assertEquals(new Hyperrectangle(-5d, 15d, -55d, 55d, -105d, 15d), bb3.enlargeByAmount(5));
+	}
+	
+
+	/**
+	 * Test the enlarge function
+	 */
+	@Test(timeout=60000)
+	public void testEnlargeByFactor() {
+
+		final Hyperrectangle bb0 = new Hyperrectangle(-5d, 5d);
+		final Hyperrectangle bb1 = new Hyperrectangle(-5d, 10d);
+		final Hyperrectangle bb2 = new Hyperrectangle(-10d, 10d, -50d, 50d);
+		final Hyperrectangle bb3 = new Hyperrectangle(0d, 10d, -50d, 50d, -100d, 10d);
+
+		Assert.assertEquals(new Hyperrectangle(-5d, 5d), bb0.enlargeByFactor(1));
+		Assert.assertEquals(new Hyperrectangle(-10d, 10d), bb0.enlargeByFactor(2));
+		Assert.assertEquals(new Hyperrectangle(-15d, 15d), bb0.enlargeByFactor(3));
+
+		Assert.assertEquals(new Hyperrectangle(-12.5d, 17.5d), bb1.enlargeByFactor(2));
+		Assert.assertEquals(new Hyperrectangle(-50d, 50d, -250d, 250d), bb2.enlargeByFactor(5));
+		Assert.assertEquals(new Hyperrectangle(-20.0d, 30.0d, -250d, 250d, -320.0d, 230.0d), bb3.enlargeByFactor(5));
 	}
 
 }

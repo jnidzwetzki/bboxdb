@@ -56,7 +56,7 @@ public class YellowTaxiPointTupleBuilder extends TupleBuilder {
 			final Hyperrectangle boundingBox = new Hyperrectangle(longBegin, longBegin,
 					latBegin, latBegin,	(double) tripStart.getTime(), (double) tripStart.getTime());
 
-			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
 		} catch (NumberFormatException | ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

@@ -278,17 +278,53 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	}
 
 	/**
+	 * Returns a new Hyperrectangle, enlarged on each dimension by a factor
+	 * @param amount
+	 * @return
+	 */
+	public Hyperrectangle enlargeByFactor(final double factor) {
+
+		final Double[] enlargement = new Double[getDimension()];
+		
+		for(int i = 0; i < getDimension(); i++) {
+			// Enlarge by half extension per side 			
+			enlargement[i] = (getExtent(i) * (factor - 1)) / 2.0;
+		}
+		
+		return addPadding(enlargement);
+	}
+	
+	/**
 	 * Returns a new Hyperrectangle, enlarged on each dimension by 2 * amount
 	 * @param amount
 	 * @return
 	 */
-	public Hyperrectangle enlarge(final double amount) {
+	public Hyperrectangle enlargeByAmount(final double amount) {
 
+		final Double[] enlargement = new Double[getDimension()];
+		
+		for(int i = 0; i < getDimension(); i++) {
+			enlargement[i] = amount;
+		}
+		
+		return addPadding(enlargement);
+	}
+	
+	/**
+	 * Add the padding given by the bounding box
+	 * @param paddingBox
+	 * @return
+	 */
+	public Hyperrectangle addPadding(final Double... padding) {
+		if(getDimension() != padding.length) {
+			throw new IllegalArgumentException("Padding does not match dimension");
+		}
+		
 		final List<DoubleInterval> newIntervals = new ArrayList<>(getDimension());
 
 		for(int i = 0; i < getDimension(); i++) {
 			final DoubleInterval interval = getIntervalForDimension(i);
-			newIntervals.add(new DoubleInterval(interval.getBegin() - amount, interval.getEnd() + amount));
+			newIntervals.add(new DoubleInterval(interval.getBegin() - padding[i], interval.getEnd() + padding[i]));
 		}
 
 		return new Hyperrectangle(newIntervals);

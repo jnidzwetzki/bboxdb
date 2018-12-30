@@ -31,7 +31,7 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 			return null;
 		}
 		
-		return new Tuple(keyData, polygon.getBoundingBox().enlarge(boxPadding), tupleBytes);
+		return new Tuple(keyData, polygon.getBoundingBox().enlargeByAmount(boxPadding), tupleBytes);
 	}
 
 }

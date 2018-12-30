@@ -169,7 +169,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
 			final double enlagement) throws BBoxDBException {
 		
-		final Hyperrectangle bbox = tuple.getBoundingBox().enlarge(enlagement);
+		final Hyperrectangle bbox = tuple.getBoundingBox().enlargeByAmount(enlagement);
 		
 		return executeInsert(table, tuple, bbox);
 	}

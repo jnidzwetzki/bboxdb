@@ -73,7 +73,7 @@ public class TPCHLineitemRangeBuilder extends TupleBuilder {
 					Math.min(shipDateTime, receiptDateTime),
 					Math.max(shipDateTime, receiptDateTime));
 
-			return new Tuple(keyData, boundingBox.enlarge(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
 		} catch (ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

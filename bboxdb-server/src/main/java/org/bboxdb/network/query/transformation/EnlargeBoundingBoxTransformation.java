@@ -41,7 +41,7 @@ public class EnlargeBoundingBoxTransformation implements TupleTransformation {
 	public TupleAndBoundingBox apply(final TupleAndBoundingBox input) {
 		
 		final Hyperrectangle inputBox = input.getBoundingBox();
-		final Hyperrectangle resultBox = inputBox.enlarge(factor);	
+		final Hyperrectangle resultBox = inputBox.enlargeByAmount(factor);	
 		
 		return new TupleAndBoundingBox(input.getTuple(), resultBox);
 	}
