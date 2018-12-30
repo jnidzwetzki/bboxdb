@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.DuplicateResolver;
+import org.bboxdb.commons.ExceptionHelper;
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.Retryer.RetryMode;
@@ -610,8 +611,10 @@ public class TupleStoreManager implements BBoxDBService {
 			final boolean result = retryer.execute();
 			
 			if(! result) {
+				final List<Exception> exceptions = retryer.getAllExceptions();
 				throw new StorageManagerException("Unable to aquire all sstables in "
-						+ Const.OPERATION_RETRY + " retries", retryer.getLastException());
+						+ Const.OPERATION_RETRY + " retries.\n " 
+						+ ExceptionHelper.getFormatedStacktrace(exceptions));
 			}
 			
 			return retryer.getResult();
@@ -622,7 +625,7 @@ public class TupleStoreManager implements BBoxDBService {
 	}
 
 	/**
-	 * Get the tuple store allocator runnable
+	 * Get the tuple store allocator callable
 	 * @return
 	 */
 	private Callable<List<ReadOnlyTupleStore>> getTupleStoreAllocatorCallable() {
@@ -634,23 +637,20 @@ public class TupleStoreManager implements BBoxDBService {
 			for(final ReadOnlyTupleStore tupleStorage : knownStorages) {
 				final boolean canBeUsed = tupleStorage.acquire();
 
-				if(! canBeUsed ) {
-					break;
+				if(! canBeUsed) {
+					// one or more storages could not be acquired
+					// release storages and retry
+					
+					releaseStorage(aquiredStorages);
+					
+					throw new BBoxDBException("The storage: " + tupleStorage.getInternalName() 
+						+ " can't be aquired");					
 				} else {
 					aquiredStorages.add(tupleStorage);
 				}
 			}
 
-			if(knownStorages.size() == aquiredStorages.size()) {
-				return aquiredStorages;
-			} else {
-				// one or more storages could not be acquired
-				// release storages and retry
-				releaseStorage(aquiredStorages);
-				
-				throw new BBoxDBException("Unable to aquire all storages: Got " 
-						+ aquiredStorages.size() + " of " + knownStorages.size());
-			}
+			return aquiredStorages;
 		};		
 	}
 
