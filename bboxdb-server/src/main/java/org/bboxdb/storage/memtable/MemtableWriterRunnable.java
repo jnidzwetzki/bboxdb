@@ -97,6 +97,13 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 		SSTableFacade facade = null;
 
 		try {			
+			final boolean aquired = memtable.acquire();
+			
+			if(! aquired) {
+				logger.error("Memtable should be flushed but can't aqired");
+				return;
+			}
+			
 			// Don't write empty memtables to disk
 			if (! memtable.isEmpty()) {
 				final TupleStoreName sstableName = sstableManager.getTupleStoreName();
@@ -113,7 +120,9 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 			sstableManager.replaceMemtableWithSSTable(memtable, facade);						
 			sendCallbacks(memtable, sstableManager);	
 
+			// Schedule for deletion and release our aquire and the global TupleStoreManager aquire
 			memtable.deleteOnClose();
+			memtable.release();
 			memtable.release();
 		}  catch (Throwable e) {
 			deleteWrittenFacade(facade);
