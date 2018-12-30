@@ -15,36 +15,27 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.commons;
+package org.bboxdb;
 
-public class StacktraceHelper {
+import java.util.Arrays;
+import java.util.List;
+
+import org.bboxdb.commons.ExceptionHelper;
+import org.junit.Assert;
+import org.junit.Test;
+
+
+public class TestExceptionHelper {
 	
-	/**
-	 * Print the full stack trace
-	 */
-	public static String getFormatedStacktrace() {
-		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		return getFormatedStacktrace(stackTrace);
+	@Test(timeout=60_000)
+	public void getStacktraceFromList() {
+		final List<Exception> exceptions = Arrays.asList(new IllegalAccessException("Failed 1"), 
+				new IllegalAccessException("Failed 2"));
+		
+		final String stacktrace = ExceptionHelper.getFormatedStacktrace(exceptions);
+		System.out.println(stacktrace);
+		Assert.assertTrue(stacktrace.contains("Failed 1"));
+		Assert.assertTrue(stacktrace.contains("Failed 2"));
 	}
 
-	/**
-	 * Get a formated stack trace
-	 * @param stackTrace
-	 * @return
-	 */
-	public static String getFormatedStacktrace(final StackTraceElement[] stackTrace) {
-		final StringBuilder sb = new StringBuilder();
-		
-		sb.append("=======================\n");
-		
-		for(final StackTraceElement stackTraceElement : stackTrace) {
-			sb.append(stackTraceElement.toString());
-			sb.append("\n");
-		}
-		
-		sb.append("=======================\n");
-
-		return sb.toString();
-	}
-	
 }
