@@ -52,7 +52,7 @@ For a guided tour through the features of BBoxDB, see the [getting started](http
 BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown.
 
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
-<i>(The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)</i>
+<i>(The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
 </p>
 
 When 2-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported.
