@@ -47,7 +47,7 @@ import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.request.QueryHyperrectangleContinuousRequest;
+import org.bboxdb.network.packages.request.QueryContinuousRequest;
 import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
 import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
 import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
@@ -403,7 +403,7 @@ public class BBoxDBClient implements BBoxDB {
 
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
-			return new QueryHyperrectangleContinuousRequest(
+			return new QueryContinuousRequest(
 					nextSequenceNumber, routingHeaderSupplier, queryPlan);
 		};
 

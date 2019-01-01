@@ -31,14 +31,14 @@ import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class QueryHyperrectangleContinuousRequest extends NetworkQueryRequestPackage {
+public class QueryContinuousRequest extends NetworkQueryRequestPackage {
 
 	/**
 	 * The query plan
 	 */
 	private final ContinuousQueryPlan queryPlan;
 
-	public QueryHyperrectangleContinuousRequest(final short sequenceNumber, 
+	public QueryContinuousRequest(final short sequenceNumber, 
 			final RoutingHeader routingHeader, final ContinuousQueryPlan queryPlan) {
 		
 		super(sequenceNumber, routingHeader);
@@ -80,7 +80,7 @@ public class QueryHyperrectangleContinuousRequest extends NetworkQueryRequestPac
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	public static QueryHyperrectangleContinuousRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
+	public static QueryContinuousRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
@@ -112,7 +112,7 @@ public class QueryHyperrectangleContinuousRequest extends NetworkQueryRequestPac
 		try {
 			final ContinuousQueryPlan queryPlan = ContinuousQueryPlanSerializer.fromJSON(queryPlanString);
 
-			return new QueryHyperrectangleContinuousRequest(sequenceNumber, routingHeader, queryPlan);
+			return new QueryContinuousRequest(sequenceNumber, routingHeader, queryPlan);
 		} catch (BBoxDBException e) {
 			throw new PackageEncodeException(e);
 		}

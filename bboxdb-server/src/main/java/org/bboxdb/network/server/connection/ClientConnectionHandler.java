@@ -51,7 +51,7 @@ import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.handler.query.HandleBoundingBoxQuery;
 import org.bboxdb.network.server.connection.handler.query.HandleBoundingBoxTimeQuery;
-import org.bboxdb.network.server.connection.handler.query.HandleContinuousBoundingBoxQuery;
+import org.bboxdb.network.server.connection.handler.query.HandleContinuousQuery;
 import org.bboxdb.network.server.connection.handler.query.HandleInsertTimeQuery;
 import org.bboxdb.network.server.connection.handler.query.HandleJoinQuery;
 import org.bboxdb.network.server.connection.handler.query.HandleKeyQuery;
@@ -583,7 +583,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_VERSION_TIME, new HandleVersionTimeQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_INSERT_TIME, new HandleInsertTimeQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX_AND_TIME, new HandleBoundingBoxTimeQuery());
-		queryHandlerList.put(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, new HandleContinuousBoundingBoxQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, new HandleContinuousQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_JOIN, new HandleJoinQuery());
 	}
 

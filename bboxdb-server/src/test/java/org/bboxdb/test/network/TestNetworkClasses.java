@@ -47,7 +47,7 @@ import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.LockTupleRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.request.QueryHyperrectangleContinuousRequest;
+import org.bboxdb.network.packages.request.QueryContinuousRequest;
 import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
 import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
 import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
@@ -550,7 +550,7 @@ public class TestNetworkClasses {
 		final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, new ArrayList<>(), boundingBox, boundingBox, true);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		final QueryHyperrectangleContinuousRequest queryRequest = new QueryHyperrectangleContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, constQueryPlan);
+		final QueryContinuousRequest queryRequest = new QueryContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, constQueryPlan);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -558,7 +558,7 @@ public class TestNetworkClasses {
 		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
 		Assert.assertTrue(result);
 
-		final QueryHyperrectangleContinuousRequest decodedPackage = QueryHyperrectangleContinuousRequest.decodeTuple(bb);
+		final QueryContinuousRequest decodedPackage = QueryContinuousRequest.decodeTuple(bb);
 		Assert.assertEquals(queryRequest.getQueryPlan(), decodedPackage.getQueryPlan());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 		Assert.assertTrue(queryRequest.toString().length() > 10);

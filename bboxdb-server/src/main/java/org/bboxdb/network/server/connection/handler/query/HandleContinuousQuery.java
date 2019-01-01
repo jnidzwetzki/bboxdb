@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryHyperrectangleContinuousRequest;
+import org.bboxdb.network.packages.request.QueryContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ContinuousBoundingBoxClientQuery;
@@ -33,12 +33,12 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleContinuousBoundingBoxQuery implements QueryHandler {
+public class HandleContinuousQuery implements QueryHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleContinuousBoundingBoxQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(HandleContinuousQuery.class);
 	
 
 	@Override
@@ -55,9 +55,7 @@ public class HandleContinuousBoundingBoxQuery implements QueryHandler {
 				return;
 			}
 			
-			final QueryHyperrectangleContinuousRequest queryRequest 
-				= QueryHyperrectangleContinuousRequest.decodeTuple(encodedPackage);
-			
+			final QueryContinuousRequest queryRequest = QueryContinuousRequest.decodeTuple(encodedPackage);
 			final String requestTableString = queryRequest.getQueryPlan().getStreamTable();
 			final TupleStoreName requestTable = new TupleStoreName(requestTableString);
 			
