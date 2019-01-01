@@ -18,6 +18,7 @@
 package org.bboxdb.network.server;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -27,13 +28,20 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
+import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.ContinuousTableQueryPlan;
+import org.bboxdb.network.query.entity.TupleAndBoundingBox;
+import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.JoinedTuple;
@@ -79,7 +87,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The tuples for the given key
 	 */
-	private final BlockingQueue<Tuple> tupleQueue;
+	private final BlockingQueue<JoinedTuple> tupleQueue;
 
 	/**
 	 * The maximal queue capacity
@@ -100,17 +108,22 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * The tuple store manager
 	 */
 	private TupleStoreManager storageManager;
+	
+	/**
+	 * The query plan
+	 */
+	private final ContinuousQueryPlan queryPlan;
 
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousClientQuery.class);
 
-
 	public ContinuousClientQuery(final ContinuousQueryPlan queryPlan,
 			final ClientConnectionHandler clientConnectionHandler,
 			final short querySequence) {
 
+			this.queryPlan = queryPlan;
 			this.boundingBox = queryPlan.getQueryRange();
 			this.requestTable = new TupleStoreName(queryPlan.getStreamTable());
 			
@@ -121,19 +134,16 @@ public class ContinuousClientQuery implements ClientQuery {
 			this.totalSendTuples = 0;
 
 			// Add each tuple to our tuple queue
-			this.tupleInsertCallback = (t) -> {
-
-				// Is the tuple important for the query?
-				if(! t.getBoundingBox().intersects(boundingBox)) {
-					return;
-				}
-
-				final boolean insertResult = tupleQueue.offer(t);
-
-				if(! insertResult) {
-					logger.error("Unable to add tuple to continuous query, queue is full");
-				}
-			};
+			if(queryPlan instanceof ContinuousConstQueryPlan) {
+				this.tupleInsertCallback = getCallbackForConstQuery();
+			} else if(queryPlan instanceof ContinuousTableQueryPlan) {
+				this.tupleInsertCallback = getCallbackForTableQuery();
+			} else { 
+				this.tupleInsertCallback = null;
+				logger.error("Unknown query type: " + queryPlan);
+				queryActive = false;
+				return;
+			}
 
 			try {
 				init();
@@ -141,6 +151,135 @@ public class ContinuousClientQuery implements ClientQuery {
 				logger.error("Got exception on init", e);
 				queryActive = false;
 			}
+	}
+
+	/**
+	 * Get the callback for a table query
+	 * @return
+	 */
+	private Consumer<Tuple> getCallbackForTableQuery() {
+		
+		final ContinuousTableQueryPlan tableQueryPlan = (ContinuousTableQueryPlan) queryPlan;
+		
+		// Build without init, no close needed
+		@SuppressWarnings("resource")
+		final BBoxDBCluster cluster = new BBoxDBCluster(ZookeeperClientFactory.getZookeeperClient());
+		
+		return (t) -> {
+			final List<TupleTransformation> transformations = tableQueryPlan.getStreamTransformation(); 
+			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, t);
+						
+			// Tuple was removed during transformation
+			if(tuple == null) {
+				return;
+			}
+			
+			TupleListFuture result;
+			try {
+				result = cluster.queryRectangle(queryPlan.getStreamTable(), tuple.getBoundingBox());
+				
+				result.waitForCompletion();
+			} catch (BBoxDBException e) {
+				logger.error("Got an exeeption while quering tuples", e);
+				queryActive = false;
+				return;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				queryActive = false;
+				return;
+			}
+			
+			for(final Tuple resultTuple : result) {
+				final List<TupleTransformation> tupleTransfor 
+					= tableQueryPlan.getTableTransformation(); 
+				
+				final TupleAndBoundingBox transformedTuple 
+					= applyStreamTupleTransformations(tupleTransfor, resultTuple);
+				
+				// Is the tuple important for the query?
+				if(tuple.getBoundingBox().intersects(transformedTuple.getBoundingBox())) {
+					if(queryPlan.isReportPositive()) {
+						final JoinedTuple joinedTuple = new JoinedTuple(
+								Arrays.asList(t, transformedTuple.getTuple()), 
+								Arrays.asList(requestTable.getFullname(), requestTable.getFullname()));
+						queueTupleForClientProcessing(joinedTuple);
+					}
+				} else {
+					if(! queryPlan.isReportPositive()) {
+						final JoinedTuple joinedTuple = new JoinedTuple(
+								Arrays.asList(t, transformedTuple.getTuple()), 
+								Arrays.asList(requestTable.getFullname(), requestTable.getFullname()));
+						queueTupleForClientProcessing(joinedTuple);
+					}
+				}
+			}
+		};
+	}
+
+	/**
+	 * Get the consumer for the const query
+	 * @return
+	 */
+	private Consumer<Tuple> getCallbackForConstQuery() {
+		
+		final ContinuousConstQueryPlan constQueryPlan = (ContinuousConstQueryPlan) queryPlan;
+		
+		return (t) -> {
+			final List<TupleTransformation> transformations = constQueryPlan.getStreamTransformation(); 
+			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, t);
+			
+			// Tuple was removed during transformation
+			if(tuple == null) {
+				return;
+			}
+			
+			// Is the tuple important for the query?
+			if(tuple.getBoundingBox().intersects(constQueryPlan.getCompareRectangle())) {
+				if(queryPlan.isReportPositive()) {
+					final JoinedTuple joinedTuple = new JoinedTuple(t, requestTable.getFullname());
+					queueTupleForClientProcessing(joinedTuple);
+				}
+			} else {
+				if(! queryPlan.isReportPositive()) {
+					final JoinedTuple joinedTuple = new JoinedTuple(t, requestTable.getFullname());
+					queueTupleForClientProcessing(joinedTuple);
+				}
+			}
+
+		};
+	}
+
+	/**
+	 * Apply the stream transformations
+	 * @param constQueryPlan
+	 * @param inputTuple
+	 * @return
+	 */
+	private TupleAndBoundingBox applyStreamTupleTransformations(final List<TupleTransformation> transformations,
+			final Tuple inputTuple) {
+				
+		TupleAndBoundingBox tuple = new TupleAndBoundingBox(inputTuple, inputTuple.getBoundingBox());
+		for(final TupleTransformation transformation : transformations) {
+			tuple = transformation.apply(tuple);
+			
+			if(tuple == null) {
+				break;
+			}
+		}
+		
+		return tuple;
+	}
+
+	/**
+	 * Queue the tuple for client processing
+	 * @param t
+	 */
+	private void queueTupleForClientProcessing(final JoinedTuple t) {
+		final boolean insertResult = tupleQueue.offer(t);
+
+		if(! insertResult) {
+			logger.error("Unable to add tuple to continuous query, queue is full");
+		}
 	}
 
 	/**
@@ -199,11 +338,9 @@ public class ContinuousClientQuery implements ClientQuery {
 				}
 
 				// Send next tuple or wait
-				final Tuple tuple = tupleQueue.take();
+				final JoinedTuple tuple = tupleQueue.take();
 
-				final JoinedTuple joinedTuple = new JoinedTuple(tuple, requestTable.getFullname());
-
-				clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple, true);
+				clientConnectionHandler.writeResultTuple(packageSequence, tuple, true);
 				totalSendTuples++;
 				sendTuplesInThisPage++;
 			}
