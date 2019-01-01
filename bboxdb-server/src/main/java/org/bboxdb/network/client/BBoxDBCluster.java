@@ -83,6 +83,17 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @param zookeeperNodes
 	 * @param clustername
 	 */
+	public BBoxDBCluster(final ZookeeperClient zookeeperClient) {
+		this.zookeeperClient = zookeeperClient;
+		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		membershipConnectionService = MembershipConnectionService.getInstance();
+	}
+	
+	/**
+	 * Create a new instance of the BBoxDB cluster
+	 * @param zookeeperNodes
+	 * @param clustername
+	 */
 	public BBoxDBCluster(final Collection<String> zookeeperNodes, final String clustername) {
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
 		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
