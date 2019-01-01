@@ -33,6 +33,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
+import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.JoinedTuple;
@@ -43,77 +44,78 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContinuousBoundingBoxClientQuery implements ClientQuery {
+public class ContinuousClientQuery implements ClientQuery {
 
 	/**
 	 * The bounding box of the query
 	 */
-	protected final Hyperrectangle boundingBox;
+	private final Hyperrectangle boundingBox;
 
 	/**
 	 * The client connection handler
 	 */
-	protected final ClientConnectionHandler clientConnectionHandler;
+	private final ClientConnectionHandler clientConnectionHandler;
 
 	/**
 	 * The package sequence of the query
 	 */
-	protected final short querySequence;
+	private final short querySequence;
 
 	/**
 	 * The request table
 	 */
-	protected final TupleStoreName requestTable;
+	private final TupleStoreName requestTable;
 
 	/**
 	 * The total amount of send tuples
 	 */
-	protected long totalSendTuples;
-
-	/**
-	 * The number of tuples per page
-	 */
-	protected final long tuplesPerPage = 1;
-
+	private long totalSendTuples;
+	
 	/**
 	 * Is the continuous query active
 	 */
-	protected boolean queryActive = true;
+	private boolean queryActive = true;
 
 	/**
 	 * The tuples for the given key
 	 */
-	protected final BlockingQueue<Tuple> tupleQueue;
+	private final BlockingQueue<Tuple> tupleQueue;
 
 	/**
 	 * The maximal queue capacity
 	 */
-	protected final static int MAX_QUEUE_CAPACITY = 1024;
+	private final static int MAX_QUEUE_CAPACITY = 1024;
+	
+	/**
+	 * The number of tuples per page
+	 */
+	private final static long TUPLES_PER_PAGE = 1;
 
 	/**
 	 * The tuple insert callback
 	 */
-	protected final Consumer<Tuple> tupleInsertCallback;
+	private final Consumer<Tuple> tupleInsertCallback;
 
 	/**
 	 * The tuple store manager
 	 */
-	protected TupleStoreManager storageManager;
+	private TupleStoreManager storageManager;
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ContinuousBoundingBoxClientQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(ContinuousClientQuery.class);
 
 
-	public ContinuousBoundingBoxClientQuery(final Hyperrectangle boundingBox,
+	public ContinuousClientQuery(final ContinuousQueryPlan queryPlan,
 			final ClientConnectionHandler clientConnectionHandler,
-			final short querySequence, final TupleStoreName requestTable) {
+			final short querySequence) {
 
-			this.boundingBox = boundingBox;
+			this.boundingBox = queryPlan.getQueryRange();
+			this.requestTable = new TupleStoreName(queryPlan.getStreamTable());
+			
 			this.clientConnectionHandler = clientConnectionHandler;
 			this.querySequence = querySequence;
-			this.requestTable = requestTable;
 			this.tupleQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
 
 			this.totalSendTuples = 0;
@@ -146,7 +148,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	 * @param tupleStoreManagerRegistry
 	 * @throws BBoxDBException
 	 */
-	protected void init() throws BBoxDBException {
+	private void init() throws BBoxDBException {
 
 		try {
 			final TupleStoreManagerRegistry storageRegistry
@@ -190,7 +192,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 			clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 			while(queryActive) {
-				if(sendTuplesInThisPage >= tuplesPerPage) {
+				if(sendTuplesInThisPage >= TUPLES_PER_PAGE) {
 					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 					clientConnectionHandler.flushPendingCompressionPackages();
 					return;

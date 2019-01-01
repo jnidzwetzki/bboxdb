@@ -20,12 +20,12 @@ package org.bboxdb.network.server.connection.handler.query;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.server.ClientQuery;
-import org.bboxdb.network.server.ContinuousBoundingBoxClientQuery;
+import org.bboxdb.network.server.ContinuousClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.QueryHelper;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
@@ -56,17 +56,17 @@ public class HandleContinuousQuery implements QueryHandler {
 			}
 			
 			final QueryContinuousRequest queryRequest = QueryContinuousRequest.decodeTuple(encodedPackage);
-			final String requestTableString = queryRequest.getQueryPlan().getStreamTable();
+			
+			final ContinuousQueryPlan queryPlan = queryRequest.getQueryPlan();
+			final String requestTableString = queryPlan.getStreamTable();
 			final TupleStoreName requestTable = new TupleStoreName(requestTableString);
 			
 			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
 				return;
 			}
-			
-			final Hyperrectangle boundingBox = queryRequest.getQueryPlan().getQueryRange();
-			
-			final ClientQuery clientQuery = new ContinuousBoundingBoxClientQuery(boundingBox,
-					clientConnectionHandler, packageSequence, requestTable);
+						
+			final ClientQuery clientQuery = new ContinuousClientQuery(queryPlan,
+					clientConnectionHandler, packageSequence);
 			
 			clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
