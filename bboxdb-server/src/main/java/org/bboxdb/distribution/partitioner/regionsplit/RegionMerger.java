@@ -18,10 +18,8 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
@@ -30,14 +28,9 @@ import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
@@ -187,89 +180,24 @@ public class RegionMerger {
 			final DistributionRegion childRegion) throws StorageManagerException {
 
 		try {
-			final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+			final Consumer<Tuple> tupleConsumer = (t) -> {
+				try {
+					tupleRedistributor.redistributeTuple(t);
+				} catch (StorageManagerException e) {
+					logger.error("Got an exception while redistributing tuple", e);
+				}
+			};
+			
+			final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
+					region.getConveringBox(), tupleConsumer, registry);
 
-			if(childRegion.getSystems().contains(localInstance)) {
-				mergeDataByLocalRead(region, tupleStoreName, tupleRedistributor, childRegion);
-			} else {
-				mergeDataByNetworkRead(region, tupleStoreName, tupleRedistributor, childRegion);	
-			}
-
+			rangeQueryExecutor.performDataRead();
+			
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new StorageManagerException(e);
 		} catch (Exception e) {
 			throw new StorageManagerException(e);
-		}
-	}
-
-	/**
-	 * Merge data by local data read
-	 * 
-	 * @param region
-	 * @param tupleStoreName
-	 * @param tupleRedistributor
-	 * @param childRegion
-	 * @throws StorageManagerException 
-	 * @throws TupleStoreManagerRegistry 
-	 */
-	private void mergeDataByLocalRead(final DistributionRegion region, final TupleStoreName tupleStoreName,
-			final TupleRedistributor tupleRedistributor, final DistributionRegion childRegion) 
-			throws StorageManagerException {
-
-		final long regionId = region.getRegionId();
-		final TupleStoreName childRegionName = tupleStoreName.cloneWithDifferntRegionId(regionId);
-		
-		final TupleStoreManager tupleStoreManager = registry.getTupleStoreManager(childRegionName);
-		
-		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(tupleStoreManager)) {
-			for(final ReadOnlyTupleStore storage : tupleStoreAquirer.getTupleStores()) {
-				for(final Tuple tuple : storage) {
-					tupleRedistributor.redistributeTuple(tuple);
-				}
-			}
-		} 
-	}
-
-	/**
-	 * Merge the region by a network read
-	 * 
-	 * @param region
-	 * @param tupleStoreName
-	 * @param tupleRedistributor
-	 * @param childRegion
-	 * @throws InterruptedException
-	 * @throws StorageManagerException
-	 * @throws Exception
-	 */
-	private void mergeDataByNetworkRead(final DistributionRegion region, final TupleStoreName tupleStoreName,
-			final TupleRedistributor tupleRedistributor, final DistributionRegion childRegion)
-					throws InterruptedException, StorageManagerException {
-
-		final List<BBoxDBInstance> systems = childRegion.getSystems();
-		assert(! systems.isEmpty()) : "Systems can not be empty";
-
-		final BBoxDBInstance firstSystem = systems.get(0);
-
-		final BBoxDBConnection connection = MembershipConnectionService.getInstance()
-				.getConnectionForInstance(firstSystem);
-
-		assert (connection != null) : "Connection can not be null: " + firstSystem.getStringValue();
-
-		final Hyperrectangle bbox = childRegion.getConveringBox();
-		final String fullname = tupleStoreName.getFullname();
-		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox);
-
-		result.waitForCompletion();
-
-		if(result.isFailed()) {
-			throw new StorageManagerException("Exception while fetching tuples: " 
-					+ result.getAllMessages());
-		}
-
-		for(final Tuple tuple : result) {
-			tupleRedistributor.redistributeTuple(tuple);
 		}
 	}
 
