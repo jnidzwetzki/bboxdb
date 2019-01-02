@@ -111,6 +111,7 @@ public abstract class AbtractClusterFutureBuilder {
 					
 					// Node is down
 					if(connection == null) {
+						logger.debug("Skipping connection for {}", instance.getInetSocketAddress());
 						continue;
 					}
 					
