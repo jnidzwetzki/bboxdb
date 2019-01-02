@@ -236,13 +236,15 @@ public class NetworkQueryHelper {
 		storeResult.waitForCompletion();
 		Assert.assertFalse(storeResult.isFailed());
 		Assert.assertTrue(storeResult.isDone());
+		System.out.println("=== Insert first tuple done");
 		
 		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
 			
 		final Tuple tuple = new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		insertResult.waitForCompletion();
-		
+		System.out.println("=== Insert second tuple done");
+
 		// Wait for page full		
 		System.out.println("=== Wait for query result");
 		queryFuture.waitForCompletion();
