@@ -196,7 +196,9 @@ public class NetworkQueryHelper {
 		final Iterator<JoinedTuple> iterator = future.iterator();
 
 		for(int i = 0; i < tuples; i++) {
-			resultList.add(iterator.next());
+			if(iterator.hasNext()) {
+				resultList.add(iterator.next());
+			}
 		}
 		
 		Assert.assertEquals(10, resultList.size());
