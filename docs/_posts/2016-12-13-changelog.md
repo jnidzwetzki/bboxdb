@@ -17,6 +17,7 @@ order: 1
 - Improvement: Logging for failed tuple store aquire is more detailed
 - Bugfix: Rewrote tuple manager allocator retry code (closes #125)
 - Bugfix: Memtable aquire on flush / shutdown (closes #126)
+- Bugfix: Next page request is canceled when a continuous query is canceled
 
 ### Version 0.8.5 - 21.12.2018
 - New Feature: Added network proxy with a central coordinator

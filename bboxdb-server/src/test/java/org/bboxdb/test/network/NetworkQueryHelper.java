@@ -154,14 +154,14 @@ public class NetworkQueryHelper {
 
 		return future;
 	}
-
+	
 	/**
 	 * Test a bounding box query
 	 * @param bboxDBConnection
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static void testBoundingBoxQueryContinous(final BBoxDBClient bboxDBClient, final String distributionGroup)
+	public static void testBoundingBoxQueryContinous1(final BBoxDBClient bboxDBClient, final String distributionGroup)
 			throws BBoxDBException, InterruptedException {
 
 		System.out.println("=== Running testBoundingBoxQueryContinous");
@@ -204,6 +204,10 @@ public class NetworkQueryHelper {
 		Assert.assertEquals(10, resultList.size());
 
 		bboxDBClient.cancelQuery(future);
+		
+		Thread.sleep(1000);
+		
+		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
 
 		System.out.println("=== End testBoundingBoxQueryContinous");
 	}

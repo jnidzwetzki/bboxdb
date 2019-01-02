@@ -18,6 +18,7 @@
 package org.bboxdb.network.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -34,6 +35,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
@@ -115,9 +117,15 @@ public class ContinuousClientQuery implements ClientQuery {
 	private final ContinuousQueryPlan queryPlan;
 
 	/**
+	 * The dead pill for the queue
+	 */
+	private final static JoinedTuple RED_PILL = new JoinedTuple(new ArrayList<>(), new ArrayList<>());
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousClientQuery.class);
+	
 
 	public ContinuousClientQuery(final ContinuousQueryPlan queryPlan,
 			final ClientConnectionHandler clientConnectionHandler,
@@ -326,34 +334,43 @@ public class ContinuousClientQuery implements ClientQuery {
 	@Override
 	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
 
-		try {
-			long sendTuplesInThisPage = 0;
-			clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
+		long sendTuplesInThisPage = 0;
+		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
-			while(queryActive) {
-				if(sendTuplesInThisPage >= TUPLES_PER_PAGE) {
-					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
-					clientConnectionHandler.flushPendingCompressionPackages();
-					return;
-				}
+		while(queryActive) {
+			if(sendTuplesInThisPage >= TUPLES_PER_PAGE) {
+				clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
+				clientConnectionHandler.flushPendingCompressionPackages();
+				return;
+			}
 
+			try {
 				// Send next tuple or wait
 				final JoinedTuple tuple = tupleQueue.take();
-
+				
+				if(tuple == RED_PILL) {
+					logger.info("Got the red pill from the queue, cancel query");
+					clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence));
+					clientConnectionHandler.flushPendingCompressionPackages();
+					this.queryActive = false;
+					return;
+				}
+				
 				clientConnectionHandler.writeResultTuple(packageSequence, tuple, true);
 				totalSendTuples++;
 				sendTuplesInThisPage++;
+			} catch (InterruptedException e) {
+				logger.info("Thread was interrupted while waiting for new tuples");
+				this.queryActive = false;
+				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence));
+				clientConnectionHandler.flushPendingCompressionPackages();
+				return;
 			}
-
-			// All tuples are send
-			clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
-			clientConnectionHandler.flushPendingCompressionPackages();
-
-		} catch (InterruptedException e) {
-			logger.debug("Got interrupted excetion");
-			close();
-			Thread.currentThread().interrupt();
 		}
+
+		// All tuples are send
+		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
+		clientConnectionHandler.flushPendingCompressionPackages();	
 	}
 
 	@Override
@@ -370,6 +387,9 @@ public class ContinuousClientQuery implements ClientQuery {
 		}
 
 		queryActive = false;
+		
+		// Cancel next page request
+		tupleQueue.offer(RED_PILL);
 	}
 
 	@Override

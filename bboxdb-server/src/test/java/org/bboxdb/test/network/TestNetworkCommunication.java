@@ -510,7 +510,7 @@ public class TestNetworkCommunication {
 		final BBoxDBConnection bboxdbConnection = connectToServer();
 		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 
-		NetworkQueryHelper.testBoundingBoxQueryContinous(bboxDBClient, DISTRIBUTION_GROUP);
+		NetworkQueryHelper.testBoundingBoxQueryContinous1(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
 	}
 
