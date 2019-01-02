@@ -506,13 +506,29 @@ public class TestNetworkCommunication {
 	 * @throws BBoxDBException
 	 */
 	@Test(timeout=60000)
-	public void testInsertAndBoundingBoxContinousQuery() throws InterruptedException, ExecutionException, BBoxDBException {
+	public void testInsertAndBoundingBoxContinousQuery1() throws InterruptedException, ExecutionException, BBoxDBException {
 		final BBoxDBConnection bboxdbConnection = connectToServer();
 		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 
 		NetworkQueryHelper.testBoundingBoxQueryContinous1(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
 	}
+	
+	/**
+	 * Insert some tuples and start a bounding box query afterwards
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 * @throws BBoxDBException
+	 */
+	@Test(timeout=60000)
+	public void testInsertAndBoundingBoxContinousQuery2() throws InterruptedException, ExecutionException, BBoxDBException {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+
+		NetworkQueryHelper.testBoundingBoxQueryContinous2(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnect(bboxDBClient);
+	}
+
 
 	/**
 	 * Execute the version time query

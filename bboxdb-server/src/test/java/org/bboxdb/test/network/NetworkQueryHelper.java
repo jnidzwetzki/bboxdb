@@ -164,7 +164,7 @@ public class NetworkQueryHelper {
 	public static void testBoundingBoxQueryContinous1(final BBoxDBClient bboxDBClient, final String distributionGroup)
 			throws BBoxDBException, InterruptedException {
 
-		System.out.println("=== Running testBoundingBoxQueryContinous");
+		System.out.println("=== Running testBoundingBoxQueryContinous 1");
 		final String table = distributionGroup + "_relation9991";
 
 		// Create table
@@ -178,7 +178,7 @@ public class NetworkQueryHelper {
 				.compareWithStaticRegion(-1d, 2d, -1d, 2d)
 				.build();
 				
-		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
+		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
 		
 		final int tuples = 10;
 		
@@ -190,10 +190,10 @@ public class NetworkQueryHelper {
 		
 		// Wait for page full		
 		System.out.println("=== Wait for query result");
-		future.waitForCompletion();
+		queryFuture.waitForCompletion();
 		
 		final List<JoinedTuple> resultList = new ArrayList<>();
-		final Iterator<JoinedTuple> iterator = future.iterator();
+		final Iterator<JoinedTuple> iterator = queryFuture.iterator();
 
 		for(int i = 0; i < tuples; i++) {
 			if(iterator.hasNext()) {
@@ -203,9 +203,61 @@ public class NetworkQueryHelper {
 		
 		Assert.assertEquals(10, resultList.size());
 
-		bboxDBClient.cancelQuery(future);
+		bboxDBClient.cancelQuery(queryFuture);
 		
-		System.out.println("=== End testBoundingBoxQueryContinous");
+		System.out.println("=== End testBoundingBoxQueryContinous 1");
+	}
+	
+	/**
+	 * Test a bounding box query
+	 * @param bboxDBConnection
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	public static void testBoundingBoxQueryContinous2(final BBoxDBClient bboxDBClient, final String distributionGroup)
+			throws BBoxDBException, InterruptedException {
+		
+		System.out.println("=== Running testBoundingBoxQueryContinous 2");
+
+		final String table = distributionGroup + "_relation9992";
+
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForCompletion();
+		Assert.assertFalse(resultCreateTable.isFailed());
+
+		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
+				.createQueryOnTable(table)
+				.forAllTuplesStoredInRegion(-1d, 2d, -1d, 2d)
+				.build();
+		
+		final Tuple storedTuple = new Tuple("abc", new Hyperrectangle(1d, 1d, 1d, 1d), "".getBytes());
+		final EmptyResultFuture storeResult = bboxDBClient.insertTuple(table, storedTuple);
+		storeResult.waitForCompletion();
+		Assert.assertFalse(storeResult.isFailed());
+		Assert.assertTrue(storeResult.isDone());
+		
+		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
+			
+		final Tuple tuple = new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes());
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+		insertResult.waitForCompletion();
+		
+		// Wait for page full		
+		System.out.println("=== Wait for query result");
+		queryFuture.waitForCompletion();
+		
+		final Iterator<JoinedTuple> iterator = queryFuture.iterator();
+		Assert.assertTrue(iterator.hasNext());
+		
+		final JoinedTuple foundTuple = iterator.next();
+		
+		Assert.assertEquals(table, foundTuple.getTupleStoreName(0));
+		Assert.assertEquals(table, foundTuple.getTupleStoreName(1));
+
+		bboxDBClient.cancelQuery(queryFuture);
+
+		System.out.println("=== End testBoundingBoxQueryContinous 2");
 	}
 
 	/**
