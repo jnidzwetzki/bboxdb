@@ -33,7 +33,7 @@ import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestContinuousQuery {
+public class TestContinuousQueryPlan {
 
 	@Test(timeout=60_000, expected=NullPointerException.class)
 	public void testInvliadQueryPlan1() throws BBoxDBException {
