@@ -28,7 +28,8 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -170,23 +171,32 @@ public class NetworkQueryHelper {
 		resultCreateTable.waitForCompletion();
 		Assert.assertFalse(resultCreateTable.isFailed());
 
-		final Hyperrectangle bbox = new Hyperrectangle(-1d, 2d, -1d, 2d);
-		final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, new ArrayList<>(), bbox, bbox, true);
+		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
+				.createQueryOnTable(table)
+				.forAllTuplesStoredInRegion(-1d, 2d, -1d, 2d)
+				.compareWithStaticRegion(-1d, 2d, -1d, 2d)
+				.build();
+				
 		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
 
-		Thread.sleep(1000);
-
-		System.out.println("=== Tuples per page is: " + bboxDBClient.getTuplesPerPage());
-		if(bboxDBClient.getTuplesPerPage() > 0) {
-			for(int i = 0; i <= bboxDBClient.getTuplesPerPage(); i++) {
-				bboxDBClient.insertTuple(table, new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes()));
-			}
+		future.waitForCompletion();
+		
+		final int tuples = 10;
+		
+		for(int i = 0; i < tuples; i++) {
+			bboxDBClient.insertTuple(table, new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes()));
 		}
-
+		
 		System.out.println("=== Wait for query result");
 		future.waitForCompletion();
-
-		Assert.assertTrue(future.iterator().hasNext());
+		
+		final List<JoinedTuple> resultList = new ArrayList<>();
+		
+		for(int i = 0; i < tuples; i++) {
+			resultList.add(future.iterator().next());
+		}
+		
+		Assert.assertEquals(10, resultList.size());
 
 		bboxDBClient.cancelQuery(future);
 
