@@ -350,7 +350,7 @@ public class ContinuousClientQuery implements ClientQuery {
 				
 				if(tuple == RED_PILL) {
 					logger.info("Got the red pill from the queue, cancel query");
-					clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence));
+					clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 					clientConnectionHandler.flushPendingCompressionPackages();
 					this.queryActive = false;
 					return;
