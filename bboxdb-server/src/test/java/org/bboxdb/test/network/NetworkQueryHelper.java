@@ -231,7 +231,7 @@ public class NetworkQueryHelper {
 				.forAllTuplesStoredInRegion(-1d, 2d, -1d, 2d)
 				.build();
 		
-		final Tuple storedTuple = new Tuple("abc", new Hyperrectangle(1d, 1d, 1d, 1d), "".getBytes());
+		final Tuple storedTuple = new Tuple("abc", new Hyperrectangle(0.5d, 1d, 0.5d, 1d), "".getBytes());
 		final EmptyResultFuture storeResult = bboxDBClient.insertTuple(table, storedTuple);
 		storeResult.waitForCompletion();
 		Assert.assertFalse(storeResult.isFailed());
