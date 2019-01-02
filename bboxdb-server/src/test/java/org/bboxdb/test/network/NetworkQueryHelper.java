@@ -205,10 +205,6 @@ public class NetworkQueryHelper {
 
 		bboxDBClient.cancelQuery(future);
 		
-		Thread.sleep(1000);
-		
-		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
-
 		System.out.println("=== End testBoundingBoxQueryContinous");
 	}
 
