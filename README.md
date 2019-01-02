@@ -42,6 +42,8 @@ to avoid the expensive full data scan and to make the work with multi-dimensiona
 
 * Data are re-distributed in the background without any service interruption.
 
+* Continuous queries with bounding box query predicates are supported 
+
 ## Documentation
 The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
