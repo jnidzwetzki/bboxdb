@@ -19,6 +19,7 @@ package org.bboxdb.test.network;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -178,22 +179,24 @@ public class NetworkQueryHelper {
 				.build();
 				
 		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
-
-		future.waitForCompletion();
 		
 		final int tuples = 10;
 		
 		for(int i = 0; i < tuples; i++) {
-			bboxDBClient.insertTuple(table, new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes()));
+			final Tuple tuple = new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes());
+			final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+			insertResult.waitForCompletion();
 		}
 		
+		// Wait for page full		
 		System.out.println("=== Wait for query result");
 		future.waitForCompletion();
 		
 		final List<JoinedTuple> resultList = new ArrayList<>();
-		
+		final Iterator<JoinedTuple> iterator = future.iterator();
+
 		for(int i = 0; i < tuples; i++) {
-			resultList.add(future.iterator().next());
+			resultList.add(iterator.next());
 		}
 		
 		Assert.assertEquals(10, resultList.size());
