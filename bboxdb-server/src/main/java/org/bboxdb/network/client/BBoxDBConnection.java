@@ -443,12 +443,14 @@ public class BBoxDBConnection {
 	 * Kill all pending requests
 	 */
 	private void killPendingCalls() {
+		
 		synchronized (pendingCalls) {
+			
 			if(pendingCalls.isEmpty()) {
 				return;
 			}
 			
-			logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
+			logger.warn("Socket is closed unexpected, killing pending calls: {}", pendingCalls);
 
 			for(final short requestId : pendingCalls.keySet()) {
 				final NetworkOperationFuture future = pendingCalls.get(requestId);
