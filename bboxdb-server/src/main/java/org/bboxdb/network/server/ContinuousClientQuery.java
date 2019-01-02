@@ -28,12 +28,10 @@ import java.util.function.Consumer;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
@@ -169,10 +167,6 @@ public class ContinuousClientQuery implements ClientQuery {
 		
 		final ContinuousTableQueryPlan tableQueryPlan = (ContinuousTableQueryPlan) queryPlan;
 		
-		// Build without init, no close needed
-		@SuppressWarnings("resource")
-		final BBoxDBCluster cluster = new BBoxDBCluster(ZookeeperClientFactory.getZookeeperClient());
-		
 		return (t) -> {
 			final List<TupleTransformation> transformations = tableQueryPlan.getStreamTransformation(); 
 			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, t);
@@ -182,27 +176,12 @@ public class ContinuousClientQuery implements ClientQuery {
 				return;
 			}
 			
-			TupleListFuture result;
-			try {
-				result = cluster.queryRectangle(queryPlan.getStreamTable(), tuple.getBoundingBox());
-				
-				result.waitForCompletion();
-			} catch (BBoxDBException e) {
-				logger.error("Got an exeeption while quering tuples", e);
-				queryActive = false;
-				return;
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				queryActive = false;
-				return;
-			}
-			
-			for(final Tuple resultTuple : result) {
+			final Consumer<Tuple> tupleConsumer = (tupleToConsume) -> {
 				final List<TupleTransformation> tupleTransfor 
 					= tableQueryPlan.getTableTransformation(); 
 				
 				final TupleAndBoundingBox transformedTuple 
-					= applyStreamTupleTransformations(tupleTransfor, resultTuple);
+					= applyStreamTupleTransformations(tupleTransfor, tupleToConsume);
 				
 				// Is the tuple important for the query?
 				if(tuple.getBoundingBox().intersects(transformedTuple.getBoundingBox())) {
@@ -220,7 +199,24 @@ public class ContinuousClientQuery implements ClientQuery {
 						queueTupleForClientProcessing(joinedTuple);
 					}
 				}
-			}
+			};
+			
+			try {
+				final TupleStoreName tupleStoreName = new TupleStoreName(queryPlan.getStreamTable());
+				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
+						tuple.getBoundingBox(), 
+						tupleConsumer, clientConnectionHandler.getStorageRegistry());
+				
+				rangeQueryExecutor.performDataRead();
+			} catch (BBoxDBException e) {
+				logger.error("Got an exeeption while quering tuples", e);
+				queryActive = false;
+				return;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				queryActive = false;
+				return;
+			}	
 		};
 	}
 
