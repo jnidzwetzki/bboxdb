@@ -32,7 +32,12 @@ public class QueryPlanBuilder {
 	/**
 	 * The tablename
 	 */
-	private final String tablename;
+	private final String streamTable;
+	
+	/**
+	 * The join table name
+	 */
+	private String joinTable;
 	
 	/**
 	 * The query region
@@ -60,7 +65,7 @@ public class QueryPlanBuilder {
 	private boolean reportPositiveMatches;
 
 	public QueryPlanBuilder(final String tablename) {
-		this.tablename = tablename;
+		this.streamTable = tablename;
 		this.streamTupleTransformation = new ArrayList<>();
 		this.storedTupleTransformation = new ArrayList<>();
 		this.reportPositiveMatches = true;
@@ -94,6 +99,11 @@ public class QueryPlanBuilder {
 	 */
 	public QueryPlanBuilder compareWithStaticRegion(final Double... values) {
 		this.regionConst = new Hyperrectangle(values);
+		return this;
+	}
+	
+	public QueryPlanBuilder compareWithTable(final String table) {
+		this.joinTable = table;
 		return this;
 	}
 	
@@ -191,22 +201,29 @@ public class QueryPlanBuilder {
 	
 	/**
 	 * Build the query plan
+	 * 
+	 * Query region is per default the complete space
+	 * 
 	 * @return
 	 */
 	public ContinuousQueryPlan build() {
-		if(regionConst != null && ! storedTupleTransformation.isEmpty()) {
+		
+		if(regionConst != null && joinTable != null) {
 			throw new IllegalArgumentException("Unable to construct query plan with "
-					+ "const hyperrectangle and tuple store transformations");
+					+ "const hyperrectangle and join table");
 		}
 		
 		if(regionConst != null) {
-			return new ContinuousConstQueryPlan(tablename, streamTupleTransformation, 
+			return new ContinuousConstQueryPlan(streamTable, streamTupleTransformation, 
 					queryRegion, regionConst, reportPositiveMatches);
 		}
 		
+		if(joinTable != null) {
+			return new ContinuousTableQueryPlan(streamTable, joinTable, streamTupleTransformation, queryRegion, 
+					storedTupleTransformation, reportPositiveMatches);
+		}
 		
-		return new ContinuousTableQueryPlan(tablename, streamTupleTransformation, queryRegion, 
-				storedTupleTransformation, reportPositiveMatches);
+		throw new IllegalArgumentException("Join table or const region need to be set");
 	}
 
 }

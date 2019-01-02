@@ -30,7 +30,13 @@ public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
 	 */
 	private final List<TupleTransformation> tableTransformation;
 	
+	/**
+	 * The join table
+	 */
+	private final String joinTable;
+	
 	public ContinuousTableQueryPlan(final String streamTable,
+			final String joinTable,
 			final List<TupleTransformation> streamTransformation,
 			final Hyperrectangle queryRectangle,
 			final List<TupleTransformation> tableTransformation,
@@ -39,6 +45,7 @@ public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
 			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
 
 			this.tableTransformation = Objects.requireNonNull(tableTransformation);
+			this.joinTable = Objects.requireNonNull(joinTable);
 	}
 
 	/**
@@ -49,15 +56,24 @@ public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
 		return tableTransformation;
 	}
 
+	/**
+	 * Get the join table
+	 */
+	public String getJoinTable() {
+		return joinTable;
+	}
+
 	@Override
 	public String toString() {
-		return "ContinuousTableQuery [tableTransformation=" + tableTransformation + "]";
+		return "ContinuousTableQueryPlan [tableTransformation=" + tableTransformation + ", joinTable=" + joinTable
+				+ "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + ((joinTable == null) ? 0 : joinTable.hashCode());
 		result = prime * result + ((tableTransformation == null) ? 0 : tableTransformation.hashCode());
 		return result;
 	}
@@ -71,6 +87,11 @@ public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
 		if (getClass() != obj.getClass())
 			return false;
 		ContinuousTableQueryPlan other = (ContinuousTableQueryPlan) obj;
+		if (joinTable == null) {
+			if (other.joinTable != null)
+				return false;
+		} else if (!joinTable.equals(other.joinTable))
+			return false;
 		if (tableTransformation == null) {
 			if (other.tableTransformation != null)
 				return false;
@@ -78,5 +99,6 @@ public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
 			return false;
 		return true;
 	}
+
 	
 }

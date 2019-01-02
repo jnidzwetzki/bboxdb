@@ -54,7 +54,8 @@ public class ContinuousQueryPlanSerializer {
 	private static final String TABLE_TRANSFORMATIONS_KEY = "table-transformations";
 	private static final String STREAM_TRANSFORMATIONS_KEY = "stream-transformations";
 	private static final String REPORT_KEY = "report-positive";
-	private static final String TABLE_KEY = "table";
+	private static final String STREAM_TABLE_KEY = "stream-table";
+	private static final String JOIN_TABLE_KEY = "join-table";
 	private static final String QUERY_RANGE_KEY = "query-range";
 	private static final String COMPARE_RECTANGLE_KEY = "compare-rectangle";
 	
@@ -93,12 +94,13 @@ public class ContinuousQueryPlanSerializer {
 			final List<TupleTransformation> transformations = tableQueryPlan.getTableTransformation();
 			final JSONArray tableTransformations = writeTransformationsToJSON(json, transformations);
 			json.put(TABLE_TRANSFORMATIONS_KEY, tableTransformations);
+			json.put(JOIN_TABLE_KEY, tableQueryPlan.getJoinTable());					
 		} else {
 			throw new IllegalArgumentException("Unknown query type: " + queryPlan);
 		}
 		
 		json.put(QUERY_RANGE_KEY, queryPlan.getQueryRange().toCompactString());
-		json.put(TABLE_KEY, queryPlan.getStreamTable());
+		json.put(STREAM_TABLE_KEY, queryPlan.getStreamTable());
 		json.put(REPORT_KEY, queryPlan.isReportPositive());
 		
 		final List<TupleTransformation> transformations = queryPlan.getStreamTransformation();
@@ -160,7 +162,7 @@ public class ContinuousQueryPlanSerializer {
 			}
 			
 			final String queryType = json.getString(QUERY_TYPE_KEY);
-			final String streamTable = json.getString(TABLE_KEY);
+			final String streamTable = json.getString(STREAM_TABLE_KEY);
 			final Hyperrectangle queryRectangle = Hyperrectangle.fromString(json.getString(QUERY_RANGE_KEY));
 			final boolean reportPositiveNegative = json.getBoolean(REPORT_KEY);
 			
@@ -179,8 +181,11 @@ public class ContinuousQueryPlanSerializer {
 				final List<TupleTransformation> tableTransformation 
 					= decodeTransformation(json, TABLE_TRANSFORMATIONS_KEY);
 				
+				final String joinTable = json.getString(JOIN_TABLE_KEY);
+				
 				final ContinuousTableQueryPlan tableQuery = new ContinuousTableQueryPlan(streamTable, 
-						streamTransformation, queryRectangle, tableTransformation, reportPositiveNegative);
+						joinTable, streamTransformation, queryRectangle, 
+						tableTransformation, reportPositiveNegative);
 		
 				return tableQuery;
 			default:

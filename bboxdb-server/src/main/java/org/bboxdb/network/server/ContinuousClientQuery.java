@@ -202,7 +202,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			};
 			
 			try {
-				final TupleStoreName tupleStoreName = new TupleStoreName(queryPlan.getStreamTable());
+				final TupleStoreName tupleStoreName = new TupleStoreName(tableQueryPlan.getJoinTable());
 				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
 						tuple.getBoundingBox(), 
 						tupleConsumer, clientConnectionHandler.getStorageRegistry());

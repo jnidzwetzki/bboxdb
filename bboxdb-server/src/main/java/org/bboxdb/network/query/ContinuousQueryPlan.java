@@ -28,17 +28,17 @@ public abstract class ContinuousQueryPlan {
 	/**
 	 * The stream table
 	 */
-	protected final String streamTable;
+	private final String streamTable;
 	
 	/**
 	 * The transformations of the stream entry
 	 */
-	protected final List<TupleTransformation> streamTransformation;
+	private final List<TupleTransformation> streamTransformation;
 
 	/**
 	 * Report positive or negative elements to the user
 	 */
-	protected final boolean reportPositive;
+	private final boolean reportPositive;
 
 	/**
 	 * The query range
@@ -68,6 +68,12 @@ public abstract class ContinuousQueryPlan {
 
 	public boolean isReportPositive() {
 		return reportPositive;
+	}
+
+	@Override
+	public String toString() {
+		return "ContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation=" + streamTransformation
+				+ ", reportPositive=" + reportPositive + ", queryRange=" + queryRange + "]";
 	}
 
 	@Override
@@ -109,13 +115,5 @@ public abstract class ContinuousQueryPlan {
 			return false;
 		return true;
 	}
-
-	@Override
-	public String toString() {
-		return "AbstractContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation="
-				+ streamTransformation + ", reportPositiveNegative=" + reportPositive + ", queryRange="
-				+ queryRange + "]";
-	}
-
 	
 }

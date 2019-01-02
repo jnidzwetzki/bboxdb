@@ -130,7 +130,7 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery1() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", "mytable",
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new ArrayList<>(), 
@@ -141,7 +141,7 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery2() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", "mytable",
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				Arrays.asList(
@@ -156,7 +156,7 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery3() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", "mytable",
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd")), 

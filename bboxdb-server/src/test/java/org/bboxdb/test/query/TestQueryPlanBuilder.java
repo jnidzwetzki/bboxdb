@@ -28,15 +28,20 @@ import org.junit.Test;
 public class TestQueryPlanBuilder {
 	
 	@Test(timeout=60_000, expected=IllegalArgumentException.class)
-	public void testInvalidPlan() {
+	public void testInvalidPlan1() {
 		QueryPlanBuilder
 			.createQueryOnTable("table")
 			.forAllTuplesStoredInRegion(3d, 4d)
 			.compareWithStaticRegion(2d, 4d)
-			.filterStreamTupleByBoundingBox(4d, 5d)
-			.enlargeStreamTupleBoundBoxByAmount(4)
-			.enlargeStreamTupleBoundBoxByFactor(2)
-			.enlargeStoredTupleBoundBoxByAmount(4)
+			.compareWithTable("testtable")
+			.build();	
+	}
+	
+	@Test(timeout=60_000, expected=IllegalArgumentException.class)
+	public void testInvalidPlan2() {
+		QueryPlanBuilder
+			.createQueryOnTable("table")
+			.forAllTuplesStoredInRegion(3d, 4d)
 			.build();	
 	}
 
@@ -86,6 +91,7 @@ public class TestQueryPlanBuilder {
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.reportPositiveMatches(false)
+			.compareWithTable("testtable")
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
@@ -109,6 +115,7 @@ public class TestQueryPlanBuilder {
 			.enlargeStoredTupleBoundBoxByAmount(2)
 			.filterStoredTupleByKey("abc")
 			.filterStreamTupleByKey("def")
+			.compareWithTable("testtable")
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
