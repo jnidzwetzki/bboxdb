@@ -257,8 +257,8 @@ public class NetworkQueryHelper {
 		Assert.assertEquals(2, foundTuple.getNumberOfTuples());
 		Assert.assertEquals(table, foundTuple.getTupleStoreName(0));
 		Assert.assertEquals(table, foundTuple.getTupleStoreName(1));
-		Assert.assertEquals(storedTuple, foundTuple.getTuple(0));
-		Assert.assertEquals(tuple, foundTuple.getTuple(1));
+		Assert.assertEquals(tuple, foundTuple.getTuple(0));
+		Assert.assertEquals(storedTuple, foundTuple.getTuple(1));
 
 		bboxDBClient.cancelQuery(queryFuture);
 
