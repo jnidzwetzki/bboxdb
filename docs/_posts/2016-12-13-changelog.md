@@ -6,9 +6,9 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.8.6 - TBA
+### Version 0.8.6 - 02.01.2019
 - New Feature: Add support for continues queries predicates (closes #60)
-- New Feature: Added the ExceptionHelper in comonns
+- New Feature: Added the ExceptionHelper in commons
 - Improvement: Allow continuous queries over multiple nodes (closes #120)
 - Improvement: Continuous queries are now returning a joined tuple result (closes #122)
 - Improvement: Tuple insert with bounding box hyperrectangle transformation
