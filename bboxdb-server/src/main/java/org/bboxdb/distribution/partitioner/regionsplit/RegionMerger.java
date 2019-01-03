@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -189,7 +190,7 @@ public class RegionMerger {
 			};
 			
 			final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
-					region.getConveringBox(), tupleConsumer, registry);
+					region.getConveringBox(), tupleConsumer, registry, ExecutionPolicy.ALL);
 
 			rangeQueryExecutor.performDataRead();
 			

@@ -42,6 +42,12 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 
 public class RangeQueryExecutor {
+	
+	public enum ExecutionPolicy {
+		LOCAL_ONLY,
+		NETWORK_ONLY,
+		ALL;
+	}
 
 	/**
 	 * The region to query
@@ -57,6 +63,11 @@ public class RangeQueryExecutor {
 	 * The consumer to process the tuples
 	 */
 	private final Consumer<Tuple> consumer;
+
+	/**
+	 * The execution policy
+	 */
+	private final ExecutionPolicy executionPolicy;
 	
 	/**
 	 * The storage reference
@@ -65,11 +76,13 @@ public class RangeQueryExecutor {
 
 	public RangeQueryExecutor(final TupleStoreName tupleStoreName, 
 			final Hyperrectangle range, final Consumer<Tuple> consumer,
-			final TupleStoreManagerRegistry registry) {
+			final TupleStoreManagerRegistry registry,
+			final ExecutionPolicy executionPolicy) {
 				this.tupleStoreName = tupleStoreName;
 				this.range = range;
 				this.consumer = consumer;
 				this.registry = registry;
+				this.executionPolicy = executionPolicy;
 	}
 	
 	/**
@@ -104,13 +117,47 @@ public class RangeQueryExecutor {
 
 		try {
 			if(region.getSystems().contains(localInstance)) {
-				mergeDataByLocalRead(region);
+				if(performLocalRead()) {
+					mergeDataByLocalRead(region);
+				}
 			} else {
-				mergeDataByNetworkRead(region);	
+				if(performNetworkRead()) {
+					mergeDataByNetworkRead(region);	
+				}
 			}
 		} catch (StorageManagerException e) {
 			throw new BBoxDBException(e);
 		}		
+	}
+	
+	/** 
+	 * Should be a network read performed
+	 */
+	private boolean performNetworkRead() {
+		if(executionPolicy == ExecutionPolicy.ALL) {
+			return true;
+		}
+		
+		if(executionPolicy == ExecutionPolicy.NETWORK_ONLY) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	/** 
+	 * Should be a local read performed
+	 */
+	private boolean performLocalRead() {
+		if(executionPolicy == ExecutionPolicy.ALL) {
+			return true;
+		}
+		
+		if(executionPolicy == ExecutionPolicy.LOCAL_ONLY) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	/**

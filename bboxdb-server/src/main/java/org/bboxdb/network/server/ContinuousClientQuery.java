@@ -29,6 +29,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
+import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -205,7 +206,8 @@ public class ContinuousClientQuery implements ClientQuery {
 				final TupleStoreName tupleStoreName = new TupleStoreName(tableQueryPlan.getJoinTable());
 				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
 						tuple.getBoundingBox(), 
-						tupleConsumer, clientConnectionHandler.getStorageRegistry());
+						tupleConsumer, clientConnectionHandler.getStorageRegistry(),
+						ExecutionPolicy.ALL);
 				
 				rangeQueryExecutor.performDataRead();
 			} catch (BBoxDBException e) {
