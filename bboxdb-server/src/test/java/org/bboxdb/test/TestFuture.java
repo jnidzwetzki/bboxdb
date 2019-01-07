@@ -29,12 +29,21 @@ import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.OperationFutureImpl;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class TestFuture {
 
-	private static final BBoxDBConnection MOCKED_CONNECTION = Mockito.mock(BBoxDBConnection.class);
+	/**
+	 * The mocked connection
+	 */
+	private final static BBoxDBConnection MOCKED_CONNECTION = Mockito.mock(BBoxDBConnection.class);
+
+	@BeforeClass
+	public static void beforeClass() {
+		Mockito.when(MOCKED_CONNECTION.isConnected()).thenReturn(true);
+	}
 
 	@Test(timeout=60000)
 	public void testNoRetry1() throws InterruptedException {
