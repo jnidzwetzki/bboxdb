@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.9.0 - TBA
 - Improvement: Continuous queries can be executed on a different join table
+- Bugfix: Don't retry a future when the connection is closed
 
 ### Version 0.8.6 - 02.01.2019
 - New Feature: Add support for continues queries predicates (closes #60)
