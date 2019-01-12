@@ -174,7 +174,7 @@ public class NetworkQueryHelper {
 
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
 				.createQueryOnTable(table)
-				.forAllTuplesStoredInRegion(-1d, 2d, -1d, 2d)
+				.forAllNewTuplesStoredInRegion(-1d, 2d, -1d, 2d)
 				.compareWithStaticRegion(-1d, 2d, -1d, 2d)
 				.build();
 				
@@ -228,7 +228,7 @@ public class NetworkQueryHelper {
 
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
 				.createQueryOnTable(table)
-				.forAllTuplesStoredInRegion(-1d, 2d, -1d, 2d)
+				.forAllNewTuplesStoredInRegion(-1d, 2d, -1d, 2d)
 				.compareWithTable(table)
 				.build();
 		

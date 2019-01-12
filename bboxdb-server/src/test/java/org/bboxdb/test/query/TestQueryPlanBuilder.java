@@ -31,7 +31,7 @@ public class TestQueryPlanBuilder {
 	public void testInvalidPlan1() {
 		QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllTuplesStoredInRegion(3d, 4d)
+			.forAllNewTuplesStoredInRegion(3d, 4d)
 			.compareWithStaticRegion(2d, 4d)
 			.compareWithTable("testtable")
 			.build();	
@@ -41,7 +41,7 @@ public class TestQueryPlanBuilder {
 	public void testInvalidPlan2() {
 		QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllTuplesStoredInRegion(3d, 4d)
+			.forAllNewTuplesStoredInRegion(3d, 4d)
 			.build();	
 	}
 
@@ -49,7 +49,7 @@ public class TestQueryPlanBuilder {
 	public void testConstPlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllTuplesStoredInRegion(3d, 4d)
+			.forAllNewTuplesStoredInRegion(3d, 4d)
 			.compareWithStaticRegion(2d, 4d)
 			.build();
 		
@@ -66,7 +66,7 @@ public class TestQueryPlanBuilder {
 	public void testConstPlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllTuplesStoredInRegion(3d, 4d)
+			.forAllNewTuplesStoredInRegion(3d, 4d)
 			.compareWithStaticRegion(2d, 4d)
 			.filterStreamTupleByBoundingBox(3d, 5d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
@@ -86,7 +86,7 @@ public class TestQueryPlanBuilder {
 	public void testTablePlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllTuplesStoredInRegion(3d, 4d)
+			.forAllNewTuplesStoredInRegion(3d, 4d)
 			.filterStreamTupleByBoundingBox(1d, 5d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
@@ -107,7 +107,7 @@ public class TestQueryPlanBuilder {
 	public void testTablePlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllTuplesStoredInRegion(3d, 4d)
+			.forAllNewTuplesStoredInRegion(3d, 4d)
 			.filterStreamTupleByBoundingBox(3d, 5d)
 			.filterStoredTupleByBoundingBox(3d, 6d)
 			.enlargeStreamTupleBoundBoxByAmount(4)

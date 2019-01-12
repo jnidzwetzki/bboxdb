@@ -87,7 +87,7 @@ public class QueryPlanBuilder {
 	 * @param values
 	 * @return
 	 */
-	public QueryPlanBuilder forAllTuplesStoredInRegion(final Double... values) {
+	public QueryPlanBuilder forAllNewTuplesStoredInRegion(final Double... values) {
 		this.queryRegion = new Hyperrectangle(values);
 		return this;
 	}
