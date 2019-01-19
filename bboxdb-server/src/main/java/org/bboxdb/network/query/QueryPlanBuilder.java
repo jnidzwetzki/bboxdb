@@ -24,6 +24,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
 import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
@@ -159,6 +160,16 @@ public class QueryPlanBuilder {
 	}
 	
 	/**
+	 * Enlarge bounding box of the stored tuple by factor
+	 * @param key
+	 * @return
+	 */
+	public QueryPlanBuilder enlargeStreamTupleBoundBoxByWGS84Meter(final double meterLat, final double meterLong) {
+		streamTupleTransformation.add(new EnlargeBoundingBoxByWGS84Transformation(meterLat, meterLong));
+		return this;
+	}
+	
+	/**
 	 * Filter the stored tuples by key
 	 * @param key
 	 * @return
@@ -196,6 +207,16 @@ public class QueryPlanBuilder {
 	 */
 	public QueryPlanBuilder enlargeStoredTupleBoundBoxByFactor(final double factor) {
 		storedTupleTransformation.add(new EnlargeBoundingBoxByFactorTransformation(factor));
+		return this;
+	}
+	
+	/**
+	 * Enlarge bounding box of the stored tuple by factor
+	 * @param key
+	 * @return
+	 */
+	public QueryPlanBuilder enlargeStoredTupleBoundBoxByWGS84Meter(final double meterLat, final double meterLong) {
+		storedTupleTransformation.add(new EnlargeBoundingBoxByWGS84Transformation(meterLat, meterLong));
 		return this;
 	}
 	

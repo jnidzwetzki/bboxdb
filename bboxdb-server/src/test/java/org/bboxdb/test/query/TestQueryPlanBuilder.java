@@ -112,7 +112,9 @@ public class TestQueryPlanBuilder {
 			.filterStoredTupleByBoundingBox(3d, 6d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
+			.enlargeStreamTupleBoundBoxByWGS84Meter(7.2, 13.3)
 			.enlargeStoredTupleBoundBoxByAmount(2)
+			.enlargeStoredTupleBoundBoxByWGS84Meter(3.1, 3.1)
 			.filterStoredTupleByKey("abc")
 			.filterStreamTupleByKey("def")
 			.compareWithTable("testtable")
@@ -120,9 +122,9 @@ public class TestQueryPlanBuilder {
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
 		Assert.assertEquals(new Hyperrectangle(3d, 4d), queryPlan.getQueryRange());
-		Assert.assertEquals(4, queryPlan.getStreamTransformation().size());
+		Assert.assertEquals(5, queryPlan.getStreamTransformation().size());
 		
 		final ContinuousTableQueryPlan cqp = (ContinuousTableQueryPlan) queryPlan;
-		Assert.assertEquals(3, cqp.getTableTransformation().size());
+		Assert.assertEquals(4, cqp.getTableTransformation().size());
 	}
 }

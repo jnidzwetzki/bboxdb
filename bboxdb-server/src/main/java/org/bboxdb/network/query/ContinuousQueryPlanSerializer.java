@@ -27,6 +27,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
 import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.json.JSONArray;
@@ -66,6 +67,7 @@ public class ContinuousQueryPlanSerializer {
 	private static final String TRANSFORMATION_KEY_FILTER_VALUE = "key-filter";
 	private static final String TRANSFORMATION_BBOX_ENLARGE_AMOUNT_VALUE = "bbox-enlarge-by-amount";
 	private static final String TRANSFORMATION_BBOX_ENLARGE_FACTOR_VALUE = "bbox-enlarge-by-factor";
+	private static final String TRANSFORMATION_BBOX_ENLARGE_WGS84_VALUE = "bbox-enlarge-by-wgs84";
 	private static final String TRANSFORMATION_BBOX_FILTER_VALUE = "bbox-filter";
 	
 	/**
@@ -132,6 +134,8 @@ public class ContinuousQueryPlanSerializer {
 				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_ENLARGE_FACTOR_VALUE);
 			} else if(transformation instanceof KeyFilterTransformation) {
 				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_KEY_FILTER_VALUE);
+			} else if(transformation instanceof EnlargeBoundingBoxByWGS84Transformation) {
+				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_ENLARGE_WGS84_VALUE);
 			} else {
 				throw new IllegalArgumentException("Unable to serialize type: " + transformation);
 			}
@@ -231,6 +235,9 @@ public class ContinuousQueryPlanSerializer {
 						break;
 					case TRANSFORMATION_KEY_FILTER_VALUE:
 						transformation = new KeyFilterTransformation(transformationValue);
+						break;
+					case TRANSFORMATION_BBOX_ENLARGE_WGS84_VALUE:
+						transformation = new EnlargeBoundingBoxByWGS84Transformation(transformationValue);
 						break;
 						
 					default:

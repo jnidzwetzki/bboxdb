@@ -29,6 +29,7 @@ import org.bboxdb.network.query.ContinuousTableQueryPlan;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
 import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.junit.Assert;
 import org.junit.Test;
@@ -159,12 +160,16 @@ public class TestContinuousQueryPlan {
 		final ContinuousQueryPlan continuousQueryPlan = new ContinuousTableQueryPlan("mytable", "mytable",
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
-						new KeyFilterTransformation("abcd")), 
+						new KeyFilterTransformation("abcd"),
+						new EnlargeBoundingBoxByWGS84Transformation(3.2, 1.0)
+						), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd"),
-						new EnlargeBoundingBoxByAmountTransformation(4)), 
+						new EnlargeBoundingBoxByAmountTransformation(4),
+						new EnlargeBoundingBoxByWGS84Transformation(3.2, 1.0)
+						), 
 				false);
 		
 		serializeAndDeserialize(continuousQueryPlan);
