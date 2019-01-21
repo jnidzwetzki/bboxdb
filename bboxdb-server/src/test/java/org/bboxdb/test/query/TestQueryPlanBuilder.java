@@ -90,7 +90,7 @@ public class TestQueryPlanBuilder {
 			.filterStreamTupleByBoundingBox(1d, 5d)
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
-			.reportPositiveMatches(false)
+			.reportNegativeMatches()
 			.compareWithTable("testtable")
 			.build();
 		

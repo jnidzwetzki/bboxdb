@@ -109,12 +109,22 @@ public class QueryPlanBuilder {
 	}
 	
 	/**
-	 * Report positive or negative matches
+	 * Report only positive matches
 	 * @param reportPositiveMatches
 	 * @return
 	 */
-	public QueryPlanBuilder reportPositiveMatches(final boolean reportPositiveMatches) {
-		this.reportPositiveMatches = reportPositiveMatches;
+	public QueryPlanBuilder reportPositiveMatches() {
+		this.reportPositiveMatches = true;
+		return this;
+	}
+	
+	/**
+	 * Report only negative matches
+	 * @param reportPositiveMatches
+	 * @return
+	 */
+	public QueryPlanBuilder reportNegativeMatches() {
+		this.reportPositiveMatches = false;
 		return this;
 	}
 	
