@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,9 +57,24 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	private final Map<String, String> filesAndFormats;
 
 	/**
-	 * The dimension of the input data
+	 * The samples that are used for the query
 	 */
-	private Hyperrectangle sample;
+	private final List<Hyperrectangle> samples;
+
+	/**
+	 * The tuple counter
+	 */
+	private final AtomicLong tupleCounter;
+
+	/**
+	 * The storage manager
+	 */
+	private TupleStoreManager storageManager;
+
+	/**
+	 * The storage registry
+	 */
+	private final TupleStoreManagerRegistry storageRegistry;
 
 	/**
 	 * The destination table
@@ -66,18 +82,15 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	private final static String TABLENAME = "testgroup_testtable";
 
 	/**
-	 * The tuple counter
+	 * The number of needed samples
 	 */
-	private final AtomicLong tupleCounter;
-
-	private TupleStoreManager storageManager;
-
-	private final TupleStoreManagerRegistry storageRegistry;
+	private final static int NEEDED_SAMPLES = 100;
 
 
 	public TestSpatialIndex(final File tmpDir, final Map<String, String> filesAndFormats) throws Exception {
 
 		this.filesAndFormats = filesAndFormats;
+		this.samples = new ArrayList<>();
 
 		// Setup database dir
 		tmpDir.mkdirs();
@@ -112,25 +125,37 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	 * Query data with spatial index
 	 */
 	private void queryDataWithIndex() {
-		final Stopwatch stopwatch = Stopwatch.createStarted();
 
-		long results = 0;
 		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(storageManager)) {
 
-			 for(final ReadOnlyTupleStore storge : tupleStoreAquirer.getTupleStores()) {
-				 final Iterator<Tuple> resultIterator = storge.getAllTuplesInBoundingBox(sample);
-				 final ArrayList<Tuple> resultTuples = Lists.newArrayList(resultIterator);
-				 results = results + resultTuples.size();
-			 }
+			final Stopwatch stopwatchAll = Stopwatch.createStarted();
 
-			System.out.println("Query with index done in (ms) / results: "
-					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + " / " + results);
+			for(final Hyperrectangle sample : samples) {
+				final Stopwatch stopwatchExperiment = Stopwatch.createStarted();
+
+				long results = 0;
+
+				for(final ReadOnlyTupleStore storge : tupleStoreAquirer.getTupleStores()) {
+					final Iterator<Tuple> resultIterator = storge.getAllTuplesInBoundingBox(sample);
+					final ArrayList<Tuple> resultTuples = Lists.newArrayList(resultIterator);
+					results = results + resultTuples.size();
+				}
+
+				final long elapsed = stopwatchExperiment.elapsed(TimeUnit.MILLISECONDS);
+
+				System.out.println("Query with index done in (ms) / results: "
+					+ elapsed + " / " + results);
+			}
+
+			final long elapsed = stopwatchAll.elapsed(TimeUnit.MILLISECONDS);
+			System.out.println("All queries queries with index done in (ms) " + elapsed);
+			System.out.println("Average time (ms) " + elapsed / samples.size());
 
 		} catch (StorageManagerException e) {
 			System.err.println("Got an Exception during query");
 			e.printStackTrace();
 			System.exit(-1);
-		} 
+		}
 	}
 
 	/**
@@ -139,23 +164,35 @@ public class TestSpatialIndex implements Runnable, Closeable {
 	private void queryDataWithoutIndex() {
 
 		try {
-			final Stopwatch stopwatch = Stopwatch.createStarted();
+			final Stopwatch stopwatchAll = Stopwatch.createStarted();
 
-			long results = 0;
+			for(final Hyperrectangle sample : samples) {
 
-			for(long key = 0; key < tupleCounter.get(); key++) {
-				final String keyString = Long.toString(key);
-				final List<Tuple> resultTuples = storageManager.get(keyString);
 
-				for(final Tuple tuple : resultTuples) {
-					if(sample.intersects(tuple.getBoundingBox())) {
-						results++;
+				final Stopwatch stopwatch = Stopwatch.createStarted();
+
+				long results = 0;
+
+				for(long key = 0; key < tupleCounter.get(); key++) {
+					final String keyString = Long.toString(key);
+					final List<Tuple> resultTuples = storageManager.get(keyString);
+
+					for(final Tuple tuple : resultTuples) {
+						if(sample.intersects(tuple.getBoundingBox())) {
+							results++;
+						}
 					}
 				}
+
+				final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+				System.out.println("Query without index done in (ms) / results: "
+						+ elapsed + " / " + results);
 			}
 
-			System.out.println("Query without index done in (ms) / results: "
-					+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + " / " + results);
+			final long elapsed = stopwatchAll.elapsed(TimeUnit.MILLISECONDS);
+			System.out.println("All queries queries without index done in (ms) " + elapsed);
+			System.out.println("Average time (ms) " + elapsed / samples.size());
 
 		} catch (StorageManagerException e) {
 			System.err.println("Got an Exception during query");
@@ -181,9 +218,15 @@ public class TestSpatialIndex implements Runnable, Closeable {
 				final long counter = tupleCounter.incrementAndGet();
 				insertTuple(t, counter);
 
-				// Take sample
-				if(counter == 1000) {
-					sample = t.getBoundingBox();
+				// Take sample if needed or replace randomly
+				if(samples.size() < NEEDED_SAMPLES) {
+					samples.add(t.getBoundingBox());
+				} else {
+					final ThreadLocalRandom random = ThreadLocalRandom.current();
+
+					if(random.nextInt(100) < 1) {
+						samples.set(random.nextInt(NEEDED_SAMPLES), t.getBoundingBox());
+					}
 				}
 			});
 
