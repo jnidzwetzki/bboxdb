@@ -69,6 +69,7 @@ When 2-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/Wo
 * Visit our [bug tracking system](https://github.com/jnidzwetzki/bboxdb/issues)
 * Read the [source code](https://github.com/jnidzwetzki/bboxdb) and the [documentation](https://jnidzwetzki.github.io/bboxdb/)
 * For contributing, see our [contributing guide](https://github.com/jnidzwetzki/bboxdb/blob/master/CONTRIBUTING.md)
+* Read our [technical report](http://dna.fernuni-hagen.de/papers/Report377.pdf) and our [demo paper](https://dl.acm.org/citation.cfm?id=3269208) (presented at CIKM2018)
 * If you like the project, please star it on GitHub!
 
 ## License
