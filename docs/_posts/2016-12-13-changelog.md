@@ -9,6 +9,7 @@ order: 1
 ### Version 0.9.0 - TBA
 - Improvement: Continuous queries can be executed on a different join table
 - Improvement: Allow WGS84 enlarge by meters in continuous queries
+- Improvement: Upgraded mockito-core from 2.23.4 to 2.24.0
 - Bugfix: Don't retry a future when the connection is closed
 
 ### Version 0.8.6 - 02.01.2019
