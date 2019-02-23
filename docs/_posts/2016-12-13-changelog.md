@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.0 - TBA
+- New Feature: Added bounding box determination script
 - Improvement: Continuous queries can be executed on a different join table
 - Improvement: Allow WGS84 enlarge by meters in continuous queries
 - Improvement: Upgraded mockito-core from 2.23.4 to 2.24.0
