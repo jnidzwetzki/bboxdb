@@ -70,13 +70,13 @@ public class DetermineRangeQueryBoxes implements Runnable {
 	@Override
 	public void run() {
 		try {
+			final Set<Long> takenSamples = new HashSet<>();
+			final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
+
 			System.out.format("Indexing %s%n", filename);
 			fli = new FileLineIndex(filename);
 			fli.indexFile();
 			System.out.format("Indexing %s done%n", filename);
-
-			final Set<Long> takenSamples = new HashSet<>();
-			final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
 
 			try(
 					final RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "r");
