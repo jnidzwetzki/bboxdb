@@ -100,7 +100,7 @@ public class DetermineRangeQueryBoxes implements Runnable {
 				    }
 
 					final Hyperrectangle boundingBox = tuple.getBoundingBox();
-					final Hyperrectangle enlargedBox = boundingBox.enlargeByAmount(factor);
+					final Hyperrectangle enlargedBox = boundingBox.enlargeByFactor(factor);
 					System.out.print(takenSamples.size() + " " + boundingBox.toCompactString() + " ");
 					System.out.println(enlargedBox.toCompactString());
 
