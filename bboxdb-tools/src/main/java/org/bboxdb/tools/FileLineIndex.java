@@ -119,7 +119,8 @@ public class FileLineIndex implements AutoCloseable {
 			}
 		}
 
-		logger.info("Indexing file {} done. Indexed {} lines.", filename, indexedLines);
+		logger.info("Indexing file {} done. Indexed {} lines.",
+				filename, getIndexedLines());
 	}
 
 	/**

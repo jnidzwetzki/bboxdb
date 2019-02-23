@@ -11,6 +11,7 @@ order: 1
 - Improvement: Continuous queries can be executed on a different join table
 - Improvement: Allow WGS84 enlarge by meters in continuous queries
 - Improvement: Upgraded mockito-core from 2.23.4 to 2.24.5, lf4j-api from 1.7.25 to 1.7.26, slf4j-log4j12 from 1.7.25 to 1.7.26
+- Improvement: The speed of the file line indexer
 - Bugfix: Don't retry a future when the connection is closed
 
 ### Version 0.8.6 - 02.01.2019
