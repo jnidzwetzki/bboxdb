@@ -19,6 +19,7 @@ package org.bboxdb.tools.converter.osm.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,14 @@ public class Polygon implements Serializable {
 		return pointList.size();
 	}
 
+	/**
+	 * Get all properties
+	 * @return
+	 */
+	public Map<String, String> getProperties() {
+		return Collections.unmodifiableMap(properties);
+	}
+	
 	/**
 	 * Get the bounding box from the object
 	 * @param boxPadding
