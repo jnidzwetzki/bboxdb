@@ -129,9 +129,9 @@ public class DetermineRangeQueryBoxes implements Runnable {
 		final long queries = MathUtil.tryParseLongOrExit(args[2]);
 		final long factor = MathUtil.tryParseLongOrExit(args[3]);
 
-		final DetermineRangeQueryBoxes determineSamplingSize = new DetermineRangeQueryBoxes(
+		final DetermineRangeQueryBoxes program = new DetermineRangeQueryBoxes(
 				filename, format, queries, factor);
 
-		determineSamplingSize.run();
+		program.run();
 	}
 }
