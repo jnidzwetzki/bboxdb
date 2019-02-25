@@ -89,9 +89,18 @@ public class Polygon implements Serializable {
 	 * @param d
 	 * @param e
 	 */
-	public void addPoint(final double d, final double e) {
-		final OSMPoint point = new OSMPoint(d, e);
+	public boolean addPoint(final double x, final double y) {
+		final OSMPoint point = new OSMPoint(x, y);
+		
+		// Prevent double inserts
+		if(! pointList.isEmpty()) {
+			if(pointList.get(pointList.size() - 1).equals(point)) {
+				return false;
+			}
+		}
+		
 		pointList.add(point);
+		return true;
 	}
 
 	/**

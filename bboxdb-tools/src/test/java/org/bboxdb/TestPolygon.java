@@ -24,6 +24,17 @@ import org.junit.Test;
 public class TestPolygon {
 
 	@Test
+	public void testDoubleAdd() {
+		final Polygon polygon = new Polygon(47);
+		Assert.assertTrue(polygon.addPoint(4, 5));
+		Assert.assertFalse(polygon.addPoint(4, 5));
+		Assert.assertTrue(polygon.addPoint(67, 45));
+		Assert.assertFalse(polygon.addPoint(67, 45));
+		Assert.assertTrue(polygon.addPoint(4, 5));
+		Assert.assertTrue(polygon.addPoint(67, 45));
+	}
+	
+	@Test
 	public void testJSONEncoding1() {
 		final Polygon polygon = new Polygon(45);
 		final String json = polygon.toGeoJson();
