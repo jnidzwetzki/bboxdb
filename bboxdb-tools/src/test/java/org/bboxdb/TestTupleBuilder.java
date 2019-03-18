@@ -70,6 +70,11 @@ public class TestTupleBuilder {
 	private final static String GEO_JSON_LINE = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
 
 	/**
+	 * The line for nari dynamic tests
+	 */
+	private final static String NARI_DYNAMIC = "245257000,0,0,0.1,13.1,36,-4.4657183,48.38249,1443650402";
+		
+	/**
 	 * Test the geo json tuple builder
 	 */
 	@Test
@@ -323,6 +328,24 @@ public class TestTupleBuilder {
 		Assert.assertEquals("e1k141dox9rayxo544y9", new String(tuple.getDataBytes()));
 	}
 
+	/**
+	 * Test the nari dynamic tuple builder
+	 */
+	@Test
+	public void testNariDynamicTupleBuilder() {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.NARI_DYNAMIC);
+
+		final Tuple tuple = tupleBuilder.buildTuple("1", NARI_DYNAMIC);
+
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1443650402d, 1443650402d,
+				-4.4657183d, -4.4657183d, 48.38249d, 48.38249d);
+		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
 
 	/**
 	 * Test the tuple file builder - Process non existing file

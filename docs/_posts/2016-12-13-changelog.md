@@ -14,6 +14,7 @@ order: 1
 - Improvement: Upgraded mockito-core from 2.23.4 to 2.25.0, lf4j-api from 1.7.25 to 1.7.26, slf4j-log4j12 from 1.7.25 to 1.7.26, cassandra-driver-core from 3.6.0 to 3.7.1, guava from 27.0.1-jre to 27.1-jre
 - Improvement: The speed of the file line indexer
 - Improvement: Prevent coordinate duplicates in polygons
+- Improvement: Added importer for nari dynamic data
 - Bugfix: Don't retry a future when the connection is closed
 
 ### Version 0.8.6 - 02.01.2019

@@ -74,6 +74,11 @@ public class TupleBuilderFactory {
 		 * Rome taxi point
 		 */
 		public static final String ROME_TAXI_RANGE = "rome_taxi_range";
+		
+		/**
+		 * Nari dynamic
+		 */
+		public static final String NARI_DYNAMIC = "nari_dynamic";
 	}
 	
 	/**
@@ -84,7 +89,7 @@ public class TupleBuilderFactory {
 			Name.YELLOWTAXI_POINT, Name.YELLOWTAXI_RANGE, 
 			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE, 
 			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
-			Name.ROME_TAXI_RANGE);
+			Name.ROME_TAXI_RANGE, Name.NARI_DYNAMIC);
 
 	/**
 	 * Return the parser for the tuple format
@@ -92,26 +97,30 @@ public class TupleBuilderFactory {
 	 * @return
 	 */
 	public static TupleBuilder getBuilderForFormat(final String format) {
-		if(Name.GEOJSON.equals(format)) {
-			return new GeoJSONTupleBuilder();
-		} else if(Name.SYNTHETIC.equals(format)) {
-			return new SyntheticTupleBuilder();
-		} else if(Name.YELLOWTAXI_POINT.equals(format)) {
-			return new YellowTaxiPointTupleBuilder();
-		} else if(Name.YELLOWTAXI_RANGE.equals(format)) {
-			return new YellowTaxiRangeTupleBuilder();
-		} else if(Name.TPCH_LINEITEM_POINT.equals(format)) {
-			return new TPCHLineitemPointBuilder();
-		} else if(Name.TPCH_LINEITEM_RANGE.equals(format)) {
-			return new TPCHLineitemRangeBuilder();
-		} else if(Name.TPCH_ORDER_POINT.equals(format)) {
-			return new TPCHOrderPointBuilder();
-		} else if(Name.ROME_TAXI_POINT.equals(format)) {
-			return new RomeTaxiPointBuilder();
-		} else if(Name.ROME_TAXI_RANGE.equals(format)) { 
-			return new RomeTaxiRangeBuilder();
-		} else {
-			throw new RuntimeException("Unknown format: " + format);
+		
+		switch(format) {
+			case Name.GEOJSON:
+				return new GeoJSONTupleBuilder();
+			case Name.SYNTHETIC:
+				return new SyntheticTupleBuilder();
+			case Name.YELLOWTAXI_POINT:
+				return new YellowTaxiPointTupleBuilder();
+			case Name.YELLOWTAXI_RANGE:
+				return new YellowTaxiRangeTupleBuilder();
+			case Name.TPCH_LINEITEM_POINT:
+				return new TPCHLineitemPointBuilder();
+			case Name.TPCH_LINEITEM_RANGE:
+				return new TPCHLineitemRangeBuilder();
+			case Name.TPCH_ORDER_POINT:
+				return new TPCHOrderPointBuilder();
+			case Name.ROME_TAXI_POINT:
+				return new RomeTaxiPointBuilder();
+			case Name.ROME_TAXI_RANGE:
+				return new RomeTaxiRangeBuilder();
+			case Name.NARI_DYNAMIC:
+				return new NariDynamicBuilder();
+			default:
+				throw new RuntimeException("Unknown format: " + format);
 		}
 	}
 
