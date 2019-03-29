@@ -150,7 +150,7 @@ public class TestTupleBuilder {
 		Assert.assertNotNull(tuple1);
 		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
 
-		final Hyperrectangle exptectedBox = new Hyperrectangle(1448928000000d, 1448928000000d,
+		final Hyperrectangle exptectedBox = new Hyperrectangle((double) 1448928000000l, (double) 1448928000000l,
 				1.05752d, 1.05752d);
 
 		Assert.assertEquals(exptectedBox, tuple1.getBoundingBox());
