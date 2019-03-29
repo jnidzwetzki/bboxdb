@@ -15,6 +15,7 @@ order: 1
 - Improvement: The speed of the file line indexer
 - Improvement: Prevent coordinate duplicates in polygons
 - Improvement: Added importer for nari dynamic data
+- Improvement: Added importer for forex data
 - Bugfix: Don't retry a future when the connection is closed
 
 ### Version 0.8.6 - 02.01.2019

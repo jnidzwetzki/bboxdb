@@ -63,6 +63,10 @@ public class TestTupleBuilder {
 	private final static String ROME_TAXI_1 = "173;2014-01-04 00:00:07.028304+01;POINT(41.91924450823211 12.5027184734508)";
 	private final static String ROME_TAXI_2 = "173;2014-01-04 00:00:09.028304+01;POINT(41.92924450823211 14.5527184734508)";
 
+	/**
+	 * The line for the forex tests
+	 */
+	private final static String FOREX_LINE = "20151201 000005720,1.057520,1.057560,0";
 
 	/**
 	 * The line for geojson tests
@@ -84,7 +88,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 		final Hyperrectangle expectedBox = new Hyperrectangle(52.4688608, 52.4688608, 13.3327994, 13.3327994);
 		Assert.assertEquals(expectedBox, tuple.getBoundingBox());
@@ -101,7 +105,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", ROME_TAXI_1);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007028d, 1388790007028d,
@@ -110,6 +114,48 @@ public class TestTupleBuilder {
 
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
+	
+	/**
+	 * Test the forex 1d tuple builder
+	 * @throws ParseException
+	 */
+	@Test
+	public void testForex1DTupleBuilder() throws ParseException {
+		
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.FOREX_1D);
+
+		final Tuple tuple1 = tupleBuilder.buildTuple("1", FOREX_LINE);
+
+		Assert.assertNotNull(tuple1);
+		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
+
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1.05752, 1.05752);
+
+		Assert.assertEquals(exptectedBox, tuple1.getBoundingBox());
+	}
+	
+	/**
+	 * Test the forex 2d tuple builder
+	 * @throws ParseException
+	 */
+	@Test
+	public void testForex2DTupleBuilder() throws ParseException {
+		
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.FOREX_2D);
+
+		final Tuple tuple1 = tupleBuilder.buildTuple("1", FOREX_LINE);
+
+		Assert.assertNotNull(tuple1);
+		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
+
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1448930120000d, 1448930120000d,
+				1.05752, 1.05752);
+
+		Assert.assertEquals(exptectedBox, tuple1.getBoundingBox());
+	}
+
 
 	/**
 	 * Test the rome taxi range tuple builder
@@ -123,16 +169,13 @@ public class TestTupleBuilder {
 		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
 		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
 
-		Assert.assertTrue(tuple1 == null);
-		Assert.assertTrue(tuple2 != null);
+		Assert.assertNull(tuple1);
+		Assert.assertNotNull(tuple2);
 		Assert.assertEquals(Integer.toString(1), tuple2.getKey());
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007028d, 1388790009028d,
 				41.91924450823211, 41.92924450823211,
 				12.5027184734508, 14.5527184734508);
-
-		System.out.println(exptectedBox);
-		System.out.println(tuple2.getBoundingBox());
 
 		Assert.assertEquals(exptectedBox, tuple2.getBoundingBox());
 	}
@@ -149,8 +192,8 @@ public class TestTupleBuilder {
 		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
 		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
 
-		Assert.assertTrue(tuple1 == null);
-		Assert.assertTrue(tuple2 != null);
+		Assert.assertNull(tuple1);
+		Assert.assertNotNull(tuple2);
 		Assert.assertEquals(Integer.toString(1), tuple2.getKey());
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007028d, 1388790009028d,
@@ -174,8 +217,8 @@ public class TestTupleBuilder {
 		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
 		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
 
-		Assert.assertTrue(tuple1 == null);
-		Assert.assertTrue(tuple2 != null);
+		Assert.assertNull(tuple1);
+		Assert.assertNotNull(tuple2);
 		Assert.assertEquals(Integer.toString(1), tuple2.getKey());
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(1388790007027d, 1388790009029d,
@@ -196,7 +239,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", TAXI_TEST_LINE);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
@@ -221,7 +264,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", TAXI_TEST_LINE);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
@@ -245,7 +288,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_LINEITEM_TEST_LINE);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
@@ -268,7 +311,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_LINEITEM_TEST_LINE);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
@@ -294,7 +337,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_ORDER_TEST_LINE);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
@@ -318,7 +361,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", SYNTHETIC_TEST_LINE);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(51.47015078569419, 58.26664175357267,
@@ -338,7 +381,7 @@ public class TestTupleBuilder {
 
 		final Tuple tuple = tupleBuilder.buildTuple("1", NARI_DYNAMIC);
 
-		Assert.assertTrue(tuple != null);
+		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(1443650402d, 1443650402d,

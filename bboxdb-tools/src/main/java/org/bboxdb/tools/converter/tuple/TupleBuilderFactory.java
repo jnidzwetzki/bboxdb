@@ -79,6 +79,16 @@ public class TupleBuilderFactory {
 		 * Nari dynamic
 		 */
 		public static final String NARI_DYNAMIC = "nari_dynamic";
+		
+		/**
+		 * Forex 1D
+		 */
+		public static final String FOREX_1D = "forex_1d";
+		
+		/**
+		 * Forex 2D
+		 */
+		public static final String FOREX_2D = "forex_2d";
 	}
 	
 	/**
@@ -89,7 +99,8 @@ public class TupleBuilderFactory {
 			Name.YELLOWTAXI_POINT, Name.YELLOWTAXI_RANGE, 
 			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE, 
 			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
-			Name.ROME_TAXI_RANGE, Name.NARI_DYNAMIC);
+			Name.ROME_TAXI_RANGE, Name.NARI_DYNAMIC,
+			Name.FOREX_1D, Name.FOREX_2D);
 
 	/**
 	 * Return the parser for the tuple format
@@ -119,6 +130,10 @@ public class TupleBuilderFactory {
 				return new RomeTaxiRangeBuilder();
 			case Name.NARI_DYNAMIC:
 				return new NariDynamicBuilder();
+			case Name.FOREX_1D:
+				return new Forex1DBuilder();
+			case Name.FOREX_2D:
+				return new Forex2DBuilder();
 			default:
 				throw new RuntimeException("Unknown format: " + format);
 		}
