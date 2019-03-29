@@ -151,8 +151,8 @@ public class TestTupleBuilder {
 		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
 		
 		Assert.assertEquals(2, tuple1.getBoundingBox().getDimension());
-		Assert.assertEquals(tuple1.getBoundingBox().getCoordinateHigh(0), 1448928000000d, 0.001);
-		Assert.assertEquals(tuple1.getBoundingBox().getCoordinateHigh(1), 1.05752d, 0.001);
+		Assert.assertEquals(tuple1.getBoundingBox().getCoordinateHigh(0), 1448928000d, 0.1);
+		Assert.assertEquals(tuple1.getBoundingBox().getCoordinateHigh(1), 1.05752d, 0.1);
 	}
 
 

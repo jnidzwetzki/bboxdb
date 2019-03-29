@@ -51,7 +51,7 @@ public class Forex2DBuilder extends TupleBuilder {
 			// 20151201 000005720
 			final String datetime = data[0];
 			final Date parsedTime = dateFormat.parse(datetime);
-			final long time = parsedTime.getTime();
+			final long time = (parsedTime.getTime() / 1000);
 			
 			final Optional<Double> bid = MathUtil.tryParseDouble(data[1]);
 			
