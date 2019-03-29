@@ -51,8 +51,8 @@ public class Forex2DBuilder extends TupleBuilder {
 			// 20151201 000005720
 			final String datetime = data[0];
 			final Date parsedTime = dateFormat.parse(datetime);
-			final double time = (double) parsedTime.getTime();
-						
+			final long time = parsedTime.getTime();
+			
 			final Optional<Double> bid = MathUtil.tryParseDouble(data[1]);
 			
 			if(! bid.isPresent()) {
@@ -60,7 +60,7 @@ public class Forex2DBuilder extends TupleBuilder {
 			}
 			
 			final Hyperrectangle boundingBox = new Hyperrectangle(
-					time, time,
+					(double) time, (double) time,
 					bid.get(), bid.get());
 			
 			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());

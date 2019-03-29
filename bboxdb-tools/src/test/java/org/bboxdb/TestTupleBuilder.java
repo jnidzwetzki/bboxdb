@@ -66,7 +66,7 @@ public class TestTupleBuilder {
 	/**
 	 * The line for the forex tests
 	 */
-	private final static String FOREX_LINE = "20151201 000005720,1.057520,1.057560,0";
+	private final static String FOREX_LINE = "20151201 010000000,1.057520,1.057560,0";
 
 	/**
 	 * The line for geojson tests
@@ -150,7 +150,7 @@ public class TestTupleBuilder {
 		Assert.assertNotNull(tuple1);
 		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
 
-		final Hyperrectangle exptectedBox = new Hyperrectangle(1448930120000d, 1448930120000d,
+		final Hyperrectangle exptectedBox = new Hyperrectangle(1448928000000d, 1448928000000d,
 				1.05752d, 1.05752d);
 
 		Assert.assertEquals(exptectedBox, tuple1.getBoundingBox());
