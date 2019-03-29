@@ -149,11 +149,10 @@ public class TestTupleBuilder {
 
 		Assert.assertNotNull(tuple1);
 		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
-
-		final Hyperrectangle exptectedBox = new Hyperrectangle((double) 1448928000000l, (double) 1448928000000l,
-				1.05752d, 1.05752d);
-
-		Assert.assertEquals(exptectedBox, tuple1.getBoundingBox());
+		
+		Assert.assertEquals(tuple1.getBoundingBox().getCoordinateHigh(0), 1448928000000d, 0.001);
+		Assert.assertEquals(tuple1.getBoundingBox().getCoordinateHigh(1), 1.05752d, 0.001);
+		Assert.assertEquals(2, tuple1.getBoundingBox().getDimension());
 	}
 
 
