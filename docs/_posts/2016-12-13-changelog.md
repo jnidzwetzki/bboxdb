@@ -11,7 +11,7 @@ order: 1
 - New Feature: Added GeoJSON to bounding box converter
 - Improvement: Continuous queries can be executed on a different join table
 - Improvement: Allow WGS84 enlarge by meters in continuous queries
-- Improvement: Upgraded mockito-core from 2.23.4 to 2.25.1, lf4j-api from 1.7.25 to 1.7.26, slf4j-log4j12 from 1.7.25 to 1.7.26, cassandra-driver-core from 3.6.0 to 3.7.1, guava from 27.0.1-jre to 27.1-jre
+- Improvement: Upgraded mockito-core from 2.23.4 to 2.25.1, lf4j-api from 1.7.25 to 1.7.26, slf4j-log4j12 from 1.7.25 to 1.7.26, cassandra-driver-core from 3.6.0 to 3.7.1, guava from 27.0.1-jre to 27.1-jre, zookeeper from 3.4.13 to 3.4.14
 - Improvement: The speed of the file line indexer
 - Improvement: Prevent coordinate duplicates in polygons
 - Improvement: Added importer for nari dynamic data
