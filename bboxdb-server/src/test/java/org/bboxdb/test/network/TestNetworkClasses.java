@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +44,7 @@ import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
 import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
+import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.LockTupleRequest;
@@ -83,22 +85,33 @@ public class TestNetworkClasses {
 	/**
 	 * The sequence number generator for our packages
 	 */
-	protected final SequenceNumberGenerator sequenceNumberGenerator = new SequenceNumberGenerator();
+	private final SequenceNumberGenerator sequenceNumberGenerator = new SequenceNumberGenerator();
 	
 	/**
 	 * A routing hop
 	 */
-	protected final RoutingHop ROUTING_HOP = new RoutingHop(new BBoxDBInstance("127.0.0.1:8080"), Arrays.asList(1l, 6l));
+	private final RoutingHop ROUTING_HOP = new RoutingHop(new BBoxDBInstance("127.0.0.1:8080"), Arrays.asList(1l, 6l));
 	
 	/**
 	 * A routing header - routed
 	 */
-	protected final RoutingHeader ROUTING_HEADER_ROUTED = new RoutingHeader((short) 0, Arrays.asList(ROUTING_HOP));
+	private final RoutingHeader ROUTING_HEADER_ROUTED = new RoutingHeader((short) 0, Arrays.asList(ROUTING_HOP));
 
 	/**
 	 * A routing header - unrouted
 	 */
-	protected final RoutingHeader ROUTING_HEADER_UNROUTED = new RoutingHeader(false);
+	private final RoutingHeader ROUTING_HEADER_UNROUTED = new RoutingHeader(false);
+	
+	/**
+	 * The insert option - none
+	 */
+	private final EnumSet<InsertOption> INSERT_OPTIONS_NONE = EnumSet.noneOf(InsertOption.class);
+	
+	/**
+	 * The insert option - streaming
+	 */
+	private final EnumSet<InsertOption> INSERT_OPTIONS_STREAMING = EnumSet.of(InsertOption.STREAMING_ONLY);
+	
 	
 	/**
 	 * Convert a network package into a byte array
@@ -157,7 +170,8 @@ public class TestNetworkClasses {
 		final Tuple tuple = new DeletedTuple("key", 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 		
 		byte[] encodedVersion = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedVersion);
@@ -185,7 +199,8 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_STREAMING);
 		
 		byte[] encodedVersion = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedVersion);
@@ -211,7 +226,8 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("key", new Hyperrectangle(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 		
 		byte[] encodedVersion = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedVersion);
@@ -275,7 +291,8 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
 		byte[] encodedVersion = networkPackageToByte(insertPackage);
@@ -828,13 +845,15 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 		
 		byte[] encodedPackage = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedPackage);
 				
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, 
+				NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		Assert.assertTrue(result);
 	}	
 	
@@ -852,7 +871,8 @@ public class TestNetworkClasses {
 		sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 
 		final byte[] encodedPackage = networkPackageToByte(insertPackage);
 		
@@ -872,7 +892,8 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_UNROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 		
 		final byte[] encodedPackage = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedPackage);
@@ -1055,7 +1076,8 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
 		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(insertPackage));
@@ -1097,7 +1119,8 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", Hyperrectangle.FULL_SPACE, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, 
+				ROUTING_HEADER_ROUTED, new TupleStoreName("test"), tuple, INSERT_OPTIONS_NONE);
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
 		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(

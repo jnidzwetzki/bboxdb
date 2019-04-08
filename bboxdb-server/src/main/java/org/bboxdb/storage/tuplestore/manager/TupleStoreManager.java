@@ -662,7 +662,7 @@ public class TupleStoreManager implements BBoxDBService {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Store a new tuple
 	 * @param tuple
@@ -670,6 +670,17 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws RejectedException
 	 */
 	public void put(final Tuple tuple) throws StorageManagerException, RejectedException {
+		put(tuple, true, true);
+	}
+
+	/**
+	 * Store a new tuple
+	 * @param tuple
+	 * @throws StorageManagerException
+	 * @throws RejectedException
+	 */
+	public void put(final Tuple tuple, final boolean storeOnDisk,
+			final boolean runCallbacks) throws StorageManagerException, RejectedException {
 
 		if(! serviceState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: "
@@ -683,17 +694,21 @@ public class TupleStoreManager implements BBoxDBService {
 
 		try {
 			// Ensure that only one memtable is newly created
-			synchronized (this) {
-				if(getMemtable().isFull()) {
-					initNewMemtable();
+			if(storeOnDisk) {
+				synchronized (this) {
+					if(getMemtable().isFull()) {
+						initNewMemtable();
+					}
+	
+					getMemtable().put(tuple);
 				}
-
-				getMemtable().put(tuple);
 			}
 
 			// Notify callbacks
-			insertCallbacks.forEach(c -> c.accept(tuple));
-
+			if(runCallbacks) {
+				insertCallbacks.forEach(c -> c.accept(tuple));
+			}
+			
 		} catch (StorageManagerException e) {
 			serviceState.dispatchToFailed(e);
 			throw e;

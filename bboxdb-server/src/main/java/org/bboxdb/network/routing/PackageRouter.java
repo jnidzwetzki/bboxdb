@@ -151,7 +151,8 @@ public class PackageRouter {
 		final EmptyResultFuture insertFuture = bboxDBClient.insertTuple(
 				insertTupleRequest.getTable().getFullname(), 
 				insertTupleRequest.getTuple(), 
-				routingHeader);
+				routingHeader,
+				insertTupleRequest.getInsertOptions());
 		
 		try {
 			insertFuture.waitForCompletion(ROUTING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);

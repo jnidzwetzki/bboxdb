@@ -19,6 +19,7 @@ package org.bboxdb.network.client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -43,6 +44,7 @@ import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
+import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.LockTupleRequest;
@@ -149,16 +151,17 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, tuple.getBoundingBox(), false, connection.getServerAddress());
 
-		return insertTuple(table, tuple, routingHeader);
+		return insertTuple(table, tuple, routingHeader, EnumSet.noneOf(InsertOption.class));
 	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple,
-			final RoutingHeader routingHeader) {
+			final RoutingHeader routingHeader, final EnumSet<InsertOption> insertOptions) {
 
-		final Supplier<List<NetworkOperationFuture>> future = getInsertTupleFuture(table, tuple, routingHeader);
+		final Supplier<List<NetworkOperationFuture>> future = 
+				getInsertTupleFuture(table, tuple, routingHeader, insertOptions);
 
 		return new EmptyResultFuture(future);
 	}
@@ -209,13 +212,13 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public Supplier<List<NetworkOperationFuture>> getInsertTupleFuture(final String table, final Tuple tuple,
-			final RoutingHeader routingHeader) {
+			final RoutingHeader routingHeader, final EnumSet<InsertOption> insertOptions) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final TupleStoreName ssTableName = new TupleStoreName(table);
 			final short sequenceNumber = connection.getNextSequenceNumber();
 
-			return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tuple);
+			return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tuple, insertOptions);
 		};
 
 		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
@@ -231,7 +234,7 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, boundingBox, true, connection.getServerAddress());
 
-		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
+		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader, EnumSet.noneOf(InsertOption.class));
 	}
 
 	/* (non-Javadoc)

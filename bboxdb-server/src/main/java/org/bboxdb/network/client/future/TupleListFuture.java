@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -27,6 +28,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.RoutingHeaderHelper;
+import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
@@ -159,7 +161,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 						bboxDBConnection.getConnectionName());
 
 				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
-				bboxDBClient.insertTuple(tablename, tuple, routingHeader);
+				bboxDBClient.insertTuple(tablename, tuple, routingHeader, EnumSet.noneOf(InsertOption.class));
 			}
 		}
 	}

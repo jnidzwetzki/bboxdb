@@ -20,6 +20,7 @@ package org.bboxdb.network.server.connection.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
@@ -30,6 +31,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.routing.PackageRouter;
@@ -170,10 +172,11 @@ public class InsertTupleHandler implements RequestHandler {
 		final LockManager lockManager = clientConnectionHandler.getLockManager();
 		final String table = insertTupleRequest.getTable().getFullnameWithoutPrefix();
 		final String key = insertTupleRequest.getTuple().getKey();
+		final EnumSet<InsertOption> insertOptions = insertTupleRequest.getInsertOptions();
 		lockManager.removeLockForConnectionAndKey(clientConnectionHandler, table, key);
 
 		final List<Long> distributionRegions = localHop.getDistributionRegions();
-		processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
+		processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions, insertOptions);
 		forwardRoutedPackage(packageSequence, clientConnectionHandler, insertTupleRequest);
 	}
 
@@ -197,13 +200,15 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @param tuple
 	 * @param requestTable
 	 * @param storageRegistry
+	 * @param insertOptions 
 	 * @param routingHeader
 	 * @throws StorageManagerException
 	 * @throws RejectedException
 	 * @throws BBoxDBException
 	 */
 	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable,
-			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions) throws RejectedException {
+			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions, 
+			final EnumSet<InsertOption> insertOptions) throws RejectedException {
 
 		try {
 			final String fullname = requestTable.getDistributionGroup();
@@ -233,10 +238,11 @@ public class InsertTupleHandler implements RequestHandler {
 					= regionIdMapper.getSpaceForRegionId(regionid);
 				
 				final Hyperrectangle tupleBBox = tuple.getBoundingBox();
+				final boolean storeOnDisk = ! insertOptions.contains(InsertOption.STREAMING_ONLY);
 				
 				if(space.intersects(tupleBBox)) {
 					final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
-					storageManager.put(tuple);
+					storageManager.put(tuple, storeOnDisk, true);
 				} else { 
 					logger.debug("Not inserting into region {} because {} not insertect {}", regionid, 
 							tupleBBox, space);

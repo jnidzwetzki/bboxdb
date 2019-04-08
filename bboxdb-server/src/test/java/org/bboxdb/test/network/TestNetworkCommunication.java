@@ -18,6 +18,7 @@
 package org.bboxdb.test.network;
 
 import java.net.InetSocketAddress;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -36,6 +37,7 @@ import org.bboxdb.network.client.RoutingHeaderHelper;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -70,6 +72,11 @@ public class TestNetworkCommunication {
 	 * The name of the distribution group
 	 */
 	private static final String DISTRIBUTION_GROUP = "testgroup";
+	
+	/**
+	 * The insert option - none
+	 */
+	private final EnumSet<InsertOption> INSERT_OPTIONS_NONE = EnumSet.noneOf(InsertOption.class);
 
 	@BeforeClass
 	public static void init() throws Exception {
@@ -389,8 +396,11 @@ public class TestNetworkCommunication {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, Hyperrectangle.FULL_SPACE, false, bboxdbConnection.getServerAddress());
 
+	
+		
 		final Tuple tuple = new Tuple("key12", new Hyperrectangle(1.2, 5.0), "abc".getBytes());
-		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader);
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader, 
+				INSERT_OPTIONS_NONE);
 
 		// Prevent retries
 		insertResult.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
