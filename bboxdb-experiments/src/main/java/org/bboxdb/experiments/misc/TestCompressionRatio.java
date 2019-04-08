@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
@@ -48,6 +50,11 @@ public class TestCompressionRatio implements Runnable {
 	 * The format of the input file
 	 */
 	protected String format;
+	
+	/**
+	 * The insert option - none
+	 */
+	private final EnumSet<InsertOption> INSERT_OPTIONS_NONE = EnumSet.noneOf(InsertOption.class);
 
 	/**
 	 * The Logger
@@ -144,7 +151,7 @@ public class TestCompressionRatio implements Runnable {
 		final List<NetworkRequestPackage> packages =
 				buffer
 				.stream()
-				.map(t -> new InsertTupleRequest((short) 4, routingHeader, tableName, t))
+				.map(t -> new InsertTupleRequest((short) 4, routingHeader, tableName, t, INSERT_OPTIONS_NONE))
 				.collect(Collectors.toList());
 
 		final CompressionEnvelopeRequest compressionEnvelopeRequest
@@ -165,10 +172,7 @@ public class TestCompressionRatio implements Runnable {
 		final RoutingHeader routingHeader = new RoutingHeader(false);
 
 		final InsertTupleRequest insertTupleRequest = new InsertTupleRequest(
-				(short) 4,
-				routingHeader,
-				tableName,
-				tuple);
+				(short) 4, routingHeader, tableName, tuple, INSERT_OPTIONS_NONE);
 
 		return packageToBytes(insertTupleRequest);
 	}
