@@ -163,7 +163,7 @@ bboxdb_start_remote_debug)
 bboxdb_stop)
    bboxdb_stop
    ;;  
-bboxdb_update)
+bboxdb_update | bboxdb_upgrade)
    bboxdb_update
    ;;  
 zookeeper_start)
