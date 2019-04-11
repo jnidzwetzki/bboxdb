@@ -29,6 +29,12 @@ max_pending=3
 # Read a nodes file
 ### 
 read_nodes_file() {
+   
+   if [ $# -ne 1 ]; then
+       echo "Error not enough parameters passed to function call"
+       exit -1
+   fi
+
    file=$1
 
    if [ ! -f $file ]; then
@@ -54,6 +60,45 @@ read_nodes_file() {
    done 10< $file
 
   echo $result 
+}
+
+###
+# Execute command parallel on multiple nodes
+###
+execute_parallel() {
+
+   if [ $# -ne 4 ]; then
+       echo "Error not enough parameters passed to function call"
+       exit -1
+   fi
+
+   command=$1
+   task=$2
+   nodes=$3
+   max_pending=$4
+
+   # Number of pending starts
+   pending=0
+
+   for node in $nodes; do
+      echo "$task on Node $node "
+      ssh $node "$command" &
+
+      pending=$((pending + 1))
+
+      if [ $pending -ge $max_pending ]; then
+         echo "Waiting for pending commands to finish..."  
+         wait
+         pending=0
+         echo -e "Pending commands complete $done"
+       fi
+   done
+
+   if [ $pending -gt 0 ]; then
+      echo "Waiting for pending commands to finish..."  
+      wait
+      echo -e "Pending commands complete $done"
+   fi
 }
 
 ###

@@ -30,39 +30,6 @@ fi
 # Load all required functions and variables
 . $BBOXDB_HOME/bin/bootstrap.sh
 
-###
-# Execute command parallel on multiple nodes
-###
-function execute_parallel() {
-   command=$1
-   task=$2
-   nodes=$3
-   max_pending=$4
-
-   # Number of pending starts
-   pending=0
-
-   for node in $nodes; do
-      echo "$task on Node $node "
-      ssh $node "$command" &
-
-      pending=$((pending + 1))
-
-      if [ $pending -ge $max_pending ]; then
-         echo "Waiting for pending commands to finish..."  
-         wait
-         pending=0
-         echo -e "Pending commands complete $done"
-       fi
-   done
-
-   if [ $pending -gt 0 ]; then
-      echo "Waiting for pending commands to finish..."  
-      wait
-      echo -e "Pending commands complete $done"
-   fi
-}
-
 # Nodes
 bboxdb_nodes=$(read_nodes_file $bboxdb_node_file)
 
@@ -122,7 +89,9 @@ bboxdb_stop() {
 # Update the bboxdb
 ###
 bboxdb_update() {
+   local_ip=$(get_local_ip)
    execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_update" "Update BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "rsync -l -H -p -o -g -D -t -r -v --numeric-ids -e 'ssh' $local_ip:$BBOXDB_HOME/bin/third_party_libs/ \$BBOXDB_HOME/bin/third_party_libs/" "Syncing custom libs" "$bboxdb_nodes" $max_pending
 }
 
 ###
@@ -163,7 +132,10 @@ bboxdb_start_remote_debug)
 bboxdb_stop)
    bboxdb_stop
    ;;  
-bboxdb_update | bboxdb_upgrade)
+bboxdb_upgrade)
+   bboxdb_update
+   ;;  
+bboxdb_update)
    bboxdb_update
    ;;  
 zookeeper_start)
