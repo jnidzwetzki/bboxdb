@@ -305,7 +305,7 @@ public class TestNetworkCommunication {
 	}
 
 	/**
-	 * Test the double insert and check for newerst version
+	 * Test the double insert and check for newest version
 	 * @throws Exception
 	 */
 	@Test(timeout=60000)
@@ -338,6 +338,45 @@ public class TestNetworkCommunication {
 		getResult.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(getResult.iterator());
 		Assert.assertEquals(tuple2, resultList.get(0));
+	}
+	
+	/**
+	 * Test the double insert and check for newest version
+	 * @throws Exception
+	 */
+	@Test(timeout=60000)
+	public void testInsertStreamOnly() throws Exception {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxdbClient = bboxdbConnection.getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_relationstreaminsert";
+
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForCompletion();
+		Assert.assertFalse(resultCreateTable.isFailed());
+
+		// Insert first version
+		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abc".getBytes());
+		
+		final BBoxDBConnection connection = bboxdbClient.getConnection();
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+				table, tuple1.getBoundingBox(), false, connection.getServerAddress());
+
+		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1, routingHeader, 
+				EnumSet.of(InsertOption.STREAMING_ONLY));
+		
+		insertResult1.waitForCompletion();
+		Assert.assertFalse(insertResult1.isFailed());
+		Assert.assertTrue(insertResult1.isDone());
+
+		// Read tuple
+		final TupleListFuture getResult = bboxdbClient.queryKey(table, "abc");
+		getResult.waitForCompletion();
+		final List<Tuple> resultList = Lists.newArrayList(getResult.iterator());
+		
+		// Expect that the tuple is not inserted (streaming only insert option)
+		Assert.assertEquals(0, resultList.size());
 	}
 
 	/**

@@ -703,6 +703,14 @@ public class BBoxDBClient implements BBoxDB {
 	}
 
 	/**
+	 * Get the connection
+	 * @return
+	 */
+	public BBoxDBConnection getConnection() {
+		return connection;
+	}
+	
+	/**
 	 * The tuple store manager registry
 	 * @return
 	 */
