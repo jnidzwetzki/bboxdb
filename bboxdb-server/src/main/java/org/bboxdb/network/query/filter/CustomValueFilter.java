@@ -15,22 +15,38 @@
  *    limitations under the License.
  *
  *******************************************************************************/
+
 package org.bboxdb.network.query.filter;
 
 import org.bboxdb.storage.entity.Tuple;
 
-public class FilterStringOperator implements CustomFilterOperator {
-
-	@Override
-	public boolean filterTuple(final Tuple tuple, final String customData) {
-		return new String(tuple.getDataBytes()).contains(customData);
+public interface CustomValueFilter {
+	
+	/**
+	 * Filter a single tuple
+	 * 
+	 * @param tuple - the tuple to filter
+	 * @param customData - custom data to execute the operation
+	 * 
+	 * @return true or false
+	 */
+	public default boolean filterTuple(final Tuple tuple, final String customData) {
+		throw new UnsupportedOperationException("The filterTuple method is not implemented");
 	}
 	
-	@Override
-	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final String customData) {
-		final String string1 = new String(tuple1.getDataBytes());
-		final String string2 = new String(tuple2.getDataBytes());
+	/**
+	 * Filter a join candidate
+	 * 
+	 * @param tuple1 - The first tuple of the join candidate
+	 * @param tuple2 - The second tuple of the join candidate
+	 * @param customData - custom data to execute the operation
+	 * 
+	 * @return true or false
+	 */
+	public default boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, 
+			final String customData) {
 		
-		return string1.contains(customData) && string2.contains(customData);
+		throw new UnsupportedOperationException("The filterTuple method is not implemented");
 	}
+	
 }
