@@ -397,8 +397,8 @@ public class CLI implements Runnable, AutoCloseable {
 			final List<String> tableList = Arrays.asList(tables.split(":"));
 			
 			// Custom filter parameter
-			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, null);
-			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, null);
+			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
+			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
 			
 			System.out.println("Executing join query...");
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
@@ -526,8 +526,8 @@ public class CLI implements Runnable, AutoCloseable {
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			
 			// Custom filter parameter
-			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, null);
-			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, null);
+			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
+			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
 			
 			return bboxDbConnection.queryRectangle(table, boundingBox, customFilterClass, customFilterValue);
 

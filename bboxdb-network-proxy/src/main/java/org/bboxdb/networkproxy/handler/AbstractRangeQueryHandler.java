@@ -49,7 +49,7 @@ public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
 
 		try {
 			final BBoxDB connection = getConnection(bboxdbClient);
-			final TupleListFuture tupleResult = connection.queryRectangle(table, bbox, null, null);
+			final TupleListFuture tupleResult = connection.queryRectangle(table, bbox, "", "");
 			ProxyHelper.writeTupleResult(socketOutputStream, tupleResult);
 		} catch(InterruptedException e) {
 			logger.debug("Got interrupted exception while handling bboxdb call");
