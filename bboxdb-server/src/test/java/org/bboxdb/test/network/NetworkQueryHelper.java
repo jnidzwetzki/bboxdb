@@ -130,7 +130,8 @@ public class NetworkQueryHelper {
 		}
 
 		System.out.println("=== Executing query");
-		final TupleListFuture future = bboxDBClient.queryRectangle(table, new Hyperrectangle(-1d, 2d, -1d, 2d));
+		final TupleListFuture future = bboxDBClient.queryRectangle(table, 
+				new Hyperrectangle(-1d, 2d, -1d, 2d), null, null);
 		future.waitForCompletion();
 		System.out.println("=== Query DONE");
 
@@ -375,7 +376,8 @@ public class NetworkQueryHelper {
 		Assert.assertTrue(insertResult3.isDone());
 
 		// Execute the join
-		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), new Hyperrectangle(0.0, 10.0, 0.0, 10.0));
+		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), 
+				new Hyperrectangle(0.0, 10.0, 0.0, 10.0), null, null);
 		joinResult.waitForCompletion();
 		final List<JoinedTuple> resultList = Lists.newArrayList(joinResult.iterator());
 

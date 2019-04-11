@@ -55,10 +55,20 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	 * The max tuples per page
 	 */
 	protected final short tuplesPerPage;
+	
+	/**
+	 * The custom filter name
+	 */
+	private String customFilterName;
+
+	/**
+	 * The custom filter value
+	 */
+	private String customFilterValue;
 
 	public QueryJoinRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final List<TupleStoreName> tables, final Hyperrectangle box, final boolean pagingEnabled, 
-			final short tuplesPerPage) {
+			final List<TupleStoreName> tables, final Hyperrectangle box, final String customFilterName, 
+			final String customFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -66,6 +76,8 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
 		this.tuplesPerPage = tuplesPerPage;
+		this.customFilterName = customFilterName;
+		this.customFilterValue = customFilterValue;
 	}
 
 	@Override
@@ -74,7 +86,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		try {			
 			final byte[] bboxBytes = box.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(12);
+			final ByteBuffer bb = ByteBuffer.allocate(20);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
@@ -90,6 +102,12 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			bb.putInt(tables.size());
 			bb.putInt(bboxBytes.length);
 			
+			final byte[] customFilterBytes = customFilterName.getBytes();
+			final byte[] customValueBytes = customFilterValue.getBytes();
+			
+			bb.putInt((int) customFilterBytes.length);
+			bb.putInt((int) customValueBytes.length);
+			
 			final ByteArrayOutputStream bStream = new ByteArrayOutputStream();
 			
 			for(int i = 0; i < tables.size(); i++) {
@@ -100,12 +118,15 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			
 			final byte[] tablesArray = bStream.toByteArray();
 
-			final long bodyLength = bb.capacity() + tablesArray.length + bboxBytes.length;
+			final long bodyLength = bb.capacity() + tablesArray.length + bboxBytes.length 
+					+ customFilterBytes.length + customValueBytes.length;
 			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(bboxBytes);
+			outputStream.write(customFilterBytes);
+			outputStream.write(customValueBytes);
 			outputStream.write(tablesArray);
 			
 			return headerLength + bodyLength;
@@ -145,10 +166,20 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	    final short tuplesPerPage = encodedPackage.getShort();	    
 		final int numberOfTables = encodedPackage.getInt();
 	    final int bboxLength = encodedPackage.getInt();
+	    final int customFilterLength = encodedPackage.getInt();
+	    final int customValueLength = encodedPackage.getInt();
 	    
 		final byte[] bboxBytes = new byte[bboxLength];
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
 		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
+		
+		final byte[] customFilterNameBytes = new byte[customFilterLength];
+		encodedPackage.get(customFilterNameBytes, 0, customFilterNameBytes.length);
+		final String customFilterName = new String(customFilterNameBytes);
+		
+		final byte[] customFilterValueBytes = new byte[customValueLength];
+		encodedPackage.get(customFilterValueBytes, 0, customFilterValueBytes.length);
+		final String customFilterValue = new String(customFilterValueBytes);
 				
 		final List<TupleStoreName> tableNames = new ArrayList<>();
 		
@@ -167,7 +198,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
 		return new QueryJoinRequest(sequenceNumber, routingHeader, tableNames, boundingBox, 
-				pagingEnabled, tuplesPerPage);
+				customFilterName, customFilterValue, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -197,9 +228,18 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
+	public String getCustomFilterName() {
+		return customFilterName;
+	}
+	
+	public String getCustomFilterValue() {
+		return customFilterValue;
+	}
+
 	@Override
 	public String toString() {
 		return "QueryJoinRequest [tables=" + tables + ", box=" + box + ", pagingEnabled=" + pagingEnabled
-				+ ", tuplesPerPage=" + tuplesPerPage + "]";
+				+ ", tuplesPerPage=" + tuplesPerPage + ", customFilterName=" + customFilterName + ", customFilterValue="
+				+ customFilterValue + "]";
 	}
 }

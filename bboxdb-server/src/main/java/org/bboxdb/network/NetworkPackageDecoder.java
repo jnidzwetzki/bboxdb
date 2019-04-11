@@ -129,7 +129,7 @@ public class NetworkPackageDecoder {
 			return false;
 		}
 		
-		// Read body lengh
+		// Read body length
 		final long bodyLength = bb.getLong();
 		
 		// Read header

@@ -90,6 +90,16 @@ public class CLIParameter {
 	public static final String SPACE_PARTITIONER_CONFIG = "spacepconfig";
 	
 	/**
+	 * Custom filer class
+	 */
+	public static final String CUSTOM_FILTER_CLASS = "filter";
+	
+	/**
+	 * Custom filter value
+	 */
+	public static final String CUSTOM_FILTER_VALUE = "filtervalue";
+	
+	/**
 	 * Filename
 	 */
 	public static final String FILE  = "file";

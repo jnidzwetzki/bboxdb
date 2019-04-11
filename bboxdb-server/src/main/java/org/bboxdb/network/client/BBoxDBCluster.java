@@ -348,7 +348,8 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox) throws BBoxDBException {
+	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox,
+			final String filterName, final String customValue) throws BBoxDBException {
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
@@ -362,7 +363,7 @@ public class BBoxDBCluster implements BBoxDB {
 					final RoutingHeader routingHeader) {
 
 				return connection.getBboxDBClient().getQueryBoundingBoxFuture(table, boundingBox,
-						routingHeader);
+						routingHeader, filterName, customValue);
 			}
 		};
 
@@ -483,8 +484,8 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
 	 */
 	@Override
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox)
-			throws BBoxDBException {
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
+			final String filterName, final String customValue) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryJoin called, but connection list is empty");
@@ -503,7 +504,8 @@ public class BBoxDBCluster implements BBoxDB {
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
 
-				return connection.getBboxDBClient().getJoinFuture(tableNames, boundingBox, routingHeader);
+				return connection.getBboxDBClient().getJoinFuture(tableNames, boundingBox, routingHeader, 
+						filterName, customValue);
 			}
 		};
 

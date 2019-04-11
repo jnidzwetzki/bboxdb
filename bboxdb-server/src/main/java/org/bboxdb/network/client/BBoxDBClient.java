@@ -350,12 +350,13 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBox(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
-	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox) {
+	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox, 
+			final String filterName, final String customValue) {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, boundingBox, false, connection.getServerAddress());
 
 		final Supplier<List<NetworkOperationFuture>> future
-			= getQueryBoundingBoxFuture(table, boundingBox, routingHeader);
+			= getQueryBoundingBoxFuture(table, boundingBox, routingHeader, filterName, customValue);
 
 		return new TupleListFuture(future, new DoNothingDuplicateResolver(), table);
 	}
@@ -365,16 +366,20 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param table
 	 * @param boundingBox
 	 * @param routingHeader
+	 * @param customValue 
+	 * @param filterName 
 	 * @return
 	 */
 	public Supplier<List<NetworkOperationFuture>> getQueryBoundingBoxFuture(final String table,
-			final Hyperrectangle boundingBox, RoutingHeader routingHeader) {
+			final Hyperrectangle boundingBox, final RoutingHeader routingHeader, 
+			final String filterName, final String customValue) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new QueryHyperrectangleRequest(nextSequenceNumber,
-					routingHeader, table, boundingBox, pagingEnabled, tuplesPerPage);
+					routingHeader, table, boundingBox, filterName, customValue, 
+					pagingEnabled, tuplesPerPage);
 		};
 
 		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
@@ -518,12 +523,14 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
 	 */
 	@Override
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) {
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
+			final String filterName, final String customValue) {
+		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				tableNames.get(0), boundingBox, true, connection.getServerAddress());
 
 		final Supplier<List<NetworkOperationFuture>> future
-			= getJoinFuture(tableNames, boundingBox, routingHeader);
+			= getJoinFuture(tableNames, boundingBox, routingHeader, filterName, customValue);
 
 		return new JoinedTupleListFuture(future);
 	}
@@ -531,11 +538,14 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * @param tableNames
 	 * @param boundingBox
+	 * @param customValue 
+	 * @param filterName 
 	 * @param routingHeader2
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFuture>> getJoinFuture(final List<String> tableNames, final Hyperrectangle boundingBox,
-			final RoutingHeader routingHeader) {
+	public Supplier<List<NetworkOperationFuture>> getJoinFuture(final List<String> tableNames, 
+			final Hyperrectangle boundingBox, final RoutingHeader routingHeader, 
+			final String filterName, final String customValue) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 
@@ -546,8 +556,8 @@ public class BBoxDBClient implements BBoxDB {
 
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
-			return new QueryJoinRequest(nextSequenceNumber,
-					routingHeader, tupleStoreNames, boundingBox, pagingEnabled, tuplesPerPage);
+			return new QueryJoinRequest(nextSequenceNumber, routingHeader, tupleStoreNames, 
+					boundingBox, filterName, customValue, pagingEnabled, tuplesPerPage);
 		};
 
 		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));

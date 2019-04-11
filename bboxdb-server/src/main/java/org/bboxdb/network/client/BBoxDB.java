@@ -52,7 +52,8 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 * @throws BBoxDBException
 	 */
-	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException;
+	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) 
+			throws BBoxDBException;
 
 	/**
 	 * Delete a table on the bboxdb server
@@ -86,7 +87,8 @@ public interface BBoxDB extends Closeable {
 	 * @param timestamp
 	 * @return
 	 */
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException;
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
+			throws BBoxDBException;
 
 	/**
 	 * Delete the given key from a table
@@ -134,12 +136,14 @@ public interface BBoxDB extends Closeable {
 
 	/**
 	 * Execute a hyperrectangle query on the given table
-	 * @param table
-	 * @param boundingBox
+	 * @param table - The table to query
+	 * @param boundingBox - The bounding box to query
+	 * @param filtername - The custom filter to apply
+	 * @param customValue - The custom value for the filter 
 	 * @return
 	 */
-	public TupleListFuture queryRectangle(final String table,
-			final Hyperrectangle boundingBox) throws BBoxDBException;
+	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox, 
+			final String filterName, final String customValue) throws BBoxDBException;
 
 	/**
 	 * Execute a continuous query with the given query plan
@@ -171,7 +175,8 @@ public interface BBoxDB extends Closeable {
 	 * @param key
 	 * @return
 	 */
-	public TupleListFuture queryRectangleAndTime(final String table, final Hyperrectangle boundingBox, final long timestamp) throws BBoxDBException;
+	public TupleListFuture queryRectangleAndTime(final String table, final Hyperrectangle boundingBox, 
+			final long timestamp) throws BBoxDBException;
 
 	/**
 	 * Execute a join
@@ -179,13 +184,15 @@ public interface BBoxDB extends Closeable {
 	 * @param boundingBox
 	 * @return
 	 */
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox) throws BBoxDBException;
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
+			final String filterName, final String customValue) throws BBoxDBException;
 
 	/**
 	 * Cancel a given query
 	 * @param future
 	 */
-	public void cancelQuery(final AbstractListFuture<? extends Object> future) throws BBoxDBException, InterruptedException;
+	public void cancelQuery(final AbstractListFuture<? extends Object> future) 
+			throws BBoxDBException, InterruptedException;
 
 	/**
 	 * Is the client connected?

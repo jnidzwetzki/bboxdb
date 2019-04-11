@@ -395,10 +395,15 @@ public class CLI implements Runnable, AutoCloseable {
 		try {
 			final String tables = line.getOptionValue(CLIParameter.TABLE);
 			final List<String> tableList = Arrays.asList(tables.split(":"));
-
+			
+			// Custom filter parameter
+			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, null);
+			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, null);
+			
 			System.out.println("Executing join query...");
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
-			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox);
+			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
+					customFilterClass, customFilterValue);
 
 			if(resultFuture == null) {
 				System.err.println("Unable to get query");
@@ -519,7 +524,12 @@ public class CLI implements Runnable, AutoCloseable {
 		} else if(line.hasOption(CLIParameter.BOUNDING_BOX)) {
 			System.out.println("Executing bounding box query...");
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
-			return bboxDbConnection.queryRectangle(table, boundingBox);
+			
+			// Custom filter parameter
+			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, null);
+			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, null);
+			
+			return bboxDbConnection.queryRectangle(table, boundingBox, customFilterClass, customFilterValue);
 
 		} else if(line.hasOption(CLIParameter.TIMESTAMP)) {
 			System.out.println("Executing time query...");
@@ -1121,6 +1131,22 @@ public class CLI implements Runnable, AutoCloseable {
 				.desc("The version time stamp of the tuple")
 				.build();
 		options.addOption(time);
+		
+		// Custom filter class
+		final Option filterclass = Option.builder(CLIParameter.CUSTOM_FILTER_CLASS)
+				.hasArg()
+				.argName("filterclass")
+				.desc("The classname of the custom filter")
+				.build();
+		options.addOption(filterclass);
+		
+		// Custom filter value
+		final Option filtervalue = Option.builder(CLIParameter.CUSTOM_FILTER_VALUE)
+				.hasArg()
+				.argName("filtervalue")
+				.desc("The value for the custom filter")
+				.build();
+		options.addOption(filtervalue);
 
 		return options;
 	}

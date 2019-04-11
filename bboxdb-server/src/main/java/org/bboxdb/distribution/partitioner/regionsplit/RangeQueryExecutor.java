@@ -213,7 +213,7 @@ public class RangeQueryExecutor {
 		final Hyperrectangle bbox = region.getConveringBox();
 		final String fullname = tupleStoreName.getFullname();
 		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox);
+		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox, null, null);
 
 		result.waitForCompletion();
 

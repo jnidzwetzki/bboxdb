@@ -35,26 +35,36 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final TupleStoreName table;
+	private final TupleStoreName table;
 
 	/**
 	 * The the query bounding box
 	 */
-	protected final Hyperrectangle box;
+	private final Hyperrectangle box;
 	
 	/**
 	 * Paging enables
 	 */
-	protected final boolean pagingEnabled;
+	private final boolean pagingEnabled;
 	
 	/**
 	 * The max tuples per page
 	 */
-	protected final short tuplesPerPage;
+	private final short tuplesPerPage;
+	
+	/**
+	 * The custom filter name
+	 */
+	private String customFilterName;
+
+	/**
+	 * The custom filter value
+	 */
+	private String customFilterValue;
 
 	public QueryHyperrectangleRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final String table,  final Hyperrectangle box, final boolean pagingEnabled, 
-			final short tuplesPerPage) {
+			final String table,  final Hyperrectangle box, final String customFilterName, 
+			final String customFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -62,6 +72,8 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
 		this.tuplesPerPage = tuplesPerPage;
+		this.customFilterName = customFilterName;
+		this.customFilterValue = customFilterValue;
 	}
 
 	@Override
@@ -71,7 +83,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] bboxBytes = box.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(12);
+			final ByteBuffer bb = ByteBuffer.allocate(20);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
@@ -84,18 +96,27 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 			
 			bb.putShort(tuplesPerPage);
 			
+			final byte[] customFilterBytes = customFilterName.getBytes();
+			final byte[] customValueBytes = customFilterValue.getBytes();
+			
 			bb.putShort((short) tableBytes.length);
 			bb.put(NetworkConst.UNUSED_BYTE);
 			bb.put(NetworkConst.UNUSED_BYTE);
 			bb.putInt((int) bboxBytes.length);
+			bb.putInt((int) customFilterBytes.length);
+			bb.putInt((int) customValueBytes.length);
 			
-			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
+			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length 
+					+ customFilterBytes.length + customValueBytes.length;
+			
 			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);
 			outputStream.write(bboxBytes);
+			outputStream.write(customFilterBytes);
+			outputStream.write(customValueBytes);
 			
 			return headerLength + bodyLength;
 		} catch (IOException e) {
@@ -111,10 +132,13 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	public static QueryHyperrectangleRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
+	public static QueryHyperrectangleRequest decodeTuple(final ByteBuffer encodedPackage) 
+			throws PackageEncodeException, IOException {
+		
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
-		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(
+				encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
 			throw new PackageEncodeException("Unable to decode package");
@@ -123,7 +147,8 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	    final byte queryType = encodedPackage.get();
 	    
 	    if(queryType != NetworkConst.REQUEST_QUERY_BBOX) {
-	    	throw new PackageEncodeException("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX);
+	    	throw new PackageEncodeException("Wrong query type: " + queryType 
+	    			+ " required type is: " + NetworkConst.REQUEST_QUERY_BBOX);
 	    }
 	    
 	    boolean pagingEnabled = false;
@@ -139,6 +164,8 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	    encodedPackage.get();
 		
 	    final int bboxLength = encodedPackage.getInt();
+	    final int customFilterLength = encodedPackage.getInt();
+	    final int customValueLength = encodedPackage.getInt();
 
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
@@ -148,14 +175,23 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
 		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
 		
+		final byte[] customFilterNameBytes = new byte[customFilterLength];
+		encodedPackage.get(customFilterNameBytes, 0, customFilterNameBytes.length);
+		final String customFilterName = new String(customFilterNameBytes);
+		
+		final byte[] customFilterValueBytes = new byte[customValueLength];
+		encodedPackage.get(customFilterValueBytes, 0, customFilterValueBytes.length);
+		final String customFilterValue = new String(customFilterValueBytes);
+		
 		if(encodedPackage.remaining() != 0) {
-			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeException("Some bytes are left after decoding: " 
+					+ encodedPackage.remaining());
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
 		return new QueryHyperrectangleRequest(sequenceNumber, routingHeader, table, boundingBox, 
-				pagingEnabled, tuplesPerPage);
+				customFilterName, customFilterValue, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -184,10 +220,19 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
+	public String getCustomFilterName() {
+		return customFilterName;
+	}
+	
+	public String getCustomFilterValue() {
+		return customFilterValue;
+	}
+
 	@Override
 	public String toString() {
 		return "QueryHyperrectangleRequest [table=" + table + ", box=" + box + ", pagingEnabled=" + pagingEnabled
-				+ ", tuplesPerPage=" + tuplesPerPage + "]";
+				+ ", tuplesPerPage=" + tuplesPerPage + ", customFilterName=" + customFilterName + ", customFilterValue="
+				+ customFilterValue + "]";
 	}
 
 }
