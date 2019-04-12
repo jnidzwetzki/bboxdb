@@ -508,7 +508,7 @@ public class TestNetworkCommunication {
 
 		System.out.println("== Waiting for queryBoundingBox");
 		final Hyperrectangle boundingBox = new Hyperrectangle(-1d, 2d, -1d, 2d);
-		final TupleListFuture result1 = bboxDBClient.queryRectangle(table, boundingBox, null, null);
+		final TupleListFuture result1 = bboxDBClient.queryRectangle(table, boundingBox, "", "");
 		result1.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result1.waitForCompletion();
 		Assert.assertEquals(1,  result1.getNeededExecutions());
