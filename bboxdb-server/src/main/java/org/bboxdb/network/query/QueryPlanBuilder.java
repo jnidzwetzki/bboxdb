@@ -190,7 +190,7 @@ public class QueryPlanBuilder {
 	}
 	
 	/**
-	 * Filter the strored tuples by bounding box
+	 * Filter the stored tuples by bounding box
 	 * @param key
 	 * @return
 	 */
