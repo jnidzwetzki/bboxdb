@@ -86,7 +86,7 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 							storageManager.get(0), boundingBox);
 					
 					// Add the user defined filter operator
-					if(userdefinedFilterName != "") {
+					if(! userdefinedFilterName.equals("")) {
 						try {
 							final Class<?> customFilterClass = Class.forName(userdefinedFilterName);
 							final UserDefinedFilter userDefinedFilter 
