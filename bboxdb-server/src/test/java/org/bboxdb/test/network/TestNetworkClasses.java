@@ -557,8 +557,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
-		Assert.assertEquals(customFilterName, decodedPackage.getCustomFilterName());
-		Assert.assertEquals(customFilterValue, decodedPackage.getCustomFilterValue());
+		Assert.assertEquals(customFilterName, decodedPackage.getUserDefinedFilterName());
+		Assert.assertEquals(customFilterValue, decodedPackage.getUserDefinedFilterValue());
 		
 		Assert.assertEquals(queryRequest.toString(), decodedPackage.toString());
 	}
@@ -714,8 +714,8 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_JOIN, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
-		Assert.assertEquals(customFilterName, decodedPackage.getCustomFilterName());
-		Assert.assertEquals(customFilterValue, decodedPackage.getCustomFilterValue());
+		Assert.assertEquals(customFilterName, decodedPackage.getUserDefinedFilterName());
+		Assert.assertEquals(customFilterValue, decodedPackage.getUserDefinedFilterValue());
 		
 		Assert.assertEquals(queryRequest.toString(), decodedPackage.toString());
 	}
