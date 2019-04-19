@@ -39,36 +39,36 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The tables to join
 	 */
-	protected final List<TupleStoreName> tables;
+	private final List<TupleStoreName> tables;
 
 	/**
 	 * The the query bounding box
 	 */
-	protected final Hyperrectangle box;
+	private final Hyperrectangle box;
 
 	/**
 	 * Paging enables
 	 */
-	protected final boolean pagingEnabled;
+	private final boolean pagingEnabled;
 	
 	/**
 	 * The max tuples per page
 	 */
-	protected final short tuplesPerPage;
+	private final short tuplesPerPage;
 	
 	/**
 	 * The custom filter name
 	 */
-	private String customFilterName;
+	private String userDefinedFilterName;
 
 	/**
 	 * The custom filter value
 	 */
-	private String customFilterValue;
+	private String userDefinedFilterValue;
 
 	public QueryJoinRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final List<TupleStoreName> tables, final Hyperrectangle box, final String customFilterName, 
-			final String customFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
+			final List<TupleStoreName> tables, final Hyperrectangle box, final String userDefinedFilterName, 
+			final String userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -76,8 +76,8 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
 		this.tuplesPerPage = tuplesPerPage;
-		this.customFilterName = customFilterName;
-		this.customFilterValue = customFilterValue;
+		this.userDefinedFilterName = userDefinedFilterName;
+		this.userDefinedFilterValue = userDefinedFilterValue;
 	}
 
 	@Override
@@ -102,8 +102,8 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			bb.putInt(tables.size());
 			bb.putInt(bboxBytes.length);
 			
-			final byte[] customFilterBytes = customFilterName.getBytes();
-			final byte[] customValueBytes = customFilterValue.getBytes();
+			final byte[] customFilterBytes = userDefinedFilterName.getBytes();
+			final byte[] customValueBytes = userDefinedFilterValue.getBytes();
 			
 			bb.putInt((int) customFilterBytes.length);
 			bb.putInt((int) customValueBytes.length);
@@ -228,18 +228,19 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
-	public String getCustomFilterName() {
-		return customFilterName;
+	public String getUserDefinedFilterName() {
+		return userDefinedFilterName;
 	}
 	
-	public String getCustomFilterValue() {
-		return customFilterValue;
+	public String getUserDefinedFilterValue() {
+		return userDefinedFilterValue;
 	}
 
 	@Override
 	public String toString() {
 		return "QueryJoinRequest [tables=" + tables + ", box=" + box + ", pagingEnabled=" + pagingEnabled
-				+ ", tuplesPerPage=" + tuplesPerPage + ", customFilterName=" + customFilterName + ", customFilterValue="
-				+ customFilterValue + "]";
+				+ ", tuplesPerPage=" + tuplesPerPage + ", userDefinedFilterName=" + userDefinedFilterName
+				+ ", userDefinedFilterValue=" + userDefinedFilterValue + "]";
 	}
+	
 }

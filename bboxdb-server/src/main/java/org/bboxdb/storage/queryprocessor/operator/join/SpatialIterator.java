@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.queryprocessor.operator.join;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 
-final class Spatialterator implements Iterator<JoinedTuple> {
+public class SpatialIterator implements Iterator<JoinedTuple> {
 	
 	/**
 	 * The stream source
@@ -37,7 +38,7 @@ final class Spatialterator implements Iterator<JoinedTuple> {
 	 */
 	private final SpatialIndexReadOperator indexReader;
 
-	public Spatialterator(final Iterator<JoinedTuple> tupleStreamSource, 
+	public SpatialIterator(final Iterator<JoinedTuple> tupleStreamSource, 
 			final SpatialIndexReadOperator indexReader) {
 		
 				this.tupleStreamSource = tupleStreamSource;
@@ -90,14 +91,19 @@ final class Spatialterator implements Iterator<JoinedTuple> {
 	 * @param nextCandidateTuple
 	 * @return
 	 */
-	private JoinedTuple buildNextJoinedTuple(final Tuple nextCandidateTuple) {
-		final List<String> tupleStoreNames = tupleFromStreamSource.getTupleStoreNames();
-		final List<Tuple> tuples = tupleFromStreamSource.getTuples();
+	protected JoinedTuple buildNextJoinedTuple(final Tuple nextCandidateTuple) {
 		
+		// Build tuple store name
+		final List<String> tupleStoreNames = new ArrayList<>();
+		tupleStoreNames.addAll(tupleFromStreamSource.getTupleStoreNames());
 		tupleStoreNames.add(indexReader.getTupleStoreName().getFullnameWithoutPrefix());
-		tuples.add(nextCandidateTuple);
 
-		return new JoinedTuple(tuples, tupleStoreNames);
+		// Build tuple
+		final ArrayList<Tuple> tupesToJoin = new ArrayList<>();		
+		tupesToJoin.addAll(tupleFromStreamSource.getTuples());
+		tupesToJoin.add(nextCandidateTuple);
+
+		return new JoinedTuple(tupesToJoin, tupleStoreNames);
 	}
 
 	@Override

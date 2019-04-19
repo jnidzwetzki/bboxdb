@@ -63,6 +63,8 @@ public class HandleJoinQuery implements QueryHandler {
 			final QueryJoinRequest queryRequest = QueryJoinRequest.decodeTuple(encodedPackage);
 			final List<TupleStoreName> requestTables = queryRequest.getTables();
 			final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
+			final String userDefinedFilterName = queryRequest.getUserDefinedFilterName();
+			final String userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
 			
 			for(final TupleStoreName requestTable : requestTables) {
 				if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
@@ -77,6 +79,17 @@ public class HandleJoinQuery implements QueryHandler {
 					
 					if(storageManager.size() <= 1) {
 						throw new IllegalArgumentException("This operator tree needs more than one storage manager");
+					}
+					
+					if(! userDefinedFilterName.equals("") && storageManager.size() != 2) {
+						throw new IllegalArgumentException("Unable to use user defined filter on muti-join");
+					}
+					
+					if(storageManager.size() == 2) {
+						final Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
+						final SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1));
+						return new IndexedSpatialJoinOperator(operator1, indexReader, 
+								userDefinedFilterName, userDefinedFilterValue);			
 					}
 					
 					Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);

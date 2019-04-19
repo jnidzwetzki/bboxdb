@@ -55,16 +55,16 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The custom filter name
 	 */
-	private String customFilterName;
+	private String userDefinedFilterName;
 
 	/**
 	 * The custom filter value
 	 */
-	private String customFilterValue;
+	private String userDefinedFilterValue;
 
 	public QueryHyperrectangleRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final String table,  final Hyperrectangle box, final String customFilterName, 
-			final String customFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
+			final String table,  final Hyperrectangle box, final String userdefinedFilterName, 
+			final String userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -72,8 +72,8 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
 		this.tuplesPerPage = tuplesPerPage;
-		this.customFilterName = customFilterName;
-		this.customFilterValue = customFilterValue;
+		this.userDefinedFilterName = userdefinedFilterName;
+		this.userDefinedFilterValue = userDefinedFilterValue;
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 			
 			bb.putShort(tuplesPerPage);
 			
-			final byte[] customFilterBytes = customFilterName.getBytes();
-			final byte[] customValueBytes = customFilterValue.getBytes();
+			final byte[] customFilterBytes = userDefinedFilterName.getBytes();
+			final byte[] customValueBytes = userDefinedFilterValue.getBytes();
 			
 			bb.putShort((short) tableBytes.length);
 			bb.put(NetworkConst.UNUSED_BYTE);
@@ -220,19 +220,19 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
-	public String getCustomFilterName() {
-		return customFilterName;
+	public String getUserDefinedFilterName() {
+		return userDefinedFilterName;
 	}
 	
-	public String getCustomFilterValue() {
-		return customFilterValue;
+	public String getUserDefinedFilterValue() {
+		return userDefinedFilterValue;
 	}
 
 	@Override
 	public String toString() {
 		return "QueryHyperrectangleRequest [table=" + table + ", box=" + box + ", pagingEnabled=" + pagingEnabled
-				+ ", tuplesPerPage=" + tuplesPerPage + ", customFilterName=" + customFilterName + ", customFilterValue="
-				+ customFilterValue + "]";
+				+ ", tuplesPerPage=" + tuplesPerPage + ", userDefinedFilterName=" + userDefinedFilterName
+				+ ", userDefinedFilterValue=" + userDefinedFilterValue + "]";
 	}
 
 }

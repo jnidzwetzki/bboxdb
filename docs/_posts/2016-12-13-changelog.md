@@ -9,7 +9,7 @@ order: 1
 ### Version 0.9.0 - TBA
 - New Feature: Added bounding box determination script
 - New Feature: Added GeoJSON to bounding box converter
-- New Feature: Added support for streaming only tuples
+- New Feature: Added support for streaming only tuples (user defined filter functions)
 - New Feature: Support for server based filter
 - Improvement: Continuous queries can be executed on a different join table
 - Improvement: Allow WGS84 enlarge by meters in continuous queries

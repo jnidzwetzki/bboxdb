@@ -20,6 +20,7 @@ package org.bboxdb.storage.queryprocessor.operator.join;
 import java.util.Iterator;
 
 import org.bboxdb.commons.CloseableHelper;
+import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
@@ -34,13 +35,32 @@ public class IndexedSpatialJoinOperator implements Operator {
 	/**
 	 * The index reader
 	 */
-	final SpatialIndexReadOperator indexReader;
+	private final SpatialIndexReadOperator indexReader;
 
+	/**
+	 * The user defined filter clas
+	 */
+	private final String userDefinedFilterClass;
+
+	/**
+	 * The user defined filter value
+	 */
+	private final String userDefinedFilterValue;
+	
 	public IndexedSpatialJoinOperator(final Operator tupleStreamOperator, 
 			final SpatialIndexReadOperator indexReader) {
+		
+		this(tupleStreamOperator, indexReader, "", "");
+	}
+
+	public IndexedSpatialJoinOperator(final Operator tupleStreamOperator, 
+			final SpatialIndexReadOperator indexReader, final String userDefinedFilterClass,
+			final String userDefinedFilterValue) {
 
 		this.tupleStreamOperator = tupleStreamOperator;
 		this.indexReader = indexReader;
+		this.userDefinedFilterClass = userDefinedFilterClass;
+		this.userDefinedFilterValue = userDefinedFilterValue;
 	}
 
 	/**
@@ -56,6 +76,20 @@ public class IndexedSpatialJoinOperator implements Operator {
 	 * @return
 	 */
 	public Iterator<JoinedTuple> iterator() {
-		return new Spatialterator(tupleStreamOperator.iterator(), indexReader);	
+		final Iterator<JoinedTuple> iterator = tupleStreamOperator.iterator();
+
+		if(userDefinedFilterClass.equals("")) {
+			return new SpatialIterator(iterator, indexReader);
+		}
+		
+		try {
+			final Class<?> filterClass = Class.forName(userDefinedFilterClass);
+			final UserDefinedFilter userDefinedFilter = (UserDefinedFilter) filterClass.newInstance();
+			
+			return new FilterSpatialOperator(iterator, indexReader, 
+					userDefinedFilter, userDefinedFilterValue);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Unable to load user defined filter", e);
+		} 
 	}
 }

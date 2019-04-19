@@ -26,6 +26,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.QueryHelper;
 import org.bboxdb.network.server.StreamClientQuery;
@@ -34,6 +35,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
+import org.bboxdb.storage.queryprocessor.operator.UserDefinedFilterOperator;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +69,9 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 				return;
 			}
 			
+			final String userdefinedFilterName = queryRequest.getUserDefinedFilterName();
+			final String userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
+			
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
 				
 				@Override
@@ -77,9 +82,24 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 					}
 					
 					final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
-					final SpatialIndexReadOperator operator = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
+					final Operator indexReadOperator = new SpatialIndexReadOperator(
+							storageManager.get(0), boundingBox);
 					
-					return operator;
+					// Add the user defined filter operator
+					if(userdefinedFilterName != "") {
+						try {
+							final Class<?> customFilterClass = Class.forName(userdefinedFilterName);
+							final UserDefinedFilter userDefinedFilter 
+								= (UserDefinedFilter) customFilterClass.newInstance();
+							
+							return new UserDefinedFilterOperator(userDefinedFilter, 
+									userDefinedFilterValue, indexReadOperator);
+						} catch (Exception e) {
+							throw new IllegalArgumentException("Unable to load user defined filter", e);
+						}
+					} else {
+						return indexReadOperator;
+					}					
 				}
 			};
 						
