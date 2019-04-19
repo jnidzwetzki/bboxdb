@@ -17,28 +17,36 @@
  *******************************************************************************/
 package org.bboxdb.storage.queryprocessor.predicate;
 
+import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.storage.entity.Tuple;
 
-public class AndPredicate implements Predicate {
+public class UserDefinedFilterPredicate implements Predicate {
 
 	/**
-	 * The first predicate
+	 * The user defined filter
 	 */
-	private Predicate predicate1;
+	private UserDefinedFilter userDefinedFilter;
 	
 	/**
-	 * The second predicate
+	 * The custom filter date
 	 */
-	private Predicate predicate2;
+	private String customFilterData;
 
-	public AndPredicate(final Predicate predicate1, final Predicate predicate2) {
-		this.predicate1 = predicate1;
-		this.predicate2 = predicate2;
+	public UserDefinedFilterPredicate(final UserDefinedFilter userDefinedFilter, 
+			final String customFilterData) {
+		
+		this.userDefinedFilter = userDefinedFilter;
+		this.customFilterData = customFilterData;
 	}
 
 	@Override
 	public boolean matches(final Tuple tuple) {
-		return predicate1.matches(tuple) && predicate2.matches(tuple);
+		return userDefinedFilter.filterTuple(tuple, customFilterData);
+	}
+
+	@Override
+	public String toString() {
+		return "UserDefinedFilterPredicate [userDefinedFilter=" + userDefinedFilter + "]";
 	}
 
 }

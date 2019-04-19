@@ -26,17 +26,17 @@ public class PredicateJoinedTupleFilterIterator implements Iterator<JoinedTuple>
 	/**
 	 * The base iterator
 	 */
-	protected final Iterator<JoinedTuple> baseIterator;
+	private final Iterator<JoinedTuple> baseIterator;
 	
 	/**
 	 * The filter predicate
 	 */
-	protected final Predicate predicate;
+	private final Predicate predicate;
 	
 	/**
 	 * The next available tuple
 	 */
-	protected JoinedTuple nextTuple = null;
+	private JoinedTuple nextTuple = null;
 	
 	public PredicateJoinedTupleFilterIterator(final Iterator<JoinedTuple> baseIterator, final Predicate predicate) {
 		this.baseIterator = baseIterator;

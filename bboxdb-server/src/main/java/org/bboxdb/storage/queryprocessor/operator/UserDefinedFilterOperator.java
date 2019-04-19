@@ -20,37 +20,45 @@ package org.bboxdb.storage.queryprocessor.operator;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.storage.entity.JoinedTuple;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateJoinedTupleFilterIterator;
+import org.bboxdb.storage.queryprocessor.predicate.UserDefinedFilterPredicate;
 
-public class NewerAsVersionTimeSelectionOperator implements Operator {
-	
-	/**
-	 * The timestamp for the predicate
-	 */
-	private final long timestamp;
+public class UserDefinedFilterOperator implements Operator {
 	
 	/**
 	 * The operator
 	 */
 	private final Operator parentOperator;
+	
+	/**
+	 * The user defined filter operator
+	 */
+	private final UserDefinedFilter filterOperator;
+	
+	/**
+	 * The user defined filter data
+	 */
+	private String userDefinedFilterData;
 
-	public NewerAsVersionTimeSelectionOperator(final long timestamp, final Operator parentOperator) {
-		this.timestamp = timestamp;
+	public UserDefinedFilterOperator(final UserDefinedFilter filterOperator, 
+			final String userDefinedFilterData, final Operator parentOperator) {
+		
+		this.filterOperator = filterOperator;
+		this.userDefinedFilterData = userDefinedFilterData;
 		this.parentOperator = parentOperator;
 	}
 
 	@Override
 	public Iterator<JoinedTuple> iterator() {
-		final Predicate predicate = new NewerAsVersionTimePredicate(timestamp);
+		final Predicate predicate = new UserDefinedFilterPredicate(filterOperator, userDefinedFilterData);
 		return new PredicateJoinedTupleFilterIterator(parentOperator.iterator(), predicate);		
 	}
-
+	
 	@Override
 	public void close() throws IOException {
 		parentOperator.close();
 	}
-
 }

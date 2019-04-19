@@ -21,7 +21,10 @@ import org.bboxdb.storage.entity.Tuple;
 
 public class NewerAsVersionTimePredicate implements Predicate {
 
-	protected final long time;
+	/**
+	 * The time to compare
+	 */
+	private final long time;
 	
 	public NewerAsVersionTimePredicate(final long time) {
 		this.time = time;

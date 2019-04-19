@@ -30,7 +30,7 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 	/**
 	 * The bounding box
 	 */
-	protected Hyperrectangle boundingBox;
+	private Hyperrectangle boundingBox;
 	
 	public SpatialIndexReadOperator(final TupleStoreManager tupleStoreManager, 
 			final Hyperrectangle boundingBox) {		

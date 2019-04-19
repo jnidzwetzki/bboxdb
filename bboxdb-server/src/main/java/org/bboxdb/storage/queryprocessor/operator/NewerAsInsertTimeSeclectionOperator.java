@@ -30,26 +30,26 @@ public class NewerAsInsertTimeSeclectionOperator implements Operator {
 	/**
 	 * The timestamp for the predicate
 	 */
-	protected final long timestamp;
+	private final long timestamp;
 	
 	/**
 	 * The operator
 	 */
-	private Operator operator;
+	private final Operator parentOperator;
 
-	public NewerAsInsertTimeSeclectionOperator(final long timestamp, final Operator operator) {
+	public NewerAsInsertTimeSeclectionOperator(final long timestamp, final Operator parentOperator) {
 		this.timestamp = timestamp;
-		this.operator = operator;
+		this.parentOperator = parentOperator;
 	}
 
 	@Override
 	public Iterator<JoinedTuple> iterator() {
 		final Predicate predicate = new NewerAsInsertedTimePredicate(timestamp);
-		return new PredicateJoinedTupleFilterIterator(operator.iterator(), predicate);		
+		return new PredicateJoinedTupleFilterIterator(parentOperator.iterator(), predicate);		
 	}
 	
 	@Override
 	public void close() throws IOException {
-		operator.close();
+		parentOperator.close();
 	}
 }

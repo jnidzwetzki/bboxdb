@@ -26,17 +26,17 @@ public class PredicateTupleFilterIterator implements Iterator<Tuple> {
 	/**
 	 * The base iterator
 	 */
-	protected final Iterator<Tuple> baseIterator;
+	private final Iterator<Tuple> baseIterator;
 	
 	/**
 	 * The filter predicate
 	 */
-	protected final Predicate predicate;
+	private final Predicate predicate;
 	
 	/**
 	 * The next available tuple
 	 */
-	protected Tuple nextTuple = null;
+	private Tuple nextTuple = null;
 	
 	public PredicateTupleFilterIterator(final Iterator<Tuple> baseIterator, final Predicate predicate) {
 		this.baseIterator = baseIterator;

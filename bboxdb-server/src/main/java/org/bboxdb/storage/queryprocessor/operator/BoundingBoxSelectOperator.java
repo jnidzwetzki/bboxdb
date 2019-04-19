@@ -31,26 +31,26 @@ public class BoundingBoxSelectOperator implements Operator {
 	/**
 	 * The bounding box for the query
 	 */
-	protected final Hyperrectangle boundingBox;
+	private final Hyperrectangle boundingBox;
 	
 	/**
 	 * The operator
 	 */
-	private Operator operator;
+	private final Operator parentOpeator;
 	
-	public BoundingBoxSelectOperator(final Hyperrectangle boundingBox, final Operator operator) {
+	public BoundingBoxSelectOperator(final Hyperrectangle boundingBox, final Operator parentOperator) {
 		this.boundingBox = boundingBox;
-		this.operator = operator;
+		this.parentOpeator = parentOperator;
 	}
 
 	@Override
 	public Iterator<JoinedTuple> iterator() {
 		final Predicate predicate = new OverlapsBoundingBoxPredicate(boundingBox);
-		return new PredicateJoinedTupleFilterIterator(operator.iterator(), predicate);		
+		return new PredicateJoinedTupleFilterIterator(parentOpeator.iterator(), predicate);		
 	}
 
 	@Override
 	public void close() throws IOException {
-		operator.close();
+		parentOpeator.close();
 	}
 }
