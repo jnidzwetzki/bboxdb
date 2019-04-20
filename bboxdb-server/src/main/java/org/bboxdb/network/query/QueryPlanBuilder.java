@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
@@ -61,6 +62,11 @@ public class QueryPlanBuilder {
 	private final List<TupleTransformation> storedTupleTransformation;
 	
 	/**
+	 * The join filters
+	 */
+	private final List<UserDefinedFilterDefinition> joinFilters;
+	
+	/**
 	 * Report positive or negative matches
 	 */
 	private boolean reportPositiveMatches;
@@ -69,6 +75,7 @@ public class QueryPlanBuilder {
 		this.streamTable = tablename;
 		this.streamTupleTransformation = new ArrayList<>();
 		this.storedTupleTransformation = new ArrayList<>();
+		this.joinFilters = new ArrayList<>();
 		this.reportPositiveMatches = true;
 		this.queryRegion = Hyperrectangle.FULL_SPACE;
 	}
@@ -231,6 +238,16 @@ public class QueryPlanBuilder {
 	}
 	
 	/**
+	 * Add a join filter
+	 * @param userDefinedFilter
+	 * @return
+	 */
+	public QueryPlanBuilder addJoinFilter(final UserDefinedFilterDefinition userDefinedFilter) {
+		joinFilters.add(userDefinedFilter);
+		return this;
+	}
+	
+	/**
 	 * Build the query plan
 	 * 
 	 * Query region is per default the complete space
@@ -250,8 +267,8 @@ public class QueryPlanBuilder {
 		}
 		
 		if(joinTable != null) {
-			return new ContinuousTableQueryPlan(streamTable, joinTable, streamTupleTransformation, queryRegion, 
-					storedTupleTransformation, reportPositiveMatches);
+			return new ContinuousTableQueryPlan(streamTable, joinTable, streamTupleTransformation, 
+					queryRegion, storedTupleTransformation, joinFilters, reportPositiveMatches);
 		}
 		
 		throw new IllegalArgumentException("Join table or const region need to be set");

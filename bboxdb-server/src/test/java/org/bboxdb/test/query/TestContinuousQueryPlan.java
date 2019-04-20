@@ -26,6 +26,7 @@ import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
 import org.bboxdb.network.query.ContinuousTableQueryPlan;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
@@ -135,6 +136,7 @@ public class TestContinuousQueryPlan {
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new ArrayList<>(), 
+				new ArrayList<>(),
 				false);
 		
 		serializeAndDeserialize(continuousQueryPlan);
@@ -150,6 +152,7 @@ public class TestContinuousQueryPlan {
 						new KeyFilterTransformation("abcd"),
 						new EnlargeBoundingBoxByAmountTransformation(4),
 						new EnlargeBoundingBoxByFactorTransformation(3)), 
+				Arrays.asList(new UserDefinedFilterDefinition("abc", "def")),
 				false);
 		
 		serializeAndDeserialize(continuousQueryPlan);
@@ -170,6 +173,7 @@ public class TestContinuousQueryPlan {
 						new EnlargeBoundingBoxByAmountTransformation(4),
 						new EnlargeBoundingBoxByWGS84Transformation(3.2, 1.0)
 						), 
+				new ArrayList<>(),
 				false);
 		
 		serializeAndDeserialize(continuousQueryPlan);

@@ -24,12 +24,14 @@ import java.util.Objects;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
 import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.bboxdb.network.query.transformation.TupleTransformation;
+import org.bboxdb.network.query.transformation.UserDefinedFilterTransformation;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,6 +56,8 @@ public class ContinuousQueryPlanSerializer {
 	 */
 	private static final String TABLE_TRANSFORMATIONS_KEY = "table-transformations";
 	private static final String STREAM_TRANSFORMATIONS_KEY = "stream-transformations";
+	private static final String JOIN_FILTER_KEY = "join-filter";
+	
 	private static final String REPORT_KEY = "report-positive";
 	private static final String STREAM_TABLE_KEY = "stream-table";
 	private static final String JOIN_TABLE_KEY = "join-table";
@@ -69,11 +73,26 @@ public class ContinuousQueryPlanSerializer {
 	private static final String TRANSFORMATION_BBOX_ENLARGE_FACTOR_VALUE = "bbox-enlarge-by-factor";
 	private static final String TRANSFORMATION_BBOX_ENLARGE_WGS84_VALUE = "bbox-enlarge-by-wgs84";
 	private static final String TRANSFORMATION_BBOX_FILTER_VALUE = "bbox-filter";
+	private static final String TRANSFORMATION_USER_DEFINED_FILTER = "user-defined-filter";
+
 	
 	/**
 	 * Transformation value
 	 */
 	private static final String TRANSFORMATION_VALUE_KEY = "value";
+	
+	/**
+	 * User defined filter - class
+	 */
+	private static final String USER_DEFINED_FILTER_CLASS = "filter-class";
+	
+	/**
+	 * User defined filter - value
+	 */
+	private static final String USER_DEFINED_FILTER_VALUE = "filter-value";
+	
+	
+	
 	
 	/**
 	 * Serialize to JSON
@@ -93,9 +112,15 @@ public class ContinuousQueryPlanSerializer {
 			json.put(QUERY_TYPE_KEY, QUERY_TYPE_TABLE_VALUE);
 
 			final ContinuousTableQueryPlan tableQueryPlan = (ContinuousTableQueryPlan) queryPlan;
-			final List<TupleTransformation> transformations = tableQueryPlan.getTableTransformation();
-			final JSONArray tableTransformations = writeTransformationsToJSON(json, transformations);
-			json.put(TABLE_TRANSFORMATIONS_KEY, tableTransformations);
+			
+			final List<TupleTransformation> tableTransformations = tableQueryPlan.getTableTransformation();
+			final JSONArray tableTransformationsJSON = writeTransformationsToJSON(json, tableTransformations);
+			json.put(TABLE_TRANSFORMATIONS_KEY, tableTransformationsJSON);
+			
+			final List<UserDefinedFilterDefinition> joinTransformations = tableQueryPlan.getAfterJoinFilter();
+			final JSONArray joinFilterJSON = writeFilterToJSON(json, joinTransformations);
+			json.put(JOIN_FILTER_KEY, joinFilterJSON);
+			
 			json.put(JOIN_TABLE_KEY, tableQueryPlan.getJoinTable());					
 		} else {
 			throw new IllegalArgumentException("Unknown query type: " + queryPlan);
@@ -136,6 +161,8 @@ public class ContinuousQueryPlanSerializer {
 				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_KEY_FILTER_VALUE);
 			} else if(transformation instanceof EnlargeBoundingBoxByWGS84Transformation) {
 				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_BBOX_ENLARGE_WGS84_VALUE);
+			} else if(transformation instanceof UserDefinedFilterTransformation) {
+				transformationJSON.put(TRANSFORMATION_NAME_KEY, TRANSFORMATION_USER_DEFINED_FILTER);
 			} else {
 				throw new IllegalArgumentException("Unable to serialize type: " + transformation);
 			}
@@ -145,6 +172,29 @@ public class ContinuousQueryPlanSerializer {
 			transfomationArray.put(transformationJSON);
 		}
 		
+		return transfomationArray;
+	}
+	
+	/**
+	 * Write a list with transformations to JSON
+	 * @param json
+	 * @param joinTransformations
+	 * @return
+	 */
+	private static JSONArray writeFilterToJSON(JSONObject json,
+			List<UserDefinedFilterDefinition> filters) {
+		
+		final JSONArray transfomationArray = new JSONArray();
+		
+		for(final UserDefinedFilterDefinition filter : filters) {
+			final JSONObject transformationJSON = new JSONObject();
+			
+			transformationJSON.put(USER_DEFINED_FILTER_CLASS, filter.getUserDefinedFilterClass());
+			transformationJSON.put(USER_DEFINED_FILTER_VALUE, filter.getUserDefinedFilterValue());
+			
+			transfomationArray.put(transformationJSON);
+		}
+
 		return transfomationArray;
 	}
 	
@@ -185,11 +235,13 @@ public class ContinuousQueryPlanSerializer {
 				final List<TupleTransformation> tableTransformation 
 					= decodeTransformation(json, TABLE_TRANSFORMATIONS_KEY);
 				
+				final List<UserDefinedFilterDefinition> joinFilters = decodeFilters(json, JOIN_FILTER_KEY);
+				
 				final String joinTable = json.getString(JOIN_TABLE_KEY);
 				
 				final ContinuousTableQueryPlan tableQuery = new ContinuousTableQueryPlan(streamTable, 
 						joinTable, streamTransformation, queryRectangle, 
-						tableTransformation, reportPositiveNegative);
+						tableTransformation, joinFilters, reportPositiveNegative);
 		
 				return tableQuery;
 			default:
@@ -239,6 +291,9 @@ public class ContinuousQueryPlanSerializer {
 					case TRANSFORMATION_BBOX_ENLARGE_WGS84_VALUE:
 						transformation = new EnlargeBoundingBoxByWGS84Transformation(transformationValue);
 						break;
+					case TRANSFORMATION_USER_DEFINED_FILTER:
+						transformation = new UserDefinedFilterTransformation(transformationValue);
+						break;
 						
 					default:
 						throw new BBoxDBException("Unkown transformation type: " + transformationType);
@@ -252,5 +307,35 @@ public class ContinuousQueryPlanSerializer {
 		
 		return transformations;
 	}
+	
+	/**
+	 * Decode the given user defined filters
+	 * @param json
+	 * @param key
+	 * @return
+	 * @throws BBoxDBException 
+	 */
+	private static List<UserDefinedFilterDefinition> decodeFilters(final JSONObject json, final String key) 
+			throws BBoxDBException {
+		
+		final List<UserDefinedFilterDefinition> filters = new ArrayList<>();
+		
+		final JSONArray filtersArray = json.getJSONArray(key);
+		
+		for(int i = 0; i < filtersArray.length(); i++) {
+			final JSONObject transformationObject = filtersArray.getJSONObject(i);
+			
+			final String filterClass = transformationObject.getString(USER_DEFINED_FILTER_CLASS);
+			final String filterValue = transformationObject.getString(USER_DEFINED_FILTER_VALUE);
+			
+			final UserDefinedFilterDefinition userDefinedFilterDefinition 
+				= new UserDefinedFilterDefinition(filterClass, filterValue);
+			
+			filters.add(userDefinedFilterDefinition);
+		}
+		
+		return filters;
+	}
+	
 	
 }
