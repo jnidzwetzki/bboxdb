@@ -20,7 +20,9 @@ package org.bboxdb.network.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
@@ -42,6 +44,8 @@ import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousTableQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
+import org.bboxdb.network.query.filter.UserDefinedFilter;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
@@ -177,6 +181,8 @@ public class ContinuousClientQuery implements ClientQuery {
 				return;
 			}
 			
+			final Map<UserDefinedFilter, String> filters = getUserDefinedFilter(tableQueryPlan);
+			
 			final Consumer<Tuple> tupleConsumer = (tupleToConsume) -> {
 				final List<TupleTransformation> tupleTransfor 
 					= tableQueryPlan.getTableTransformation(); 
@@ -184,16 +190,18 @@ public class ContinuousClientQuery implements ClientQuery {
 				final TupleAndBoundingBox transformedTuple 
 					= applyStreamTupleTransformations(tupleTransfor, tupleToConsume);
 				
+				final boolean matches = doUserDefinedFilterMatch(t, filters, transformedTuple);
+
 				// Is the tuple important for the query?
-				if(tuple.getBoundingBox().intersects(transformedTuple.getBoundingBox())) {
-					if(queryPlan.isReportPositive()) {
+				if(tuple.getBoundingBox().intersects(transformedTuple.getTuple().getBoundingBox())) {
+					if(queryPlan.isReportPositive() && matches == true) {
 						final JoinedTuple joinedTuple = new JoinedTuple(
 								Arrays.asList(t, transformedTuple.getTuple()), 
 								Arrays.asList(requestTable.getFullname(), requestTable.getFullname()));
 						queueTupleForClientProcessing(joinedTuple);
 					}
 				} else {
-					if(! queryPlan.isReportPositive()) {
+					if(! queryPlan.isReportPositive() && matches != true) {
 						final JoinedTuple joinedTuple = new JoinedTuple(
 								Arrays.asList(t, transformedTuple.getTuple()), 
 								Arrays.asList(requestTable.getFullname(), requestTable.getFullname()));
@@ -220,6 +228,45 @@ public class ContinuousClientQuery implements ClientQuery {
 				return;
 			}	
 		};
+	}
+
+	private boolean doUserDefinedFilterMatch(Tuple t, final Map<UserDefinedFilter, String> filters,
+			final TupleAndBoundingBox transformedTuple) {
+		boolean matches = true;
+		for(final UserDefinedFilter operator : filters.keySet()) {
+			final String value = filters.get(operator);
+			final boolean result 
+				= operator.filterJoinCandidate(t, transformedTuple.getTuple(), value);
+			
+			if(! result) {
+				matches = false;
+			}
+		}
+		return matches;
+	}
+
+	/**
+	 * Get the user defined operators
+	 * @param tableQueryPlan
+	 * @return 
+	 */
+	private Map<UserDefinedFilter, String> getUserDefinedFilter(
+			final ContinuousTableQueryPlan tableQueryPlan) {
+		
+		final Map<UserDefinedFilter, String> operators = new HashMap<>();
+		
+		for(final UserDefinedFilterDefinition filter : tableQueryPlan.getAfterJoinFilter()) {
+			try {
+				final Class<?> filterClass = Class.forName(filter.getUserDefinedFilterClass());
+				final UserDefinedFilter operator = 
+						(UserDefinedFilter) filterClass.newInstance();
+				operators.put(operator, filter.getUserDefinedFilterValue());
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				throw new IllegalArgumentException("Unable to find user defined filter class", e);
+			}
+		}
+		
+		return operators;
 	}
 
 	/**
