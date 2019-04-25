@@ -70,7 +70,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	/**
 	 * The connect timeout in seconds
 	 */
-	private final static int ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC = 5;
+	private final static int ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC = 20;
 
 	/**
 	 * The logger
