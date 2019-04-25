@@ -49,6 +49,10 @@ public class FilterSpatialOperator extends SpatialIterator {
 	protected JoinedTuple buildNextJoinedTuple(Tuple nextCandidateTuple) {
 		final JoinedTuple tuple = super.buildNextJoinedTuple(nextCandidateTuple);
 		
+		if(tuple == null) {
+			return null;
+		}
+		
 		// Pass tuple to the user defined filter
 		if(userDefinedFilter.filterJoinCandidate(tuple.getTuple(0), tuple.getTuple(1), userDefinedValue)) {
 			return tuple;

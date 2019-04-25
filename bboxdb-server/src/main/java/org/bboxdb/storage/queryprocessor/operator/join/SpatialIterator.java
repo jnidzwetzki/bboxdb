@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.commons.CloseableHelper;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
@@ -102,6 +103,12 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 		final ArrayList<Tuple> tupesToJoin = new ArrayList<>();		
 		tupesToJoin.addAll(tupleFromStreamSource.getTuples());
 		tupesToJoin.add(nextCandidateTuple);
+		
+		for(final Tuple tuple : tupesToJoin) {
+			if(tuple instanceof DeletedTuple) {
+				return null;
+			}
+		}
 
 		return new JoinedTuple(tupesToJoin, tupleStoreNames);
 	}

@@ -38,7 +38,7 @@ public class IndexedSpatialJoinOperator implements Operator {
 	private final SpatialIndexReadOperator indexReader;
 
 	/**
-	 * The user defined filter clas
+	 * The user defined filter clapss
 	 */
 	private final String userDefinedFilterClass;
 
