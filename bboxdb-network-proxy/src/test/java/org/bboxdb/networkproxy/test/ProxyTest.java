@@ -282,6 +282,8 @@ public class ProxyTest {
 		final List<JoinedTuple> joinResult = networkProxyClient.join(
 				Hyperrectangle.FULL_SPACE, TEST_TABLE_1, TEST_TABLE_2);
 
+		System.out.println("--> Result: " + joinResult);
+		
 		Assert.assertTrue(joinResult.isEmpty());
 	}
 
