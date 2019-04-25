@@ -104,12 +104,13 @@ public class TupleStoreAquirer implements AutoCloseable {
 	 * Release all acquired tables
 	 */
 	@Override
-	public void close() {
+	public synchronized void close() {
 		if(tupleStores == null) {
 			return;
 		}
 
 		tupleStores.forEach(s -> s.release());
+		tupleStores.clear();
 	}
 	
 	/**
