@@ -36,6 +36,8 @@ public class TupleStoreAquirer implements AutoCloseable {
 	
 	private final TupleStoreManager tupleStoreManager;
 	
+	private boolean isReleased = false;
+	
 	public TupleStoreAquirer(final TupleStoreManager tupleStoreManager) throws StorageManagerException {
 		this.tupleStoreManager = tupleStoreManager;
 		aquireStorage();
@@ -64,6 +66,7 @@ public class TupleStoreAquirer implements AutoCloseable {
 			}
 			
 			tupleStores = retryer.getResult();
+			isReleased = false;
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new StorageManagerException("Wait for storage was interrupted", e);
@@ -108,9 +111,12 @@ public class TupleStoreAquirer implements AutoCloseable {
 		if(tupleStores == null) {
 			return;
 		}
-
-		tupleStores.forEach(s -> s.release());
-		tupleStores.clear();
+		
+		if(! isReleased) {
+			tupleStores.forEach(s -> s.release());
+		}
+		
+		isReleased = true;
 	}
 	
 	/**
