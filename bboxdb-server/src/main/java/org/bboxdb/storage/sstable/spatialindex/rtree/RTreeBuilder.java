@@ -1,19 +1,19 @@
 /*******************************************************************************
  *
  *    Copyright (C) 2015-2018 the BBoxDB project
- *  
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
+ *    limitations under the License.
+ *
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
@@ -59,7 +59,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	 * The byte for a following child node
 	 */
 	public final static byte[] MAGIC_CHILD_NODE_FOLLOWING = {1, 0, 0, 0};
-	
+
 	/**
 	 * The size of the magic nodes in bytes
 	 */
@@ -72,7 +72,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	public RTreeBuilder(final int maxNodeSize) {
 
 		if(maxNodeSize <= 0) {
-			throw new IllegalArgumentException("Unable to construct an index with max node size: " 
+			throw new IllegalArgumentException("Unable to construct an index with max node size: "
 					+ maxNodeSize);
 		}
 
@@ -106,17 +106,17 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	/**
 	 * Insert the given RTreeSpatialIndexEntry into the tree
 	 * @param entry
-	 * @return 
+	 * @return
 	 */
 	@Override
 	public boolean insert(final SpatialIndexEntry entry) {
 
-		if(entry.getBoundingBox() == null || entry.getBoundingBox() == Hyperrectangle.FULL_SPACE) {
+		if(entry.getBoundingBox() == null) {
 			return false;
 		}
 
 		final RTreeDirectoryNode childNode = insert(rootNode, entry);
-		adjustTree(childNode);	
+		adjustTree(childNode);
 
 		return true;
 	}
@@ -182,13 +182,13 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 				nodeToCheck = nodeToCheck.getParentNode();
 			}
 
-		} while(nodeToCheck != null);	
+		} while(nodeToCheck != null);
 	}
 
 	/**
 	 * Split the given node
 	 * @param nodeToSplit
-	 * @return 
+	 * @return
 	 */
 	protected RTreeDirectoryNode splitNode(final RTreeDirectoryNode nodeToSplit) {
 		final RTreeDirectoryNode newNode1 = nodeFactory.buildDirectoryNode();
@@ -243,7 +243,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 		final List<RTreeDirectoryNode> dataToDistribute = nodeToSplit.getDirectoryNodeChilds();
 
 		final QuadraticSeedPicker<RTreeDirectoryNode> seedPicker = new QuadraticSeedPicker<>();
-		final Pair<RTreeDirectoryNode, RTreeDirectoryNode> seeds 
+		final Pair<RTreeDirectoryNode, RTreeDirectoryNode> seeds
 			= seedPicker.quadraticPickSeeds(dataToDistribute);
 
 		newNode1.addDirectoryNodeChild(seeds.getElement1());
@@ -295,14 +295,14 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	 * @param newNode1
 	 * @param newNode2
 	 */
-	protected void distributeLeafData(final RTreeDirectoryNode nodeToSplit, 
+	protected void distributeLeafData(final RTreeDirectoryNode nodeToSplit,
 			final RTreeDirectoryNode newNode1,
 			final RTreeDirectoryNode newNode2) {
 
 		final List<SpatialIndexEntry> dataToDistribute = nodeToSplit.getIndexEntries();
 
 		final QuadraticSeedPicker<SpatialIndexEntry> seedPicker = new QuadraticSeedPicker<>();
-		final Pair<SpatialIndexEntry, SpatialIndexEntry> seeds 
+		final Pair<SpatialIndexEntry, SpatialIndexEntry> seeds
 			= seedPicker.quadraticPickSeeds(dataToDistribute);
 
 		insert(newNode1, seeds.getElement1());
@@ -355,7 +355,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	public int getMaxNodeSize() {
 		return maxNodeSize;
 	}
-	
+
 	/**
 	 * Test the covering of the child nodes
 	 */

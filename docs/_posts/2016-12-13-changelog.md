@@ -22,6 +22,7 @@ order: 1
 - Improvement: Added importer for nari dynamic data
 - Improvement: Added importer for forex data
 - Bugfix: Don't retry a future when the connection is closed
+- Bugfix: Fixed the bounding box query for full space covering tuples
 
 ### Version 0.8.6 - 02.01.2019
 - New Feature: Add support for continues queries predicates (closes #60)

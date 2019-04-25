@@ -385,6 +385,50 @@ public class TestNetworkCommunication {
 	 * @throws Exception
 	 */
 	@Test(timeout=60000)
+	public void testInsertAndGetFullSpace() throws Exception {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxdbClient = bboxdbConnection.getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_insertandgetfullspace";
+
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForCompletion();
+		Assert.assertFalse(resultCreateTable.isFailed());
+
+		// Insert first tuple
+		final String value1 = "abc";
+		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, value1.getBytes());
+		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
+
+		// Insert second tuple
+		final String value2 = "def";
+		final Tuple tuple2 = new Tuple("key2", Hyperrectangle.FULL_SPACE, value2.getBytes());
+		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
+
+		insertResult1.waitForCompletion();
+		insertResult2.waitForCompletion();
+
+		Assert.assertFalse(insertResult1.isFailed());
+		Assert.assertTrue(insertResult1.isDone());
+		Assert.assertFalse(insertResult2.isFailed());
+		Assert.assertTrue(insertResult2.isDone());
+
+		// Read all tuple
+		final TupleListFuture getResult3 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
+				"", "");
+		getResult3.waitForCompletion();
+		final List<Tuple> resultList3 = Lists.newArrayList(getResult3.iterator());
+		Assert.assertEquals(2, resultList3.size());
+		Assert.assertTrue(resultList3.contains(tuple1));
+		Assert.assertTrue(resultList3.contains(tuple2));
+	}
+
+	/**
+	 * Test insert tuple and read with custom filter
+	 * @throws Exception
+	 */
+	@Test(timeout=60000)
 	public void testInsertAndGetWithUserDefinedFilter() throws Exception {
 		final BBoxDBConnection bboxdbConnection = connectToServer();
 		final BBoxDBClient bboxdbClient = bboxdbConnection.getBboxDBClient();
