@@ -104,6 +104,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 		tupesToJoin.addAll(tupleFromStreamSource.getTuples());
 		tupesToJoin.add(nextCandidateTuple);
 		
+		// Filter deleted tuples
 		for(final Tuple tuple : tupesToJoin) {
 			if(tuple instanceof DeletedTuple) {
 				return null;
