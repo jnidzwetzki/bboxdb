@@ -38,6 +38,7 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureRetryPolicy;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.packages.request.InsertOption;
+import org.bboxdb.network.query.filter.UserDefinedStringFilter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -72,7 +73,7 @@ public class TestNetworkCommunication {
 	 * The name of the distribution group
 	 */
 	private static final String DISTRIBUTION_GROUP = "testgroup";
-	
+
 	/**
 	 * The insert option - none
 	 */
@@ -339,7 +340,7 @@ public class TestNetworkCommunication {
 		final List<Tuple> resultList = Lists.newArrayList(getResult.iterator());
 		Assert.assertEquals(tuple2, resultList.get(0));
 	}
-	
+
 	/**
 	 * Test the double insert and check for newest version
 	 * @throws Exception
@@ -358,14 +359,14 @@ public class TestNetworkCommunication {
 
 		// Insert first version
 		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abc".getBytes());
-		
+
 		final BBoxDBConnection connection = bboxdbClient.getConnection();
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, tuple1.getBoundingBox(), false, connection.getServerAddress());
 
-		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1, routingHeader, 
+		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1, routingHeader,
 				EnumSet.of(InsertOption.STREAMING_ONLY));
-		
+
 		insertResult1.waitForCompletion();
 		Assert.assertFalse(insertResult1.isFailed());
 		Assert.assertTrue(insertResult1.isDone());
@@ -374,9 +375,69 @@ public class TestNetworkCommunication {
 		final TupleListFuture getResult = bboxdbClient.queryKey(table, "abc");
 		getResult.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(getResult.iterator());
-		
+
 		// Expect that the tuple is not inserted (streaming only insert option)
 		Assert.assertEquals(0, resultList.size());
+	}
+
+	/**
+	 * Test insert tuple and read with custom filter
+	 * @throws Exception
+	 */
+	@Test(timeout=60000)
+	public void testInsertAndGetWithUserDefinedFilter() throws Exception {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxdbClient = bboxdbConnection.getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_relationuserdefinedfilter";
+
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxdbClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForCompletion();
+		Assert.assertFalse(resultCreateTable.isFailed());
+
+		// Insert first tuple
+		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "abc".getBytes());
+		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
+
+		// Insert second tuple
+		final Tuple tuple2 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "def".getBytes());
+		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
+
+		insertResult1.waitForCompletion();
+		insertResult2.waitForCompletion();
+
+		Assert.assertFalse(insertResult1.isFailed());
+		Assert.assertTrue(insertResult1.isDone());
+		Assert.assertFalse(insertResult2.isFailed());
+		Assert.assertTrue(insertResult2.isDone());
+
+		// Read tuple1
+		final TupleListFuture getResult1 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
+				UserDefinedStringFilter.class.getName(), tuple1.getKey());
+
+		getResult1.waitForCompletion();
+		final List<Tuple> resultList1 = Lists.newArrayList(getResult1.iterator());
+		Assert.assertEquals(1, resultList1.size());
+		Assert.assertTrue(resultList1.contains(tuple1));
+
+		// Read tuple2
+		final TupleListFuture getResult2 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
+				UserDefinedStringFilter.class.getName(), tuple2.getKey());
+
+		getResult2.waitForCompletion();
+		final List<Tuple> resultList2 = Lists.newArrayList(getResult2.iterator());
+		Assert.assertEquals(1, resultList2.size());
+		Assert.assertTrue(resultList2.contains(tuple2));
+
+		// Read all tuple
+		final TupleListFuture getResult3 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
+				"", "");
+		getResult3.waitForCompletion();
+		final List<Tuple> resultList3 = Lists.newArrayList(getResult3.iterator());
+		Assert.assertEquals(2, resultList3.size());
+		Assert.assertTrue(resultList3.contains(tuple1));
+		Assert.assertTrue(resultList3.contains(tuple1));
 	}
 
 	/**
@@ -435,10 +496,10 @@ public class TestNetworkCommunication {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, Hyperrectangle.FULL_SPACE, false, bboxdbConnection.getServerAddress());
 
-	
-		
+
+
 		final Tuple tuple = new Tuple("key12", new Hyperrectangle(1.2, 5.0), "abc".getBytes());
-		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader, 
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader,
 				INSERT_OPTIONS_NONE);
 
 		// Prevent retries
@@ -562,7 +623,7 @@ public class TestNetworkCommunication {
 		NetworkQueryHelper.testBoundingBoxQueryContinous1(bboxDBClient, DISTRIBUTION_GROUP);
 		disconnect(bboxDBClient);
 	}
-	
+
 	/**
 	 * Insert some tuples and start a bounding box query afterwards
 	 * @throws ExecutionException
@@ -671,7 +732,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = unlimited");
 		bboxDBClient.setPagingEnabled(false);
 		bboxDBClient.setTuplesPerPage((short) 0);
-		final TupleListFuture future = bboxDBClient.queryRectangle(table, 
+		final TupleListFuture future = bboxDBClient.queryRectangle(table,
 				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "");
 		future.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
@@ -681,7 +742,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 10");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 10);
-		final TupleListFuture future2 = bboxDBClient.queryRectangle(table, 
+		final TupleListFuture future2 = bboxDBClient.queryRectangle(table,
 				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "");
 		future2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(future2.iterator());
@@ -691,7 +752,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 5");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 5);
-		final TupleListFuture future3 = bboxDBClient.queryRectangle(table, 
+		final TupleListFuture future3 = bboxDBClient.queryRectangle(table,
 				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "");
 		future3.waitForCompletion();
 		final List<Tuple> resultList3 = Lists.newArrayList(future3.iterator());
@@ -701,7 +762,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 2");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 2);
-		final TupleListFuture future4 = bboxDBClient.queryRectangle(table, 
+		final TupleListFuture future4 = bboxDBClient.queryRectangle(table,
 				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "");
 		System.out.println("Client is waiting on: " + future4);
 		future4.waitForCompletion();
@@ -712,7 +773,7 @@ public class TestNetworkCommunication {
 		System.out.println("Pages = 1");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 1);
-		final TupleListFuture future5 = bboxDBClient.queryRectangle(table, 
+		final TupleListFuture future5 = bboxDBClient.queryRectangle(table,
 				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "");
 		future5.waitForCompletion();
 		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());
