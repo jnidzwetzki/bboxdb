@@ -397,11 +397,13 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultCreateTable.isFailed());
 
 		// Insert first tuple
-		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "abc".getBytes());
+		final String value1 = "abc";
+		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(-10d, -9d, -10d, -9d), value1.getBytes());
 		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
 
 		// Insert second tuple
-		final Tuple tuple2 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "def".getBytes());
+		final String value2 = "def";
+		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(-10d, -9d, -10d, -9d), value2.getBytes());
 		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
 
 		insertResult1.waitForCompletion();
@@ -412,9 +414,18 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(insertResult2.isFailed());
 		Assert.assertTrue(insertResult2.isDone());
 
+		// Read all tuple
+		final TupleListFuture getResult3 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
+				"", "");
+		getResult3.waitForCompletion();
+		final List<Tuple> resultList3 = Lists.newArrayList(getResult3.iterator());
+		Assert.assertEquals(2, resultList3.size());
+		Assert.assertTrue(resultList3.contains(tuple1));
+		Assert.assertTrue(resultList3.contains(tuple2));
+
 		// Read tuple1
 		final TupleListFuture getResult1 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
-				UserDefinedStringFilter.class.getName(), tuple1.getKey());
+				UserDefinedStringFilter.class.getName(), value1);
 
 		getResult1.waitForCompletion();
 		final List<Tuple> resultList1 = Lists.newArrayList(getResult1.iterator());
@@ -423,21 +434,12 @@ public class TestNetworkCommunication {
 
 		// Read tuple2
 		final TupleListFuture getResult2 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
-				UserDefinedStringFilter.class.getName(), tuple2.getKey());
+				UserDefinedStringFilter.class.getName(), value2);
 
 		getResult2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(getResult2.iterator());
 		Assert.assertEquals(1, resultList2.size());
 		Assert.assertTrue(resultList2.contains(tuple2));
-
-		// Read all tuple
-		final TupleListFuture getResult3 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
-				"", "");
-		getResult3.waitForCompletion();
-		final List<Tuple> resultList3 = Lists.newArrayList(getResult3.iterator());
-		Assert.assertEquals(2, resultList3.size());
-		Assert.assertTrue(resultList3.contains(tuple1));
-		Assert.assertTrue(resultList3.contains(tuple1));
 	}
 
 	/**

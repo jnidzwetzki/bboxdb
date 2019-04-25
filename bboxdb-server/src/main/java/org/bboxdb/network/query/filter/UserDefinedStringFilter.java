@@ -25,12 +25,12 @@ public class UserDefinedStringFilter implements UserDefinedFilter {
 	public boolean filterTuple(final Tuple tuple, final String customData) {
 		return new String(tuple.getDataBytes()).contains(customData);
 	}
-	
+
 	@Override
 	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final String customData) {
 		final String string1 = new String(tuple1.getDataBytes());
 		final String string2 = new String(tuple2.getDataBytes());
-		
+
 		return string1.contains(customData) && string2.contains(customData);
 	}
 }

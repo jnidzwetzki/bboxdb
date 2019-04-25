@@ -95,7 +95,7 @@ public class NetworkQueryHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static TupleListFuture testBoundingBoxQuery(final BBoxDB bboxDBClient, final String distributionGroup,
+	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient, final String distributionGroup,
 			final boolean withTupes) throws BBoxDBException, InterruptedException {
 
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
@@ -129,33 +129,62 @@ public class NetworkQueryHelper {
 			result5.waitForCompletion();
 		}
 
-		System.out.println("=== Executing query");
-		final TupleListFuture future = bboxDBClient.queryRectangle(table, 
-				new Hyperrectangle(-1d, 2d, -1d, 2d), "", "");
+		final Hyperrectangle queryBox1 = new Hyperrectangle(-1d, 2d, -1d, 2d);
+
+		final List<Tuple> resultList1 = executeBBoxQuery(bboxDBClient, table, queryBox1);
+
+		if(! withTupes) {
+			Assert.assertEquals(0, resultList1.size());
+		} else {
+			Assert.assertEquals(3, resultList1.size());
+			Assert.assertTrue(resultList1.contains(tuple1));
+			Assert.assertTrue(resultList1.contains(tuple2));
+			Assert.assertTrue(resultList1.contains(tuple3));
+			Assert.assertFalse(resultList1.contains(tuple4));
+			Assert.assertFalse(resultList1.contains(tuple5));
+		}
+
+		// Query complete space
+		final List<Tuple> resultList2 = executeBBoxQuery(bboxDBClient, table, Hyperrectangle.FULL_SPACE);
+
+		if(! withTupes) {
+			Assert.assertEquals(0, resultList2.size());
+		} else {
+			Assert.assertEquals(5, resultList2.size());
+			Assert.assertTrue(resultList2.contains(tuple1));
+			Assert.assertTrue(resultList2.contains(tuple2));
+			Assert.assertTrue(resultList2.contains(tuple3));
+			Assert.assertTrue(resultList2.contains(tuple4));
+			Assert.assertTrue(resultList2.contains(tuple5));
+		}
+
+
+		System.out.println("=== End testInsertAndBoundingBoxQuery");
+	}
+
+	/**
+	 * Execute the bounding box query
+	 * @param bboxDBClient
+	 * @param table
+	 * @param queryBox
+	 * @return
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	private static List<Tuple> executeBBoxQuery(final BBoxDB bboxDBClient, final String table,
+			final Hyperrectangle queryBox) throws BBoxDBException, InterruptedException {
+
+		System.out.println("=== Executing query for: " + queryBox);
+		final TupleListFuture future = bboxDBClient.queryRectangle(table, queryBox, "", "");
 		future.waitForCompletion();
 		System.out.println("=== Query DONE");
 
 		Assert.assertTrue(future.isDone());
 		Assert.assertFalse(future.isFailed());
 
-		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
-
-		if(! withTupes) {
-			Assert.assertEquals(0, resultList.size());
-		} else {
-			Assert.assertEquals(3, resultList.size());
-			Assert.assertTrue(resultList.contains(tuple1));
-			Assert.assertTrue(resultList.contains(tuple2));
-			Assert.assertTrue(resultList.contains(tuple3));
-			Assert.assertFalse(resultList.contains(tuple4));
-			Assert.assertFalse(resultList.contains(tuple5));
-		}
-
-		System.out.println("=== End testInsertAndBoundingBoxQuery");
-
-		return future;
+		return Lists.newArrayList(future.iterator());
 	}
-	
+
 	/**
 	 * Test a bounding box query
 	 * @param bboxDBConnection
@@ -178,21 +207,21 @@ public class NetworkQueryHelper {
 				.forAllNewTuplesStoredInRegion(-1d, 2d, -1d, 2d)
 				.compareWithStaticRegion(-1d, 2d, -1d, 2d)
 				.build();
-				
+
 		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
-		
+
 		final int tuples = 10;
-		
+
 		for(int i = 0; i < tuples; i++) {
 			final Tuple tuple = new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes());
 			final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 			insertResult.waitForCompletion();
 		}
-		
-		// Wait for page full		
+
+		// Wait for page full
 		System.out.println("=== Wait for query result");
 		queryFuture.waitForCompletion();
-		
+
 		final List<JoinedTuple> resultList = new ArrayList<>();
 		final Iterator<JoinedTuple> iterator = queryFuture.iterator();
 
@@ -201,14 +230,14 @@ public class NetworkQueryHelper {
 				resultList.add(iterator.next());
 			}
 		}
-		
+
 		Assert.assertEquals(10, resultList.size());
 
 		bboxDBClient.cancelQuery(queryFuture);
-		
+
 		System.out.println("=== End testBoundingBoxQueryContinous 1");
 	}
-	
+
 	/**
 	 * Test a bounding box query
 	 * @param bboxDBConnection
@@ -217,7 +246,7 @@ public class NetworkQueryHelper {
 	 */
 	public static void testBoundingBoxQueryContinous2(final BBoxDBClient bboxDBClient, final String distributionGroup)
 			throws BBoxDBException, InterruptedException {
-		
+
 		System.out.println("=== Running testBoundingBoxQueryContinous 2");
 
 		final String table = distributionGroup + "_relation9992";
@@ -232,30 +261,30 @@ public class NetworkQueryHelper {
 				.forAllNewTuplesStoredInRegion(-1d, 2d, -1d, 2d)
 				.compareWithTable(table)
 				.build();
-		
+
 		final Tuple storedTuple = new Tuple("abc", new Hyperrectangle(0.5d, 1d, 0.5d, 1d), "".getBytes());
 		final EmptyResultFuture storeResult = bboxDBClient.insertTuple(table, storedTuple);
 		storeResult.waitForCompletion();
 		Assert.assertFalse(storeResult.isFailed());
 		Assert.assertTrue(storeResult.isDone());
 		System.out.println("=== Insert first tuple done");
-		
+
 		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
-			
+
 		final Tuple tuple = new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		insertResult.waitForCompletion();
 		System.out.println("=== Insert second tuple done");
 
-		// Wait for page full		
+		// Wait for page full
 		System.out.println("=== Wait for query result");
 		queryFuture.waitForCompletion();
-		
+
 		final Iterator<JoinedTuple> iterator = queryFuture.iterator();
 		Assert.assertTrue(iterator.hasNext());
-		
+
 		final JoinedTuple foundTuple = iterator.next();
-		
+
 		Assert.assertEquals(2, foundTuple.getNumberOfTuples());
 		Assert.assertEquals(table, foundTuple.getTupleStoreName(0));
 		Assert.assertEquals(table, foundTuple.getTupleStoreName(1));
@@ -376,7 +405,7 @@ public class NetworkQueryHelper {
 		Assert.assertTrue(insertResult3.isDone());
 
 		// Execute the join
-		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), 
+		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2),
 				new Hyperrectangle(0.0, 10.0, 0.0, 10.0), "", "");
 		joinResult.waitForCompletion();
 		final List<JoinedTuple> resultList = Lists.newArrayList(joinResult.iterator());
