@@ -16,7 +16,7 @@ The first method is called when a single tuple needs to be filtered. In addition
 
 The second method is executed, when two tuples needs to be filtered (e.g., in a join operation). Like in the first filter operation, also a user defined value is passed to the method call.
 
-### A sting filter example user defined filter
+### Example: A user defined filter that filters strings
 
 In the following example, a user defined filter is defined. This filter filters the tuple based on the occurrence of a certain string in the tuple value. The tuple value is passed by the user defined value.
 
