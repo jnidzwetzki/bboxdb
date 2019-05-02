@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.9.0 - TBA
+### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script
 - New Feature: Added GeoJSON to bounding box converter
 - New Feature: Added support for streaming only tuples (user defined filter functions)
