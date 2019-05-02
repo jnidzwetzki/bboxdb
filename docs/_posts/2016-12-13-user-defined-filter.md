@@ -6,7 +6,7 @@ date: 2016-12-12 12:18:27
 order: 3
 ---
 
-This page describes the _user defined filter_ feature that is available beginning with BBoxDB 0.9.2. User defined filter allow it to filter a result (e.g., the result of a range query or a join) with a further filter. This filter has to be created by a user and can decode the real meaning of a value. Normally, BBoxDB can only execute operation based on the bounding boxes of the tuples. The user defined filter is executed directly on each BBoxDB node before the result is sent back to the client.
+This page describes the _user defined filter_ (UDF) feature that is available since BBoxDB 0.9.2. A UDF allow the user to filter a result (e.g., the result of a range query or a join) with a custom filter. This filter has to be created by the user, the user can give the filter the ability to decode and deal with the real meaning of a value. Normally, BBoxDB can only execute operation based on the bounding boxes of the tuples. The user defined filter is executed directly on each BBoxDB node before the result is sent back to the client.
 
 ### Creating a user defined filter
 
