@@ -237,6 +237,10 @@ public class InsertTupleHandler implements RequestHandler {
 				final Hyperrectangle space 
 					= regionIdMapper.getSpaceForRegionId(regionid);
 				
+				if(space == null) {
+					throw new IllegalArgumentException("Unable to get space for region: " + regionid);
+				}
+				
 				final Hyperrectangle tupleBBox = tuple.getBoundingBox();
 				final boolean storeOnDisk = ! insertOptions.contains(InsertOption.STREAMING_ONLY);
 				
