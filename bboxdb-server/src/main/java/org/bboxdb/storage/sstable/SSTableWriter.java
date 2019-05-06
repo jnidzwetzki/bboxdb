@@ -30,6 +30,7 @@ import java.util.Collection;
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreMetaData;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -332,6 +333,11 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	public void addTuple(final Tuple tuple) throws StorageManagerException {
 		final int tuplePosition = addTupleWithoutSpatialIndex(tuple);
+		
+		// Don't add deleted tuples to the index
+		if(tuple instanceof DeletedTuple) {
+			return;
+		}
 		
 		// Add tuple to the spatial index
 		final SpatialIndexEntry sIndexentry 
