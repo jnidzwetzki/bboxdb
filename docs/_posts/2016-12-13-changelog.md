@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.9.1 - TBD
 - Improvement: Returned tuples are now shown in CLI calls
+- Improvement: Added linestring geojson type
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 
