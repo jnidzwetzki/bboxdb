@@ -334,7 +334,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 			future.execute();
 		};
 
-		final int delay = 100 * future.getExecutions();
+		final int delay = (int) (100 * Math.pow(2, future.getExecutions()));
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 
 		return true;
@@ -361,7 +361,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 			execute();
 		};
 
-		final int delay = 100 * globalRetryCounter;
+		final int delay = (int) (100 * Math.pow(2, globalRetryCounter));
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 
 		return true;
