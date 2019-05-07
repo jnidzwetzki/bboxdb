@@ -40,7 +40,7 @@ public class TestFixedFutureStore {
 	/**
 	 * Remove on empty list
 	 */
-	@Test(timeout=5000)
+	@Test(timeout=10_000)
 	public void testRemove1() {
 		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
 		futureStore.removeCompleteFutures();
@@ -49,7 +49,7 @@ public class TestFixedFutureStore {
 	/**
 	 * Add more futures in failed state
 	 */
-	@Test(timeout=5000)
+	@Test(timeout=10_000)
 	public void testTupleStore1() {
 		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
 
@@ -62,7 +62,7 @@ public class TestFixedFutureStore {
 	/**
 	 * Add more futures in done state
 	 */
-	@Test(timeout=5000)
+	@Test(timeout=10_000)
 	public void testTupleStore2() {
 		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
 
@@ -81,7 +81,7 @@ public class TestFixedFutureStore {
 	 * Add more futures in failed state and count failed callbacks
 	 * @throws InterruptedException
 	 */
-	@Test(timeout=5000)
+	@Test(timeout=10_000)
 	public void testTupleStore3() throws InterruptedException {
 		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
 		final AtomicInteger atomicInteger = new AtomicInteger(0);
@@ -105,7 +105,7 @@ public class TestFixedFutureStore {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	@Test(timeout=5000)
+	@Test(timeout=10_000)
 	public void writeStatistics() throws InterruptedException, IOException {
 
 		final File tempFile = File.createTempFile("test-", ".tmp");
