@@ -175,7 +175,8 @@ public class TestPolygon {
 				polygon2.getPointList().get(polygon2.getNumberOfPoints() - 1));
 		
 		final Polygon polygon3 = Polygon.fromGeoJson(polygon.toGeoJson());
-		Assert.assertEquals(6, polygon3.getNumberOfPoints());
+
+		Assert.assertEquals(9, polygon3.getNumberOfPoints());
 		Assert.assertEquals(polygon3.getPointList().get(0), 
 				polygon3.getPointList().get(polygon3.getNumberOfPoints() - 1));
 	}

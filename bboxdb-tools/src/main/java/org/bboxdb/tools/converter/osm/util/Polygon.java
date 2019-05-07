@@ -216,33 +216,41 @@ public class Polygon implements Serializable {
 
 		if(pointList.isEmpty()) {
 			// Nothing to add
-		} else if(pointList.size() == 1) {
-			geometryJson.put(JSON_TYPE, "Point");
-			coordinateJson.put(pointList.get(0).getX());
-			coordinateJson.put(pointList.get(0).getY());
 		} else {
-			geometryJson.put(JSON_TYPE, "Polygon");
+			final OSMPoint firstPoint = pointList.get(0);
+			
+			if(pointList.size() == 1) {
+				geometryJson.put(JSON_TYPE, "Point");
+				coordinateJson.put(firstPoint.getX());
+				coordinateJson.put(firstPoint.getY());
+			} else {
+				geometryJson.put(JSON_TYPE, "Polygon");
 
-			final JSONArray pointsJson = new JSONArray();
-			coordinateJson.put(pointsJson);
-			
-			for(OSMPoint point : pointList) {
-				final JSONArray coordinatesJson = new JSONArray();
-				pointsJson.put(coordinatesJson);
+				final JSONArray pointsJson = new JSONArray();
+				coordinateJson.put(pointsJson);
 				
-				coordinatesJson.put(point.getX());
-				coordinatesJson.put(point.getY());
-			}
-			
-			// Repair: Close the polygon if needed
-			if(repair)  {
-				if(! pointList.get(0).equals(pointList.get(pointList.size() - 1))) {
-					final OSMPoint point = pointList.get(0);
+				for(final OSMPoint point : pointList) {
 					final JSONArray coordinatesJson = new JSONArray();
 					pointsJson.put(coordinatesJson);
 					
 					coordinatesJson.put(point.getX());
 					coordinatesJson.put(point.getY());
+				}
+				
+				// Repair: Close the polygon if needed
+				if(repair)  {
+					final OSMPoint lastPoint = pointList.get(pointList.size() - 1);
+					
+					// Add reverse order of points to close the polygon if repair needed
+					if(! firstPoint.equals(lastPoint)) {
+						for(int i = pointList.size() - 2; i >= 0; i--) {
+							final OSMPoint point = pointList.get(i);
+							final JSONArray coordinatesJson = new JSONArray();							
+							coordinatesJson.put(point.getX());
+							coordinatesJson.put(point.getY());
+							pointsJson.put(coordinatesJson);
+						}
+					}
 				}
 			}
 		}
