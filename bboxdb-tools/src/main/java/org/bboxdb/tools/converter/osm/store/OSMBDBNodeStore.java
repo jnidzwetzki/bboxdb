@@ -101,6 +101,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			
 			if(folder.exists()) {
 				System.err.println("Folder already exists, exiting: " + folderName);
+				System.exit(-1);
 			}
 			
 			folder.mkdirs();
