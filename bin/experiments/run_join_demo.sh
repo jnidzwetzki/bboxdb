@@ -30,18 +30,15 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-#grep name /export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD > /export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD_NAME
-#grep name /export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD > /export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD_NAME
-
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup osmgroup
 $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_road
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_forrest
-$BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD_NAME  -format geojson -table osmgroup_road
-$BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD_NAME  -format geojson -table osmgroup_forrest
+$BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD  -format geojson -table osmgroup_road
+$BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD  -format geojson -table osmgroup_forrest
 
 # The query range
-query_range="52.4,52.6:13.3,13.6"
+query_range="13.3,13.6:52.4,52.6"
 
 echo "===== Range query on road ====="
 read -p "Press enter to continue"
