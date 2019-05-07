@@ -8,13 +8,14 @@ order: 1
 
 ### Version 0.9.1 - TBD
 - Improvement: Returned tuples are now shown in CLI calls
+- Bugfix: Fixed GeoJSON longitude / latitude encoding
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script
 - New Feature: Added GeoJSON to bounding box converter
 - New Feature: Added support for streaming only tuples (user defined filter functions)
 - New Feature: Support for server based filter
-- New Feature: Added GeoJson geometry filter
+- New Feature: Added GeoJSON geometry filter
 - New Feature: Added support for streaming join filters
 - New Feature: Added support for user defined filters in streaming queries
 - Improvement: Continuous queries can be executed on a different join table
