@@ -129,6 +129,8 @@ public class CLI implements Runnable, AutoCloseable {
 		} finally {
 			CloseableHelper.closeWithoutException(cli);
 		}
+		
+		System.exit(0);
 	}
 
 	public void run() {
