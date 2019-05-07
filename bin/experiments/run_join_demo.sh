@@ -45,4 +45,9 @@ $BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_road -bbox  52.520,52.525:
 
 $BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_forrest -bbox  52.520,52.525:13.410,13.415
 
+
+echo "===== Bounding box join ====="
 $BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox 52.4,52.6:13.3,13.6
+
+echo "===== Spatial join ====="
+$BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox 52.4,52.6:13.3,13.6 -filter org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter -filtervalue ""
