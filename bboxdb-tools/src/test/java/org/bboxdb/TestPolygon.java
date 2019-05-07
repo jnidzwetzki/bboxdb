@@ -34,8 +34,9 @@ public class TestPolygon {
 		Assert.assertTrue(polygon.addPoint(67, 45));
 	}
 	
-	@Test
+	@Test(expected=Exception.class)
 	public void testJSONEncoding1() {
+		// Na valid GeoJSON
 		final Polygon polygon = new Polygon(45);
 		final String json = polygon.toGeoJson();
 		final Polygon polygon2 = Polygon.fromGeoJson(json);

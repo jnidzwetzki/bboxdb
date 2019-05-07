@@ -69,6 +69,19 @@ public class TestESRIGeometryUserDefinedFilter {
 			+ "\"properties\":{\"natural\":\"wood\",\"name\":\"Liebesinsel\",\"place\":\"islet\"}}";
 	
 	final Tuple tuple4 = new Tuple("4", Hyperrectangle.FULL_SPACE, GEO_JSON4.getBytes());
+	
+	final String GEO_JSON5 = "{\"geometry\":{\"coordinates\":[[13.3529075,52.5096137],"
+			+ "[13.3532205,52.509593800000005],[13.3535318,52.509594400000005],"
+			+ "[13.3539159,52.5096154],[13.3562676,52.509819300000004],"
+			+ "[13.3564819,52.50983840000001]],\"type\":\"LineString\"},"
+			+ "\"id\":66514461,\"type\":\"Feature\",\"properties\":"
+			+ "{\"sidewalk\":\"right\",\"ref\":\"L 1137\","
+			+ "\"maxspeed:conditional\":\"30@(07:00-17:00)\","
+			+ "\"surface\":\"asphalt\",\"lanes\":\"2\",\"maxspeed\":\"50\","
+			+ "\"name\":\"Tiergartenstraße\",\"highway\":\"secondary\","
+			+ "\"postal_code\":\"10785\",\"source:maxspeed\":\"sign\",\"cycleway\":\"lane\"}}";
+
+	final Tuple tuple5 = new Tuple("5", Hyperrectangle.FULL_SPACE, GEO_JSON5.getBytes());
 
 	@Test
 	public void testGeometry1() {
@@ -101,5 +114,11 @@ public class TestESRIGeometryUserDefinedFilter {
 	public void testGeometry5() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertTrue(filter.filterJoinCandidate(tuple4, tuple4, ""));
+	}
+	
+	@Test
+	public void testGeometry6() {
+		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertTrue(filter.filterJoinCandidate(tuple5, tuple5, ""));
 	}
 }

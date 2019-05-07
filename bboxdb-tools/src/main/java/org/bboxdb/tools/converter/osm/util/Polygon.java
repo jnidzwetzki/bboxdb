@@ -40,6 +40,9 @@ public class Polygon implements Serializable {
 	 * The JSON constant for type
 	 */
 	private static final String JSON_TYPE = "type";
+	private static final String JSON_TYPE_POLYGON = "Polygon";
+	private static final String JSON_TYPE_LINESTRING = "LineString";
+	private static final String JSON_TYPE_POINT = "Point";
 
 	/**
 	 * The JSON constant for properties
@@ -203,15 +206,17 @@ public class Polygon implements Serializable {
 			final OSMPoint lastPoint = pointList.get(pointList.size() - 1);
 
 			if(pointList.size() == 1) {
-				geometryJson.put(JSON_TYPE, "Point");
+				geometryJson.put(JSON_TYPE, JSON_TYPE_POINT);
 				coordinateJson.put(firstPoint.getX());
 				coordinateJson.put(firstPoint.getY());
 			} else if(! firstPoint.equals(lastPoint)) {
-				geometryJson.put(JSON_TYPE, "LineString");
+				geometryJson.put(JSON_TYPE, JSON_TYPE_LINESTRING);
 				addCoordinatesToJSON(coordinateJson);
 			} else {
-				geometryJson.put(JSON_TYPE, "Polygon");
-				addCoordinatesToJSON(coordinateJson);
+				geometryJson.put(JSON_TYPE, JSON_TYPE_POLYGON);
+				final JSONArray pointsJson = new JSONArray();
+				addCoordinatesToJSON(pointsJson);
+				coordinateJson.put(pointsJson);
 			}
 		}
 
@@ -228,16 +233,12 @@ public class Polygon implements Serializable {
 	 * Add the coordinates to JSON
 	 * @param coordinateJson
 	 */
-	private void addCoordinatesToJSON(final JSONArray coordinateJson) {
-		final JSONArray pointsJson = new JSONArray();
-		coordinateJson.put(pointsJson);
-		
+	private void addCoordinatesToJSON(final JSONArray jsonArray) {
 		for(final OSMPoint point : pointList) {
 			final JSONArray coordinatesJson = new JSONArray();
-			pointsJson.put(coordinatesJson);
-			
 			coordinatesJson.put(point.getX());
 			coordinatesJson.put(point.getY());
+			jsonArray.put(coordinatesJson);
 		}
 	}
 
@@ -255,22 +256,30 @@ public class Polygon implements Serializable {
 		// Geometry
 		final JSONObject geometry = jsonObject.getJSONObject(JSON_GEOMETRY);
 		final JSONArray coordinates = geometry.getJSONArray(JSON_COORDINATES);
-
-		if(coordinates.length() == 2 && coordinates.optJSONArray(0) == null) {
-			// Point
+		final String type = geometry.getString(JSON_TYPE);
+		
+		if(JSON_TYPE_POINT.equals(type)) {
 			final double coordiante0 = coordinates.getDouble(0);
 			final double coordiante1 = coordinates.getDouble(1);
 			polygon.addPoint(coordiante0, coordiante1);
-		} else if(coordinates.length() == 1) {
+		} else if(JSON_TYPE_LINESTRING.equals(type)) {
+			for(int i = 0; i < coordinates.length(); i++) {
+				final JSONArray jsonArray = coordinates.getJSONArray(i);
+				final double coordiante0 = jsonArray.getDouble(0);
+				final double coordiante1 = jsonArray.getDouble(1);
+				polygon.addPoint(coordiante0, coordiante1);
+			}
+		} else if(JSON_TYPE_POLYGON.equals(type)) {
 			final JSONArray coordinatesArray = coordinates.getJSONArray(0);
 			
-			// Polygon
 			for(int i = 0; i < coordinatesArray.length(); i++) {
 				final JSONArray jsonArray = coordinatesArray.getJSONArray(i);
 				final double coordiante0 = jsonArray.getDouble(0);
 				final double coordiante1 = jsonArray.getDouble(1);
 				polygon.addPoint(coordiante0, coordiante1);
 			}
+		} else {
+			throw new IllegalArgumentException("Unable to handle geometry of type: " + type);
 		}
 
 		// Properties
