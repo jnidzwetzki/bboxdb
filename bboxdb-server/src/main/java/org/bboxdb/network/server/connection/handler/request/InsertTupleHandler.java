@@ -211,6 +211,8 @@ public class InsertTupleHandler implements RequestHandler {
 			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions, 
 			final EnumSet<InsertOption> insertOptions) throws RejectedException {
 
+		logger.info("--> Got Insert package");
+		
 		try {
 			final String fullname = requestTable.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
