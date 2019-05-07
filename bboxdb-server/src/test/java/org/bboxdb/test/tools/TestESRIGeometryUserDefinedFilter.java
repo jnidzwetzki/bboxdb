@@ -53,7 +53,22 @@ public class TestESRIGeometryUserDefinedFilter {
 			"}";
 	
 	final Tuple tuple3 = new Tuple("3", Hyperrectangle.FULL_SPACE, GEO_JSON3.getBytes());
-
+	
+	final String GEO_JSON4 = "{\"geometry\":{\"coordinates\":"
+			+ "[[[52.433929400000004,13.4176815],[52.4338558,13.4175515],"
+			+ "[52.433778100000005,13.417588400000001],[52.433696700000006,13.4176991],"
+			+ "[52.433620000000005,13.4177312],[52.433498500000006,13.4177038],"
+			+ "[52.433477100000005,13.417780800000001],[52.4334786,13.417866400000001],"
+			+ "[52.4335226,13.417992000000002],[52.4335449,13.418151600000002],"
+			+ "[52.433542800000005,13.4182857],[52.433566400000004,13.4184006],"
+			+ "[52.433641900000005,13.4183781],[52.43370650000001,13.4182859],"
+			+ "[52.4337505,13.4181451],[52.4338193,13.418046100000002],"
+			+ "[52.433905900000006,13.417984500000001],[52.433940400000004,13.417840700000001],"
+			+ "[52.433929400000004,13.4176815]]],"
+			+ "\"type\":\"Polygon\"},\"id\":51019677,\"type\":\"Feature\","
+			+ "\"properties\":{\"natural\":\"wood\",\"name\":\"Liebesinsel\",\"place\":\"islet\"}}";
+	
+	final Tuple tuple4 = new Tuple("4", Hyperrectangle.FULL_SPACE, GEO_JSON4.getBytes());
 
 	@Test
 	public void testGeometry1() {
@@ -74,5 +89,17 @@ public class TestESRIGeometryUserDefinedFilter {
 	public void testGeometry3() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertTrue(filter.filterJoinCandidate(tuple1, tuple3, ""));
+	}
+	
+	@Test
+	public void testGeometry4() {
+		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertFalse(filter.filterJoinCandidate(tuple1, tuple4, ""));
+	}
+	
+	@Test
+	public void testGeometry5() {
+		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertTrue(filter.filterJoinCandidate(tuple4, tuple4, ""));
 	}
 }

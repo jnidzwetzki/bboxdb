@@ -18,6 +18,7 @@
 package org.bboxdb.network.query.filter;
 
 import org.bboxdb.storage.entity.Tuple;
+import org.json.JSONObject;
 
 import com.esri.core.geometry.MapOGCStructure;
 import com.esri.core.geometry.Operator;
@@ -38,22 +39,38 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 */
 	@Override
 	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final String customData) {
+		final OGCGeometry geometry1 = extractGeometry(tuple1);
+		final OGCGeometry geometry2 = extractGeometry(tuple2);
+
+	    return geometry1.intersects(geometry2);
+	}
+	
+	/**
+	 * Extract the geometry from the tuple
+	 * @param tuple
+	 * @return
+	 */
+	private OGCGeometry extractGeometry(final Tuple tuple) {
 		final OperatorImportFromGeoJson op = (OperatorImportFromGeoJson) OperatorFactoryLocal
 		        .getInstance().getOperator(Operator.Type.ImportFromGeoJson);
 		
-		final String geoJson1 = new String(tuple1.getDataBytes());
-		final String geoJson2 = new String(tuple2.getDataBytes());
-		
-	    final MapOGCStructure structure1 = op.executeOGC(WktImportFlags.wktImportDefaults, geoJson1, null);
-	    final MapOGCStructure structure2 = op.executeOGC(WktImportFlags.wktImportDefaults, geoJson2, null);
+		final String geoJsonString = new String(tuple.getDataBytes());
 
-	    final OGCGeometry geometry1 = OGCGeometry.createFromOGCStructure(structure1.m_ogcStructure,
-	    		structure1.m_spatialReference);
-	    
-	    final OGCGeometry geometry2 = OGCGeometry.createFromOGCStructure(structure2.m_ogcStructure,
-	    		structure1.m_spatialReference);
-	    
-	    return geometry1.intersects(geometry2);
+		final JSONObject geoJson = new JSONObject(geoJsonString);
+		
+		// Extract geometry (if exists)
+		final JSONObject geometryObject = geoJson.optJSONObject("geometry");
+		
+		String jsonString = geoJsonString;
+
+		if(geometryObject != null) {
+			jsonString = geometryObject.toString();
+		}
+				
+	    final MapOGCStructure structure = op.executeOGC(WktImportFlags.wktImportDefaults, jsonString, null);
+
+	    return OGCGeometry.createFromOGCStructure(structure.m_ogcStructure,
+	    		structure.m_spatialReference);
 	}
 
 }
