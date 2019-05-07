@@ -339,7 +339,9 @@ public class OSMDataConverter {
 				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(node.getTags())) {
 					final Polygon geometricalStructure = new Polygon(node.getId());
-					geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
+					
+					// GeoJSON: [longitude, latitude]
+					geometricalStructure.addPoint(node.getLongitude(), node.getLatitude());
 					
 					for(final Tag tag : node.getTags()) {
 						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
@@ -390,7 +392,9 @@ public class OSMDataConverter {
 					// Perform search async
  					for(final WayNode wayNode : way.getWayNodes()) {
  						final SerializableNode node = osmNodeStore.getNodeForId(wayNode.getNodeId());
- 						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude()); 						
+ 						
+ 						// GeoJSON: [longitude, latitude]
+ 						geometricalStructure.addPoint(node.getLongitude(), node.getLatitude()); 						
 					}
  			
 					writePolygonToOutput(osmType, geometricalStructure);
