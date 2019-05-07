@@ -59,7 +59,7 @@ public class TestPolygon {
 		final Polygon polygon = new Polygon(47);
 		polygon.addPoint(4, 5);
 		polygon.addPoint(67, 45);
-		final String json = polygon.toGeoJson(false);
+		final String json = polygon.toGeoJson();
 		final Polygon polygon2 = Polygon.fromGeoJson(json);
 		Assert.assertTrue(polygon.equals(polygon2));
 		Assert.assertEquals(47, polygon2. getId());
@@ -74,7 +74,7 @@ public class TestPolygon {
 		polygon.addPoint(0, 12);
 		polygon.addPoint(2, 4);
 
-		final String json = polygon.toGeoJson(false);
+		final String json = polygon.toGeoJson();
 		final Polygon polygon2 = Polygon.fromGeoJson(json);
 		Assert.assertTrue(polygon.equals(polygon2));
 		Assert.assertEquals(47, polygon2. getId());
@@ -91,7 +91,7 @@ public class TestPolygon {
 
 		polygon.addProperty("key1", "value1");
 
-		final String json = polygon.toGeoJson(false);
+		final String json = polygon.toGeoJson();
 		final Polygon polygon2 = Polygon.fromGeoJson(json);
 		Assert.assertTrue(polygon.equals(polygon2));
 		Assert.assertEquals(47, polygon2. getId());
@@ -113,7 +113,7 @@ public class TestPolygon {
 		polygon.addProperty("key5", "value5");
 		polygon.addProperty("key6", "value6");
 
-		final String json = polygon.toGeoJson(false);
+		final String json = polygon.toGeoJson();
 		final Polygon polygon2 = Polygon.fromGeoJson(json);
 		Assert.assertTrue(polygon.equals(polygon2));
 		Assert.assertEquals(47, polygon2. getId());
@@ -135,8 +135,8 @@ public class TestPolygon {
 		polygon.addProperty("key5", "value5");
 		polygon.addProperty("key6", "value6");
 
-		final String json1 = polygon.toGeoJson(false);
-		final String json2 = polygon.toFormatedGeoJson(false);
+		final String json1 = polygon.toGeoJson();
+		final String json2 = polygon.toFormatedGeoJson();
 		
 		final String json3 = polygon.toGeoJson();
 		final String json4 = polygon.toFormatedGeoJson();
@@ -158,7 +158,7 @@ public class TestPolygon {
 	 * Test the automatically close of the polygons
 	 */
 	@Test
-	public void testPolygonAutoClose() {
+	public void testPolygonType() {
 		final Polygon polygon = new Polygon(47);
 		polygon.addPoint(4, 5);
 		polygon.addPoint(67, 45);
@@ -169,16 +169,19 @@ public class TestPolygon {
 		Assert.assertNotEquals(polygon.getPointList().get(0), 
 				polygon.getPointList().get(polygon.getNumberOfPoints() - 1));
 		
-		final Polygon polygon2 = Polygon.fromGeoJson(polygon.toGeoJson(false));
+		final String geoJson1 = polygon.toGeoJson();
+		final Polygon polygon2 = Polygon.fromGeoJson(geoJson1);
 		Assert.assertEquals(5, polygon2.getNumberOfPoints());
-		Assert.assertNotEquals(polygon2.getPointList().get(0), 
-				polygon2.getPointList().get(polygon2.getNumberOfPoints() - 1));
+		Assert.assertTrue(geoJson1.contains("LineString"));
 		
-		final Polygon polygon3 = Polygon.fromGeoJson(polygon.toGeoJson());
+		// Add end point
+		polygon.addPoint(4, 5);
 
-		Assert.assertEquals(9, polygon3.getNumberOfPoints());
-		Assert.assertEquals(polygon3.getPointList().get(0), 
-				polygon3.getPointList().get(polygon3.getNumberOfPoints() - 1));
+		final String geoJson2 = polygon.toGeoJson();
+		final Polygon polygon3 = Polygon.fromGeoJson(geoJson2);
+
+		Assert.assertEquals(6, polygon3.getNumberOfPoints());
+		Assert.assertTrue(geoJson2.contains("Polygon"));
 	}
 
 	/**

@@ -167,16 +167,7 @@ public class Polygon implements Serializable {
 	 * @return
 	 */
 	public String toFormatedGeoJson() {
-		return toFormatedGeoJson(true);
-	}
-
-	/**
-	 * Convert to formated geoJson
-	 * @param repair
-	 * @return
-	 */
-	public String toFormatedGeoJson(final boolean repair) {
-		final JSONObject featureJson = buildJSON(repair);
+		final JSONObject featureJson = buildJSON();
 		return featureJson.toString(3);
 	}
 
@@ -185,16 +176,7 @@ public class Polygon implements Serializable {
 	 * @return
 	 */
 	public String toGeoJson() {
-		return toGeoJson(true);
-	}
-
-	/**
-	 * Convert to geojson and repair defective geometries
-	 * @param b
-	 * @return
-	 */
-	public String toGeoJson(final boolean repair) {
-		final JSONObject featureJson = buildJSON(repair);
+		final JSONObject featureJson = buildJSON();
 		return featureJson.toString();
 	}
 
@@ -203,7 +185,7 @@ public class Polygon implements Serializable {
 	 * @param repair 
 	 * @return
 	 */
-	protected JSONObject buildJSON(final boolean repair) {
+	protected JSONObject buildJSON() {
 		final JSONObject featureJson = new JSONObject();
 		featureJson.put(JSON_TYPE, JSON_FEATURE);
 		featureJson.put(JSON_ID, id);
@@ -218,40 +200,18 @@ public class Polygon implements Serializable {
 			// Nothing to add
 		} else {
 			final OSMPoint firstPoint = pointList.get(0);
-			
+			final OSMPoint lastPoint = pointList.get(pointList.size() - 1);
+
 			if(pointList.size() == 1) {
 				geometryJson.put(JSON_TYPE, "Point");
 				coordinateJson.put(firstPoint.getX());
 				coordinateJson.put(firstPoint.getY());
+			} else if(! firstPoint.equals(lastPoint)) {
+				geometryJson.put(JSON_TYPE, "LineString");
+				addCoordinatesToJSON(coordinateJson);
 			} else {
 				geometryJson.put(JSON_TYPE, "Polygon");
-
-				final JSONArray pointsJson = new JSONArray();
-				coordinateJson.put(pointsJson);
-				
-				for(final OSMPoint point : pointList) {
-					final JSONArray coordinatesJson = new JSONArray();
-					pointsJson.put(coordinatesJson);
-					
-					coordinatesJson.put(point.getX());
-					coordinatesJson.put(point.getY());
-				}
-				
-				// Repair: Close the polygon if needed
-				if(repair)  {
-					final OSMPoint lastPoint = pointList.get(pointList.size() - 1);
-					
-					// Add reverse order of points to close the polygon if repair needed
-					if(! firstPoint.equals(lastPoint)) {
-						for(int i = pointList.size() - 2; i >= 0; i--) {
-							final OSMPoint point = pointList.get(i);
-							final JSONArray coordinatesJson = new JSONArray();							
-							coordinatesJson.put(point.getX());
-							coordinatesJson.put(point.getY());
-							pointsJson.put(coordinatesJson);
-						}
-					}
-				}
+				addCoordinatesToJSON(coordinateJson);
 			}
 		}
 
@@ -262,6 +222,23 @@ public class Polygon implements Serializable {
 		}
 		
 		return featureJson;
+	}
+
+	/**
+	 * Add the coordinates to JSON
+	 * @param coordinateJson
+	 */
+	private void addCoordinatesToJSON(final JSONArray coordinateJson) {
+		final JSONArray pointsJson = new JSONArray();
+		coordinateJson.put(pointsJson);
+		
+		for(final OSMPoint point : pointList) {
+			final JSONArray coordinatesJson = new JSONArray();
+			pointsJson.put(coordinatesJson);
+			
+			coordinatesJson.put(point.getX());
+			coordinatesJson.put(point.getY());
+		}
 	}
 
 	/**
