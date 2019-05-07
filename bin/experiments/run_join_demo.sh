@@ -40,14 +40,21 @@ $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_forrest
 $BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD_NAME  -format geojson -table osmgroup_road
 $BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD_NAME  -format geojson -table osmgroup_forrest
 
+# The query range
+query_range="52.4,52.6:13.3,13.6"
 
-$BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_road -bbox  52.520,52.525:13.410,13.415
+echo "===== Range query on road ====="
+read -p "Press enter to continue"
+$BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_road -bbox $query_range
 
-$BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_forrest -bbox  52.520,52.525:13.410,13.415
-
+echo "===== Range query on forest ====="
+read -p "Press enter to continue"
+$BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_forrest -bbox $query_range
 
 echo "===== Bounding box join ====="
-$BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox 52.4,52.6:13.3,13.6
+read -p "Press enter to continue"
+$BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox $query_range
 
 echo "===== Spatial join ====="
-$BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox 52.4,52.6:13.3,13.6 -filter org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter -filtervalue ""
+read -p "Press enter to continue"
+$BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox $query_range -filter org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter 
