@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -88,8 +89,14 @@ public class DistributionRegionIdMapper {
 	 * @param regionId
 	 * @return
 	 */
-	public Hyperrectangle getSpaceForRegionId(final long regionId) {
-		return regions.get(regionId);
+	public Optional<Hyperrectangle> getSpaceForRegionId(final long regionId) {
+		final Hyperrectangle rectangle = regions.get(regionId);
+		
+		if(rectangle == null) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(rectangle);
 	}
 	
 	/**

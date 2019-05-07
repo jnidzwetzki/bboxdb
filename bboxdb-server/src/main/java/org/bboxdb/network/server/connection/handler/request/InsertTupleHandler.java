@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -234,17 +235,17 @@ public class InsertTupleHandler implements RequestHandler {
 				
 				final long regionid = tupleStoreName.getRegionId().getAsLong();
 				
-				final Hyperrectangle space 
+				final Optional<Hyperrectangle> space 
 					= regionIdMapper.getSpaceForRegionId(regionid);
 				
-				if(space == null) {
+				if(! space.isPresent()) {
 					throw new IllegalArgumentException("Unable to get space for region: " + regionid);
 				}
 				
 				final Hyperrectangle tupleBBox = tuple.getBoundingBox();
 				final boolean storeOnDisk = ! insertOptions.contains(InsertOption.STREAMING_ONLY);
 				
-				if(space.intersects(tupleBBox)) {
+				if(space.get().intersects(tupleBBox)) {
 					final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
 					storageManager.put(tuple, storeOnDisk, true);
 				} else { 
