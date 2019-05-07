@@ -363,11 +363,13 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 
+			long resultTuples = 0;
 			for(final Tuple tuple : resultFuture) {
 				printTuple(tuple);
+				resultTuples++;
 			}
 
-			System.out.println("Query done");
+			System.out.format("Query done - got %d tuples back%n", resultTuples);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);
@@ -417,11 +419,13 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 
+			long resultTuples = 0;
 			for(final JoinedTuple tuple : resultFuture) {
 				printJoinedTuple(tuple);
+				resultTuples++;
 			}
 
-			System.out.println("Join done");
+			System.out.format("Join done - got %d tuples back%n", resultTuples);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);
@@ -469,11 +473,13 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 
+			long resultTuples = 0;
 			for(final JoinedTuple tuple : resultFuture) {
 				printJoinedTuple(tuple);
+				resultTuples++;
 			}
 
-			System.out.println("Query done");
+			System.out.format("Query done - got %d tuples back%n", resultTuples);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);

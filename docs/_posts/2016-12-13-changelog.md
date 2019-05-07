@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.1 - TBD
+- Improvement: Returned tuples are now shown in CLI calls
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script
