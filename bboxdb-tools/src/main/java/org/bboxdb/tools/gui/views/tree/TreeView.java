@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui.views;
+package org.bboxdb.tools.gui.views.tree;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.tools.gui.GuiModel;
+import org.bboxdb.tools.gui.views.View;
 
 public class TreeView implements View {
 

@@ -43,10 +43,10 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.tools.gui.views.OSMView;
-import org.bboxdb.tools.gui.views.TreeView;
 import org.bboxdb.tools.gui.views.View;
 import org.bboxdb.tools.gui.views.ViewMode;
+import org.bboxdb.tools.gui.views.osm.OSMView;
+import org.bboxdb.tools.gui.views.tree.TreeView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

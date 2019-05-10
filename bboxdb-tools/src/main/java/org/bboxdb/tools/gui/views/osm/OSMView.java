@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui.views;
+package org.bboxdb.tools.gui.views.osm;
 
 import java.awt.BorderLayout;
 
@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
 import org.bboxdb.tools.gui.GuiModel;
+import org.bboxdb.tools.gui.views.View;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;

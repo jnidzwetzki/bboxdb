@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui.views;
+package org.bboxdb.tools.gui.views.tree;
 
 import java.awt.Color;
 import java.awt.Dimension;
