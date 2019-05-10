@@ -118,8 +118,8 @@ public class ConnectDialog {
 		builder.addLabel("Clustername", cc.xy (1,  5));
 		builder.add(clustername, cc.xy(3, 5));
 		
-		builder.add(connectButton, cc.xy(1, 7));
-		builder.add(closeButton, cc.xy(3, 7));
+		builder.add(closeButton, cc.xy(1, 7));
+		builder.add(connectButton, cc.xy(3, 7));
 		return builder;
 	}
 
