@@ -52,22 +52,22 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * The BBoxDB instances
 	 */
-	protected final List<BBoxDBInstance> bboxdbInstances;
+	private final List<BBoxDBInstance> bboxdbInstances;
 
 	/**
 	 * The distribution group to display
 	 */
-	protected String distributionGroup;
+	private String distributionGroup;
 
 	/**
 	 * The reference to the gui window
 	 */
-	protected BBoxDBGui bboxdbGui;
+	private BBoxDBGui bboxdbGui;
 
 	/**
 	 * The zookeeper client
 	 */
-	protected final ZookeeperClient zookeeperClient;
+	private final ZookeeperClient zookeeperClient;
 
 	/**
 	 * The space partitioner
@@ -77,19 +77,19 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * The distribution group adapter
 	 */
-	protected final DistributionGroupAdapter distributionGroupZookeeperAdapter;
+	private final DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The event handler
 	 */
-	protected BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer = (event, instance) -> {
+	private BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer = (event, instance) -> {
 		handleDistributedEvent(event, instance);
 	};
 
 	/**
 	 * The logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
+	private final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
 
 	public GuiModel(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
@@ -111,7 +111,7 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * Unregister the tree change listener
 	 */
-	protected void unregisterTreeChangeListener() {
+	private void unregisterTreeChangeListener() {
 		if (spacePartitioner != null) {
 			spacePartitioner.unregisterCallback(this);
 		}
@@ -132,7 +132,7 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * Update the system state
 	 */
-	protected void updateBBoxDBInstances() {
+	private void updateBBoxDBInstances() {
 		synchronized (bboxdbInstances) {
 			bboxdbInstances.clear();
 			bboxdbInstances.addAll(BBoxDBInstanceManager.getInstance()
