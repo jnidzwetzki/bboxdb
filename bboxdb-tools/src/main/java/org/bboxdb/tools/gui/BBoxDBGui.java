@@ -55,52 +55,52 @@ public class BBoxDBGui {
 	/**
 	 * The main frame
 	 */
-	protected JFrame mainframe;
+	private JFrame mainframe;
 
 	/**
 	 * The main panel
 	 */
-	protected JSplitPane mainPanel;
+	private JSplitPane mainPanel;
 
 	/**
 	 * The list model for the distribution groups
 	 */
-	protected DefaultListModel<String> listModel;
+	private DefaultListModel<String> listModel;
 
 	/**
 	 * The left menu list
 	 */
-	protected JList<String> leftList;
+	private JList<String> leftList;
 
 	/**
 	 * The Menu bar
 	 */
-	protected JMenuBar menuBar;
+	private JMenuBar menuBar;
 	
 	/**
 	 * The status label
 	 */
-	protected JLabel statusLabel;
+	private JLabel statusLabel;
 
 	/**
 	 * The table Model
 	 */
-	protected BBoxDBInstanceTableModel tableModel;
+	private BBoxDBInstanceTableModel tableModel;
 
 	/**
 	 * The GUI Model
 	 */
-	protected GuiModel guiModel;
+	private GuiModel guiModel;
 	
 	/**
 	 * The view mode
 	 */
-	protected ViewMode viewMode = ViewMode.TREE_MODE;
+	private ViewMode viewMode = ViewMode.TREE_MODE;
 
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(BBoxDBGui.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBGui.class);
 
 	public BBoxDBGui(final GuiModel guiModel) {
 		this.guiModel = guiModel;
@@ -112,7 +112,7 @@ public class BBoxDBGui {
 	 */
 	public void run() {
 
-		mainframe = new JFrame("BBoxDB - Data Distribution");
+		mainframe = new JFrame("BBoxDB - GUI Client");
 
 		setupMenu();
 		buildMainPanel();
@@ -178,7 +178,7 @@ public class BBoxDBGui {
 	 * Initialize the GUI panel
 	 * 
 	 */
-	protected void buildMainPanel() {
+	private void buildMainPanel() {
 		
 		final JComponent rightScrollPanel = getRightPanel();
 
@@ -189,7 +189,7 @@ public class BBoxDBGui {
 		mainPanel.setDividerLocation(150);
 	}
 
-	protected JComponent getRightPanel() {
+	private JComponent getRightPanel() {
 		View view = null;
 			
 		if(viewMode == ViewMode.TREE_MODE) {
@@ -204,7 +204,7 @@ public class BBoxDBGui {
 	/**
 	 * Update the main panel
 	 */
-	protected void updateMainPanel() {
+	private void updateMainPanel() {
 		final int oldLocation = mainPanel.getDividerLocation();
 		mainPanel.setRightComponent(getRightPanel());
 		mainPanel.setDividerLocation(oldLocation);
@@ -214,7 +214,7 @@ public class BBoxDBGui {
 	 * Generate the left panel
 	 * @return
 	 */
-	protected JList<String> getLeftPanel() {
+	private JList<String> getLeftPanel() {
 
 		listModel = new DefaultListModel<String>();
 
@@ -238,7 +238,7 @@ public class BBoxDBGui {
 	 * Refresh the distributions groups
 	 * @param listModel
 	 */
-	protected void refreshDistributionGroups(final DefaultListModel<String> listModel) {
+	private void refreshDistributionGroups(final DefaultListModel<String> listModel) {
 		final List<String> distributionGroups = new ArrayList<>();
 
 		try {
@@ -262,7 +262,7 @@ public class BBoxDBGui {
 	/**
 	 * Create the menu of the main window
 	 */
-	protected void setupMenu() {
+	private void setupMenu() {
 		menuBar = new JMenuBar();
 		mainframe.setJMenuBar(menuBar);
 
