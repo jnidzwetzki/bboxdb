@@ -21,28 +21,23 @@ import java.awt.BorderLayout;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.event.MouseInputListener;
 
 import org.bboxdb.tools.gui.GuiModel;
+import org.bboxdb.tools.gui.util.MapViewerFactory;
 import org.bboxdb.tools.gui.views.View;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.OSMTileFactoryInfo;
-import org.jxmapviewer.input.PanMouseInputListener;
-import org.jxmapviewer.viewer.DefaultTileFactory;
-import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.TileFactoryInfo;
 
 public class OSMView implements View {
 
 	/**
 	 * The gui model
 	 */
-	protected final GuiModel guiModel;
+	private final GuiModel guiModel;
 	
 	/**
 	 * The map viewer
 	 */
-	protected JXMapViewer mapViewer;
+	private JXMapViewer mapViewer;
 
 	public OSMView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
@@ -51,7 +46,7 @@ public class OSMView implements View {
 	@Override
 	public JPanel getJPanel() {
 		
-		createMapViewer();
+		mapViewer = createMapViewer();
 		
 		final JPanel mainPanel = new JPanel();
 		
@@ -61,112 +56,33 @@ public class OSMView implements View {
 		final JPanel buttonPanel = new JPanel();
 		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 		
-		final JButton zoomInButton = getZoomInButton();
+		final JButton zoomInButton = MapViewerFactory.getZoomInButton(mapViewer);
 		buttonPanel.add(zoomInButton);
 
-		final JButton zoomOutButton = getZoomOutButton();		
+		final JButton zoomOutButton = MapViewerFactory.getZoomOutButton(mapViewer);		
 		buttonPanel.add(zoomOutButton);
 		
-		final JButton showWolrdButton = getShowWorldButton();
+		final JButton showWolrdButton = MapViewerFactory.getShowWorldButton(mapViewer);
 		buttonPanel.add(showWolrdButton);
 		
-		final JButton showHagenButton = getShowHagenButton();
+		final JButton showHagenButton = MapViewerFactory.getShowHagenButton(mapViewer);
 		buttonPanel.add(showHagenButton);
 
 		return mainPanel;
 	}
 	
 	/**
-	 * Get the show world button
-	 * @return
-	 */
-	protected JButton getShowWorldButton() {
-		final JButton showWorldButton = new JButton("Show world");
-		showWorldButton.addActionListener((l) -> {
-			mapViewer.setZoom(17);
-		}
-		); 
-		return showWorldButton;
-	}
-
-	/**
-	 * Get the zoom in button
-	 * @return
-	 */
-	protected JButton getZoomInButton() {
-		final JButton zoomInButton = new JButton("Zoom in");
-		zoomInButton.addActionListener((l) -> {
-			final int zoom = mapViewer.getZoom();
-			mapViewer.setZoom(zoom - 1);
-		}
-		); 
-		return zoomInButton;
-	}
-
-	/**
-	 * Get the zoom out button
-	 * @return
-	 */
-	protected JButton getZoomOutButton() {
-		final JButton zoomOutButton = new JButton("Zoom out");
-		zoomOutButton.addActionListener((l) -> {
-			final int zoom = mapViewer.getZoom();
-			mapViewer.setZoom(zoom + 1);
-		}
-		); 
-		return zoomOutButton;
-	}
-	
-	/**
-	 * Get the show hagen button
-	 * @return
-	 */
-	protected JButton getShowHagenButton() {
-		final JButton showHagenButton = new JButton("Show Hagen");
-		showHagenButton.addActionListener((l) -> {
-			showHagen();
-		}
-		); 
-		return showHagenButton;
-	}
-
-	/**
 	 * Get an instance of the map viewer
 	 * @return
 	 */
-	protected JXMapViewer createMapViewer() {
-		mapViewer = new JXMapViewer();
-
-		// Create a TileFactoryInfo for OpenStreetMap
-		final TileFactoryInfo info = new OSMTileFactoryInfo();
-		final DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-		mapViewer.setTileFactory(tileFactory);
-	
-		final MouseInputListener mia = new PanMouseInputListener(mapViewer);
-		mapViewer.addMouseListener(mia);
-		mapViewer.addMouseMotionListener(mia);
+	private JXMapViewer createMapViewer() {
+		final JXMapViewer mapViewer = MapViewerFactory.createMapViewer();
 		
-		// Use 8 threads in parallel to load the tiles
-		tileFactory.setThreadPoolSize(8);
-
-		// Set the focus
-		showHagen();
+		// The data distribution painter
+		final OSMOverlayPainter distributionPainter = new OSMOverlayPainter(guiModel);
+		mapViewer.setOverlayPainter(distributionPainter);
 		
-		// The KD Tree painter
-		final OSMOverlayPainter kdosmPainter = new OSMOverlayPainter(guiModel);
-		mapViewer.setOverlayPainter(kdosmPainter);
-			
 		return mapViewer;
-	}
-
-	/**
-	 * Show the university of Hagen in the viewer
-	 * @param mapViewer
-	 */
-	protected void showHagen() {
-		final GeoPosition hagen = new GeoPosition(51.376255, 7.493675);
-		mapViewer.setZoom(7);
-		mapViewer.setAddressLocation(hagen);
 	}
 
 	@Override

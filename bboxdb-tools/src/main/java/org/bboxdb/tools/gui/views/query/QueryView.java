@@ -17,11 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
+import java.awt.BorderLayout;
+
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.bboxdb.tools.gui.GuiModel;
+import org.bboxdb.tools.gui.util.MapViewerFactory;
 import org.bboxdb.tools.gui.views.View;
+import org.jxmapviewer.JXMapViewer;
 
 public class QueryView implements View {
 
@@ -29,6 +34,12 @@ public class QueryView implements View {
 	 * The GUI model
 	 */
 	private final GuiModel guiModel;
+	
+	/**
+	 * The map viewer
+	 */
+	private JXMapViewer mapViewer;
+
 
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
@@ -36,10 +47,33 @@ public class QueryView implements View {
 	
 	@Override
 	public JComponent getJPanel() {
-		return new JPanel();
+		mapViewer = MapViewerFactory.createMapViewer();
+		
+		final JPanel mainPanel = new JPanel();
+		
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(mapViewer, BorderLayout.CENTER);
+
+		final JPanel buttonPanel = new JPanel();
+		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+		
+		final JButton zoomInButton = MapViewerFactory.getZoomInButton(mapViewer);
+		buttonPanel.add(zoomInButton);
+
+		final JButton zoomOutButton = MapViewerFactory.getZoomOutButton(mapViewer);		
+		buttonPanel.add(zoomOutButton);
+		
+		final JButton showWolrdButton = MapViewerFactory.getShowWorldButton(mapViewer);
+		buttonPanel.add(showWolrdButton);
+		
+		final JButton showHagenButton = MapViewerFactory.getShowHagenButton(mapViewer);
+		buttonPanel.add(showHagenButton);
+
+		return mainPanel;	
 	}
 
 	@Override
 	public boolean isGroupSelectionNeeded() {
 		return false;
-	}}
+	}
+}
