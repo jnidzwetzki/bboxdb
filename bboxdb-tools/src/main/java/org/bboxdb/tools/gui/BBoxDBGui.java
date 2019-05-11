@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -45,8 +46,9 @@ import javax.swing.border.BevelBorder;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.tools.gui.views.View;
 import org.bboxdb.tools.gui.views.ViewMode;
-import org.bboxdb.tools.gui.views.osm.OSMView;
-import org.bboxdb.tools.gui.views.tree.TreeView;
+import org.bboxdb.tools.gui.views.query.QueryView;
+import org.bboxdb.tools.gui.views.regiondepended.osm.OSMView;
+import org.bboxdb.tools.gui.views.regiondepended.tree.TreeView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,17 +62,7 @@ public class BBoxDBGui {
 	/**
 	 * The main panel
 	 */
-	private JSplitPane mainPanel;
-
-	/**
-	 * The list model for the distribution groups
-	 */
-	private DefaultListModel<String> listModel;
-
-	/**
-	 * The left menu list
-	 */
-	private JList<String> leftList;
+	private JComponent mainPanel;
 
 	/**
 	 * The Menu bar
@@ -115,7 +107,9 @@ public class BBoxDBGui {
 		mainframe = new JFrame("BBoxDB - GUI Client");
 
 		setupMenu();
-		buildMainPanel();
+		mainPanel = buildSplitPane();
+		updateMainPanel();
+
 
 		tableModel = getTableModel();
 		final JTable table = new JTable(tableModel);
@@ -136,8 +130,10 @@ public class BBoxDBGui {
 		mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainframe.setLayout(new BorderLayout());
 		mainframe.add(mainPanel, BorderLayout.CENTER);
-		
+
 		final JPanel southPanel = new JPanel();
+		southPanel.setLayout(new BorderLayout());
+		southPanel.add(tableScrollPane, BorderLayout.CENTER);
 
 		final JPanel statusPanel = new JPanel();
 		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
@@ -147,13 +143,10 @@ public class BBoxDBGui {
 		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		statusPanel.add(statusLabel);
 		
-		southPanel.setLayout(new BorderLayout());
-		southPanel.add(tableScrollPane, BorderLayout.CENTER);
 		southPanel.add(statusPanel, BorderLayout.SOUTH);
-
 		mainframe.add(southPanel, BorderLayout.SOUTH);
-		
 		mainframe.pack();
+		
 		mainframe.setLocationRelativeTo(null);
 		mainframe.setVisible(true);
 	}
@@ -176,62 +169,102 @@ public class BBoxDBGui {
 
 	/**
 	 * Initialize the GUI panel
-	 * 
+	 * @return 
 	 */
-	private void buildMainPanel() {
+	private JSplitPane buildSplitPane() {
+		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		splitPane.setLeftComponent(getLeftPanel());
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(150);
 		
-		final JComponent rightScrollPanel = getRightPanel();
-
-		final JList<String> leftPanel = getLeftPanel();
-
-		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightScrollPanel);
-		mainPanel.setOneTouchExpandable(true);
-		mainPanel.setDividerLocation(150);
+		return splitPane;
 	}
 
-	private JComponent getRightPanel() {
-		View view = null;
-			
-		if(viewMode == ViewMode.TREE_MODE) {
-			view = new TreeView(guiModel);
-		} else {
-			view = new OSMView(guiModel);
+	/**
+	 * Get the view for the right panel
+	 * @return
+	 */
+	private View getRightPanel() {
+		switch(viewMode) {
+			case TREE_MODE:
+				return new TreeView(guiModel);
+			case OSM_MODE:
+				return new OSMView(guiModel);
+			case QUERY_MODE:
+				return new QueryView(guiModel);
+			default:
+				throw new IllegalArgumentException("Unknown mode: " + viewMode);
 		}
-
-		return view.getJPanel();
 	}
 	
 	/**
 	 * Update the main panel
 	 */
 	private void updateMainPanel() {
-		final int oldLocation = mainPanel.getDividerLocation();
-		mainPanel.setRightComponent(getRightPanel());
-		mainPanel.setDividerLocation(oldLocation);
+
+		final View view = getRightPanel();
+		final JComponent viewPanel = view.getJPanel();
+
+		if(! view.isGroupSelectionNeeded()) {
+			statusLabel.setText("");
+			mainframe.remove(mainPanel);
+			mainPanel = viewPanel;
+			mainframe.add(mainPanel, BorderLayout.CENTER);
+			mainframe.revalidate();
+		} else {
+			JSplitPane pane = null;
+			
+			if(mainPanel instanceof JSplitPane) {
+				pane = (JSplitPane) mainPanel;
+				
+				int oldLocation = pane.getDividerLocation();
+				pane.setRightComponent(viewPanel);
+				pane.setDividerLocation(oldLocation);
+				
+				mainframe.revalidate();
+			} else {
+				pane = buildSplitPane();
+				pane.setRightComponent(viewPanel);
+				mainframe.remove(mainPanel);
+				mainframe.add(pane, BorderLayout.CENTER);
+				mainPanel = pane;
+				mainframe.revalidate();
+			}			
+		}
 	}
 
 	/**
 	 * Generate the left panel
 	 * @return
 	 */
-	private JList<String> getLeftPanel() {
-
-		listModel = new DefaultListModel<String>();
-
-		leftList = new JList<String>(listModel);
+	private JComponent getLeftPanel() {
+		
+		final DefaultListModel<String> listModel = new DefaultListModel<String>();
+		final JList<String> distributionGroupList = new JList<String>(listModel);
 
 		refreshDistributionGroups(listModel);
 
-		leftList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		leftList.addListSelectionListener(e -> {
+		distributionGroupList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		distributionGroupList.setSelectedValue(guiModel.getDistributionGroup(), true);
+		distributionGroupList.addListSelectionListener(e -> {
 			if (! e.getValueIsAdjusting()) {
-				guiModel.setDistributionGroup(leftList.getSelectedValue());
-				viewMode = ViewMode.TREE_MODE;
+				guiModel.setDistributionGroup(distributionGroupList.getSelectedValue());
 				updateMainPanel();
 			}
 		});
+		
+		final JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.add(distributionGroupList, BorderLayout.CENTER);
 
-		return leftList;
+		final JButton reloadItem = new JButton("Reload");
+		reloadItem.addActionListener((e) ->  {
+				refreshDistributionGroups(listModel);
+				updateMainPanel();
+		});
+		panel.add(reloadItem, BorderLayout.SOUTH);
+
+		return panel;
 	}
 
 	/**
@@ -254,6 +287,9 @@ public class BBoxDBGui {
 			listModel.addElement(distributionGroupName);
 		}
 		
+		guiModel.setDistributionGroup(null);
+		guiModel.unregisterTreeChangeListener();
+		
 		if(statusLabel != null) {
 			statusLabel.setText("");
 		}
@@ -270,12 +306,6 @@ public class BBoxDBGui {
 		final JMenu menu = new JMenu("File");
 		menuBar.add(menu);
 				
-		final JMenuItem reloadItem = new JMenuItem("Reload Distribution Groups");
-		menu.add(reloadItem);
-		reloadItem.addActionListener((e) ->  {
-				refreshDistributionGroups(listModel);
-		});
-		
 		final JMenuItem screeenshotMode = new JMenuItem("Toggle screenshot mode");
 		menu.add(screeenshotMode);
 		screeenshotMode.addActionListener((e) -> {
@@ -305,6 +335,13 @@ public class BBoxDBGui {
 		view.add(viewKDTreeOsm);
 		viewKDTreeOsm.addActionListener((e) -> {
 			viewMode = ViewMode.OSM_MODE;
+			updateMainPanel();
+		});
+		
+		final JMenuItem queryMode = new JMenuItem("Open query view");
+		view.add(queryMode);
+		queryMode.addActionListener((e) -> {
+			viewMode = ViewMode.QUERY_MODE;
 			updateMainPanel();
 		});
 	}

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui.views.osm;
+package org.bboxdb.tools.gui.views.regiondepended.osm;
 
 import java.awt.BorderLayout;
 
@@ -169,4 +169,8 @@ public class OSMView implements View {
 		mapViewer.setAddressLocation(hagen);
 	}
 
+	@Override
+	public boolean isGroupSelectionNeeded() {
+		return true;
+	}
 }

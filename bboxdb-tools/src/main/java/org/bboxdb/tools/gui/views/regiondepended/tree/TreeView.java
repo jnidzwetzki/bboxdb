@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui.views.tree;
+package org.bboxdb.tools.gui.views.regiondepended.tree;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -103,5 +103,10 @@ public class TreeView implements View {
 		}); 
 		
 		return zoomOutButton;
+	}
+	
+	@Override
+	public boolean isGroupSelectionNeeded() {
+		return true;
 	}
 }

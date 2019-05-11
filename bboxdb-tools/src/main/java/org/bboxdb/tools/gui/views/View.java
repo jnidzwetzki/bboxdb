@@ -21,4 +21,6 @@ import javax.swing.JComponent;
 
 public interface View {
 	public JComponent getJPanel();
+	
+	public boolean isGroupSelectionNeeded();
 }

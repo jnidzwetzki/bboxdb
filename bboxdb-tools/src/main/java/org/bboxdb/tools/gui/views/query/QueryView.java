@@ -15,10 +15,31 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui.views;
+package org.bboxdb.tools.gui.views.query;
 
-public enum ViewMode {
-	TREE_MODE,
-	OSM_MODE,
-	QUERY_MODE
-}
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import org.bboxdb.tools.gui.GuiModel;
+import org.bboxdb.tools.gui.views.View;
+
+public class QueryView implements View {
+
+	/**
+	 * The GUI model
+	 */
+	private final GuiModel guiModel;
+
+	public QueryView(final GuiModel guiModel) {
+		this.guiModel = guiModel;
+	}
+	
+	@Override
+	public JComponent getJPanel() {
+		return new JPanel();
+	}
+
+	@Override
+	public boolean isGroupSelectionNeeded() {
+		return false;
+	}}

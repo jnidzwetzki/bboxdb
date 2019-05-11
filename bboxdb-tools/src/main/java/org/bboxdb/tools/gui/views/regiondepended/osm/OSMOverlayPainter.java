@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui.views.osm;
+package org.bboxdb.tools.gui.views.regiondepended.osm;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

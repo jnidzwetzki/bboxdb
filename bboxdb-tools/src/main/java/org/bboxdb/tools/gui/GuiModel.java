@@ -111,9 +111,10 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * Unregister the tree change listener
 	 */
-	private void unregisterTreeChangeListener() {
+	public void unregisterTreeChangeListener() {
 		if (spacePartitioner != null) {
 			spacePartitioner.unregisterCallback(this);
+			spacePartitioner = null;
 		}
 	}
 

@@ -37,7 +37,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.tools.gui.views.tree.TreeJPanel;
+import org.bboxdb.tools.gui.views.regiondepended.tree.TreeJPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
