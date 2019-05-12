@@ -18,11 +18,12 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.AbstractAction;
@@ -33,11 +34,16 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
+import org.bboxdb.commons.Pair;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
+import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.tools.converter.osm.util.OSMPoint;
+import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +77,9 @@ public class QueryWindow {
 	/**
 	 * The data to draw
 	 */
-	private final Map<List<Point>, Color> dataToDraw;
+	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
 	
-	public QueryWindow(final GuiModel guimodel, final Map<List<Point>, Color> dataToDraw, 
+	public QueryWindow(final GuiModel guimodel, final Collection<Pair<List<Point2D>, Color>> dataToDraw, 
 			final Runnable callback) {
 		this.guimodel = guimodel;
 		this.dataToDraw = dataToDraw;
@@ -119,8 +125,6 @@ public class QueryWindow {
 		table2Field.setEnabled(false);
 		builder.add(table2Field, cc.xy (3,  7));
 		
-		addActionListener(queryTypeBox, table1Field, table2Field);
-
 		builder.addLabel("Range", cc.xy (1,  9));
 		final JTextField rangeField = new JTextField();
 		rangeField.setText("13.3,13.6:52.4,52.6");
@@ -147,6 +151,10 @@ public class QueryWindow {
 		
 		final JButton executeButton = new JButton(executeAction);
 		executeButton.setText("Execute");
+		executeButton.setEnabled(false);
+		
+		addActionListener(queryTypeBox, table1Field, table2Field, executeButton);
+
 		
 		builder.add(closeButton, cc.xy(1, 17));
 		builder.add(executeButton, cc.xy(3, 17));
@@ -159,9 +167,10 @@ public class QueryWindow {
 	 * @param queryTypeBox
 	 * @param table1Field
 	 * @param table2Field
+	 * @param executeButton 
 	 */
 	private void addActionListener(final JComboBox<String> queryTypeBox, final JComponent table1Field,
-			final JComponent table2Field) {
+			final JComponent table2Field, final JButton executeButton) {
 		
 		queryTypeBox.addActionListener(l -> {
 			
@@ -170,16 +179,19 @@ public class QueryWindow {
 			case "Range query":
 				table1Field.setEnabled(true);
 				table2Field.setEnabled(false);
+				executeButton.setEnabled(true);
 				break;
 				
 			case "Join":
 				table1Field.setEnabled(true);
 				table2Field.setEnabled(true);
+				executeButton.setEnabled(true);
 				break;
 
 			default:
 				table1Field.setEnabled(false);
 				table2Field.setEnabled(false);
+				executeButton.setEnabled(false);
 				break;
 			}
 		});
@@ -264,7 +276,17 @@ public class QueryWindow {
 					}
 					
 					for(final JoinedTuple tuple : result) {
-						System.out.println(tuple);
+						final String data1 = new String(tuple.getTuple(0).getDataBytes());
+						final String data2 = new String(tuple.getTuple(1).getDataBytes());
+					
+						final Polygon polygon1 = Polygon.fromGeoJson(data1);
+						addPolygon(polygon1, Color.GREEN);
+
+						final Polygon polygon2 = Polygon.fromGeoJson(data2);
+						addPolygon(polygon2, Color.RED);
+						
+						final Hyperrectangle bboxTuple = tuple.getBoundingBox();
+						addBoundingBox(bboxTuple);
 					}
 					
 				} catch (BBoxDBException e) {
@@ -273,6 +295,35 @@ public class QueryWindow {
 					Thread.currentThread().interrupt();
 					return;
 				}
+			}
+
+			/**
+			 * Add the polygon to the overlay
+			 * @param polygon1
+			 * @param color 
+			 */
+			private void addPolygon(final Polygon polygon1, final Color color) {
+				final List<Point2D> polygonPoints = new ArrayList<>();
+				
+				for(final OSMPoint point : polygon1.getPointList()) {
+					polygonPoints.add(new Point2D.Double(point.getY(), point.getX())); 
+				}
+				
+				dataToDraw.add(new Pair<>(polygonPoints, color));
+			}
+
+			/**
+			 * Add the bounding box to the overlay
+			 * @param bboxTuple
+			 */
+			private void addBoundingBox(final Hyperrectangle bboxTuple) {
+				final List<Point2D> boundingBoxPoints = new ArrayList<>();
+				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateLow(0)));
+				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateHigh(1), bboxTuple.getCoordinateLow(0)));
+				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateHigh(1), bboxTuple.getCoordinateHigh(0)));
+				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateHigh(0)));
+				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateLow(0)));
+				dataToDraw.add(new Pair<>(boundingBoxPoints, Color.BLACK));
 			}
 
 			/**
@@ -285,8 +336,31 @@ public class QueryWindow {
 			private void executeRangeQuery(final Hyperrectangle bbox, final String table1, 
 					final String customFilter, final String customValue) {
 				
+				try {
+					final TupleListFuture result = guimodel.getConnection().queryRectangle(table1, bbox, customFilter, customValue);
+					
+					result.waitForCompletion();
+					if(result.isFailed()) {
+						logger.error("Got an error" + result.getAllMessages());
+						return;
+					}
+					
+					for(final Tuple tuple : result) {
+						final String data = new String(tuple.getDataBytes());
+						final Polygon polygon = Polygon.fromGeoJson(data);
+						addPolygon(polygon, Color.GREEN);
+
+						final Hyperrectangle bboxTuple = tuple.getBoundingBox();
+						addBoundingBox(bboxTuple);
+					}
+					
+				} catch (BBoxDBException e) {
+					logger.error("Got error while performing query", e);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return;
+				}
 			}
-			
 		};
 		
 		return ececuteAction;

@@ -61,6 +61,16 @@ public class MapViewerFactory {
 	}
 
 	/**
+	 * Show the university of Hagen in the viewer
+	 * @param mapViewer
+	 */
+	public static void showBerlin(final JXMapViewer mapViewer) {
+		final GeoPosition hagen = new GeoPosition(52.522199, 13.413749);
+		mapViewer.setZoom(7);
+		mapViewer.setAddressLocation(hagen);
+	}
+	
+	/**
 	 * Get the show world button
 	 * @return
 	 */
@@ -113,6 +123,20 @@ public class MapViewerFactory {
 		); 
 		return showHagenButton;
 	}
+	
+	/**
+	 * Get the show hagen button
+	 * @return
+	 */
+	public static JButton getShowBerlinButton(final JXMapViewer mapViewer) {
+		final JButton showHagenButton = new JButton("Show Berlin");
+		showHagenButton.addActionListener((l) -> {
+			showBerlin(mapViewer);
+		}
+		); 
+		return showHagenButton;
+	}
+
 
 	
 }

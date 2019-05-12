@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.1 - TBD
+- New Feature: Added GUI for GeoJSON operations
 - Improvement: Returned tuples are now shown in CLI calls
 - Improvement: Added linestring geojson type
 - Bugfix: Fixed GeoJSON longitude / latitude encoding

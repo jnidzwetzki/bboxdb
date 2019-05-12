@@ -17,18 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.bboxdb.commons.Pair;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -39,31 +40,14 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	/**
 	 * The data to draw
 	 */
-	private final Map<List<Point>, Color> dataToDraw;
+	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
 	
 	/**
 	 * The transparency value
 	 */
 	private final static int TRANSPARENCY = 127;
-	
-	/**
-	 * Our green
-	 */
-	public final static Color OUR_GREEN = new Color(Color.GREEN.getRed(), Color.GREEN.getGreen(), 
-			Color.GREEN.getBlue(), TRANSPARENCY);
-	
-	/**
-	 * Our red
-	 */
-	public final static Color OUR_RED = new Color(Color.RED.getRed(), Color.RED.getGreen(), 
-			Color.RED.getBlue(), TRANSPARENCY);
-	
-	/**
-	 * Our black
-	 */
-	public final static Color OUR_BLACK = Color.BLACK;
 
-	public QueryResultOverlay(final Map<List<Point>, Color> dataToDraw) {
+	public QueryResultOverlay(final Collection<Pair<List<Point2D>, Color>> dataToDraw) {
 		this.dataToDraw = dataToDraw;
 	}
 
@@ -92,13 +76,17 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	 */
 	private void drawData(final Graphics2D graphicsContext, final JXMapViewer map) {
 		
-		final Map<List<Point2D>, Color> pointsToDraw = convertThePointlist(map);
+		final Collection<Pair<List<Point2D>, Color>> pointsToDraw = convertThePointlist(map);
 		
-		for(final List<Point2D> pointList : pointsToDraw.keySet()) {
+		for(final Pair<List<Point2D>, Color> entry : pointsToDraw) {
 			
+			final List<Point2D> pointList = entry.getElement1();
+			final Color color = entry.getElement2();
+
 			if(pointList.size() == 1) {
 				final Point2D thePoint = pointList.get(0);
-				graphicsContext.drawOval((int) thePoint.getX(), (int) thePoint.getY(), 50, 50);
+				graphicsContext.setColor(Color.BLUE);
+				graphicsContext.drawOval((int) thePoint.getX(), (int) thePoint.getY(), 5, 5);
 				continue;
 			}
 			
@@ -112,16 +100,28 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 					polygon.addPoint((int) point.getX(), (int) point.getY()); 
 				}
 				
-				graphicsContext.setColor(pointsToDraw.get(pointList));
-				graphicsContext.drawPolygon(polygon);				
+				if(color.equals(Color.BLACK)) {
+					graphicsContext.setColor(Color.BLACK);
+					graphicsContext.drawPolygon(polygon);
+				} else {
+					final Color transparentColor = new Color(color.getRed(), color.getGreen(), 
+							color.getBlue(), TRANSPARENCY);
+					
+					graphicsContext.setColor(transparentColor);
+					graphicsContext.fillPolygon(polygon);				
+				}
 			} else {
 				Point2D lastPoint = null;
 				
+				graphicsContext.setColor(color);
+				graphicsContext.setStroke(new BasicStroke(2));
+
 				for (final Point2D point : pointList) {
 					if(lastPoint != null) {
 						graphicsContext.drawLine((int) lastPoint.getX(), (int) lastPoint.getY(), 
 								(int) point.getX(), (int) point.getY());
 					}
+					
 					lastPoint = point;
 				}				
 			}
@@ -133,22 +133,22 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	 * @param map
 	 * @return
 	 */
-	private Map<List<Point2D>, Color> convertThePointlist(final JXMapViewer map) {
+	private Collection<Pair<List<Point2D>, Color>> convertThePointlist(final JXMapViewer map) {
 		
-		final Map<List<Point2D>, Color> convertedPointList = new HashMap<>();
+		final List<Pair<List<Point2D>, Color>> convertedPointList = new CopyOnWriteArrayList<>();
 		
-		for(final List<Point> element : dataToDraw.keySet()) {
+		for(final Pair<List<Point2D>, Color> element : dataToDraw) {
 			
 			final List<Point2D> elementPoints = new ArrayList<>();
-			convertedPointList.put(elementPoints, dataToDraw.get(element));
+			convertedPointList.add(new Pair<>(elementPoints, element.getElement2()));
 			
-			for(final Point point : element) {
+			for(final Point2D point : element.getElement1()) {
 				final GeoPosition geoPosition = new GeoPosition(point.getX(), point.getY());
 				final Point2D convertedPoint = map.getTileFactory().geoToPixel(geoPosition, map.getZoom());
 				elementPoints.add(convertedPoint);
-			}
+			}	
 		}
-		
+	
 		return convertedPointList;
 	}
 }

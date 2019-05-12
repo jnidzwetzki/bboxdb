@@ -19,15 +19,16 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import org.bboxdb.commons.Pair;
 import org.bboxdb.tools.gui.GuiModel;
 import org.bboxdb.tools.gui.util.MapViewerFactory;
 import org.bboxdb.tools.gui.views.View;
@@ -49,12 +50,12 @@ public class QueryView implements View {
 	/**
 	 * The data to draw
 	 */
-	private final Map<List<Point>, Color> dataToDraw;
+	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
 
 
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
-		this.dataToDraw = new ConcurrentHashMap<>();
+		this.dataToDraw = new CopyOnWriteArrayList<>();
 	}
 	
 	@Override
@@ -84,6 +85,9 @@ public class QueryView implements View {
 		final JButton showHagenButton = MapViewerFactory.getShowHagenButton(mapViewer);
 		buttonPanel.add(showHagenButton);
 		
+		final JButton showBerlinButton = MapViewerFactory.getShowBerlinButton(mapViewer);
+		buttonPanel.add(showBerlinButton);
+		
 		final JButton queryButton = getQueryButton();
 		buttonPanel.add(queryButton);
 		
@@ -101,6 +105,7 @@ public class QueryView implements View {
 		final JButton queryButton = new JButton("Execute query");
 		queryButton.addActionListener(l -> {
 			final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
+				System.out.println("---> Elements: " + dataToDraw.size());
 				mapViewer.repaint();
 			});
 
