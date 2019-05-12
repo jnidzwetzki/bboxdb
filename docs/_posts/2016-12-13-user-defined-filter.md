@@ -12,9 +12,11 @@ This page describes the _user defined filter_ (UDF) feature that is available si
 
 To define a new user defined filter, the interface `UserDefinedFilter` has to be implemented. In the methods `filterTuple(Tuple, String)` and `filterTuple(Tuple, Tuple, String)` has the filter code to be implemented.
 
-The first method is called when a single tuple needs to be filtered. In addition to the tuple, a user defined value is passed to the method. The value is determined by the user which executed the query. The value can be used to change the behavior of the filter (e.g., let only tuple pass that contains this value) Depending on the method return value (`true` or `false`) the tuple is sent back to the client or nor.
+The first method is called when a single tuple needs to be filtered. In addition to the tuple, a user defined value is passed to the method. The value is determined by the user which executed the query. The value can be used to change the behavior of the filter (e.g., let only tuple pass that contains this value) Depending on the method return value (`true` or `false`) the tuple is sent back to the client or not.
 
 The second method is executed, when two tuples need to be filtered (e.g., in a join operation). Like in the first filter operation, also a user defined value is passed to the method call.
+
+The filter has to be compiled and embedded in a custom .jar file. To work with this filter, every node has to load this filter into its class path. To accomplish this, the created .jar file has to be placed in the directory `$BBOXDB_HOME/bin/third_party_libs/`. The content of this directory is synchronized across the whole cluster on every `$BBOXDB_HOME/bin/manage_cluster.sh bboxdb_upgrade` call.
 
 ### Example: A user defined filter that filters strings
 
