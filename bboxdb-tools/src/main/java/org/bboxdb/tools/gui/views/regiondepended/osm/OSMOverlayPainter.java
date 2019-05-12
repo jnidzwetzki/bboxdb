@@ -88,16 +88,16 @@ public class OSMOverlayPainter implements Painter<JXMapViewer> {
 		graphicsContext.setColor(Color.BLACK);
 		graphicsContext.setStroke(new BasicStroke(2));
 		
-		drawKDTree(graphicsContext, map);
+		drawDistribution(graphicsContext, map);
 		graphicsContext.dispose();
 	}
 
 	/**
-	 * Draw the KD Tree
+	 * Draw the data distribution
 	 * @param graphicsContext
 	 * @param map 
 	 */
-	protected void drawKDTree(final Graphics2D graphicsContext, final JXMapViewer map) {
+	protected void drawDistribution(final Graphics2D graphicsContext, final JXMapViewer map) {
 
 		try {
 			// No distribution group is selected
