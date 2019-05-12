@@ -18,6 +18,11 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Point;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -27,6 +32,7 @@ import org.bboxdb.tools.gui.GuiModel;
 import org.bboxdb.tools.gui.util.MapViewerFactory;
 import org.bboxdb.tools.gui.views.View;
 import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.painter.Painter;
 
 public class QueryView implements View {
 
@@ -39,15 +45,24 @@ public class QueryView implements View {
 	 * The map viewer
 	 */
 	private JXMapViewer mapViewer;
+	
+	/**
+	 * The data to draw
+	 */
+	private final Map<List<Point>, Color> dataToDraw;
 
 
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
+		this.dataToDraw = new ConcurrentHashMap<>();
 	}
 	
 	@Override
 	public JComponent getJPanel() {
 		mapViewer = MapViewerFactory.createMapViewer();
+		
+		final Painter<JXMapViewer> painter = new QueryResultOverlay(dataToDraw);
+		mapViewer.setOverlayPainter(painter);
 		
 		final JPanel mainPanel = new JPanel();
 		
@@ -68,8 +83,43 @@ public class QueryView implements View {
 		
 		final JButton showHagenButton = MapViewerFactory.getShowHagenButton(mapViewer);
 		buttonPanel.add(showHagenButton);
+		
+		final JButton queryButton = getQueryButton();
+		buttonPanel.add(queryButton);
+		
+		final JButton clearButton = getClearButton();
+		buttonPanel.add(clearButton);
 
 		return mainPanel;	
+	}
+
+	/**
+	 * Get the query button
+	 * @return
+	 */
+	private JButton getQueryButton() {
+		final JButton queryButton = new JButton("Execute query");
+		queryButton.addActionListener(l -> {
+			final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
+				mapViewer.repaint();
+			});
+
+			queryWindow.show();
+		});
+		return queryButton;
+	}
+
+	/**
+	 * Get the clear map button
+	 * @return
+	 */
+	private JButton getClearButton() {
+		final JButton clearButton = new JButton("Clear map");
+		clearButton.addActionListener(l -> {
+			dataToDraw.clear();
+			mapViewer.repaint();
+		});
+		return clearButton;
 	}
 
 	@Override

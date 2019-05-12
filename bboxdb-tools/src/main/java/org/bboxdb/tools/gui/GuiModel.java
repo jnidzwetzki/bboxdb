@@ -35,9 +35,11 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionEvent;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +67,9 @@ public class GuiModel implements DistributionRegionCallback {
 	private BBoxDBGui bboxdbGui;
 
 	/**
-	 * The zookeeper client
+	 * The client
 	 */
-	private final ZookeeperClient zookeeperClient;
+	private final BBoxDB connection;
 
 	/**
 	 * The space partitioner
@@ -91,13 +93,14 @@ public class GuiModel implements DistributionRegionCallback {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
 
-	public GuiModel(final ZookeeperClient zookeeperClient) {
-		this.zookeeperClient = zookeeperClient;
+	public GuiModel(final BBoxDB connection) {
+		this.connection = connection;
 		this.distributionGroupZookeeperAdapter = new DistributionGroupAdapter(
-				zookeeperClient);
+				ZookeeperClientFactory.getZookeeperClient());
 		bboxdbInstances = new ArrayList<BBoxDBInstance>();
 
 		BBoxDBInstanceManager.getInstance().registerListener(distributedEventConsumer);
+		updateBBoxDBInstances();
 	}
 
 	/**
@@ -260,7 +263,7 @@ public class GuiModel implements DistributionRegionCallback {
 	 * @return
 	 */
 	public String getClustername() {
-		return zookeeperClient.getClustername();
+		return ZookeeperClientFactory.getZookeeperClient().getClustername();
 	}
 
 	/**
@@ -313,5 +316,34 @@ public class GuiModel implements DistributionRegionCallback {
 	 */
 	public void setScreenshotMode(final boolean screenshotMode) {
 		this.screenshotMode = screenshotMode;
+	}
+	
+	/**
+	 * Get the BBoxDB connection
+	 * @return
+	 */
+	public BBoxDB getConnection() {
+		return connection;
+	}
+	
+	/**
+	 * Return all tables
+	 * @return
+	 */
+	public List<String> getAllTables() {
+		final List<String> allTables = new ArrayList<>();
+		final TupleStoreAdapter adapter = new TupleStoreAdapter(ZookeeperClientFactory.getZookeeperClient());
+
+		try {
+			final List<String> allGroups = getDistributionGroups();
+			for(final String distributionGroup : allGroups) {
+				final List<String> allTablesInGroup = adapter.getAllTables(distributionGroup);
+				allTables.addAll(allTablesInGroup);
+			}
+		} catch (Exception e) {
+			logger.error("Got error while fetchting distribution groups", e);
+		} 
+		
+		return allTables;
 	}
 }

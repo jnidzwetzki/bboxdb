@@ -27,9 +27,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
-import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,14 +151,18 @@ public class ConnectDialog {
 				final List<String> zookeeperHosts = Arrays.asList(hostList);
 				final String cluster = clustername.getText();
 				
-				final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, cluster);
-				zookeeperClient.init();
-				ZookeeperClientFactory.setDefaultZookeeperClient(zookeeperClient);
+				final BBoxDBCluster connection = new BBoxDBCluster(zookeeperHosts, cluster);
+				final boolean connectResult = connection.connect();
 				
-				showMainDialog(zookeeperClient);
+				if(! connectResult) {
+					logger.error("Unable to connect to BBoxDB cluster");
+					System.exit(-1);
+				}
 				
-				BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
-				
+				ZookeeperClientFactory.setDefaultZookeeperClient(connection.getZookeeperClient());
+
+				showMainDialog(connection);
+								
 				mainframe.dispose();
 			}
 
@@ -166,10 +170,10 @@ public class ConnectDialog {
 			 * Show the main dialog
 			 * 
 			 * @param distributionGroup
-			 * @param zookeeperClient
+			 * @param connection
 			 */
-			protected void showMainDialog(final ZookeeperClient zookeeperClient) {
-				final GuiModel guiModel = new GuiModel(zookeeperClient);		
+			protected void showMainDialog(final BBoxDB connection) {
+				final GuiModel guiModel = new GuiModel(connection);		
 				final BBoxDBGui bboxDBGUI = new BBoxDBGui(guiModel);
 				guiModel.setBBoxDBGui(bboxDBGUI);
 				bboxDBGUI.run();				

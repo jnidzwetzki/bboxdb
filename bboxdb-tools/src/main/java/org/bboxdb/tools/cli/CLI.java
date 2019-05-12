@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,6 +36,7 @@ import org.apache.commons.cli.ParseException;
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
@@ -578,24 +580,14 @@ public class CLI implements Runnable, AutoCloseable {
 	 */
 	private Hyperrectangle getBoundingBoxFromArgs(final CommandLine line) {
 		final String bbox = line.getOptionValue(CLIParameter.BOUNDING_BOX);
-
-		final String[] bboxStringParts = bbox.split(":|,");
-
-		if(bboxStringParts.length % 2 != 0) {
+		final Optional<Hyperrectangle> resultBox = HyperrectangleHelper.parseBBox(bbox);
+		
+		if(! resultBox.isPresent()) {
 			System.err.println("Invalid bounding box: " + bbox);
 			System.exit(-1);
 		}
-
-		final double[] bboxDoubleValues = new double[bboxStringParts.length];
-		for(int i = 0; i < bboxStringParts.length; i++) {
-			try {
-				bboxDoubleValues[i] = Double.parseDouble(bboxStringParts[i]);
-			} catch (NumberFormatException e) {
-				System.err.println("Invalid number: " + bboxStringParts[i]);
-			}
-		}
-
-		return new Hyperrectangle(bboxDoubleValues);
+		
+		return resultBox.get();
 	}
 
 	/**
