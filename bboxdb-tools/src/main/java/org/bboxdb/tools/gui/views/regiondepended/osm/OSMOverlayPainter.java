@@ -80,7 +80,7 @@ public class OSMOverlayPainter implements Painter<JXMapViewer> {
 		final Graphics2D graphicsContext = (Graphics2D) g.create();
 		
 		// convert from viewport to world bitmap
-		Rectangle rect = map.getViewportBounds();
+		final Rectangle rect = map.getViewportBounds();
 		graphicsContext.translate(-rect.x, -rect.y);
 		
 		graphicsContext.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
