@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.osm.util;
 
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +78,7 @@ public class Polygon implements Serializable {
 	/**
 	 * The list of our points
 	 */
-	protected final List<OSMPoint> pointList = new ArrayList<OSMPoint>();
+	protected final List<Point2D> pointList = new ArrayList<>();
 
 	/**
 	 * The map of properties
@@ -94,7 +95,7 @@ public class Polygon implements Serializable {
 	 * @param e
 	 */
 	public boolean addPoint(final double x, final double y) {
-		final OSMPoint point = new OSMPoint(x, y);
+		final Point2D point = new Point2D.Double(x, y);
 		
 		// Prevent double inserts
 		if(! pointList.isEmpty()) {
@@ -141,13 +142,13 @@ public class Polygon implements Serializable {
 			return Hyperrectangle.FULL_SPACE;
 		}
 
-		final OSMPoint firstPoint = pointList.get(0);
+		final Point2D firstPoint = pointList.get(0);
 		double minX = firstPoint.getX();
 		double maxX = firstPoint.getX();
 		double minY = firstPoint.getY();
 		double maxY = firstPoint.getY();
 
-		for(final OSMPoint osmPoint : pointList) {
+		for(final Point2D osmPoint : pointList) {
 			minX = Math.min(minX, osmPoint.getX());
 			maxX = Math.max(maxX, osmPoint.getX());
 			minY = Math.min(minY, osmPoint.getY());
@@ -202,8 +203,8 @@ public class Polygon implements Serializable {
 		if(pointList.isEmpty()) {
 			// Nothing to add
 		} else {
-			final OSMPoint firstPoint = pointList.get(0);
-			final OSMPoint lastPoint = pointList.get(pointList.size() - 1);
+			final Point2D firstPoint = pointList.get(0);
+			final Point2D lastPoint = pointList.get(pointList.size() - 1);
 
 			if(pointList.size() == 1) {
 				geometryJson.put(JSON_TYPE, JSON_TYPE_POINT);
@@ -234,7 +235,7 @@ public class Polygon implements Serializable {
 	 * @param coordinateJson
 	 */
 	private void addCoordinatesToJSON(final JSONArray jsonArray) {
-		for(final OSMPoint point : pointList) {
+		for(final Point2D point : pointList) {
 			final JSONArray coordinatesJson = new JSONArray();
 			coordinatesJson.put(point.getX());
 			coordinatesJson.put(point.getY());
@@ -296,7 +297,7 @@ public class Polygon implements Serializable {
 	 * Get the point list
 	 * @return
 	 */
-	public List<OSMPoint> getPointList() {
+	public List<Point2D> getPointList() {
 		return pointList;
 	}
 

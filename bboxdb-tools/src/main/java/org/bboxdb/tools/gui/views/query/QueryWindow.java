@@ -42,7 +42,6 @@ import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.OSMPoint;
 import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
@@ -299,17 +298,11 @@ public class QueryWindow {
 
 			/**
 			 * Add the polygon to the overlay
-			 * @param polygon1
+			 * @param polygon
 			 * @param color 
 			 */
-			private void addPolygon(final Polygon polygon1, final Color color) {
-				final List<Point2D> polygonPoints = new ArrayList<>();
-				
-				for(final OSMPoint point : polygon1.getPointList()) {
-					polygonPoints.add(new Point2D.Double(point.getY(), point.getX())); 
-				}
-				
-				dataToDraw.add(new Pair<>(polygonPoints, color));
+			private void addPolygon(final Polygon polygon, final Color color) {
+				dataToDraw.add(new Pair<>(polygon.getPointList(), color));
 			}
 
 			/**

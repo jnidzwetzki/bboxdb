@@ -10,6 +10,7 @@ order: 1
 - New Feature: Added GUI for GeoJSON operations
 - Improvement: Returned tuples are now shown in CLI calls
 - Improvement: Added linestring geojson type
+- Improvement: Replaced OSMPoint by Point2D.Double
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 
