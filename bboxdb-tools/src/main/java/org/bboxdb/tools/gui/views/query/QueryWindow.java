@@ -302,7 +302,15 @@ public class QueryWindow {
 			 * @param color 
 			 */
 			private void addPolygon(final Polygon polygon, final Color color) {
+				
+				final List<Point2D> polygonPoints = new ArrayList<>();
 				dataToDraw.add(new Pair<>(polygon.getPointList(), color));
+
+				for(final Point2D point : polygon.getPointList()) {
+					polygonPoints.add(new Point2D.Double(point.getY(), point.getX())); 
+				}
+
+				dataToDraw.add(new Pair<>(polygonPoints, color));				
 			}
 
 			/**
@@ -346,6 +354,10 @@ public class QueryWindow {
 						final Hyperrectangle bboxTuple = tuple.getBoundingBox();
 						addBoundingBox(bboxTuple);
 					}
+					
+					
+					System.out.println("Draw polygon " + dataToDraw.size());
+					
 					
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
