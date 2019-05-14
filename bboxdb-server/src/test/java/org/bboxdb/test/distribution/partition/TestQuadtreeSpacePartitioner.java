@@ -164,6 +164,7 @@ public class TestQuadtreeSpacePartitioner {
 		
 		final List<DistributionRegion> destination = spacepartitionier.splitRegion(rootNode, new HashSet<>());
 		spacepartitionier.splitComplete(rootNode, destination);
+		spacepartitionier.waitUntilNodeStateIs(rootNode, DistributionRegionState.SPLIT);
 		Assert.assertEquals(4, rootNode.getDirectChildren().size());
 		
 		Assert.assertEquals(1, RegionMergeHelper.getMergingCandidates(rootNode).size());

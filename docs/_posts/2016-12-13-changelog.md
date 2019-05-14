@@ -13,6 +13,7 @@ order: 1
 - Improvement: Replaced OSMPoint by Point2D.Double
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
+- Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script
