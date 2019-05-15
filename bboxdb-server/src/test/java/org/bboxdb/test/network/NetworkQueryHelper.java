@@ -384,7 +384,7 @@ public class NetworkQueryHelper {
 
 		// Insert tuples
 		System.out.println("Insert tuple 1");
-		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "abc".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1.0, 7.0, 1.0, 7.0), "abc".getBytes());
 		final EmptyResultFuture insertResult1 = bboxDBClient.insertTuple(table1, tuple1);
 		insertResult1.waitForCompletion();
 		Assert.assertFalse(insertResult1.isFailed());
@@ -415,12 +415,12 @@ public class NetworkQueryHelper {
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(table1, resultList.get(0).getTupleStoreName(0));
 		Assert.assertEquals(table2, resultList.get(0).getTupleStoreName(1));
-		Assert.assertEquals(new Hyperrectangle(0.0, 5.0, 0.0, 5.0), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(0.0, 7.0, 0.0, 7.0), resultList.get(0).getBoundingBox());
 
 		Assert.assertEquals(2, resultList.get(1).getNumberOfTuples());
 		Assert.assertEquals(table1, resultList.get(1).getTupleStoreName(0));
 		Assert.assertEquals(table2, resultList.get(1).getTupleStoreName(1));
-		Assert.assertEquals(new Hyperrectangle(1.5, 2.5, 1.5, 2.5), resultList.get(1).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(0.0, 5.0, 0.0, 5.0), resultList.get(1).getBoundingBox());
 
 		System.out.println("=== End Execute join");
 	}

@@ -440,7 +440,7 @@ public class TestQueryProcessing {
 
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
 
-		Assert.assertEquals(new Hyperrectangle(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(1.0d, 5.5d, 1.0d, 5.5d), resultList.get(0).getBoundingBox());
 	}
 
 	/**
