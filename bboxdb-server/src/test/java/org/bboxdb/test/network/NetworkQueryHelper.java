@@ -415,7 +415,7 @@ public class NetworkQueryHelper {
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(table1, resultList.get(0).getTupleStoreName(0));
 		Assert.assertEquals(table2, resultList.get(0).getTupleStoreName(1));
-		Assert.assertEquals(new Hyperrectangle(1.0, 2.0, 1.0, 2.0), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(0.0, 5.0, 0.0, 5.0), resultList.get(0).getBoundingBox());
 
 		Assert.assertEquals(2, resultList.get(1).getNumberOfTuples());
 		Assert.assertEquals(table1, resultList.get(1).getTupleStoreName(0));

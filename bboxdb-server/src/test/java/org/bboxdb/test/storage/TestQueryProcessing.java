@@ -376,7 +376,7 @@ public class TestQueryProcessing {
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
-		Assert.assertEquals(new Hyperrectangle(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(2.5d, 5.5d, 2.5d, 5.5d), resultList.get(0).getBoundingBox());
 	}
 
 	/**
@@ -435,7 +435,7 @@ public class TestQueryProcessing {
 
 		joinQueryProcessor2.close();
 
-		Assert.assertEquals(1, resultList.size());
+		Assert.assertEquals(2, resultList.size());
 		Assert.assertEquals(3, resultList.get(0).getNumberOfTuples());
 
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
@@ -490,6 +490,6 @@ public class TestQueryProcessing {
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
-		Assert.assertEquals(new Hyperrectangle(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(new Hyperrectangle(2.5d, 5.5d, 2.5d, 5.5d), resultList.get(0).getBoundingBox());
 	}
 }
