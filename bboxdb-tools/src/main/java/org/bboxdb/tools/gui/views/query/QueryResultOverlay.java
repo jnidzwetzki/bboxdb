@@ -86,7 +86,8 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 			if(pointList.size() == 1) {
 				final Point2D thePoint = pointList.get(0);
 				graphicsContext.setColor(Color.BLUE);
-				graphicsContext.drawOval((int) thePoint.getX(), (int) thePoint.getY(), 5, 5);
+				final int size = (int) (15 * (1.0 / map.getZoom()));
+				graphicsContext.drawOval((int) thePoint.getX(), (int) thePoint.getY(), size, size);
 				continue;
 			}
 			
