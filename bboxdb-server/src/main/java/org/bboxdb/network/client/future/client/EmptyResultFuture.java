@@ -18,8 +18,6 @@
 package org.bboxdb.network.client.future.client;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
@@ -41,18 +39,7 @@ public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 		// Wait for the future
 		futures.get(resultId).get();
 
-		// Return true, when the operation was succesfully
-		return ! isFailed();
-	}
-
-	@Override
-	public Boolean get(final int resultId, final long timeout, final TimeUnit unit)
-			throws InterruptedException, TimeoutException {
-
-		// Wait for the future
-		futures.get(resultId).get(timeout, unit);
-
-		// Return true, when the operation was succesfully
+		// Return true, when the operation was successfully
 		return ! isFailed();
 	}
 

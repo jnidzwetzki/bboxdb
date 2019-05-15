@@ -19,7 +19,6 @@ package org.bboxdb.network.client.future.network;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -135,16 +134,6 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 
 	public Object getIntermediateResult() {
 		return futures.get(0).getIntermediateResult();
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#get(long, java.util.concurrent.TimeUnit)
-	 */
-	@Override
-	public Object get(final long timeout, final TimeUnit unit) 
-			throws InterruptedException, TimeoutException {
-		
-		 return getReadyFuture().get(timeout, unit);
 	}
 
 	/* (non-Javadoc)

@@ -20,8 +20,6 @@ package org.bboxdb.network.client.future.client;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
@@ -93,20 +91,6 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	@Override
 	public List<T> get(int resultId) throws InterruptedException {
 		final List<T> result = super.get(resultId);
-
-		if(result == null) {
-			return new ArrayList<T>();
-		}
-
-		return result;
-	}
-
-	/**
-	 * Prevent null results
-	 */
-	@Override
-	public List<T> get(int resultId, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
-		final List<T> result = super.get(resultId, timeout, unit);
 
 		if(result == null) {
 			return new ArrayList<T>();

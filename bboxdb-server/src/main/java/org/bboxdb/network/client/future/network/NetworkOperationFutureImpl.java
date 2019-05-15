@@ -19,7 +19,6 @@ package org.bboxdb.network.client.future.network;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -164,21 +163,6 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	@Override
 	public Object get() throws InterruptedException {
 		latch.await();
-		return operationResult;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#get(long, java.util.concurrent.TimeUnit)
-	 */
-	@Override
-	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
-
-		latch.await(timeout, unit);
-
-		if(! done) {
-			throw new TimeoutException("Unable to receive data in " + timeout + " " + unit);
-		}
-
 		return operationResult;
 	}
 

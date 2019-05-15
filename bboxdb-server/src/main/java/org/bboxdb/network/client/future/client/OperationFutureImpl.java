@@ -209,20 +209,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		return (T) futures.get(resultId).get();
 	}
 
-    /**
-	 * Get the result of the future
-	 * @return
-     * @throws TimeoutException
-	 */
-	@SuppressWarnings("unchecked")
-	public T get(final int resultId, final long timeout, final TimeUnit unit)
-			throws InterruptedException, TimeoutException {
-
-		checkFutureSize(resultId);
-
-		return (T) futures.get(resultId).get(timeout, unit);
-	}
-
     /* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */

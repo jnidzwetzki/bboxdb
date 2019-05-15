@@ -18,7 +18,6 @@
 package org.bboxdb.network.client.future.network;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.bboxdb.network.client.BBoxDBConnection;
@@ -49,17 +48,6 @@ public interface NetworkOperationFuture {
 	 * @throws InterruptedException
 	 */
 	public Object get() throws InterruptedException;
-
-	/**
-	 * Get (and wait) for the result
-	 * @param timeout
-	 * @param unit
-	 * @return
-	 * @throws InterruptedException
-	 * @throws TimeoutException 
-	 */
-	public Object get(final long timeout, final TimeUnit unit) 
-			throws InterruptedException, TimeoutException;
 
 	/**
 	 * Returns the request id
