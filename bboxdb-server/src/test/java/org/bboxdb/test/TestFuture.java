@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.FutureRetryPolicy;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
-import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
-import org.bboxdb.network.client.future.OperationFuture;
-import org.bboxdb.network.client.future.OperationFutureImpl;
+import org.bboxdb.network.client.future.client.FutureRetryPolicy;
+import org.bboxdb.network.client.future.client.OperationFuture;
+import org.bboxdb.network.client.future.client.OperationFutureImpl;
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
+import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.junit.Assert;
 import org.junit.BeforeClass;

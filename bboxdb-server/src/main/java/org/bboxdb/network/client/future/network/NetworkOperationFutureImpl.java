@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.network;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.client.FutureErrorCallback;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

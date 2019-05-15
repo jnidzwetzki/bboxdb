@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -28,6 +28,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.RoutingHeaderHelper;
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;

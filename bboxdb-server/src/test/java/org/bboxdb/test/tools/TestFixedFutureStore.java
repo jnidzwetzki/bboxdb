@@ -28,8 +28,8 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
+import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.test.TestFuture;
 import org.junit.Assert;

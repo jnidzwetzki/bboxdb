@@ -15,12 +15,14 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
+
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 
 public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 

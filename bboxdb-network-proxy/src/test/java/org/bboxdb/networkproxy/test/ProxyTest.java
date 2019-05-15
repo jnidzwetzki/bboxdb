@@ -26,7 +26,7 @@ import org.bboxdb.BBoxDBMain;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;

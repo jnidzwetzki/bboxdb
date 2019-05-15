@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.network;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.client.FutureErrorCallback;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 
 public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {

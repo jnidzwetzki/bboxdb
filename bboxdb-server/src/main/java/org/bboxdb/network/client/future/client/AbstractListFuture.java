@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

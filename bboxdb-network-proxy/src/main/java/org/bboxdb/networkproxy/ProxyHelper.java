@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.TupleHelper;

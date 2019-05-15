@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.future.AbstractListFuture;
-import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.network.client.future.JoinedTupleListFuture;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.client.AbstractListFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
+import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;

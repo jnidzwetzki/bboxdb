@@ -28,7 +28,7 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.IndexedTupleUpdateHelper;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;

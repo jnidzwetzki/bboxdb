@@ -15,12 +15,13 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
 

@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 
 public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallback {

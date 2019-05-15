@@ -15,17 +15,21 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
-@FunctionalInterface
-public interface FutureErrorCallback {
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.storage.entity.Tuple;
 
-	/**
-	 * Handle the failure of a network operation future
-	 * 
-	 * The result determines, whether the future should be retried 
-	 * or should be fail
-	 * @return
-	 */
-	public boolean handleError(final NetworkOperationFuture future);
+public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIterator<Tuple> {
+	
+	public ThreadedTupleListFutureIterator(final AbstractListFuture<Tuple> abstractListFuture) {
+		super(abstractListFuture);
+	}
+
+	@Override
+	protected Tuple buildQueueTerminal() {
+		return new Tuple("", Hyperrectangle.FULL_SPACE, "".getBytes());
+	}
+	
+
 }

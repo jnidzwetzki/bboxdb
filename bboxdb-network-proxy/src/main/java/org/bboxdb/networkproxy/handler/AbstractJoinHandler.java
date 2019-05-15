@@ -25,7 +25,7 @@ import java.util.Arrays;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.JoinedTupleListFuture;
+import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;

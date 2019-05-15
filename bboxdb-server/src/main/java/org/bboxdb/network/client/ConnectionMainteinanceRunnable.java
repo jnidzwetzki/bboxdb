@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;

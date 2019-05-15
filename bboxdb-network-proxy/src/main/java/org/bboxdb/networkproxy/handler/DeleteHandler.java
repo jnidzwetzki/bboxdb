@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.slf4j.Logger;

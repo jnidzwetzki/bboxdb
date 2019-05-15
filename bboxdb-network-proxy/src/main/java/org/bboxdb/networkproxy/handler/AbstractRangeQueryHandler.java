@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.slf4j.Logger;

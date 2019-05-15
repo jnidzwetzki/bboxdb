@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;

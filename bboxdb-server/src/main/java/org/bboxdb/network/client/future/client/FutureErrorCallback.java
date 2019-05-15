@@ -15,21 +15,19 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
-import java.util.ArrayList;
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 
-import org.bboxdb.storage.entity.JoinedTuple;
+@FunctionalInterface
+public interface FutureErrorCallback {
 
-public class ThreadedJoinedTupleListFutureIterator extends AbstractTheadedListFutureIterator<JoinedTuple> {
-	
-	public ThreadedJoinedTupleListFutureIterator(final AbstractListFuture<JoinedTuple> abstractListFuture) {
-		super(abstractListFuture);
-	}
-
-	@Override
-	protected JoinedTuple buildQueueTerminal() {
-		return new JoinedTuple(new ArrayList<>(), new ArrayList<>());
-	}
-
+	/**
+	 * Handle the failure of a network operation future
+	 * 
+	 * The result determines, whether the future should be retried 
+	 * or should be fail
+	 * @return
+	 */
+	public boolean handleError(final NetworkOperationFuture future);
 }

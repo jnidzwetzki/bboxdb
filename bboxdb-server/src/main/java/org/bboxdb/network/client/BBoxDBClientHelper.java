@@ -18,8 +18,8 @@
 package org.bboxdb.network.client;
 
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.future.AbstractListFuture;
-import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.AbstractListFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

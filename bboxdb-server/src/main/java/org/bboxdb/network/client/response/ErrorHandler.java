@@ -20,7 +20,7 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.AbstractBodyResponse;
 import org.bboxdb.network.packages.response.ErrorResponse;

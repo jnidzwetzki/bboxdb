@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.NetworkOperationFuture;
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.JoinedTupleResponse;
 import org.bboxdb.storage.entity.PagedTransferableEntity;

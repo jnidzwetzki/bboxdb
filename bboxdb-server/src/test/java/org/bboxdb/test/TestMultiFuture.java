@@ -20,9 +20,9 @@ package org.bboxdb.test;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
-import org.bboxdb.network.client.future.NetworkOperationFuture;
-import org.bboxdb.network.client.future.NetworkOperationFutureImpl;
-import org.bboxdb.network.client.future.NetworkOperationFutureMultiImpl;
+import org.bboxdb.network.client.future.network.NetworkOperationFuture;
+import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
+import org.bboxdb.network.client.future.network.NetworkOperationFutureMultiImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;

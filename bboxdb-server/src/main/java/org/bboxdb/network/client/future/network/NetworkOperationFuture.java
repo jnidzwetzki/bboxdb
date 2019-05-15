@@ -15,13 +15,14 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.network;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.client.FutureErrorCallback;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 
 public interface NetworkOperationFuture {

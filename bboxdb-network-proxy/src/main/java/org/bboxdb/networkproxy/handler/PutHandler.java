@@ -23,7 +23,7 @@ import java.io.OutputStream;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;

@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.future.client.OperationFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

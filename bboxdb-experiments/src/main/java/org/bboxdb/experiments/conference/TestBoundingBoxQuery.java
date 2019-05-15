@@ -32,7 +32,7 @@ import org.bboxdb.experiments.ExperimentHelper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
 
 import com.google.common.base.Stopwatch;

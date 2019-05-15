@@ -39,7 +39,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.Tuple;

@@ -15,17 +15,16 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future;
+package org.bboxdb.network.client.future.client;
 
-import java.util.List;
-import java.util.function.Supplier;
+public enum FutureRetryPolicy {
 
-import org.bboxdb.network.packages.response.HelloResponse;
+	// On failure, no future is retried
+	RETRY_POLICY_NONE,
 
-public class HelloFuture extends OperationFutureImpl<HelloResponse> {
+	// On failure, the failing future is retried
+	RETRY_POLICY_ONE_FUTURE,
 
-	public HelloFuture(final Supplier<List<NetworkOperationFuture>> futures) {
-		super(futures);
-	}
-
+	// On failure, all futures (even the successful ones) are retried
+	RETRY_POLICY_ALL_FUTURES;
 }
