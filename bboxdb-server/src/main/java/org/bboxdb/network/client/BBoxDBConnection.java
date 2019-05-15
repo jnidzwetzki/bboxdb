@@ -702,8 +702,9 @@ public class BBoxDBConnection {
 	 * Handle the next result package
 	 * @param packageHeader
 	 * @throws PackageEncodeException
+	 * @throws InterruptedException 
 	 */
-	public void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException, InterruptedException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 

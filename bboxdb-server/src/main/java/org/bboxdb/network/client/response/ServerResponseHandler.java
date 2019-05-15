@@ -31,8 +31,9 @@ public interface ServerResponseHandler {
 	 * @param future
 	 * @return Remove the result future or not
 	 * @throws PackageEncodeException
+	 * @throws InterruptedException 
 	 */
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage,final NetworkOperationFuture future) 
-					throws PackageEncodeException;
+					throws PackageEncodeException, InterruptedException;
 }

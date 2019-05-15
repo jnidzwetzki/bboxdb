@@ -43,7 +43,7 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
-			throws PackageEncodeException {
+			throws PackageEncodeException, InterruptedException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle joined tuple package");
@@ -52,7 +52,7 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 		final JoinedTupleResponse singleTupleResponse = JoinedTupleResponse.decodePackage(encodedPackage);
 		
 		// Tuple is part of a multi tuple result
-		final Object currentResultObject = future.getIntermediateResult();
+		final Object currentResultObject = future.get(false);
 		
 		if(currentResultObject instanceof List) {
 			@SuppressWarnings("unchecked")

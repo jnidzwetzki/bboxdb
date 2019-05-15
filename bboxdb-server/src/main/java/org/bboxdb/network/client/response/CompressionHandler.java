@@ -38,11 +38,12 @@ public class CompressionHandler implements ServerResponseHandler {
 
 	/**
 	 * Handle the compressed package
+	 * @throws InterruptedException 
 	 */
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
-			throws PackageEncodeException {
+			throws PackageEncodeException, InterruptedException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle compression package");

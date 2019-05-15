@@ -39,11 +39,12 @@ public class TupleHandler implements ServerResponseHandler {
 	/**
 	 * Handle a single tuple as result
 	 * @return 
+	 * @throws InterruptedException 
 	 */
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
-			throws PackageEncodeException {
+			throws PackageEncodeException, InterruptedException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle tuple package");
@@ -52,7 +53,7 @@ public class TupleHandler implements ServerResponseHandler {
 		final TupleResponse singleTupleResponse = TupleResponse.decodePackage(encodedPackage);
 		
 		// Tuple is part of a multi tuple result
-		final Object currentResultObject = future.getIntermediateResult();
+		final Object currentResultObject = future.get(false);
 		
 		if(currentResultObject instanceof List) {
 			@SuppressWarnings("unchecked")

@@ -116,8 +116,12 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#get()
 	 */
 	@Override
-	public Object get() throws InterruptedException {
-		 return getReadyFuture().get();
+	public Object get(final boolean waitForCompletion) throws InterruptedException {
+		if(! waitForCompletion) {
+			return futures.get(0).get(waitForCompletion);
+		}
+		
+		return getReadyFuture().get(waitForCompletion);
 	}
 
 	/**
@@ -130,10 +134,6 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 		}
 		
 		return completeFuture;
-	}
-
-	public Object getIntermediateResult() {
-		return futures.get(0).getIntermediateResult();
 	}
 
 	/* (non-Javadoc)

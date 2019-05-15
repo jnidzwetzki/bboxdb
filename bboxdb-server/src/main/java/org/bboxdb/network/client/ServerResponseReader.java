@@ -63,8 +63,10 @@ public class ServerResponseReader extends ExceptionSafeRunnable {
 	 * Process the next server answer
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
+	 * @throws InterruptedException 
 	 */
-	public void processNextResponsePackage(final InputStream inputStream) throws PackageEncodeException, IOException {
+	public void processNextResponsePackage(final InputStream inputStream) 
+			throws PackageEncodeException, IOException, InterruptedException {
 
 		final ByteBuffer bb = readNextResponsePackageHeader(inputStream);
 		

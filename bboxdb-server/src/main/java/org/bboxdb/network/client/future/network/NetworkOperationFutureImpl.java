@@ -152,17 +152,16 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 		connection.registerPackageCallback(lastTransmittedPackage, this);
 		connection.sendPackageToServer(lastTransmittedPackage, this);
 	}
-	
-	public Object getIntermediateResult() {
-		return operationResult;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#get()
 	 */
 	@Override
-	public Object get() throws InterruptedException {
-		latch.await();
+	public Object get(final boolean waitForCompletion) throws InterruptedException {
+		if(waitForCompletion) {
+			latch.await();
+		}
+		
 		return operationResult;
 	}
 

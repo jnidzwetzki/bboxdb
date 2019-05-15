@@ -36,18 +36,13 @@ public interface NetworkOperationFuture {
 	 * Reexecute
 	 */
 	public void execute();
-	
-	/**
-	 * Get the intermediate result
-	 */
-	public Object getIntermediateResult();
 
 	/**
 	 * Get (and wait) for the result
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public Object get() throws InterruptedException;
+	public Object get(final boolean waitForCompletion) throws InterruptedException;
 
 	/**
 	 * Returns the request id

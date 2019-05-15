@@ -37,7 +37,7 @@ public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 	public Boolean get(int resultId) throws InterruptedException {
 
 		// Wait for the future
-		futures.get(resultId).get();
+		futures.get(resultId).get(true);
 
 		// Return true, when the operation was successfully
 		return ! isFailed();

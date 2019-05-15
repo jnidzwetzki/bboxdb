@@ -206,7 +206,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	public T get(final int resultId) throws InterruptedException {
 		checkFutureSize(resultId);
 
-		return (T) futures.get(resultId).get();
+		return (T) futures.get(resultId).get(true);
 	}
 
     /* (non-Javadoc)
