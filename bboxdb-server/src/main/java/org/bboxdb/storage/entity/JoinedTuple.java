@@ -99,18 +99,19 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	}
 	
 	/**
-	 * Get the intersection bounding box of all tuples
+	 * Get the bounding box of all tuples
 	 * @return
 	 */
 	public Hyperrectangle getBoundingBox() {
-		Hyperrectangle intersectionBox = tuples.get(0).getBoundingBox();
+		
+		final List<Hyperrectangle> bboxes = new ArrayList<>();
 				
-		for(int i = 1; i < tuples.size(); i++) {
+		for(int i = 0; i < tuples.size(); i++) {
 			final Hyperrectangle tupleBox = tuples.get(i).getBoundingBox();
-			intersectionBox = intersectionBox.getIntersection(tupleBox);
+			bboxes.add(tupleBox);
 		}
 		
-		return intersectionBox;
+		return Hyperrectangle.getCoveringBox(bboxes);
 	}
 	
 	/**

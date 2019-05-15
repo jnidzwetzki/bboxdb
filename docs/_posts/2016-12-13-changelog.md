@@ -15,6 +15,7 @@ order: 1
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 - Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)
+- Bugfix: Fixed the calculation of the bounding box of joined tuples
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script
