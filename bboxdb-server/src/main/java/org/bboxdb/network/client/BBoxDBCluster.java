@@ -87,8 +87,8 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	public BBoxDBCluster(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
-		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
-		membershipConnectionService = MembershipConnectionService.getInstance();
+		this.resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		this.membershipConnectionService = MembershipConnectionService.getInstance();
 	}
 	
 	/**
