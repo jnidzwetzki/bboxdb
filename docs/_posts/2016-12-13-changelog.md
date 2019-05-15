@@ -11,6 +11,7 @@ order: 1
 - Improvement: Returned tuples are now shown in CLI calls
 - Improvement: Added linestring geojson type
 - Improvement: Replaced OSMPoint by Point2D.Double
+- Improvement: Improved result buffer handling of network requests
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 - Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)

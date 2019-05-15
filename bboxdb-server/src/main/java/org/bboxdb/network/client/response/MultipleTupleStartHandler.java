@@ -19,13 +19,10 @@ package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +47,7 @@ public class MultipleTupleStartHandler implements ServerResponseHandler {
 			logger.debug("Handle multiple tuple start package");
 		}
 		
-		final MultipleTupleStartResponse result = MultipleTupleStartResponse.decodePackage(encodedPackage);
-		final Map<Short, List<PagedTransferableEntity>> resultBuffer = bBoxDBConnection.getResultBuffer();
-		resultBuffer.put(result.getSequenceNumber(), new ArrayList<>());
+		future.setOperationResult(new ArrayList<PagedTransferableEntity>());
 		
 		return false;
 	}

@@ -65,7 +65,6 @@ import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,11 +98,6 @@ public class BBoxDBConnection {
 	 * The pending calls
 	 */
 	private final Map<Short, NetworkOperationFutureImpl> pendingCalls;
-
-	/**
-	 * The result buffer
-	 */
-	private final Map<Short, List<PagedTransferableEntity>> resultBuffer;
 
 	/**
 	 * The server response reader
@@ -226,8 +220,7 @@ public class BBoxDBConnection {
 		// Concurrent access with synchronized
 		this.pendingCompressionPackages = new ArrayList<>();
 
-		// Concurrent access
-		this.resultBuffer = new ConcurrentHashMap<>();
+		// Concurrent access to the pending calls
 		this.pendingCalls = new ConcurrentHashMap<>();
 
 		initResponseHandler();
@@ -281,8 +274,6 @@ public class BBoxDBConnection {
 			synchronized (pendingCalls) {
 				pendingCalls.clear();
 			}
-
-			getResultBuffer().clear();
 
 			// Start up the response reader
 			serverResponseReader = new ServerResponseReader(this);
@@ -474,7 +465,6 @@ public class BBoxDBConnection {
 		}
 
 		killPendingCalls();
-		getResultBuffer().clear();
 		
 		// Stop the maintenance thread before the socket is closed
 		connectionState.forceDispatchToTerminated();
@@ -798,14 +788,6 @@ public class BBoxDBConnection {
 	 */
 	public PeerCapabilities getClientCapabilities() {
 		return clientCapabilities;
-	}
-
-	/**
-	 * Get the result buffer
-	 * @return
-	 */
-	public Map<Short, List<PagedTransferableEntity>> getResultBuffer() {
-		return resultBuffer;
 	}
 
 	/**

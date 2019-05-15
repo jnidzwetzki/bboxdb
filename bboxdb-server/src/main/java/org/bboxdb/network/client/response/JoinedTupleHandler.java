@@ -20,7 +20,6 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.NetworkOperationFuture;
@@ -51,13 +50,16 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 		}
 		
 		final JoinedTupleResponse singleTupleResponse = JoinedTupleResponse.decodePackage(encodedPackage);
-		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
 		
 		// Tuple is part of a multi tuple result
-		final Map<Short, List<PagedTransferableEntity>> resultBuffer = bBoxDBConnection.getResultBuffer();
+		final Object currentResultObject = future.getIntermediateResult();
 		
-		if(resultBuffer.containsKey(sequenceNumber)) {
-			resultBuffer.get(sequenceNumber).add(singleTupleResponse.getJoinedTuple());
+		if(currentResultObject instanceof List) {
+			@SuppressWarnings("unchecked")
+			final List<PagedTransferableEntity> currentResultList 
+				= (List<PagedTransferableEntity>) currentResultObject;
+			
+			currentResultList.add(singleTupleResponse.getJoinedTuple());
 			
 			// The removal of the future depends, if this is a one
 			// tuple result or a multiple tuple result

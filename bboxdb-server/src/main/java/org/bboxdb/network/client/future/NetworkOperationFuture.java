@@ -36,6 +36,11 @@ public interface NetworkOperationFuture {
 	 * Reexecute
 	 */
 	public void execute();
+	
+	/**
+	 * Get the intermediate result
+	 */
+	public Object getIntermediateResult();
 
 	/**
 	 * Get (and wait) for the result

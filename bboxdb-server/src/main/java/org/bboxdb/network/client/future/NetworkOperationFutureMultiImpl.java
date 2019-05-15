@@ -132,6 +132,10 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 		return completeFuture;
 	}
 
+	public Object getIntermediateResult() {
+		return futures.get(0).getIntermediateResult();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#get(long, java.util.concurrent.TimeUnit)
 	 */
