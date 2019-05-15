@@ -127,16 +127,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		return futures.get(resultId).getRequestId();
 	}
 
-	/**
-	 * Set the result of the operation
-	 * @param result
-	 */
-	public void setOperationResult(final int resultId, final T result) {
-		checkFutureSize(resultId);
-
-		futures.get(resultId).setOperationResult(result);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#getMessage(int)
 	 */
