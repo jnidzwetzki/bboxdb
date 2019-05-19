@@ -49,7 +49,7 @@ public class SequenceNumberGenerator {
 	 */
 	public synchronized short getNextSequenceNummber() {
 		short nextNumber = (short) sequenceNumber.getAndIncrement();
-		short numberTry = 1;
+		int numberTry = 1;
 				
 		// Check if sequence number is unused
 		while(usedNumbers.contains(nextNumber)) {
