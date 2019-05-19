@@ -15,9 +15,10 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client.future.client;
+package org.bboxdb.network.client.future.client.helper;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.storage.entity.Tuple;
 
 public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIterator<Tuple> {

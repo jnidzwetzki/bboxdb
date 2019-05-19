@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.bboxdb.network.client.future.client.helper.ThreadedJoinedTupleListFutureIterator;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;

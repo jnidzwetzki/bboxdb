@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client.future.client;
+package org.bboxdb.network.client.future.client.helper;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -26,6 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.bboxdb.storage.util.CloseableIterator;
 import org.bboxdb.storage.util.EntityDuplicateTracker;

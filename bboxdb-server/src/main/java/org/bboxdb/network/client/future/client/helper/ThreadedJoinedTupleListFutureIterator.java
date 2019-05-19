@@ -15,10 +15,11 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client.future.client;
+package org.bboxdb.network.client.future.client.helper;
 
 import java.util.ArrayList;
 
+import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
 
 public class ThreadedJoinedTupleListFutureIterator extends AbstractTheadedListFutureIterator<JoinedTuple> {
