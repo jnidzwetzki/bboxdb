@@ -17,25 +17,15 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.client;
 
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.RoutingHeaderHelper;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.request.InsertOption;
-import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
 import org.bboxdb.storage.util.TupleHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TupleListFuture extends AbstractListFuture<Tuple> {
 
@@ -43,12 +33,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 	 * The duplicate resolver
 	 */
 	private final DuplicateResolver<Tuple> duplicateResolver;
-
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(TupleListFuture.class);
-
+	
 	/**
 	 * The tablename for the read operation
 	 */
@@ -87,7 +72,8 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		duplicateResolver.removeDuplicates(allTuples);
 
 		// Perform read repair
-		performReadRepair(allTuples);
+		final ReadRepair readRepair = new ReadRepair(tablename, futures);
+		readRepair.performReadRepair(allTuples);
 
 		final EntityDuplicateTracker entityDuplicateTracker = new EntityDuplicateTracker();
 
@@ -101,69 +87,5 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		}
 
 		return allTuples.iterator();
-	}
-
-	/**
-	 * Perform read repair by checking all results
-	 */
-	private void performReadRepair(final List<Tuple> allTuples) {
-
-		// Unable to perform read repair on only one result object
-		if(getNumberOfResultObjets() < 2) {
-			return;
-		}
-
-		try {
-			for(int resultId = 0; resultId < getNumberOfResultObjets(); resultId++) {
-				performReadRepairForResult(allTuples, resultId);
-			}
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return;
-		} catch (BBoxDBException | ZookeeperException e) {
-			logger.error("Got exception during read repair", e);
-		}
-	}
-
-	/**
-	 * Perform read repair for the given result
-	 *
-	 * @param allTuples
-	 * @param resultId
-	 * @throws InterruptedException
-	 * @throws BBoxDBException
-	 * @throws ZookeeperException
-	 */
-	private void performReadRepairForResult(final List<Tuple> allTuples, int resultId)
-			throws InterruptedException, BBoxDBException, ZookeeperException {
-
-		final List<Tuple> tupleResult = get(resultId);
-
-		final BBoxDBConnection bboxDBConnection = getConnection(resultId);
-
-		if(bboxDBConnection == null) {
-			// Unable to perform read repair when the connection is not known
-			return;
-		}
-
-		for(final Tuple tuple : allTuples) {
-			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
-					tablename, tuple.getBoundingBox(), true, bboxDBConnection.getServerAddress(), true);
-
-			// System is not responsible for the tuple
-			if(routingHeader.getHopCount() == 0) {
-				return;
-			}
-
-			if(! tupleResult.contains(tuple)) {
-
-				logger.info("Tuple {} is not contained in result {} from server {}, "
-						+ "performing read repair", tuple, tupleResult,
-						bboxDBConnection.getConnectionName());
-
-				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
-				bboxDBClient.insertTuple(tablename, tuple, routingHeader, EnumSet.noneOf(InsertOption.class));
-			}
-		}
 	}
 }
