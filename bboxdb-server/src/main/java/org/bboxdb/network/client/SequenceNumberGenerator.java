@@ -71,7 +71,7 @@ public class SequenceNumberGenerator {
 	 * 
 	 * @return The sequence number
 	 */
-	public short getSequeneNumberWithoutIncrement() {
+	public short getLastGeneratedNumber() {
 		return sequenceNumber.shortValue();
 	}
 	

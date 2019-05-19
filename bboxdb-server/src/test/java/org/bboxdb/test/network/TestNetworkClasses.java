@@ -138,7 +138,7 @@ public class TestNetworkClasses {
 	 */
 	@Test(timeout=60000)
 	public void testRequestPackageHeader() throws IOException, PackageEncodeException {
-		final short currentSequenceNumber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
+		final short currentSequenceNumber = sequenceNumberGenerator.getLastGeneratedNumber();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final KeepAliveRequest listTablesRequest = new KeepAliveRequest(sequenceNumber);
