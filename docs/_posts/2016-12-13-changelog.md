@@ -12,6 +12,7 @@ order: 1
 - Improvement: Added linestring geojson type
 - Improvement: Replaced OSMPoint by Point2D.Double
 - Improvement: Improved result buffer handling of network requests
+- Improvement: Bump up zookeeper from 3.4.14 to 3.5.5
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 - Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)
