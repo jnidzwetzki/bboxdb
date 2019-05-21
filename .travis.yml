@@ -14,8 +14,8 @@ before_install:
   - mkdir /tmp/zookeeper
   - wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.5/apache-zookeeper-3.5.5.tar.gz
   - tar xzf apache-zookeeper-3.5.5.tar.gz -C /tmp/zookeeper
-  - cp /tmp/zookeeper/zookeeper-3.5.5/conf/zoo_sample.cfg /tmp/zookeeper/zookeeper-3.5.5/conf/zoo.cfg
-  - /tmp/zookeeper/zookeeper-3.5.5/bin/zkServer.sh start
+  - cp /tmp/zookeeper/apache-zookeeper-3.5.5/conf/zoo_sample.cfg /tmp/zookeeper/apache-zookeeper-3.5.5/conf/zoo.cfg
+  - /tmp/zookeeper/apache-zookeeper-3.5.5/bin/zkServer.sh start
   # Change config
   - sed -i "s/zookeepernodes:.*/zookeepernodes:\ ['localhost:2181']/" conf/bboxdb.yaml
   - echo "#####################################################################"
