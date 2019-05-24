@@ -87,6 +87,11 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * The executions
 	 */
 	private final AtomicInteger executions = new AtomicInteger(0);
+	
+	/**
+	 * The total number of retries before the future fails
+	 */
+	private int totalRetries = 20;
 
 	/**
 	 * The last send package
@@ -336,6 +341,21 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	@Override
 	public int getExecutions() {
 		return executions.get();
+	}
+	
+	/**
+	 * Get the total number of retries before the future fails
+	 */
+	public int getTotalRetries() {
+		return totalRetries;
+	}
+
+	/**
+	 * Set the total number of retries before the future fails
+	 * @param totalRetries
+	 */
+	public void setTotalRetries(int totalRetries) {
+		this.totalRetries = totalRetries;
 	}
 
 }

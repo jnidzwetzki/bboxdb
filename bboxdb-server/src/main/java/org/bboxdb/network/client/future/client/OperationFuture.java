@@ -26,11 +26,6 @@ import org.bboxdb.network.client.BBoxDBConnection;
 public interface OperationFuture {
 
 	/**
-	 * The number of retries
-	 */
-	public static final int TOTAL_RETRIES = 20;
-
-	/**
 	 * Get the request id of the operation
 	 * @return
 	 */

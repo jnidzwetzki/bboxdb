@@ -302,7 +302,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleOneFutureRetry(final NetworkOperationFuture future) {
-		if(future.getExecutions() > TOTAL_RETRIES) {
+		if(future.getExecutions() > future.getTotalRetries()) {
 			return false;
 		}
 
@@ -323,7 +323,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleAllFutureRetry() {
-		if(globalRetryCounter >= TOTAL_RETRIES) {
+		if(globalRetryCounter >= futures.get(0).getTotalRetries()) {
 			return false;
 		}
 

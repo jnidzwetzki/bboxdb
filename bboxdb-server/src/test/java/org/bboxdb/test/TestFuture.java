@@ -23,7 +23,6 @@ import java.util.function.Supplier;
 
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
-import org.bboxdb.network.client.future.client.OperationFuture;
 import org.bboxdb.network.client.future.client.OperationFutureImpl;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
@@ -39,6 +38,11 @@ public class TestFuture {
 	 * The mocked connection
 	 */
 	private final static BBoxDBConnection MOCKED_CONNECTION = Mockito.mock(BBoxDBConnection.class);
+	
+	/**
+	 * Get the retries for the test
+	 */
+	private final static int RETRIES_IN_TEST = 5;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -86,13 +90,13 @@ public class TestFuture {
 		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
-		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
+		Assert.assertEquals(networkFuture.getTotalRetries() + 1, networkFuture.getExecutions());
 	}
 
 	@Test(timeout=60000)
 	public void testOneRetry2() throws InterruptedException {
-		final NetworkOperationFuture networkFuture1 = getFailingNetworkFuture();
-		final NetworkOperationFuture networkFuture2 = getReadyNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture1 = getFailingNetworkFuture();
+		final NetworkOperationFutureImpl networkFuture2 = getReadyNetworkFuture();
 
 		final Supplier<List<NetworkOperationFuture>> supplier
 			= () -> (Arrays.asList(networkFuture1, networkFuture2));
@@ -103,7 +107,7 @@ public class TestFuture {
 		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
-		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture1.getExecutions());
+		Assert.assertEquals(networkFuture1.getTotalRetries() + 1, networkFuture1.getExecutions());
 		Assert.assertEquals(1, networkFuture2.getExecutions());
 	}
 
@@ -121,7 +125,7 @@ public class TestFuture {
 		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
-		Assert.assertEquals(OperationFuture.TOTAL_RETRIES + 1, networkFuture.getExecutions());
+		Assert.assertEquals(networkFuture.getTotalRetries() + 1, networkFuture.getExecutions());
 	}
 
 	@Test(timeout=60000)
@@ -139,7 +143,7 @@ public class TestFuture {
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 
-		final int totalRetries = OperationFuture.TOTAL_RETRIES + 1;
+		final int totalRetries = networkFuture1.getTotalRetries() + 1;
 
 		final int executions1 = networkFuture1.getExecutions();
 		final int executions2 = networkFuture2.getExecutions();
@@ -155,13 +159,19 @@ public class TestFuture {
 	public static NetworkOperationFutureImpl getFailingNetworkFuture() {
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 
-		return new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
+		final NetworkOperationFutureImpl resultFuture = 
+				new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
+			
 			public void execute() {
 				super.execute();
 				setFailedState();
 				fireCompleteEvent();
 			};
 		};
+		
+		resultFuture.setTotalRetries(RETRIES_IN_TEST);
+		
+		return resultFuture;
 	}
 
 	/**
@@ -172,11 +182,17 @@ public class TestFuture {
 	public static NetworkOperationFutureImpl getReadyNetworkFuture() {
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 
-		return new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
+		final NetworkOperationFutureImpl resultFuture = 
+				new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
+			
 			public void execute() {
 				super.execute();
 				fireCompleteEvent();
 			};
 		};
+		
+		resultFuture.setTotalRetries(RETRIES_IN_TEST);
+		
+		return resultFuture;
 	}
 }

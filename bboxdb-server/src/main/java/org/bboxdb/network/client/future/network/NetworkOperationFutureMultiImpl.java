@@ -264,5 +264,12 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	public int getExecutions() {
 		return getReadyFuture().getExecutions();
 	}
+	
+	/**
+	 * Get the total number of retries before the future fails
+	 */
+	public int getTotalRetries() {
+		return futures.get(0).getTotalRetries();
+	}
 
 }

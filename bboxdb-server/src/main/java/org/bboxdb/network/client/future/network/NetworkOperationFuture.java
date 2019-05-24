@@ -136,5 +136,11 @@ public interface NetworkOperationFuture {
 	 * @return
 	 */
 	public int getExecutions();
+	
+	/**
+	 * Get the total amount of retries before the future fails
+	 * @return
+	 */
+	public int getTotalRetries();
 
 }
