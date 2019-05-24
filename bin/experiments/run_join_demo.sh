@@ -30,12 +30,23 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
+wood="/export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD"
+road="/export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD"
+
+if [ ! -f ${wood}_FIXED ]; then
+    egrep -v '"type":"Point"' ${wood} > ${wood}_FIXED
+fi
+
+if [ ! -f ${road}_FIXED ]; then
+    egrep -v '"type":"Point"' ${road} > ${road}_FIXED
+fi
+
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup osmgroup
 $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_road
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_forrest
-$BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD  -format geojson -table osmgroup_road
-$BBOXDB_HOME/bin/cli.sh -action import -file /export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD  -format geojson -table osmgroup_forrest
+$BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -table osmgroup_road
+$BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -table osmgroup_forrest
 
 # The query range
 query_range="13.3,13.6:52.4,52.6"
