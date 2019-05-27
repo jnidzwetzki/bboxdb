@@ -22,7 +22,7 @@
 
 
 # Environment
-export GDAL_HOME="~/gdal/gdal-2.1.1"
+export GDAL_HOME=~/gdal/gdal-2.1.1
 export GDAL_DATA=$GDAL_HOME/data
 
 # Max lines per chunk
