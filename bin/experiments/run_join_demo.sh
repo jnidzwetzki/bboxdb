@@ -44,25 +44,25 @@ fi
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup osmgroup
 $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_road
-$BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_forrest
+$BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_forest
 $BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -table osmgroup_road
-$BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -table osmgroup_forrest
+$BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -table osmgroup_forest
 
 # The query range
 query_range="13.3,13.6:52.4,52.6"
 
 echo "===== Range query on road ====="
 read -p "Press enter to continue"
-$BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_road -bbox $query_range
+$BBOXDB_HOME/bin/cli.sh -action query_range -table osmgroup_road -bbox $query_range
 
 echo "===== Range query on forest ====="
 read -p "Press enter to continue"
-$BBOXDB_HOME/bin/cli.sh -action query -table osmgroup_forrest -bbox $query_range
+$BBOXDB_HOME/bin/cli.sh -action query_range -table osmgroup_forest -bbox $query_range
 
 echo "===== Bounding box join ====="
 read -p "Press enter to continue"
-$BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox $query_range
+$BBOXDB_HOME/bin/cli.sh -action query_join -table osmgroup_road:osmgroup_forest -bbox $query_range
 
 echo "===== Spatial join ====="
 read -p "Press enter to continue"
-$BBOXDB_HOME/bin/cli.sh -action join -table osmgroup_road:osmgroup_forrest -bbox $query_range -filter org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter 
+$BBOXDB_HOME/bin/cli.sh -action query_join -table osmgroup_road:osmgroup_forest -bbox $query_range -filter org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter 

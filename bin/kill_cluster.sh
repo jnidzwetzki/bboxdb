@@ -75,12 +75,12 @@ if [[ $1 != "nopopulate" ]]; then
    $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_3 -bbox 7.5:10,1.5:2.5 -value value_3
 
    # Join 
-   $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0:10:0:8
+   $BBOXDB_HOME/bin/cli.sh -action query_join -table mydgroup_table1:mydgroup_table2 -bbox 0:10:0:8
 
    # Key query and delete
-   $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_table1 -key tuple_a
+   $BBOXDB_HOME/bin/cli.sh -action query_key -table mydgroup_table1 -key tuple_a
    $BBOXDB_HOME/bin/cli.sh -action delete -table mydgroup_table1 -key tuple_a
-   $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_table1 -key tuple_a
-   $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_table1 -bbox 0:20:0:20
+   $BBOXDB_HOME/bin/cli.sh -action query_key -table mydgroup_table1 -key tuple_a
+   $BBOXDB_HOME/bin/cli.sh -action query_range -table mydgroup_table1 -bbox 0:20:0:20
 fi
 
