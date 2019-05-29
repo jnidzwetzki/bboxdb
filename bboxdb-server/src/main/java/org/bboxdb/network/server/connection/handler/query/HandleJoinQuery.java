@@ -64,7 +64,7 @@ public class HandleJoinQuery implements QueryHandler {
 			final List<TupleStoreName> requestTables = queryRequest.getTables();
 			final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
 			final String userDefinedFilterName = queryRequest.getUserDefinedFilterName();
-			final String userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
+			final byte[] userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
 			
 			for(final TupleStoreName requestTable : requestTables) {
 				if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {

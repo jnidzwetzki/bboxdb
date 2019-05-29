@@ -23,19 +23,19 @@ import org.bboxdb.storage.entity.Tuple;
 public interface UserDefinedFilter {
 	
 	/**
-	 * Filter a single tuple
+	 * Filter a single tuple via UDF
 	 * 
 	 * @param tuple - the tuple to filter
 	 * @param customData - custom data to execute the operation
 	 * 
 	 * @return true or false
 	 */
-	public default boolean filterTuple(final Tuple tuple, final String customData) {
+	public default boolean filterTuple(final Tuple tuple, final byte[] customData) {
 		throw new UnsupportedOperationException("The filterTuple method is not implemented");
 	}
 	
 	/**
-	 * Filter a join candidate
+	 * Filter a join candidate via UDF
 	 * 
 	 * @param tuple1 - The first tuple of the join candidate
 	 * @param tuple2 - The second tuple of the join candidate
@@ -44,7 +44,7 @@ public interface UserDefinedFilter {
 	 * @return true or false
 	 */
 	public default boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, 
-			final String customData) {
+			final byte[] customData) {
 		
 		throw new UnsupportedOperationException("The filterTuple method is not implemented");
 	}

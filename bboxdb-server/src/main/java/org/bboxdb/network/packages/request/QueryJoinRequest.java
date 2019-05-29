@@ -64,11 +64,11 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The custom filter value
 	 */
-	private String userDefinedFilterValue;
+	private byte[] userDefinedFilterValue;
 
 	public QueryJoinRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
 			final List<TupleStoreName> tables, final Hyperrectangle box, final String userDefinedFilterName, 
-			final String userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
+			final byte[] userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -103,7 +103,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			bb.putInt(bboxBytes.length);
 			
 			final byte[] customFilterBytes = userDefinedFilterName.getBytes();
-			final byte[] customValueBytes = userDefinedFilterValue.getBytes();
+			final byte[] customValueBytes = userDefinedFilterValue;
 			
 			bb.putInt((int) customFilterBytes.length);
 			bb.putInt((int) customValueBytes.length);
@@ -179,7 +179,6 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		
 		final byte[] customFilterValueBytes = new byte[customValueLength];
 		encodedPackage.get(customFilterValueBytes, 0, customFilterValueBytes.length);
-		final String customFilterValue = new String(customFilterValueBytes);
 				
 		final List<TupleStoreName> tableNames = new ArrayList<>();
 		
@@ -198,7 +197,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
 		return new QueryJoinRequest(sequenceNumber, routingHeader, tableNames, boundingBox, 
-				customFilterName, customFilterValue, pagingEnabled, tuplesPerPage);
+				customFilterName, customFilterValueBytes, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -232,7 +231,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		return userDefinedFilterName;
 	}
 	
-	public String getUserDefinedFilterValue() {
+	public byte[] getUserDefinedFilterValue() {
 		return userDefinedFilterValue;
 	}
 

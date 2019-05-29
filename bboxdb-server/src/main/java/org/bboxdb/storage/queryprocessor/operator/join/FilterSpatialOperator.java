@@ -34,11 +34,11 @@ public class FilterSpatialOperator extends SpatialIterator {
 	/** 
 	 * The user defined value
 	 */
-	private final String userDefinedValue;
+	private final byte[] userDefinedValue;
 
 	public FilterSpatialOperator(final Iterator<JoinedTuple> tupleStreamSource, 
 			final SpatialIndexReadOperator indexReader, final UserDefinedFilter userDefinedFilter, 
-			final String userDefinedValue) {
+			final byte[] userDefinedValue) {
 		
 		super(tupleStreamSource, indexReader);
 		this.userDefinedFilter = userDefinedFilter;

@@ -141,7 +141,7 @@ public class BBoxDBClientExample {
 
 		// Query by bounding box
 		final TupleListFuture resultFuture2 = bboxdbClient.queryRectangle(
-				mytable, new Hyperrectangle(-0.5d, 1d, -0.5d, 1d), "", "");
+				mytable, new Hyperrectangle(-0.5d, 1d, -0.5d, 1d), "", "".getBytes());
 		
 		// Again, we got a future object, the search is performed asynchronous
 		resultFuture2.waitForCompletion();

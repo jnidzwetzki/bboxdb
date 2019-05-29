@@ -143,7 +143,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 */
 	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox, 
-			final String filterName, final String customValue) throws BBoxDBException;
+			final String filterName, final byte[] customValue) throws BBoxDBException;
 
 	/**
 	 * Execute a continuous query with the given query plan
@@ -185,7 +185,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 */
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
-			final String filterName, final String customValue) throws BBoxDBException;
+			final String filterName, final byte[] customValue) throws BBoxDBException;
 
 	/**
 	 * Cancel a given query

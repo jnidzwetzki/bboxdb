@@ -349,7 +349,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox,
-			final String filterName, final String customValue) throws BBoxDBException {
+			final String filterName, final byte[] customValue) throws BBoxDBException {
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
@@ -485,7 +485,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	@Override
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
-			final String filterName, final String customValue) throws BBoxDBException {
+			final String filterName, final byte[] customValue) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryJoin called, but connection list is empty");

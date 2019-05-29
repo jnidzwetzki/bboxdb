@@ -20,17 +20,28 @@ package org.bboxdb.network.query.filter;
 import org.bboxdb.storage.entity.Tuple;
 
 public class UserDefinedStringFilter implements UserDefinedFilter {
+	
+	private String customDataString = null;
 
 	@Override
-	public boolean filterTuple(final Tuple tuple, final String customData) {
-		return new String(tuple.getDataBytes()).contains(customData);
+	public boolean filterTuple(final Tuple tuple, final byte[] customData) {
+		
+		if(customDataString == null) {
+			customDataString = new String(customData);
+		}
+		
+		return new String(tuple.getDataBytes()).contains(customDataString);
 	}
 
 	@Override
-	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final String customData) {
+	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
 		final String string1 = new String(tuple1.getDataBytes());
 		final String string2 = new String(tuple2.getDataBytes());
+		
+		if(customDataString == null) {
+			customDataString = new String(customData);
+		}
 
-		return string1.contains(customData) && string2.contains(customData);
+		return string1.contains(customDataString) && string2.contains(customDataString);
 	}
 }

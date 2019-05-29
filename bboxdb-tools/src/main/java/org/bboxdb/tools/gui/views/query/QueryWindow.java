@@ -266,7 +266,7 @@ public class QueryWindow {
 				
 				try {
 					final JoinedTupleListFuture result = guimodel.getConnection().queryJoin(
-							Arrays.asList(table1, table2), bbox, customFilter, customValue);
+							Arrays.asList(table1, table2), bbox, customFilter, customValue.getBytes());
 					
 					result.waitForCompletion();
 					if(result.isFailed()) {
@@ -336,7 +336,8 @@ public class QueryWindow {
 					final String customFilter, final String customValue) {
 				
 				try {
-					final TupleListFuture result = guimodel.getConnection().queryRectangle(table1, bbox, customFilter, customValue);
+					final TupleListFuture result = guimodel.getConnection().queryRectangle(
+							table1, bbox, customFilter, customValue.getBytes());
 					
 					result.waitForCompletion();
 					if(result.isFailed()) {

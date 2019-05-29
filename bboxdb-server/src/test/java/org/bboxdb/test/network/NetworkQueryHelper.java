@@ -175,7 +175,7 @@ public class NetworkQueryHelper {
 			final Hyperrectangle queryBox) throws BBoxDBException, InterruptedException {
 
 		System.out.println("=== Executing query for: " + queryBox);
-		final TupleListFuture future = bboxDBClient.queryRectangle(table, queryBox, "", "");
+		final TupleListFuture future = bboxDBClient.queryRectangle(table, queryBox, "", "".getBytes());
 		future.waitForCompletion();
 		System.out.println("=== Query DONE");
 
@@ -406,7 +406,7 @@ public class NetworkQueryHelper {
 
 		// Execute the join
 		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2),
-				new Hyperrectangle(0.0, 10.0, 0.0, 10.0), "", "");
+				new Hyperrectangle(0.0, 10.0, 0.0, 10.0), "", "".getBytes());
 		joinResult.waitForCompletion();
 		final List<JoinedTuple> resultList = Lists.newArrayList(joinResult.iterator());
 

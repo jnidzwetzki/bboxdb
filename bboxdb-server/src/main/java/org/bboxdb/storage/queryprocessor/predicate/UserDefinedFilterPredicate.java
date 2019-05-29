@@ -30,10 +30,10 @@ public class UserDefinedFilterPredicate implements Predicate {
 	/**
 	 * The custom filter date
 	 */
-	private String customFilterData;
+	private byte[] customFilterData;
 
 	public UserDefinedFilterPredicate(final UserDefinedFilter userDefinedFilter,
-			final String customFilterData) {
+			final byte[] customFilterData) {
 
 		this.userDefinedFilter = userDefinedFilter;
 		this.customFilterData = customFilterData;

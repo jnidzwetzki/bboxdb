@@ -409,7 +409,7 @@ public class CLI implements Runnable, AutoCloseable {
 			System.out.println("Executing join query...");
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
-					customFilterClass, customFilterValue);
+					customFilterClass, customFilterValue.getBytes());
 
 			if(resultFuture == null) {
 				System.err.println("Unable to get query");
@@ -539,7 +539,8 @@ public class CLI implements Runnable, AutoCloseable {
 			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
 			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
 			
-			return bboxDbConnection.queryRectangle(table, boundingBox, customFilterClass, customFilterValue);
+			return bboxDbConnection.queryRectangle(table, boundingBox, 
+					customFilterClass, customFilterValue.getBytes());
 
 		} else if(line.hasOption(CLIParameter.TIMESTAMP)) {
 			System.out.println("Executing time query...");

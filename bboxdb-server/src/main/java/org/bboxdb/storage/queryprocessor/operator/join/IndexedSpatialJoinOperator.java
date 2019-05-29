@@ -45,17 +45,17 @@ public class IndexedSpatialJoinOperator implements Operator {
 	/**
 	 * The user defined filter value
 	 */
-	private final String userDefinedFilterValue;
+	private final byte[] userDefinedFilterValue;
 	
 	public IndexedSpatialJoinOperator(final Operator tupleStreamOperator, 
 			final SpatialIndexReadOperator indexReader) {
 		
-		this(tupleStreamOperator, indexReader, "", "");
+		this(tupleStreamOperator, indexReader, "", "".getBytes());
 	}
 
 	public IndexedSpatialJoinOperator(final Operator tupleStreamOperator, 
 			final SpatialIndexReadOperator indexReader, final String userDefinedFilterClass,
-			final String userDefinedFilterValue) {
+			final byte[] userDefinedFilterValue) {
 
 		this.tupleStreamOperator = tupleStreamOperator;
 		this.indexReader = indexReader;
