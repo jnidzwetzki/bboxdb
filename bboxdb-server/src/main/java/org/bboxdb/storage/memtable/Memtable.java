@@ -172,8 +172,11 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		}
 
 		data[freePos] = tuple;
-		final SpatialIndexEntry indexEntry = new SpatialIndexEntry(tuple.getBoundingBox(), freePos);
-		spatialIndexBuilder.insert(indexEntry);
+		
+		if(! TupleHelper.isDeletedTuple(tuple)) {
+			final SpatialIndexEntry indexEntry = new SpatialIndexEntry(tuple.getBoundingBox(), freePos);
+			spatialIndexBuilder.insert(indexEntry);
+		}
 
 		keyPositions.computeIfAbsent(tuple.getKey(), (e) -> new HashSet<>()).add(freePos);
 
