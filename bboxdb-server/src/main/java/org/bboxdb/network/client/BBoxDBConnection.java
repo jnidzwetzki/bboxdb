@@ -423,8 +423,11 @@ public class BBoxDBConnection {
 				}
 			}
 
-			if(! pendingCalls.isEmpty()) {
-				logger.warn("Connection is closed. Still pending calls: {} ", pendingCalls);
+			final int usedNumbers = sequenceNumberGenerator.getUsedNumbers();
+			
+			if(! pendingCalls.isEmpty() || usedNumbers > 0) {
+				logger.warn("Connection is closed. Still pending calls: {} / numbers ", 
+						pendingCalls, sequenceNumberGenerator.getUsedNumbers());
 			}
 		}
 	}

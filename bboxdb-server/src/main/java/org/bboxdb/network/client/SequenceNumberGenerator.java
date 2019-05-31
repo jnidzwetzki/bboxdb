@@ -83,4 +83,12 @@ public class SequenceNumberGenerator {
 	public synchronized boolean releaseNumber(final short sequenceNumber) {
 		return usedNumbers.remove(sequenceNumber);
 	}
+	
+	/**
+	 * Get the amount of used numbers
+	 * @return 
+	 */
+	public int getUsedNumbers() {
+		return usedNumbers.size();
+	}
 }
