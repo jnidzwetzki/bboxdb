@@ -426,8 +426,8 @@ public class BBoxDBConnection {
 			final int usedNumbers = sequenceNumberGenerator.getUsedNumbers();
 			
 			if(! pendingCalls.isEmpty() || usedNumbers > 0) {
-				logger.warn("Connection is closed. Still pending calls: {} / numbers ", 
-						pendingCalls, sequenceNumberGenerator.getUsedNumbers());
+				logger.warn("Connection is closed. Still pending calls: {} / used sequence numbers {}", 
+						pendingCalls, usedNumbers);
 			}
 		}
 	}
