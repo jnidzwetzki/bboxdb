@@ -160,7 +160,9 @@ public class TestDynamicgridSpacePartitioner {
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
 		
 		// Wait until is read complete
-		spacePartitioner.waitUntilNodeStateIs(rootElement, DistributionRegionState.ACTIVE);
+		spacePartitioner.waitUntilNodeStateIs(rootElement, DistributionRegionState.SPLIT);
+		spacePartitioner.waitUntilNodeStateIs(rootElement.getChildNumber(0), DistributionRegionState.SPLIT);
+		spacePartitioner.waitUntilNodeStateIs(rootElement.getChildNumber(0).getChildNumber(0), DistributionRegionState.ACTIVE);
 
 		final DistributionRegion regionToSplit = rootElement.getChildNumber(0).getChildNumber(0);
 
