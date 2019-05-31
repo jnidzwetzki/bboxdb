@@ -18,8 +18,6 @@
 package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -52,6 +50,8 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
 
 public class InsertTupleHandler implements RequestHandler {
 
@@ -140,14 +140,7 @@ public class InsertTupleHandler implements RequestHandler {
 
 		if(includeStacktraceInError) {
 			sb.append(" ");
-			
-			final StringWriter out = new StringWriter();
-			final PrintWriter writer = new PrintWriter(out);
-	    
-			e.printStackTrace(writer);
-			writer.close();
-			
-			sb.append(out.getBuffer());
+			sb.append(Throwables.getStackTraceAsString(e));
 		}
 
 		return sb.toString();
