@@ -50,7 +50,7 @@ public class CLIAction {
 	/**
 	 * The name of the join action
 	 */
-	public static final String QUERY_JOIN = "qury_join";
+	public static final String QUERY_JOIN = "query_join";
 		
 	/**
 	 * The name of the query action
