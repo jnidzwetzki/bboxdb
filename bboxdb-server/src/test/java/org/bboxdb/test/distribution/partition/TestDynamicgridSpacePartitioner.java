@@ -158,6 +158,9 @@ public class TestDynamicgridSpacePartitioner {
 	public void testSplitAndMergeRegion() throws BBoxDBException, ZookeeperException, ZookeeperNotFoundException, InterruptedException {
 		final DynamicgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
+		
+		// Wait until is read complete
+		spacePartitioner.waitUntilNodeStateIs(rootElement, DistributionRegionState.ACTIVE);
 
 		final DistributionRegion regionToSplit = rootElement.getChildNumber(0).getChildNumber(0);
 
