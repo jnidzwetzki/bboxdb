@@ -17,6 +17,7 @@ order: 1
 - Bugfix: Improved polygon repair
 - Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)
 - Bugfix: Fixed the calculation of the bounding box of joined tuples
+- Bugfix: Include full stacktraces on rejected exception
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script
