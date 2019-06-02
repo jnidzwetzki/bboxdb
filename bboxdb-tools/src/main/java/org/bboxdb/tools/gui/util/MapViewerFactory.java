@@ -17,17 +17,34 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.util;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import javax.swing.JButton;
 import javax.swing.event.MouseInputListener;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.cache.FileBasedLocalCache;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 
 public class MapViewerFactory {
+	
+	private static Path cacheDir;
+	
+	static {
+		try {
+			cacheDir = Files.createTempDirectory("jxmapviewer2");
+			System.out.println("Caching maps to: " + cacheDir);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
 
 	public static JXMapViewer createMapViewer() {
 		final JXMapViewer mapViewer = new JXMapViewer();
@@ -35,6 +52,7 @@ public class MapViewerFactory {
 		// Create a TileFactoryInfo for OpenStreetMap
 		final TileFactoryInfo info = new OSMTileFactoryInfo();
 		final DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+        tileFactory.setLocalCache(new FileBasedLocalCache(cacheDir.toFile(), false));
 		mapViewer.setTileFactory(tileFactory);
 	
 		final MouseInputListener mia = new PanMouseInputListener(mapViewer);
