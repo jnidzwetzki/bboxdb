@@ -69,6 +69,11 @@ public class QueryWindow {
 	private final GuiModel guimodel;
 	
 	/**
+	 * Selected range
+	 */
+	private String selectedRange = "";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
@@ -126,7 +131,7 @@ public class QueryWindow {
 		
 		builder.addLabel("Range", cc.xy (1,  9));
 		final JTextField rangeField = new JTextField();
-		rangeField.setText("13.3,13.6:52.4,52.6");
+		rangeField.setText(selectedRange);
 		builder.add(rangeField, cc.xy (3,  9));
 
 		builder.addSeparator("Filter", cc.xyw(1,  11, 3));
@@ -368,5 +373,13 @@ public class QueryWindow {
 		};
 		
 		return ececuteAction;
+	}
+	
+	/**
+	 * Set the selected range
+	 * @param selectedRange
+	 */
+	public void setSelectedRange(final String selectedRange) {
+		this.selectedRange = selectedRange;
 	}
 }

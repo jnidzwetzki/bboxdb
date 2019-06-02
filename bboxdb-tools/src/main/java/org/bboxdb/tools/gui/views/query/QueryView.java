@@ -62,7 +62,13 @@ public class QueryView implements View {
 	public JComponent getJPanel() {
 		mapViewer = MapViewerFactory.createMapViewer();
 		
-		final Painter<JXMapViewer> painter = new QueryResultOverlay(dataToDraw);
+        final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter(dataToDraw, 
+        		guiModel, mapViewer);
+        
+        mapViewer.addMouseListener(selectionAdapter);
+        mapViewer.addMouseMotionListener(selectionAdapter);
+		
+		final Painter<JXMapViewer> painter = new QueryResultOverlay(dataToDraw, selectionAdapter);
 		mapViewer.setOverlayPainter(painter);
 		
 		final JPanel mainPanel = new JPanel();
@@ -105,7 +111,6 @@ public class QueryView implements View {
 		final JButton queryButton = new JButton("Execute query");
 		queryButton.addActionListener(l -> {
 			final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
-				System.out.println("---> Elements: " + dataToDraw.size());
 				mapViewer.repaint();
 			});
 

@@ -27,6 +27,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.bboxdb.commons.Pair;
@@ -46,26 +47,51 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	 * The transparency value
 	 */
 	private final static int TRANSPARENCY = 127;
+	
+	/**
+	 * The selection fill color
+	 */
+	private static Color SELECTION_FILL_COLOR = new Color(128, 192, 255, 128);
+	
+	/**
+	 * The selection frame color
+	 */
+	private static Color SELECTION_FRAME_COLOR = new Color(0, 0, 255, 128);
 
-	public QueryResultOverlay(final Collection<Pair<List<Point2D>, Color>> dataToDraw) {
+
+	/**
+	 * The selection adapter
+	 */
+	private QueryRangeSelectionAdapter selectionAdapter;
+
+	public QueryResultOverlay(final Collection<Pair<List<Point2D>, Color>> dataToDraw, 
+			final QueryRangeSelectionAdapter selectionAdapter) {
+		
 		this.dataToDraw = dataToDraw;
+		this.selectionAdapter = selectionAdapter;
 	}
 
 	@Override
 	public void paint(final Graphics2D g, final JXMapViewer map, final int width, final int height) {
 		final Graphics2D graphicsContext = (Graphics2D) g.create();
+		final Color oldColor = graphicsContext.getColor();
+		
+		final Optional<Rectangle> selection = selectionAdapter.getRectangle();
+		if (selection.isPresent()) {
+			g.setColor(SELECTION_FRAME_COLOR);
+			g.draw(selection.get());
+			g.setColor(SELECTION_FILL_COLOR);
+			g.fill(selection.get());			
+		}
 		
 		// convert from viewport to world bitmap
 		final Rectangle rect = map.getViewportBounds();
 		graphicsContext.translate(-rect.x, -rect.y);
 		
 		graphicsContext.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		
-		final Color oldColor = graphicsContext.getColor();
-		
 		drawData(graphicsContext, map);
-		
 		graphicsContext.setColor(oldColor);
+		
 		graphicsContext.dispose();		
 	}
 

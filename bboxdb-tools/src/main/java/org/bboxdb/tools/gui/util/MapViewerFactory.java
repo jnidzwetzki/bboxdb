@@ -27,6 +27,7 @@ import javax.swing.event.MouseInputListener;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.cache.FileBasedLocalCache;
+import org.jxmapviewer.input.PanKeyListener;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -59,6 +60,8 @@ public class MapViewerFactory {
 		mapViewer.addMouseListener(mia);
 		mapViewer.addMouseMotionListener(mia);
 		
+        mapViewer.addKeyListener(new PanKeyListener(mapViewer));
+		
 		// Use 8 threads in parallel to load the tiles
 		tileFactory.setThreadPoolSize(8);
 		
@@ -79,12 +82,12 @@ public class MapViewerFactory {
 	}
 
 	/**
-	 * Show the university of Hagen in the viewer
+	 * Show Berlin in the viewer
 	 * @param mapViewer
 	 */
 	public static void showBerlin(final JXMapViewer mapViewer) {
 		final GeoPosition hagen = new GeoPosition(52.522199, 13.413749);
-		mapViewer.setZoom(7);
+		mapViewer.setZoom(9);
 		mapViewer.setAddressLocation(hagen);
 	}
 	

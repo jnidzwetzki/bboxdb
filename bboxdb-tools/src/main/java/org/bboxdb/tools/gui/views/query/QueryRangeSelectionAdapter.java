@@ -1,0 +1,149 @@
+/*******************************************************************************
+ *
+ *    Copyright (C) 2015-2018 the BBoxDB project
+ *  
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License. 
+ *    
+ *******************************************************************************/
+package org.bboxdb.tools.gui.views.query;
+
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+import javax.swing.SwingUtilities;
+
+import org.bboxdb.commons.Pair;
+import org.bboxdb.tools.gui.GuiModel;
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactory;
+
+public class QueryRangeSelectionAdapter extends MouseAdapter {
+
+	private boolean dragging;
+	private final JXMapViewer viewer;
+
+	private Point2D startPos = new Point2D.Double();
+	private Point2D stopPos = new Point2D.Double();
+	
+	/**
+	 * The global data to draw
+	 */
+	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
+	
+	/**
+	 * The global gui model
+	 */
+	private final GuiModel guiModel;
+
+	public QueryRangeSelectionAdapter(final Collection<Pair<List<Point2D>, Color>> dataToDraw, 
+			final GuiModel guiModel, final JXMapViewer viewer) {
+		
+		this.dataToDraw = dataToDraw;
+		this.guiModel = guiModel;
+		this.viewer = viewer;
+	}
+
+	@Override
+	public void mousePressed(final MouseEvent e) {
+
+		if (!SwingUtilities.isRightMouseButton(e)) {
+			return;
+		}
+
+		startPos.setLocation(e.getX(), e.getY());
+		dragging = true;
+	}
+
+	/**
+	 * pixel coordinates are world coordinates
+	 * 
+	 * @param e
+	 * @return
+	 */
+	private Point2D getRealPos(Point2D point) {
+		final Point2D pos = new Point2D.Double();
+		final Rectangle viewport = viewer.getViewportBounds();
+		pos.setLocation(point.getX() + viewport.getX(), point.getY() + viewport.getY());
+		return pos;
+	}
+
+	@Override
+	public void mouseDragged(final MouseEvent e) {
+
+		if (!dragging) {
+			return;
+		}
+
+		stopPos.setLocation(e.getX(), e.getY());
+
+		viewer.repaint();
+	}
+
+	@Override
+	public void mouseReleased(final MouseEvent e) {
+
+		if (!dragging) {
+			return;
+		}
+
+		if (!SwingUtilities.isRightMouseButton(e)) {
+			return;
+		}
+
+		viewer.repaint();
+		dragging = false;
+
+		final TileFactory tileFactory = viewer.getTileFactory();
+		final Point2D realStartPos = getRealPos(startPos);
+		final GeoPosition beginPos = tileFactory.pixelToGeo(realStartPos, viewer.getZoom());
+		final Point2D realEndPos = getRealPos(stopPos);
+		final GeoPosition endPos = tileFactory.pixelToGeo(realEndPos, viewer.getZoom());
+
+		final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
+			viewer.repaint();
+		});
+		
+		final double minLong = Math.min(beginPos.getLongitude(), endPos.getLongitude());
+		final double maxLong = Math.max(beginPos.getLongitude(), endPos.getLongitude());
+		final double minLat = Math.min(beginPos.getLatitude(), endPos.getLatitude());
+		final double maxLat = Math.max(beginPos.getLatitude(), endPos.getLatitude());
+				
+		queryWindow.setSelectedRange(minLong + "," + maxLong + ":" + minLat + "," + maxLat);
+		queryWindow.show();		
+	}
+
+	/**
+	 * Get the overlay for drawing
+	 * @return
+	 */
+	public Optional<Rectangle> getRectangle() {
+		
+		if (dragging) {
+			int x1 = (int) Math.min(startPos.getX(), stopPos.getX());
+			int y1 = (int) Math.min(startPos.getY(), stopPos.getY());
+			int x2 = (int) Math.max(startPos.getX(), stopPos.getX());
+			int y2 = (int) Math.max(startPos.getY(), stopPos.getY());
+
+			return Optional.of(new Rectangle(x1, y1, x2 - x1, y2 - y1));
+		}
+
+		return Optional.empty();
+	}
+}
