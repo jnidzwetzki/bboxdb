@@ -69,9 +69,25 @@ public class QueryWindow {
 	private final GuiModel guimodel;
 	
 	/**
-	 * Selected range
+	 * Selected range latitude begin
 	 */
-	private String selectedRange = "";
+	private String selectedLatBegin = "";
+
+	/**
+	 * Selected range latitude end
+	 */
+	private String selectedLatEnd = "";
+	
+	/**
+	 * Selected range longitude begin
+	 */
+	private String selectedLongBegin = "";
+	
+	/**
+	 * Selected range longitude end
+	 */
+	private String selectedLongEnd = "";
+
 	
 	/**
 	 * The logger
@@ -104,7 +120,7 @@ public class QueryWindow {
 	private PanelBuilder buildDialog() {
 
 		final FormLayout layout = new FormLayout(
-			    "right:pref, 3dlu, 100dlu", 			// columns
+			    "right:pref, 3dlu, 100dlu, 10dlu, right:pref, 3dlu, 100dlu", 			// columns
 			    "p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 9dlu, p");	// rows
 		
 		final PanelBuilder builder = new PanelBuilder(layout);
@@ -129,19 +145,36 @@ public class QueryWindow {
 		table2Field.setEnabled(false);
 		builder.add(table2Field, cc.xy (3,  7));
 		
-		builder.addLabel("Range", cc.xy (1,  9));
-		final JTextField rangeField = new JTextField();
-		rangeField.setText(selectedRange);
-		builder.add(rangeField, cc.xy (3,  9));
+		
+		builder.addSeparator("Parameter", cc.xyw(5,  1, 3));
+		
+		builder.addLabel("Long begin", cc.xy (5,  3));
+		final JTextField longBegin = new JTextField();
+		longBegin.setText(selectedLongBegin);
+		builder.add(longBegin, cc.xy (7,  3));
+		
+		builder.addLabel("Long end", cc.xy (5,  5));
+		final JTextField longEnd = new JTextField();
+		longEnd.setText(selectedLongEnd);
+		builder.add(longEnd, cc.xy (7,  5));
+		
+		builder.addLabel("Lat begin", cc.xy (5,  7));
+		final JTextField latBegin = new JTextField();
+		latBegin.setText(selectedLatBegin);
+		builder.add(latBegin, cc.xy (7,  7));
+		
+		builder.addLabel("Lat end", cc.xy (5,  9));
+		final JTextField latEnd = new JTextField();
+		latEnd.setText(selectedLatEnd);
+		builder.add(latEnd, cc.xy (7,  9));
 
-		builder.addSeparator("Filter", cc.xyw(1,  11, 3));
-		builder.addLabel("Name", cc.xy (1,  13));
+		builder.addLabel("Name", cc.xy (5,  11));
 		final JTextField filterField = new JTextField();
-		builder.add(filterField, cc.xy (3,  13));
+		builder.add(filterField, cc.xy (7,  11));
 
-		builder.addLabel("Value", cc.xy (1,  15));
+		builder.addLabel("Value", cc.xy (5,  13));
 		final JTextField valueField = new JTextField();
-		builder.add(valueField, cc.xy (3,  15));
+		builder.add(valueField, cc.xy (7,  13));
 
 		// Close
 		final JButton closeButton = new JButton();
@@ -151,7 +184,8 @@ public class QueryWindow {
 		});
 		
 		final Action executeAction = getExecuteAction(queryTypeBox, 
-				table1Field, table2Field, rangeField, filterField, valueField);
+				table1Field, table2Field, longBegin, longEnd, latBegin, latEnd, 
+				filterField, valueField);
 		
 		final JButton executeButton = new JButton(executeAction);
 		executeButton.setText("Execute");
@@ -160,8 +194,8 @@ public class QueryWindow {
 		addActionListener(queryTypeBox, table1Field, table2Field, executeButton);
 
 		
-		builder.add(closeButton, cc.xy(1, 17));
-		builder.add(executeButton, cc.xy(3, 17));
+		builder.add(closeButton, cc.xy(5, 17));
+		builder.add(executeButton, cc.xy(7, 17));
 		
 		return builder;
 	}
@@ -214,7 +248,8 @@ public class QueryWindow {
 	 */
 	private Action getExecuteAction(final JComboBox<String> queryTypeBox, 
 			final JComboBox<String> table1Field, final JComboBox<String> table2Field,
-			final JTextField rangeFieldText, final JTextField filterField, final JTextField valueField) {
+			final JTextField longBegin, final JTextField longEnd, final JTextField latBegin, 
+			final JTextField latEnd, final JTextField filterField, final JTextField valueField) {
 		
 		final AbstractAction ececuteAction = new AbstractAction() {
 			
@@ -229,13 +264,15 @@ public class QueryWindow {
 				final String queryType = queryTypeBox.getSelectedItem().toString();
 				final String table1 = table1Field.getSelectedItem().toString();
 				final String table2 = table2Field.getSelectedItem().toString();
-				final String range = rangeFieldText.getText();
 				final String filter = filterField.getText();
 				final String value = valueField.getText();
 				
-				final Optional<Hyperrectangle> resultBox = HyperrectangleHelper.parseBBox(range);
+				final String selectedRange = longBegin.getText() + "," + longEnd.getText() 
+					+ ":" + latBegin.getText() + "," + latBegin.getText();
+			
+				final Optional<Hyperrectangle> resultBox = HyperrectangleHelper.parseBBox(selectedRange);
 				if(! resultBox.isPresent()) {
-					logger.error("Invalid bounding box: " + range);
+					logger.error("Invalid bounding box: " + selectedRange);
 					return;
 				}
 				
@@ -375,11 +412,20 @@ public class QueryWindow {
 		return ececuteAction;
 	}
 	
-	/**
-	 * Set the selected range
-	 * @param selectedRange
-	 */
-	public void setSelectedRange(final String selectedRange) {
-		this.selectedRange = selectedRange;
+	public void setSelectedLatBegin(final String selectedLatBegin) {
+		this.selectedLatBegin = selectedLatBegin;
 	}
+
+	public void setSelectedLatEnd(final String selectedLatEnd) {
+		this.selectedLatEnd = selectedLatEnd;
+	}
+
+	public void setSelectedLongBegin(final String selectedLongBegin) {
+		this.selectedLongBegin = selectedLongBegin;
+	}
+
+	public void setSelectedLongEnd(final String selectedLongEnd) {
+		this.selectedLongEnd = selectedLongEnd;
+	}
+
 }

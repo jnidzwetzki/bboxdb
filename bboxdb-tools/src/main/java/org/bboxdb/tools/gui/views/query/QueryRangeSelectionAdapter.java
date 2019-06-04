@@ -125,7 +125,11 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 		final double minLat = Math.min(beginPos.getLatitude(), endPos.getLatitude());
 		final double maxLat = Math.max(beginPos.getLatitude(), endPos.getLatitude());
 				
-		queryWindow.setSelectedRange(minLong + "," + maxLong + ":" + minLat + "," + maxLat);
+		queryWindow.setSelectedLongBegin(Double.toString(minLong));
+		queryWindow.setSelectedLongEnd(Double.toString(maxLong));
+		queryWindow.setSelectedLatBegin(Double.toString(minLat));
+		queryWindow.setSelectedLatEnd(Double.toString(maxLat));
+
 		queryWindow.show();		
 	}
 
