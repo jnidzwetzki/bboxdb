@@ -148,22 +148,22 @@ public class QueryWindow {
 		
 		builder.addSeparator("Parameter", cc.xyw(5,  1, 3));
 		
-		builder.addLabel("Long begin", cc.xy (5,  3));
+		builder.addLabel("Longitude begin", cc.xy (5,  3));
 		final JTextField longBegin = new JTextField();
 		longBegin.setText(selectedLongBegin);
 		builder.add(longBegin, cc.xy (7,  3));
 		
-		builder.addLabel("Long end", cc.xy (5,  5));
+		builder.addLabel("Longitude end", cc.xy (5,  5));
 		final JTextField longEnd = new JTextField();
 		longEnd.setText(selectedLongEnd);
 		builder.add(longEnd, cc.xy (7,  5));
 		
-		builder.addLabel("Lat begin", cc.xy (5,  7));
+		builder.addLabel("Latitude begin", cc.xy (5,  7));
 		final JTextField latBegin = new JTextField();
 		latBegin.setText(selectedLatBegin);
 		builder.add(latBegin, cc.xy (7,  7));
 		
-		builder.addLabel("Lat end", cc.xy (5,  9));
+		builder.addLabel("Latitude end", cc.xy (5,  9));
 		final JTextField latEnd = new JTextField();
 		latEnd.setText(selectedLatEnd);
 		builder.add(latEnd, cc.xy (7,  9));
