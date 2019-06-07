@@ -17,14 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.Polygon;
 
 public class GeoJSONTupleBuilder extends TupleBuilder {
 
 	@Override
 	public Tuple buildTuple(final String keyData, final String valueData) {
-		final Polygon polygon = Polygon.fromGeoJson(valueData);
+		final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(valueData);
 		final byte[] tupleBytes = polygon.toGeoJson().getBytes();
 
 		if(polygon.getBoundingBox().getDimension() == 0) {

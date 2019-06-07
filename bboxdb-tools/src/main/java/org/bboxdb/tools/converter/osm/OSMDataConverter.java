@@ -42,6 +42,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.tools.converter.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMBuildingsEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMRoadsEntityFilter;
@@ -53,7 +54,6 @@ import org.bboxdb.tools.converter.osm.store.OSMBDBNodeStore;
 import org.bboxdb.tools.converter.osm.store.OSMJDBCNodeStore;
 import org.bboxdb.tools.converter.osm.store.OSMNodeStore;
 import org.bboxdb.tools.converter.osm.store.OSMSSTableNodeStore;
-import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.bboxdb.tools.converter.osm.util.SerializerHelper;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
@@ -82,7 +82,7 @@ public class OSMDataConverter {
 	/**
 	 * The node serializer
 	 */
-	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
+	protected final SerializerHelper<GeoJsonPolygon> serializerHelper = new SerializerHelper<>();
     
     /**
      * The number element statistics
@@ -338,7 +338,7 @@ public class OSMDataConverter {
 			for(final OSMType osmType : filter.keySet()) {
 				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(node.getTags())) {
-					final Polygon geometricalStructure = new Polygon(node.getId());
+					final GeoJsonPolygon geometricalStructure = new GeoJsonPolygon(node.getId());
 					
 					// GeoJSON: [longitude, latitude]
 					geometricalStructure.addPoint(node.getLongitude(), node.getLatitude());
@@ -364,7 +364,7 @@ public class OSMDataConverter {
 	 * @param geometricalStructure
 	 * @throws IOException
 	 */
-	protected void writePolygonToOutput(final OSMType osmType, final Polygon geometricalStructure) throws IOException {
+	protected void writePolygonToOutput(final OSMType osmType, final GeoJsonPolygon geometricalStructure) throws IOException {
 		final Writer writer = writerMap.get(osmType);
 		synchronized (writer) {
 			writer.write(geometricalStructure.toGeoJson());
@@ -383,7 +383,7 @@ public class OSMDataConverter {
 				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(way.getTags())) {
 					
-					final Polygon geometricalStructure = new Polygon(way.getId());
+					final GeoJsonPolygon geometricalStructure = new GeoJsonPolygon(way.getId());
 
 					for(final Tag tag : way.getTags()) {
 						geometricalStructure.addProperty(tag.getKey(), tag.getValue());

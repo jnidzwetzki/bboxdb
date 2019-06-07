@@ -19,21 +19,20 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.bboxdb.commons.Pair;
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.tools.gui.GuiModel;
 import org.bboxdb.tools.gui.util.MapViewerFactory;
 import org.bboxdb.tools.gui.views.View;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.painter.Painter;
 
 public class QueryView implements View {
 
@@ -50,7 +49,7 @@ public class QueryView implements View {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
+	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
 
 
 	public QueryView(final GuiModel guiModel) {
@@ -68,7 +67,7 @@ public class QueryView implements View {
         mapViewer.addMouseListener(selectionAdapter);
         mapViewer.addMouseMotionListener(selectionAdapter);
 		
-		final Painter<JXMapViewer> painter = new QueryResultOverlay(dataToDraw, selectionAdapter);
+		final QueryResultOverlay painter = new QueryResultOverlay(dataToDraw, selectionAdapter);
 		mapViewer.setOverlayPainter(painter);
 		
 		final JPanel mainPanel = new JPanel();
@@ -99,8 +98,26 @@ public class QueryView implements View {
 		
 		final JButton clearButton = getClearButton();
 		buttonPanel.add(clearButton);
+		
+		final JCheckBox bboxCheckbox = getBBoxCheckbox(painter);
+		buttonPanel.add(bboxCheckbox);
 
 		return mainPanel;	
+	}
+
+	/**
+	 * Get the bounding box checkbox
+	 */
+	private JCheckBox getBBoxCheckbox(final QueryResultOverlay painter) {
+		final JCheckBox bboxCheckbox = new JCheckBox("Show Bounding Boxes");
+		bboxCheckbox.setSelected(true);
+		
+		bboxCheckbox.addActionListener((a) -> {
+			painter.setDrawBoundingBoxes(bboxCheckbox.isSelected());
+			mapViewer.repaint();
+		});
+		
+		return bboxCheckbox;
 	}
 
 	/**

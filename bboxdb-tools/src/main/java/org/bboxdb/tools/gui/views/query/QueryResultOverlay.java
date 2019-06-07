@@ -31,6 +31,8 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.bboxdb.commons.Pair;
+import org.bboxdb.commons.math.GeoJsonPolygon;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -41,7 +43,7 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
+	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
 	
 	/**
 	 * The transparency value
@@ -63,10 +65,14 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	 * The selection adapter
 	 */
 	private QueryRangeSelectionAdapter selectionAdapter;
+	
+	/**
+	 * Draw the bounding boxes of the objects
+	 */
+	private boolean drawBoundingBoxes = true;
 
-	public QueryResultOverlay(final Collection<Pair<List<Point2D>, Color>> dataToDraw, 
+	public QueryResultOverlay(final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw, 
 			final QueryRangeSelectionAdapter selectionAdapter) {
-		
 		this.dataToDraw = dataToDraw;
 		this.selectionAdapter = selectionAdapter;
 	}
@@ -102,7 +108,7 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	 */
 	private void drawData(final Graphics2D graphicsContext, final JXMapViewer map) {
 		
-		final Collection<Pair<List<Point2D>, Color>> pointsToDraw = convertThePointlist(map);
+		final Collection<Pair<List<Point2D>, Color>> pointsToDraw = buildPointlist(map);
 		
 		for(final Pair<List<Point2D>, Color> entry : pointsToDraw) {
 			
@@ -160,22 +166,62 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	 * @param map
 	 * @return
 	 */
-	private Collection<Pair<List<Point2D>, Color>> convertThePointlist(final JXMapViewer map) {
+	private Collection<Pair<List<Point2D>, Color>> buildPointlist(final JXMapViewer map) {
 		
 		final List<Pair<List<Point2D>, Color>> convertedPointList = new CopyOnWriteArrayList<>();
+	
 		
-		for(final Pair<List<Point2D>, Color> element : dataToDraw) {
-			
-			final List<Point2D> elementPoints = new ArrayList<>();
+		for(final Pair<GeoJsonPolygon, Color> element : dataToDraw) {
+	
+			final GeoJsonPolygon polygon = element.getElement1();
+			final List<Point2D> polygonPoints = polygon.getPointList();
+			final List<Point2D> elementPoints = convertPointCoordinatesToGUICoordinates(map, polygonPoints);
 			convertedPointList.add(new Pair<>(elementPoints, element.getElement2()));
 			
-			for(final Point2D point : element.getElement1()) {
-				final GeoPosition geoPosition = new GeoPosition(point.getX(), point.getY());
-				final Point2D convertedPoint = map.getTileFactory().geoToPixel(geoPosition, map.getZoom());
-				elementPoints.add(convertedPoint);
-			}	
+			if(drawBoundingBoxes) {
+				final Hyperrectangle bbox = polygon.getBoundingBox();
+				final List<Point2D> boundingBoxPoints = new ArrayList<>();
+				
+				boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
+				boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateLow(1)));
+				boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateHigh(1)));
+				boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateHigh(1)));
+				boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
+				
+				final List<Point2D> boxPoints = convertPointCoordinatesToGUICoordinates(map, boundingBoxPoints);
+				convertedPointList.add(new Pair<>(boxPoints, Color.BLACK));
+			}
 		}
 	
 		return convertedPointList;
 	}
+	
+	/**
+	 * Convert a list with coordinate points to gui points
+	 * @param map
+	 * @param polygonPoints
+	 * @return
+	 */
+	private List<Point2D> convertPointCoordinatesToGUICoordinates(final JXMapViewer map,
+			final List<Point2D> polygonPoints) {
+		
+		final List<Point2D> elementPoints = new ArrayList<>();
+
+		for(final Point2D point : polygonPoints) {
+			final GeoPosition geoPosition = new GeoPosition(point.getX(), point.getY());
+			final Point2D convertedPoint = map.getTileFactory().geoToPixel(geoPosition, map.getZoom());
+			elementPoints.add(convertedPoint);
+		}
+		
+		return elementPoints;
+	}
+	
+	/**
+	 * Set the drawing of the bounding boxes
+	 * @param drawBoundingBoxes
+	 */
+	public void setDrawBoundingBoxes(final boolean drawBoundingBoxes) {
+		this.drawBoundingBoxes = drawBoundingBoxes;
+	}
+
 }

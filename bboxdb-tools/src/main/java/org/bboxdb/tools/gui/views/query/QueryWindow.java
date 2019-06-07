@@ -19,8 +19,6 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -37,13 +35,13 @@ import javax.swing.JTextField;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.Pair;
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,9 +96,9 @@ public class QueryWindow {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
+	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
 	
-	public QueryWindow(final GuiModel guimodel, final Collection<Pair<List<Point2D>, Color>> dataToDraw, 
+	public QueryWindow(final GuiModel guimodel, final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw, 
 			final Runnable callback) {
 		this.guimodel = guimodel;
 		this.dataToDraw = dataToDraw;
@@ -322,14 +320,13 @@ public class QueryWindow {
 						final String data1 = new String(tuple.getTuple(0).getDataBytes());
 						final String data2 = new String(tuple.getTuple(1).getDataBytes());
 					
-						final Polygon polygon1 = Polygon.fromGeoJson(data1);
-						addPolygon(polygon1, Color.GREEN);
+						final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(data1);
+						polygon1.invertPolygonCoordinates();
+						dataToDraw.add(new Pair<>(polygon1, Color.RED));
 
-						final Polygon polygon2 = Polygon.fromGeoJson(data2);
-						addPolygon(polygon2, Color.RED);
-						
-						final Hyperrectangle bboxTuple = tuple.getBoundingBox();
-						addBoundingBox(bboxTuple);
+						final GeoJsonPolygon polygon2 = GeoJsonPolygon.fromGeoJson(data2);
+						polygon2.invertPolygonCoordinates();
+						dataToDraw.add(new Pair<>(polygon2, Color.GREEN));
 					}
 					
 				} catch (BBoxDBException e) {
@@ -338,35 +335,6 @@ public class QueryWindow {
 					Thread.currentThread().interrupt();
 					return;
 				}
-			}
-
-			/**
-			 * Add the polygon to the overlay
-			 * @param polygon
-			 * @param color 
-			 */
-			private void addPolygon(final Polygon polygon, final Color color) {
-				final List<Point2D> polygonPoints = new ArrayList<>();
-
-				for(final Point2D point : polygon.getPointList()) {
-					polygonPoints.add(new Point2D.Double(point.getY(), point.getX())); 
-				}
-
-				dataToDraw.add(new Pair<>(polygonPoints, color));				
-			}
-
-			/**
-			 * Add the bounding box to the overlay
-			 * @param bboxTuple
-			 */
-			private void addBoundingBox(final Hyperrectangle bboxTuple) {
-				final List<Point2D> boundingBoxPoints = new ArrayList<>();
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateLow(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateHigh(1), bboxTuple.getCoordinateLow(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateHigh(1), bboxTuple.getCoordinateHigh(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateHigh(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateLow(0)));
-				dataToDraw.add(new Pair<>(boundingBoxPoints, Color.BLACK));
 			}
 
 			/**
@@ -391,17 +359,10 @@ public class QueryWindow {
 					
 					for(final Tuple tuple : result) {
 						final String data = new String(tuple.getDataBytes());
-						final Polygon polygon = Polygon.fromGeoJson(data);
-						addPolygon(polygon, Color.GREEN);
-
-						final Hyperrectangle bboxTuple = tuple.getBoundingBox();
-						addBoundingBox(bboxTuple);
+						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
+						polygon.invertPolygonCoordinates();
+						dataToDraw.add(new Pair<>(polygon, Color.GREEN));
 					}
-					
-					
-					System.out.println("Draw polygon " + dataToDraw.size());
-					
-					
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
 				} catch (InterruptedException e) {
@@ -414,18 +375,34 @@ public class QueryWindow {
 		return ececuteAction;
 	}
 	
+	/**
+	 * Set the latitude begin coordinate
+	 * @param selectedLatBegin
+	 */
 	public void setSelectedLatBegin(final String selectedLatBegin) {
 		this.selectedLatBegin = selectedLatBegin;
 	}
 
+	/**
+	 * Set the latitude end coordinate
+	 * @param selectedLatEnd
+	 */
 	public void setSelectedLatEnd(final String selectedLatEnd) {
 		this.selectedLatEnd = selectedLatEnd;
 	}
 
+	/**
+	 * Set the longitude begin coordinate
+	 * @param selectedLongBegin
+	 */
 	public void setSelectedLongBegin(final String selectedLongBegin) {
 		this.selectedLongBegin = selectedLongBegin;
 	}
 
+	/**
+	 * Set the longitude end coordinate
+	 * @param selectedLongEnd
+	 */
 	public void setSelectedLongEnd(final String selectedLongEnd) {
 		this.selectedLongEnd = selectedLongEnd;
 	}

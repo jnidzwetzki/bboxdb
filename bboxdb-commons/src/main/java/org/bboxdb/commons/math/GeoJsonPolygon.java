@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.tools.converter.osm.util;
+package org.bboxdb.commons.math;
 
 import java.awt.geom.Point2D;
 import java.io.Serializable;
@@ -25,12 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.commons.math.Hyperrectangle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-public class Polygon implements Serializable {
+public class GeoJsonPolygon implements Serializable {
 
 	/**
 	 * The JSON constant for ID
@@ -83,10 +82,25 @@ public class Polygon implements Serializable {
 	/**
 	 * The map of properties
 	 */
-	protected final Map<String, String> properties = new HashMap<String, String>();
+	protected final Map<String, String> properties = new HashMap<>();
 
-	public Polygon(final long id) {
+	public GeoJsonPolygon(final long id) {
 		this.id = id;
+	}
+	
+	/**
+	 * Change the order of the 2d coordinates
+	 */
+	public void invertPolygonCoordinates() {
+		final List<Point2D> newPointList = new ArrayList<>();
+		
+		for(final Point2D point : pointList) {
+			newPointList.add(new Point2D.Double(point.getY(), point.getX()));
+		}
+		
+		// Change coordinates
+		pointList.clear();
+		pointList.addAll(newPointList);
 	}
 
 	/**
@@ -247,12 +261,12 @@ public class Polygon implements Serializable {
 	 * Import an object from GeoJSON
 	 * @return
 	 */
-	public static Polygon fromGeoJson(final String jsonData) {
+	public static GeoJsonPolygon fromGeoJson(final String jsonData) {
 		final JSONTokener tokener = new JSONTokener(jsonData);
 		final JSONObject jsonObject = new JSONObject(tokener);
 		final Long objectId = jsonObject.getLong(JSON_ID);
 
-		final Polygon polygon = new Polygon(objectId);
+		final GeoJsonPolygon polygon = new GeoJsonPolygon(objectId);
 
 		// Geometry
 		final JSONObject geometry = jsonObject.getJSONObject(JSON_GEOMETRY);
@@ -319,7 +333,7 @@ public class Polygon implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Polygon other = (Polygon) obj;
+		GeoJsonPolygon other = (GeoJsonPolygon) obj;
 		if (id != other.id)
 			return false;
 		if (pointList == null) {
@@ -345,7 +359,7 @@ public class Polygon implements Serializable {
 	//=====================================================
 	public static void main(final String[] args) {
 		System.out.println("=====================");
-		final Polygon polygon = new Polygon(12);
+		final GeoJsonPolygon polygon = new GeoJsonPolygon(12);
 		polygon.addPoint(23.1, 23.1);
 		polygon.addPoint(21.1, 23.0);
 		polygon.addPoint(3.1, 9.9);
@@ -353,13 +367,13 @@ public class Polygon implements Serializable {
 		System.out.println(polygon.toGeoJson());
 
 		System.out.println("=====================");
-		final Polygon polygon2 = new Polygon(14);
+		final GeoJsonPolygon polygon2 = new GeoJsonPolygon(14);
 		polygon2.addPoint(23.1, 23.1);
 		System.out.println(polygon2.toFormatedGeoJson());
 		System.out.println(polygon2.toGeoJson());
 
 		System.out.println("=====================");
-		final Polygon polygon3 = new Polygon(15);
+		final GeoJsonPolygon polygon3 = new GeoJsonPolygon(15);
 		System.out.println(polygon3.toFormatedGeoJson());
 		System.out.println(polygon3.toGeoJson());
 	}
