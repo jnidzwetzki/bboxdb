@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -32,11 +31,13 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.Pair;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
@@ -261,38 +262,39 @@ public class QueryWindow {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				
-				final String queryType = queryTypeBox.getSelectedItem().toString();
-				final String table1 = table1Field.getSelectedItem().toString();
-				final String table2 = table2Field.getSelectedItem().toString();
-				final String filter = filterField.getText();
-				final String value = valueField.getText();
-				
-				final String selectedRange = longBegin.getText() + "," + longEnd.getText() 
-					+ ":" + latBegin.getText() + "," + latEnd.getText();
-			
-				final Optional<Hyperrectangle> resultBox = HyperrectangleHelper.parseBBox(selectedRange);
-				if(! resultBox.isPresent()) {
-					logger.error("Invalid bounding box: " + selectedRange);
-					return;
-				}
-				
-				final Hyperrectangle bbox = resultBox.get();
-				
-				switch (queryType) {
-				case "Range query":
-					executeRangeQuery(bbox, table1, filter, value);
-					break;
+				try {
+					final String queryType = queryTypeBox.getSelectedItem().toString();
+					final String table1 = table1Field.getSelectedItem().toString();
+					final String table2 = table2Field.getSelectedItem().toString();
+					final String filter = filterField.getText();
+					final String value = valueField.getText();
 					
-				case "Join":
-					executeJoinQuery(bbox, table1, table2, filter, value);
-					break;
+					final double longBeginDouble = MathUtil.tryParseDouble(longBegin.getText(), () -> "Unable to parse value");
+					final double longEndDouble = MathUtil.tryParseDouble(longEnd.getText(), () -> "Unable to parse value");
+					final double latBeginDouble = MathUtil.tryParseDouble(latBegin.getText(), () -> "Unable to parse value");
+					final double latEndDouble = MathUtil.tryParseDouble(latEnd.getText(), () -> "Unable to parse value");
 
-				default:
-					throw new IllegalArgumentException("Unknown action: " + queryType);
-				}				
-				
-				callback.run();
-				mainframe.dispose();
+					final Hyperrectangle resultBox = new Hyperrectangle(longBeginDouble, 
+							longEndDouble, latBeginDouble, latEndDouble);
+									
+					switch (queryType) {
+					case "Range query":
+						executeRangeQuery(resultBox, table1, filter, value);
+						break;
+						
+					case "Join":
+						executeJoinQuery(resultBox, table1, table2, filter, value);
+						break;
+
+					default:
+						throw new IllegalArgumentException("Unknown action: " + queryType);
+					}				
+					
+					callback.run();
+					mainframe.dispose();
+				} catch (InputParseException exception) {
+					JOptionPane.showMessageDialog(mainframe, "Got an error: " + exception.getMessage());
+				}
 			}
 
 			/***
