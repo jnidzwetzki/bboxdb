@@ -14,6 +14,7 @@ order: 1
 - Improvement: Improved result buffer handling of network requests
 - Improvement: Bump up zookeeper from 3.4.14 to 3.5.5
 - Improvement: The OSM maps on the GUI are now cached
+- Improvement: The OSM maps can now be zoomed with the mouse wheel
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 - Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)
