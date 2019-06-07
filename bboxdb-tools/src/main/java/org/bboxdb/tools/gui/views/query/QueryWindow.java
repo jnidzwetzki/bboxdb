@@ -268,7 +268,7 @@ public class QueryWindow {
 				final String value = valueField.getText();
 				
 				final String selectedRange = longBegin.getText() + "," + longEnd.getText() 
-					+ ":" + latBegin.getText() + "," + latBegin.getText();
+					+ ":" + latBegin.getText() + "," + latEnd.getText();
 			
 				final Optional<Hyperrectangle> resultBox = HyperrectangleHelper.parseBBox(selectedRange);
 				if(! resultBox.isPresent()) {
