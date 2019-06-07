@@ -86,14 +86,33 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-
-		if (!dragging) {
+		updateStatusBar(e);
+				
+		if (! dragging) {
 			return;
 		}
 
 		stopPos.setLocation(e.getX(), e.getY());
 
 		viewer.repaint();
+	}
+	
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		updateStatusBar(e);
+	}
+
+	/**
+	 * Update the status bar
+	 * @param e
+	 */
+	private void updateStatusBar(final MouseEvent e) {
+		final Point2D mousePos = new Point2D.Double(e.getX(), e.getY());
+		final Point2D realPos = getRealPos(mousePos);
+		final TileFactory tileFactory = viewer.getTileFactory();
+		final GeoPosition pos = tileFactory.pixelToGeo(realPos, viewer.getZoom());
+
+		guiModel.setStatusText("Longitude " + pos.getLongitude() + " Latitude " + pos.getLatitude());
 	}
 
 	@Override
