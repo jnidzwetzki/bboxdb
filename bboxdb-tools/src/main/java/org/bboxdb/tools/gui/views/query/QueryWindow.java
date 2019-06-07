@@ -70,33 +70,33 @@ public class QueryWindow {
 	/**
 	 * Selected range latitude begin
 	 */
-	private String selectedLatBegin = "";
+	private String selectedLatBegin = "-90";
 
 	/**
 	 * Selected range latitude end
 	 */
-	private String selectedLatEnd = "";
+	private String selectedLatEnd = "90";
 	
 	/**
 	 * Selected range longitude begin
 	 */
-	private String selectedLongBegin = "";
+	private String selectedLongBegin = "-180";
 	
 	/**
 	 * Selected range longitude end
 	 */
-	private String selectedLongEnd = "";
+	private String selectedLongEnd = "180";
 
+	/**
+	 * The data to draw
+	 */
+	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
 
-	/**
-	 * The data to draw
-	 */
-	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
 	
 	public QueryWindow(final GuiModel guimodel, final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw, 
 			final Runnable callback) {
@@ -363,6 +363,7 @@ public class QueryWindow {
 						polygon.invertPolygonCoordinates();
 						dataToDraw.add(new Pair<>(polygon, Color.GREEN));
 					}
+					
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
 				} catch (InterruptedException e) {
