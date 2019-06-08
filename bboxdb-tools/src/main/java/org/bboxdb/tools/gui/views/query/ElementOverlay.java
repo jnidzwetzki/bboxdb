@@ -38,12 +38,12 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
 
 
-public class QueryResultOverlay implements Painter<JXMapViewer> {
+public class ElementOverlay implements Painter<JXMapViewer> {
 
 	/**
 	 * The data to draw
 	 */
-	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
+	private final Collection<OverlayElement> dataToDraw;
 	
 	/**
 	 * The transparency value
@@ -71,7 +71,7 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 	 */
 	private boolean drawBoundingBoxes = true;
 
-	public QueryResultOverlay(final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw, 
+	public ElementOverlay(final Collection<OverlayElement> dataToDraw, 
 			final QueryRangeSelectionAdapter selectionAdapter) {
 		this.dataToDraw = dataToDraw;
 		this.selectionAdapter = selectionAdapter;
@@ -170,13 +170,12 @@ public class QueryResultOverlay implements Painter<JXMapViewer> {
 		
 		final List<Pair<List<Point2D>, Color>> convertedPointList = new CopyOnWriteArrayList<>();
 	
-		
-		for(final Pair<GeoJsonPolygon, Color> element : dataToDraw) {
+		for(final OverlayElement element : dataToDraw) {
 	
-			final GeoJsonPolygon polygon = element.getElement1();
+			final GeoJsonPolygon polygon = element.getPolygon();
 			final List<Point2D> polygonPoints = polygon.getPointList();
 			final List<Point2D> elementPoints = convertPointCoordinatesToGUICoordinates(map, polygonPoints);
-			convertedPointList.add(new Pair<>(elementPoints, element.getElement2()));
+			convertedPointList.add(new Pair<>(elementPoints, element.getColor()));
 			
 			if(drawBoundingBoxes) {
 				final Hyperrectangle bbox = polygon.getBoundingBox();

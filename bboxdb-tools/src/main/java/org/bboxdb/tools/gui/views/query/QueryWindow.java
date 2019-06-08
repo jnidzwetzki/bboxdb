@@ -34,7 +34,6 @@ import javax.swing.JTextField;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.Pair;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
@@ -90,7 +89,7 @@ public class QueryWindow {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
+	private final Collection<OverlayElement> dataToDraw;
 	
 	/**
 	 * The logger
@@ -98,7 +97,7 @@ public class QueryWindow {
 	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
 
 	
-	public QueryWindow(final GuiModel guimodel, final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw, 
+	public QueryWindow(final GuiModel guimodel, final Collection<OverlayElement> dataToDraw, 
 			final Runnable callback) {
 		this.guimodel = guimodel;
 		this.dataToDraw = dataToDraw;
@@ -322,11 +321,11 @@ public class QueryWindow {
 					
 						final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(data1);
 						polygon1.invertPolygonCoordinates();
-						dataToDraw.add(new Pair<>(polygon1, Color.RED));
+						dataToDraw.add(new OverlayElement(polygon1, Color.RED));
 
 						final GeoJsonPolygon polygon2 = GeoJsonPolygon.fromGeoJson(data2);
 						polygon2.invertPolygonCoordinates();
-						dataToDraw.add(new Pair<>(polygon2, Color.GREEN));
+						dataToDraw.add(new OverlayElement(polygon2, Color.GREEN));
 					}
 					
 				} catch (BBoxDBException e) {
@@ -361,7 +360,7 @@ public class QueryWindow {
 						final String data = new String(tuple.getDataBytes());
 						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
 						polygon.invertPolygonCoordinates();
-						dataToDraw.add(new Pair<>(polygon, Color.GREEN));
+						dataToDraw.add(new OverlayElement(polygon, Color.GREEN));
 					}
 					
 				} catch (BBoxDBException e) {

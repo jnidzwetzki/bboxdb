@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,8 +26,6 @@ import java.util.Optional;
 
 import javax.swing.SwingUtilities;
 
-import org.bboxdb.commons.Pair;
-import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.tools.gui.GuiModel;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -45,14 +42,14 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 	/**
 	 * The global data to draw
 	 */
-	private final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw;
+	private final Collection<OverlayElement> dataToDraw;
 	
 	/**
 	 * The global gui model
 	 */
 	private final GuiModel guiModel;
 
-	public QueryRangeSelectionAdapter(final Collection<Pair<GeoJsonPolygon, Color>> dataToDraw, 
+	public QueryRangeSelectionAdapter(final Collection<OverlayElement> dataToDraw, 
 			final GuiModel guiModel, final JXMapViewer viewer) {
 		
 		this.dataToDraw = dataToDraw;
