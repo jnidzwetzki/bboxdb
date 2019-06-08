@@ -172,18 +172,22 @@ public class TestDynamicgridSpacePartitioner {
 		final List<DistributionRegion> newRegions = spacePartitioner.splitRegion(regionToSplit, samples);
 		Assert.assertEquals(2, newRegions.size());
 
-		System.out.println("---> Test-Debug (1): " + regionToSplit.getParent().getThisAndChildRegions());
-		final int newChilden1 = regionToSplit.getParent().getThisAndChildRegions().size();
+		final List<DistributionRegion> regions1 = regionToSplit.getParent().getThisAndChildRegions();
+		System.out.println("---> Test-Debug (1): " + regions1);
+		final int newChilden1 = regions1.size();
 		Assert.assertEquals(oldChildren + 2, newChilden1);
 
+		// Delete old region
 		spacePartitioner.splitComplete(regionToSplit, newRegions);
+		spacePartitioner.waitUntilNodeIsRemoved(regionToSplit);
 
 		for(final DistributionRegion region : newRegions) {
 			spacePartitioner.waitUntilNodeStateIs(region, DistributionRegionState.ACTIVE);
 		}
 
-		System.out.println("---> Test-Debug (2): " + regionToSplit.getParent().getThisAndChildRegions());
-		final int newChilden2 = regionToSplit.getParent().getThisAndChildRegions().size();
+		final List<DistributionRegion> regions2 = regionToSplit.getParent().getThisAndChildRegions();
+		System.out.println("---> Test-Debug (2): " + regions2);
+		final int newChilden2 = regions2.size();
 		Assert.assertEquals(oldChildren + 1, newChilden2);
 
 		// Merge failed

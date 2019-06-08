@@ -21,7 +21,7 @@ order: 1
 - Bugfix: Fixed the calculation of the bounding box of joined tuples
 - Bugfix: Include full stacktraces on rejected exception
 - Bugfix: Fixed insertion of deleted tuple
-- Bugfix: Fixed a timing error on the dynamic grid space partitioner test
+- Bugfix: Fixed two timing errors on the dynamic grid space partitioner test (#159)
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script

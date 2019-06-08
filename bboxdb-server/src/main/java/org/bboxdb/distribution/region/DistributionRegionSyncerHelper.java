@@ -60,4 +60,31 @@ public class DistributionRegionSyncerHelper {
 		
 		syncer.unregisterCallback(callback);
 	}
+
+	/**
+	 * Wait until a region is removed
+	 * @param region
+	 * @param syncer
+	 * @throws InterruptedException
+	 */
+	public static void waitUntilRegionRemoved(final DistributionRegion region, 
+			final DistributionRegionSyncer syncer) throws InterruptedException {
+
+		final CountDownLatch latch = new CountDownLatch(1);
+
+		final DistributionRegionCallback callback = (e, r) -> {
+			if(e == DistributionRegionEvent.REMOVED) {
+				logger.debug("Node {} is removed, wake up latch", r);
+				latch.countDown();
+			}
+		};
+		
+		syncer.registerCallback(callback);
+
+		if(syncer.getRootNode().getThisAndChildRegions().contains(region)) {
+			latch.await();
+		}
+		
+		syncer.unregisterCallback(callback);		
+	}
 }
