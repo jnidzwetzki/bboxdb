@@ -64,7 +64,7 @@ public class QueryView implements View {
         mapViewer.addMouseListener(selectionAdapter);
         mapViewer.addMouseMotionListener(selectionAdapter);
 		
-		final ElementOverlay painter = new ElementOverlay(dataToDraw, selectionAdapter);
+		final ElementOverlayPainter painter = new ElementOverlayPainter(dataToDraw, selectionAdapter);
 		mapViewer.setOverlayPainter(painter);
 		
 		final JPanel mainPanel = new JPanel();
@@ -105,7 +105,7 @@ public class QueryView implements View {
 	/**
 	 * Get the bounding box checkbox
 	 */
-	private JCheckBox getBBoxCheckbox(final ElementOverlay painter) {
+	private JCheckBox getBBoxCheckbox(final ElementOverlayPainter painter) {
 		final JCheckBox bboxCheckbox = new JCheckBox("Show Bounding Boxes");
 		bboxCheckbox.setSelected(true);
 		
