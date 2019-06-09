@@ -19,9 +19,11 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -348,25 +350,43 @@ public class QueryWindow {
 						logger.error("Got an error" + result.getAllMessages());
 						return;
 					}
+
+					final List<Tuple> tuples1 = new ArrayList<>();
+					final List<Tuple> tuples2 = new ArrayList<>();
 					
 					for(final JoinedTuple tuple : result) {
-						final String data1 = new String(tuple.getTuple(0).getDataBytes());
-						final String data2 = new String(tuple.getTuple(1).getDataBytes());
-					
-						final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(data1);
-						polygon1.invertPolygonCoordinates();
-						dataToDraw.add(new OverlayElement(polygon1, color1));
-
-						final GeoJsonPolygon polygon2 = GeoJsonPolygon.fromGeoJson(data2);
-						polygon2.invertPolygonCoordinates();
-						dataToDraw.add(new OverlayElement(polygon2, color2));
+						tuples1.add(tuple.getTuple(0));
+						tuples2.add(tuple.getTuple(1));	
 					}
 					
+					System.out.format("Got %d tuples%n", tuples1.size() + tuples2.size());
+					
+				    final List<Tuple> tuples1Wo = tuples1.stream().distinct().collect(Collectors.toList());
+				    final List<Tuple> tuples2Wo = tuples2.stream().distinct().collect(Collectors.toList());
+
+					System.out.format("Draw %d tuples%n", tuples1Wo.size() + tuples2Wo.size());
+
+					addTuplesToOverlay(color1, tuples1Wo);
+					addTuplesToOverlay(color2, tuples2Wo);
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 					return;
+				} 
+			}
+
+			/**
+			 * Add the tuples to the overlay
+			 * @param color1
+			 * @param tuples1
+			 */
+			private void addTuplesToOverlay(final Color color1, final List<Tuple> tuples1) {
+				for(final Tuple tuple : tuples1) {
+					final String data1 = new String(tuple.getDataBytes());				
+					final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(data1);
+					polygon1.invertPolygonCoordinates();
+					dataToDraw.add(new OverlayElement(polygon1, color1));
 				}
 			}
 
@@ -389,7 +409,7 @@ public class QueryWindow {
 						logger.error("Got an error" + result.getAllMessages());
 						return;
 					}
-					
+										
 					for(final Tuple tuple : result) {
 						final String data = new String(tuple.getDataBytes());
 						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
