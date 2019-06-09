@@ -151,7 +151,7 @@ public class QueryWindow {
 		
 		builder.addLabel("Color for table 1", cc.xy (1,  7));		
 		final JComboBox<String> table1ColorField = new JComboBox<>(COLOR_NAMES);
-		table1ColorField.setSelectedItem(Color.RED);
+		table1ColorField.setSelectedItem(COLOR_NAMES[0]);
 		table1ColorField.setEnabled(false);
 		builder.add(table1ColorField, cc.xy (3,  7));
 
@@ -162,7 +162,7 @@ public class QueryWindow {
 		
 		builder.addLabel("Color for table 2", cc.xy (1,  11));
 		final JComboBox<String> table2ColorField = new JComboBox<>(COLOR_NAMES);
-		table2ColorField.setSelectedItem(Color.GREEN);
+		table2ColorField.setSelectedItem(COLOR_NAMES[1]);
 		table2ColorField.setEnabled(false);
 		builder.add(table2ColorField, cc.xy (3, 11));
 		

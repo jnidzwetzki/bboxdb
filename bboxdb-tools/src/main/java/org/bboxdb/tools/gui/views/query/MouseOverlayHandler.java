@@ -20,7 +20,10 @@ package org.bboxdb.tools.gui.views.query;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.jxmapviewer.JXMapViewer;
 
@@ -35,6 +38,11 @@ public class MouseOverlayHandler extends MouseAdapter {
 	 * The overlay painter
 	 */
 	private final ElementOverlayPainter painter;
+	
+	/**
+	 * The highlighted elements
+	 */
+	private final List<OverlayElement> highlightedElements = new ArrayList<>();
 
 	MouseOverlayHandler(JXMapViewer mapViewer, final ElementOverlayPainter painter) {
 		this.mapViewer = mapViewer;
@@ -50,7 +58,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 
 		final Rectangle mousePos = new Rectangle((int) (e.getX() + rect.getX()), 
 				(int) (e.getY() + rect.getY()), 1, 1);
-		
+				
 		for(final OverlayElement element : renderedElements) {
 			final Rectangle bbox = element.getBBoxToDrawOnGui();
 			
@@ -61,17 +69,21 @@ public class MouseOverlayHandler extends MouseAdapter {
 				}
 				
 				element.setHighlight(true);
-				repaintElement(rect, bbox);
-			} else {
-				if(! element.isHighlighted()) {
-					continue;
-				}
-				
-				element.setHighlight(false);
+				highlightedElements.add(element);
 				repaintElement(rect, bbox);
 			}
 		}
 		
+		for (final Iterator<OverlayElement> iterator = highlightedElements.iterator(); iterator.hasNext();) {
+			final OverlayElement element = (OverlayElement) iterator.next();
+			final Rectangle bbox = element.getBBoxToDrawOnGui();
+
+			if(! bbox.intersects(mousePos)) {
+				iterator.remove();
+				element.setHighlight(false);
+				repaintElement(rect, bbox);
+			}
+		}
 	}
 
 	/**
