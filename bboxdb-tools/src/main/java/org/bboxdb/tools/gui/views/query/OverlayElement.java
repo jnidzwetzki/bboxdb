@@ -49,11 +49,17 @@ public class OverlayElement {
 	 * The pixel bounding box points
 	 */
 	private final Rectangle boundingBoxPixel;
+	
+	/**
+	 * Hightlight the lement
+	 */
+	private boolean highlight;
 
 	public OverlayElement(final GeoJsonPolygon polygon, final Color color) {
 		this.polygon = polygon;
 		this.color = color;
 		this.boundingBoxPixel = new Rectangle();
+		this.highlight = false;
 	}
 
 	/**
@@ -86,14 +92,14 @@ public class OverlayElement {
 		final Point2D bboxPixelStart = convertPointToPixel(map, startPos);
 		final Point2D bboxPixelStop = convertPointToPixel(map, stopPos);
 
-		final int width = (int) (bboxPixelStop.getX() - bboxPixelStart.getX());
-		final int elementWidth = Math.max(1, Math.abs(width));
+		final int width = (int) (bboxPixelStop.getX() - bboxPixelStart.getX() + 0.5);
+		final int elementWidth = Math.abs(width) + 1;
 		
-		final int height = (int) (bboxPixelStop.getY() - bboxPixelStart.getY());
-		final int elementHeight = Math.max(1, Math.abs(height));
+		final int height = (int) (bboxPixelStop.getY() - bboxPixelStart.getY() + 0.5);
+		final int elementHeight = Math.abs(height) + 1;
 		
-		boundingBoxPixel.setBounds((int) bboxPixelStart.getX(), (int) bboxPixelStop.getY(), 
-				elementWidth, elementHeight);		
+		boundingBoxPixel.setBounds((int) (bboxPixelStart.getX() - 0.5), (int) (bboxPixelStop.getY() - 0.5), 
+				elementWidth, elementHeight);
 	}
 	
 	/**
@@ -143,4 +149,22 @@ public class OverlayElement {
 		final GeoPosition geoPosition = new GeoPosition(point.getX(), point.getY());
 		return map.getTileFactory().geoToPixel(geoPosition, map.getZoom());
 	}
+
+	/**
+	 * Is the element highlighted?
+	 * @return
+	 */
+	public boolean isHighlighted() {
+		return highlight;
+	}
+
+	/**
+	 * Set the element as highlighted
+	 * @param highlight
+	 */
+	public void setHighlight(final boolean highlight) {
+		this.highlight = highlight;
+	}
+	
+	
 }

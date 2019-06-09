@@ -33,6 +33,8 @@ import org.jxmapviewer.JXMapViewer;
 
 public class QueryView implements View {
 
+	
+
 	/**
 	 * The GUI model
 	 */
@@ -48,7 +50,7 @@ public class QueryView implements View {
 	 */
 	private final Collection<OverlayElement> dataToDraw;
 
-
+	
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 		this.dataToDraw = new CopyOnWriteArrayList<>();
@@ -66,6 +68,8 @@ public class QueryView implements View {
 		
 		final ElementOverlayPainter painter = new ElementOverlayPainter(dataToDraw, selectionAdapter);
 		mapViewer.setOverlayPainter(painter);
+		
+		mapViewer.addMouseMotionListener(new MouseOverlayHandler(mapViewer, painter));
 		
 		final JPanel mainPanel = new JPanel();
 		

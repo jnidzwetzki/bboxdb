@@ -109,7 +109,7 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 	}
 	
 	@Override
-	public void mouseMoved(MouseEvent e) {
+	public void mouseMoved(final MouseEvent e) {
 		updateStatusBar(e);
 	}
 

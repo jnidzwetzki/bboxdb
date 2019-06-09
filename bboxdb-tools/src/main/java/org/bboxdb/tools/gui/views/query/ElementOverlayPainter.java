@@ -27,6 +27,7 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
@@ -38,6 +39,13 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * The data to draw
 	 */
 	private final Collection<OverlayElement> dataToDraw;
+	
+	/**
+	 * The rendered elements
+	 * @param guiModel
+	 */
+	private final Collection<OverlayElement> renderedElements;
+
 	
 	/**
 	 * The transparency value
@@ -69,6 +77,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			final QueryRangeSelectionAdapter selectionAdapter) {
 		this.dataToDraw = dataToDraw;
 		this.selectionAdapter = selectionAdapter;
+		this.renderedElements = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -103,7 +112,9 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	private void drawData(final Graphics2D graphicsContext, final JXMapViewer map) {
 		
+		renderedElements.clear();
 		final Rectangle viewBounds = map.getViewportBounds();
+		
 		for(final OverlayElement element: dataToDraw) {
 			
 			element.updatePosition(map);
@@ -115,8 +126,11 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			}
 			
 			final List<Point2D> pointList = element.getPointsToDrawOnGui();
+			renderedElements.add(element);
 			
-			drawPointListOnGui(graphicsContext, map, pointList, element.getColor());
+			final Color color = element.isHighlighted() ? Color.GRAY : element.getColor();
+			
+			drawPointListOnGui(graphicsContext, map, pointList, color);
 			
 			if(drawBoundingBoxes) {
 				graphicsContext.setColor(Color.BLACK);
@@ -153,16 +167,13 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 				polygon.addPoint((int) point.getX(), (int) point.getY()); 
 			}
 			
-			if(color.equals(Color.BLACK)) {
-				graphicsContext.setColor(Color.BLACK);
-				graphicsContext.drawPolygon(polygon);
-			} else {
-				final Color transparentColor = new Color(color.getRed(), color.getGreen(), 
-						color.getBlue(), TRANSPARENCY);
-				
-				graphicsContext.setColor(transparentColor);
-				graphicsContext.fillPolygon(polygon);				
-			}
+			final Color transparentColor = new Color(color.getRed(), color.getGreen(), 
+					color.getBlue(), TRANSPARENCY);
+			
+			graphicsContext.setColor(transparentColor);
+			graphicsContext.fillPolygon(polygon);	
+			graphicsContext.setColor(Color.BLACK);
+			graphicsContext.drawPolygon(polygon);
 		} else {
 			Point2D lastPoint = null;
 			
@@ -186,6 +197,10 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	public void setDrawBoundingBoxes(final boolean drawBoundingBoxes) {
 		this.drawBoundingBoxes = drawBoundingBoxes;
+	}
+	
+	public Collection<OverlayElement> getRenderedElements() {
+		return renderedElements;
 	}
 
 }
