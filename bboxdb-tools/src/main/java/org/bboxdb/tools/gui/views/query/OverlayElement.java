@@ -42,20 +42,30 @@ public class OverlayElement {
 	/**
 	 * The points of the bounding box
 	 */
-	private final List<Point2D> boundingBoxPoints;
+	private final List<Point2D> boundingBoxPointsGeo;
+	
+	/**
+	 * The pixel polygon points
+	 */
+	private List<Point2D> polygonPointsPixel;
+	
+	/**
+	 * The pixel bounding box points
+	 */
+	private List<Point2D> boundingBoxPointsPixel;
 
 	public OverlayElement(final GeoJsonPolygon polygon, final Color color) {
 		this.polygon = polygon;
 		this.color = color;
 		
 		final Hyperrectangle bbox = polygon.getBoundingBox();
-		boundingBoxPoints = new ArrayList<>();
+		boundingBoxPointsGeo = new ArrayList<>();
 		
-		boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
-		boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateLow(1)));
-		boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateHigh(1)));
-		boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateHigh(1)));
-		boundingBoxPoints.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
+		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
+		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateLow(1)));
+		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateHigh(1)));
+		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateHigh(1)));
+		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
 		
 	}
 
@@ -75,14 +85,22 @@ public class OverlayElement {
 		return color;
 	}
 	
+	/** 
+	 * Update the position based on the map position
+	 * @param map
+	 */
+	public void updatePosition(final JXMapViewer map) {
+		polygonPointsPixel = polygon.getPointList();
+		boundingBoxPointsPixel = convertPointCoordinatesToGUICoordinates(map, boundingBoxPointsGeo);
+	}
+	
 	/**
 	 * Get the points to draw on the GUI
 	 * @param map
 	 * @return
 	 */
-	public List<Point2D> getPointsToDrawOnGui(final JXMapViewer map) {
-		final List<Point2D> polygonPoints = polygon.getPointList();
-		return convertPointCoordinatesToGUICoordinates(map, polygonPoints);
+	public List<Point2D> getPointsToDrawOnGui() {
+		return polygonPointsPixel;
 	}
 	
 	/**
@@ -90,8 +108,8 @@ public class OverlayElement {
 	 * @param map
 	 * @return
 	 */
-	public List<Point2D> getBBoxPointsToDrawOnGui(final JXMapViewer map) {
-		return convertPointCoordinatesToGUICoordinates(map, boundingBoxPoints);		
+	public List<Point2D> getBBoxPointsToDrawOnGui() {
+		return boundingBoxPointsPixel;
 	}
 	
 	/**
