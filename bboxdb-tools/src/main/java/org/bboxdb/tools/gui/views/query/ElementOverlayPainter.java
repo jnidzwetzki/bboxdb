@@ -102,16 +102,25 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * @param map 
 	 */
 	private void drawData(final Graphics2D graphicsContext, final JXMapViewer map) {
+		
+		final Rectangle viewBounds = map.getViewportBounds();
 		for(final OverlayElement element: dataToDraw) {
 			
 			element.updatePosition(map);
+			final Rectangle boundingBox = element.getBBoxToDrawOnGui();
+			
+			// Skip rendering of invisible elements
+			if(! viewBounds.intersects(boundingBox)) {
+				continue;
+			}
 			
 			final List<Point2D> pointList = element.getPointsToDrawOnGui();
+			
 			drawPointListOnGui(graphicsContext, map, pointList, element.getColor());
 			
 			if(drawBoundingBoxes) {
-				final List<Point2D> bboxPoints = element.getBBoxPointsToDrawOnGui();
-				drawPointListOnGui(graphicsContext, map, bboxPoints, Color.BLACK);
+				graphicsContext.setColor(Color.BLACK);
+				graphicsContext.draw(boundingBox);
 			}
 		}
 	}

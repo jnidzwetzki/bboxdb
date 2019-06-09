@@ -18,6 +18,7 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +41,6 @@ public class OverlayElement {
 	private final Color color;
 	
 	/**
-	 * The points of the bounding box
-	 */
-	private final List<Point2D> boundingBoxPointsGeo;
-	
-	/**
 	 * The pixel polygon points
 	 */
 	private List<Point2D> polygonPointsPixel;
@@ -52,21 +48,12 @@ public class OverlayElement {
 	/**
 	 * The pixel bounding box points
 	 */
-	private List<Point2D> boundingBoxPointsPixel;
+	private final Rectangle boundingBoxPixel;
 
 	public OverlayElement(final GeoJsonPolygon polygon, final Color color) {
 		this.polygon = polygon;
 		this.color = color;
-		
-		final Hyperrectangle bbox = polygon.getBoundingBox();
-		boundingBoxPointsGeo = new ArrayList<>();
-		
-		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
-		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateLow(1)));
-		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateHigh(1)));
-		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateHigh(1)));
-		boundingBoxPointsGeo.add(new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1)));
-		
+		this.boundingBoxPixel = new Rectangle();
 	}
 
 	/**
@@ -90,8 +77,23 @@ public class OverlayElement {
 	 * @param map
 	 */
 	public void updatePosition(final JXMapViewer map) {
-		polygonPointsPixel = polygon.getPointList();
-		boundingBoxPointsPixel = convertPointCoordinatesToGUICoordinates(map, boundingBoxPointsGeo);
+		polygonPointsPixel = convertPointCoordinatesToGUICoordinates(map, polygon.getPointList());
+		
+		final Hyperrectangle bbox = polygon.getBoundingBox();
+		final Point2D startPos = new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1));
+		final Point2D stopPos = new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateHigh(1));
+		
+		final Point2D bboxPixelStart = convertPointToPixel(map, startPos);
+		final Point2D bboxPixelStop = convertPointToPixel(map, stopPos);
+
+		final int width = (int) (bboxPixelStop.getX() - bboxPixelStart.getX());
+		final int elementWidth = Math.max(1, Math.abs(width));
+		
+		final int height = (int) (bboxPixelStop.getY() - bboxPixelStart.getY());
+		final int elementHeight = Math.max(1, Math.abs(height));
+		
+		boundingBoxPixel.setBounds((int) bboxPixelStart.getX(), (int) bboxPixelStop.getY(), 
+				elementWidth, elementHeight);		
 	}
 	
 	/**
@@ -108,8 +110,8 @@ public class OverlayElement {
 	 * @param map
 	 * @return
 	 */
-	public List<Point2D> getBBoxPointsToDrawOnGui() {
-		return boundingBoxPointsPixel;
+	public Rectangle getBBoxToDrawOnGui() {
+		return boundingBoxPixel;
 	}
 	
 	/**
@@ -124,11 +126,21 @@ public class OverlayElement {
 		final List<Point2D> elementPoints = new ArrayList<>();
 
 		for(final Point2D point : polygonPoints) {
-			final GeoPosition geoPosition = new GeoPosition(point.getX(), point.getY());
-			final Point2D convertedPoint = map.getTileFactory().geoToPixel(geoPosition, map.getZoom());
+			final Point2D convertedPoint = convertPointToPixel(map, point);
 			elementPoints.add(convertedPoint);
 		}
 		
 		return elementPoints;
+	}
+
+	/**
+	 * Convert a given point to pixel pos
+	 * @param map
+	 * @param point
+	 * @return
+	 */
+	private Point2D convertPointToPixel(final JXMapViewer map, final Point2D point) {
+		final GeoPosition geoPosition = new GeoPosition(point.getX(), point.getY());
+		return map.getTileFactory().geoToPixel(geoPosition, map.getZoom());
 	}
 }
