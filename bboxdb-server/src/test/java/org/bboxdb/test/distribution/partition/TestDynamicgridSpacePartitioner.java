@@ -173,7 +173,7 @@ public class TestDynamicgridSpacePartitioner {
 		Assert.assertEquals(2, newRegions.size());
 
 		final List<DistributionRegion> regions1 = regionToSplit.getParent().getThisAndChildRegions();
-		System.out.println("---> Test-Debug (1): " + regions1);
+		System.out.println("---> testSplitAndMergeRegion:Test-Debug (1): " + regions1);
 		final int newChilden1 = regions1.size();
 		Assert.assertEquals(oldChildren + 2, newChilden1);
 
@@ -186,7 +186,7 @@ public class TestDynamicgridSpacePartitioner {
 		}
 
 		final List<DistributionRegion> regions2 = regionToSplit.getParent().getThisAndChildRegions();
-		System.out.println("---> Test-Debug (2): " + regions2);
+		System.out.println("---> testSplitAndMergeRegion:Test-Debug (2): " + regions2);
 		final int newChilden2 = regions2.size();
 		Assert.assertEquals(oldChildren + 1, newChilden2);
 
@@ -196,10 +196,12 @@ public class TestDynamicgridSpacePartitioner {
 		spacePartitioner.mergeFailed(newRegions, mergeRegion1);
 
 		// Merge successfully
-		System.out.println("---> Test-Debug: Waiting for get");
+		System.out.println("---> testSplitAndMergeRegion:Test-Debug: Waiting for get");
 		final DistributionRegion mergeRegion2 = spacePartitioner.getDestinationForMerge(newRegions);
 		Assert.assertNotNull(mergeRegion2);
 		spacePartitioner.mergeComplete(newRegions, mergeRegion2);
+		
+		System.out.println("---> testSplitAndMergeRegion: Test done");
 	}
 
 	/**
