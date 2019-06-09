@@ -33,10 +33,24 @@ import org.jxmapviewer.viewer.TileFactory;
 
 public class QueryRangeSelectionAdapter extends MouseAdapter {
 
+	/**
+	 * Is a dragging action active?
+	 */
 	private boolean dragging;
+	
+	/**
+	 * The viewer
+	 */
 	private final JXMapViewer viewer;
 
+	/**
+	 * The start position
+	 */
 	private Point2D startPos = new Point2D.Double();
+	
+	/**
+	 * The stop position
+	 */
 	private Point2D stopPos = new Point2D.Double();
 	
 	/**
