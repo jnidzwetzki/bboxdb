@@ -175,19 +175,19 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			graphicsContext.setColor(Color.BLACK);
 			graphicsContext.drawPolygon(polygon);
 		} else {
-			Point2D lastPoint = null;
-			
 			graphicsContext.setColor(color);
 			graphicsContext.setStroke(new BasicStroke(2));
 
-			for (final Point2D point : pointList) {
-				if(lastPoint != null) {
-					graphicsContext.drawLine((int) lastPoint.getX(), (int) lastPoint.getY(), 
-							(int) point.getX(), (int) point.getY());
-				}
-				
-				lastPoint = point;
+			int[] xPoints = new int[pointList.size()];
+			int[] yPoints = new int[pointList.size()];
+			
+			for (int i = 0; i < pointList.size(); i++) {
+				final Point2D point = pointList.get(i);
+				xPoints[i] = (int) point.getX();
+				yPoints[i] = (int) point.getY();
 			}				
+			
+			graphicsContext.drawPolyline(xPoints, yPoints, pointList.size());
 		}
 	}
 	

@@ -364,7 +364,7 @@ public class QueryWindow {
 				    final List<Tuple> tuples1Wo = tuples1.stream().distinct().collect(Collectors.toList());
 				    final List<Tuple> tuples2Wo = tuples2.stream().distinct().collect(Collectors.toList());
 
-					System.out.format("Draw %d tuples%n", tuples1Wo.size() + tuples2Wo.size());
+					System.out.format("Reduced to %d polygons%n", tuples1Wo.size() + tuples2Wo.size());
 
 					addTuplesToOverlay(color1, tuples1Wo);
 					addTuplesToOverlay(color2, tuples2Wo);
