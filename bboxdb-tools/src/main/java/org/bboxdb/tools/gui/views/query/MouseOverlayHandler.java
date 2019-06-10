@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.JToolTip;
 
 import org.jxmapviewer.JXMapViewer;
 
@@ -44,9 +48,17 @@ public class MouseOverlayHandler extends MouseAdapter {
 	 */
 	private final List<OverlayElement> highlightedElements = new ArrayList<>();
 
-	MouseOverlayHandler(JXMapViewer mapViewer, final ElementOverlayPainter painter) {
+	/**
+	 * The tooltip
+	 */
+	private final JToolTip toolTip;
+
+	MouseOverlayHandler(final JXMapViewer mapViewer, final ElementOverlayPainter painter, 
+			final JToolTip toolTip) {
+		
 		this.mapViewer = mapViewer;
 		this.painter = painter;
+		this.toolTip = toolTip;
 	}
 
 	@Override
@@ -55,9 +67,11 @@ public class MouseOverlayHandler extends MouseAdapter {
 		final Collection<OverlayElement> renderedElements = painter.getRenderedElements();
 		
 		final Rectangle rect = mapViewer.getViewportBounds();
+		final Point mousePosPoint = new Point((int) (e.getX() + rect.getX()), 
+				(int) (e.getY() + rect.getY()));
 
-		final Rectangle mousePos = new Rectangle((int) (e.getX() + rect.getX()), 
-				(int) (e.getY() + rect.getY()), 1, 1);
+		final Rectangle mousePos = new Rectangle(mousePosPoint);
+		mousePos.setSize(1, 1);
 				
 		for(final OverlayElement element : renderedElements) {
 			final Rectangle bbox = element.getBBoxToDrawOnGui();
@@ -73,7 +87,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 				repaintElement(rect, bbox);
 			}
 		}
-		
+				
 		for (final Iterator<OverlayElement> iterator = highlightedElements.iterator(); iterator.hasNext();) {
 			final OverlayElement element = (OverlayElement) iterator.next();
 			final Rectangle bbox = element.getBBoxToDrawOnGui();
@@ -83,6 +97,31 @@ public class MouseOverlayHandler extends MouseAdapter {
 				element.setHighlight(false);
 				repaintElement(rect, bbox);
 			}
+		}
+		
+		if(renderedElements.stream().anyMatch((element) -> element.isHighlighted())) {
+			final StringBuilder sb = new StringBuilder("<html>");
+			
+			for(final OverlayElement element : highlightedElements) {
+				if(! element.isHighlighted()) {
+					continue;
+				}
+				sb.append("===========================<br>");
+
+				sb.append("<b>Table:</b> " + element.getTablename() + "<br>");
+				sb.append("<b>Id: </b> " + element.getPolygon().getId() + "<br>");
+				for(Map.Entry<String, String> property : element.getPolygon().getProperties().entrySet()) {
+					sb.append("<b>" + property.getKey() + ":</b> " +  property.getValue() + "<br>");
+				}
+			}
+			
+			sb.append("</html>");
+
+			toolTip.setTipText(sb.toString());
+			toolTip.setLocation(new Point(e.getX(), e.getY()));
+			toolTip.setVisible(true);
+		} else {
+			toolTip.setVisible(false);
 		}
 	}
 

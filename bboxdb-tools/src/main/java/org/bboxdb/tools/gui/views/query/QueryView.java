@@ -18,6 +18,7 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -25,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JToolTip;
 
 import org.bboxdb.tools.gui.GuiModel;
 import org.bboxdb.tools.gui.util.MapViewerFactory;
@@ -69,7 +71,25 @@ public class QueryView implements View {
 		final ElementOverlayPainter painter = new ElementOverlayPainter(dataToDraw, selectionAdapter);
 		mapViewer.setOverlayPainter(painter);
 		
-		mapViewer.addMouseMotionListener(new MouseOverlayHandler(mapViewer, painter));
+	     // Prepare tooltip (Rendered by the MouseOverlayHandler)
+        final JToolTip tooltip = new JToolTip() {
+        
+			private static final long serialVersionUID = -2806858564323423227L;
+
+			@Override
+        	public void setLocation(int x, int y) {
+        		// Ignore component layout requests
+        	}
+        	
+        	@Override
+        	public void setLocation(Point p) {
+        		super.setLocation((int) p.getX(), (int) p.getY());
+        	}
+        };
+        tooltip.setComponent(mapViewer);
+        mapViewer.add(tooltip);
+        
+		mapViewer.addMouseMotionListener(new MouseOverlayHandler(mapViewer, painter, tooltip));
 		
 		final JPanel mainPanel = new JPanel();
 		
