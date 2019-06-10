@@ -366,8 +366,8 @@ public class QueryWindow {
 
 					System.out.format("Reduced to %d polygons%n", tuples1Wo.size() + tuples2Wo.size());
 
-					addTuplesToOverlay(color1, tuples1Wo);
-					addTuplesToOverlay(color2, tuples2Wo);
+					addTuplesToOverlay(table1, color1, tuples1Wo);
+					addTuplesToOverlay(table2, color2, tuples2Wo);
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
 				} catch (InterruptedException e) {
@@ -381,12 +381,14 @@ public class QueryWindow {
 			 * @param color1
 			 * @param tuples1
 			 */
-			private void addTuplesToOverlay(final Color color1, final List<Tuple> tuples1) {
+			private void addTuplesToOverlay(final String tablename, final Color color1, 
+					final List<Tuple> tuples1) {
+				
 				for(final Tuple tuple : tuples1) {
 					final String data1 = new String(tuple.getDataBytes());				
 					final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(data1);
 					polygon1.invertPolygonCoordinates();
-					dataToDraw.add(new OverlayElement(polygon1, color1));
+					dataToDraw.add(new OverlayElement(tablename, polygon1, color1));
 				}
 			}
 
@@ -414,7 +416,7 @@ public class QueryWindow {
 						final String data = new String(tuple.getDataBytes());
 						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
 						polygon.invertPolygonCoordinates();
-						dataToDraw.add(new OverlayElement(polygon, color1));
+						dataToDraw.add(new OverlayElement(table1, polygon, color1));
 					}
 					
 				} catch (BBoxDBException e) {

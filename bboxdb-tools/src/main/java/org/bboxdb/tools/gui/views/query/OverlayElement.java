@@ -31,6 +31,11 @@ import org.jxmapviewer.viewer.GeoPosition;
 public class OverlayElement {
 	
 	/**
+	 * The tablename where the element is read from
+	 */
+	private final String tablename;
+	
+	/**
 	 * The polygon to draw
 	 */
 	private final GeoJsonPolygon polygon;
@@ -55,7 +60,8 @@ public class OverlayElement {
 	 */
 	private boolean highlight;
 
-	public OverlayElement(final GeoJsonPolygon polygon, final Color color) {
+	public OverlayElement(final String tablename, final GeoJsonPolygon polygon, final Color color) {
+		this.tablename = tablename;
 		this.polygon = polygon;
 		this.color = color;
 		this.boundingBoxPixel = new Rectangle();
@@ -166,5 +172,12 @@ public class OverlayElement {
 		this.highlight = highlight;
 	}
 	
+	/**
+	 * Get the tablename
+	 * @return
+	 */
+	public String getTablename() {
+		return tablename;
+	}
 	
 }
