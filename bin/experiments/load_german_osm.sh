@@ -24,7 +24,7 @@ baseurl="http://download.geofabrik.de/europe/germany/"
 regions="baden-wuerttemberg bayern berlin brandenburg bremen hamburg hessen mecklenburg-vorpommern niedersachsen nordrhein-westfalen rheinland-pfalz saarland sachsen sachsen-anhalt schleswig-holstein thueringen"
 
 # outputfolder
-outputfolder="/tmp/work"
+outputfolder="/BIG/nidzwetzki/tmp/work"
 
 if [ ! -d $outputfolder ]; then
     mkdir $outputfolder
@@ -32,7 +32,7 @@ fi
 
 cd $outputfolder
 
-workfolder="/tmp/importosm"
+workfolder="/BIG/nidzwetzki/tmp/importosm"
 
 # Import the regions
 for region in $regions; do
