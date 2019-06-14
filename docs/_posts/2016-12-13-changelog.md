@@ -12,7 +12,7 @@ order: 1
 - Improvement: Added linestring geojson type
 - Improvement: Replaced OSMPoint by Point2D.Double
 - Improvement: Improved result buffer handling of network requests
-- Improvement: Bump up zookeeper from 3.4.14 to 3.5.5
+- Improvement: Bump up zookeeper from 3.4.14 to 3.5.5, guava from 27.1-jre to 28.0-jre
 - Improvement: The OSM maps on the GUI are now cached
 - Improvement: The OSM maps can now be zoomed with the mouse wheel
 - Improvement: Various GUI improvements (#157)
