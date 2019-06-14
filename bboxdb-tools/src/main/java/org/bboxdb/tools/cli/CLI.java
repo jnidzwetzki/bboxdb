@@ -201,15 +201,27 @@ public class CLI implements Runnable, AutoCloseable {
 			actionImportData(line);
 			break;
 
-		case CLIAction.QUERY:
-			actionExecuteQuery(line);
+		case CLIAction.QUERY_KEY:
+			actionExecuteKeyQuery(line);
+			break;
+			
+		case CLIAction.QUERY_RANGE:
+			actionExecuteRangeQuery(line);
+			break;
+			
+		case CLIAction.QUERY_RANGE_TIME:
+			actionExecuteRangeAndTimeQuery(line);
+			break;
+			
+		case CLIAction.QUERY_TIME:
+			actionExecuteTimeQuery(line);
 			break;
 
-		case CLIAction.JOIN:
+		case CLIAction.QUERY_JOIN:
 			actionExecuteJoin(line);
 			break;
 
-		case CLIAction.CONTINUOUS_QUERY:
+		case CLIAction.QUERY_CONTINUOUS:
 			actionExecuteContinuousQuery(line);
 			break;
 
@@ -346,34 +358,19 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Execute the given query
 	 * @param line
 	 */
-	private void actionExecuteQuery(final CommandLine line) {
+	private void actionExecuteKeyQuery(final CommandLine line) {
+		
 		if(! line.hasOption(CLIParameter.TABLE)) {
 			System.err.println("Query should be performed, but no table was specified");
 			printHelpAndExit();
 		}
 
 		try {
-			final TupleListFuture resultFuture = buildQueryFuture(line);
-
-			if(resultFuture == null) {
-				System.err.println("Unable to get query");
-				System.exit(-1);
-			}
-
-			resultFuture.waitForCompletion();
-
-			if(resultFuture.isFailed()) {
-				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
-				System.exit(-1);
-			}
-
-			long resultTuples = 0;
-			for(final Tuple tuple : resultFuture) {
-				printTuple(tuple);
-				resultTuples++;
-			}
-
-			System.out.format("Query done - got %d tuples back%n", resultTuples);
+			System.out.println("Executing key query..");
+			final String table = line.getOptionValue(CLIParameter.TABLE);
+			final String key = line.getOptionValue(CLIParameter.KEY);
+			final TupleListFuture resultFuture = bboxDbConnection.queryKey(table, key);
+			executeQueryFuture(resultFuture);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);
@@ -381,6 +378,127 @@ public class CLI implements Runnable, AutoCloseable {
 			Thread.currentThread().interrupt();
 			return;
 		}
+	}
+	
+	/**
+	 * Execute the given query
+	 * @param line
+	 */
+	private void actionExecuteRangeQuery(final CommandLine line) {
+		
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Query should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+
+		try {			
+			System.out.println("Executing bounding box query...");
+			final String table = line.getOptionValue(CLIParameter.TABLE);
+			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
+			
+			// Custom filter parameter
+			final String customFilterClass = CLIHelper.getParameterOrDefault(line, 
+					CLIParameter.CUSTOM_FILTER_CLASS, "");
+			
+			final String customFilterValue = CLIHelper.getParameterOrDefault(line, 
+					CLIParameter.CUSTOM_FILTER_VALUE, "");
+			
+			final TupleListFuture resultFuture = bboxDbConnection.queryRectangle(table, boundingBox, 
+					customFilterClass, customFilterValue.getBytes());
+			
+			executeQueryFuture(resultFuture);
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while performing query: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+	}
+	
+	/**
+	 * Execute the given query
+	 * @param line
+	 */
+	private void actionExecuteRangeAndTimeQuery(final CommandLine line) {
+		
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Query should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+
+		try {
+			System.out.println("Executing bounding box and time query...");
+			final String table = line.getOptionValue(CLIParameter.TABLE);
+			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
+			final long timestamp = getTimestampFromArgs();
+			final TupleListFuture resultFuture = bboxDbConnection.queryRectangleAndTime(
+					table, boundingBox, timestamp);
+
+			executeQueryFuture(resultFuture);
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while performing query: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+	}
+	
+	/**
+	 * Execute the given query
+	 * @param line
+	 */
+	private void actionExecuteTimeQuery(final CommandLine line) {
+		
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Query should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+
+		try {			
+			System.out.println("Executing time query...");
+			final String table = line.getOptionValue(CLIParameter.TABLE);
+			final long timestamp = getTimestampFromArgs();
+			final TupleListFuture resultFuture = bboxDbConnection.queryVersionTime(table, timestamp);
+			executeQueryFuture(resultFuture);
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while performing query: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+	}
+
+
+
+
+	/**
+	 * Execute the query future
+	 * @param resultFuture
+	 * @throws InterruptedException
+	 */
+	private void executeQueryFuture(final TupleListFuture resultFuture) throws InterruptedException {
+		if(resultFuture == null) {
+			System.err.println("Unable to get query");
+			System.exit(-1);
+		}
+
+		resultFuture.waitForCompletion();
+
+		if(resultFuture.isFailed()) {
+			System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
+			System.exit(-1);
+		}
+
+		long resultTuples = 0;
+		for(final Tuple tuple : resultFuture) {
+			printTuple(tuple);
+			resultTuples++;
+		}
+
+		System.out.format("Query done - got %d tuples back%n", resultTuples);
 	}
 
 	/**
@@ -409,7 +527,7 @@ public class CLI implements Runnable, AutoCloseable {
 			System.out.println("Executing join query...");
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
-					customFilterClass, customFilterValue);
+					customFilterClass, customFilterValue.getBytes());
 
 			if(resultFuture == null) {
 				System.err.println("Unable to get query");
@@ -507,52 +625,6 @@ public class CLI implements Runnable, AutoCloseable {
 	 */
 	private void printJoinedTuple(final JoinedTuple joinedTuple) {
 		System.out.println(joinedTuple.getFormatedString());
-	}
-
-	/**
-	 * Build the query future
-	 * @param line
-	 * @return
-	 * @throws BBoxDBException
-	 */
-	private TupleListFuture buildQueryFuture(final CommandLine line)
-			throws BBoxDBException {
-
-		final String table = line.getOptionValue(CLIParameter.TABLE);
-
-		if(line.hasOption(CLIParameter.KEY)) {
-			System.out.println("Executing key query..");
-			final String key = line.getOptionValue(CLIParameter.KEY);
-			return bboxDbConnection.queryKey(table, key);
-
-		} else if(line.hasOption(CLIParameter.BOUNDING_BOX) && line.hasOption(CLIParameter.TIMESTAMP)) {
-			System.out.println("Executing bounding box and time query...");
-			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
-			final long timestamp = getTimestampFromArgs();
-			return bboxDbConnection.queryRectangleAndTime(table, boundingBox, timestamp);
-
-		} else if(line.hasOption(CLIParameter.BOUNDING_BOX)) {
-			System.out.println("Executing bounding box query...");
-			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
-			
-			// Custom filter parameter
-			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
-			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
-			
-			return bboxDbConnection.queryRectangle(table, boundingBox, customFilterClass, customFilterValue);
-
-		} else if(line.hasOption(CLIParameter.TIMESTAMP)) {
-			System.out.println("Executing time query...");
-			final long timestamp = getTimestampFromArgs();
-			return bboxDbConnection.queryVersionTime(table, timestamp);
-
-		} else {
-			System.err.println("Unable to execute query with the specified parameter");
-			printHelpAndExit();
-
-			// Unreachable code
-			return null;
-		}
 	}
 
 	/**

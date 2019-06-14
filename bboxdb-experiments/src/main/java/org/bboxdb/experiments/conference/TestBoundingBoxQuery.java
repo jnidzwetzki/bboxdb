@@ -168,7 +168,7 @@ public class TestBoundingBoxQuery implements Runnable {
 			}
 
 			final Hyperrectangle queryBox = new Hyperrectangle(bboxIntervals);
-			final TupleListFuture future = bboxDBConnection.queryRectangle(tablename, queryBox, "", "");
+			final TupleListFuture future = bboxDBConnection.queryRectangle(tablename, queryBox, "", "".getBytes());
 			pendingFutures.put(future);
 		}
 

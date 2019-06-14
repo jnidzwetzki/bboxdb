@@ -51,6 +51,9 @@ jvm_ops="$jvm_ops -ea"
 # Use the server mode
 jvm_ops="$jvm_ops -server"
 
+# Show full exceptions (can be disabled in production)
+jvm_ops="$jvm_ops -XX:-OmitStackTraceInFastThrow"
+
 # Enable JMX
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.port=$jmx_port"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.rmi.port=$jmx_port"

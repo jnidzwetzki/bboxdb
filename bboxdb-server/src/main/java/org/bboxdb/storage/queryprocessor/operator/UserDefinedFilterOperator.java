@@ -41,10 +41,10 @@ public class UserDefinedFilterOperator implements Operator {
 	/**
 	 * The user defined filter data
 	 */
-	private String userDefinedFilterData;
+	private byte[] userDefinedFilterData;
 
 	public UserDefinedFilterOperator(final UserDefinedFilter filterOperator,
-			final String userDefinedFilterData, final Operator parentOperator) {
+			final byte[] userDefinedFilterData, final Operator parentOperator) {
 
 		this.filterOperator = filterOperator;
 		this.userDefinedFilterData = userDefinedFilterData;

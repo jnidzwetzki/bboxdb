@@ -62,7 +62,7 @@ public class UserDefinedFilterTransformation implements TupleTransformation {
 			} 
 		}
 		
-		final String value = userDefinedFilterDefinition.getUserDefinedFilterValue();
+		final byte[] value = userDefinedFilterDefinition.getUserDefinedFilterValue().getBytes();
 		
 		// Filter input
 		if(filter.filterTuple(input.getTuple(), value)) {

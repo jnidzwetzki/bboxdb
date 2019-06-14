@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 
 	/**
-	 * The BBOXDB Client
+	 * The BBoxDB Client
 	 */
 	private final BBoxDBConnection bboxDBClient;
 	
@@ -51,8 +51,8 @@ public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 	
 	@Override
 	protected void runThread() throws Exception {
-		while(flushActive()) {
-			
+		
+		while(! getState().isInTerminatedState()) {	
 			// Write all waiting for compression packages
 			bboxDBClient.flushPendingCompressionPackages();
 			
@@ -65,18 +65,6 @@ public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 		}
 	}
 
-	/**
-	 * Is the flush thread active
-	 * @return
-	 */
-	private boolean flushActive() {
-		if(getState().isInTerminatedState()) {
-			return false;
-		}
-		
-		return true;
-	}
-	
 	/**
 	 * Get the connection state
 	 * @return

@@ -19,12 +19,11 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -32,17 +31,18 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import org.bboxdb.commons.Pair;
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,16 +69,47 @@ public class QueryWindow {
 	private final GuiModel guimodel;
 	
 	/**
-	 * The logger
+	 * Selected range latitude begin
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
+	private String selectedLatBegin = "-90";
+
+	/**
+	 * Selected range latitude end
+	 */
+	private String selectedLatEnd = "90";
+	
+	/**
+	 * Selected range longitude begin
+	 */
+	private String selectedLongBegin = "-180";
+	
+	/**
+	 * Selected range longitude end
+	 */
+	private String selectedLongEnd = "180";
 
 	/**
 	 * The data to draw
 	 */
-	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
+	private final Collection<OverlayElement> dataToDraw;
 	
-	public QueryWindow(final GuiModel guimodel, final Collection<Pair<List<Point2D>, Color>> dataToDraw, 
+	/**
+	 * The color names for the dropdowns
+	 */
+	private final static String[] COLOR_NAMES = new String[] {"Red", "Green", "Blue"};
+	
+	/**
+	 * The color values
+	 */
+	private final static Color[] COLOR_VALUES = new Color[] {Color.RED, Color.GREEN, Color.BLUE};
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
+
+	
+	public QueryWindow(final GuiModel guimodel, final Collection<OverlayElement> dataToDraw, 
 			final Runnable callback) {
 		this.guimodel = guimodel;
 		this.dataToDraw = dataToDraw;
@@ -99,7 +130,7 @@ public class QueryWindow {
 	private PanelBuilder buildDialog() {
 
 		final FormLayout layout = new FormLayout(
-			    "right:pref, 3dlu, 100dlu", 			// columns
+			    "right:pref, 3dlu, 100dlu, 10dlu, right:pref, 3dlu, 100dlu", 			// columns
 			    "p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 9dlu, p");	// rows
 		
 		final PanelBuilder builder = new PanelBuilder(layout);
@@ -111,32 +142,61 @@ public class QueryWindow {
 		final CellConstraints cc = new CellConstraints();
 		builder.addSeparator("Query", cc.xyw(1,  1, 3));
 		builder.addLabel("Type", cc.xy (1,  3));
-		final JComboBox<String> queryTypeBox = new JComboBox<>(new String[] {"---", "Range query", "Join"});
+		final String[] queries = new String[] {"---", "Range query", "Join"};
+		final JComboBox<String> queryTypeBox = new JComboBox<>(queries);
 		builder.add(queryTypeBox, cc.xy (3,  3));
 		
 		builder.addLabel("Table 1", cc.xy (1,  5));
 		final JComboBox<String> table1Field = new JComboBox<>(allTableArray);
 		table1Field.setEnabled(false);
 		builder.add(table1Field, cc.xy (3,  5));
+		
+		builder.addLabel("Color for table 1", cc.xy (1,  7));		
+		final JComboBox<String> table1ColorField = new JComboBox<>(COLOR_NAMES);
+		table1ColorField.setSelectedItem(COLOR_NAMES[0]);
+		table1ColorField.setEnabled(false);
+		builder.add(table1ColorField, cc.xy (3,  7));
 
-		builder.addLabel("Table 2", cc.xy (1,  7));
+		builder.addLabel("Table 2", cc.xy (1,  9));
 		final JComboBox<String> table2Field = new JComboBox<>(allTableArray);
 		table2Field.setEnabled(false);
-		builder.add(table2Field, cc.xy (3,  7));
+		builder.add(table2Field, cc.xy (3,  9));
 		
-		builder.addLabel("Range", cc.xy (1,  9));
-		final JTextField rangeField = new JTextField();
-		rangeField.setText("13.3,13.6:52.4,52.6");
-		builder.add(rangeField, cc.xy (3,  9));
+		builder.addLabel("Color for table 2", cc.xy (1,  11));
+		final JComboBox<String> table2ColorField = new JComboBox<>(COLOR_NAMES);
+		table2ColorField.setSelectedItem(COLOR_NAMES[1]);
+		table2ColorField.setEnabled(false);
+		builder.add(table2ColorField, cc.xy (3, 11));
+		
+		builder.addSeparator("Parameter", cc.xyw(5,  1, 3));
+		
+		builder.addLabel("Longitude begin", cc.xy (5,  3));
+		final JTextField longBegin = new JTextField();
+		longBegin.setText(selectedLongBegin);
+		builder.add(longBegin, cc.xy (7,  3));
+		
+		builder.addLabel("Longitude end", cc.xy (5,  5));
+		final JTextField longEnd = new JTextField();
+		longEnd.setText(selectedLongEnd);
+		builder.add(longEnd, cc.xy (7,  5));
+		
+		builder.addLabel("Latitude begin", cc.xy (5,  7));
+		final JTextField latBegin = new JTextField();
+		latBegin.setText(selectedLatBegin);
+		builder.add(latBegin, cc.xy (7,  7));
+		
+		builder.addLabel("Latitude end", cc.xy (5,  9));
+		final JTextField latEnd = new JTextField();
+		latEnd.setText(selectedLatEnd);
+		builder.add(latEnd, cc.xy (7,  9));
 
-		builder.addSeparator("Filter", cc.xyw(1,  11, 3));
-		builder.addLabel("Name", cc.xy (1,  13));
+		builder.addLabel("Name", cc.xy (5,  11));
 		final JTextField filterField = new JTextField();
-		builder.add(filterField, cc.xy (3,  13));
+		builder.add(filterField, cc.xy (7,  11));
 
-		builder.addLabel("Value", cc.xy (1,  15));
+		builder.addLabel("Value", cc.xy (5,  13));
 		final JTextField valueField = new JTextField();
-		builder.add(valueField, cc.xy (3,  15));
+		builder.add(valueField, cc.xy (7,  13));
 
 		// Close
 		final JButton closeButton = new JButton();
@@ -146,17 +206,18 @@ public class QueryWindow {
 		});
 		
 		final Action executeAction = getExecuteAction(queryTypeBox, 
-				table1Field, table2Field, rangeField, filterField, valueField);
+				table1Field, table1ColorField, table2Field, table2ColorField, 
+				longBegin, longEnd, latBegin, latEnd, filterField, valueField);
 		
 		final JButton executeButton = new JButton(executeAction);
 		executeButton.setText("Execute");
 		executeButton.setEnabled(false);
 		
-		addActionListener(queryTypeBox, table1Field, table2Field, executeButton);
+		addActionListener(queryTypeBox, table1Field,  table1ColorField, table2Field, 
+				table2ColorField,  executeButton);
 
-		
-		builder.add(closeButton, cc.xy(1, 17));
-		builder.add(executeButton, cc.xy(3, 17));
+		builder.add(closeButton, cc.xy(5, 17));
+		builder.add(executeButton, cc.xy(7, 17));
 		
 		return builder;
 	}
@@ -169,7 +230,8 @@ public class QueryWindow {
 	 * @param executeButton 
 	 */
 	private void addActionListener(final JComboBox<String> queryTypeBox, final JComponent table1Field,
-			final JComponent table2Field, final JButton executeButton) {
+			final JComponent table1ColorField, final JComponent table2Field, final JComponent table2ColorField, 
+			final JButton executeButton) {
 		
 		queryTypeBox.addActionListener(l -> {
 			
@@ -177,19 +239,25 @@ public class QueryWindow {
 			switch (selectedQuery) {
 			case "Range query":
 				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(false);
+				table2ColorField.setEnabled(false);
 				executeButton.setEnabled(true);
 				break;
 				
 			case "Join":
 				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
 				executeButton.setEnabled(true);
 				break;
 
 			default:
 				table1Field.setEnabled(false);
+				table1ColorField.setEnabled(false);
 				table2Field.setEnabled(false);
+				table1ColorField.setEnabled(false);
 				executeButton.setEnabled(false);
 				break;
 			}
@@ -208,8 +276,10 @@ public class QueryWindow {
 	 * @return
 	 */
 	private Action getExecuteAction(final JComboBox<String> queryTypeBox, 
-			final JComboBox<String> table1Field, final JComboBox<String> table2Field,
-			final JTextField rangeFieldText, final JTextField filterField, final JTextField valueField) {
+			final JComboBox<String> table1Field, final JComboBox<String> color1Box, 
+			final JComboBox<String> table2Field, final JComboBox<String> color2Box, 
+			final JTextField longBegin, final JTextField longEnd, final JTextField latBegin, 
+			final JTextField latEnd, final JTextField filterField, final JTextField valueField) {
 		
 		final AbstractAction ececuteAction = new AbstractAction() {
 			
@@ -221,36 +291,42 @@ public class QueryWindow {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				
-				final String queryType = queryTypeBox.getSelectedItem().toString();
-				final String table1 = table1Field.getSelectedItem().toString();
-				final String table2 = table2Field.getSelectedItem().toString();
-				final String range = rangeFieldText.getText();
-				final String filter = filterField.getText();
-				final String value = valueField.getText();
-				
-				final Optional<Hyperrectangle> resultBox = HyperrectangleHelper.parseBBox(range);
-				if(! resultBox.isPresent()) {
-					logger.error("Invalid bounding box: " + range);
-					return;
-				}
-				
-				final Hyperrectangle bbox = resultBox.get();
-				
-				switch (queryType) {
-				case "Range query":
-					executeRangeQuery(bbox, table1, filter, value);
-					break;
+				try {
+					final String queryType = queryTypeBox.getSelectedItem().toString();
+					final String table1 = table1Field.getSelectedItem().toString();
+					final String table2 = table2Field.getSelectedItem().toString();
+					final String filter = filterField.getText();
+					final String value = valueField.getText();
 					
-				case "Join":
-					executeJoinQuery(bbox, table1, table2, filter, value);
-					break;
+					final double longBeginDouble = MathUtil.tryParseDouble(longBegin.getText(), () -> "Unable to parse value");
+					final double longEndDouble = MathUtil.tryParseDouble(longEnd.getText(), () -> "Unable to parse value");
+					final double latBeginDouble = MathUtil.tryParseDouble(latBegin.getText(), () -> "Unable to parse value");
+					final double latEndDouble = MathUtil.tryParseDouble(latEnd.getText(), () -> "Unable to parse value");
 
-				default:
-					throw new IllegalArgumentException("Unknown action: " + queryType);
-				}				
-				
-				callback.run();
-				mainframe.dispose();
+					final Hyperrectangle resultBox = new Hyperrectangle(longBeginDouble, 
+							longEndDouble, latBeginDouble, latEndDouble);
+									
+					final Color color1 = COLOR_VALUES[color1Box.getSelectedIndex()];
+					final Color color2 = COLOR_VALUES[color2Box.getSelectedIndex()];
+
+					switch (queryType) {
+					case "Range query":
+						executeRangeQuery(resultBox, table1, color1, filter, value);
+						break;
+						
+					case "Join":
+						executeJoinQuery(resultBox, table1, color1, table2, color2, filter, value);
+						break;
+
+					default:
+						throw new IllegalArgumentException("Unknown action: " + queryType);
+					}				
+					
+					callback.run();
+					mainframe.dispose();
+				} catch (InputParseException exception) {
+					JOptionPane.showMessageDialog(mainframe, "Got an error: " + exception.getMessage());
+				}
 			}
 
 			/***
@@ -262,67 +338,58 @@ public class QueryWindow {
 			 * @param bbox 
 			 */
 			private void executeJoinQuery(final Hyperrectangle bbox, final String table1, 
-					final String table2, final String customFilter, final String customValue) {
+					final Color color1, final String table2, final Color color2, 
+					final String customFilter, final String customValue) {
 				
 				try {
 					final JoinedTupleListFuture result = guimodel.getConnection().queryJoin(
-							Arrays.asList(table1, table2), bbox, customFilter, customValue);
+							Arrays.asList(table1, table2), bbox, customFilter, customValue.getBytes());
 					
 					result.waitForCompletion();
 					if(result.isFailed()) {
 						logger.error("Got an error" + result.getAllMessages());
 						return;
 					}
+
+					final List<Tuple> tuples1 = new ArrayList<>();
+					final List<Tuple> tuples2 = new ArrayList<>();
 					
 					for(final JoinedTuple tuple : result) {
-						final String data1 = new String(tuple.getTuple(0).getDataBytes());
-						final String data2 = new String(tuple.getTuple(1).getDataBytes());
-					
-						final Polygon polygon1 = Polygon.fromGeoJson(data1);
-						addPolygon(polygon1, Color.GREEN);
-
-						final Polygon polygon2 = Polygon.fromGeoJson(data2);
-						addPolygon(polygon2, Color.RED);
-						
-						final Hyperrectangle bboxTuple = tuple.getBoundingBox();
-						addBoundingBox(bboxTuple);
+						tuples1.add(tuple.getTuple(0));
+						tuples2.add(tuple.getTuple(1));	
 					}
 					
+					System.out.format("Got %d tuples%n", tuples1.size() + tuples2.size());
+					
+				    final List<Tuple> tuples1Wo = tuples1.stream().distinct().collect(Collectors.toList());
+				    final List<Tuple> tuples2Wo = tuples2.stream().distinct().collect(Collectors.toList());
+
+					System.out.format("Reduced to %d polygons%n", tuples1Wo.size() + tuples2Wo.size());
+
+					addTuplesToOverlay(table1, color1, tuples1Wo);
+					addTuplesToOverlay(table2, color2, tuples2Wo);
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 					return;
-				}
+				} 
 			}
 
 			/**
-			 * Add the polygon to the overlay
-			 * @param polygon
-			 * @param color 
+			 * Add the tuples to the overlay
+			 * @param color1
+			 * @param tuples1
 			 */
-			private void addPolygon(final Polygon polygon, final Color color) {
-				final List<Point2D> polygonPoints = new ArrayList<>();
-
-				for(final Point2D point : polygon.getPointList()) {
-					polygonPoints.add(new Point2D.Double(point.getY(), point.getX())); 
+			private void addTuplesToOverlay(final String tablename, final Color color1, 
+					final List<Tuple> tuples1) {
+				
+				for(final Tuple tuple : tuples1) {
+					final String data1 = new String(tuple.getDataBytes());				
+					final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(data1);
+					polygon1.invertPolygonCoordinates();
+					dataToDraw.add(new OverlayElement(tablename, polygon1, color1));
 				}
-
-				dataToDraw.add(new Pair<>(polygonPoints, color));				
-			}
-
-			/**
-			 * Add the bounding box to the overlay
-			 * @param bboxTuple
-			 */
-			private void addBoundingBox(final Hyperrectangle bboxTuple) {
-				final List<Point2D> boundingBoxPoints = new ArrayList<>();
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateLow(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateHigh(1), bboxTuple.getCoordinateLow(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateHigh(1), bboxTuple.getCoordinateHigh(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateHigh(0)));
-				boundingBoxPoints.add(new Point2D.Double (bboxTuple.getCoordinateLow(1), bboxTuple.getCoordinateLow(0)));
-				dataToDraw.add(new Pair<>(boundingBoxPoints, Color.BLACK));
 			}
 
 			/**
@@ -333,29 +400,24 @@ public class QueryWindow {
 			 * @param bbox 
 			 */
 			private void executeRangeQuery(final Hyperrectangle bbox, final String table1, 
-					final String customFilter, final String customValue) {
+					final Color color1, final String customFilter, final String customValue) {
 				
 				try {
-					final TupleListFuture result = guimodel.getConnection().queryRectangle(table1, bbox, customFilter, customValue);
+					final TupleListFuture result = guimodel.getConnection().queryRectangle(
+							table1, bbox, customFilter, customValue.getBytes());
 					
 					result.waitForCompletion();
 					if(result.isFailed()) {
 						logger.error("Got an error" + result.getAllMessages());
 						return;
 					}
-					
+										
 					for(final Tuple tuple : result) {
 						final String data = new String(tuple.getDataBytes());
-						final Polygon polygon = Polygon.fromGeoJson(data);
-						addPolygon(polygon, Color.GREEN);
-
-						final Hyperrectangle bboxTuple = tuple.getBoundingBox();
-						addBoundingBox(bboxTuple);
+						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
+						polygon.invertPolygonCoordinates();
+						dataToDraw.add(new OverlayElement(table1, polygon, color1));
 					}
-					
-					
-					System.out.println("Draw polygon " + dataToDraw.size());
-					
 					
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
@@ -368,4 +430,37 @@ public class QueryWindow {
 		
 		return ececuteAction;
 	}
+	
+	/**
+	 * Set the latitude begin coordinate
+	 * @param selectedLatBegin
+	 */
+	public void setSelectedLatBegin(final String selectedLatBegin) {
+		this.selectedLatBegin = selectedLatBegin;
+	}
+
+	/**
+	 * Set the latitude end coordinate
+	 * @param selectedLatEnd
+	 */
+	public void setSelectedLatEnd(final String selectedLatEnd) {
+		this.selectedLatEnd = selectedLatEnd;
+	}
+
+	/**
+	 * Set the longitude begin coordinate
+	 * @param selectedLongBegin
+	 */
+	public void setSelectedLongBegin(final String selectedLongBegin) {
+		this.selectedLongBegin = selectedLongBegin;
+	}
+
+	/**
+	 * Set the longitude end coordinate
+	 * @param selectedLongEnd
+	 */
+	public void setSelectedLongEnd(final String selectedLongEnd) {
+		this.selectedLongEnd = selectedLongEnd;
+	}
+
 }

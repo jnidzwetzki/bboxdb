@@ -30,6 +30,6 @@ public class RejectedException extends Exception {
 
 	public RejectedException(final Throwable cause) {
 		super(cause);
-	}
+	}	
 
 }

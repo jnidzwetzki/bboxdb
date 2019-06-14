@@ -29,16 +29,11 @@ import com.esri.core.geometry.ogc.OGCGeometry;
 
 public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 
-	@Override
-	public boolean filterTuple(final Tuple tuple, String customData) {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	/**
 	 * Perform a real 
 	 */
 	@Override
-	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final String customData) {
+	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
 		final OGCGeometry geometry1 = extractGeometry(tuple1);
 		final OGCGeometry geometry2 = extractGeometry(tuple2);
 

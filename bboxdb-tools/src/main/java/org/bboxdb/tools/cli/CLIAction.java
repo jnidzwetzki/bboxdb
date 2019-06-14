@@ -30,17 +30,32 @@ public class CLIAction {
 	/**
 	 * The name of the query action
 	 */
-	public static final String QUERY = "query";
+	public static final String QUERY_KEY = "query_key";
+	
+	/**
+	 * The name of the query action
+	 */
+	public static final String QUERY_RANGE = "query_range";
+	
+	/**
+	 * The name of the query action
+	 */
+	public static final String QUERY_RANGE_TIME = "query_range_and_time";
+	
+	/**
+	 * The name of the query action
+	 */
+	public static final String QUERY_TIME = "query_time";
 	
 	/**
 	 * The name of the join action
 	 */
-	public static final String JOIN = "join";
+	public static final String QUERY_JOIN = "query_join";
 		
 	/**
 	 * The name of the query action
 	 */
-	public static final String CONTINUOUS_QUERY = "continuous-query";
+	public static final String QUERY_CONTINUOUS = "query_continuous";
 	
 	/**
 	 * The name of the insert action
@@ -86,7 +101,8 @@ public class CLIAction {
 	 * All known actions
 	 */
 	public static List<String> ALL_ACTIONS 
-		= Arrays.asList(IMPORT, QUERY, JOIN, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, 
-				SHOW_DGROUP, SHOW_INSTANCES, CREATE_TABLE, DELETE_TABLE);
+		= Arrays.asList(IMPORT, QUERY_KEY, QUERY_RANGE, QUERY_RANGE_TIME, QUERY_TIME, QUERY_JOIN, 
+				DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, SHOW_DGROUP, SHOW_INSTANCES, 
+				CREATE_TABLE, DELETE_TABLE);
 
 }

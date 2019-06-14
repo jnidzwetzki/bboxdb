@@ -13,10 +13,16 @@ order: 1
 - Improvement: Replaced OSMPoint by Point2D.Double
 - Improvement: Improved result buffer handling of network requests
 - Improvement: Bump up zookeeper from 3.4.14 to 3.5.5
+- Improvement: The OSM maps on the GUI are now cached
+- Improvement: The OSM maps can now be zoomed with the mouse wheel
+- Improvement: Various GUI improvements (#157)
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 - Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)
 - Bugfix: Fixed the calculation of the bounding box of joined tuples
+- Bugfix: Include full stacktraces on rejected exception
+- Bugfix: Fixed insertion of deleted tuple
+- Bugfix: Fixed two timing errors on the dynamic grid space partitioner test (#159)
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script

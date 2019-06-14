@@ -210,6 +210,16 @@ public class GuiModel implements DistributionRegionCallback {
 			}
 		})).start();
 	}
+	
+	/**
+	 * Set the status text
+	 * @param text
+	 */
+	public void setStatusText(final String text) {
+		SwingUtilities.invokeLater(() -> {
+			bboxdbGui.getStatusLabel().setText(text);
+		});
+	}
 
 	/**
 	 * A group membership event is occurred

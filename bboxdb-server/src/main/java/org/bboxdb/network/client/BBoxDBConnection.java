@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -220,8 +219,8 @@ public class BBoxDBConnection {
 		// Concurrent access with synchronized
 		this.pendingCompressionPackages = new ArrayList<>();
 
-		// Concurrent access to the pending calls
-		this.pendingCalls = new ConcurrentHashMap<>();
+		// Concurrent access with synchronized
+		this.pendingCalls = new HashMap<>();
 
 		initResponseHandler();
 	}
@@ -424,8 +423,11 @@ public class BBoxDBConnection {
 				}
 			}
 
-			if(! pendingCalls.isEmpty()) {
-				logger.warn("Connection is closed. Still pending calls: {} ", pendingCalls);
+			final int usedNumbers = sequenceNumberGenerator.getUsedNumbers();
+			
+			if(! pendingCalls.isEmpty() || usedNumbers > 0) {
+				logger.warn("Connection is closed. Still pending calls: {} / used sequence numbers {}", 
+						pendingCalls, usedNumbers);
 			}
 		}
 	}

@@ -60,11 +60,11 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The custom filter value
 	 */
-	private String userDefinedFilterValue;
+	private byte[] userDefinedFilterValue;
 
 	public QueryHyperrectangleRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
 			final String table,  final Hyperrectangle box, final String userdefinedFilterName, 
-			final String userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
+			final byte[] userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -97,7 +97,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 			bb.putShort(tuplesPerPage);
 			
 			final byte[] customFilterBytes = userDefinedFilterName.getBytes();
-			final byte[] customValueBytes = userDefinedFilterValue.getBytes();
+			final byte[] customValueBytes = userDefinedFilterValue;
 			
 			bb.putShort((short) tableBytes.length);
 			bb.put(NetworkConst.UNUSED_BYTE);
@@ -181,7 +181,6 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		
 		final byte[] customFilterValueBytes = new byte[customValueLength];
 		encodedPackage.get(customFilterValueBytes, 0, customFilterValueBytes.length);
-		final String customFilterValue = new String(customFilterValueBytes);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " 
@@ -191,7 +190,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
 		return new QueryHyperrectangleRequest(sequenceNumber, routingHeader, table, boundingBox, 
-				customFilterName, customFilterValue, pagingEnabled, tuplesPerPage);
+				customFilterName, customFilterValueBytes, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -224,7 +223,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		return userDefinedFilterName;
 	}
 	
-	public String getUserDefinedFilterValue() {
+	public byte[] getUserDefinedFilterValue() {
 		return userDefinedFilterValue;
 	}
 

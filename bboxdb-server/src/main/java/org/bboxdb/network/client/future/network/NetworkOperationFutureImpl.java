@@ -91,7 +91,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	/**
 	 * The total number of retries before the future fails
 	 */
-	private int totalRetries = 20;
+	private int totalRetries = 50;
 
 	/**
 	 * The last send package

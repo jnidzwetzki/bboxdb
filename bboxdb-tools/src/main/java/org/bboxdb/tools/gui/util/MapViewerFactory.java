@@ -17,17 +17,36 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.util;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import javax.swing.JButton;
 import javax.swing.event.MouseInputListener;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.cache.FileBasedLocalCache;
+import org.jxmapviewer.input.PanKeyListener;
 import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 
 public class MapViewerFactory {
+	
+	private static Path cacheDir;
+	
+	static {
+		try {
+			cacheDir = Files.createTempDirectory("jxmapviewer2");
+			System.out.println("Caching maps to: " + cacheDir);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
 
 	public static JXMapViewer createMapViewer() {
 		final JXMapViewer mapViewer = new JXMapViewer();
@@ -35,11 +54,16 @@ public class MapViewerFactory {
 		// Create a TileFactoryInfo for OpenStreetMap
 		final TileFactoryInfo info = new OSMTileFactoryInfo();
 		final DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+        tileFactory.setLocalCache(new FileBasedLocalCache(cacheDir.toFile(), false));
 		mapViewer.setTileFactory(tileFactory);
 	
 		final MouseInputListener mia = new PanMouseInputListener(mapViewer);
 		mapViewer.addMouseListener(mia);
 		mapViewer.addMouseMotionListener(mia);
+		
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+		
+        mapViewer.addKeyListener(new PanKeyListener(mapViewer));
 		
 		// Use 8 threads in parallel to load the tiles
 		tileFactory.setThreadPoolSize(8);
@@ -61,12 +85,12 @@ public class MapViewerFactory {
 	}
 
 	/**
-	 * Show the university of Hagen in the viewer
+	 * Show Berlin in the viewer
 	 * @param mapViewer
 	 */
 	public static void showBerlin(final JXMapViewer mapViewer) {
 		final GeoPosition hagen = new GeoPosition(52.522199, 13.413749);
-		mapViewer.setZoom(7);
+		mapViewer.setZoom(9);
 		mapViewer.setAddressLocation(hagen);
 	}
 	

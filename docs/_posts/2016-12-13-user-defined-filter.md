@@ -10,7 +10,7 @@ This page describes the _user defined filter_ (UDF) feature that is available si
 
 ### Creating a user defined filter
 
-To define a new user defined filter, the interface `UserDefinedFilter` has to be implemented. In the methods `filterTuple(Tuple, String)` and `filterTuple(Tuple, Tuple, String)` has the filter code to be implemented.
+To define a new user defined filter, the interface `UserDefinedFilter` has to be implemented. In the methods `filterTuple(Tuple, byte[])` and `filterTuple(Tuple, Tuple, byte[])` has the filter code to be implemented.
 
 The first method is called when a single tuple needs to be filtered. In addition to the tuple, a user defined value is passed to the method. The value is determined by the user which executed the query. The value can be used to change the behavior of the filter (e.g., let only tuple pass that contains this value) Depending on the method return value (`true` or `false`) the tuple is sent back to the client or not.
 
@@ -30,16 +30,16 @@ import org.bboxdb.storage.entity.Tuple;
 public class UserDefinedStringFilter implements UserDefinedFilter {
 
     @Override
-    public boolean filterTuple(final Tuple tuple, final String customData) {
-        return new String(tuple.getDataBytes()).contains(customData);
+    public boolean filterTuple(final Tuple tuple, final byte[] customData) {
+        return new String(tuple.getDataBytes()).contains(new String(customData));
     }
 
     @Override
-    public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final String customData) {
+    public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
         final String string1 = new String(tuple1.getDataBytes());
         final String string2 = new String(tuple2.getDataBytes());
 
-        return string1.contains(customData) && string2.contains(customData);
+        return string1.contains(customData) && string2.contains(new String(customData));
     }
 }
 ```

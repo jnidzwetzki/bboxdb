@@ -351,7 +351,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox, 
-			final String filterName, final String customValue) {
+			final String filterName, final byte[] customValue) {
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				table, boundingBox, false, connection.getServerAddress());
 
@@ -372,7 +372,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public Supplier<List<NetworkOperationFuture>> getQueryBoundingBoxFuture(final String table,
 			final Hyperrectangle boundingBox, final RoutingHeader routingHeader, 
-			final String filterName, final String customValue) {
+			final String filterName, final byte[] customValue) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
@@ -524,7 +524,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
-			final String filterName, final String customValue) {
+			final String filterName, final byte[] customValue) {
 		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 				tableNames.get(0), boundingBox, true, connection.getServerAddress());
@@ -545,7 +545,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public Supplier<List<NetworkOperationFuture>> getJoinFuture(final List<String> tableNames, 
 			final Hyperrectangle boundingBox, final RoutingHeader routingHeader, 
-			final String filterName, final String customValue) {
+			final String filterName, final byte[] customValue) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 

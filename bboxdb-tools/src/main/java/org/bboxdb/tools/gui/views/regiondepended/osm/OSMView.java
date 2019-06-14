@@ -75,7 +75,7 @@ public class OSMView implements View {
 	 * Get an instance of the map viewer
 	 * @return
 	 */
-	private JXMapViewer createMapViewer() {
+	private JXMapViewer createMapViewer() {	
 		final JXMapViewer mapViewer = MapViewerFactory.createMapViewer();
 		
 		// The data distribution painter

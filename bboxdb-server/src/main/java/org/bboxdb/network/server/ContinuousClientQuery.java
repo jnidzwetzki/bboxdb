@@ -181,7 +181,7 @@ public class ContinuousClientQuery implements ClientQuery {
 				return;
 			}
 			
-			final Map<UserDefinedFilter, String> filters = getUserDefinedFilter(tableQueryPlan);
+			final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(tableQueryPlan);
 			
 			final Consumer<Tuple> tupleConsumer = (tupleToConsume) -> {
 				final List<TupleTransformation> tupleTransfor 
@@ -230,11 +230,11 @@ public class ContinuousClientQuery implements ClientQuery {
 		};
 	}
 
-	private boolean doUserDefinedFilterMatch(Tuple t, final Map<UserDefinedFilter, String> filters,
+	private boolean doUserDefinedFilterMatch(Tuple t, final Map<UserDefinedFilter, byte[]> filters,
 			final TupleAndBoundingBox transformedTuple) {
 		boolean matches = true;
 		for(final UserDefinedFilter operator : filters.keySet()) {
-			final String value = filters.get(operator);
+			final byte[] value = filters.get(operator);
 			final boolean result 
 				= operator.filterJoinCandidate(t, transformedTuple.getTuple(), value);
 			
@@ -250,17 +250,17 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param tableQueryPlan
 	 * @return 
 	 */
-	private Map<UserDefinedFilter, String> getUserDefinedFilter(
+	private Map<UserDefinedFilter, byte[]> getUserDefinedFilter(
 			final ContinuousTableQueryPlan tableQueryPlan) {
 		
-		final Map<UserDefinedFilter, String> operators = new HashMap<>();
+		final Map<UserDefinedFilter, byte[]> operators = new HashMap<>();
 		
 		for(final UserDefinedFilterDefinition filter : tableQueryPlan.getAfterJoinFilter()) {
 			try {
 				final Class<?> filterClass = Class.forName(filter.getUserDefinedFilterClass());
 				final UserDefinedFilter operator = 
 						(UserDefinedFilter) filterClass.newInstance();
-				operators.put(operator, filter.getUserDefinedFilterValue());
+				operators.put(operator, filter.getUserDefinedFilterValue().getBytes());
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				throw new IllegalArgumentException("Unable to find user defined filter class", e);
 			}

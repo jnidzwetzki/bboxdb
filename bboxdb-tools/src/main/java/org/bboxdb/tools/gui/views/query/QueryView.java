@@ -18,24 +18,24 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.geom.Point2D;
+import java.awt.Point;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JToolTip;
 
-import org.bboxdb.commons.Pair;
 import org.bboxdb.tools.gui.GuiModel;
 import org.bboxdb.tools.gui.util.MapViewerFactory;
 import org.bboxdb.tools.gui.views.View;
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.painter.Painter;
 
 public class QueryView implements View {
+
+	
 
 	/**
 	 * The GUI model
@@ -50,9 +50,9 @@ public class QueryView implements View {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<Pair<List<Point2D>, Color>> dataToDraw;
+	private final Collection<OverlayElement> dataToDraw;
 
-
+	
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 		this.dataToDraw = new CopyOnWriteArrayList<>();
@@ -62,8 +62,34 @@ public class QueryView implements View {
 	public JComponent getJPanel() {
 		mapViewer = MapViewerFactory.createMapViewer();
 		
-		final Painter<JXMapViewer> painter = new QueryResultOverlay(dataToDraw);
+        final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter(dataToDraw, 
+        		guiModel, mapViewer);
+        
+        mapViewer.addMouseListener(selectionAdapter);
+        mapViewer.addMouseMotionListener(selectionAdapter);
+		
+		final ElementOverlayPainter painter = new ElementOverlayPainter(dataToDraw, selectionAdapter);
 		mapViewer.setOverlayPainter(painter);
+		
+	     // Prepare tooltip (Rendered by the MouseOverlayHandler)
+        final JToolTip tooltip = new JToolTip() {
+        
+			private static final long serialVersionUID = -2806858564323423227L;
+
+			@Override
+        	public void setLocation(int x, int y) {
+        		// Ignore component layout requests
+        	}
+        	
+        	@Override
+        	public void setLocation(Point p) {
+        		super.setLocation((int) p.getX(), (int) p.getY());
+        	}
+        };
+        tooltip.setComponent(mapViewer);
+        mapViewer.add(tooltip);
+        
+		mapViewer.addMouseMotionListener(new MouseOverlayHandler(mapViewer, painter, tooltip));
 		
 		final JPanel mainPanel = new JPanel();
 		
@@ -93,8 +119,26 @@ public class QueryView implements View {
 		
 		final JButton clearButton = getClearButton();
 		buttonPanel.add(clearButton);
+		
+		final JCheckBox bboxCheckbox = getBBoxCheckbox(painter);
+		buttonPanel.add(bboxCheckbox);
 
 		return mainPanel;	
+	}
+
+	/**
+	 * Get the bounding box checkbox
+	 */
+	private JCheckBox getBBoxCheckbox(final ElementOverlayPainter painter) {
+		final JCheckBox bboxCheckbox = new JCheckBox("Show Bounding Boxes");
+		bboxCheckbox.setSelected(true);
+		
+		bboxCheckbox.addActionListener((a) -> {
+			painter.setDrawBoundingBoxes(bboxCheckbox.isSelected());
+			mapViewer.repaint();
+		});
+		
+		return bboxCheckbox;
 	}
 
 	/**
@@ -105,7 +149,6 @@ public class QueryView implements View {
 		final JButton queryButton = new JButton("Execute query");
 		queryButton.addActionListener(l -> {
 			final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
-				System.out.println("---> Elements: " + dataToDraw.size());
 				mapViewer.repaint();
 			});
 

@@ -29,8 +29,8 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.bboxdb.commons.math.DoubleInterval;
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.tools.converter.osm.util.Polygon;
 
 public class ConvertGeoJSONToBoundingBox implements Runnable {
 
@@ -77,7 +77,7 @@ public class ConvertGeoJSONToBoundingBox implements Runnable {
 	 */
 	private void handleLine(final String line, final Writer writer) {
 		try {
-			final Polygon polygon = Polygon.fromGeoJson(line);
+			final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(line);
 			final Hyperrectangle boundingBox = polygon.getBoundingBox();
 			final int dimension = boundingBox.getDimension();
 			
@@ -86,7 +86,7 @@ public class ConvertGeoJSONToBoundingBox implements Runnable {
 			final DoubleInterval interval0 = boundingBox.getIntervalForDimension(0);
 			final DoubleInterval interval1 = boundingBox.getIntervalForDimension(1);
 
-			final Polygon boundingBoxPolygon = new Polygon(polygon.getId());
+			final GeoJsonPolygon boundingBoxPolygon = new GeoJsonPolygon(polygon.getId());
 			
 			boundingBoxPolygon.addPoint(interval0.getBegin(), interval1.getBegin());
 			boundingBoxPolygon.addPoint(interval0.getBegin(), interval1.getEnd());

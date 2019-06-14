@@ -234,4 +234,15 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		final Predicate<DistributionRegion> predicate = (r) -> r.getState() == state;
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, region, distributionRegionSyncer);
 	}
+	
+	/**
+	 * Wait until the node is removed
+	 * @param region
+	 * @param state
+	 * @throws InterruptedException 
+	 */
+	@VisibleForTesting
+	public void waitUntilNodeIsRemoved(final DistributionRegion region) throws InterruptedException {
+		DistributionRegionSyncerHelper.waitUntilRegionRemoved(region, distributionRegionSyncer);
+	}
 }

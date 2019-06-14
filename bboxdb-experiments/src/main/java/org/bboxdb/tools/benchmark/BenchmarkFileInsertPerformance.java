@@ -26,12 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.converter.osm.util.SerializerHelper;
 
 public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
@@ -64,7 +64,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 	/**
 	 * The Serializer
 	 */
-	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
+	protected final SerializerHelper<GeoJsonPolygon> serializerHelper = new SerializerHelper<>();
 
 	public BenchmarkFileInsertPerformance(final String filename, final short replicationFactor) {
 		this.filename = filename;
@@ -90,7 +90,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 	 */
 	protected void handleLine(String line) {
 		try {
-			final Polygon polygon = Polygon.fromGeoJson(line);
+			final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(line);
 			final byte[] tupleBytes = polygon.toGeoJson().getBytes();
 
 			final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);

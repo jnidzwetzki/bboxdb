@@ -70,7 +70,7 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 			}
 
 			final String userdefinedFilterName = queryRequest.getUserDefinedFilterName();
-			final String userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
+			final byte[] userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
 
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
 
