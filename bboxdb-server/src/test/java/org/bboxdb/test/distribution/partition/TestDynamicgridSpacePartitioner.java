@@ -194,6 +194,7 @@ public class TestDynamicgridSpacePartitioner {
 		final DistributionRegion mergeRegion1 = spacePartitioner.getDestinationForMerge(newRegions);
 		Assert.assertNotNull(mergeRegion1);
 		spacePartitioner.mergeFailed(newRegions, mergeRegion1);
+		spacePartitioner.waitUntilNodeIsRemoved(mergeRegion1);
 
 		// Merge successfully
 		System.out.println("---> testSplitAndMergeRegion:Test-Debug: Waiting for get");
