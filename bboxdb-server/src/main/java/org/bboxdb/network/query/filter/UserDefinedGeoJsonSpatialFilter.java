@@ -28,9 +28,28 @@ import com.esri.core.geometry.WktImportFlags;
 import com.esri.core.geometry.ogc.OGCGeometry;
 
 public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
+	
+	private OGCGeometry customGeomety = null;
 
 	/**
-	 * Perform a real 
+	 * Perform a real filter based on the geometry of the data
+	 */
+	@Override
+	public boolean filterTuple(final Tuple tuple, final byte[] customData) {
+		
+		// Cache the custom geometry between method calls
+		if(customGeomety == null) {
+			final String customString = new String(customData);
+			customGeomety = geoJoinToGeomety(customString);
+		}
+		
+		final OGCGeometry geometry = extractGeometry(tuple);
+
+        return geometry.intersects(customGeomety);
+	}
+	
+	/**
+	 * Perform a real join based on the geometry of the data
 	 */
 	@Override
 	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
@@ -46,9 +65,6 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 * @return
 	 */
 	private OGCGeometry extractGeometry(final Tuple tuple) {
-		final OperatorImportFromGeoJson op = (OperatorImportFromGeoJson) OperatorFactoryLocal
-		        .getInstance().getOperator(Operator.Type.ImportFromGeoJson);
-		
 		final String geoJsonString = new String(tuple.getDataBytes());
 
 		final JSONObject geoJson = new JSONObject(geoJsonString);
@@ -56,11 +72,21 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		// Extract geometry (if exists)
 		final JSONObject geometryObject = geoJson.optJSONObject("geometry");
 		
-		String jsonString = geoJsonString;
-
 		if(geometryObject != null) {
-			jsonString = geometryObject.toString();
+			return geoJoinToGeomety(geometryObject.toString());
 		}
+		
+		return geoJoinToGeomety(geoJsonString);
+	}
+
+	/**
+	 * Convert the geojson element to a ESRI geometry
+	 * @param jsonString
+	 * @return
+	 */
+	private OGCGeometry geoJoinToGeomety(String jsonString) {
+		final OperatorImportFromGeoJson op = (OperatorImportFromGeoJson) OperatorFactoryLocal
+		        .getInstance().getOperator(Operator.Type.ImportFromGeoJson);
 				
 	    final MapOGCStructure structure = op.executeOGC(WktImportFlags.wktImportDefaults, jsonString, null);
 

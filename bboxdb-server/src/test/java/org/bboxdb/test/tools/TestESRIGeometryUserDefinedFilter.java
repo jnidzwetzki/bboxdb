@@ -84,7 +84,7 @@ public class TestESRIGeometryUserDefinedFilter {
 	final Tuple tuple5 = new Tuple("5", Hyperrectangle.FULL_SPACE, GEO_JSON5.getBytes());
 
 	@Test
-	public void testGeometry1() {
+	public void testGeometryJoin1() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertTrue(filter.filterJoinCandidate(tuple1, tuple1, "".getBytes()));
 		Assert.assertTrue(filter.filterJoinCandidate(tuple2, tuple2, "".getBytes()));
@@ -92,33 +92,55 @@ public class TestESRIGeometryUserDefinedFilter {
 	}
 	
 	@Test
-	public void testGeometry2() {
+	public void testGeometryJoin2() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertFalse(filter.filterJoinCandidate(tuple1, tuple2, "".getBytes()));
 		Assert.assertFalse(filter.filterJoinCandidate(tuple3, tuple2, "".getBytes()));
 	}
 	
 	@Test
-	public void testGeometry3() {
+	public void testGeometryJoin3() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertTrue(filter.filterJoinCandidate(tuple1, tuple3, "".getBytes()));
 	}
 	
 	@Test
-	public void testGeometry4() {
+	public void testGeometryJoin4() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertFalse(filter.filterJoinCandidate(tuple1, tuple4, "".getBytes()));
 	}
 	
 	@Test
-	public void testGeometry5() {
+	public void testGeometryJoin5() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertTrue(filter.filterJoinCandidate(tuple4, tuple4, "".getBytes()));
 	}
 	
 	@Test
-	public void testGeometry6() {
+	public void testGeometryJoin6() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
 		Assert.assertTrue(filter.filterJoinCandidate(tuple5, tuple5, "".getBytes()));
 	}
+	
+	@Test
+	public void testGeometryFilter1() {
+		final UserDefinedGeoJsonSpatialFilter filter1 = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertTrue(filter1.filterTuple(tuple1, tuple1.getDataBytes()));
+		
+		final UserDefinedGeoJsonSpatialFilter filter2 = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertTrue(filter2.filterTuple(tuple2, tuple2.getDataBytes()));
+		
+		final UserDefinedGeoJsonSpatialFilter filter3 = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertTrue(filter3.filterTuple(tuple3, tuple3.getDataBytes()));
+	}
+	
+	@Test
+	public void testGeometryFilter2() {
+		final UserDefinedGeoJsonSpatialFilter filter1 = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertFalse(filter1.filterTuple(tuple1, tuple2.getDataBytes()));
+		
+		final UserDefinedGeoJsonSpatialFilter filter2 = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertFalse(filter2.filterTuple(tuple3, tuple2.getDataBytes()));
+	}
+	
 }
