@@ -19,7 +19,7 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JButton;
@@ -35,8 +35,6 @@ import org.jxmapviewer.JXMapViewer;
 
 public class QueryView implements View {
 
-	
-
 	/**
 	 * The GUI model
 	 */
@@ -50,17 +48,23 @@ public class QueryView implements View {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<OverlayElement> dataToDraw;
-
+	private final List<OverlayElement> dataToDraw;
 	
+	/**
+	 * The details screen
+	 */
+	private final ResultDetailsWindow resultDetailsWindow;
+
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 		this.dataToDraw = new CopyOnWriteArrayList<>();
+		this.resultDetailsWindow = new ResultDetailsWindow();
 	}
 	
 	@Override
 	public JComponent getJPanel() {
 		mapViewer = MapViewerFactory.createMapViewer();
+		resultDetailsWindow.setMapViewer(mapViewer);
 		
         final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter(dataToDraw, 
         		guiModel, mapViewer);
@@ -89,8 +93,12 @@ public class QueryView implements View {
         tooltip.setComponent(mapViewer);
         mapViewer.add(tooltip);
         
-		mapViewer.addMouseMotionListener(new MouseOverlayHandler(mapViewer, painter, tooltip));
+		final MouseOverlayHandler mouseOverlayHandler = new MouseOverlayHandler(mapViewer, tooltip);
+		mapViewer.addMouseMotionListener(mouseOverlayHandler);
 		
+		painter.registerCallback((e) -> mouseOverlayHandler.setRenderedElements(e));
+		painter.registerCallback((e) -> resultDetailsWindow.setRenderedElements(e));
+
 		final JPanel mainPanel = new JPanel();
 		
 		mainPanel.setLayout(new BorderLayout());
@@ -120,10 +128,23 @@ public class QueryView implements View {
 		final JButton clearButton = getClearButton();
 		buttonPanel.add(clearButton);
 		
+		final JButton resultDetails = getResultDetailsButton();
+		buttonPanel.add(resultDetails);
+		
 		final JCheckBox bboxCheckbox = getBBoxCheckbox(painter);
 		buttonPanel.add(bboxCheckbox);
 
 		return mainPanel;	
+	}
+
+	private JButton getResultDetailsButton() {
+		final JButton queryButton = new JButton("Show result details");
+		
+		queryButton.addActionListener(l -> {
+			resultDetailsWindow.show();
+		});
+		
+		return queryButton;
 	}
 
 	/**
@@ -147,6 +168,7 @@ public class QueryView implements View {
 	 */
 	private JButton getQueryButton() {
 		final JButton queryButton = new JButton("Execute query");
+		
 		queryButton.addActionListener(l -> {
 			final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
 				mapViewer.repaint();
@@ -154,6 +176,7 @@ public class QueryView implements View {
 
 			queryWindow.show();
 		});
+		
 		return queryButton;
 	}
 
@@ -163,10 +186,12 @@ public class QueryView implements View {
 	 */
 	private JButton getClearButton() {
 		final JButton clearButton = new JButton("Clear map");
+		
 		clearButton.addActionListener(l -> {
 			dataToDraw.clear();
 			mapViewer.repaint();
 		});
+		
 		return clearButton;
 	}
 

@@ -24,10 +24,13 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
@@ -39,14 +42,22 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * The data to draw
 	 */
 	private final Collection<OverlayElement> dataToDraw;
-	
+
 	/**
 	 * The rendered elements
-	 * @param guiModel
 	 */
-	private final Collection<OverlayElement> renderedElements;
+	private final List<OverlayElement> renderedElements = new ArrayList<OverlayElement>();
 
+	/**
+	 * Data valid for
+	 */
+	private Rectangle validForRectangle;
 	
+	/**
+	 * Data valid for
+	 */
+	private long validForElements;
+
 	/**
 	 * The transparency value
 	 */
@@ -62,7 +73,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	private static Color SELECTION_FRAME_COLOR = new Color(0, 0, 255, 128);
 
-
 	/**
 	 * The selection adapter
 	 */
@@ -72,12 +82,18 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * Draw the bounding boxes of the objects
 	 */
 	private boolean drawBoundingBoxes = true;
+	
+	/**
+	 * The callbacks for a changed list
+	 */
+	private final List<Consumer<List<OverlayElement>>> callbacks;
 
-	public ElementOverlayPainter(final Collection<OverlayElement> dataToDraw, 
+	public ElementOverlayPainter(final List<OverlayElement> dataToDraw, 
 			final QueryRangeSelectionAdapter selectionAdapter) {
+		
 		this.dataToDraw = dataToDraw;
 		this.selectionAdapter = selectionAdapter;
-		this.renderedElements = new CopyOnWriteArrayList<>();
+		this.callbacks = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -112,31 +128,70 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	private void drawData(final Graphics2D graphicsContext, final JXMapViewer map) {
 		
-		renderedElements.clear();
 		final Rectangle viewBounds = map.getViewportBounds();
 		
-		for(final OverlayElement element: dataToDraw) {
+		if(hasDataChanged(viewBounds)) {
 			
-			element.updatePosition(map);
-			final Rectangle boundingBox = element.getBBoxToDrawOnGui();
+			validForRectangle = viewBounds;
+			validForElements = dataToDraw.size();
 			
-			// Skip rendering of invisible elements
-			if(! viewBounds.intersects(boundingBox)) {
-				continue;
+			renderedElements.clear();
+			
+			for(final OverlayElement element: dataToDraw) {
+				
+				element.updatePosition(map);
+				
+				final Rectangle boundingBox = element.getBBoxToDrawOnGui();
+				
+				// Skip rendering of invisible elements
+				if(! viewBounds.intersects(boundingBox)) {
+					continue;
+				}
+				
+				renderedElements.add(element);
 			}
 			
-			final List<Point2D> pointList = element.getPointsToDrawOnGui();
-			renderedElements.add(element);
+			// Notify callbacks
+			final List<OverlayElement> elementsForCallback = Collections.unmodifiableList(renderedElements);
 			
+			for(final Consumer<List<OverlayElement>> callback : callbacks) {
+				callback.accept(elementsForCallback);
+			}
+		}
+		
+		for(final OverlayElement element : renderedElements) {
 			final Color color = element.isHighlighted() ? Color.GRAY : element.getColor();
 			
+			final List<Point2D> pointList = element.getPointsToDrawOnGui();
 			drawPointListOnGui(graphicsContext, map, pointList, color);
 			
 			if(drawBoundingBoxes) {
+				final Rectangle boundingBox = element.getBBoxToDrawOnGui();
 				graphicsContext.setColor(Color.BLACK);
 				graphicsContext.draw(boundingBox);
 			}
+		}		
+	}
+
+	/**
+	 * Was the map moved?
+	 * @param viewBounds
+	 * @return
+	 */
+	private boolean hasDataChanged(final Rectangle viewBounds) {
+		if(validForRectangle == null || validForElements == 0) {
+			return true;
 		}
+		
+		if(! validForRectangle.equals(viewBounds)) {
+			return true;
+		}
+		
+		if(validForElements != dataToDraw.size()) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -199,8 +254,11 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		this.drawBoundingBoxes = drawBoundingBoxes;
 	}
 	
-	public Collection<OverlayElement> getRenderedElements() {
-		return renderedElements;
+	/**
+	 * Register a callback
+	 */
+	public void registerCallback(final Consumer<List<OverlayElement>> callback) {
+		callbacks.add(callback);
 	}
-
+	
 }

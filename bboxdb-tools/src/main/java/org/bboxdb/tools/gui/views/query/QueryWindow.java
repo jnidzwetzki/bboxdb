@@ -19,11 +19,10 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -41,6 +40,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
+import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
@@ -111,13 +111,15 @@ public class QueryWindow {
 	
 	public QueryWindow(final GuiModel guimodel, final Collection<OverlayElement> dataToDraw, 
 			final Runnable callback) {
+		
 		this.guimodel = guimodel;
 		this.dataToDraw = dataToDraw;
 		this.callback = callback;
 	}
 
+
 	public void show() {
-		mainframe = new JFrame("BBoxDB - Execute query");
+		this.mainframe = new JFrame("BBoxDB - Execute query");
 		
 		final PanelBuilder builder = buildDialog();
 		
@@ -351,23 +353,28 @@ public class QueryWindow {
 						return;
 					}
 
-					final List<Tuple> tuples1 = new ArrayList<>();
-					final List<Tuple> tuples2 = new ArrayList<>();
+					final HashSet<EntityIdentifier> knownElements0 = new HashSet<>();
+					final HashSet<EntityIdentifier> knownElements1 = new HashSet<>();
 					
-					for(final JoinedTuple tuple : result) {
-						tuples1.add(tuple.getTuple(0));
-						tuples2.add(tuple.getTuple(1));	
+					for(final JoinedTuple joinedTuple : result) {
+						
+						// Handle tuple 0
+						final Tuple tuple0 = joinedTuple.getTuple(0);
+						final EntityIdentifier entityIdentifier0 = tuple0.getEntityIdentifier();
+						if(! knownElements0.contains(entityIdentifier0)) {
+							addTuplesToOverlay(joinedTuple, 0, color1);
+							knownElements0.add(entityIdentifier0);
+						} 
+						
+						// Handle tuple1
+						final Tuple tuple1 = joinedTuple.getTuple(1);
+						final EntityIdentifier entityIdentifier1 = tuple1.getEntityIdentifier();
+						if(! knownElements1.contains(entityIdentifier1)) {
+							addTuplesToOverlay(joinedTuple, 1, color2);
+							knownElements1.add(entityIdentifier1);
+						}
 					}
 					
-					System.out.format("Got %d tuples%n", tuples1.size() + tuples2.size());
-					
-				    final List<Tuple> tuples1Wo = tuples1.stream().distinct().collect(Collectors.toList());
-				    final List<Tuple> tuples2Wo = tuples2.stream().distinct().collect(Collectors.toList());
-
-					System.out.format("Reduced to %d polygons%n", tuples1Wo.size() + tuples2Wo.size());
-
-					addTuplesToOverlay(table1, color1, tuples1Wo);
-					addTuplesToOverlay(table2, color2, tuples2Wo);
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
 				} catch (InterruptedException e) {
@@ -379,44 +386,47 @@ public class QueryWindow {
 			/**
 			 * Add the tuples to the overlay
 			 * @param color1
-			 * @param tuples1
+			 * @param tuples
 			 */
-			private void addTuplesToOverlay(final String tablename, final Color color1, 
-					final List<Tuple> tuples1) {
+			private void addTuplesToOverlay(final JoinedTuple joinedTuple, final int pos, 
+					final Color color) {
 				
-				for(final Tuple tuple : tuples1) {
-					final String data1 = new String(tuple.getDataBytes());				
-					final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(data1);
-					polygon1.invertPolygonCoordinates();
-					dataToDraw.add(new OverlayElement(tablename, polygon1, color1));
-				}
+				final String data = new String(joinedTuple.getTuple(pos).getDataBytes());				
+				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
+				polygon.invertPolygonCoordinates();
+				
+				final OverlayElement overlayElement = new OverlayElement(joinedTuple.getTupleStoreName(pos), 
+						joinedTuple, polygon, color);
+				
+				dataToDraw.add(overlayElement);
 			}
 
 			/**
 			 * Execute a range query
 			 * @param customValue 
 			 * @param customFilter 
-			 * @param table1 
+			 * @param table 
 			 * @param bbox 
 			 */
-			private void executeRangeQuery(final Hyperrectangle bbox, final String table1, 
-					final Color color1, final String customFilter, final String customValue) {
+			private void executeRangeQuery(final Hyperrectangle bbox, final String table, 
+					final Color color, final String customFilter, final String customValue) {
 				
 				try {
 					final TupleListFuture result = guimodel.getConnection().queryRectangle(
-							table1, bbox, customFilter, customValue.getBytes());
+							table, bbox, customFilter, customValue.getBytes());
 					
 					result.waitForCompletion();
+					
 					if(result.isFailed()) {
 						logger.error("Got an error" + result.getAllMessages());
 						return;
 					}
-										
+					
+					final List<String> tableList = Arrays.asList(table);
+
 					for(final Tuple tuple : result) {
-						final String data = new String(tuple.getDataBytes());
-						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
-						polygon.invertPolygonCoordinates();
-						dataToDraw.add(new OverlayElement(table1, polygon, color1));
+						final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple), tableList);
+						addTuplesToOverlay(joinedTuple, 0, color);
 					}
 					
 				} catch (BBoxDBException e) {

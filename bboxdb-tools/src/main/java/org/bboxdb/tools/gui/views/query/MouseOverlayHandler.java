@@ -41,7 +41,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 	/**
 	 * The overlay painter
 	 */
-	private final ElementOverlayPainter painter;
+	private Collection<OverlayElement> renderedElements;
 	
 	/**
 	 * The highlighted elements
@@ -53,18 +53,27 @@ public class MouseOverlayHandler extends MouseAdapter {
 	 */
 	private final JToolTip toolTip;
 
-	MouseOverlayHandler(final JXMapViewer mapViewer, final ElementOverlayPainter painter, 
-			final JToolTip toolTip) {
+	MouseOverlayHandler(final JXMapViewer mapViewer, final JToolTip toolTip) {
 		
 		this.mapViewer = mapViewer;
-		this.painter = painter;
 		this.toolTip = toolTip;
+	}
+	
+	/**
+	 * Update the rendered elements
+	 * 
+	 * @param renderedElements
+	 */
+	public void setRenderedElements(final Collection<OverlayElement> renderedElements) {
+		this.renderedElements = renderedElements;
 	}
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
-		
-		final Collection<OverlayElement> renderedElements = painter.getRenderedElements();
+
+		if(renderedElements == null) {
+			return;
+		}
 		
 		final Rectangle rect = mapViewer.getViewportBounds();
 		final Point mousePosPoint = new Point((int) (e.getX() + rect.getX()), 
@@ -99,7 +108,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 			}
 		}
 		
-		if(renderedElements.stream().anyMatch((element) -> element.isHighlighted())) {
+		if(! highlightedElements.isEmpty()) {
 			final StringBuilder sb = new StringBuilder("<html>");
 			
 			for(final OverlayElement element : highlightedElements) {
