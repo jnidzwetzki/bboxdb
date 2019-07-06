@@ -21,7 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -199,7 +198,6 @@ public class ResultDetailsWindow {
 			}
 			
 			final int[] selectedRows = table.getSelectedRows();
-			System.out.println("Selected: " + Arrays.toString(selectedRows));
 			
 			for (int i = 0; i < selectedRows.length; i++) {
 				final int selectedRow = selectedRows[i];
