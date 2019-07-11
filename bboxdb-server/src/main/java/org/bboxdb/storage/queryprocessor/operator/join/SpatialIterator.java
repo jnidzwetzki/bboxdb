@@ -91,7 +91,6 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 					
 					// Limit the scan operation to the intersection of the query range and the tuple from 
 					// stream. Otherwise intersections in other areas are detected.
-					
 					if(queryBox != Hyperrectangle.FULL_SPACE) {
 						currentOperationRange = bbox.getIntersection(queryBox);
 					} else {
@@ -103,7 +102,8 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 				} 
 			}
 			
-			final Tuple nextCandidateTuple = candidatesForCurrentTuple.next().convertToSingleTupleIfPossible();
+			final JoinedTuple nextJoinedTuple = candidatesForCurrentTuple.next();
+			final Tuple nextCandidateTuple = nextJoinedTuple.convertToSingleTupleIfPossible();
 			assert (nextCandidateTuple.getBoundingBox().intersects(currentOperationRange)) : "Wrong join, no overlap";
 			nextTuple = buildNextJoinedTuple(nextCandidateTuple);
 		}
