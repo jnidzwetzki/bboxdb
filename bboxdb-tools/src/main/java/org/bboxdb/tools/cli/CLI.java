@@ -543,6 +543,12 @@ public class CLI implements Runnable, AutoCloseable {
 
 			long resultTuples = 0;
 			for(final JoinedTuple tuple : resultFuture) {
+				
+				assert tuple.getBoundingBox().intersects(boundingBox);
+				assert tuple.getTuple(0).getBoundingBox().intersects(boundingBox);
+				assert tuple.getTuple(1).getBoundingBox().intersects(boundingBox);
+				assert tuple.getTuple(1).getBoundingBox().intersects(tuple.getTuple(0).getBoundingBox());
+				
 				printJoinedTuple(tuple);
 				resultTuples++;
 			}
