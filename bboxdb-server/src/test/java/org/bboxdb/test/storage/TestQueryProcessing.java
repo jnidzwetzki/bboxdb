@@ -337,7 +337,7 @@ public class TestQueryProcessing {
 	 * @throws RejectedException
 	 */
 	@Test(timeout=60000)
-	public void testJoin3() throws StorageManagerException, RejectedException {
+	public void testJoin2() throws StorageManagerException, RejectedException {
 		storageRegistry.deleteTable(TABLE_1);
 		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
 
@@ -365,18 +365,100 @@ public class TestQueryProcessing {
 		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, queryBox);
 		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, queryBox);
 
-		final IndexedSpatialJoinOperator joinQueryProcessor = new IndexedSpatialJoinOperator(operator1,
+		// Operator 1 // Operator 2
+		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1,
 				operator2);
 
-		final Iterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
+		final Iterator<JoinedTuple> iterator1 = joinQueryProcessor1.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
-		joinQueryProcessor.close();
+		final List<JoinedTuple> resultList1 = Lists.newArrayList(iterator1);
+		joinQueryProcessor1.close();
 
-		Assert.assertEquals(1, resultList.size());
-		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
-		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
-		Assert.assertEquals(new Hyperrectangle(2.5d, 5.5d, 2.5d, 5.5d), resultList.get(0).getBoundingBox());
+		Assert.assertEquals(1, resultList1.size());
+		Assert.assertEquals(2, resultList1.get(0).getNumberOfTuples());
+		Assert.assertEquals(2, resultList1.get(0).getBoundingBox().getDimension());
+		Assert.assertEquals(new Hyperrectangle(2.5d, 5.5d, 2.5d, 5.5d), resultList1.get(0).getBoundingBox());
+	
+		// Operator 2 // Operator 1
+		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(operator2,
+				operator1);
+
+		final Iterator<JoinedTuple> iterator2 = joinQueryProcessor2.iterator();
+
+		final List<JoinedTuple> resultList2 = Lists.newArrayList(iterator2);
+		joinQueryProcessor2.close();
+
+		Assert.assertEquals(1, resultList2.size());
+		Assert.assertEquals(2, resultList2.get(0).getNumberOfTuples());
+		Assert.assertEquals(2, resultList2.get(0).getBoundingBox().getDimension());
+		Assert.assertEquals(new Hyperrectangle(2.5d, 5.5d, 2.5d, 5.5d), resultList2.get(0).getBoundingBox());		
+	}
+	
+	/**
+	 * Simple Join
+	 * @throws StorageManagerException
+	 * @throws RejectedException
+	 */
+	@Test(timeout=60000)
+	public void testJoin3() throws StorageManagerException, RejectedException {
+		storageRegistry.deleteTable(TABLE_1);
+		storageRegistry.createTable(TABLE_1, new TupleStoreConfiguration());
+
+		storageRegistry.deleteTable(TABLE_2);
+		storageRegistry.createTable(TABLE_2, new TupleStoreConfiguration());
+
+		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
+		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
+
+		final Tuple tuple1 = new Tuple("1a", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple2 = new Tuple("2a", new Hyperrectangle(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
+		final Tuple tuple3 = new Tuple("2a", new Hyperrectangle(-10.0, 5.0, 0.0, 5.0), "value3".getBytes());
+		final Tuple tuple4 = new Tuple("2a", new Hyperrectangle(-4.0, 5.0, 24.0, 55.0), "value4".getBytes());
+		final Tuple tuple5 = new Tuple("2a", new Hyperrectangle(-40.0, 5.0, 40.0, 55.0), "value5".getBytes());
+
+		final Tuple tuple6 = new Tuple("1b", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value6".getBytes());
+		final Tuple tuple7 = new Tuple("2b", new Hyperrectangle(2.5, 5.5, 2.5, 5.5), "value7".getBytes());
+		final Tuple tuple8 = new Tuple("2b", new Hyperrectangle(2.5, 50.5, 20.5, 75.5), "value8".getBytes());
+		final Tuple tuple9 = new Tuple("2b", new Hyperrectangle(20.5, 25.5, 20.5, 115.5), "value9".getBytes());
+		final Tuple tuple10 = new Tuple("2b", new Hyperrectangle(-2.5, 5.5, 20.5, 125.5), "value10".getBytes());
+
+		// Table1
+		storageManager1.put(tuple1);
+		storageManager1.put(tuple2);
+		storageManager1.put(tuple3);
+		storageManager1.put(tuple4);
+		storageManager1.put(tuple5);
+
+		// Table2
+		storageManager2.put(tuple6);
+		storageManager2.put(tuple7);
+		storageManager2.put(tuple8);
+		storageManager2.put(tuple9);
+		storageManager2.put(tuple10);
+
+		final Hyperrectangle queryBox = new Hyperrectangle(3.0, 10.0, 3.0, 10.0);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, queryBox);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, queryBox);
+
+		// Operator 1 // Operator 2
+		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1,
+				operator2);
+
+		final Iterator<JoinedTuple> iterator1 = joinQueryProcessor1.iterator();
+
+		final List<JoinedTuple> resultList1 = Lists.newArrayList(iterator1);
+		joinQueryProcessor1.close();
+		
+		// Operator 2 // Operator 1
+		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(operator2,
+				operator1);
+
+		final Iterator<JoinedTuple> iterator2 = joinQueryProcessor2.iterator();
+
+		final List<JoinedTuple> resultList2 = Lists.newArrayList(iterator2);
+		joinQueryProcessor2.close();
+		
+		Assert.assertEquals(resultList1.size(), resultList2.size());
 	}
 
 	/**
