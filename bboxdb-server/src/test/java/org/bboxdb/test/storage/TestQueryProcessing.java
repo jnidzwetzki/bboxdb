@@ -317,8 +317,9 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, Hyperrectangle.FULL_SPACE);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, Hyperrectangle.FULL_SPACE);
+		final Hyperrectangle queryRange = Hyperrectangle.FULL_SPACE;
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, queryRange);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, queryRange);
 
 		final IndexedSpatialJoinOperator joinQueryProcessor = new IndexedSpatialJoinOperator(operator1,
 				operator2);
@@ -412,15 +413,15 @@ public class TestQueryProcessing {
 
 		final Tuple tuple1 = new Tuple("1a", new Hyperrectangle(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 		final Tuple tuple2 = new Tuple("2a", new Hyperrectangle(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
-		final Tuple tuple3 = new Tuple("2a", new Hyperrectangle(-10.0, 5.0, 0.0, 5.0), "value3".getBytes());
-		final Tuple tuple4 = new Tuple("2a", new Hyperrectangle(-4.0, 5.0, 24.0, 55.0), "value4".getBytes());
-		final Tuple tuple5 = new Tuple("2a", new Hyperrectangle(-40.0, 5.0, 40.0, 55.0), "value5".getBytes());
+		final Tuple tuple3 = new Tuple("3a", new Hyperrectangle(-10.0, 5.0, 0.0, 5.0), "value3".getBytes());
+		final Tuple tuple4 = new Tuple("4a", new Hyperrectangle(-4.0, 5.0, 24.0, 55.0), "value4".getBytes());
+		final Tuple tuple5 = new Tuple("5a", new Hyperrectangle(-40.0, 5.0, 40.0, 55.0), "value5".getBytes());
 
 		final Tuple tuple6 = new Tuple("1b", new Hyperrectangle(1.5, 2.5, 1.5, 2.5), "value6".getBytes());
 		final Tuple tuple7 = new Tuple("2b", new Hyperrectangle(2.5, 5.5, 2.5, 5.5), "value7".getBytes());
-		final Tuple tuple8 = new Tuple("2b", new Hyperrectangle(2.5, 50.5, 20.5, 75.5), "value8".getBytes());
-		final Tuple tuple9 = new Tuple("2b", new Hyperrectangle(20.5, 25.5, 20.5, 115.5), "value9".getBytes());
-		final Tuple tuple10 = new Tuple("2b", new Hyperrectangle(-2.5, 5.5, 20.5, 125.5), "value10".getBytes());
+		final Tuple tuple8 = new Tuple("3b", new Hyperrectangle(2.5, 50.5, 20.5, 75.5), "value8".getBytes());
+		final Tuple tuple9 = new Tuple("4b", new Hyperrectangle(20.5, 25.5, 20.5, 115.5), "value9".getBytes());
+		final Tuple tuple10 = new Tuple("5b", new Hyperrectangle(-2.5, 5.5, 20.5, 125.5), "value10".getBytes());
 
 		// Table1
 		storageManager1.put(tuple1);
@@ -437,12 +438,13 @@ public class TestQueryProcessing {
 		storageManager2.put(tuple10);
 
 		final Hyperrectangle queryBox = new Hyperrectangle(3.0, 10.0, 3.0, 10.0);
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, queryBox);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, queryBox);
-
+ 
 		// Operator 1 // Operator 2
-		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1,
-				operator2);
+		final SpatialIndexReadOperator operator11 = new SpatialIndexReadOperator(storageManager1, queryBox);
+		final SpatialIndexReadOperator operator12 = new SpatialIndexReadOperator(storageManager2, queryBox);
+
+		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator11,
+				operator12);
 
 		final Iterator<JoinedTuple> iterator1 = joinQueryProcessor1.iterator();
 
@@ -450,8 +452,11 @@ public class TestQueryProcessing {
 		joinQueryProcessor1.close();
 		
 		// Operator 2 // Operator 1
-		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(operator2,
-				operator1);
+		final SpatialIndexReadOperator operator21 = new SpatialIndexReadOperator(storageManager1, queryBox);
+		final SpatialIndexReadOperator operator22 = new SpatialIndexReadOperator(storageManager2, queryBox);
+
+		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(operator22,
+				operator21);
 
 		final Iterator<JoinedTuple> iterator2 = joinQueryProcessor2.iterator();
 

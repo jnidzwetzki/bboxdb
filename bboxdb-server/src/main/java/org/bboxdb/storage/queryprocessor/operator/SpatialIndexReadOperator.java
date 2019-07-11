@@ -74,4 +74,12 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 
 		return ! tuple.getBoundingBox().intersects(boundingBox);
 	}
+	
+	/**
+	 * Get the bounding box of the operation
+	 * @return
+	 */
+	public Hyperrectangle getBoundingBox() {
+		return boundingBox;
+	}
 }
