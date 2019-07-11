@@ -464,6 +464,7 @@ public class TestQueryProcessing {
 		joinQueryProcessor2.close();
 		
 		Assert.assertEquals(resultList1.size(), resultList2.size());
+		Assert.assertEquals(2, resultList1.size());
 	}
 
 	/**
