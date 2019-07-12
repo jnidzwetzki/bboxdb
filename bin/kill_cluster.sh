@@ -57,9 +57,10 @@ if [[ $1 == "nostart" ]]; then
 fi
 
 $BBOXDB_HOME/bin/manage_cluster.sh bboxdb_start
-sleep 5
 
 if [[ $1 != "nopopulate" ]]; then
+   sleep 10
+
    $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 2 -dimensions 2
    $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table1
    $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table2
