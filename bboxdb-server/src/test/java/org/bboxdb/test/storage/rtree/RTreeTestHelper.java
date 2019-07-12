@@ -43,14 +43,7 @@ public class RTreeTestHelper {
 		for(final SpatialIndexEntry entry: entries) {
 			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
-			
-			final List<Integer> keyResult = resultList
-					.stream()
-					.map(e -> e.getValue())
-					.filter(k -> k.equals(entry.getValue()))
-					.collect(Collectors.toList());
-
-			Assert.assertTrue("Searching for: " + entry, keyResult.size() == 1);
+			checkResult(entry, resultList);
 		}
 	}
 
@@ -65,15 +58,25 @@ public class RTreeTestHelper {
 		for(final SpatialIndexEntry entry: entries) {
 			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
-			
-			final List<Integer> keyResult = resultList
-					.stream()
-					.map(e -> e.getValue())
-					.filter(k -> k.equals(entry.getValue()))
-					.collect(Collectors.toList());
-
-			Assert.assertTrue("Searching for: " + entry, keyResult.size() == 1);
+			checkResult(entry, resultList);
 		}
+	}
+
+	/**
+	 * Check the result list
+	 * @param entry
+	 * @param resultList
+	 */
+	private static void checkResult(final SpatialIndexEntry entry, 
+			final List<? extends SpatialIndexEntry> resultList) {
+		
+		final List<Integer> keyResult = resultList
+				.stream()
+				.map(e -> e.getValue())
+				.filter(k -> k.equals(entry.getValue()))
+				.collect(Collectors.toList());
+
+		Assert.assertTrue("Searching for: " + entry, keyResult.size() == 1);
 	}
 
 	/**
@@ -100,7 +103,7 @@ public class RTreeTestHelper {
 	 * @return
 	 */
 	public static List<SpatialIndexEntry> generateRandomTupleList(final int dimensions) {
-		final List<SpatialIndexEntry> entryList = new ArrayList<SpatialIndexEntry>();
+		final List<SpatialIndexEntry> entryList = new ArrayList<>();
 		final Random random = new Random();
 		
 		for(int i = 0; i < 5000; i++) {
