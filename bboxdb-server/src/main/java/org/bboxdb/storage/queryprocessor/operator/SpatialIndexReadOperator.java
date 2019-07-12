@@ -18,7 +18,6 @@
 package org.bboxdb.storage.queryprocessor.operator;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
@@ -55,25 +54,6 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 	protected Iterator<Tuple> setupNewTuplestore(final ReadOnlyTupleStore nextStorage) {
 		return nextStorage.getAllTuplesInBoundingBox(boundingBox);
 	}
-
-	@Override
-	protected void filterTupleVersions(final List<Tuple> tupleVersions) {
-		//tupleVersions.removeIf(t -> isNotCovered(t));
-	}
-
-	/**
-	 * Build the deletion predicate
-	 *
-	 * @return
-	 */
-	/*private boolean isNotCovered(final Tuple tuple) {
-		
-		if(tuple.getBoundingBox() == null) {
-			return false;
-		}
-
-		return ! tuple.getBoundingBox().intersects(boundingBox);
-	}*/
 	
 	/**
 	 * Get the bounding box of the operation

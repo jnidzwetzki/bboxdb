@@ -18,7 +18,6 @@
 package org.bboxdb.storage.queryprocessor.operator;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
@@ -35,8 +34,4 @@ public class FullTablescanOperator extends AbstractTablescanOperator {
 		return nextStorage.iterator();
 	}
 	
-	@Override
-	protected void filterTupleVersions(List<Tuple> tupleVersions) {
-		// Do nothing
-	}
 }
