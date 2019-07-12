@@ -104,7 +104,8 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 						currentOperationRange = bbox;
 					}
 					
-					logger.info("----> Operation box: " + currentOperationRange.toCompactString());
+					logger.info("----> Operation box: " + currentOperationRange.toCompactString() 
+					+ "(bbox: " + bbox.toCompactString() + " / " + queryBox.toCompactString() + ")");
 					
 					indexReader.setBoundingBox(currentOperationRange);
 					candidatesForCurrentTuple = indexReader.iterator();							

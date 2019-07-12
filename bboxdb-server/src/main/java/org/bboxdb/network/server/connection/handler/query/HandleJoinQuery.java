@@ -86,14 +86,12 @@ public class HandleJoinQuery implements QueryHandler {
 					}
 					
 					if(storageManager.size() == 2) {
-						logger.info("Using two element join tree: " + boundingBox.toCompactString());
 						final Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
 						final SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1));
 						return new IndexedSpatialJoinOperator(operator1, indexReader, 
 								userDefinedFilterName, userDefinedFilterValue);			
 					}
 					
-					logger.info("Using multi-element join tree: " + boundingBox.toCompactString());
 					Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
 					SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1));
 					operator1 = new IndexedSpatialJoinOperator(operator1, indexReader);
