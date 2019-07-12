@@ -58,7 +58,13 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 
 	@Override
 	protected void filterTupleVersions(final List<Tuple> tupleVersions) {
-		//tupleVersions.removeIf(t -> isNotCovered(t));
+		
+		/**
+		 * We read the tuples from the index. Than the newest tuple for
+		 * the key is read from storage. This new tuple can have a bounding 
+		 * box outside of our search range. These tuples needs to be removed.
+		 */
+		tupleVersions.removeIf(t -> isNotCovered(t));
 	}
 
 	/**
@@ -66,14 +72,14 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 	 *
 	 * @return
 	 */
-	/*private boolean isNotCovered(final Tuple tuple) {
+	private boolean isNotCovered(final Tuple tuple) {
 		
 		if(tuple.getBoundingBox() == null) {
 			return false;
 		}
 
 		return ! tuple.getBoundingBox().intersects(boundingBox);
-	}*/
+	}
 	
 	/**
 	 * Get the bounding box of the operation
