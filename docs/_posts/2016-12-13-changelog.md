@@ -26,6 +26,7 @@ order: 1
 - Bugfix: Fixed insertion of deleted tuple
 - Bugfix: Fixed two timing errors on the dynamic grid space partitioner test (#159)
 - Bugfix: Spatial joins are reported that are outside of the query range (#155)
+- Bugfix: Handle future retry correctly (#165)
 
 ### Version 0.9.0 - 02.05.2019
 - New Feature: Added bounding box determination script
