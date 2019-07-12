@@ -439,7 +439,7 @@ public class TestQueryProcessing {
 
 		final Hyperrectangle queryBox = new Hyperrectangle(3.0, 10.0, 3.0, 10.0);
  
-		// Operator 1 // Operator 2
+		// Join 1: Operator 1 // Operator 2
 		final SpatialIndexReadOperator operator11 = new SpatialIndexReadOperator(storageManager1, queryBox);
 		final SpatialIndexReadOperator operator12 = new SpatialIndexReadOperator(storageManager2, queryBox);
 
@@ -451,7 +451,7 @@ public class TestQueryProcessing {
 		final List<JoinedTuple> resultList1 = Lists.newArrayList(iterator1);
 		joinQueryProcessor1.close();
 		
-		// Operator 2 // Operator 1
+		// Join 2: Operator 2 // Operator 1
 		final SpatialIndexReadOperator operator21 = new SpatialIndexReadOperator(storageManager1, queryBox);
 		final SpatialIndexReadOperator operator22 = new SpatialIndexReadOperator(storageManager2, queryBox);
 
@@ -465,6 +465,41 @@ public class TestQueryProcessing {
 		
 		Assert.assertEquals(resultList1.size(), resultList2.size());
 		Assert.assertEquals(2, resultList1.size());
+		
+		// Join 2: Operator 1 // Operator 2
+		final Hyperrectangle queryBox2 = new Hyperrectangle(-40.0, -30.0, 40.0, 55.0);
+		final SpatialIndexReadOperator operator31 = new SpatialIndexReadOperator(storageManager1, queryBox2);
+		final SpatialIndexReadOperator operator32 = new SpatialIndexReadOperator(storageManager2, queryBox2);
+
+		final IndexedSpatialJoinOperator joinQueryProcessor3 = new IndexedSpatialJoinOperator(operator31,
+				operator32);
+
+		final Iterator<JoinedTuple> iterator3 = joinQueryProcessor3.iterator();
+
+		final List<JoinedTuple> resultList3 = Lists.newArrayList(iterator3);
+		joinQueryProcessor3.close();
+		
+		//System.out.println("---> " + resultList3.get(0).getTuple(0).getBoundingBox().toCompactString());
+		//System.out.println("---> " + resultList3.get(0).getTuple(1).getBoundingBox().toCompactString());
+		
+		Assert.assertTrue(resultList3.isEmpty());
+		
+		// Join 2: Operator 2 // Operator 1
+		final SpatialIndexReadOperator operator41 = new SpatialIndexReadOperator(storageManager1, queryBox2);
+		final SpatialIndexReadOperator operator42 = new SpatialIndexReadOperator(storageManager2, queryBox2);
+
+		final IndexedSpatialJoinOperator joinQueryProcessor4 = new IndexedSpatialJoinOperator(operator42,
+				operator41);
+
+		final Iterator<JoinedTuple> iterator4 = joinQueryProcessor4.iterator();
+
+		final List<JoinedTuple> resultList4 = Lists.newArrayList(iterator4);
+		joinQueryProcessor4.close();
+		
+		//System.out.println("---> " + resultList4.get(0).getTuple(0).getBoundingBox().toCompactString());
+		//System.out.println("---> " + resultList4.get(0).getTuple(1).getBoundingBox().toCompactString());
+		
+		Assert.assertTrue(resultList4.isEmpty());
 	}
 
 	/**
