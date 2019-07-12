@@ -278,7 +278,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	@Override
 	public boolean handleError(final NetworkOperationFuture future) {
 
-		assert (futures.contains(future)) : "Future is unknown";
+		assert (futures.contains(future)) : "Future is unknown: " + future;
 
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
 			return false;
