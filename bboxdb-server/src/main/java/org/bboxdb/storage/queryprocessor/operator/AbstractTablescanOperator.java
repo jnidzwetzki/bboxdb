@@ -40,12 +40,12 @@ public abstract class AbstractTablescanOperator implements Operator {
 		/**
 		 * The active iterator
 		 */
-		private Iterator<Tuple> activeIterator = null;
+		protected Iterator<Tuple> activeIterator = null;
 		
 		/**
 		 * The next precomputed tuple
 		 */
-		private final Queue<JoinedTuple> nextTuples = new LinkedList<>();
+		protected final Queue<JoinedTuple> nextTuples = new LinkedList<>();
 
 		/**
 		 * Setup the next iterator
@@ -115,7 +115,9 @@ public abstract class AbstractTablescanOperator implements Operator {
 				throws StorageManagerException {
 			
 			final List<Tuple> tupleVersions = tupleStoreManager.getVersionsForTuple(key);
-												
+									
+			filterTupleVersions(tupleVersions);
+			
 			tupleVersions
 				.stream()
 				.map(t -> new JoinedTuple(t, tupleStorename))
@@ -234,6 +236,12 @@ public abstract class AbstractTablescanOperator implements Operator {
 	 * @return
 	 */
 	protected abstract Iterator<Tuple> setupNewTuplestore(final ReadOnlyTupleStore nextStorage);
+	
+	/**
+	 * Filter the retrieved tuple versions
+	 * @param tupleVersions
+	 */
+	protected abstract void filterTupleVersions(final List<Tuple> tupleVersions);
 	
 	public Iterator<JoinedTuple> iterator() {
 
