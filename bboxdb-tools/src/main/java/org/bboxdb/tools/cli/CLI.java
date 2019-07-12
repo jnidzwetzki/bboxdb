@@ -20,6 +20,7 @@ package org.bboxdb.tools.cli;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -520,40 +521,15 @@ public class CLI implements Runnable, AutoCloseable {
 			final String tables = line.getOptionValue(CLIParameter.TABLE);
 			final List<String> tableList = Arrays.asList(tables.split(":"));
 			
-			// Custom filter parameter
-			final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
-			final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
-			
-			System.out.println("Executing join query...");
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
-			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
-					customFilterClass, customFilterValue.getBytes());
 
-			if(resultFuture == null) {
-				System.err.println("Unable to get query");
-				System.exit(-1);
-			}
+			final JoinedTupleListFuture resultFuture1 = executeJoin(tableList, boundingBox);
+			
+			Collections.reverse(tableList);
+			final JoinedTupleListFuture resultFuture2 = executeJoin(tableList, boundingBox);
 
-			resultFuture.waitForCompletion();
-
-			if(resultFuture.isFailed()) {
-				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
-				System.exit(-1);
-			}
-
-			long resultTuples = 0;
-			for(final JoinedTuple tuple : resultFuture) {
-				
-				assert tuple.getBoundingBox().intersects(boundingBox);
-				assert tuple.getTuple(0).getBoundingBox().intersects(boundingBox);
-				assert tuple.getTuple(1).getBoundingBox().intersects(boundingBox);
-				assert tuple.getTuple(1).getBoundingBox().intersects(tuple.getTuple(0).getBoundingBox());
-				
-				printJoinedTuple(tuple);
-				resultTuples++;
-			}
-
-			System.out.format("Join done - got %d tuples back%n", resultTuples);
+			printJoinedTupleList(boundingBox, resultFuture1);
+			printJoinedTupleList(boundingBox, resultFuture2);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);
@@ -561,6 +537,62 @@ public class CLI implements Runnable, AutoCloseable {
 			Thread.currentThread().interrupt();
 			return;
 		}
+	}
+
+	/**
+	 * Print the given tuple list
+	 * @param boundingBox
+	 * @param resultFuture1
+	 */
+	private void printJoinedTupleList(final Hyperrectangle boundingBox, final JoinedTupleListFuture resultFuture1) {
+		long resultTuples = 0;
+		for(final JoinedTuple tuple : resultFuture1) {
+			
+			assert tuple.getBoundingBox().intersects(boundingBox);
+			assert tuple.getTuple(0).getBoundingBox().intersects(boundingBox);
+			assert tuple.getTuple(1).getBoundingBox().intersects(boundingBox);
+			assert tuple.getTuple(1).getBoundingBox().intersects(tuple.getTuple(0).getBoundingBox());
+			
+			printJoinedTuple(tuple);
+			resultTuples++;
+		}
+
+		System.out.format("Join done - got %d tuples back%n", resultTuples);
+	}
+
+	/**
+	 * Execute a join
+	 * @param tableList
+	 * @param boundingBox
+	 * @return
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	private JoinedTupleListFuture executeJoin(final List<String> tableList, 
+			final Hyperrectangle boundingBox) throws BBoxDBException, InterruptedException {
+		
+		System.out.println("Executing join query...");
+		
+		// Custom filter parameter
+		final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
+		final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
+								
+		final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
+				customFilterClass, customFilterValue.getBytes());
+
+		if(resultFuture == null) {
+			System.err.println("Unable to get query");
+			System.exit(-1);
+		}
+
+		resultFuture.waitForCompletion();
+
+		if(resultFuture.isFailed()) {
+			System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
+			System.exit(-1);
+		}
+		
+		return resultFuture;
 	}
 
 	/**
