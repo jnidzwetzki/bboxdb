@@ -528,22 +528,8 @@ public class CLI implements Runnable, AutoCloseable {
 			Collections.reverse(tableList);
 			final JoinedTupleListFuture resultFuture2 = executeJoin(tableList, boundingBox);
 
-			final List<JoinedTuple> result1 = processJoinedTupleList(boundingBox, resultFuture1);
-			final List<JoinedTuple> result2 = processJoinedTupleList(boundingBox, resultFuture2);
-			
-			for(final JoinedTuple tuple : result1) {
-				final boolean contains = result2.stream().anyMatch(t -> t.getTuple(0).getKey().equals(tuple.getTuple(1).getKey())
-						&& t.getTuple(1).getKey().equals(tuple.getTuple(0).getKey()));
-				
-				if(! contains) {
-					System.out.println("---> Join done diff: " 
-							+ tuple.getTuple(0).getBoundingBox().toCompactString()
-							+ " / "
-							+ tuple.getTuple(1).getBoundingBox().toCompactString()
-							);
-				}
-			}
-			
+			processJoinedTupleList(boundingBox, resultFuture1);
+			processJoinedTupleList(boundingBox, resultFuture2);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);
@@ -559,28 +545,23 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param resultFuture1
 	 * @return 
 	 */
-	private List<JoinedTuple> processJoinedTupleList(final Hyperrectangle boundingBox, 
+	private void processJoinedTupleList(final Hyperrectangle boundingBox, 
 			final JoinedTupleListFuture resultFuture1) {
 		
 		long resultTuples = 0;
-		
-		final List<JoinedTuple> resultList = new ArrayList<>();
-		
+				
 		for(final JoinedTuple tuple : resultFuture1) {
 			
-			assert tuple.getBoundingBox().intersects(boundingBox);
-			assert tuple.getTuple(0).getBoundingBox().intersects(boundingBox);
-			assert tuple.getTuple(1).getBoundingBox().intersects(boundingBox);
-			assert tuple.getTuple(1).getBoundingBox().intersects(tuple.getTuple(0).getBoundingBox());
+			assert tuple.getBoundingBox().intersects(boundingBox) : "Bounding box mismatch";
+			assert tuple.getTuple(0).getBoundingBox().intersects(boundingBox) : "BBox 1 tuple mismatch";
+			assert tuple.getTuple(1).getBoundingBox().intersects(boundingBox) : "BBox 2 tuple mismatch";
+			assert tuple.getTuple(1).getBoundingBox().intersects(tuple.getTuple(0).getBoundingBox()) : "Overlap mismatch";
 			
 			printJoinedTuple(tuple);
-			resultList.add(tuple);
 			resultTuples++;
 		}
 
 		System.out.format("Join done - got %d tuples back%n", resultTuples);
-		
-		return resultList;
 	}
 
 	/**
