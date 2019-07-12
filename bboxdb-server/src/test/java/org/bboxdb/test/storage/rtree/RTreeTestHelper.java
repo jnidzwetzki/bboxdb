@@ -102,11 +102,11 @@ public class RTreeTestHelper {
 	 * Generate some random tuples
 	 * @return
 	 */
-	public static List<SpatialIndexEntry> generateRandomTupleList(final int dimensions) {
+	public static List<SpatialIndexEntry> generateRandomTupleList(final int dimensions, final int elements) {
 		final List<SpatialIndexEntry> entryList = new ArrayList<>();
 		final Random random = new Random();
 		
-		for(int i = 0; i < 5000; i++) {
+		for(int i = 0; i < elements; i++) {
 			final double[] boundingBoxData = new double[dimensions * 2];
 			
 			for(int d = 0; d < dimensions; d++) {

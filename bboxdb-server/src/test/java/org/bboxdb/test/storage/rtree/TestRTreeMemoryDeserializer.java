@@ -81,7 +81,9 @@ public class TestRTreeMemoryDeserializer {
 	 * @throws InterruptedException 
 	 */
 	@Test(timeout=60000)
-	public void testSerializeIndexSmall() throws StorageManagerException, IOException, InterruptedException {
+	public void testSerializeIndexSmall() throws StorageManagerException, 
+	IOException, InterruptedException {
+		
 		final List<SpatialIndexEntry> tupleList = new ArrayList<>();
 		tupleList.add(new SpatialIndexEntry(new Hyperrectangle(1.0, 1.2), 2));
 		
@@ -101,7 +103,8 @@ public class TestRTreeMemoryDeserializer {
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
 		
-		final List<? extends SpatialIndexEntry> resultList = indexRead.getEntriesForRegion(new Hyperrectangle(1.1, 1.2));
+		final Hyperrectangle bbox = new Hyperrectangle(1.1, 1.2);
+		final List<? extends SpatialIndexEntry> resultList = indexRead.getEntriesForRegion(bbox);
 		Assert.assertEquals(1, resultList.size());
 		
 		indexRead.close();
@@ -115,7 +118,7 @@ public class TestRTreeMemoryDeserializer {
 	 */
 	@Test(timeout=60000)
 	public void testSerializeIndex1D() throws StorageManagerException, IOException, InterruptedException {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(1);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(1, 5000);
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
@@ -145,7 +148,7 @@ public class TestRTreeMemoryDeserializer {
 	 */
 	@Test(timeout=60000)
 	public void testSerializeIndex3D() throws StorageManagerException, IOException, InterruptedException {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3, 5000);
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
@@ -165,6 +168,4 @@ public class TestRTreeMemoryDeserializer {
 		
 		RTreeTestHelper.queryIndex(tupleList, indexRead);
 	}
-	
-
 }

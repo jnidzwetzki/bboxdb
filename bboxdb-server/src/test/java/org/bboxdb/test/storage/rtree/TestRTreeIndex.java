@@ -83,7 +83,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60_000)
 	public void testBoxQuery2d() {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(2);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(2, 5000);
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
@@ -95,7 +95,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60_000)
 	public void testBoxQuery3d() {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3, 5000);
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
@@ -108,7 +108,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60_000)
 	public void testBoxQuery4d() {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(4);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(4, 5000);
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
@@ -121,7 +121,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60_000)
 	public void testBoxQuery5d() {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(5);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(5, 5000);
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
@@ -134,7 +134,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60_000)
 	public void testBoxQuery10d() {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(10);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(10, 5000);
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
@@ -148,7 +148,7 @@ public class TestRTreeIndex {
 	 */
 	@Test(timeout=60_000)
 	public void testCovering() {
-		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3);
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3, 5000);
 		
 		final RTreeBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
