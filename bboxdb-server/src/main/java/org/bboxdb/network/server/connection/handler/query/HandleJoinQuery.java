@@ -87,17 +87,17 @@ public class HandleJoinQuery implements QueryHandler {
 					
 					if(storageManager.size() == 2) {
 						final Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
-						final SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1));
+						final SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1), boundingBox);
 						return new IndexedSpatialJoinOperator(operator1, indexReader, 
 								userDefinedFilterName, userDefinedFilterValue);			
 					}
 					
 					Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
-					SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1));
+					SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1), boundingBox);
 					operator1 = new IndexedSpatialJoinOperator(operator1, indexReader);
 					
 					for(int i = 3; i < storageManager.size(); i++) {
-						indexReader = new SpatialIndexReadOperator(storageManager.get(i));
+						indexReader = new SpatialIndexReadOperator(storageManager.get(i), boundingBox);
 						operator1 = new IndexedSpatialJoinOperator(operator1, indexReader);
 					}
 					

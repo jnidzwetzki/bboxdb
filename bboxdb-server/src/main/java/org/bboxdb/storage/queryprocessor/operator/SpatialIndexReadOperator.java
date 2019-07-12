@@ -39,10 +39,6 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 		this.boundingBox = boundingBox;
 	}
 
-	public SpatialIndexReadOperator(final TupleStoreManager tupleStoreManager) {
-		this(tupleStoreManager, Hyperrectangle.FULL_SPACE);
-	}
-
 	/**
 	 * Set a new bounding box to read
 	 * @param boundingBox
