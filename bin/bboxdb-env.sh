@@ -68,5 +68,5 @@ jvm_debug_port=40010
 ################################
 #JVM options for Tools
 ################################
-jvm_ops_tools="-server -Xmx6096m"
+jvm_ops_tools="-ea -server -Xmx6096m"
 

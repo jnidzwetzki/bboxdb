@@ -17,6 +17,7 @@ order: 1
 - Improvement: The OSM maps can now be zoomed with the mouse wheel
 - Improvement: Various GUI improvements (#157)
 - Improvement: Added filter operation for GeoJSON encoded tuples
+- Improvement: Assertions are also enabled in tools
 - Bugfix: Fixed GeoJSON longitude / latitude encoding
 - Bugfix: Improved polygon repair
 - Bugfix: Fixed QuadTreeSpace partitioner unit test testOverflowUnderflow (#149)
