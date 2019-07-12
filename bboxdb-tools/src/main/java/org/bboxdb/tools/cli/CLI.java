@@ -20,7 +20,6 @@ package org.bboxdb.tools.cli;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -524,12 +523,8 @@ public class CLI implements Runnable, AutoCloseable {
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 
 			final JoinedTupleListFuture resultFuture1 = executeJoin(tableList, boundingBox);
-			
-			Collections.reverse(tableList);
-			final JoinedTupleListFuture resultFuture2 = executeJoin(tableList, boundingBox);
-
+		
 			processJoinedTupleList(boundingBox, resultFuture1);
-			processJoinedTupleList(boundingBox, resultFuture2);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);
