@@ -27,6 +27,8 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpatialIterator implements Iterator<JoinedTuple> {
 
@@ -64,6 +66,11 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 	 * The query box
 	 */
 	private final Hyperrectangle queryBox;
+	
+	/**
+	 * The Logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(SpatialIterator.class);
 
 	public SpatialIterator(final Iterator<JoinedTuple> tupleStreamSource, 
 			final SpatialIndexReadOperator indexReader) {
@@ -96,7 +103,9 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 					} else {
 						currentOperationRange = bbox;
 					}
-
+					
+					logger.info("----> Operation box: " + currentOperationRange.toCompactString());
+					
 					indexReader.setBoundingBox(currentOperationRange);
 					candidatesForCurrentTuple = indexReader.iterator();							
 				} 
@@ -104,6 +113,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 
 			final JoinedTuple nextJoinedTuple = candidatesForCurrentTuple.next();
 			final Tuple nextCandidateTuple = nextJoinedTuple.convertToSingleTupleIfPossible();
+			
 			assert (nextCandidateTuple.getBoundingBox().intersects(currentOperationRange)) : "Wrong join, no overlap";
 			nextTuple = buildNextJoinedTuple(nextCandidateTuple);
 		}
