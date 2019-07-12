@@ -536,7 +536,11 @@ public class CLI implements Runnable, AutoCloseable {
 						&& t.getTuple(1).getKey().equals(tuple.getTuple(0).getKey()));
 				
 				if(! contains) {
-					System.out.println("---> Join done diff: " + tuple);
+					System.out.println("---> Join done diff: " 
+							+ tuple.getTuple(0).getBoundingBox().toCompactString()
+							+ " / "
+							+ tuple.getTuple(1).getBoundingBox().toCompactString()
+							);
 				}
 			}
 			
