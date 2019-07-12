@@ -59,7 +59,7 @@ fi
 $BBOXDB_HOME/bin/manage_cluster.sh bboxdb_start
 
 if [[ $1 != "nopopulate" ]]; then
-   sleep 10
+   sleep 5
 
    $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 2 -dimensions 2
    $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table1
