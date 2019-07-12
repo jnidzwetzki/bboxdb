@@ -87,7 +87,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	public void execute() {
 
 		// Get futures from supplier
-		assert (futures == null) : "Futures has to be null";
 		futures = futureSupplier.get();
 
 		// Set callbacks
