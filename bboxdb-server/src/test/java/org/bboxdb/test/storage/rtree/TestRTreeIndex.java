@@ -39,7 +39,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to insert and to read the bounding boxes
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxesInsert() {
 		final List<SpatialIndexEntry> elements = RTreeTestHelper.getEntryList();
 		
@@ -47,7 +47,7 @@ public class TestRTreeIndex {
 		index.bulkInsert(elements);
 	}
 	
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testQueryOnEmptytree() {
 		final SpatialIndexBuilder index = new RTreeBuilder();
 		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(new Hyperrectangle(1d, 1d, 2d, 2d));
@@ -57,7 +57,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to query the index
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxQuery1d0() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.getEntryList();
 		
@@ -69,7 +69,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to query the index
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxQuery1d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.getEntryList();
 		
@@ -81,7 +81,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to query the index
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxQuery2d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(2);
 		
@@ -93,7 +93,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to query the index
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxQuery3d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3);
 		
@@ -106,7 +106,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to query the index
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxQuery4d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(4);
 		
@@ -119,7 +119,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to query the index
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxQuery5d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(5);
 		
@@ -132,7 +132,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test to query the index
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testBoxQuery10d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(10);
 		
@@ -146,7 +146,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test the covering of the nodes
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testCovering() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3);
 		
@@ -160,7 +160,7 @@ public class TestRTreeIndex {
 	 * Test the decoding an encoding of an rtree entry
 	 * @throws IOException 
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testEncodeDecodeRTreeEntryFromFile() throws IOException {
 		final Hyperrectangle boundingBox = new Hyperrectangle(4.1, 8.1, 4.2, 8.8);
 		
@@ -183,7 +183,7 @@ public class TestRTreeIndex {
 	 * Test the decoding an encoding of an rtree entry
 	 * @throws IOException 
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testEncodeDecodeRTreeEntryFromByteBuffer() throws IOException {
 		final Hyperrectangle boundingBox = new Hyperrectangle(4.1, 8.1, 4.2, 8.8);
 		
@@ -208,7 +208,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test the creation of a rtree with a invalid max node size
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test(timeout=60_000, expected=IllegalArgumentException.class)
 	public void testWrongNodeSize0() {
 		new RTreeBuilder(0);
 	}
@@ -216,7 +216,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test the creation of a rtree with a invalid max node size
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test(timeout=60_000, expected=IllegalArgumentException.class)
 	public void testWrongNodeSize1() {
 		new RTreeBuilder(-1);
 	}
@@ -224,7 +224,7 @@ public class TestRTreeIndex {
 	/**
 	 * Test the bounding box of an empty r-tree
 	 */
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testEmptryRTreeBBox() {
 		final RTreeBuilder index = new RTreeBuilder();
 		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(Hyperrectangle.FULL_SPACE);
