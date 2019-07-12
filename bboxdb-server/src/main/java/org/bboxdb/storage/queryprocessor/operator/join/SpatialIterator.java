@@ -29,7 +29,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 
 public class SpatialIterator implements Iterator<JoinedTuple> {
-	
+
 	/**
 	 * The stream source
 	 */
@@ -44,22 +44,22 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 	 * The tuple stream source
 	 */
 	private JoinedTuple tupleFromStreamSource = null;
-	
+
 	/**
 	 * The candidates
 	 */
 	private Iterator<JoinedTuple> candidatesForCurrentTuple = null;
-	
+
 	/**
 	 * The next tuple 
 	 */
 	private JoinedTuple nextTuple = null;
-	
+
 	/**
 	 * The current operation range
 	 */
 	private Hyperrectangle currentOperationRange = null;
-	
+
 	/**
 	 * The query box
 	 */
@@ -67,16 +67,16 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 
 	public SpatialIterator(final Iterator<JoinedTuple> tupleStreamSource, 
 			final SpatialIndexReadOperator indexReader) {
-		
-				this.tupleStreamSource = tupleStreamSource;
-				this.indexReader = indexReader;
-				this.queryBox = indexReader.getBoundingBox();
+
+		this.tupleStreamSource = tupleStreamSource;
+		this.indexReader = indexReader;
+		this.queryBox = indexReader.getBoundingBox();
 	}
 
 
 	@Override
 	public boolean hasNext() {
-		
+
 		while(nextTuple == null) {					
 			// Join partner exhausted, try next tuple
 			while(candidatesForCurrentTuple == null || ! candidatesForCurrentTuple.hasNext()) {						
@@ -88,7 +88,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 					tupleFromStreamSource = tupleStreamSource.next();
 					CloseableHelper.closeWithoutException(indexReader);
 					final Hyperrectangle bbox = tupleFromStreamSource.getBoundingBox();
-					
+
 					// Limit the scan operation to the intersection of the query range and the tuple from 
 					// stream. Otherwise intersections in other areas are detected.
 					if(queryBox != Hyperrectangle.FULL_SPACE) {
@@ -96,18 +96,18 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 					} else {
 						currentOperationRange = bbox;
 					}
-					
+
 					indexReader.setBoundingBox(currentOperationRange);
 					candidatesForCurrentTuple = indexReader.iterator();							
 				} 
 			}
-			
+
 			final JoinedTuple nextJoinedTuple = candidatesForCurrentTuple.next();
 			final Tuple nextCandidateTuple = nextJoinedTuple.convertToSingleTupleIfPossible();
 			assert (nextCandidateTuple.getBoundingBox().intersects(currentOperationRange)) : "Wrong join, no overlap";
 			nextTuple = buildNextJoinedTuple(nextCandidateTuple);
 		}
-						
+
 		return nextTuple != null;
 	}
 
@@ -117,7 +117,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 	 * @return
 	 */
 	protected JoinedTuple buildNextJoinedTuple(final Tuple nextCandidateTuple) {
-		
+
 		// Build tuple store name
 		final List<String> tupleStoreNames = new ArrayList<>();
 		tupleStoreNames.addAll(tupleFromStreamSource.getTupleStoreNames());
@@ -127,7 +127,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 		final ArrayList<Tuple> tupesToJoin = new ArrayList<>();		
 		tupesToJoin.addAll(tupleFromStreamSource.getTuples());
 		tupesToJoin.add(nextCandidateTuple);
-		
+
 		// Filter deleted tuples
 		for(final Tuple tuple : tupesToJoin) {
 			if(tuple instanceof DeletedTuple) {
@@ -140,11 +140,11 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 
 	@Override
 	public JoinedTuple next() {
-		
+
 		if(nextTuple == null) {
 			throw new IllegalArgumentException("Next tuple is null, do you forget to call hasNext()?");
 		}
-						
+
 		final JoinedTuple returnTuple = nextTuple;
 		nextTuple = null;
 		return returnTuple;
