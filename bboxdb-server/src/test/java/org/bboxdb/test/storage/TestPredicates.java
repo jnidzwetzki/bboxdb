@@ -26,7 +26,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
-import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
+import org.bboxdb.storage.queryprocessor.predicate.IntersectsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateTupleFilterIterator;
 import org.junit.Assert;
@@ -91,14 +91,14 @@ public class TestPredicates {
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new Hyperrectangle(-100.0, 100.0, -100.0, 100.0));
+		final Predicate predicate1 = new IntersectsBoundingBoxPredicate(new Hyperrectangle(-100.0, 100.0, -100.0, 100.0));
 		final Collection<Tuple> tuples1 = getTuplesFromPredicate(tupleList, predicate1);
 		
 		Assert.assertEquals(2, tuples1.size());
 		Assert.assertTrue(tuples1.contains(tuple1));
 		Assert.assertTrue(tuples1.contains(tuple2));
 		
-		final Predicate predicate2 = new OverlapsBoundingBoxPredicate(new Hyperrectangle(2.0, 100.0, 2.0, 100.0));
+		final Predicate predicate2 = new IntersectsBoundingBoxPredicate(new Hyperrectangle(2.0, 100.0, 2.0, 100.0));
 		final Collection<Tuple> tuples2 = getTuplesFromPredicate(tupleList, predicate2);
 		
 		Assert.assertEquals(1, tuples2.size());
@@ -119,7 +119,7 @@ public class TestPredicates {
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new Hyperrectangle(2.0, 100.0, 2.0, 100.0));
+		final Predicate predicate1 = new IntersectsBoundingBoxPredicate(new Hyperrectangle(2.0, 100.0, 2.0, 100.0));
 		final Predicate predicate2 = new NewerAsVersionTimePredicate(51);
 		
 		final Predicate predicate = new AndPredicate(predicate1, predicate2);
