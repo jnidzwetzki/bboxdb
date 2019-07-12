@@ -94,6 +94,18 @@ public class TestRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test(timeout=60_000)
+	public void testBoxQuery2d2() {
+		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(2, 25_000);
+		
+		final SpatialIndexBuilder index = new RTreeBuilder();
+		index.bulkInsert(tupleList);
+		RTreeTestHelper.queryIndex(tupleList, index);
+	}
+	
+	/**
+	 * Test to query the index
+	 */
+	@Test(timeout=60_000)
 	public void testBoxQuery3d() {
 		final List<SpatialIndexEntry> tupleList = RTreeTestHelper.generateRandomTupleList(3, 5000);
 		

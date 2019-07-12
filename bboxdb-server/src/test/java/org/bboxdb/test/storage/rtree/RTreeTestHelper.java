@@ -20,6 +20,7 @@ package org.bboxdb.test.storage.rtree;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -41,8 +42,9 @@ public class RTreeTestHelper {
 	public static void queryIndex(final List<SpatialIndexEntry> entries, final SpatialIndexReader index) throws StorageManagerException {
 		
 		for(final SpatialIndexEntry entry: entries) {
-			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
-			Assert.assertTrue(resultList.size() >= 1);
+			final List<? extends SpatialIndexEntry> resultList 
+				= index.getEntriesForRegion(entry.getBoundingBox());
+			
 			checkResult(entry, resultList);
 		}
 	}
@@ -56,8 +58,9 @@ public class RTreeTestHelper {
 	public static void queryIndex(final List<SpatialIndexEntry> entries, final SpatialIndexBuilder index) {
 		
 		for(final SpatialIndexEntry entry: entries) {
-			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
-			Assert.assertTrue(resultList.size() >= 1);
+			final List<? extends SpatialIndexEntry> resultList 
+				= index.getEntriesForRegion(entry.getBoundingBox());
+			
 			checkResult(entry, resultList);
 		}
 	}
@@ -76,7 +79,17 @@ public class RTreeTestHelper {
 				.filter(k -> k.equals(entry.getValue()))
 				.collect(Collectors.toList());
 
-		Assert.assertTrue("Searching for: " + entry, keyResult.size() == 1);
+		Assert.assertTrue("Searching for: " + entry.getValue(), keyResult.size() == 1);
+		
+		// Manual search
+		final AtomicInteger counter = new AtomicInteger(0);
+		for(SpatialIndexEntry element : resultList) {
+			if(element.getBoundingBox().intersects(entry.getBoundingBox())) {
+				counter.incrementAndGet();
+			}
+		}
+		
+		Assert.assertEquals(resultList.size(), counter.get());
 	}
 
 	/**
@@ -84,7 +97,7 @@ public class RTreeTestHelper {
 	 * @return
 	 */
 	public static List<SpatialIndexEntry> getEntryList() {
-		final List<SpatialIndexEntry> entryList = new ArrayList<SpatialIndexEntry>();
+		final List<SpatialIndexEntry> entryList = new ArrayList<>();
 		entryList.add(new SpatialIndexEntry(new Hyperrectangle(0d, 1d, 0d, 1d), 1));
 		entryList.add(new SpatialIndexEntry(new Hyperrectangle(1d, 2d, 1d, 3d), 2));
 		entryList.add(new SpatialIndexEntry(new Hyperrectangle(2d, 3d, 0d, 1d), 3));
@@ -110,8 +123,8 @@ public class RTreeTestHelper {
 			final double[] boundingBoxData = new double[dimensions * 2];
 			
 			for(int d = 0; d < dimensions; d++) {
-				final double begin = random.nextDouble(-1000, 1000);
-				final double extent = random.nextDouble(0, 1000);
+				final double begin = random.nextDouble(-10000, 10000);
+				final double extent = random.nextDouble(0, 50);
 				boundingBoxData[2 * d] = begin;            // Start coordinate
 				boundingBoxData[2 * d + 1] = begin+extent; // End coordinate
 			}
