@@ -17,11 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.storage.queryprocessor.operator;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import org.bboxdb.storage.StorageManagerException;
@@ -45,7 +45,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 		/**
 		 * The next precomputed tuple
 		 */
-		protected final List<JoinedTuple> nextTuples = new ArrayList<>();
+		protected final Queue<JoinedTuple> nextTuples = new LinkedList<>();
 
 		/**
 		 * Setup the next iterator
@@ -150,7 +150,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 				throw new IllegalStateException("Next tuple is empty, did you really call hasNext() before?");
 			}
 			
-			return nextTuples.remove(0);
+			return nextTuples.remove();
 		}
 	}
 
