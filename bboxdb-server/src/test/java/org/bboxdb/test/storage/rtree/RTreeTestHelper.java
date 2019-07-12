@@ -19,7 +19,7 @@ package org.bboxdb.test.storage.rtree;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -104,19 +104,20 @@ public class RTreeTestHelper {
 	 */
 	public static List<SpatialIndexEntry> generateRandomTupleList(final int dimensions, final int elements) {
 		final List<SpatialIndexEntry> entryList = new ArrayList<>();
-		final Random random = new Random();
+		final ThreadLocalRandom random = ThreadLocalRandom.current();
 		
 		for(int i = 0; i < elements; i++) {
 			final double[] boundingBoxData = new double[dimensions * 2];
 			
 			for(int d = 0; d < dimensions; d++) {
-				final double begin = random.nextInt() % 1000;
-				final double extent = Math.abs(random.nextInt() % 1000);
+				final double begin = random.nextDouble(-1000, 1000);
+				final double extent = random.nextDouble(0, 1000);
 				boundingBoxData[2 * d] = begin;            // Start coordinate
 				boundingBoxData[2 * d + 1] = begin+extent; // End coordinate
 			}
 			
-			final SpatialIndexEntry entry = new SpatialIndexEntry(new Hyperrectangle(boundingBoxData), i);
+			final Hyperrectangle bbox = new Hyperrectangle(boundingBoxData);
+			final SpatialIndexEntry entry = new SpatialIndexEntry(bbox, i);
 			entryList.add(entry);
 		}
 
