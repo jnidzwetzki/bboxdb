@@ -552,10 +552,14 @@ public class CLI implements Runnable, AutoCloseable {
 				
 		for(final JoinedTuple tuple : resultFuture1) {
 			
-			assert tuple.getBoundingBox().intersects(boundingBox) : "Bounding box mismatch";
-			assert tuple.getTuple(0).getBoundingBox().intersects(boundingBox) : "BBox 1 tuple mismatch";
-			assert tuple.getTuple(1).getBoundingBox().intersects(boundingBox) : "BBox 2 tuple mismatch";
-			assert tuple.getTuple(1).getBoundingBox().intersects(tuple.getTuple(0).getBoundingBox()) : "Overlap mismatch";
+			assert tuple.getBoundingBox().intersects(boundingBox) : "Bounding box mismatch: " + tuple.getBoundingBox();
+			
+			final Hyperrectangle box1 = tuple.getTuple(0).getBoundingBox();
+			final Hyperrectangle box2 = tuple.getTuple(1).getBoundingBox();
+			assert box1.intersects(boundingBox) : "BBox 1 tuple mismatch: " + box1.toCompactString();
+			assert box2.intersects(boundingBox) : "BBox 2 tuple mismatch: " + box2.toCompactString();
+			assert box2.intersects(box1) : "Overlap mismatch: " + box1.toCompactString() 
+				+ " " + box2.toCompactString();
 			
 			printJoinedTuple(tuple);
 			resultTuples++;
