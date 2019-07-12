@@ -58,7 +58,7 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 
 	@Override
 	protected void filterTupleVersions(final List<Tuple> tupleVersions) {
-		tupleVersions.removeIf(t -> isNotCovered(t));
+		//tupleVersions.removeIf(t -> isNotCovered(t));
 	}
 
 	/**
@@ -66,14 +66,14 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 	 *
 	 * @return
 	 */
-	private boolean isNotCovered(final Tuple tuple) {
-
+	/*private boolean isNotCovered(final Tuple tuple) {
+		
 		if(tuple.getBoundingBox() == null) {
 			return false;
 		}
 
 		return ! tuple.getBoundingBox().intersects(boundingBox);
-	}
+	}*/
 	
 	/**
 	 * Get the bounding box of the operation
