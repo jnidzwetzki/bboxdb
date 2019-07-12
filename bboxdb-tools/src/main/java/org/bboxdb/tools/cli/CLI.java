@@ -533,7 +533,7 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			for(final JoinedTuple tuple : result1) {
 				final boolean contains = result2.stream().anyMatch(t -> t.getTuple(0).getKey().equals(tuple.getTuple(1).getKey())
-						&& t.getTuple(1).getKey().equals(tuple.getTuple(2).getKey()));
+						&& t.getTuple(1).getKey().equals(tuple.getTuple(0).getKey()));
 				
 				if(! contains) {
 					System.out.println("---> Join done diff: " + tuple);
