@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.client;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -45,7 +46,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * The futures
 	 */
-	protected List<NetworkOperationFuture> futures;
+	protected final List<NetworkOperationFuture> futures;
 
 	/**
 	 * The default retry policy
@@ -77,6 +78,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		this.futureSupplier = futureSupplier;
 		this.retryPolicy = retryPolicy;
+		this.futures = new ArrayList<>();
 
 		execute();
 	}
@@ -86,8 +88,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 */
 	public void execute() {
 
-		// Get futures from supplier
-		futures = futureSupplier.get();
+		// Get futures from supplier and keep the old futures (if available)
+		// results might still come back from the server
+		futures.addAll(futureSupplier.get());
 
 		// Set callbacks
 		futures.forEach(f -> f.setErrorCallback(this));
