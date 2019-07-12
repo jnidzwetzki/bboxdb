@@ -57,7 +57,7 @@ $ docker-compose -f docker-compose.yml down
 $ docker-compose -f docker-compose.yml rm
 ```
 
-# Manuall installation
+# Manual installation
 ## Dependencies 
 BBoxDB depends on the following programs:
 

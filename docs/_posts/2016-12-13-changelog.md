@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 0.9.2 - TBD
+
 ### Version 0.9.1 - 12.07.2019
 - New Feature: Added GUI for GeoJSON operations
 - Improvement: Returned tuples are now shown in CLI calls
