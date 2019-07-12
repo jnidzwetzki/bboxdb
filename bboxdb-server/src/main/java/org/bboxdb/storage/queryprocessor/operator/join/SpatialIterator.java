@@ -124,7 +124,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 		tupleStoreNames.add(indexReader.getTupleStoreName().getFullnameWithoutPrefix());
 
 		// Build tuple
-		final ArrayList<Tuple> tupesToJoin = new ArrayList<>();		
+		final List<Tuple> tupesToJoin = new ArrayList<>();		
 		tupesToJoin.addAll(tupleFromStreamSource.getTuples());
 		tupesToJoin.add(nextCandidateTuple);
 
