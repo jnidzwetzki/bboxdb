@@ -43,11 +43,12 @@ public class SuccessHandler implements ServerResponseHandler {
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Handle success package");
-		}
 		
 		final AbstractBodyResponse result = SuccessResponse.decodePackage(encodedPackage);
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Handle success package (seq={})", result.getSequenceNumber());
+		}
 		
 		if(future != null) {
 			future.setMessage(result.getBody());

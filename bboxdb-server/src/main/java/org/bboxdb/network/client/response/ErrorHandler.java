@@ -43,11 +43,11 @@ public class ErrorHandler implements ServerResponseHandler {
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
 			throws PackageEncodeException {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Handle error package");
-		}
-		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Handle errror package (seq={})", result.getSequenceNumber());
+		}
 		
 		if(future != null) {
 			future.setMessage(result.getBody());
