@@ -301,9 +301,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 			return true;
 		}
 		
-		if(! future.getConnection().getConnectionState().isInRunningState()) {
+		if(! future.getConnection().isConnected()) {
 			logger.debug("Unable to retry future, because connection failed [connection={}, state={}]",
-					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
+				future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
 			return false;
 		}
 
