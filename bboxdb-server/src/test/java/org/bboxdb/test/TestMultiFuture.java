@@ -95,7 +95,7 @@ public class TestMultiFuture {
 		
 		final CountDownLatch latch = new CountDownLatch(1);
 		
-		multiFuture2.setSuccessCallback((c) -> {
+		multiFuture2.setDoneCallback((c) -> {
 			if(c == future1) {
 				latch.countDown();
 			}

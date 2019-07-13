@@ -101,7 +101,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	/**
 	 * The success callback
 	 */
-	protected Consumer<NetworkOperationFuture> successCallback;
+	protected Consumer<NetworkOperationFuture> doneCallback;
 
 	/**
 	 * The error callback
@@ -234,9 +234,9 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 		stopwatch.stop();
 		latch.countDown();
 
-		// Run success handler
-		if(successCallback != null && !failed) {
-			successCallback.accept(this);
+		// Run done handler
+		if(doneCallback != null) {
+			doneCallback.accept(this);
 		}
 	}
 
@@ -339,8 +339,8 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#setSuccessCallback(java.util.function.Consumer)
 	 */
 	@Override
-	public void setSuccessCallback(final Consumer<NetworkOperationFuture> successCallback) {
-		this.successCallback = successCallback;
+	public void setDoneCallback(final Consumer<NetworkOperationFuture> doneCallback) {
+		this.doneCallback = doneCallback;
 	}
 
 	/* (non-Javadoc)

@@ -99,7 +99,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		// Set callbacks
 		futures.forEach(f -> f.setErrorCallback(this));
-		futures.forEach(f -> f.setSuccessCallback((c) -> handleNetworkFutureSuccess()));
+		futures.forEach(f -> f.setDoneCallback((c) -> handleNetworkFutureSuccess()));
 
 		// Execute
 		futures.forEach(f -> f.execute());

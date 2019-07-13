@@ -52,7 +52,7 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 		this.futures = futures;
 		
 		this.futures.forEach(f -> f.setErrorCallback(this::handleErrorCallback));
-		this.futures.forEach(f -> f.setSuccessCallback(this::handleSuccessCallback));
+		this.futures.forEach(f -> f.setDoneCallback(this::handleSuccessCallback));
 	}
 	
 	public boolean handleErrorCallback(final NetworkOperationFuture future) {
@@ -253,7 +253,7 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#setSuccessCallback(java.util.function.Consumer)
 	 */
 	@Override
-	public void setSuccessCallback(final Consumer<NetworkOperationFuture> successCallback) {
+	public void setDoneCallback(final Consumer<NetworkOperationFuture> successCallback) {
 		this.successCallback = successCallback;
 	}
 
