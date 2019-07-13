@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.2 - TBD
+- Bugfix: Don't retry futures on failed connections
 
 ### Version 0.9.1 - 12.07.2019
 - New Feature: Added GUI for GeoJSON operations

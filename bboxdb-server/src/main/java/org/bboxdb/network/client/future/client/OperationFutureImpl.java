@@ -293,6 +293,12 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 			logger.debug("Got failed future back [policy={}, seq={}, connection={}, state={}]", retryPolicy, future.getRequestId(), 
 					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());		
 		}
+		
+		if(! future.getConnection().getConnectionState().isInRunningState()) {
+			logger.debug("Unable to retry future, because connection failed [connection={}, state={}]",
+					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
+			return false;
+		}
 
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
 			return false;
