@@ -262,6 +262,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	private void cancelOldFuture(final NetworkOperationFuture future) {
 		final NetworkRequestPackage transmittedPackage = future.getTransmittedPackage();
 
+		logger.debug("Canceling future [seq={}, connection={}, state={}]", 
+				future.getRequestId(), future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
+		
 		if(transmittedPackage == null) {
 			return;
 		}
@@ -302,7 +305,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES) {
-			return handleAllFutureRetry();
+			return handleAllFutureRetry(future);
 		}
 
 		throw new RuntimeException("Unknown retry policy: " + retryPolicy);
@@ -335,7 +338,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 *
 	 * @return
 	 */
-	private boolean handleAllFutureRetry() {
+	private boolean handleAllFutureRetry(final NetworkOperationFuture future) {
 		if(globalRetryCounter >= futures.get(0).getTotalRetries()) {
 			return false;
 		}
@@ -353,6 +356,8 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		final int delay = (int) (100 * globalRetryCounter);
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
+		
+		logger.debug("Reschedule event for type [delay={}, type={}]", delay, future.getClass().toString());
 
 		return true;
 	}
