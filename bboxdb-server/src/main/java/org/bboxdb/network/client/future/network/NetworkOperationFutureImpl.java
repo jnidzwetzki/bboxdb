@@ -223,6 +223,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 		// Run error handler
 		if(errorCallback != null && failed) {
 			final boolean couldBeHandled = errorCallback.handleError(this);
+			
 			if(couldBeHandled) {
 				failed = false;
 				return;
@@ -234,7 +235,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 		latch.countDown();
 
 		// Run success handler
-		if(successCallback != null) {
+		if(successCallback != null && !failed) {
 			successCallback.accept(this);
 		}
 	}
