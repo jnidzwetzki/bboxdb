@@ -33,7 +33,7 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	 */
 	private final RoutingHeader routingHeader;
 
-	public NetworkRequestPackage(short sequenceNumber, final RoutingHeader routingHeader) {
+	public NetworkRequestPackage(final short sequenceNumber, final RoutingHeader routingHeader) {
 		super(sequenceNumber);
 		this.routingHeader = Objects.requireNonNull(routingHeader);
 	}
