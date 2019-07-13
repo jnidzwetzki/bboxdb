@@ -290,7 +290,8 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	public boolean handleError(final NetworkOperationFuture future) {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Got failed future back [policy={}, seq={}]", retryPolicy, future.getRequestId());		
+			logger.debug("Got failed future back [policy={}, seq={}, connection={}, state={}]", retryPolicy, future.getRequestId(), 
+					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());		
 		}
 
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
