@@ -296,6 +296,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());		
 		}
 		
+		if(! futures.contains(future)) {
+			logger.debug("Future is unknown, all network futures might be re-executed. Ignoring callback");
+			return true;
+		}
+		
 		if(! future.getConnection().getConnectionState().isInRunningState()) {
 			logger.debug("Unable to retry future, because connection failed [connection={}, state={}]",
 					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
@@ -307,9 +312,6 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE) {
-			assert (futures.contains(future)) : "Future is unknown: " + future + "/" 
-					+ futures.stream().map(f -> f.getRequestId()).collect(Collectors.toList());
-
 			return handleOneFutureRetry(future);
 		}
 
