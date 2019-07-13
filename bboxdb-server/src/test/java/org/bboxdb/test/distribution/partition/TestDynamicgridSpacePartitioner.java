@@ -188,6 +188,7 @@ public class TestDynamicgridSpacePartitioner {
 		final List<DistributionRegion> regions2 = regionToSplit.getParent().getThisAndChildRegions();
 		System.out.println("---> testSplitAndMergeRegion:Test-Debug (2): " + regions2);
 		final int newChilden2 = regions2.size();
+		System.out.println("--> oldChildren: " + oldChildren + " / " + newChilden2);
 		Assert.assertEquals(oldChildren + 1, newChilden2);
 
 		// Merge failed
