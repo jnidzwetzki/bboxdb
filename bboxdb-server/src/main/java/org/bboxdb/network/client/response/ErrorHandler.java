@@ -46,7 +46,7 @@ public class ErrorHandler implements ServerResponseHandler {
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Handle error package (seq={})", result.getSequenceNumber());
+			logger.debug("Handle error package (seq={}, message={})", result.getSequenceNumber(), result.getBody());
 		}
 		
 		if(future != null) {
