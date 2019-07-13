@@ -138,14 +138,19 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	@Override
 	public void execute() {
 
+		final NetworkRequestPackage nextPackageForTransmission = packageSupplier.get();
+		
 		if(! connection.isConnected()) {
-			logger.error("Don't execute future because connection is closed: {}", this);
+			logger.error("Don't execute future because connection is closed: [connection={}, seq={}, package={}]", 
+					connection.getConnectionState(), nextPackageForTransmission.getSequenceNumber(), 
+					nextPackageForTransmission.getClass());
+			
 			setFailedState();
 			fireCompleteEvent();
 			return;
 		}
-
-		this.lastTransmittedPackage = packageSupplier.get();
+		
+		this.lastTransmittedPackage = nextPackageForTransmission;
 		this.failed = false;
 		this.executions.incrementAndGet();
 
