@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.9.2 - TBD
 - Bugfix: Don't retry futures on failed connections
+- Bugfix: Prevent race condition on future error handling on replicated operations
 
 ### Version 0.9.1 - 12.07.2019
 - New Feature: Added GUI for GeoJSON operations

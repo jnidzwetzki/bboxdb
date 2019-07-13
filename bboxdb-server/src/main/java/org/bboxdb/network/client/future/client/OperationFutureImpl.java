@@ -285,9 +285,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	/**
 	 * Handle the error callback
+	 * 
+	 * Method is synchronized to prevent mixed callback handling from multiple connections
 	 */
 	@Override
-	public boolean handleError(final NetworkOperationFuture future) {
+	public synchronized boolean handleError(final NetworkOperationFuture future) {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got failed future back [policy={}, seq={}, connection={}, state={}]", retryPolicy, future.getRequestId(), 
