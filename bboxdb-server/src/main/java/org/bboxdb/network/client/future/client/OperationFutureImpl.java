@@ -30,6 +30,8 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallback {
 
@@ -67,6 +69,12 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * The future supplier
 	 */
 	private Supplier<List<NetworkOperationFuture>> futureSupplier;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(OperationFutureImpl.class);
+
 
 	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures) {
 		this(futures, FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
@@ -277,6 +285,10 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 */
 	@Override
 	public boolean handleError(final NetworkOperationFuture future) {
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Got failed future back [policy={}, seq={}]", retryPolicy, future.getRequestId());		
+		}
 
 		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
 			return false;
