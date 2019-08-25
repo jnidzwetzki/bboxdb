@@ -24,11 +24,14 @@ import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+import org.bboxdb.storage.entity.EntityIdentifier;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 
@@ -123,7 +126,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		final Rectangle viewBounds = map.getViewportBounds();
 		
 		if(hasDataChanged(viewBounds)) {
-			
 			validForRectangle = viewBounds;
 			validForElements = tupleToDraw.size();
 			
@@ -156,13 +158,20 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			}
 		}
 		
+		final Set<EntityIdentifier> alreadyRenderedElements = new HashSet<>();
+
 		for(final OverlayElement element : renderedElements) {
-			element.drawPointListOnGui(graphicsContext, map);
+			final EntityIdentifier identifier = element.getEntityIdentifier();
 			
-			if(drawBoundingBoxes) {
-				final Rectangle boundingBox = element.getBBoxToDrawOnGui();
-				graphicsContext.setColor(Color.BLACK);
-				graphicsContext.draw(boundingBox);
+			if(! alreadyRenderedElements.contains(identifier)) {
+				alreadyRenderedElements.add(identifier);
+				element.drawPointListOnGui(graphicsContext, map);
+			
+				if(drawBoundingBoxes) {
+					final Rectangle boundingBox = element.getBBoxToDrawOnGui();
+					graphicsContext.setColor(Color.BLACK);
+					graphicsContext.draw(boundingBox);
+				}
 			}
 		}
 	}

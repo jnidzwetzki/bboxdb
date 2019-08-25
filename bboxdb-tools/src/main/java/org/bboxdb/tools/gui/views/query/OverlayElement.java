@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.storage.entity.EntityIdentifier;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
 
@@ -63,13 +64,21 @@ public class OverlayElement {
 	 * Highlight the element
 	 */
 	private boolean highlight;
+
+	/**
+	 * The entity identifyer
+	 */
+	private EntityIdentifier entityIdentifier;
 	
 	/**
 	 * The transparency value
 	 */
 	private final static int TRANSPARENCY = 127;
 	
-	public OverlayElement(final String tablename, final GeoJsonPolygon polygon, final Color color) {
+	public OverlayElement(final EntityIdentifier entityIdentifier, final String tablename, 
+			final GeoJsonPolygon polygon, final Color color) {
+		
+		this.entityIdentifier = entityIdentifier;
 		this.tablename = tablename;
 		this.polygon = polygon;
 		this.color = color;
@@ -258,5 +267,9 @@ public class OverlayElement {
 			
 			graphicsContext.drawPolyline(xPoints, yPoints, pointList.size());
 		}
+	}
+	
+	public EntityIdentifier getEntityIdentifier() {
+		return entityIdentifier;
 	}
 }

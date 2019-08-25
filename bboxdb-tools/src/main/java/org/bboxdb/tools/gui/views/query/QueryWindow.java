@@ -386,8 +386,8 @@ public class QueryWindow {
 				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
 				polygon.invertPolygonCoordinates();
 				
-				final OverlayElement overlayElement = new OverlayElement(tupleStoreName, 
-						polygon, color);
+				final OverlayElement overlayElement = new OverlayElement(tuple.getEntityIdentifier(), 
+						tupleStoreName, polygon, color);
 				
 				return overlayElement;
 			}
