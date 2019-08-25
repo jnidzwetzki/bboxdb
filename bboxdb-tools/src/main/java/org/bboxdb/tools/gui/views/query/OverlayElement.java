@@ -29,7 +29,6 @@ import java.util.Map;
 
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.storage.entity.JoinedTuple;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
 
@@ -44,11 +43,6 @@ public class OverlayElement {
 	 * The polygon to draw
 	 */
 	private final GeoJsonPolygon polygon;
-	
-	/**
-	 * The reference to the query tuple
-	 */
-	private final JoinedTuple joinedTuple;
 	
 	/**
 	 * The color to draw
@@ -75,11 +69,8 @@ public class OverlayElement {
 	 */
 	private final static int TRANSPARENCY = 127;
 	
-	public OverlayElement(final String tablename, final JoinedTuple joinedTuple, 
-			final GeoJsonPolygon polygon, final Color color) {
-		
+	public OverlayElement(final String tablename, final GeoJsonPolygon polygon, final Color color) {
 		this.tablename = tablename;
-		this.joinedTuple = joinedTuple;
 		this.polygon = polygon;
 		this.color = color;
 		this.boundingBoxPixel = new Rectangle();
@@ -213,14 +204,6 @@ public class OverlayElement {
 	 */
 	public String getSourceTable() {
 		return tablename;
-	}
-	
-	/**
-	 * Get the joined tuple reference
-	 * @return
-	 */
-	public JoinedTuple getJoinedTuple() {
-		return joinedTuple;
 	}
 	
 	/**

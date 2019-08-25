@@ -396,7 +396,7 @@ public class QueryWindow {
 				polygon.invertPolygonCoordinates();
 				
 				final OverlayElement overlayElement = new OverlayElement(joinedTuple.getTupleStoreName(pos), 
-						joinedTuple, polygon, color);
+						polygon, color);
 				
 				dataToDraw.add(overlayElement);
 			}
