@@ -17,13 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,11 +55,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	private long validForElements;
 
-	/**
-	 * The transparency value
-	 */
-	private final static int TRANSPARENCY = 127;
-	
 	/**
 	 * The selection fill color
 	 */
@@ -160,17 +152,14 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		}
 		
 		for(final OverlayElement element : renderedElements) {
-			final Color color = element.isHighlighted() ? Color.GRAY : element.getColor();
-			
-			final List<Point2D> pointList = element.getPointsToDrawOnGui();
-			drawPointListOnGui(graphicsContext, map, pointList, color);
+			element.drawPointListOnGui(graphicsContext, map);
 			
 			if(drawBoundingBoxes) {
 				final Rectangle boundingBox = element.getBBoxToDrawOnGui();
 				graphicsContext.setColor(Color.BLACK);
 				graphicsContext.draw(boundingBox);
 			}
-		}		
+		}
 	}
 
 	/**
@@ -179,6 +168,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * @return
 	 */
 	private boolean hasDataChanged(final Rectangle viewBounds) {
+		
 		if(validForRectangle == null || validForElements == 0) {
 			return true;
 		}
@@ -194,57 +184,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		return false;
 	}
 	
-	/**
-	 * Draw the point list on GUI
-	 * @param graphicsContext
-	 * @param map
-	 * @param pointList
-	 * @param color
-	 */
-	private void drawPointListOnGui(final Graphics2D graphicsContext, final JXMapViewer map,
-			final List<Point2D> pointList, final Color color) {
-		
-		if(pointList.size() == 1) {
-			final Point2D thePoint = pointList.get(0);
-			graphicsContext.setColor(Color.BLUE);
-			final int size = (int) (15 * (1.0 / map.getZoom()));
-			graphicsContext.drawOval((int) thePoint.getX(), (int) thePoint.getY(), size, size);
-			return;
-		}
-		
-		final Point2D firstElement = pointList.get(0);
-		final Point2D lastElement = pointList.get(pointList.size() - 1);
-		
-		if(firstElement.equals(lastElement)) {
-			final Polygon polygon = new Polygon();
-			
-			for (final Point2D point : pointList) {
-				polygon.addPoint((int) point.getX(), (int) point.getY()); 
-			}
-			
-			final Color transparentColor = new Color(color.getRed(), color.getGreen(), 
-					color.getBlue(), TRANSPARENCY);
-			
-			graphicsContext.setColor(transparentColor);
-			graphicsContext.fillPolygon(polygon);	
-			graphicsContext.setColor(Color.BLACK);
-			graphicsContext.drawPolygon(polygon);
-		} else {
-			graphicsContext.setColor(color);
-			graphicsContext.setStroke(new BasicStroke(2));
-
-			int[] xPoints = new int[pointList.size()];
-			int[] yPoints = new int[pointList.size()];
-			
-			for (int i = 0; i < pointList.size(); i++) {
-				final Point2D point = pointList.get(i);
-				xPoints[i] = (int) point.getX();
-				yPoints[i] = (int) point.getY();
-			}				
-			
-			graphicsContext.drawPolyline(xPoints, yPoints, pointList.size());
-		}
-	}
+	
 	
 	/**
 	 * Set the drawing of the bounding boxes

@@ -17,11 +17,15 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -65,7 +69,12 @@ public class OverlayElement {
 	 * Highlight the element
 	 */
 	private boolean highlight;
-
+	
+	/**
+	 * The transparency value
+	 */
+	private final static int TRANSPARENCY = 127;
+	
 	public OverlayElement(final String tablename, final JoinedTuple joinedTuple, 
 			final GeoJsonPolygon polygon, final Color color) {
 		
@@ -182,10 +191,27 @@ public class OverlayElement {
 	}
 	
 	/**
-	 * Get the tablename
+	 * Get the tooltip text
 	 * @return
 	 */
-	public String getTablename() {
+	public String getTooltipText() {
+		final StringBuffer sb = new StringBuffer();
+		
+		sb.append("<b>Table:</b> " + tablename + "<br>");
+		sb.append("<b>Id: </b> " + getPolygon().getId() + "<br>");
+		
+		for(Map.Entry<String, String> property : getPolygon().getProperties().entrySet()) {
+			sb.append("<b>" + property.getKey() + ":</b> " +  property.getValue() + "<br>");
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * Get the source table
+	 * @return
+	 */
+	public String getSourceTable() {
 		return tablename;
 	}
 	
@@ -195,5 +221,59 @@ public class OverlayElement {
 	 */
 	public JoinedTuple getJoinedTuple() {
 		return joinedTuple;
+	}
+	
+	/**
+	 * Draw the point list on GUI
+	 * @param graphicsContext
+	 * @param map
+	 * @param pointList
+	 * @param color
+	 */
+	public void drawPointListOnGui(final Graphics2D graphicsContext, final JXMapViewer map) {
+		
+		final List<Point2D> pointList = getPointsToDrawOnGui();
+		final Color color = isHighlighted() ? Color.GRAY : getColor();
+
+		if(pointList.size() == 1) {
+			final Point2D thePoint = pointList.get(0);
+			graphicsContext.setColor(Color.BLUE);
+			final int size = (int) (15 * (1.0 / map.getZoom()));
+			graphicsContext.drawOval((int) thePoint.getX(), (int) thePoint.getY(), size, size);
+			return;
+		}
+		
+		final Point2D firstElement = pointList.get(0);
+		final Point2D lastElement = pointList.get(pointList.size() - 1);
+		
+		if(firstElement.equals(lastElement)) {
+			final Polygon polygon = new Polygon();
+			
+			for (final Point2D point : pointList) {
+				polygon.addPoint((int) point.getX(), (int) point.getY()); 
+			}
+			
+			final Color transparentColor = new Color(color.getRed(), color.getGreen(), 
+					color.getBlue(), TRANSPARENCY);
+			
+			graphicsContext.setColor(transparentColor);
+			graphicsContext.fillPolygon(polygon);	
+			graphicsContext.setColor(Color.BLACK);
+			graphicsContext.drawPolygon(polygon);
+		} else {
+			graphicsContext.setColor(color);
+			graphicsContext.setStroke(new BasicStroke(2));
+
+			int[] xPoints = new int[pointList.size()];
+			int[] yPoints = new int[pointList.size()];
+			
+			for (int i = 0; i < pointList.size(); i++) {
+				final Point2D point = pointList.get(i);
+				xPoints[i] = (int) point.getX();
+				yPoints[i] = (int) point.getY();
+			}				
+			
+			graphicsContext.drawPolyline(xPoints, yPoints, pointList.size());
+		}
 	}
 }

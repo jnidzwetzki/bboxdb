@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JToolTip;
 
@@ -115,13 +114,9 @@ public class MouseOverlayHandler extends MouseAdapter {
 				if(! element.isHighlighted()) {
 					continue;
 				}
+				
 				sb.append("===========================<br>");
-
-				sb.append("<b>Table:</b> " + element.getTablename() + "<br>");
-				sb.append("<b>Id: </b> " + element.getPolygon().getId() + "<br>");
-				for(Map.Entry<String, String> property : element.getPolygon().getProperties().entrySet()) {
-					sb.append("<b>" + property.getKey() + ":</b> " +  property.getValue() + "<br>");
-				}
+				sb.append(element.getTooltipText());
 			}
 			
 			sb.append("</html>");

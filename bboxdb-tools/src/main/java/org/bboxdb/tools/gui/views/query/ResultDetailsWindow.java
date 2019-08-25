@@ -85,7 +85,7 @@ public class ResultDetailsWindow {
 				
 				switch(columnIndex) {
 					case 0:
-						return overlayElement.getTablename();
+						return overlayElement.getSourceTable();
 					case 1:
 						return overlayElement.getPolygon().getId();
 					case 2: 
