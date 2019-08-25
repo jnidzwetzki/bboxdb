@@ -163,18 +163,14 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			}
 			
 			final EntityIdentifier identifier = element.getEntityIdentifier();
-			if(! alreadyRenderedElements.contains(identifier)) {
-				renderElement(graphicsContext, map, alreadyRenderedElements, element, identifier);
-			}
+			renderElement(graphicsContext, map, alreadyRenderedElements, element, identifier);	
 		}
 		
 		// Render remaining elements
 		for(final OverlayElement element : renderedElements) {
 			final EntityIdentifier identifier = element.getEntityIdentifier();
 			
-			if(! alreadyRenderedElements.contains(identifier)) {
-				renderElement(graphicsContext, map, alreadyRenderedElements, element, identifier);
-			}
+			renderElement(graphicsContext, map, alreadyRenderedElements, element, identifier);
 		}
 	}
 	
@@ -190,8 +186,8 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			final Set<EntityIdentifier> alreadyRenderedElements, final OverlayElement element,
 			final EntityIdentifier identifier) {
 		
-		alreadyRenderedElements.add(identifier);
-		element.drawPointListOnGui(graphicsContext, map);
+		final boolean drawReally = alreadyRenderedElements.add(identifier);
+		element.drawOnGui(graphicsContext, map, drawReally);
 
 		if(drawBoundingBoxes) {
 			final Rectangle boundingBox = element.getBBoxToDrawOnGui();

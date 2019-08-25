@@ -22,7 +22,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +63,11 @@ public class OverlayElement {
 	 * The pixel bounding box points
 	 */
 	private final Rectangle boundingBoxPixel;
+	
+	/**
+	 * The last rendered shape
+	 */
+	private Shape lastRenderedShape;
 
 	/**
 	 * The entity identifier
@@ -222,7 +230,7 @@ public class OverlayElement {
 	 * @param pointList
 	 * @param color
 	 */
-	public void drawPointListOnGui(final Graphics2D graphicsContext, final JXMapViewer map) {
+	public void drawOnGui(final Graphics2D graphicsContext, final JXMapViewer map, final boolean drawReally) {
 		
 		final List<Point2D> pointList = getPointsToDrawOnGui();
 		final Color color = isSelected() ? Color.GRAY : getColor();
@@ -231,8 +239,14 @@ public class OverlayElement {
 		if(pointList.size() == 1) {
 			final Point2D thePoint = pointList.get(0);
 			graphicsContext.setColor(Color.BLUE);
-			final int size = (int) (15 * (1.0 / map.getZoom()));
-			graphicsContext.drawOval((int) thePoint.getX(), (int) thePoint.getY(), size, size);
+			final double size = (15 * (1.0 / map.getZoom()));
+			final Ellipse2D ellipse = new Ellipse2D.Double(thePoint.getX(), thePoint.getX(), size, size);
+			lastRenderedShape = ellipse;
+			
+			if(drawReally) {
+				graphicsContext.draw(ellipse);
+			}
+			
 			return;
 		}
 		
@@ -245,14 +259,17 @@ public class OverlayElement {
 			for (final Point2D point : pointList) {
 				polygon.addPoint((int) point.getX(), (int) point.getY()); 
 			}
+			lastRenderedShape = polygon;
 			
-			final Color transparentColor = new Color(color.getRed(), color.getGreen(), 
-					color.getBlue(), TRANSPARENCY);
-			
-			graphicsContext.setColor(transparentColor);
-			graphicsContext.fillPolygon(polygon);	
-			graphicsContext.setColor(Color.BLACK);
-			graphicsContext.drawPolygon(polygon);
+			if(drawReally) {
+				final Color transparentColor = new Color(color.getRed(), color.getGreen(), 
+						color.getBlue(), TRANSPARENCY);
+				
+				graphicsContext.setColor(transparentColor);
+				graphicsContext.fillPolygon(polygon);	
+				graphicsContext.setColor(Color.BLACK);
+				graphicsContext.drawPolygon(polygon);
+			}
 		} else {
 			graphicsContext.setColor(color);
 			
@@ -261,19 +278,22 @@ public class OverlayElement {
 			} else {
 				graphicsContext.setStroke(new BasicStroke(2));
 			}
-
-			int[] xPoints = new int[pointList.size()];
-			int[] yPoints = new int[pointList.size()];
+			
+			final Path2D line = new Path2D.Double();
+			line.moveTo(pointList.get(0).getX(), pointList.get(0).getY());
 			
 			for (int i = 0; i < pointList.size(); i++) {
 				final Point2D point = pointList.get(i);
-				xPoints[i] = (int) point.getX();
-				yPoints[i] = (int) point.getY();
-			}				
-			
-			graphicsContext.drawPolyline(xPoints, yPoints, pointList.size());
-			graphicsContext.setStroke(oldStroke);
+				line.lineTo(point.getX(), point.getY());
+			}
+			lastRenderedShape = line;
+
+			if(drawReally) {
+				graphicsContext.draw(line);
+			}
 		}
+		
+		graphicsContext.setStroke(oldStroke);
 	}
 	
 	/**
@@ -298,5 +318,13 @@ public class OverlayElement {
 	 */
 	public OverlayElementGroup getOverlayElementGroup() {
 		return overlayElementGroup;
+	}
+	
+	/**
+	 * Get the last rendered shape
+	 * @return
+	 */
+	public Shape getLastRenderedShape() {
+		return lastRenderedShape;
 	}
 }

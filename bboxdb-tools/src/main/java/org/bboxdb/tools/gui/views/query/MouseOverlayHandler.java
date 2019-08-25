@@ -19,6 +19,7 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -80,28 +81,28 @@ public class MouseOverlayHandler extends MouseAdapter {
 
 		final Rectangle mousePos = new Rectangle(mousePosPoint);
 		mousePos.setSize(1, 1);
-				
-		for (final Iterator<OverlayElement> iterator = highlightedElements.iterator(); iterator.hasNext();) {
-			final OverlayElement element = (OverlayElement) iterator.next();
-			final Rectangle bbox = element.getBBoxToDrawOnGui();
-
-			if(! bbox.intersects(mousePos)) {
-				iterator.remove();
-				element.setSelected(false);
-				repaintElement(rect, element.getOverlayElementGroup());
-			}
-		}
 		
 		for(final OverlayElement element : renderedElements) {
-			final Rectangle bbox = element.getBBoxToDrawOnGui();
+			final Shape shape = element.getLastRenderedShape();
 			
-			if(bbox.intersects(mousePos)) {
+			if(shape != null && shape.intersects(mousePos)) {
 				if(element.isSelected()) {
 					continue;
 				}
 				
 				element.setSelected(true);
 				highlightedElements.add(element);
+				repaintElement(rect, element.getOverlayElementGroup());
+			}
+		}
+		
+		for (final Iterator<OverlayElement> iterator = highlightedElements.iterator(); iterator.hasNext();) {
+			final OverlayElement element = (OverlayElement) iterator.next();
+			final Shape shape = element.getLastRenderedShape();
+
+			if(shape != null && ! shape.intersects(mousePos)) {
+				iterator.remove();
+				element.setSelected(false);
 				repaintElement(rect, element.getOverlayElementGroup());
 			}
 		}
