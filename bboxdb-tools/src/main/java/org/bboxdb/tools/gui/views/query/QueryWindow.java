@@ -39,6 +39,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
+import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
@@ -192,6 +193,7 @@ public class QueryWindow {
 
 		builder.addLabel("Name", cc.xy (5,  11));
 		final JTextField filterField = new JTextField();
+		filterField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
 		builder.add(filterField, cc.xy (7,  11));
 
 		builder.addLabel("Value", cc.xy (5,  13));

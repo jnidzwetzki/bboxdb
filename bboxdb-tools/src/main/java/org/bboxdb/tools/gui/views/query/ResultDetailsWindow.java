@@ -145,7 +145,7 @@ public class ResultDetailsWindow {
 					case 2: 
 						return "Tags";
 					case 3:
-						return "Polygon";
+						return "GeoJSON";
 					default:
 						throw new IllegalArgumentException("Unable to get a column name for: " + column);
 				}
