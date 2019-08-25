@@ -90,7 +90,7 @@ public class QueryWindow {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<ResultTuple> tupleToDraw;
+	private final Collection<OverlayElementGroup> tupleToDraw;
 	
 	/**
 	 * The color names for the dropdowns
@@ -108,7 +108,7 @@ public class QueryWindow {
 	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
 
 	
-	public QueryWindow(final GuiModel guimodel, final Collection<ResultTuple> tupleToDraw, 
+	public QueryWindow(final GuiModel guimodel, final Collection<OverlayElementGroup> tupleToDraw, 
 			final Runnable callback) {
 		
 		this.guimodel = guimodel;
@@ -363,7 +363,7 @@ public class QueryWindow {
 						final OverlayElement overlayElement1 = getOverlayElement(tuple1, table2, color2);
 							
 						final List<OverlayElement> tupleList = Arrays.asList(overlayElement0, overlayElement1);
-						final ResultTuple resultTuple = new ResultTuple(tupleList);
+						final OverlayElementGroup resultTuple = new OverlayElementGroup(tupleList);
 						tupleToDraw.add(resultTuple);
 					}
 					
@@ -417,7 +417,7 @@ public class QueryWindow {
 					
 					for(final Tuple tuple : result) {
 						final OverlayElement overlayElement = getOverlayElement(tuple, table, color);
-						final ResultTuple resultTuple = new ResultTuple(Arrays.asList(overlayElement));
+						final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
 						tupleToDraw.add(resultTuple);
 					}
 					

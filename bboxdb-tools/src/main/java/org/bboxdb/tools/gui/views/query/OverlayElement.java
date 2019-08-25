@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,16 +60,16 @@ public class OverlayElement {
 	 * The pixel bounding box points
 	 */
 	private final Rectangle boundingBoxPixel;
-	
-	/**
-	 * Highlight the element
-	 */
-	private boolean highlight;
 
 	/**
-	 * The entity identifyer
+	 * The entity identifier
 	 */
-	private EntityIdentifier entityIdentifier;
+	private final EntityIdentifier entityIdentifier;
+	
+	/**
+	 * The overlay group
+	 */
+	private OverlayElementGroup overlayElementGroup;
 	
 	/**
 	 * The transparency value
@@ -83,7 +84,6 @@ public class OverlayElement {
 		this.polygon = polygon;
 		this.color = color;
 		this.boundingBoxPixel = new Rectangle();
-		this.highlight = false;
 	}
 
 	/**
@@ -178,16 +178,16 @@ public class OverlayElement {
 	 * Is the element highlighted?
 	 * @return
 	 */
-	public boolean isHighlighted() {
-		return highlight;
+	public boolean isSelected() {
+		return overlayElementGroup.isSelected();
 	}
 
 	/**
 	 * Set the element as highlighted
-	 * @param highlight
+	 * @param selected
 	 */
-	public void setHighlight(final boolean highlight) {
-		this.highlight = highlight;
+	public void setSelected(final boolean selected) {
+		overlayElementGroup.setSelected(selected);
 	}
 	
 	/**
@@ -225,7 +225,8 @@ public class OverlayElement {
 	public void drawPointListOnGui(final Graphics2D graphicsContext, final JXMapViewer map) {
 		
 		final List<Point2D> pointList = getPointsToDrawOnGui();
-		final Color color = isHighlighted() ? Color.GRAY : getColor();
+		final Color color = isSelected() ? Color.GRAY : getColor();
+		final Stroke oldStroke = graphicsContext.getStroke();
 
 		if(pointList.size() == 1) {
 			final Point2D thePoint = pointList.get(0);
@@ -254,7 +255,12 @@ public class OverlayElement {
 			graphicsContext.drawPolygon(polygon);
 		} else {
 			graphicsContext.setColor(color);
-			graphicsContext.setStroke(new BasicStroke(2));
+			
+			if(isSelected()) {
+				graphicsContext.setStroke(new BasicStroke(4));
+			} else {
+				graphicsContext.setStroke(new BasicStroke(2));
+			}
 
 			int[] xPoints = new int[pointList.size()];
 			int[] yPoints = new int[pointList.size()];
@@ -266,10 +272,31 @@ public class OverlayElement {
 			}				
 			
 			graphicsContext.drawPolyline(xPoints, yPoints, pointList.size());
+			graphicsContext.setStroke(oldStroke);
 		}
 	}
 	
+	/**
+	 * Get the identifier
+	 * @return
+	 */
 	public EntityIdentifier getEntityIdentifier() {
 		return entityIdentifier;
+	}
+	
+	/**
+	 * Set the overlay group
+	 * @param overlayElementGroup
+	 */
+	public void setOverlayElementGroup(final OverlayElementGroup overlayElementGroup) {
+		this.overlayElementGroup = overlayElementGroup;
+	}
+	
+	/**
+	 * Get the overlay element group
+	 * @return
+	 */
+	public OverlayElementGroup getOverlayElementGroup() {
+		return overlayElementGroup;
 	}
 }

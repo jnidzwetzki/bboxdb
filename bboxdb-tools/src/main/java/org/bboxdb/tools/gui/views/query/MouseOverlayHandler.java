@@ -81,29 +81,28 @@ public class MouseOverlayHandler extends MouseAdapter {
 		final Rectangle mousePos = new Rectangle(mousePosPoint);
 		mousePos.setSize(1, 1);
 				
-		for(final OverlayElement element : renderedElements) {
-			final Rectangle bbox = element.getBBoxToDrawOnGui();
-			
-			if(bbox.intersects(mousePos)) {
-				
-				if(element.isHighlighted()) {
-					continue;
-				}
-				
-				element.setHighlight(true);
-				highlightedElements.add(element);
-				repaintElement(rect, bbox);
-			}
-		}
-				
 		for (final Iterator<OverlayElement> iterator = highlightedElements.iterator(); iterator.hasNext();) {
 			final OverlayElement element = (OverlayElement) iterator.next();
 			final Rectangle bbox = element.getBBoxToDrawOnGui();
 
 			if(! bbox.intersects(mousePos)) {
 				iterator.remove();
-				element.setHighlight(false);
-				repaintElement(rect, bbox);
+				element.setSelected(false);
+				repaintElement(rect, element.getOverlayElementGroup());
+			}
+		}
+		
+		for(final OverlayElement element : renderedElements) {
+			final Rectangle bbox = element.getBBoxToDrawOnGui();
+			
+			if(bbox.intersects(mousePos)) {
+				if(element.isSelected()) {
+					continue;
+				}
+				
+				element.setSelected(true);
+				highlightedElements.add(element);
+				repaintElement(rect, element.getOverlayElementGroup());
 			}
 		}
 		
@@ -111,7 +110,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 			final StringBuilder sb = new StringBuilder("<html>");
 			
 			for(final OverlayElement element : highlightedElements) {
-				if(! element.isHighlighted()) {
+				if(! element.isSelected()) {
 					continue;
 				}
 				
@@ -134,9 +133,14 @@ public class MouseOverlayHandler extends MouseAdapter {
 	 * @param rect
 	 * @param bbox
 	 */
-	private void repaintElement(final Rectangle rect, final Rectangle bbox) {
-		final Rectangle translatedBBox = new Rectangle(bbox);
-		translatedBBox.translate((int) -rect.getX(), (int) -rect.getY());
-		mapViewer.repaint(translatedBBox);
+	private void repaintElement(final Rectangle rect, final OverlayElementGroup overlayElementGroup) {		
+		final Rectangle bbox = new Rectangle(overlayElementGroup.getOverlay(0).getBBoxToDrawOnGui());
+		
+		for(final OverlayElement element : overlayElementGroup) {
+			bbox.add(element.getBBoxToDrawOnGui());
+		}
+		
+		bbox.translate((int) -rect.getX(), (int) -rect.getY());
+		mapViewer.repaint(bbox);
 	}
 }

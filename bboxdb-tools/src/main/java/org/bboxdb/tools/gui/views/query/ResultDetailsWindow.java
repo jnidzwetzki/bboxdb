@@ -194,14 +194,14 @@ public class ResultDetailsWindow {
 			}
 			
 			for(final OverlayElement element : renderedElements) {
-				element.setHighlight(false);
+				element.setSelected(false);
 			}
 			
 			final int[] selectedRows = table.getSelectedRows();
 			
 			for (int i = 0; i < selectedRows.length; i++) {
 				final int selectedRow = selectedRows[i];
-				renderedElements.get(selectedRow).setHighlight(true);
+				renderedElements.get(selectedRow).setSelected(true);
 			}
 			
 			mapViewer.repaint();

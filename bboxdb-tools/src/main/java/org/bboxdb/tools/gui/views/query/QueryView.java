@@ -48,7 +48,7 @@ public class QueryView implements View {
 	/**
 	 * The data to draw
 	 */
-	private final List<ResultTuple> tupleToDraw;
+	private final List<OverlayElementGroup> tupleToDraw;
 	
 	/**
 	 * The details screen

@@ -57,14 +57,14 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 	/**
 	 * The global data to draw
 	 */
-	private final Collection<ResultTuple> tupleToDraw;
+	private final Collection<OverlayElementGroup> tupleToDraw;
 	
 	/**
 	 * The global gui model
 	 */
 	private final GuiModel guiModel;
 
-	public QueryRangeSelectionAdapter(final List<ResultTuple> tupleToDraw, 
+	public QueryRangeSelectionAdapter(final List<OverlayElementGroup> tupleToDraw, 
 			final GuiModel guiModel, final JXMapViewer viewer) {
 		
 		this.tupleToDraw = tupleToDraw;

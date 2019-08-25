@@ -17,25 +17,65 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
+import java.util.Iterator;
 import java.util.List;
 
-public class ResultTuple {
+public class OverlayElementGroup implements Iterable<OverlayElement> {
 
 	/**
 	 * The elements of the result
 	 */
 	public final List<OverlayElement> elements;
+	
+	/**
+	 * Is the group selected
+	 */
+	private volatile boolean selected;
 
-	public ResultTuple(final List<OverlayElement> elements) {
+	public OverlayElementGroup(final List<OverlayElement> elements) {
 		this.elements = elements;
+		this.selected = false;
+		
+		for(final OverlayElement overlayElement : elements) {
+			overlayElement.setOverlayElementGroup(this);
+		}
 	}
 	
-	public int getNumberOfTuples() {
+	/**
+	 * Get the number of overlays contained in this group
+	 * @return
+	 */
+	public int getNumberOfOverlays() {
 		return elements.size();
 	}
 	
-	public OverlayElement getOverlayForTuple(final int tupleId) {
-		return elements.get(tupleId);
+	/**
+	 * Get the overlay with the specific ID
+	 * @param id
+	 * @return
+	 */
+	public OverlayElement getOverlay(final int id) {
+		return elements.get(id);
 	}
 	
+	/**
+	 * Is the group selected?
+	 * @return
+	 */
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	/**
+	 * Set the selected state of the group
+	 * @param selected
+	 */
+	public void setSelected(final boolean selected) {
+		this.selected = selected;
+	}
+
+	@Override
+	public Iterator<OverlayElement> iterator() {
+		return elements.iterator();
+	}
 }

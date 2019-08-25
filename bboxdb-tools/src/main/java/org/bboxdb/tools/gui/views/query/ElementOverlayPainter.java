@@ -41,7 +41,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<ResultTuple> tupleToDraw;
+	private final Collection<OverlayElementGroup> tupleToDraw;
 
 	/**
 	 * The rendered elements
@@ -83,7 +83,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	private final List<Consumer<List<OverlayElement>>> callbacks;
 
-	public ElementOverlayPainter(final List<ResultTuple> tupleToDraw, 
+	public ElementOverlayPainter(final List<OverlayElementGroup> tupleToDraw, 
 			final QueryRangeSelectionAdapter selectionAdapter) {
 		
 		this.tupleToDraw = tupleToDraw;
@@ -131,12 +131,8 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			
 			renderedElements.clear();
 			
-			for(final ResultTuple tuple: tupleToDraw) {
-				
-				final int tuples  = tuple.getNumberOfTuples();
-				
-				for(int i = 0; i < tuples; i++) {
-					final OverlayElement element = tuple.getOverlayForTuple(i);
+			for(final OverlayElementGroup tuple: tupleToDraw) {
+				for(final OverlayElement element : tuple) {
 					element.updatePosition(map);
 					
 					final Rectangle boundingBox = element.getBBoxToDrawOnGui();
@@ -159,20 +155,48 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		}
 		
 		final Set<EntityIdentifier> alreadyRenderedElements = new HashSet<>();
-
+		
+		// Render selected elements first (prevent duplicate selected overlays)
+		for(final OverlayElement element : renderedElements) {
+			if(! element.isSelected()) {
+				continue;
+			}
+			
+			final EntityIdentifier identifier = element.getEntityIdentifier();
+			if(! alreadyRenderedElements.contains(identifier)) {
+				renderElement(graphicsContext, map, alreadyRenderedElements, element, identifier);
+			}
+		}
+		
+		// Render remaining elements
 		for(final OverlayElement element : renderedElements) {
 			final EntityIdentifier identifier = element.getEntityIdentifier();
 			
 			if(! alreadyRenderedElements.contains(identifier)) {
-				alreadyRenderedElements.add(identifier);
-				element.drawPointListOnGui(graphicsContext, map);
-			
-				if(drawBoundingBoxes) {
-					final Rectangle boundingBox = element.getBBoxToDrawOnGui();
-					graphicsContext.setColor(Color.BLACK);
-					graphicsContext.draw(boundingBox);
-				}
+				renderElement(graphicsContext, map, alreadyRenderedElements, element, identifier);
 			}
+		}
+	}
+	
+	/**
+	 * Render the selected element
+	 * @param graphicsContext
+	 * @param map
+	 * @param alreadyRenderedElements
+	 * @param element
+	 * @param identifier
+	 */
+	private void renderElement(final Graphics2D graphicsContext, final JXMapViewer map,
+			final Set<EntityIdentifier> alreadyRenderedElements, final OverlayElement element,
+			final EntityIdentifier identifier) {
+		
+		alreadyRenderedElements.add(identifier);
+		element.drawPointListOnGui(graphicsContext, map);
+
+		if(drawBoundingBoxes) {
+			final Rectangle boundingBox = element.getBBoxToDrawOnGui();
+			graphicsContext.setColor(Color.BLACK);
+			graphicsContext.draw(boundingBox);
 		}
 	}
 
