@@ -48,7 +48,7 @@ public class QueryView implements View {
 	/**
 	 * The data to draw
 	 */
-	private final List<OverlayElement> dataToDraw;
+	private final List<ResultTuple> tupleToDraw;
 	
 	/**
 	 * The details screen
@@ -57,7 +57,7 @@ public class QueryView implements View {
 
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
-		this.dataToDraw = new CopyOnWriteArrayList<>();
+		this.tupleToDraw = new CopyOnWriteArrayList<>();
 		this.resultDetailsWindow = new ResultDetailsWindow();
 	}
 	
@@ -66,13 +66,13 @@ public class QueryView implements View {
 		mapViewer = MapViewerFactory.createMapViewer();
 		resultDetailsWindow.setMapViewer(mapViewer);
 		
-        final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter(dataToDraw, 
+        final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter(tupleToDraw, 
         		guiModel, mapViewer);
         
         mapViewer.addMouseListener(selectionAdapter);
         mapViewer.addMouseMotionListener(selectionAdapter);
 		
-		final ElementOverlayPainter painter = new ElementOverlayPainter(dataToDraw, selectionAdapter);
+		final ElementOverlayPainter painter = new ElementOverlayPainter(tupleToDraw, selectionAdapter);
 		mapViewer.setOverlayPainter(painter);
 		
 	     // Prepare tooltip (Rendered by the MouseOverlayHandler)
@@ -170,7 +170,7 @@ public class QueryView implements View {
 		final JButton queryButton = new JButton("Execute query");
 		
 		queryButton.addActionListener(l -> {
-			final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
+			final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, () -> {
 				mapViewer.repaint();
 			});
 
@@ -188,7 +188,7 @@ public class QueryView implements View {
 		final JButton clearButton = new JButton("Clear map");
 		
 		clearButton.addActionListener(l -> {
-			dataToDraw.clear();
+			tupleToDraw.clear();
 			mapViewer.repaint();
 		});
 		

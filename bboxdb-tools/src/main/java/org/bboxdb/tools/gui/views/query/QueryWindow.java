@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -40,7 +39,6 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
-import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
@@ -91,7 +89,7 @@ public class QueryWindow {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<OverlayElement> dataToDraw;
+	private final Collection<ResultTuple> tupleToDraw;
 	
 	/**
 	 * The color names for the dropdowns
@@ -109,11 +107,11 @@ public class QueryWindow {
 	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
 
 	
-	public QueryWindow(final GuiModel guimodel, final Collection<OverlayElement> dataToDraw, 
+	public QueryWindow(final GuiModel guimodel, final Collection<ResultTuple> tupleToDraw, 
 			final Runnable callback) {
 		
 		this.guimodel = guimodel;
-		this.dataToDraw = dataToDraw;
+		this.tupleToDraw = tupleToDraw;
 		this.callback = callback;
 	}
 
@@ -352,27 +350,19 @@ public class QueryWindow {
 						logger.error("Got an error" + result.getAllMessages());
 						return;
 					}
-
-					final HashSet<EntityIdentifier> knownElements0 = new HashSet<>();
-					final HashSet<EntityIdentifier> knownElements1 = new HashSet<>();
 					
 					for(final JoinedTuple joinedTuple : result) {
-						
-						// Handle tuple 0
+						// Handle tuple0
 						final Tuple tuple0 = joinedTuple.getTuple(0);
-						final EntityIdentifier entityIdentifier0 = tuple0.getEntityIdentifier();
-						if(! knownElements0.contains(entityIdentifier0)) {
-							addTuplesToOverlay(joinedTuple, 0, color1);
-							knownElements0.add(entityIdentifier0);
-						} 
-						
+						final OverlayElement overlayElement0 = getOverlayElement(tuple0, table1, color1);
+
 						// Handle tuple1
 						final Tuple tuple1 = joinedTuple.getTuple(1);
-						final EntityIdentifier entityIdentifier1 = tuple1.getEntityIdentifier();
-						if(! knownElements1.contains(entityIdentifier1)) {
-							addTuplesToOverlay(joinedTuple, 1, color2);
-							knownElements1.add(entityIdentifier1);
-						}
+						final OverlayElement overlayElement1 = getOverlayElement(tuple1, table2, color2);
+							
+						final List<OverlayElement> tupleList = Arrays.asList(overlayElement0, overlayElement1);
+						final ResultTuple resultTuple = new ResultTuple(tupleList);
+						tupleToDraw.add(resultTuple);
 					}
 					
 				} catch (BBoxDBException e) {
@@ -387,18 +377,19 @@ public class QueryWindow {
 			 * Add the tuples to the overlay
 			 * @param color1
 			 * @param tuples
+			 * @return 
 			 */
-			private void addTuplesToOverlay(final JoinedTuple joinedTuple, final int pos, 
+			private OverlayElement getOverlayElement(final Tuple tuple, final String tupleStoreName, 
 					final Color color) {
 				
-				final String data = new String(joinedTuple.getTuple(pos).getDataBytes());				
+				final String data = new String(tuple.getDataBytes());				
 				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
 				polygon.invertPolygonCoordinates();
 				
-				final OverlayElement overlayElement = new OverlayElement(joinedTuple.getTupleStoreName(pos), 
+				final OverlayElement overlayElement = new OverlayElement(tupleStoreName, 
 						polygon, color);
 				
-				dataToDraw.add(overlayElement);
+				return overlayElement;
 			}
 
 			/**
@@ -422,11 +413,10 @@ public class QueryWindow {
 						return;
 					}
 					
-					final List<String> tableList = Arrays.asList(table);
-
 					for(final Tuple tuple : result) {
-						final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple), tableList);
-						addTuplesToOverlay(joinedTuple, 0, color);
+						final OverlayElement overlayElement = getOverlayElement(tuple, table, color);
+						final ResultTuple resultTuple = new ResultTuple(Arrays.asList(overlayElement));
+						tupleToDraw.add(resultTuple);
 					}
 					
 				} catch (BBoxDBException e) {

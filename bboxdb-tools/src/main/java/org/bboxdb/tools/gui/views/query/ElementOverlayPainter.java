@@ -38,7 +38,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<OverlayElement> dataToDraw;
+	private final Collection<ResultTuple> tupleToDraw;
 
 	/**
 	 * The rendered elements
@@ -80,10 +80,10 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	private final List<Consumer<List<OverlayElement>>> callbacks;
 
-	public ElementOverlayPainter(final List<OverlayElement> dataToDraw, 
+	public ElementOverlayPainter(final List<ResultTuple> tupleToDraw, 
 			final QueryRangeSelectionAdapter selectionAdapter) {
 		
-		this.dataToDraw = dataToDraw;
+		this.tupleToDraw = tupleToDraw;
 		this.selectionAdapter = selectionAdapter;
 		this.callbacks = new CopyOnWriteArrayList<>();
 	}
@@ -125,22 +125,27 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		if(hasDataChanged(viewBounds)) {
 			
 			validForRectangle = viewBounds;
-			validForElements = dataToDraw.size();
+			validForElements = tupleToDraw.size();
 			
 			renderedElements.clear();
 			
-			for(final OverlayElement element: dataToDraw) {
+			for(final ResultTuple tuple: tupleToDraw) {
 				
-				element.updatePosition(map);
+				final int tuples  = tuple.getNumberOfTuples();
 				
-				final Rectangle boundingBox = element.getBBoxToDrawOnGui();
-				
-				// Skip rendering of invisible elements
-				if(! viewBounds.intersects(boundingBox)) {
-					continue;
+				for(int i = 0; i < tuples; i++) {
+					final OverlayElement element = tuple.getOverlayForTuple(i);
+					element.updatePosition(map);
+					
+					final Rectangle boundingBox = element.getBBoxToDrawOnGui();
+					
+					// Skip rendering of invisible elements
+					if(! viewBounds.intersects(boundingBox)) {
+						continue;
+					}
+					
+					renderedElements.add(element);
 				}
-				
-				renderedElements.add(element);
 			}
 			
 			// Notify callbacks
@@ -177,7 +182,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			return true;
 		}
 		
-		if(validForElements != dataToDraw.size()) {
+		if(validForElements != tupleToDraw.size()) {
 			return true;
 		}
 		

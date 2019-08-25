@@ -22,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import javax.swing.SwingUtilities;
@@ -56,17 +57,17 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 	/**
 	 * The global data to draw
 	 */
-	private final Collection<OverlayElement> dataToDraw;
+	private final Collection<ResultTuple> tupleToDraw;
 	
 	/**
 	 * The global gui model
 	 */
 	private final GuiModel guiModel;
 
-	public QueryRangeSelectionAdapter(final Collection<OverlayElement> dataToDraw, 
+	public QueryRangeSelectionAdapter(final List<ResultTuple> tupleToDraw, 
 			final GuiModel guiModel, final JXMapViewer viewer) {
 		
-		this.dataToDraw = dataToDraw;
+		this.tupleToDraw = tupleToDraw;
 		this.guiModel = guiModel;
 		this.viewer = viewer;
 	}
@@ -146,7 +147,7 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 		final Point2D realEndPos = getRealPos(stopPos);
 		final GeoPosition endPos = tileFactory.pixelToGeo(realEndPos, viewer.getZoom());
 
-		final QueryWindow queryWindow = new QueryWindow(guiModel, dataToDraw, () -> {
+		final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, () -> {
 			viewer.repaint();
 		});
 		
