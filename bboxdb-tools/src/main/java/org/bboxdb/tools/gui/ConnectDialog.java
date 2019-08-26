@@ -47,7 +47,7 @@ public class ConnectDialog {
 	/**
 	 * The default name of the nodes
 	 */
-	private static final String DEFAULT_NODE = "node1";
+	private static final String DEFAULT_NODE = "newton1";
 
 	/**
 	 * The hosts field
