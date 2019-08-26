@@ -227,7 +227,7 @@ EOF
     serverid=0
     instanceid=-1
     hostname=$(hostname)
-    localip=$(hostname --ip-address)
+    localip=$(hostname --ip-address | sed 's/127.0.[0-9]\+.[0-9]\+ //g')
 
     for i in $zookeeper_nodes; do
        echo "server.$serverid=$i:2888:3888" >> $BBOXDB_HOME/misc/zookeeper.cfg
