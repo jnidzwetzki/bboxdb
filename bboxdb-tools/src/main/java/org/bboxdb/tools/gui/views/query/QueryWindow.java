@@ -40,7 +40,9 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
+import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
@@ -388,7 +390,11 @@ public class QueryWindow {
 				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
 				polygon.invertPolygonCoordinates();
 				
-				final OverlayElement overlayElement = new OverlayElement(tuple.getEntityIdentifier(), 
+				// Add also the table to the identifier
+				final EntityIdentifier identifier = new JoinedTupleIdentifier(Arrays.asList(tuple), 
+						Arrays.asList(tupleStoreName));
+				
+				final OverlayElement overlayElement = new OverlayElement(identifier, 
 						tupleStoreName, polygon, color);
 				
 				return overlayElement;
