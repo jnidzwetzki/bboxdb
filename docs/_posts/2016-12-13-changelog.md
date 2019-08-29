@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.2 - TBD
+- Improvement: Made Zookeeper ports configurable
 - Improvement: Fixed selection in GUI
 - Bugfix: Don't retry futures on failed connections
 - Bugfix: Prevent race condition on future error handling on replicated operations

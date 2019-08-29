@@ -22,6 +22,8 @@ bboxdb_pid=$BBOXDB_HOME/misc/bboxdb.pid
 zookeeper_workdir=$BBOXDB_HOME/misc/zookeeper
 zookeeper_pid=$BBOXDB_HOME/misc/zookeeper.pid
 zookeeper_clientport="2181"
+zookeeper_serverport="2888"
+zookeeper_leaderport="3888"
 
 # Node files
 bboxdb_node_file=$BBOXDB_HOME/conf/bboxdb-nodes

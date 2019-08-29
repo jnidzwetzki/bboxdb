@@ -230,7 +230,7 @@ EOF
     localip=$(hostname --ip-address | sed 's/127.0.[0-9]\+.[0-9]\+ //g')
 
     for i in $zookeeper_nodes; do
-       echo "server.$serverid=$i:2888:3888" >> $BBOXDB_HOME/misc/zookeeper.cfg
+       echo "server.$serverid=$i:$zookeeper_serverport:$zookeeper_leaderport" >> $BBOXDB_HOME/misc/zookeeper.cfg
 
        # Store the id of this node
        if [ "$hostname" == "$i" ] || [ "$localip" == "$i" ]; then
