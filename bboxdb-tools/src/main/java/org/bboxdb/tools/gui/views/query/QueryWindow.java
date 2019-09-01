@@ -195,7 +195,6 @@ public class QueryWindow {
 
 		builder.addLabel("Name", cc.xy (5,  11));
 		final JTextField filterField = new JTextField();
-		filterField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
 		builder.add(filterField, cc.xy (7,  11));
 
 		builder.addLabel("Value", cc.xy (5,  13));
@@ -218,7 +217,7 @@ public class QueryWindow {
 		executeButton.setEnabled(false);
 		
 		addActionListener(queryTypeBox, table1Field,  table1ColorField, table2Field, 
-				table2ColorField,  executeButton);
+				table2ColorField, executeButton, filterField);
 
 		builder.add(closeButton, cc.xy(5, 17));
 		builder.add(executeButton, cc.xy(7, 17));
@@ -235,7 +234,7 @@ public class QueryWindow {
 	 */
 	private void addActionListener(final JComboBox<String> queryTypeBox, final JComponent table1Field,
 			final JComponent table1ColorField, final JComponent table2Field, final JComponent table2ColorField, 
-			final JButton executeButton) {
+			final JButton executeButton, JTextField filterField) {
 		
 		queryTypeBox.addActionListener(l -> {
 			
@@ -247,6 +246,7 @@ public class QueryWindow {
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
 				executeButton.setEnabled(true);
+				filterField.setText("");
 				break;
 				
 			case "Join":
@@ -255,6 +255,7 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				executeButton.setEnabled(true);
+				filterField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
 				break;
 
 			default:
@@ -410,7 +411,7 @@ public class QueryWindow {
 			private void executeRangeQuery(final Hyperrectangle bbox, final String table, 
 					final Color color, final String customFilter, final String customValue) {
 				
-				try {
+				try {					
 					final TupleListFuture result = guimodel.getConnection().queryRectangle(
 							table, bbox, customFilter, customValue.getBytes());
 					
