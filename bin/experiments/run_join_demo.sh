@@ -30,8 +30,8 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-wood="/export/homes/nidzwetzki/osm-germany/berlin/osm/WOOD"
-road="/export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD"
+wood="/export/homes/nidzwetzki/germany_complete/WOOD"
+road="/export/homes/nidzwetzki/germany_complete/ROAD"
 
 if [ ! -f ${wood}_FIXED ]; then
     egrep -v '"type":"Point"' ${wood} > ${wood}_FIXED
@@ -42,7 +42,8 @@ if [ ! -f ${road}_FIXED ]; then
 fi
 
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup osmgroup
-$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2
+$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2 -maxregionsize 10485760
+$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions 10
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_road
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_forest
 $BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -table osmgroup_road
