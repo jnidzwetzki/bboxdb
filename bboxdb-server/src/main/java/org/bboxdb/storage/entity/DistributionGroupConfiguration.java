@@ -32,14 +32,14 @@ public class DistributionGroupConfiguration {
 	protected short replicationFactor = 3;
 	
 	/**
-	 * The maximal region size
+	 * The maximal region size (in MB)
 	 */
-	protected int maximumRegionSize = Const.DEFAULT_MAX_REGION_SIZE;
+	protected int maximumRegionSizeMB = Const.DEFAULT_MAX_REGION_SIZE;
 	
 	/**
-	 * The minimal region size
+	 * The minimal region size (in MB)
 	 */
-	protected int minimumRegionSize = Const.DEFAULT_MIN_REGION_SIZE;
+	protected int minimumRegionSizeMB = Const.DEFAULT_MIN_REGION_SIZE;
 	
 	/**
 	 * The default placement strategy
@@ -77,19 +77,19 @@ public class DistributionGroupConfiguration {
 	}
 
 	public int getMaximumRegionSize() {
-		return maximumRegionSize;
+		return maximumRegionSizeMB;
 	}
 
 	public void setMaximumRegionSize(final int maximalRegionSize) {
-		this.maximumRegionSize = maximalRegionSize;
+		this.maximumRegionSizeMB = maximalRegionSize;
 	}
 	
 	public int getMinimumRegionSize() {
-		return minimumRegionSize;
+		return minimumRegionSizeMB;
 	}
 
 	public void setMinimumRegionSize(final int minimalRegionSize) {
-		this.minimumRegionSize = minimalRegionSize;
+		this.minimumRegionSizeMB = minimalRegionSize;
 	}
 
 	public String getPlacementStrategy() {
@@ -135,7 +135,7 @@ public class DistributionGroupConfiguration {
 	@Override
 	public String toString() {
 		return "DistributionGroupConfiguration [dimensions=" + dimensions + ", replicationFactor=" + replicationFactor
-				+ ", maximumRegionSize=" + maximumRegionSize + ", minimumRegionSize=" + minimumRegionSize
+				+ ", maximumRegionSize=" + maximumRegionSizeMB + ", minimumRegionSize=" + minimumRegionSizeMB
 				+ ", placementStrategy=" + placementStrategy + ", placementStrategyConfig=" + placementStrategyConfig
 				+ ", spacePartitioner=" + spacePartitioner + ", spacePartitionerConfig=" + spacePartitionerConfig + "]";
 	}
@@ -145,8 +145,8 @@ public class DistributionGroupConfiguration {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + dimensions;
-		result = prime * result + maximumRegionSize;
-		result = prime * result + minimumRegionSize;
+		result = prime * result + maximumRegionSizeMB;
+		result = prime * result + minimumRegionSizeMB;
 		result = prime * result + ((placementStrategy == null) ? 0 : placementStrategy.hashCode());
 		result = prime * result + ((placementStrategyConfig == null) ? 0 : placementStrategyConfig.hashCode());
 		result = prime * result + replicationFactor;
@@ -166,9 +166,9 @@ public class DistributionGroupConfiguration {
 		DistributionGroupConfiguration other = (DistributionGroupConfiguration) obj;
 		if (dimensions != other.dimensions)
 			return false;
-		if (maximumRegionSize != other.maximumRegionSize)
+		if (maximumRegionSizeMB != other.maximumRegionSizeMB)
 			return false;
-		if (minimumRegionSize != other.minimumRegionSize)
+		if (minimumRegionSizeMB != other.minimumRegionSizeMB)
 			return false;
 		if (placementStrategy == null) {
 			if (other.placementStrategy != null)

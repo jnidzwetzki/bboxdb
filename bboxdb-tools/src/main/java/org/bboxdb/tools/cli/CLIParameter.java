@@ -60,12 +60,12 @@ public class CLIParameter {
 	public static final String REPLICATION_FACTOR = "replicationfactor";
 	
 	/**
-	 * Max region size
+	 * Max region size (in MB)
 	 */
 	public static final String MAX_REGION_SIZE = "maxregionsize";
 	
 	/**
-	 * Max region size
+	 * Max region size (in MB)
 	 */
 	public static final String MIN_REGION_SIZE = "minregionsize";
 	
