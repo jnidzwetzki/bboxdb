@@ -810,6 +810,7 @@ public class CLI implements Runnable, AutoCloseable {
 			exitIfGroupDoesNotExist(distributionGroup);		
 			checkForExistingPartitioning(distributionGroup);
 			
+			System.out.println("Determining the bounding box of the data, this may take a while");
 			final List<Hyperrectangle> samples = new ArrayList<>();
 			
 			tupleFile.addTupleListener(t -> {
