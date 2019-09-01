@@ -56,18 +56,15 @@ public class RandomSamplesReader {
 			System.out.format("Indexing %s%n", filename);
 			fli.indexFile();
 			System.out.format("Indexing %s done%n", filename);
+			final long indexedLines = fli.getIndexedLines();
 
 			while(sampleLines.size() < samplesNumber) {
-				final long sampleId = ThreadLocalRandom.current().nextLong(fli.getIndexedLines());
+				final long lineNumber = ThreadLocalRandom.current().nextLong(indexedLines);
 
-				if(sampleLines.contains(sampleId)) {
+				if(! sampleLines.add(lineNumber)) {
 					continue;
 				}
-			}
-			
-			System.out.println("Reading boundig boxes of the sampled data");
-			
-			for(final Long lineNumber : sampleLines) {
+				
 				final long pos = fli.locateLine(lineNumber);
 				randomAccessFile.seek(pos);
 				final String lineString = randomAccessFile.readLine();
