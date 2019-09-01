@@ -98,11 +98,16 @@ public class CLIAction {
 	public static final String SHOW_INSTANCES = "show_instances";
 	
 	/**
+	 * Execute a prepartitioning
+	 */
+	public static final String PREPARTITION = "prepartition";
+	
+	/**
 	 * All known actions
 	 */
 	public static List<String> ALL_ACTIONS 
 		= Arrays.asList(IMPORT, QUERY_KEY, QUERY_RANGE, QUERY_RANGE_TIME, QUERY_TIME, QUERY_JOIN, 
 				DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, SHOW_DGROUP, SHOW_INSTANCES, 
-				CREATE_TABLE, DELETE_TABLE);
+				CREATE_TABLE, DELETE_TABLE, PREPARTITION);
 
 }

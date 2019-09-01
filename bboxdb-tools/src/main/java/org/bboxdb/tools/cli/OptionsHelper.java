@@ -241,6 +241,15 @@ public class OptionsHelper {
 				.desc("The value for the custom filter")
 				.build();
 		options.addOption(filtervalue);
+		
+
+		//  Number of partitions
+		final Option partitions = Option.builder(CLIParameter.PARTITIONS)
+				.hasArg()
+				.argName("partitions")
+				.desc("The number of partitions in the prepartitions")
+				.build();
+		options.addOption(partitions);
 
 		return options;
 	}

@@ -163,4 +163,9 @@ public class CLIParameter {
 	 * The name of the spatial index reader
 	 */
 	public static final String SPATIAL_INDEX_READER = "sindexreader";
+	
+	/**
+	 * The number of partitions in the prepartitioning step
+	 */
+	public static final String PARTITIONS = "partitions";
 }

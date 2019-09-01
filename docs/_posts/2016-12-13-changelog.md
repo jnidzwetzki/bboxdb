@@ -8,7 +8,10 @@ order: 1
 
 ### Version 0.9.2 - TBD
 - Improvement: Made Zookeeper ports configurable
-- Improvement: Fixed selection in GUI
+- Improvement: Fixed selection in GUI (elements can now be selected based on real geometries)
+- Improvement: Zookeeper port in GUI can now be determined
+- Improvement: UDF for spatial data is now preselected in GUI
+- Improvement: Prepartitioner is now integrated in CLI
 - Bugfix: Don't retry futures on failed connections
 - Bugfix: Prevent race condition on future error handling on replicated operations
 - Bugfix: Handle systems with wrong configured IP address resolving (127.0.1.1)
