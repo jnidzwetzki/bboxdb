@@ -810,7 +810,7 @@ public class CLI implements Runnable, AutoCloseable {
 			exitIfGroupDoesNotExist(distributionGroup);		
 			checkForExistingPartitioning(distributionGroup);
 			
-			System.out.println("Determining the bounding box of the data, this may take a while");
+			System.out.println("Reading boundig boxes of the data");
 			final List<Hyperrectangle> samples = new ArrayList<>();
 			
 			tupleFile.addTupleListener(t -> {
@@ -819,6 +819,7 @@ public class CLI implements Runnable, AutoCloseable {
 		    });
 			
 			tupleFile.processFile();
+			System.out.println("Bounding boxes are read we have read: " + samples.size());
 		
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
