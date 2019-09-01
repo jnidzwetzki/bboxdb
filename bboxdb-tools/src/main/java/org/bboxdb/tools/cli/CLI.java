@@ -65,6 +65,7 @@ import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
+import org.bboxdb.tools.RandomSamplesReader;
 import org.bboxdb.tools.TupleFileReader;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
@@ -804,23 +805,15 @@ public class CLI implements Runnable, AutoCloseable {
 
 		final int partitions = MathUtil.tryParseIntOrExit(parititonsString,
 				() -> "Unable to parse the partitions: " + parititonsString);
-
-		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 	
 		try {
 			exitIfGroupDoesNotExist(distributionGroup);		
 			checkForExistingPartitioning(distributionGroup);
 			
-			System.out.println("Reading boundig boxes of the data");
-			final List<Hyperrectangle> samples = new ArrayList<>();
+			final List<Hyperrectangle> samples = RandomSamplesReader.readSamplesRandom(
+					filename, format, partitions * 5000);
 			
-			tupleFile.addTupleListener(t -> {
-				final Hyperrectangle polygonBoundingBox = t.getBoundingBox();
-				samples.add(polygonBoundingBox);
-		    });
-			
-			tupleFile.processFile();
-			System.out.println("Bounding boxes are read we have read: " + samples.size());
+			System.out.println("We have read the following amount of bounding boxes: " + samples.size());
 		
 			final SpacePartitioner partitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
@@ -831,31 +824,35 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 			
 			final AbstractTreeSpacePartitoner spacePartitioner = (AbstractTreeSpacePartitoner) partitioner;
-			
+			final DistributionRegion rootNode = spacePartitioner.getRootNode();
+
 			final DistributionRegionAdapter adapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
 			
-			while(getActiveRegions(spacePartitioner).size() < partitions) {
+			final List<DistributionRegion> activeRegions = new ArrayList<>();
+			
+			while(activeRegions.size() < partitions) {
+				activeRegions.clear();
+				activeRegions.addAll(getActiveRegions(spacePartitioner));
+				
 				System.out.format("We have now %s of %s active partitons, executing split %n", 
 						getActiveRegions(spacePartitioner).size(), partitions);
 				
-				final List<DistributionRegion> activeRegions = getActiveRegions(spacePartitioner);
 				final DistributionRegion regionToSplit = ListHelper.getElementRandom(activeRegions);
 				
 				System.out.format("Splitting region %d%n", regionToSplit.getRegionId());
 				final List<DistributionRegion> destination 
 					= spacePartitioner.splitRegion(regionToSplit, samples);
 				
-				spacePartitioner.splitComplete(regionToSplit, destination);
 				spacePartitioner.waitForSplitCompleteZookeeperCallback(regionToSplit, 2);
-			}
-			
-			// Prevent merging of nodes
-			final DistributionRegion rootNode = spacePartitioner.getRootNode();
-			for(DistributionRegion region : rootNode.getAllChildren()) {
-				adapter.setMergingSupported(region, false);
-			}
-			
+				spacePartitioner.splitComplete(regionToSplit, destination);
+				spacePartitioner.waitUntilNodeStateIs(regionToSplit, DistributionRegionState.SPLIT);
+				
+				// Prevent merging of nodes
+				for(DistributionRegion region : rootNode.getAllChildren()) {
+					adapter.setMergingSupported(region, false);
+				}
+			}			
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
 			System.exit(-1);
