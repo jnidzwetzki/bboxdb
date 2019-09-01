@@ -827,13 +827,13 @@ public class CLI implements Runnable, AutoCloseable {
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
 			
 			while(getActiveRegions(spacePartitioner).size() < partitions) {
-				logger.info("We have now {} of {} active partitons, executing split", 
-						getActiveRegions(spacePartitioner).size() < partitions);
+				System.out.format("We have now %s of %s active partitons, executing split %n", 
+						getActiveRegions(spacePartitioner).size(), partitions);
 				
 				final List<DistributionRegion> activeRegions = getActiveRegions(spacePartitioner);
 				final DistributionRegion regionToSplit = ListHelper.getElementRandom(activeRegions);
 				
-				logger.info("Splitting region {}", regionToSplit.getRegionId());
+				System.out.format("Splitting region %d%n", regionToSplit.getRegionId());
 				final List<DistributionRegion> destination 
 					= spacePartitioner.splitRegion(regionToSplit, samples);
 				
