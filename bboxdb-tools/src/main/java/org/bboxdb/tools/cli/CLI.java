@@ -40,6 +40,7 @@ import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
+import org.bboxdb.distribution.partitioner.AbstractTreeSpacePartitoner;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -821,8 +822,15 @@ public class CLI implements Runnable, AutoCloseable {
 			tupleFile.processFile();
 			System.out.println("Bounding boxes are read we have read: " + samples.size());
 		
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
+			final SpacePartitioner partitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
+			
+			if(! (partitioner instanceof AbstractTreeSpacePartitoner)) {
+				System.err.println("Unsupported space partitoner: " + partitioner);
+				System.exit(-1);
+			}
+			
+			final AbstractTreeSpacePartitoner spacePartitioner = (AbstractTreeSpacePartitoner) partitioner;
 			
 			final DistributionRegionAdapter adapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
@@ -839,6 +847,7 @@ public class CLI implements Runnable, AutoCloseable {
 					= spacePartitioner.splitRegion(regionToSplit, samples);
 				
 				spacePartitioner.splitComplete(regionToSplit, destination);
+				spacePartitioner.waitForSplitCompleteZookeeperCallback(regionToSplit, 2);
 			}
 			
 			// Prevent merging of nodes
