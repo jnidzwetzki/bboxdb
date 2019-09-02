@@ -830,10 +830,9 @@ public class CLI implements Runnable, AutoCloseable {
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
 			
 			final List<DistributionRegion> activeRegions = new ArrayList<>();
-			
+			activeRegions.addAll(getActiveRegions(spacePartitioner));
+
 			while(activeRegions.size() < partitions) {
-				activeRegions.clear();
-				activeRegions.addAll(getActiveRegions(spacePartitioner));
 				
 				System.out.format("We have now %s of %s active partitons, executing split %n", 
 						getActiveRegions(spacePartitioner).size(), partitions);
@@ -852,6 +851,9 @@ public class CLI implements Runnable, AutoCloseable {
 				for(DistributionRegion region : rootNode.getAllChildren()) {
 					adapter.setMergingSupported(region, false);
 				}
+				
+				activeRegions.clear();
+				activeRegions.addAll(getActiveRegions(spacePartitioner));
 			}			
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
