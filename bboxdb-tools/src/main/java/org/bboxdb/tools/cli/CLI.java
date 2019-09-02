@@ -811,7 +811,7 @@ public class CLI implements Runnable, AutoCloseable {
 			checkForExistingPartitioning(distributionGroup);
 			
 			final List<Hyperrectangle> samples = RandomSamplesReader.readSamplesRandom(
-					filename, format, partitions * 5000);
+					filename, format, 0.1);
 			
 			System.out.println("We have read the following amount of bounding boxes: " + samples.size());
 		

@@ -43,7 +43,7 @@ public class RandomSamplesReader {
 	 * @throws FileNotFoundException
 	 */
 	public static List<Hyperrectangle> readSamplesRandom(final String filename, final String format, 
-			final long samplesNumber) throws IOException, FileNotFoundException {
+			final double samplingPercent) throws IOException, FileNotFoundException {
 		
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
 		final Set<Long> sampleLines = new HashSet<>();
@@ -55,10 +55,11 @@ public class RandomSamplesReader {
 		) {
 			System.out.format("Indexing %s%n", filename);
 			fli.indexFile();
-			System.out.format("Indexing %s done%n", filename);
 			final long indexedLines = fli.getIndexedLines();
+			final long neededSamples = (long) (samplingPercent * 100 * indexedLines);
+			System.out.format("Indexing %s done (taking %d samples) %n", filename, neededSamples);
 
-			while(sampleLines.size() < samplesNumber) {
+			while(sampleLines.size() < neededSamples) {
 				final long lineNumber = ThreadLocalRandom.current().nextLong(indexedLines);
 
 				if(! sampleLines.add(lineNumber)) {
