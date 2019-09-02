@@ -56,7 +56,7 @@ public class RandomSamplesReader {
 			System.out.format("Indexing %s%n", filename);
 			fli.indexFile();
 			final long indexedLines = fli.getIndexedLines();
-			final long neededSamples = (long) (samplingPercent * 100 * indexedLines);
+			final long neededSamples = (long) (samplingPercent / 100 * indexedLines);
 			System.out.format("Indexing %s done (taking %d samples) %n", filename, neededSamples);
 
 			while(sampleLines.size() < neededSamples) {
