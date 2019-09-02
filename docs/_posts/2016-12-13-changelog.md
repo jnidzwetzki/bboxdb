@@ -16,7 +16,8 @@ order: 1
 - Bugfix: Don't retry futures on failed connections
 - Bugfix: Prevent race condition on future error handling on replicated operations
 - Bugfix: Handle systems with wrong configured IP address resolving (127.0.1.1)
-- Bugfix: Wait for Zookeeper splits to settle when a region is prepartitioned
+- Bugfix: Wait for Zookeeper splits to settle when a region is prepartitione
+- Bugfix: Check features of the source regions before they are merged
 
 ### Version 0.9.1 - 12.07.2019
 - New Feature: Added GUI for GeoJSON operations
