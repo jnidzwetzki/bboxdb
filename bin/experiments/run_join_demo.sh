@@ -30,8 +30,10 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-wood="/export/homes/nidzwetzki/germany_complete/WOOD"
-road="/export/homes/nidzwetzki/germany_complete/ROAD"
+base="/export/homes/nidzwetzki/germany_complete"
+#base="/export/homes/nidzwetzki/osm-germany/berlin/osm"
+wood="$base/WOOD"
+road="$base/ROAD"
 
 if [ ! -f ${wood}_FIXED ]; then
     egrep -v '"type":"Point"' ${wood} > ${wood}_FIXED
@@ -50,7 +52,7 @@ $BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -tabl
 $BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -table osmgroup_forest
 
 # The query range
-query_range="13.3,13.6:52.4,52.6"
+query_range="52.4,52.6:13.3,13.6"
 
 echo "===== Range query on road ====="
 read -p "Press enter to continue"
