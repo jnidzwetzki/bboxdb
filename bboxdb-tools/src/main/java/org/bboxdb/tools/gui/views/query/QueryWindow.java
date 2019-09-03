@@ -308,8 +308,8 @@ public class QueryWindow {
 					final double latBeginDouble = MathUtil.tryParseDouble(latBegin.getText(), () -> "Unable to parse value");
 					final double latEndDouble = MathUtil.tryParseDouble(latEnd.getText(), () -> "Unable to parse value");
 
-					final Hyperrectangle resultBox = new Hyperrectangle(longBeginDouble, 
-							longEndDouble, latBeginDouble, latEndDouble);
+					final Hyperrectangle resultBox = new Hyperrectangle(latBeginDouble, latEndDouble,
+							longBeginDouble, longEndDouble);
 									
 					final Color color1 = COLOR_VALUES[color1Box.getSelectedIndex()];
 					final Color color2 = COLOR_VALUES[color2Box.getSelectedIndex()];
@@ -389,7 +389,6 @@ public class QueryWindow {
 				
 				final String data = new String(tuple.getDataBytes());				
 				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
-				polygon.invertPolygonCoordinates();
 				
 				// Add also the table to the identifier
 				final EntityIdentifier identifier = new JoinedTupleIdentifier(Arrays.asList(tuple), 
