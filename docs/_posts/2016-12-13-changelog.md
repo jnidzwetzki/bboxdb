@@ -13,6 +13,7 @@ order: 1
 - Improvement: UDF for spatial data is now preselected in GUI
 - Improvement: Prepartitioner is now integrated in CLI
 - Improvement: The Prepartitioner works now on samples instead of complete datasets
+- Improvement: Fixed handling of longitude latitude in GeoJSON bboxes
 - Bugfix: Don't retry futures on failed connections
 - Bugfix: Prevent race condition on future error handling on replicated operations
 - Bugfix: Handle systems with wrong configured IP address resolving (127.0.1.1)

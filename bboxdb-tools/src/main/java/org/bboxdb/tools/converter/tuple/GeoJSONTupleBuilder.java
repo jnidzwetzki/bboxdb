@@ -25,6 +25,10 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 	@Override
 	public Tuple buildTuple(final String keyData, final String valueData) {
 		final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(valueData);
+		
+		// Longitude / Latitude switch
+		polygon.invertPolygonCoordinates();
+		
 		final byte[] tupleBytes = polygon.toGeoJson().getBytes();
 
 		if(polygon.getBoundingBox().getDimension() == 0) {
