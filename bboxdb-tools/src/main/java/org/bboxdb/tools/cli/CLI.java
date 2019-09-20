@@ -20,7 +20,9 @@ package org.bboxdb.tools.cli;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,7 +35,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.bboxdb.commons.CloseableHelper;
-import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
@@ -824,37 +825,62 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 			
 			final AbstractTreeSpacePartitoner spacePartitioner = (AbstractTreeSpacePartitoner) partitioner;
-			final DistributionRegion rootNode = spacePartitioner.getRootNode();
 
 			final DistributionRegionAdapter adapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionRegionAdapter();
 			
-			final List<DistributionRegion> activeRegions = new ArrayList<>();
-			activeRegions.addAll(getActiveRegions(spacePartitioner));
-
-			while(activeRegions.size() < partitions) {
+			// The active regions and the samples
+			final Map<DistributionRegion, List<Hyperrectangle>> activeRegions = new HashMap<>();
+			final List<DistributionRegion> readActiveRegions = getActiveRegions(spacePartitioner);
+			
+			if(readActiveRegions.size() != 1) {
+				System.err.println("Read more then one active region: " + readActiveRegions.size());
+				System.exit(-1);
+			}
+			
+			activeRegions.put(readActiveRegions.get(0), samples);
+			
+			while(activeRegions.keySet().size() < partitions) {
 				
 				System.out.format("We have now %s of %s active partitons, executing split %n", 
-						getActiveRegions(spacePartitioner).size(), partitions);
+						activeRegions.size(), partitions);		
 				
-				final DistributionRegion regionToSplit = ListHelper.getElementRandom(activeRegions);
+				// Get the region with the highest amount of contained samples
+				final DistributionRegion regionToSplit = activeRegions.entrySet()
+					.stream()
+					.max((entry1, entry2) -> entry1.getValue().size() > entry2.getValue().size() ? 1 : -1)
+					.get().getKey();
 				
 				System.out.format("Splitting region %d%n", regionToSplit.getRegionId());
-				final List<DistributionRegion> destination 
+				
+				final List<DistributionRegion> newRegions 
 					= spacePartitioner.splitRegion(regionToSplit, samples);
 				
 				spacePartitioner.waitForSplitCompleteZookeeperCallback(regionToSplit, 2);
-				spacePartitioner.splitComplete(regionToSplit, destination);
+				spacePartitioner.splitComplete(regionToSplit, newRegions);
 				spacePartitioner.waitUntilNodeStateIs(regionToSplit, DistributionRegionState.SPLIT);
 				
 				// Prevent merging of nodes
-				for(DistributionRegion region : rootNode.getAllChildren()) {
+				for(final DistributionRegion region : newRegions) {
 					adapter.setMergingSupported(region, false);
 				}
 				
-				activeRegions.clear();
-				activeRegions.addAll(getActiveRegions(spacePartitioner));
-			}			
+				// Redistribute samples
+				newRegions.forEach(d -> activeRegions.put(d, new ArrayList<>()));
+				final List<Hyperrectangle> oldSamples = activeRegions.remove(regionToSplit);
+				
+				if(oldSamples.isEmpty()) {
+					System.err.println("Got empty samples for: " + regionToSplit.getIdentifier());
+				}
+				
+				for(final Hyperrectangle sample : oldSamples) {
+					for(final DistributionRegion region : newRegions) {
+						if(region.getConveringBox().intersects(sample)) {
+							activeRegions.get(region).add(sample);
+						}
+					}
+				}
+			}
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
 			System.exit(-1);
