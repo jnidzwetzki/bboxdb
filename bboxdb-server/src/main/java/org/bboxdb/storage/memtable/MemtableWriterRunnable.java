@@ -192,15 +192,16 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 			final TupleStoreManager sstableManager) throws Exception {
 		
 		final int tableNumber = sstableManager.increaseTableNumber();
+		final TupleStoreName tupleStoreName = sstableManager.getTupleStoreName();
 		
-		logger.info("Writing memtable number {} with {} entries and a size of {}", 
+		logger.info("Writing memtable number {} of {} with {} entries and a size of {}", 
 				tableNumber, 
+				tupleStoreName,
 				memtable.getNumberOfTuples(), 
 				FileSizeHelper.readableFileSize(memtable.getSize()));
 
 		try (final SSTableWriter ssTableWriter = new SSTableWriter(
-				dataDirectory, sstableManager.getTupleStoreName(), tableNumber,
-				memtable.getMaxEntries())) {
+				dataDirectory, tupleStoreName, tableNumber, memtable.getMaxEntries())) {
 
 			ssTableWriter.open();
 			ssTableWriter.addTuples(memtable.getSortedTupleList());
