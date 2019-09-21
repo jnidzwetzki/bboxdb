@@ -53,7 +53,7 @@ public class OptionsHelper {
 		// Host
 		final Option host = Option.builder(CLIParameter.ZOOKEEPER_HOST)
 				.hasArg()
-				.argName("host")
+				.argName("zookeeperhost")
 				.desc("The Zookeeper endpoint to connect to (default: 127.0.0.1:2181)")
 				.build();
 		options.addOption(host);
