@@ -29,10 +29,13 @@ zookeeper_leaderport="3888"
 bboxdb_node_file=$BBOXDB_HOME/conf/bboxdb-nodes
 zookeeper_node_file=$BBOXDB_HOME/conf/zookeeper-nodes
 
+# SSH 
+ssh_options="-A"
+
 # Log dir
 logdir=$BBOXDB_HOME/logs
 
-# Port for JMX connetions
+# Port for JMX connections
 jmx_port=10999
 
 # Default password is 'bboxdbMonitor' - !!change it!!!

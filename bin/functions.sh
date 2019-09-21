@@ -82,7 +82,7 @@ execute_parallel() {
 
    for node in $nodes; do
       echo "$task on Node $node "
-      ssh $node "$command" &
+      ssh $ssh_options $node "$command" &
 
       pending=$((pending + 1))
 
