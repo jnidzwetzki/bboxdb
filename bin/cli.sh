@@ -51,11 +51,13 @@ fi
 # Read zookeeper connection string
 bboxdb_config=$BBOXDB_HOME/conf/bboxdb.yaml
 zookeeper_host="localhost:2181"
+cluster="mycluster"
 
 if [ -f $bboxdb_config ]; then
-	zookeeper_host=$(grep "^zookeepernodes:" conf/bboxdb.yaml  | cut -d "'" -f 2)
+	zookeeper_host=$(grep "^zookeepernodes:" $bboxdb_config | cut -d "'" -f 2)
+	cluster=$(grep "^clustername:" $bboxdb_config | cut -d " " -f 2)
 fi
 
-java $jvm_ops_tools $debug_args -cp $classpath org.bboxdb.tools.cli.CLI -zookeeperhost $zookeeper_host "$@"
+java $jvm_ops_tools $debug_args -cp $classpath org.bboxdb.tools.cli.CLI -zookeeperhost $zookeeper_host -cluster $cluster "$@"
 
 exit 0
