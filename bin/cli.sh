@@ -48,6 +48,14 @@ else
    debug_args+="-Dlog4j.configuration=log4j_warn.properties"
 fi
 
-java $jvm_ops_tools $debug_args -cp $classpath org.bboxdb.tools.cli.CLI "$@"
+# Read zookeeper connection string
+bboxdb_config=$BBOXDB_HOME/conf/bboxdb.yaml
+zookeeper_host="localhost:2181"
+
+if [ -f $bboxdb_config ]; then
+	zookeeper_host=$(grep "^zookeepernodes:" conf/bboxdb.yaml  | cut -d "'" -f 2)
+fi
+
+java $jvm_ops_tools $debug_args -cp $classpath org.bboxdb.tools.cli.CLI -zookeeperhost $zookeeper_host "$@"
 
 exit 0
