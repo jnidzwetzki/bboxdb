@@ -22,7 +22,7 @@ public class CLIParameter {
 	/**
 	 * The zookeeper host
 	 */
-	public static final String ZOOKEEPER_HOST = "host";
+	public static final String ZOOKEEPER_HOST = "zookeeperhost";
 
 	/**
 	 * The name of the cluster
