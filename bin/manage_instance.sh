@@ -203,7 +203,7 @@ bboxdb_remove_data() {
    for dir in $dirs; do
      datadir=$dir/data
 
-     if [ -d $datadir ]; then
+     if [ -f $datadir/.bboxdb ]; then
          echo "Removing data from $dir"
 	 rm -r $datadir
      fi
