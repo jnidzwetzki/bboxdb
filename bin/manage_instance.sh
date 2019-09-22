@@ -201,13 +201,13 @@ bboxdb_remove_data() {
    dirs=$(sed -n '/storageDirectories/,/^$/p' conf/bboxdb.yaml | grep -- - | grep -v '#' | cut -d "-" -f 2)
 
    for dir in $dirs; do
-     datadir=$dir/data
 
-     if [ -f $datadir/.bboxdb ]; then
+     if [ -f $dir/.bboxdb ]; then
          echo "Removing data from $dir"
-	 rm -r $datadir
+	 rm -r $dir
      fi
 
+     datadir=$dir/data
      mkdir -p $datadir
    done
 }
