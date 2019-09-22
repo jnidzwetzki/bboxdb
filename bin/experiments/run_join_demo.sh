@@ -30,16 +30,29 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-base="/export/homes/nidzwetzki/germany_complete"
+base="/BIG/nidzwetzki/datasets/osm/germany/converted"
+#base="/export/homes/nidzwetzki/germany_complete"
 #base="/export/homes/nidzwetzki/osm-germany/berlin/osm"
 wood="$base/WOOD"
 road="$base/ROAD"
 
+if [ ! -f ${wood} ]; then
+   echo "${wood} - file not found"
+   exit -1
+fi
+
+if [ ! -f ${road} ]; then
+   echo "${road} - file not found"
+   exit -1
+fi
+
 if [ ! -f ${wood}_FIXED ]; then
+    echo "Extracting geometries from ${wood}, this may take while..."
     egrep -v '"type":"Point"' ${wood} > ${wood}_FIXED
 fi
 
 if [ ! -f ${road}_FIXED ]; then
+    echo "Extracting geometries from ${road}, this may take while..."
     egrep -v '"type":"Point"' ${road} > ${road}_FIXED
 fi
 
@@ -48,7 +61,7 @@ $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfacto
 
 echo "===== Starting prepartitioning ====="
 read -p "Press enter to continue"
-$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions 10
+$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions 20
 
 echo "===== Creating tables ====="
 read -p "Press enter to continue"
