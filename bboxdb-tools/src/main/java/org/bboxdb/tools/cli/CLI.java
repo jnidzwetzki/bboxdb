@@ -913,7 +913,7 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		for(final DistributionRegion region : activeRegions.keySet()) {
 			
-			System.out.print("Region: " + region.getIdentifier());
+			System.out.print("Region: " + region.getIdentifier() + ": ");
 			
 			final List<Hyperrectangle> samples = activeRegions.get(region);
 			final long dotsForRegion = (int) (((double) samples.size() / (double) maxValue) * dots);
@@ -922,7 +922,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.out.print("*");
 			}
 			
-			System.out.println("\n");
+			System.out.println("");
 		}
 	}
 
