@@ -126,14 +126,21 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		// Populate the sstable location map
 		for(final String directory : storageDirs) {
 			try {
+				
+				final File markerFile = new File(directory + "/.bboxdb");
+				if(! markerFile.exists()) {
+					markerFile.createNewFile();
+				}
+				
 				tupleStoreLocations.putAll(TupleStoreLocator.scanDirectoryForExistingTables(directory));
 				final int flushThreadsPerStorage = configuration.getMemtableFlushThreadsPerStorage();
 				final DiskStorage storage = new DiskStorage(this, new File(directory), flushThreadsPerStorage);
 				storage.init();
 				storages.put(directory, storage);
-			} catch (StorageManagerException e) {
+			} catch (Exception e) {
+				logger.error("Got error", e);
 				final String dataDirString = SSTableHelper.getDataDir(directory);
-				logger.error("Directory {} does not exists, exiting...", dataDirString);
+				logger.error("Got an error while opening {}, exiting...", dataDirString);
 				System.exit(-1);
 			}
 		}
