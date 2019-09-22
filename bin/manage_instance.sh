@@ -193,6 +193,25 @@ bboxdb_stop() {
     echo -e "BBoxDB is successfully stopped $done"
 }
 
+
+###
+# BBoxDB remove local data
+###
+bboxdb_remove_data() {
+   dirs=$(sed -n '/storageDirectories/,/^$/p' conf/bboxdb.yaml | grep -- - | grep -v '#' | cut -d "-" -f 2)
+
+   for dir in $dirs; do
+     datadir=$dir/data
+
+     if [ -d $datadir ]; then
+         echo "Removing data from $dir"
+	 rm -r $datadir
+     fi
+
+     mkdir -p $datadir
+   done
+}
+
 ###
 # Zookeeper start
 ###
@@ -323,7 +342,10 @@ bboxdb_stop)
    ;;  
 bboxdb_update)
    bboxdb_update
-   ;;  
+   ;; 
+bboxdb_remove_data)
+   bboxdb_remove_data
+   ;;   
 zookeeper_start)
    zookeeper_start
    ;;
