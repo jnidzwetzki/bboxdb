@@ -811,10 +811,10 @@ public class CLI implements Runnable, AutoCloseable {
 			exitIfGroupDoesNotExist(distributionGroup);		
 			checkForExistingPartitioning(distributionGroup);
 			
-			final List<Hyperrectangle> samples = RandomSamplesReader.readSamplesRandom(
+			final List<Hyperrectangle> allSamples = RandomSamplesReader.readSamplesRandom(
 					filename, format, 0.1);
 			
-			System.out.println("We have read the following amount of bounding boxes: " + samples.size());
+			System.out.println("We have read the following amount of bounding boxes: " + allSamples.size());
 		
 			final SpacePartitioner partitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
@@ -838,7 +838,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
-			activeRegions.put(readActiveRegions.get(0), samples);
+			activeRegions.put(readActiveRegions.get(0), allSamples);
 			
 			while(activeRegions.keySet().size() < partitions) {
 				
@@ -854,7 +854,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.out.format("Splitting region %d%n", regionToSplit.getRegionId());
 				
 				final List<DistributionRegion> newRegions 
-					= spacePartitioner.splitRegion(regionToSplit, samples);
+					= spacePartitioner.splitRegion(regionToSplit, activeRegions.get(regionToSplit));
 				
 				spacePartitioner.waitForSplitCompleteZookeeperCallback(regionToSplit, 2);
 				spacePartitioner.splitComplete(regionToSplit, newRegions);
@@ -880,6 +880,8 @@ public class CLI implements Runnable, AutoCloseable {
 						}
 					}
 				}
+				
+				printSampleDistribution(activeRegions);
 			}
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
@@ -887,6 +889,37 @@ public class CLI implements Runnable, AutoCloseable {
 		}	
 	}
 	
+	/**
+	 * Print the
+	 * @param activeRegions
+	 */
+	private void printSampleDistribution(
+			final Map<DistributionRegion, List<Hyperrectangle>> activeRegions) {
+		
+		final long maxValue = activeRegions.values()
+				.stream()
+				.mapToLong(l -> l.size())
+				.max()
+				.getAsLong();
+		
+		
+		final int dots = 30;
+		
+		for(final DistributionRegion region : activeRegions.keySet()) {
+			
+			System.out.print("Region: " + region.getIdentifier());
+			
+			final List<Hyperrectangle> samples = activeRegions.get(region);
+			final long dotsForRegion = (samples.size() / maxValue) * dots;
+			
+			for(int i = 0; i < dotsForRegion; i++) {
+				System.out.print("*");
+			}
+			
+			System.out.println("\n");
+		}
+	}
+
 	/**
 	 * Does the group exist?
 	 * @param distributionGroup
