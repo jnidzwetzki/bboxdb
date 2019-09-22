@@ -927,7 +927,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.out.print(" ");
 			}
 			
-			System.out.println("("+ samples.size() + ")");
+			System.out.println(" (samples: "+ samples.size() + ")");
 		}
 		
 		System.out.println("");
