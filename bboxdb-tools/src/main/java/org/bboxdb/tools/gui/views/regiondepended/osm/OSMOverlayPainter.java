@@ -25,6 +25,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.tools.gui.GuiModel;
@@ -123,20 +124,28 @@ public class OSMOverlayPainter implements Painter<JXMapViewer> {
 	 * Draw a bounding box on the screen
 	 * 
 	 */
-	protected void drawBoundingBox(final Graphics2D graphicsContext, final JXMapViewer map, final DistributionRegion distributionRegion) {
-		final Hyperrectangle bbox = distributionRegion.getConveringBox();
-
-		final Hyperrectangle paintBox = bbox.getIntersection(coverBox);
-				
-		final GeoPosition bl = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateLow(1));
-		final GeoPosition br = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateHigh(1));
-		final GeoPosition ul = new GeoPosition(paintBox.getCoordinateHigh(0), paintBox.getCoordinateLow(1));
-		final GeoPosition ur = new GeoPosition(paintBox.getCoordinateHigh(0), paintBox.getCoordinateHigh(1));
-
-		drawLine(graphicsContext, bl, br, map);
-		drawLine(graphicsContext, br, ur, map);
-		drawLine(graphicsContext, ur, ul, map);
-		drawLine(graphicsContext, ul, bl, map);
+	protected void drawBoundingBox(final Graphics2D graphicsContext, final JXMapViewer map,
+			final DistributionRegion distributionRegion) {
+		
+		final DistributionRegionState state = distributionRegion.getState();
+		
+		if(state == DistributionRegionState.ACTIVE 
+				|| state == DistributionRegionState.ACTIVE_FULL) {
+			
+			final Hyperrectangle bbox = distributionRegion.getConveringBox();
+	
+			final Hyperrectangle paintBox = bbox.getIntersection(coverBox);
+								
+			final GeoPosition bl = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateLow(1));
+			final GeoPosition br = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateHigh(1));
+			final GeoPosition ul = new GeoPosition(paintBox.getCoordinateHigh(0), paintBox.getCoordinateLow(1));
+			final GeoPosition ur = new GeoPosition(paintBox.getCoordinateHigh(0), paintBox.getCoordinateHigh(1));
+	
+			drawLine(graphicsContext, bl, br, map);
+			drawLine(graphicsContext, br, ur, map);
+			drawLine(graphicsContext, ur, ul, map);
+			drawLine(graphicsContext, ul, bl, map);
+		}
 		
 		for(final DistributionRegion region : distributionRegion.getDirectChildren()) {
 			drawBoundingBox(graphicsContext, map, region);
