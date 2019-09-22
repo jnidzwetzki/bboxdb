@@ -842,8 +842,8 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			while(activeRegions.keySet().size() < partitions) {
 				
-				System.out.format("We have now %s of %s active partitons, executing split %n", 
-						activeRegions.size(), partitions);		
+				//System.out.format("We have now %s of %s active partitions, executing split %n", 
+				//		activeRegions.size(), partitions);		
 				
 				// Get the region with the highest amount of contained samples
 				final DistributionRegion regionToSplit = activeRegions.entrySet()
