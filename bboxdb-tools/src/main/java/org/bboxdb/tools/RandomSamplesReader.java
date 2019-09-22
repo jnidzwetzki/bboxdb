@@ -57,7 +57,8 @@ public class RandomSamplesReader {
 			fli.indexFile();
 			final long indexedLines = fli.getIndexedLines();
 			final long neededSamples = (long) (samplingPercent / 100 * indexedLines);
-			System.out.format("Indexing %s done (taking %d samples) %n", filename, neededSamples);
+			System.out.format("Indexing %s done (%d elements, taking %d samples) %n", 
+					filename, fli.getIndexedLines(), neededSamples);
 
 			while(sampleLines.size() < neededSamples) {
 				final long lineNumber = ThreadLocalRandom.current().nextLong(indexedLines);
