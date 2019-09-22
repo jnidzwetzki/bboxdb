@@ -44,8 +44,7 @@ if [ -z "$bboxdb_nodes" ]; then
 fi
 
 for node in $bboxdb_nodes; do
-   ssh $node "rm -r /tmp/bboxdb"; 
-   ssh $node "mkdir -p /tmp/bboxdb/data"; 
+    ssh $node "$BBOXDB_HOME/bin/manage_instance.sh bboxdb_remove_data" 
 done
 
 $BBOXDB_HOME/bin/manage_cluster.sh zookeeper_drop
