@@ -879,10 +879,11 @@ public class CLI implements Runnable, AutoCloseable {
 							activeRegions.get(region).add(sample);
 						}
 					}
-				}
-				
-				printSampleDistribution(activeRegions);
+				}				
 			}
+			
+			printSampleDistribution(activeRegions);
+
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
 			System.exit(-1);
@@ -896,6 +897,11 @@ public class CLI implements Runnable, AutoCloseable {
 	private void printSampleDistribution(
 			final Map<DistributionRegion, List<Hyperrectangle>> activeRegions) {
 		
+		
+		System.out.println("=================================");
+		System.out.println("Sample distribution");
+		System.out.println("=================================");
+		
 		final long maxValue = activeRegions.values()
 				.stream()
 				.mapToLong(l -> l.size())
@@ -903,14 +909,14 @@ public class CLI implements Runnable, AutoCloseable {
 				.getAsLong();
 		
 		
-		final int dots = 30;
+		final double dots = 30.0;
 		
 		for(final DistributionRegion region : activeRegions.keySet()) {
 			
 			System.out.print("Region: " + region.getIdentifier());
 			
 			final List<Hyperrectangle> samples = activeRegions.get(region);
-			final long dotsForRegion = (samples.size() / maxValue) * dots;
+			final long dotsForRegion = (int) (((double) samples.size() / (double) maxValue) * dots);
 			
 			for(int i = 0; i < dotsForRegion; i++) {
 				System.out.print("*");
