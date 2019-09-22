@@ -17,6 +17,7 @@ order: 1
 - Improvement: Improve prepartitioning algorithm
 - Improvement: Introduced default SSH options
 - Improvement: Automatically set zookeeper host and clustername in CLI
+- Improvement: Fixed storage handling on cluster kill 
 - Bugfix: Don't retry futures on failed connections
 - Bugfix: Prevent race condition on future error handling on replicated operations
 - Bugfix: Handle systems with wrong configured IP address resolving (127.0.1.1)
