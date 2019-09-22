@@ -898,9 +898,9 @@ public class CLI implements Runnable, AutoCloseable {
 			final Map<DistributionRegion, List<Hyperrectangle>> activeRegions) {
 		
 		
-		System.out.println("=================================");
-		System.out.println("Sample distribution");
-		System.out.println("=================================");
+		System.out.println("=============================================");
+		System.out.println("Distribution of samples after partitioning");
+		System.out.println("=============================================");
 		
 		final long maxValue = activeRegions.values()
 				.stream()
@@ -916,14 +916,22 @@ public class CLI implements Runnable, AutoCloseable {
 			System.out.print("Region: " + region.getIdentifier() + ": ");
 			
 			final List<Hyperrectangle> samples = activeRegions.get(region);
-			final long dotsForRegion = (int) (((double) samples.size() / (double) maxValue) * dots);
+			final double dotsForRegionDouble = (((double) samples.size() / (double) maxValue) * dots);
+			final int dotsForRegion = (int) MathUtil.round(dotsForRegionDouble, 0);
 			
 			for(int i = 0; i < dotsForRegion; i++) {
 				System.out.print("*");
 			}
 			
-			System.out.println("");
+			for(int i = 0; i < (dots - dotsForRegion); i++) {
+				System.out.print(" ");
+			}
+			
+			System.out.println("("+ samples.size() + ")");
 		}
+		
+		System.out.println("");
+		System.out.println("");
 	}
 
 	/**
