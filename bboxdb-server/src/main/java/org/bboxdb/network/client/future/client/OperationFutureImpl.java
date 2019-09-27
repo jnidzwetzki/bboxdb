@@ -35,14 +35,14 @@ import org.slf4j.LoggerFactory;
 
 public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallback {
 
-    /**
-     * The tuple send delayer
-     */
-    private final static ScheduledExecutorService scheduler;
+	/**
+	 * The tuple send delayer
+	 */
+	private final static ScheduledExecutorService scheduler;
 
-    static {
-    	scheduler = Executors.newScheduledThreadPool(1);
-    }
+	static {
+		scheduler = Executors.newScheduledThreadPool(1);
+	}
 
 	/**
 	 * The futures
@@ -61,6 +61,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	/**
 	 * The retry counter
+	 * 
 	 * @param future
 	 */
 	private int globalRetryCounter = 0;
@@ -69,12 +70,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * The future supplier
 	 */
 	private Supplier<List<NetworkOperationFuture>> futureSupplier;
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(OperationFutureImpl.class);
-
 
 	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futures) {
 		this(futures, FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
@@ -111,22 +111,25 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	/**
 	 * Handle a future success
+	 * 
 	 * @param future
 	 */
 	private void handleNetworkFutureSuccess() {
 		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
 
 		// If some futures are failed, cancel the successful ones
-		if(isFailed()) {
+		if (isFailed()) {
 			cancelAllFutures();
 		}
 
-		if(allDone) {
+		if (allDone) {
 			readyLatch.countDown();
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.bboxdb.network.client.future.OperationFuture#getRequestId(int)
 	 */
 	@Override
@@ -136,7 +139,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		return futures.get(resultId).getRequestId();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.bboxdb.network.client.future.OperationFuture#getMessage(int)
 	 */
 	@Override
@@ -160,29 +165,32 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		return futures.get(resultId).isCompleteResult();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.bboxdb.network.client.future.OperationFuture#getAllMessages()
 	 */
 	@Override
 	public String getAllMessages() {
-		return futures
-		.stream()
-		.filter(f -> f.getMessage() != null)
-		.map(f -> f.getMessageWithConnectionName())
-		.collect(Collectors.joining(",", "[", "]"));
+		return futures.stream().filter(f -> f.getMessage() != null).map(f -> f.getMessageWithConnectionName())
+				.collect(Collectors.joining(",", "[", "]"));
 	}
 
 	/**
 	 * Throw an exception when the result id is unknown
+	 * 
 	 * @param resultId
 	 */
 	protected void checkFutureSize(final int resultId) {
-		if(resultId > futures.size()) {
-			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
+		if (resultId > futures.size()) {
+			throw new IllegalArgumentException(
+					"Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.bboxdb.network.client.future.OperationFuture#isFailed()
 	 */
 	@Override
@@ -190,7 +198,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		return futures.stream().anyMatch(f -> f.isFailed());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.bboxdb.network.client.future.OperationFuture#isDone()
 	 */
 	@Override
@@ -198,8 +208,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		return readyLatch.getCount() == 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.future.OperationFuture#getNumberOfResultObjets()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.bboxdb.network.client.future.OperationFuture#getNumberOfResultObjets()
 	 */
 	@Override
 	public int getNumberOfResultObjets() {
@@ -208,6 +221,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	/**
 	 * Get the result of the future
+	 * 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -217,7 +231,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		return (T) futures.get(resultId).get(true);
 	}
 
-    /* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
@@ -225,7 +241,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		readyLatch.await();
 	}
 
-    /* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
@@ -242,6 +260,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	/**
 	 * Set the retry policy
+	 * 
 	 * @param retry
 	 */
 	public void setRetryPolicy(final FutureRetryPolicy retryPolicy) {
@@ -257,24 +276,25 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	/**
 	 * Cancel the old future
+	 * 
 	 * @param future
 	 */
 	private void cancelOldFuture(final NetworkOperationFuture future) {
 		final NetworkRequestPackage transmittedPackage = future.getTransmittedPackage();
 
-		logger.debug("Canceling future [seq={}, connection={}, state={}]", 
-				future.getRequestId(), future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
-		
-		if(transmittedPackage == null) {
+		logger.debug("Canceling future [seq={}, connection={}, state={}]", future.getRequestId(),
+				future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
+
+		if (transmittedPackage == null) {
 			return;
 		}
 
-		if(! transmittedPackage.needsToBeCanceled()) {
+		if (!transmittedPackage.needsToBeCanceled()) {
 			return;
 		}
 
 		// Only successful futures needs to be canceled
-		if(future.isFailed()) {
+		if (future.isFailed()) {
 			return;
 		}
 
@@ -286,36 +306,38 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * Handle the error callback
 	 * 
-	 * Method is synchronized to prevent mixed callback handling from multiple connections
+	 * Method is synchronized to prevent mixed callback handling from multiple
+	 * connections
 	 */
 	@Override
 	public synchronized boolean handleError(final NetworkOperationFuture future) {
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got failed future back [policy={}, seq={}, connection={}, state={}]", retryPolicy, future.getRequestId(), 
-					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());		
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Got failed future back [policy={}, seq={}, connection={}, state={}]", retryPolicy,
+					future.getRequestId(), future.getConnection().getConnectionName(),
+					future.getConnection().getConnectionState());
 		}
-		
-		if(! futures.contains(future)) {
+
+		if (!futures.contains(future)) {
 			logger.debug("Future is unknown, all network futures might be re-executed. Ignoring callback");
 			return true;
 		}
-		
-		if(! future.getConnection().isConnected()) {
+
+		if (!future.getConnection().isConnected()) {
 			logger.debug("Unable to retry future, because connection failed [connection={}, state={}]",
-				future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
+					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
 			return false;
 		}
 
-		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
+		if (retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
 			return false;
 		}
 
-		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE) {
+		if (retryPolicy == FutureRetryPolicy.RETRY_POLICY_ONE_FUTURE) {
 			return handleOneFutureRetry(future);
 		}
 
-		if(retryPolicy == FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES) {
+		if (retryPolicy == FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES) {
 			return handleAllFutureRetry(future);
 		}
 
@@ -329,11 +351,17 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleOneFutureRetry(final NetworkOperationFuture future) {
-		if(future.getExecutions() > future.getTotalRetries()) {
+		if (future.getExecutions() > future.getTotalRetries()) {
 			return false;
 		}
 
 		final Runnable futureTask = () -> {
+			
+			// Already finished
+			if(readyLatch.getCount() == 0) {
+				return;
+			}
+			
 			cancelOldFuture(future);
 			future.execute();
 		};
@@ -350,24 +378,30 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleAllFutureRetry(final NetworkOperationFuture future) {
-		if(globalRetryCounter >= futures.get(0).getTotalRetries()) {
+		if (globalRetryCounter >= futures.get(0).getTotalRetries()) {
 			return false;
 		}
 
-		if(futureSupplier == null) {
+		if (futureSupplier == null) {
 			throw new RuntimeException("Error policy is RETRY_ALL_FUTURES and supplier is null");
 		}
 
 		globalRetryCounter++;
 
 		final Runnable futureTask = () -> {
+			
+			// Already finished
+			if(readyLatch.getCount() == 0) {
+				return;
+			}
+			
 			cancelAllFutures();
 			execute();
 		};
 
 		final int delay = (int) (100 * globalRetryCounter);
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
-		
+
 		logger.debug("Reschedule event for type [delay={}, type={}]", delay, future.getClass().toString());
 
 		return true;
@@ -375,6 +409,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	/**
 	 * Get the number of needed executions
+	 * 
 	 * @return
 	 */
 	@Override
