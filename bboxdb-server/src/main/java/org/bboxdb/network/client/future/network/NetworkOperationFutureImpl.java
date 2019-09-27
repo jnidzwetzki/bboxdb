@@ -137,6 +137,12 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 */
 	@Override
 	public void execute() {
+		
+		if(done) {
+			// e.g. replicated future
+			logger.debug("Dont execute future because is already sunccessfully done");
+			return;
+		}
 
 		final NetworkRequestPackage nextPackage = packageSupplier.get();
 		
