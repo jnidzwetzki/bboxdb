@@ -24,8 +24,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JToolTip;
 
@@ -110,13 +112,28 @@ public class MouseOverlayHandler extends MouseAdapter {
 		if(! highlightedElements.isEmpty()) {
 			final StringBuilder sb = new StringBuilder("<html>");
 			
+			final Set<String> knownElements = new HashSet<>();
+			
 			for(final OverlayElement element : highlightedElements) {
 				if(! element.isSelected()) {
 					continue;
 				}
 				
-				sb.append("===========================<br>");
-				sb.append(element.getTooltipText());
+				final OverlayElementGroup group = element.getOverlayElementGroup();
+				
+				for(int i = 0; i < group.getNumberOfOverlays(); i++) {
+					final OverlayElement overlayElement = group.getOverlay(i);
+					final String tooltipText = overlayElement.getTooltipText();
+					
+					if(knownElements.contains(tooltipText)) {
+						continue;
+					}
+					
+					knownElements.add(tooltipText);
+					
+					sb.append("===========================<br>");
+					sb.append(tooltipText);
+				}
 			}
 			
 			sb.append("</html>");
