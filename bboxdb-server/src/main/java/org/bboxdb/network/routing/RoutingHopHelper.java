@@ -158,7 +158,7 @@ public class RoutingHopHelper {
 				.collect(Collectors.toList());
 
 		if(logger.isDebugEnabled()) {
-			logger.debug("Hop list for {} is {} / known instances {}", hops, hopList, knownInstances);
+			logger.debug("Hop list is {}", hops.keySet());
 		}
 
 		if(hopList.isEmpty()) {
