@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +67,13 @@ public class RandomSamplesReader {
 				if(! sampleLines.add(lineNumber)) {
 					continue;
 				}
-				
+			}
+			
+			// Access the disk pages sequentially
+			final List<Long> sampleLinesOrdered = new ArrayList<>(sampleLines);
+			Collections.sort(sampleLinesOrdered);
+			
+			for(final long lineNumber : sampleLinesOrdered) {
 				final long pos = fli.locateLine(lineNumber);
 				randomAccessFile.seek(pos);
 				final String lineString = randomAccessFile.readLine();
