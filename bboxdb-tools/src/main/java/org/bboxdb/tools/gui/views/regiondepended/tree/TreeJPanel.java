@@ -120,21 +120,25 @@ public class TreeJPanel extends JPanel {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (origin != null) {
-                    JViewport viewPort = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, TreeJPanel.this);
-                    if (viewPort != null) {
-                        int deltaX = origin.x - e.getX();
-                        int deltaY = origin.y - e.getY();
-
-                        Rectangle view = viewPort.getViewRect();
-                        view.x += deltaX;
-                        view.y += deltaY;
-
-                        scrollRectToVisible(view);
-                    }
+                if (origin == null) {
+                	return;
                 }
+ 
+                final JViewport viewPort = (JViewport) SwingUtilities.getAncestorOfClass(JViewport.class, TreeJPanel.this);
+                
+                if(viewPort == null) {
+                	return;
+                }
+                
+				final int deltaX = origin.x - e.getX();
+				final int deltaY = origin.y - e.getY();
+				
+				final Rectangle view = viewPort.getViewRect();
+				view.x += deltaX;
+				view.y += deltaY;
+				
+				scrollRectToVisible(view);
             }
-
         };
         
 		return adapter;
