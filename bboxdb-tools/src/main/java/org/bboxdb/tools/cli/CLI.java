@@ -1066,6 +1066,7 @@ public class CLI implements Runnable, AutoCloseable {
 			if(future.isFailed()) {
 				System.err.println("Got an error during distribution group deletion: "
 						+ future.getAllMessages());
+				System.exit(-1);
 			}
 		}  catch (BBoxDBException e) {
 			System.err.println("Got an exception during distribution group creation: " + e);
@@ -1224,6 +1225,7 @@ public class CLI implements Runnable, AutoCloseable {
 			if(future.isFailed()) {
 				System.err.println("Got an error during distribution group creation: "
 						+ future.getAllMessages());
+				System.exit(-1);
 			}
 
 		} catch (BBoxDBException e) {
