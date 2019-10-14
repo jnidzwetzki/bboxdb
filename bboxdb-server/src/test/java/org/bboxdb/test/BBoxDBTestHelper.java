@@ -47,7 +47,8 @@ public class BBoxDBTestHelper {
 		final Set<BBoxDBInstance> instances = new HashSet<>();
 
 		for(int i = 0; i < fakeInstances; i++) {
-			final BBoxDBInstance instance = new BBoxDBInstance("localhost:" + basePort + i, BBoxDBInstanceState.READY);
+			final int port = basePort + i;
+			final BBoxDBInstance instance = new BBoxDBInstance("localhost:" + port, BBoxDBInstanceState.READY);
 			zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
 			zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
 			instances.add(instance);
