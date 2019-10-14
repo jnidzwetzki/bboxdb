@@ -23,7 +23,6 @@ import java.util.Set;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -32,29 +31,29 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 public class BBoxDBTestHelper {
 	
 	/**
-	 * Register the local instance in zookeeper
+	 * Register some fake instance in zookeeper
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	public static void registerLocalInstance() throws ZookeeperException {
+	public static void registerFakeInstance(final int fakeInstances) throws ZookeeperException {
 		
-		final BBoxDBInstance instance = ZookeeperClientFactory.getLocalInstanceName();
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		
 		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter 
 			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
 		
-		instance.setState(BBoxDBInstanceState.READY);
+		final int basePort = 10000;
 		
-		zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
-		zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
-		
-		// Register instance
 		final Set<BBoxDBInstance> instances = new HashSet<>();
-		instances.add(instance);
+
+		for(int i = 0; i < fakeInstances; i++) {
+			final BBoxDBInstance instance = new BBoxDBInstance("localhost:" + basePort + i, BBoxDBInstanceState.READY);
+			zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
+			zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
+			instances.add(instance);
+		}
+				
+		// Register instances
 		BBoxDBInstanceManager.getInstance().updateInstanceList(instances);
-		
-		// Allow connections to localhost and clear blacklist
-		MembershipConnectionService.getInstance().clearBlacklist();
 	}
 }

@@ -115,7 +115,8 @@ public class TestZookeeperIntegration {
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 
-		BBoxDBTestHelper.registerLocalInstance();
+		// Add fake instances for testing
+		BBoxDBTestHelper.registerFakeInstance(2);
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
