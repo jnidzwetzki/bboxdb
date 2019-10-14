@@ -90,6 +90,7 @@
 				<version>2.22.2</version>
 				<configuration>
 					<enableAssertions>true</enableAssertions>
+					<trimStackTrace>false</trimStackTrace>			
 					<additionalClasspathElements>
 						<additionalClasspathElement>${project.parent.basedir}/conf</additionalClasspathElement>
 					</additionalClasspathElements>
