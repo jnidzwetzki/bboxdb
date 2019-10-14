@@ -109,9 +109,7 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			distributionRegionZookeeperAdapter.createNewChild(parentPath, 1, rightBoundingBox, distributionGroupName);
 
 			// Made children ready	
-			System.out.println("======= waitUntilChildrenAreCreated called");
 			waitUntilChildrenAreCreated(regionToSplit, 2);
-			System.out.println("======= waitUntilChildrenAreCreated called DONE");
 
 			allocateSystems(regionToSplit, 2);
 			

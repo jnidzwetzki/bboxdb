@@ -118,6 +118,7 @@ public class TestZookeeperIntegration {
 		BBoxDBTestHelper.registerFakeInstance(2);
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		SpacePartitionerCache.getInstance().resetSpacePartitioner(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
 
 		Assert.assertTrue(zookeeperClient.getClustername().length() > 5);
@@ -648,8 +649,8 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperNotFoundException
 	 * @throws BBoxDBException
 	 */
-	private SpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException,
-		BBoxDBException {
+	private SpacePartitioner getSpacePartitioner() 
+			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 
 		return SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
 	}
