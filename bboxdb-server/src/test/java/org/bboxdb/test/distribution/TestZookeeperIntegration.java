@@ -29,7 +29,6 @@ import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.membership.ZookeeperInstancePathHelper;
-import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -466,9 +465,6 @@ public class TestZookeeperIntegration {
 
 		final DistributionRegion leftChild = region.getDirectChildren().get(0);
 		final DistributionRegion rightChild = region.getDirectChildren().get(1);
-
-		Assert.assertEquals(DistributionRegionState.REDISTRIBUTION_ACTIVE, leftChild.getState());
-		Assert.assertEquals(DistributionRegionState.REDISTRIBUTION_ACTIVE, rightChild.getState());
 
 		Assert.assertEquals(0, region.getRegionId());
 		Assert.assertEquals(1, leftChild.getRegionId());
