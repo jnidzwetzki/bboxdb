@@ -30,10 +30,11 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
+make_script_on_error_fail
 
-$BBOXDB_HOME/bin/manage_cluster.sh  bboxdb_stop
-$BBOXDB_HOME/bin/manage_cluster.sh  bboxdb_update
-$BBOXDB_HOME/bin/manage_cluster.sh  zookeeper_stop
+$BBOXDB_HOME/bin/manage_cluster.sh bboxdb_stop
+$BBOXDB_HOME/bin/manage_cluster.sh bboxdb_update
+$BBOXDB_HOME/bin/manage_cluster.sh zookeeper_stop
 
 # Nodes
 bboxdb_nodes=$(read_nodes_file $bboxdb_node_file)
@@ -84,3 +85,4 @@ if [[ $1 != "nopopulate" ]]; then
    $BBOXDB_HOME/bin/cli.sh -action query_range -table mydgroup_table1 -bbox 0:20:0:20
 fi
 
+exit_script_successfully
