@@ -263,8 +263,9 @@ public class BBoxDBClient implements BBoxDB {
 
 		final Supplier<List<NetworkOperationFuture>> future
 			= getCreateDistributionGroupFuture(distributionGroup, distributionGroupConfiguration);
-
-		return new EmptyResultFuture(future);
+		
+		// Don't retry the call, let the user check the logs
+		return new EmptyResultFuture(future, FutureRetryPolicy.RETRY_POLICY_NONE);
 	}
 
 	/**
