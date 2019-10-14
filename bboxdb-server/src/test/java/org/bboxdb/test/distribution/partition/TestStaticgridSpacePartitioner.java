@@ -62,7 +62,7 @@ public class TestStaticgridSpacePartitioner {
 		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5;0.5"; 
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
-				.create(1)
+				.create(2)
 				.withReplicationFactor((short) 1)
 				.withSpacePartitioner("org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner", config)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
