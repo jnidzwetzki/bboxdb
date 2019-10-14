@@ -319,7 +319,7 @@ public class TestZookeeperIntegration {
 		final OptionalDouble totalSize1 = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
 		Assert.assertFalse(totalSize1.isPresent());
 
-		spaceparitioner.splitNode(region, 12);
+		spaceparitioner.splitNode(region, 12, false);
 		spaceparitioner.waitForSplitCompleteZookeeperCallback(region, 2);
 
 		distributionRegionAdapter.updateRegionStatistics(region.getDirectChildren().get(0), system1, 12, 999);
@@ -388,7 +388,7 @@ public class TestZookeeperIntegration {
 		final KDtreeSpacePartitioner distributionGroupAdapter
 			= (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
-		distributionGroupAdapter.splitNode(region, 50);
+		distributionGroupAdapter.splitNode(region, 50, false);
 
 		final DistributionRegion region1 = region.getDirectChildren().get(0);
 		final String path1 = distributionRegionAdapter.getZookeeperPathForDistributionRegion(region1);
@@ -462,7 +462,7 @@ public class TestZookeeperIntegration {
 		final KDtreeSpacePartitioner distributionGroupAdapter = (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
 
-		distributionGroupAdapter.splitNode(region, 10);
+		distributionGroupAdapter.splitNode(region, 10, false);
 
 		final DistributionRegion leftChild = region.getDirectChildren().get(0);
 		final DistributionRegion rightChild = region.getDirectChildren().get(1);
@@ -492,45 +492,45 @@ public class TestZookeeperIntegration {
 		System.out.println("--> Getting root node - DONE");
 
 		System.out.println("--> split level0");
-		spacepartitionier.splitNode(level0, 50);
+		spacepartitionier.splitNode(level0, 50, false);
 		level0.makeChildrenActive();
 
 		// Level 1
 		System.out.println("--> split level1l");
 		final DistributionRegion level1l = level0.getDirectChildren().get(0);
-		spacepartitionier.splitNode(level1l, 40);
+		spacepartitionier.splitNode(level1l, 40, false);
 		level1l.makeChildrenActive();
 
 		System.out.println("--> split level1r");
 		final DistributionRegion level1r = level0.getDirectChildren().get(1);
-		spacepartitionier.splitNode(level1r, 50);
+		spacepartitionier.splitNode(level1r, 50, false);
 		level1r.makeChildrenActive();
 
 		// Level 2
 		System.out.println("--> split level2ll");
 		final DistributionRegion level2ll = level1l.getDirectChildren().get(0);
-		spacepartitionier.splitNode(level2ll, 30);
+		spacepartitionier.splitNode(level2ll, 30, false);
 		level2ll.makeChildrenActive();
 
 		System.out.println("--> split level2rl");
 		final DistributionRegion level2rl = level1r.getDirectChildren().get(0);
-		spacepartitionier.splitNode(level2rl, 60);
+		spacepartitionier.splitNode(level2rl, 60, false);
 		level2rl.makeChildrenActive();
 		
 		System.out.println("--> split level2lr");
 		final DistributionRegion level2lr = level1l.getDirectChildren().get(1);
-		spacepartitionier.splitNode(level2lr, 30);
+		spacepartitionier.splitNode(level2lr, 30, false);
 		level2lr.makeChildrenActive();
 
 		System.out.println("--> split level2rr");
 		final DistributionRegion level2rr = level1r.getDirectChildren().get(1);
-		spacepartitionier.splitNode(level2rr, 60);
+		spacepartitionier.splitNode(level2rr, 60, false);
 		level2rr.makeChildrenActive();
 
 		// Level 3
 		System.out.println("--> split level3lll");
 		final DistributionRegion level3lll = level2ll.getDirectChildren().get(0);
-		spacepartitionier.splitNode(level3lll, 35);
+		spacepartitionier.splitNode(level3lll, 35, false);
 		level3lll.makeChildrenActive();
 		
 		System.out.println("--> Splits - DONE");
@@ -577,7 +577,7 @@ public class TestZookeeperIntegration {
 
 		final KDtreeSpacePartitioner kdTreeAdapter = (KDtreeSpacePartitioner) getSpacePartitioner();
 
-		kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0);
+		kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0, false);
 
 		System.out.println("---> Split done");
 

@@ -79,7 +79,20 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	 */
 	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition)
 			throws BBoxDBException, ResourceAllocationException {
-
+		
+		splitNode(regionToSplit, splitPosition, true);
+	}
+	
+	/**
+	 * Split the node at the given split point
+	 * @param regionToSplit
+	 * @param splitPosition
+	 * @throws BBoxDBException
+	 * @throws ResourceAllocationException
+	 */
+	@VisibleForTesting
+	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition, final boolean waitForReady)
+			throws BBoxDBException, ResourceAllocationException {
 		try {
 			logger.debug("Write split at pos {} into zookeeper", splitPosition);
 			final String parentPath
