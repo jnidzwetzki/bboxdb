@@ -85,6 +85,13 @@ public class SpacePartitionerHelper {
 		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
 		final List<BBoxDBInstance> availableSystems = distributedInstanceManager.getInstances();
 		
+		final int availableSystemsCount = availableSystems.size() - blacklist.size();
+		
+		if(replicationFactor > availableSystemsCount) {
+			throw new ResourceAllocationException("Unable to use replication factor of " + replicationFactor 
+					+ " only " + availableSystemsCount + " nodes are availble");
+		}
+		
 		final String placementStrategy = config.getPlacementStrategy();
 		
 		final ResourcePlacementStrategy resourcePlacementStrategy 
@@ -94,7 +101,7 @@ public class SpacePartitionerHelper {
 			throw new ResourceAllocationException("Unable to instanciate the ressource "
 					+ "placement strategy");
 		}
-		
+				
 		// The blacklist, to prevent duplicate allocations
 		final Set<BBoxDBInstance> allocationSystems = new HashSet<>();
 		final Set<BBoxDBInstance> blacklistedSystems = new HashSet<>();
@@ -106,7 +113,7 @@ public class SpacePartitionerHelper {
 			blacklistedSystems.add(instance);
 		}
 		
-		logger.info("Allocated new ressource to {} with blacklist {}", 
+		logger.debug("Allocated new ressource to {} with blacklist {}", 
 				allocationSystems, blacklist);
 
 		zookeeperClient.getDistributionRegionAdapter()
