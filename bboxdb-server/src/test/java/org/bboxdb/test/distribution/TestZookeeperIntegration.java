@@ -110,14 +110,30 @@ public class TestZookeeperIntegration {
 	public void before() throws ZookeeperException, BBoxDBException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
-				.withReplicationFactor((short) 0)
+				.withReplicationFactor((short) 1)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
+
+		registerLocalInstance();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
 
 		Assert.assertTrue(zookeeperClient.getClustername().length() > 5);
+	}
+
+	private ZookeeperClient registerLocalInstance() throws ZookeeperException {
+		
+		final BBoxDBInstance instance = ZookeeperClientFactory.getLocalInstanceName();
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+		
+		zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
+		zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
+		
+		return zookeeperClient;
 	}
 
 	/**
