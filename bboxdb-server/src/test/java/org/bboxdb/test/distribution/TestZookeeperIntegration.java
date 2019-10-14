@@ -54,6 +54,7 @@ import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.util.EnvironmentHelper;
+import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -114,26 +115,12 @@ public class TestZookeeperIntegration {
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 
-		registerLocalInstance();
+		BBoxDBTestHelper.registerLocalInstance();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
 
 		Assert.assertTrue(zookeeperClient.getClustername().length() > 5);
-	}
-
-	private ZookeeperClient registerLocalInstance() throws ZookeeperException {
-		
-		final BBoxDBInstance instance = ZookeeperClientFactory.getLocalInstanceName();
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		
-		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter 
-			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
-		
-		zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
-		zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
-		
-		return zookeeperClient;
 	}
 
 	/**
