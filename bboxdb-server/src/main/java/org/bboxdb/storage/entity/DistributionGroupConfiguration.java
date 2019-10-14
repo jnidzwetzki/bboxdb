@@ -29,7 +29,7 @@ public class DistributionGroupConfiguration {
 	/** 
 	 * The replication factor
 	 */
-	protected short replicationFactor = 3;
+	protected short replicationFactor = 1;
 	
 	/**
 	 * The maximal region size (in MB)
