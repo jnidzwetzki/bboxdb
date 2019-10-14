@@ -117,6 +117,8 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			
 			if(waitForReady) {
 				setStateToRedistributionActiveAndWait(regionToSplit, 2);
+			} else {
+				setStateToRedistributionActive(regionToSplit);
 			}
 
 			// Children ready (state: redistribution active // write access = true)

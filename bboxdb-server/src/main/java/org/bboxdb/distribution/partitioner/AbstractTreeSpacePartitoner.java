@@ -221,14 +221,26 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	}
 	
 	/**
-	 * Set children to active and wait
+	 * Set children to REDISTRIBUTION_ACTIVE and wait
 	 * @param numberOfChilden2 
 	 * @throws InterruptedException 
 	 */
-	protected void setStateToRedistributionActiveAndWait(final DistributionRegion regionToSplit, final int numberOfChilden) 
+	protected void setStateToRedistributionActiveAndWait(final DistributionRegion regionToSplit, 
+			final int numberOfChilden) 
 			throws ZookeeperException, InterruptedException {
 		
-		// update state
+		setStateToRedistributionActive(regionToSplit);		
+		waitForSplitCompleteZookeeperCallback(regionToSplit, numberOfChilden);
+	}
+
+
+	/**
+	 * Set children to REDISTRIBUTION_ACTIVE and wait
+	 * @param numberOfChilden2 
+	 * @throws InterruptedException 
+	 */
+	protected void setStateToRedistributionActive(final DistributionRegion regionToSplit) throws ZookeeperException {
+		
 		for (final DistributionRegion region : regionToSplit.getAllChildren()) {
 			final String childPath 
 				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
@@ -236,8 +248,6 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, 
 					DistributionRegionState.REDISTRIBUTION_ACTIVE);
 		}
-		
-		waitForSplitCompleteZookeeperCallback(regionToSplit, numberOfChilden);
 	}
 	
 
