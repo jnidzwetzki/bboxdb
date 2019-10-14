@@ -89,7 +89,7 @@ public class SpacePartitionerHelper {
 		
 		if(replicationFactor > availableSystemsCount) {
 			throw new ResourceAllocationException("Unable to use replication factor of " + replicationFactor 
-					+ " only " + availableSystemsCount + " nodes are availble (blacklist: " 
+					+ " only " + availableSystemsCount + " nodes are available (blacklist: " 
 					+ blacklist.size() + ")");
 		}
 		
