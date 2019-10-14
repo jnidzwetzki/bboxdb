@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingHelper;
@@ -82,6 +83,8 @@ public class TestSampling {
 				.create(2)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
+		
+		MembershipConnectionService.getInstance().clearBlacklist();
 		
 		storageRegistry.deleteAllTablesInDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
