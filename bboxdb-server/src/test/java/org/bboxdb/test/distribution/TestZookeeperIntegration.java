@@ -129,6 +129,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testTableIdGenerator() throws ZookeeperException {
+		
+		System.out.println("====> Executing testTableIdGenerator()");
+		
 		final List<Integer> ids = new ArrayList<Integer>();
 
 		for(int i = 0; i < 10; i++) {
@@ -147,6 +150,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testAndReplaceValue() throws ZookeeperException, ZookeeperNotFoundException {
+		
+		System.out.println("====> Executing testAndReplaceValue()");
+		
 		final String path = "/testnode";
 		zookeeperClient.createPersistentNode(path, "value1".getBytes());
 
@@ -173,6 +179,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testDistributionGroupCreateDelete() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
+		
+		System.out.println("====> Executing testDistributionGroupCreateDelete()");
+		
 		final List<String> groups = distributionGroupZookeeperAdapter.getDistributionGroups();
 		System.out.println(groups);
 		Assert.assertTrue(groups.contains(TEST_GROUP));
@@ -193,6 +202,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testTableCreateDelete() throws Exception {
+		
+		System.out.println("====> Executing testTableCreateDelete()");
+
 		final TupleStoreAdapter tupleStoreAdapter = zookeeperClient.getTupleStoreAdapter();
 		final SpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootNode = spacePartitioner.getRootNode();
@@ -230,7 +242,11 @@ public class TestZookeeperIntegration {
 	 * @throws BBoxDBException
 	 */
 	@Test(timeout=60000)
-	public void testDistributionGroupReplicationFactor() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
+	public void testDistributionGroupReplicationFactor() throws ZookeeperException, 
+		ZookeeperNotFoundException, BBoxDBException {
+		
+		System.out.println("====> Executing testDistributionGroupReplicationFactor()");
+
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(TEST_GROUP);
 
@@ -247,6 +263,8 @@ public class TestZookeeperIntegration {
 	@Test(timeout=60000)
 	public void testSystemRegisterAndUnregister() throws ZookeeperException,
 		ZookeeperNotFoundException, BBoxDBException {
+
+		System.out.println("====> Executing testSystemRegisterAndUnregister()");
 
 		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 
@@ -274,6 +292,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testStatistics1() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
+		
+		System.out.println("====> Executing testStatistics1()");
+		
 		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance system2 = new BBoxDBInstance("192.168.1.11:5050");
 
@@ -310,6 +331,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testStatistics2() throws Exception {
+		
+		System.out.println("====> Executing testStatistics2()");
+
 		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
 
 		final KDtreeSpacePartitioner spaceparitioner = (KDtreeSpacePartitioner) getSpacePartitioner();
@@ -345,7 +369,11 @@ public class TestZookeeperIntegration {
 	 * @throws BBoxDBException
 	 */
 	@Test(timeout=60000)
-	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
+	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException, 
+		ZookeeperNotFoundException, BBoxDBException {
+		
+		System.out.println("====> Executing testSystemCheckpoint1()");
+
 		final BBoxDBInstance systemName1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
@@ -381,6 +409,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testSystemCheckpoint2() throws Exception {
+		
+		System.out.println("====> Executing testSystemCheckpoint2()");
+
 		final BBoxDBInstance systemName1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
@@ -423,7 +454,11 @@ public class TestZookeeperIntegration {
 	 * @throws BBoxDBException
 	 */
 	@Test(timeout=60000)
-	public void testSystems() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
+	public void testSystems() throws ZookeeperException, InterruptedException, 
+		ZookeeperNotFoundException, BBoxDBException {
+		
+		System.out.println("====> Executing testSystems()");
+		
 		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 
 		final DistributionRegion region = getSpacePartitioner().getRootNode();
@@ -447,7 +482,11 @@ public class TestZookeeperIntegration {
 	 * @throws BBoxDBException
 	 */
 	@Test(timeout=60000)
-	public void testNameprefix1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
+	public void testNameprefix1() throws ZookeeperException, InterruptedException, 
+		ZookeeperNotFoundException, BBoxDBException {
+		
+		System.out.println("====> Executing testNameprefix1()");
+		
 		final DistributionRegion region = getSpacePartitioner().getRootNode();
 		Assert.assertEquals(0, region.getRegionId());
 	}
@@ -458,6 +497,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testNameprefix2() throws Exception{
+		
+		System.out.println("====> Executing testNameprefix2()");
+		
 		final KDtreeSpacePartitioner distributionGroupAdapter = (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
 
@@ -482,6 +524,8 @@ public class TestZookeeperIntegration {
 	public void testPathDecodeAndEncode() throws ZookeeperException, BBoxDBException,
 		ZookeeperNotFoundException, ResourceAllocationException {
 
+		System.out.println("====> Executing testPathDecodeAndEncode()");
+		
 		System.out.println("--> Getting root node");
 		final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion level0 = spacepartitionier.getRootNode();
@@ -562,6 +606,8 @@ public class TestZookeeperIntegration {
 	@Test(timeout=60000)
 	public void testCreateAndDeleteDistributionGroup() throws Exception {
 
+		System.out.println("====> Executing testCreateAndDeleteDistributionGroup()");
+		
 		final KDtreeSpacePartitioner cacheGroup
 			= (KDtreeSpacePartitioner) SpacePartitionerCache.getInstance()
 			.getSpacePartitionerForGroupName(TEST_GROUP);
@@ -613,6 +659,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testPathQuoting() {
+		
+		System.out.println("====> Executing testPathQuoting()");
+		
 		final String path1 = "/tmp";
 		final String path2 = "/etc/init.d";
 		final String path3 = "/tmp/test_abc";
@@ -635,6 +684,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testMergingSupported() throws ZookeeperException, BBoxDBException {
+		
+		System.out.println("====> Executing testMergingSupported()");
+		
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache
 				.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
 
@@ -656,7 +708,11 @@ public class TestZookeeperIntegration {
 	 * @throws BBoxDBException
 	 */
 	@Test(timeout=60000)
-	public void testDistributionGroupConfiguration() throws ZookeeperException, ZookeeperNotFoundException, InputParseException, BBoxDBException {
+	public void testDistributionGroupConfiguration() throws ZookeeperException, 
+		ZookeeperNotFoundException, InputParseException, BBoxDBException {
+		
+		System.out.println("====> Executing testDistributionGroupConfiguration()");
+		
 		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(45);
 		configuration.setMaximumRegionSize(342);
 		configuration.setMinimumRegionSize(53454);
@@ -682,6 +738,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test(timeout=60000)
 	public void testDeleteCluster() throws ZookeeperException, ZookeeperNotFoundException {
+		
+		System.out.println("====> Executing testDeleteCluster()");
+
 		zookeeperClient.deleteCluster();
 		
 		final DistributionGroupAdapter groupAdapter = new DistributionGroupAdapter(zookeeperClient);
