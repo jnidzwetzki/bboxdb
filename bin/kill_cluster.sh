@@ -53,7 +53,7 @@ $BBOXDB_HOME/bin/manage_cluster.sh zookeeper_start
 sleep 5
 
 if [[ $1 == "nostart" ]]; then
-   exit
+   exit_script_successfully
 fi
 
 $BBOXDB_HOME/bin/manage_cluster.sh bboxdb_start
