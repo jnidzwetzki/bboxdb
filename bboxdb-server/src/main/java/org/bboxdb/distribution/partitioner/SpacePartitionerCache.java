@@ -230,7 +230,12 @@ public class SpacePartitionerCache implements Watcher {
 		
 		TupleStoreConfigurationCache.getInstance().clear();
 		DistributionGroupConfigurationCache.getInstance().clear();
-		distributionRegionIdMapper.get(groupname).clear();
+		
+		final DistributionRegionIdMapper regionIdMapper = distributionRegionIdMapper.get(groupname);
+	
+		if(regionIdMapper != null) {
+			regionIdMapper.clear();
+		}
 	}
 
 

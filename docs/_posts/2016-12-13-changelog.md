@@ -30,6 +30,7 @@ order: 1
 - Bugfix: Check features of the source regions before they are merged
 - Bugfix: Throw better exception when replication factor exceeds the number of nodes
 - Bugfix: Fixed error code handling in CLI when operations are failing
+- Bugfix: Fixed NPE in SpacePartitionerCache
 
 ### Version 0.9.1 - 12.07.2019
 - New Feature: Added GUI for GeoJSON operations
