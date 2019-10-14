@@ -19,6 +19,7 @@ package org.bboxdb.test;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -31,7 +32,7 @@ public class BBoxDBTestHelper {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	public static ZookeeperClient registerLocalInstance() throws ZookeeperException {
+	public static void registerLocalInstance() throws ZookeeperException {
 		
 		final BBoxDBInstance instance = ZookeeperClientFactory.getLocalInstanceName();
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
@@ -44,6 +45,7 @@ public class BBoxDBTestHelper {
 		zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
 		zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
 		
-		return zookeeperClient;
+		// Allow connections to the localhost instance
+		MembershipConnectionService.getInstance().clearBlacklist();
 	}
 }
