@@ -22,6 +22,7 @@ order: 1
 - Improvement: Print sample distribution after prepartitioning
 - Improvement: Access disk pages in prepatitioning sequential
 - Improvement: Made tree view jpanel scrollable by mouse clicks
+- Improvement: Improved error handling on CLI operations
 - Bugfix: Don't retry futures on failed connections
 - Bugfix: Prevent race condition on future error handling on replicated operations
 - Bugfix: Handle systems with wrong configured IP address resolving (127.0.1.1)

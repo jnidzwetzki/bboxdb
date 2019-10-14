@@ -108,4 +108,29 @@ get_local_ip() {
    echo $(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' | head -1)
 }
 
+###
+# Global abort handler
+###
+abort() {
+    echo "================================================" >&2
+    echo "An error occurred. Please check logs. Exiting..." >&2
+    echo "================================================" >&2
+    exit -1
+}
+
+###
+# Let the script on error fail and call abort handler above
+###
+make_script_on_error_fail() {
+    set -e
+    trap 'abort' 0
+}
+
+###
+# Exit script
+###
+exit_script_successfully() {
+    trap : 0
+    exit 0
+}
 

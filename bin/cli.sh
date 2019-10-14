@@ -60,4 +60,4 @@ fi
 
 java $jvm_ops_tools $debug_args -cp $classpath org.bboxdb.tools.cli.CLI -zookeeperhost $zookeeper_host -cluster $cluster "$@"
 
-exit 0
+exit $?
