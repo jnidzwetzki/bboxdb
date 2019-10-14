@@ -630,16 +630,6 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(20.0, firstChildFresh.getConveringBox().getCoordinateHigh(0), DELTA);
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-
-		// Test cached instance
-		try {
-			cacheGroup.getRootNode().getDirectChildren().get(0);
-
-			// This should not happen
-			Assert.assertFalse(true);
-		} catch (BBoxDBException e) {
-			// Unable to get root on a space partitioner after shutdown
-		}
 	}
 
 	/**
