@@ -32,6 +32,8 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class BBoxDBInstanceManager {
 
 	/**
@@ -138,7 +140,8 @@ public class BBoxDBInstanceManager {
 	 * Update the instance list, called from zookeeper client
 	 * @param newInstances
 	 */
-	protected void updateInstanceList(final Set<BBoxDBInstance> newInstances) {
+	@VisibleForTesting
+	public void updateInstanceList(final Set<BBoxDBInstance> newInstances) {
 		
 		// Are members removed?
 		final List<InetSocketAddress> deletedInstances = new ArrayList<>(instances.size());

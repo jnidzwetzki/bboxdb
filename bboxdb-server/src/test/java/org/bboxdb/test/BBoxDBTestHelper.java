@@ -17,9 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.test;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -45,7 +48,9 @@ public class BBoxDBTestHelper {
 		zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
 		zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
 		
-		// Allow connections to the localhost instance
-		MembershipConnectionService.getInstance().clearBlacklist();
+		// Register instance
+		final Set<BBoxDBInstance> instances = new HashSet<>();
+		instances.add(instance);
+		BBoxDBInstanceManager.getInstance().updateInstanceList(instances);
 	}
 }
