@@ -23,6 +23,7 @@ import java.util.Set;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -52,5 +53,8 @@ public class BBoxDBTestHelper {
 		final Set<BBoxDBInstance> instances = new HashSet<>();
 		instances.add(instance);
 		BBoxDBInstanceManager.getInstance().updateInstanceList(instances);
+		
+		// Allow connections to localhost and clear blacklist
+		MembershipConnectionService.getInstance().clearBlacklist();
 	}
 }
