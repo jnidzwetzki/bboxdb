@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
@@ -68,11 +67,10 @@ public class TestQuadtreeSpacePartitioner {
 	public void before() throws ZookeeperException, BBoxDBException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
+				.withReplicationFactor((short) 0)
 				.withSpacePartitioner("org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner", "")
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
-
-		MembershipConnectionService.getInstance().clearBlacklist();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 

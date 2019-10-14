@@ -27,7 +27,6 @@ import java.util.OptionalDouble;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.membership.ZookeeperInstancePathHelper;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -111,11 +110,9 @@ public class TestZookeeperIntegration {
 	public void before() throws ZookeeperException, BBoxDBException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
-				.withReplicationFactor((short) 1)
+				.withReplicationFactor((short) 0)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
-
-		MembershipConnectionService.getInstance().clearBlacklist();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);

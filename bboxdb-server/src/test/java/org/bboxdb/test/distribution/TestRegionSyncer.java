@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -67,11 +66,10 @@ public class TestRegionSyncer {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
+				.withReplicationFactor((short) 0)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
-		
-		MembershipConnectionService.getInstance().clearBlacklist();
-		
+				
 		distributionGroupAdapter.deleteDistributionGroup(GROUP);
 		distributionGroupAdapter.createDistributionGroup(GROUP, configuration);
 	}

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.LocalTupleSink;
@@ -79,10 +78,9 @@ public class TestTupleSink {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
+				.withReplicationFactor((short) 0)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
-		
-		MembershipConnectionService.getInstance().clearBlacklist();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 

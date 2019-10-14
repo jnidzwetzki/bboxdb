@@ -20,7 +20,6 @@ package org.bboxdb.test.distribution.partition;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -63,11 +62,9 @@ public class TestKDtreeSpacePartitioner {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
-				.withReplicationFactor((short) 1)
+				.withReplicationFactor((short) 0)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
-				
-		MembershipConnectionService.getInstance().clearBlacklist();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
