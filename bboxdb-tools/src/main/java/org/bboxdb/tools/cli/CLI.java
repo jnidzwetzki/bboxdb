@@ -404,7 +404,7 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 
 		try {			
-			System.out.println("Executing bounding box query...");
+			System.out.println("Executing range query...");
 			final String table = line.getOptionValue(CLIParameter.TABLE);
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			
@@ -440,7 +440,7 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 
 		try {
-			System.out.println("Executing bounding box and time query...");
+			System.out.println("Executing range and time query...");
 			final String table = line.getOptionValue(CLIParameter.TABLE);
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			final long timestamp = getTimestampFromArgs();
@@ -621,7 +621,7 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 
 		try {
-			System.out.println("Executing continuous bounding box query...");
+			System.out.println("Executing continuous range query...");
 			final String table = line.getOptionValue(CLIParameter.TABLE);
 
 			if(! line.hasOption(CLIParameter.BOUNDING_BOX)) {
