@@ -124,7 +124,7 @@ public class Main implements Runnable {
 	 */
 	public static void main(final String[] args) throws InputParseException {
 		
-		if(args.length < 4) {
+		if(args.length != 5) {
 			System.err.println("Usage: <Class> <Port> <Connection Endpoint> <Clustername> <Table> <Format>");
 			System.exit(-1);
 		}
