@@ -298,7 +298,7 @@ public class DataRedistributionLoader implements Runnable {
 					pendingFutures.put(resultFuture);
 
 					if(lineNumber.get() % 5000 == 0) {
-						System.out.format("Deleted %d elements\n", lineNumber.get());
+						System.out.format("Deleted %d elements%n", lineNumber.get());
 					}
 				} catch (BBoxDBException e) {
 					logger.error("Got error while deleting tuple", e);
