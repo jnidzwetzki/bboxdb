@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -237,8 +238,10 @@ public class GeoJsonPolygon implements Serializable {
 
 		final JSONObject propertiesJson = new JSONObject();
 		featureJson.put(JSON_PROPERTIES, propertiesJson);
-		for(final String key : properties.keySet()) {
-			propertiesJson.put(key, properties.get(key));
+		for(final Entry<String, String> entry : properties.entrySet()) {
+			final String key = entry.getKey();
+			final String value = entry.getValue();
+			propertiesJson.put(key, value);
 		}
 		
 		return featureJson;
