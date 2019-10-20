@@ -35,6 +35,11 @@ public class ErrorMessages {
 	public final static String ERROR_DGROUP_EXISTS = "Distribution group already exists";
 	
 	/**
+	 * Distribution group invalid name
+	 */
+	public final static String ERROR_DGROUP_INVALID_NAME = "Invalid name for a distribution group";
+	
+	/**
 	 * Table already exists
 	 */
 	public final static String ERROR_TABLE_EXISTS = "Table already exists";
@@ -44,6 +49,11 @@ public class ErrorMessages {
 	 */
 	public final static String ERROR_TABLE_NOT_EXIST = "Table does not exists";
 	
+	/**
+	 * Table with invalid name
+	 */
+	public final static String ERROR_TABLE_INVALID_NAME = "Invalid name for table";
+
 	/**
 	 * Query not found error
 	 */

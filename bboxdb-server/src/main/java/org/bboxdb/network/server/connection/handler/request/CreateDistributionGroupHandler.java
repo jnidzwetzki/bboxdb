@@ -36,6 +36,7 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
+import org.bboxdb.storage.entity.DistributionGroupHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,12 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
 			distributionGroup = createPackage.getDistributionGroup();
 			logger.info("Create distribution group: {}", distributionGroup);
+
+			if(! DistributionGroupHelper.validateDistributionGroupName(distributionGroup)) {
+				logger.error("Got invalid distribution group name", distributionGroup);
+				returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_INVALID_NAME);
+				return true;
+			}
 			
 			final DistributionGroupAdapter distributionGroupAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
@@ -70,8 +77,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final List<String> knownGroups = distributionGroupAdapter.getDistributionGroups();
 			if(knownGroups.contains(distributionGroup)) {
 				logger.error("Untable to create distributon group {}, already exists", distributionGroup);
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_DGROUP_EXISTS);
-				clientConnectionHandler.writeResultPackage(responsePackage);
+				returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_EXISTS);
 				return true;
 			}
 			
@@ -99,6 +105,22 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 	}
 
 	/**
+	 * Return with an error message
+	 * @param packageSequence
+	 * @param clientConnectionHandler
+	 * @param errorMessage
+	 * @throws IOException
+	 * @throws PackageEncodeException
+	 */
+	private void returnWithError(final short packageSequence, 
+			final ClientConnectionHandler clientConnectionHandler, final String errorMessage)
+			throws IOException, PackageEncodeException {
+		
+		final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+		clientConnectionHandler.writeResultPackage(responsePackage);
+	}
+
+	/**
 	 * Delete the half written distribution group in Zookeeper
 	 * @param distributionGroup
 	 */
@@ -117,6 +139,6 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 		} finally {
 			TupleStoreConfigurationCache.getInstance().clear();
 		}
-	
 	}
+	
 }

@@ -53,13 +53,19 @@ public class CreateTableHandler implements RequestHandler {
 			final TupleStoreName requestTable = createPackage.getTable();
 			logger.info("Got create call for table: {}", requestTable.getFullname());
 			
+			if(! requestTable.isValid()) {
+				logger.warn("Got invalid table name {}", requestTable);
+				returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_TABLE_INVALID_NAME);
+				return true;
+			}
+			
 			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
 					.getZookeeperClient().getTupleStoreAdapter();
 			
 			if(tupleStoreAdapter.isTableKnown(requestTable)) {
 				logger.warn("Table name is already known {}", requestTable.getFullname());
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_TABLE_EXISTS);
-				clientConnectionHandler.writeResultPackage(responsePackage);
+				returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_TABLE_EXISTS);
+				return true;
 			} else {
 				tupleStoreAdapter.writeTuplestoreConfiguration(requestTable, 
 						createPackage.getTupleStoreConfiguration());
@@ -74,5 +80,21 @@ public class CreateTableHandler implements RequestHandler {
 		}
 		
 		return true;
+	}
+
+	/** 
+	 * Return call with a error
+	 * @param packageSequence
+	 * @param clientConnectionHandler
+	 * @param errorMessage
+	 * @throws IOException
+	 * @throws PackageEncodeException
+	 */
+	private void returnWithError(final short packageSequence, 
+			final ClientConnectionHandler clientConnectionHandler, final String errorMessage)
+			throws IOException, PackageEncodeException {
+		
+		final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+		clientConnectionHandler.writeResultPackage(responsePackage);
 	}
 }

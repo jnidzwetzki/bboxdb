@@ -145,6 +145,37 @@ public class TestNetworkCommunication {
 		disconnect(bboxDBClient);
 	}
 	
+	
+	/**
+	 * Test create a distribution group two times
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	@Test(timeout=60000)
+	public void testCreateDistributionWithInvalidName() throws BBoxDBException, InterruptedException {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+
+		// Create distribution group
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
+				.withReplicationFactor((short) 1)
+				.build();
+		
+		// Invalid name contains a "_"
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup("invalid_name",
+				configuration);
+
+		// Prevent retries
+		resultCreate.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+		
+		resultCreate.waitForCompletion();
+		Assert.assertTrue(resultCreate.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_INVALID_NAME, resultCreate.getMessage(0));
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
+
+		disconnect(bboxDBClient);
+	}
+	
 	/**
 	 * Test create a distribution group two times
 	 * @throws BBoxDBException
@@ -214,6 +245,36 @@ public class TestNetworkCommunication {
 		disconnect(bboxDBClient);
 	}
 
+	/**
+	 * Test create a table two times
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	@Test(timeout=60000)
+	public void testCreateWithInvalidName() throws BBoxDBException, InterruptedException {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+
+		// Table contains a "_" with is invalid
+		final String table = DISTRIBUTION_GROUP + "_my_table";
+
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForCompletion();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+
+		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+
+		// Prevent retries
+		resultCreateTable2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+
+		resultCreateTable2.waitForCompletion();
+		Assert.assertTrue(resultCreateTable2.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_INVALID_NAME, resultCreateTable2.getMessage(0));
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
+
+		disconnect(bboxDBClient);
+	}
+	
 	/**
 	 * Integration test for the disconnect package
 	 *

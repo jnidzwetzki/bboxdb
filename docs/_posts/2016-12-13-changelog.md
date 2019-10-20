@@ -32,6 +32,8 @@ order: 1
 - Bugfix: Fixed error code handling in CLI when operations are failing
 - Bugfix: Fixed NPE in SpacePartitionerCache
 - Bugfix: Prevent half created distribution groups (e.g., exception during create)
+- Bugfix: Prevent the creation of invalid named distribution groups
+- Bugfix: Prevent the creation of invalid named tables
 
 ### Version 0.9.1 - 12.07.2019
 - New Feature: Added GUI for GeoJSON operations
