@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -378,9 +379,11 @@ public class OSMDataConverter {
 	 */
 	protected void handleWay(final Way way) {
 		try {			
-			for(final OSMType osmType : filter.keySet()) {
+			for(final Entry<OSMType, OSMTagEntityFilter> entry : filter.entrySet()) {
 				
-				final OSMTagEntityFilter entityFilter = filter.get(osmType);
+				final OSMType osmType = entry.getKey();
+				final OSMTagEntityFilter entityFilter = entry.getValue();
+				
 				if(entityFilter.match(way.getTags())) {
 					
 					final GeoJsonPolygon geometricalStructure = new GeoJsonPolygon(way.getId());
