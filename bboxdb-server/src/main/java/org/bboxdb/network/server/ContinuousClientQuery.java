@@ -190,6 +190,11 @@ public class ContinuousClientQuery implements ClientQuery {
 				final TupleAndBoundingBox transformedTuple 
 					= applyStreamTupleTransformations(tupleTransfor, tupleToConsume);
 				
+				if(transformedTuple == null) {
+					logger.error("Transformed tuple is null, please check filter");
+					return;
+				}
+				
 				final boolean matches = doUserDefinedFilterMatch(t, filters, transformedTuple);
 
 				// Is the tuple important for the query?
