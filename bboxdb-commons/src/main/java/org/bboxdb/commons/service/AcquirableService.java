@@ -72,13 +72,11 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 	 * @throws InterruptedException
 	 */
 	public void waitUntilUnused() throws InterruptedException {
-		
-		while(usageCounter.get() > 0) {
-			synchronized (usageCounter) {
+		synchronized (usageCounter) {
+			while(usageCounter.get() > 0) {
 				usageCounter.wait();
 			}
 		}
-		
 	}
 
 }
