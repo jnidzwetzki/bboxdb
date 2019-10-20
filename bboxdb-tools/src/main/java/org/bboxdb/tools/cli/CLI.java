@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -911,11 +912,13 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		final double dots = 30.0;
 		
-		for(final DistributionRegion region : activeRegions.keySet()) {
+		for(final Entry<DistributionRegion, List<Hyperrectangle>> entry : activeRegions.entrySet()) {
 			
+			final DistributionRegion region = entry.getKey();
+			final List<Hyperrectangle> samples = entry.getValue();
+
 			System.out.print("Region: " + region.getIdentifier() + ": ");
 			
-			final List<Hyperrectangle> samples = activeRegions.get(region);
 			final double dotsForRegionDouble = (((double) samples.size() / (double) maxValue) * dots);
 			final int dotsForRegion = (int) MathUtil.round(dotsForRegionDouble, 0);
 			
