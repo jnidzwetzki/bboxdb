@@ -66,12 +66,9 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 			return false;
 		}
 		
-		// Single tuple is returned
-		if(future != null) {
-			future.setOperationResult(Arrays.asList(singleTupleResponse.getJoinedTuple()));
-			future.fireCompleteEvent();
-		}
-		
+		future.setOperationResult(Arrays.asList(singleTupleResponse.getJoinedTuple()));
+		future.fireCompleteEvent();
+	
 		return true;
 	}
 
