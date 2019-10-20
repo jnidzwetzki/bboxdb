@@ -252,7 +252,7 @@ public class TestNetworkCommunication {
 	 * @throws InterruptedException
 	 */
 	@Test(timeout=60000)
-	public void testCreateWithInvalidName() throws BBoxDBException, InterruptedException {
+	public void testCreateTableWithInvalidName() throws BBoxDBException, InterruptedException {
 		final BBoxDBConnection bboxdbConnection = connectToServer();
 		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 
