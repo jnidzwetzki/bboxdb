@@ -24,6 +24,7 @@ import java.util.List;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -62,7 +63,7 @@ public class TestDynamicgridSpacePartitioner {
 	}
 
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException {
+	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 
 		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5";
 

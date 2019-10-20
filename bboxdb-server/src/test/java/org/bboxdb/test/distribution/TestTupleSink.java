@@ -29,6 +29,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSi
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.LocalTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.NetworkTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
@@ -72,7 +73,7 @@ public class TestTupleSink {
 
 	
 	@BeforeClass
-	public static void before() throws ZookeeperException, BBoxDBException {
+	public static void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		tupleStoreAdapter = ZookeeperClientFactory.getZookeeperClient().getTupleStoreAdapter();
 		

@@ -20,6 +20,7 @@ package org.bboxdb.test.distribution.partition;
 import java.util.HashSet;
 
 import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -45,7 +46,7 @@ public class TestStaticgridSpacePartitioner2 {
 	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	@BeforeClass
-	public static void beforeClass() throws ZookeeperException, BBoxDBException {
+	public static void beforeClass() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		distributionGroupZookeeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
@@ -62,7 +63,7 @@ public class TestStaticgridSpacePartitioner2 {
 	}
 
 	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration1() throws ZookeeperException, BBoxDBException {
+	public void testInvalidConfiguration1() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 	final String config = "abc"; 
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
@@ -75,7 +76,7 @@ public class TestStaticgridSpacePartitioner2 {
 	}
 	
 	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration2() throws ZookeeperException, BBoxDBException {
+	public void testInvalidConfiguration2() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5"; 
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
@@ -88,7 +89,7 @@ public class TestStaticgridSpacePartitioner2 {
 	}
 	
 	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration3() throws ZookeeperException, BBoxDBException {
+	public void testInvalidConfiguration3() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5;0.5;0.5"; 
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
@@ -101,7 +102,7 @@ public class TestStaticgridSpacePartitioner2 {
 	}
 	
 	@Test(expected=BBoxDBException.class)
-	public void testInvalidConfiguration4() throws ZookeeperException, BBoxDBException {
+	public void testInvalidConfiguration4() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		final String config = ""; 
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder

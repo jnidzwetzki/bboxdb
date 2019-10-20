@@ -57,7 +57,7 @@ public class TestKDtreeSpacePartitioner {
 	private final static double DELTA = 0.0001;
 	
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException {
+	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
@@ -80,9 +80,13 @@ public class TestKDtreeSpacePartitioner {
 	 * @throws InterruptedException
 	 * @throws ZookeeperNotFoundException
 	 * @throws BBoxDBException
+	 * @throws ResourceAllocationException 
 	 */
 	@Test(timeout=60000)
-	public void testDimensionsOfRootNode() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
+	public void testDimensionsOfRootNode() 
+			throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, 
+			BBoxDBException, ResourceAllocationException {
+		
 		for(int i = 1; i < 2 ; i++) {
 			createNewDistributionGroup(i); 
 			final KDtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
@@ -96,7 +100,9 @@ public class TestKDtreeSpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	private KDtreeSpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
+	private KDtreeSpacePartitioner getSpacePartitioner() 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
 		return (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
 						new HashSet<>(), new DistributionRegionIdMapper(TEST_GROUP));		
 	}
@@ -107,8 +113,11 @@ public class TestKDtreeSpacePartitioner {
 	 * @param dimension
 	 * @throws ZookeeperException
 	 * @throws BBoxDBException
+	 * @throws ResourceAllocationException 
 	 */
-	private void createNewDistributionGroup(int dimension) throws ZookeeperException, BBoxDBException {
+	private void createNewDistributionGroup(int dimension) 
+			throws ZookeeperException, BBoxDBException, ResourceAllocationException {
+		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(dimension)
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")

@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-public abstract class AbstractSpacePartitioner implements SpacePartitioner{
+public abstract class AbstractSpacePartitioner implements SpacePartitioner {
 
 	/**
 	 * The distribution group adapter

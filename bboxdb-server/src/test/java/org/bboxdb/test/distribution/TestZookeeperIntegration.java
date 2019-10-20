@@ -107,7 +107,7 @@ public class TestZookeeperIntegration {
 	}
 
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException {
+	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
@@ -697,10 +697,11 @@ public class TestZookeeperIntegration {
 	 * @throws InputParseException
 	 * @throws ZookeeperNotFoundException
 	 * @throws BBoxDBException
+	 * @throws ResourceAllocationException 
 	 */
 	@Test(timeout=60000)
 	public void testDistributionGroupConfiguration() throws ZookeeperException, 
-		ZookeeperNotFoundException, InputParseException, BBoxDBException {
+		ZookeeperNotFoundException, InputParseException, BBoxDBException, ResourceAllocationException {
 		
 		System.out.println("====> Executing testDistributionGroupConfiguration()");
 		

@@ -46,7 +46,9 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 
 	
 	@Override
-	public void createRootNode(final DistributionGroupConfiguration configuration) throws BBoxDBException {
+	public void createRootNode(final DistributionGroupConfiguration configuration) 
+			throws BBoxDBException, ResourceAllocationException {
+		
 		try {
 			final String distributionGroup 
 				= spacePartitionerContext.getDistributionGroupName();
@@ -75,7 +77,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 					new HashSet<>(), zookeeperClient);
 			
 			NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, rootPath);
-		} catch (ZookeeperException | ResourceAllocationException | ZookeeperNotFoundException e) {
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		}
 	}

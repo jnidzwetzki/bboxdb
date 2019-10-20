@@ -30,6 +30,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
 import org.bboxdb.distribution.partitioner.SpacePartitionerFactory;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.misc.BBoxDBException;
@@ -128,10 +129,11 @@ public class DistributionGroupAdapter {
 	 * @param replicationFactor
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
+	 * @throws ResourceAllocationException 
 	 */
 	public void createDistributionGroup(final String distributionGroup, 
 			final DistributionGroupConfiguration configuration) 
-					throws ZookeeperException, BBoxDBException {
+					throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
 		

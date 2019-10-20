@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
@@ -57,7 +58,7 @@ public class TestHelper {
 	}
 	
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException {
+	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 
 		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5";
 

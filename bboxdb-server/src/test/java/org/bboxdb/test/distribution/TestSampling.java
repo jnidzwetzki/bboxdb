@@ -26,6 +26,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrateg
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.SimpleSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -77,7 +78,7 @@ public class TestSampling {
 	}
 	
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException, StorageManagerException {
+	public void before() throws ZookeeperException, BBoxDBException, StorageManagerException, ResourceAllocationException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 0)

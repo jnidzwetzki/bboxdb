@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -57,7 +58,9 @@ public class TestStorageRegistry {
 	private static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
-	public static void beforeClass() throws InterruptedException, BBoxDBException, ZookeeperException {
+	public static void beforeClass() 
+			throws InterruptedException, BBoxDBException, ZookeeperException, ResourceAllocationException {
+		
 		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 		

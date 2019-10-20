@@ -40,6 +40,11 @@ public class ErrorMessages {
 	public final static String ERROR_DGROUP_INVALID_NAME = "Invalid name for a distribution group";
 	
 	/**
+	 * Distribution group invalid to allocate resources
+	 */
+	public static final String ERROR_DGROUP_RESOURCE_PLACEMENT_PROBLEM = "Resource allocation/placement problem";
+	
+	/**
 	 * Table already exists
 	 */
 	public final static String ERROR_TABLE_EXISTS = "Table already exists";
@@ -103,4 +108,5 @@ public class ErrorMessages {
 	 * The tuple has the wrong dimension for the group
 	 */
 	public final static String ERROR_TUPLE_HAS_WRONG_DIMENSION = "The tuple has the wrong dimension for the group";
+
 }

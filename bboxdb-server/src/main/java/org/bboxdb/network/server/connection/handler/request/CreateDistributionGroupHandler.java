@@ -25,6 +25,7 @@ import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
@@ -76,7 +77,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			
 			final List<String> knownGroups = distributionGroupAdapter.getDistributionGroups();
 			if(knownGroups.contains(distributionGroup)) {
-				logger.error("Untable to create distributon group {}, already exists", distributionGroup);
+				logger.error("Unable to create distributon group {}, already exists", distributionGroup);
 				returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_EXISTS);
 				return true;
 			}
@@ -92,6 +93,10 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			distributionRegionAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+		} catch(ResourceAllocationException e) {
+			logger.error("Unable to plae distributon group {}", distributionGroup);
+			returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_RESOURCE_PLACEMENT_PROBLEM);
+			return true;
 		} catch (Exception e) {
 			logger.warn("Error while create distribution group", e);
 			
@@ -99,8 +104,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
-		}
-		
+		} 
 		return true;
 	}
 

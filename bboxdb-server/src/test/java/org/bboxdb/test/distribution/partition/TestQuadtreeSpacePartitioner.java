@@ -65,7 +65,7 @@ public class TestQuadtreeSpacePartitioner {
 	}
 	
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException {
+	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
@@ -130,7 +130,9 @@ public class TestQuadtreeSpacePartitioner {
 	}
 	
 	@Test(timeout=60000)
-	public void testMerge() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
+	public void testMerge() 
+			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException, ResourceAllocationException {
+		
 		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
 		
 		final DistributionRegion rootNode = spacepartitionier.getRootNode();
@@ -153,10 +155,11 @@ public class TestQuadtreeSpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 * @throws InterruptedException 
+	 * @throws ResourceAllocationException 
 	 */
 	@Test(timeout=60000)
 	public void testOverflowUnderflow() throws BBoxDBException, 
-		ZookeeperException, ZookeeperNotFoundException, InterruptedException {
+		ZookeeperException, ZookeeperNotFoundException, InterruptedException, ResourceAllocationException {
 		
 		final QuadtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
 		
@@ -218,10 +221,11 @@ public class TestQuadtreeSpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws BBoxDBException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws ResourceAllocationException 
 	 */
 	@Test(timeout=60000)
 	public void testRestrictedSpace() throws ZookeeperException, BBoxDBException, 
-		ZookeeperNotFoundException {
+		ZookeeperNotFoundException, ResourceAllocationException {
 		
 		final Hyperrectangle completeSpace = new Hyperrectangle(0d, 10d, 0d, 10d);
 		

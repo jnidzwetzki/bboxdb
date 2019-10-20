@@ -44,7 +44,8 @@ public interface SpacePartitioner {
 	 * @param configuration 
 	 * @throws BBoxDBException 
 	 */
-	public void createRootNode(final DistributionGroupConfiguration configuration) throws BBoxDBException;
+	public void createRootNode(final DistributionGroupConfiguration configuration) 
+			throws BBoxDBException, ResourceAllocationException;
 
 	/**
 	 * Get the root node
@@ -72,7 +73,7 @@ public interface SpacePartitioner {
 	 * @throws BBoxDBException 
 	 */
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
-			final Collection<Hyperrectangle> samples) throws BBoxDBException;
+			final Collection<Hyperrectangle> samples) throws BBoxDBException, ResourceAllocationException;
 	
 	/**
 	 * A split is complete

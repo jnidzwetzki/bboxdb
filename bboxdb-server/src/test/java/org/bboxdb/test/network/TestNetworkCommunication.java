@@ -199,6 +199,7 @@ public class TestNetworkCommunication {
 		resultCreate1.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		resultCreate1.waitForCompletion();
 		Assert.assertTrue(resultCreate1.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_DGROUP_RESOURCE_PLACEMENT_PROBLEM, resultCreate1.getMessage(0));
 		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
 
 		// Create distribution group

@@ -53,7 +53,7 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	 */
 	@Override
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit,
-			final Collection<Hyperrectangle> samples) throws BBoxDBException {
+			final Collection<Hyperrectangle> samples) throws BBoxDBException, ResourceAllocationException {
 
 		try {
 			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(samples);
@@ -65,6 +65,8 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			splitNode(regionToSplit, splitPosition);
 
 			return regionToSplit.getDirectChildren();
+		} catch(ResourceAllocationException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		}
