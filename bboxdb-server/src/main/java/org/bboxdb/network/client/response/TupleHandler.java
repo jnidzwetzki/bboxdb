@@ -67,11 +67,8 @@ public class TupleHandler implements ServerResponseHandler {
 			return false;
 		}
 		
-		// Single tuple is returned
-		if(future != null) {
-			future.setOperationResult(Arrays.asList(singleTupleResponse.getTuple()));
-			future.fireCompleteEvent();
-		}
+		future.setOperationResult(Arrays.asList(singleTupleResponse.getTuple()));
+		future.fireCompleteEvent();
 		
 		return true;
 	}
