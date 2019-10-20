@@ -39,7 +39,7 @@ public class Forex1DBuilder extends TupleBuilder {
 			final String[] data = valueData.split(",");
 			
 			if(data.length != 4) {
-				throw new IllegalArgumentException("Unable split: " + data);
+				throw new IllegalArgumentException("Unable split: " + valueData);
 			}
 			
 			final Optional<Double> bid = MathUtil.tryParseDouble(data[1]);

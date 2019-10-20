@@ -45,7 +45,7 @@ public class Forex2DBuilder extends TupleBuilder {
 			final String[] data = valueData.split(",");
 			
 			if(data.length != 4) {
-				throw new IllegalArgumentException("Unable split: " + data);
+				throw new IllegalArgumentException("Unable split: " + valueData);
 			}
 			
 			// 20151201 000005720
