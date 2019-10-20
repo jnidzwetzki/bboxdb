@@ -23,6 +23,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -109,16 +110,16 @@ public class ResultDetailsWindow {
 				final GeoJsonPolygon polygon = overlayElement.getPolygon();
 				final Map<String, String> properties = polygon.getProperties();
 				
-				for(final String key : properties.keySet()) {
+				for(final Entry<String,String> entry : properties.entrySet()) {
 					if(sb.length() != 0) {
 						sb.append(", ");
 					} else {
 						sb.append("<html>");
 					}
 					
-					sb.append("<b>" + key + "</b>");
+					sb.append("<b>" + entry.getKey() + "</b>");
 					sb.append("=");
-					sb.append(properties.get(key));
+					sb.append(entry.getValue());
 				}
 				
 				sb.append("</html>");
