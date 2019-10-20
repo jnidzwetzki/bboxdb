@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
@@ -219,11 +220,15 @@ public class TupleRedistributor {
 		
 		float totalRedistributedTuples = 0;
 
-		for(final DistributionRegion region : regionMap.keySet()) {
-			if(regionMap.get(region).isEmpty()) {
+		for(final Entry<DistributionRegion, List<AbstractTupleSink>> entry : regionMap.entrySet()) {
+			
+			final DistributionRegion region = entry.getKey();
+			final List<AbstractTupleSink> sinks = entry.getValue();
+			
+			if(sinks.isEmpty()) {
 				sb.append(", no systems for regionid " + region.getRegionId());
 			} else {
-				final long forwarededTuples = regionMap.get(region).get(0).getSinkedTuples();
+				final long forwarededTuples = sinks.get(0).getSinkedTuples();
 				final float percent = ((float) forwarededTuples / (float) redistributedTuples * 100);
 				sb.append(", forwared "+ forwarededTuples + " to regionid " + region.getRegionId());
 				sb.append(String.format(" (%.2f %%)", percent));
