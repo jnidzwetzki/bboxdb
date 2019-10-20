@@ -18,12 +18,14 @@
 package org.bboxdb.tools.networksocket;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
@@ -86,24 +88,41 @@ public class Main implements Runnable {
 	    		final ServerSocket serverSocket = new ServerSocket(port);
 	    		final BBoxDB bboxdbClient = new BBoxDBCluster(connectionPoint, clustername);
 	        ) {
-			final Socket clientSocket = serverSocket.accept();
-			final InputStreamReader reader = new InputStreamReader(clientSocket.getInputStream());
-			final BufferedReader inputStream = new BufferedReader(reader);
-			
 			bboxdbClient.connect();
-			
-			long lineNumber = 0; 
-			String line;
-		    while ((line = inputStream.readLine()) != null) {
-		    	final Tuple tuple = tupleFactory.buildTuple(Long.toString(lineNumber), line);
-		    	final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
-		    	pendingFutures.put(result);	
-		    }
+			handleConnection(serverSocket, bboxdbClient);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			waitForPendingFutures();
 		}   
+	}
+
+	/**
+	 * Handle new socket connection
+	 * @param serverSocket
+	 * @param bboxdbClient
+	 * @throws IOException
+	 * @throws BBoxDBException
+	 */
+	private void handleConnection(final ServerSocket serverSocket, final BBoxDB bboxdbClient)
+			throws IOException, BBoxDBException {
+		
+		try(
+				final Socket clientSocket = serverSocket.accept();
+				final InputStreamReader reader = new InputStreamReader(clientSocket.getInputStream());
+				final BufferedReader inputStream = new BufferedReader(reader);
+			){
+		
+			long lineNumber = 0; 
+			String line;
+			while ((line = inputStream.readLine()) != null) {
+				final Tuple tuple = tupleFactory.buildTuple(Long.toString(lineNumber), line);
+				final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
+				pendingFutures.put(result);	
+			}
+		} catch(Exception e) {
+			throw e;
+		}
 	}
 
 	/**
