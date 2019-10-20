@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -163,9 +164,10 @@ public class MembershipConnectionService implements BBoxDBService {
 
 		// Close all connections
 		synchronized (serverConnections) {
-			for(final InetSocketAddress instance : serverConnections.keySet()) {
-				final BBoxDBConnection client = serverConnections.get(instance);
-				logger.info("Closing connection to server: " + instance);
+			for(final Entry<InetSocketAddress, BBoxDBConnection> entry : serverConnections.entrySet()) {
+				final InetSocketAddress instance = entry.getKey();
+				final BBoxDBConnection client = entry.getValue();
+				logger.info("Closing connection to server: {}", instance);
 				client.disconnect();
 			}
 
