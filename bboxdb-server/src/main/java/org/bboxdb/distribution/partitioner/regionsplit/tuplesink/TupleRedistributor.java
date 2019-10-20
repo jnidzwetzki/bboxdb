@@ -174,9 +174,12 @@ public class TupleRedistributor {
 		
 		redistributedTuples++;
 		
-		for(final DistributionRegion region : regionMap.keySet()) {
+		for(final Entry<DistributionRegion, List<AbstractTupleSink>> entry : regionMap.entrySet()) {
+			
+			final DistributionRegion region = entry.getKey();
+			
 			if(belongsTupleToRegion(tuple, region)) {
-				for(final AbstractTupleSink tupleSink : regionMap.get(region)) {
+				for(final AbstractTupleSink tupleSink : entry.getValue()) {
 					tupleSink.sinkTuple(tuple);
 					tupleRedistributed = true;
 				}
