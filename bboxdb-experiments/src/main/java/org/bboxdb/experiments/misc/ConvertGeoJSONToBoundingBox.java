@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import org.bboxdb.commons.math.DoubleInterval;
@@ -96,8 +97,11 @@ public class ConvertGeoJSONToBoundingBox implements Runnable {
 
 			// Copy properties
 			final Map<String, String> properties = polygon.getProperties();
-			for(final String key : properties.keySet()) {
-				boundingBoxPolygon.addProperty(key, properties.get(key));
+			
+			for(final Entry<String, String> entry : properties.entrySet()) {
+				final String key = entry.getKey();
+				final String value = entry.getValue();
+				boundingBoxPolygon.addProperty(key, value);
 			}
 			
 			writer.write(boundingBoxPolygon.toGeoJson());
