@@ -258,18 +258,12 @@ public class TestNetworkCommunication {
 		// Table contains a "_" with is invalid
 		final String table = DISTRIBUTION_GROUP + "_my_table";
 
-		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable1.waitForCompletion();
-		Assert.assertFalse(resultCreateTable1.isFailed());
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 
-		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-
-		// Prevent retries
-		resultCreateTable2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
-
-		resultCreateTable2.waitForCompletion();
-		Assert.assertTrue(resultCreateTable2.isFailed());
-		Assert.assertEquals(ErrorMessages.ERROR_TABLE_INVALID_NAME, resultCreateTable2.getMessage(0));
+		resultCreateTable.waitForCompletion();
+		Assert.assertTrue(resultCreateTable.isFailed());
+		Assert.assertEquals(ErrorMessages.ERROR_TABLE_INVALID_NAME, resultCreateTable.getMessage(0));
 		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
 
 		disconnect(bboxDBClient);
