@@ -336,8 +336,10 @@ public class OSMDataConverter {
 	 */
 	protected void handleNode(final Node node) {
 		try {			
-			for(final OSMType osmType : filter.keySet()) {
-				final OSMTagEntityFilter entityFilter = filter.get(osmType);
+			for(final Entry<OSMType, OSMTagEntityFilter> entry : filter.entrySet()) {
+				final OSMType osmType = entry.getKey();
+				final OSMTagEntityFilter entityFilter = entry.getValue();
+				
 				if(entityFilter.match(node.getTags())) {
 					final GeoJsonPolygon geometricalStructure = new GeoJsonPolygon(node.getId());
 					
