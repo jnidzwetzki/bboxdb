@@ -65,7 +65,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 
 			if(! DistributionGroupHelper.validateDistributionGroupName(distributionGroup)) {
 				logger.error("Got invalid distribution group name", distributionGroup);
-				returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_INVALID_NAME);
+				returnWithError(distributionGroup, packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_INVALID_NAME);
 				return true;
 			}
 			
@@ -78,7 +78,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final List<String> knownGroups = distributionGroupAdapter.getDistributionGroups();
 			if(knownGroups.contains(distributionGroup)) {
 				logger.error("Unable to create distributon group {}, already exists", distributionGroup);
-				returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_EXISTS);
+				returnWithError(distributionGroup, packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_EXISTS);
 				return true;
 			}
 			
@@ -94,16 +94,13 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch(ResourceAllocationException e) {
-			logger.error("Unable to plae distributon group {}", distributionGroup);
-			returnWithError(packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_RESOURCE_PLACEMENT_PROBLEM);
+			logger.error("Unable to place distributon group {}", distributionGroup);
+			returnWithError(distributionGroup, packageSequence, clientConnectionHandler, ErrorMessages.ERROR_DGROUP_RESOURCE_PLACEMENT_PROBLEM);
 			return true;
 		} catch (Exception e) {
 			logger.warn("Error while create distribution group", e);
-			
-			deleteHalfWrittenDistributionGroup(distributionGroup);
-			
-			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
-			clientConnectionHandler.writeResultPackage(responsePackage);
+			returnWithError(distributionGroup, packageSequence, clientConnectionHandler, ErrorMessages.ERROR_EXCEPTION);
+			return true;
 		} 
 		return true;
 	}
@@ -116,10 +113,12 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 	 * @throws IOException
 	 * @throws PackageEncodeException
 	 */
-	private void returnWithError(final short packageSequence, 
+	private void returnWithError(final String distributionGroup, final short packageSequence, 
 			final ClientConnectionHandler clientConnectionHandler, final String errorMessage)
 			throws IOException, PackageEncodeException {
 		
+		deleteHalfWrittenDistributionGroup(distributionGroup);
+
 		final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 		clientConnectionHandler.writeResultPackage(responsePackage);
 	}
