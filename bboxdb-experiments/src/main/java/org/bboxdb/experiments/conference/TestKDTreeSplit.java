@@ -159,10 +159,10 @@ public class TestKDTreeSplit implements Runnable {
 		final ArrayList<AtomicLong> elements = new ArrayList<>(elementCounter.values());
 
 		IntStream.range(0, elements.size()).forEach(
-				i -> System.out.format("%d\t%d\n", i, elements.get(i).get())
+				i -> System.out.format("%d\t%d%n", i, elements.get(i).get())
 		);
 
-		System.out.format("#Total %d\n", elements.stream().mapToLong(l -> l.get()).sum());
+		System.out.format("#Total %d%n", elements.stream().mapToLong(l -> l.get()).sum());
 	}
 
 
