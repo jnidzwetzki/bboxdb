@@ -39,6 +39,7 @@ import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.NetworkInterfaceHelper;
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.service.ServiceState;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -262,7 +263,12 @@ public class BBoxDBConnection {
 			});
 
 			if(! socketRetryer.execute()) {
-				throw socketRetryer.getLastException();
+				final Exception lastException = socketRetryer.getLastException();
+				if(lastException != null) {
+					throw lastException;
+				}
+				
+				throw new BBoxDBException("Unable to retry operation");
 			}
 
 			clientSocket = socketRetryer.getResult();
