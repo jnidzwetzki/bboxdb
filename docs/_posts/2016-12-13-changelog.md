@@ -31,6 +31,7 @@ order: 1
 - Bugfix: Throw better exception when replication factor exceeds the number of nodes
 - Bugfix: Fixed error code handling in CLI when operations are failing
 - Bugfix: Fixed NPE in SpacePartitionerCache
+- Bugfix: Prevent half created distribution groups (e.g., exception during create)
 
 ### Version 0.9.1 - 12.07.2019
 - New Feature: Added GUI for GeoJSON operations

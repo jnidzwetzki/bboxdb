@@ -142,6 +142,47 @@ public class TestNetworkCommunication {
 
 		disconnect(bboxDBClient);
 	}
+	
+	/**
+	 * Test create a distribution group two times
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	@Test(timeout=60000)
+	public void testCreateDistributionGroupWithErrorsAndRecreate() throws BBoxDBException, InterruptedException {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+
+		final String distributionGroupName = "mytestgroup_recreate";
+
+		// Create distribution group
+		final DistributionGroupConfiguration configuration1 = DistributionGroupConfigurationBuilder.create(2)
+				.withReplicationFactor((short) 100) // More nodes than available
+				.build();
+		
+		final EmptyResultFuture resultCreate1 = bboxDBClient.createDistributionGroup(distributionGroupName,
+				configuration1);
+
+		resultCreate1.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+		resultCreate1.waitForCompletion();
+		Assert.assertTrue(resultCreate1.isFailed());
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
+
+		// Create distribution group
+		final DistributionGroupConfiguration configuration2 = DistributionGroupConfigurationBuilder.create(2)
+				.withReplicationFactor((short) 1) // This time with a proper amount
+				.build();
+		
+		final EmptyResultFuture resultCreate2 = bboxDBClient.createDistributionGroup(distributionGroupName,
+				configuration2);
+
+		resultCreate2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
+		resultCreate2.waitForCompletion();
+		Assert.assertFalse(resultCreate2.isFailed());
+		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
+
+		disconnect(bboxDBClient);
+	}
 
 	/**
 	 * Test create a table two times

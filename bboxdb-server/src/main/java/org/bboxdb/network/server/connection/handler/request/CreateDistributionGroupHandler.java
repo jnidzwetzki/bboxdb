@@ -28,6 +28,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -52,9 +53,11 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 
+		String distributionGroup = null;
+		
 		try {
 			final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
-			final String distributionGroup = createPackage.getDistributionGroup();
+			distributionGroup = createPackage.getDistributionGroup();
 			logger.info("Create distribution group: {}", distributionGroup);
 			
 			final DistributionGroupAdapter distributionGroupAdapter 
@@ -85,10 +88,32 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 		} catch (Exception e) {
 			logger.warn("Error while create distribution group", e);
 			
+			deleteHalfWrittenDistributionGroup(distributionGroup);
+			
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Delete the half written distribution group in Zookeeper
+	 * @param distributionGroup
+	 */
+	private void deleteHalfWrittenDistributionGroup(final String distributionGroup) {
+		
+		if(distributionGroup == null) {
+			return;
+		}
+	
+		try {
+			final DistributionGroupAdapter distributionGroupZookeeperAdapter 
+				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
+		} catch (ZookeeperException e) {
+			logger.error("Got an error during deletion of incorrect created distribution group", e);
+		}
+	
 	}
 }
