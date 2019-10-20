@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
@@ -237,9 +238,14 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	private boolean doUserDefinedFilterMatch(Tuple t, final Map<UserDefinedFilter, byte[]> filters,
 			final TupleAndBoundingBox transformedTuple) {
+		
 		boolean matches = true;
-		for(final UserDefinedFilter operator : filters.keySet()) {
-			final byte[] value = filters.get(operator);
+		
+		for(final Entry<UserDefinedFilter, byte[]> entry : filters.entrySet()) {
+			
+			final UserDefinedFilter operator = entry.getKey();
+			final byte[] value = entry.getValue();
+			
 			final boolean result 
 				= operator.filterJoinCandidate(t, transformedTuple.getTuple(), value);
 			
