@@ -238,8 +238,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	@Override
 	public String toString() {
 		return "QueryJoinRequest [tables=" + tables + ", box=" + box + ", pagingEnabled=" + pagingEnabled
-				+ ", tuplesPerPage=" + tuplesPerPage + ", userDefinedFilterName=" + userDefinedFilterName
-				+ ", userDefinedFilterValue=" + userDefinedFilterValue + "]";
+				+ ", tuplesPerPage=" + tuplesPerPage + ", userDefinedFilterName=" + userDefinedFilterName + "]";
 	}
 	
 }
