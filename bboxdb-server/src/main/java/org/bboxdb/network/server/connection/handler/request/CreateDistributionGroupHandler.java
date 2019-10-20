@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -113,6 +114,8 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
 		} catch (ZookeeperException e) {
 			logger.error("Got an error during deletion of incorrect created distribution group", e);
+		} finally {
+			TupleStoreConfigurationCache.getInstance().clear();
 		}
 	
 	}
