@@ -411,7 +411,12 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			throws StorageManagerException {
 
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
-		final Set<TupleStoreName> copyOfInstances = new HashSet<>(managerInstances.keySet());
+		final Set<TupleStoreName> copyOfInstances= new HashSet<>();
+		
+		synchronized (this) {
+			copyOfInstances.addAll(managerInstances.keySet());
+		}
+		
 		for(final TupleStoreName tupleStoreName : copyOfInstances) {
 			if(deleteTablePredicate.test(tupleStoreName)) {
 				shutdownSStable(tupleStoreName);
