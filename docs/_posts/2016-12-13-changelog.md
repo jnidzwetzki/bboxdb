@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.3 - TBA
+- Improvement: Fixed bugs found by Coverity scan
 
 ### Version 0.9.2 - 20.10.2019
 - Improvement: Made Zookeeper ports configurable
