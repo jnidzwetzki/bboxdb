@@ -153,7 +153,7 @@ public class TestNetworkCommunication {
 		final BBoxDBConnection bboxdbConnection = connectToServer();
 		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
 
-		final String distributionGroupName = "mytestgroup_recreate";
+		final String distributionGroupName = "recreategroup";
 
 		// Create distribution group
 		final DistributionGroupConfiguration configuration1 = DistributionGroupConfigurationBuilder.create(2)
@@ -176,7 +176,6 @@ public class TestNetworkCommunication {
 		final EmptyResultFuture resultCreate2 = bboxDBClient.createDistributionGroup(distributionGroupName,
 				configuration2);
 
-		resultCreate2.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		resultCreate2.waitForCompletion();
 		Assert.assertFalse(resultCreate2.isFailed());
 		Assert.assertTrue(bboxdbConnection.getConnectionState().isInRunningState());
