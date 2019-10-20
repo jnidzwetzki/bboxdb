@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.9.2 - TBD
+### Version 0.9.2 - 20.10.2019
 - Improvement: Made Zookeeper ports configurable
 - Improvement: Fixed selection in GUI (elements can now be selected based on real geometries)
 - Improvement: Zookeeper port in GUI can now be determined
