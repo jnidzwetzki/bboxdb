@@ -18,6 +18,7 @@
 package org.bboxdb.storage.wal;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +45,13 @@ public class WriteAheadLogManager {
 	 */
 	public static List<File> getAllWalFiles(final File basedir) {
 		final File[] files = basedir.listFiles((d, n) -> SSTableHelper.isFileNameWAL(n));
-		return Arrays.asList(files);
+		
+		final ArrayList<File> result = new ArrayList<>();
+		if(files != null) {
+			result.addAll(Arrays.asList(files));
+		}
+		
+		return result;
 	}
 	
 }
