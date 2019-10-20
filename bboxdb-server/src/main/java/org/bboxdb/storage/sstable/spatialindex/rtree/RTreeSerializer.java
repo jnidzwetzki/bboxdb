@@ -25,6 +25,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.storage.StorageManagerException;
@@ -101,9 +102,13 @@ public class RTreeSerializer {
 	 * @throws IOException 
 	 */
 	protected void updateIndexNodePointer(final RandomAccessFile randomAccessFile) throws IOException {
-		for(final RTreeDirectoryNode node : nodeFixedEndPosition.keySet()) {
+		
+		for(final Entry<RTreeDirectoryNode, Integer> entry : nodeFixedEndPosition.entrySet()) {
+			final RTreeDirectoryNode node = entry.getKey();
+			final int bytePos = entry.getValue();
+			
 			// Seek to the first pointer
-			randomAccessFile.seek(nodeFixedEndPosition.get(node));
+			randomAccessFile.seek(bytePos);
 			
 			for(final RTreeDirectoryNode child : node.getDirectoryNodeChilds()) {
 				final Integer childNodePosition = nodeStartPosition.get(child);
