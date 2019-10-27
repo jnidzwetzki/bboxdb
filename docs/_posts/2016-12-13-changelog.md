@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.3 - TBA
+- New Feature: Added importer for gtfs realtime position streams (Sydney Busses)
 - Improvement: Fixed bugs found by Coverity scan
 
 ### Version 0.9.2 - 20.10.2019
