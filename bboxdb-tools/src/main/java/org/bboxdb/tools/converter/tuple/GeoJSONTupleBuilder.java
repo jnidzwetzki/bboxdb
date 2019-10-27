@@ -24,7 +24,10 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 
 	@Override
 	public Tuple buildTuple(final String keyData, final String valueData) {
+
 		final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(valueData);
+		
+		final String key = keyData != null ? keyData : Long.toString(polygon.getId());
 		
 		// Longitude / Latitude switch
 		polygon.invertPolygonCoordinates();
@@ -35,7 +38,7 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 			return null;
 		}
 		
-		return new Tuple(keyData, polygon.getBoundingBox().enlargeByAmount(boxPadding), tupleBytes);
+		return new Tuple(key, polygon.getBoundingBox().enlargeByAmount(boxPadding), tupleBytes);
 	}
 
 }

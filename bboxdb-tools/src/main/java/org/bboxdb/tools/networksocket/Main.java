@@ -113,10 +113,9 @@ public class Main implements Runnable {
 				final BufferedReader inputStream = new BufferedReader(reader);
 			){
 		
-			long lineNumber = 0; 
 			String line;
 			while ((line = inputStream.readLine()) != null) {
-				final Tuple tuple = tupleFactory.buildTuple(Long.toString(lineNumber), line);
+				final Tuple tuple = tupleFactory.buildTuple(line);
 				final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
 				pendingFutures.put(result);	
 			}

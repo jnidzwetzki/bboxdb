@@ -36,6 +36,8 @@ public class Forex1DBuilder extends TupleBuilder {
 	public Tuple buildTuple(final String keyData, final String valueData) {
 		
 		try {
+			final String key = keyData != null ? keyData : getKey(valueData);
+			
 			final String[] data = valueData.split(",");
 			
 			if(data.length != 4) {
@@ -50,7 +52,7 @@ public class Forex1DBuilder extends TupleBuilder {
 			
 			final Hyperrectangle boundingBox = new Hyperrectangle(bid.get(), bid.get());
 			
-			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
+			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

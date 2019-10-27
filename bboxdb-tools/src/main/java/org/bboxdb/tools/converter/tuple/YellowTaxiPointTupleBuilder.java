@@ -62,6 +62,4 @@ public class YellowTaxiPointTupleBuilder extends TupleBuilder {
 			return null;
 		}
 	}
-
-
 }

@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.bboxdb.storage.entity.Tuple;
 
 public abstract class TupleBuilder {
@@ -25,6 +27,30 @@ public abstract class TupleBuilder {
 	 * The default bbox padding
 	 */
 	protected double boxPadding = 0.0;
+	
+	/**
+	 * The counter for the default key
+	 */
+	protected AtomicLong id = new AtomicLong(0);
+	
+	/**
+	 * Build a tuple from the given strings
+	 * @param data
+	 * @return
+	 */
+	public String getKey(final String valueData) {
+		final long oldId = id.getAndIncrement();
+		return Long.toString(oldId);
+	}
+	
+	/**
+	 * Build a tuple from the given strings
+	 * @param data
+	 * @return
+	 */
+	public Tuple buildTuple(final String valueData) {
+		return buildTuple(null, valueData);
+	}
 	
 	/**
 	 * Build a tuple from the given strings
