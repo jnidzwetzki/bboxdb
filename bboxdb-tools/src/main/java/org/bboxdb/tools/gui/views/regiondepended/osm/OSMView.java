@@ -62,11 +62,17 @@ public class OSMView implements View {
 		final JButton zoomOutButton = MapViewerFactory.getZoomOutButton(mapViewer);		
 		buttonPanel.add(zoomOutButton);
 		
-		final JButton showWolrdButton = MapViewerFactory.getShowWorldButton(mapViewer);
-		buttonPanel.add(showWolrdButton);
-		
+		final JButton showWorldButton = MapViewerFactory.getShowWorldButton(mapViewer);
+		buttonPanel.add(showWorldButton);
+		 
 		final JButton showHagenButton = MapViewerFactory.getShowHagenButton(mapViewer);
 		buttonPanel.add(showHagenButton);
+		
+		final JButton showBerlinButton = MapViewerFactory.getShowBerlinButton(mapViewer);
+		buttonPanel.add(showBerlinButton);
+		
+		final JButton showSydneyButton = MapViewerFactory.getShowSydneyButton(mapViewer);
+		buttonPanel.add(showSydneyButton);
 
 		return mainPanel;
 	}

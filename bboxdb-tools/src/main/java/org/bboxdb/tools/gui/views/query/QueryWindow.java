@@ -34,17 +34,21 @@ import javax.swing.JTextField;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
+import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
 import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
+import org.jxmapviewer.JXMapViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +59,17 @@ import com.jgoodies.forms.layout.FormLayout;
 public class QueryWindow {
 	
 	/**
+	 * The query types
+	 */
+	private static final String QUERY_NONE = "---";
+	private static final String QUERY_JOIN = "Join";
+	private static final String QUERY_RANGE_CONTINUOUS = "Continuous range query";
+	private static final String QUERY_RANGE = "Range query";
+
+	/**
 	 * The callback 
 	 */
-	private final Runnable callback;
+	private final JXMapViewer viewer;
 	
 	/**
 	 * The main frame
@@ -105,17 +117,23 @@ public class QueryWindow {
 	private final static Color[] COLOR_VALUES = new Color[] {Color.RED, Color.GREEN, Color.BLUE};
 	
 	/**
+	 * The created background threads
+	 */
+	private List<Thread> backgroundThreads;
+
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
 
 	
 	public QueryWindow(final GuiModel guimodel, final Collection<OverlayElementGroup> tupleToDraw, 
-			final Runnable callback) {
+			final List<Thread> backgroundThreads, final JXMapViewer viewer) {
 		
 		this.guimodel = guimodel;
 		this.tupleToDraw = tupleToDraw;
-		this.callback = callback;
+		this.backgroundThreads = backgroundThreads;
+		this.viewer = viewer;
 	}
 
 
@@ -145,7 +163,7 @@ public class QueryWindow {
 		final CellConstraints cc = new CellConstraints();
 		builder.addSeparator("Query", cc.xyw(1,  1, 3));
 		builder.addLabel("Type", cc.xy (1,  3));
-		final String[] queries = new String[] {"---", "Range query", "Join"};
+		final String[] queries = new String[] {QUERY_NONE, QUERY_RANGE, QUERY_RANGE_CONTINUOUS, QUERY_JOIN};
 		final JComboBox<String> queryTypeBox = new JComboBox<>(queries);
 		builder.add(queryTypeBox, cc.xy (3,  3));
 		
@@ -240,7 +258,9 @@ public class QueryWindow {
 			
 			final String selectedQuery = queryTypeBox.getSelectedItem().toString();
 			switch (selectedQuery) {
-			case "Range query":
+			
+			case QUERY_RANGE:
+			case QUERY_RANGE_CONTINUOUS:
 				table1Field.setEnabled(true);
 				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(false);
@@ -249,7 +269,7 @@ public class QueryWindow {
 				filterField.setText("");
 				break;
 				
-			case "Join":
+			case QUERY_JOIN:
 				table1Field.setEnabled(true);
 				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(true);
@@ -315,11 +335,15 @@ public class QueryWindow {
 					final Color color2 = COLOR_VALUES[color2Box.getSelectedIndex()];
 
 					switch (queryType) {
-					case "Range query":
+					case QUERY_RANGE:
 						executeRangeQuery(resultBox, table1, color1, filter, value);
 						break;
+					
+					case QUERY_RANGE_CONTINUOUS:
+						executeRangeQueryContinuous(resultBox, table1, color1, filter, value);
+						break;
 						
-					case "Join":
+					case QUERY_JOIN:
 						executeJoinQuery(resultBox, table1, color1, table2, color2, filter, value);
 						break;
 
@@ -327,7 +351,7 @@ public class QueryWindow {
 						throw new IllegalArgumentException("Unknown action: " + queryType);
 					}				
 					
-					callback.run();
+					viewer.repaint();
 					mainframe.dispose();
 				} catch (InputParseException exception) {
 					JOptionPane.showMessageDialog(mainframe, "Got an error: " + exception.getMessage());
@@ -433,6 +457,77 @@ public class QueryWindow {
 					Thread.currentThread().interrupt();
 					return;
 				}
+			}
+			
+
+			/**
+			 * Execute a continuous range query
+			 * @param customValue 
+			 * @param customFilter 
+			 * @param table 
+			 * @param bbox 
+			 */
+			private void executeRangeQueryContinuous(final Hyperrectangle bbox, final String table, 
+					final Color color, final String customFilter, final String customValue) {
+				
+				try {					
+					final ContinuousQueryPlan qp = QueryPlanBuilder
+							.createQueryOnTable(table)
+							.compareWithStaticRegion(bbox)
+							.build();
+							
+					final JoinedTupleListFuture result = guimodel.getConnection().queryContinuous(qp);
+					final Runnable runable = getContinuousQueryRunable(table, color, result);
+					
+					final Thread fetchThread = new Thread(runable);
+					backgroundThreads.add(fetchThread);
+					fetchThread.start();
+					
+				} catch (BBoxDBException e) {
+					logger.error("Got error while performing query", e);
+				}
+			}
+
+			/**
+			 * Get the continuous query runnable
+			 * @param table
+			 * @param color
+			 * @param result
+			 * @return
+			 */
+			private ExceptionSafeRunnable getContinuousQueryRunable(final String table, final Color color,
+					final JoinedTupleListFuture result) {
+				
+				return new ExceptionSafeRunnable() {
+					@Override
+					protected void runThread() throws Exception {
+						try {
+							result.waitForCompletion();
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
+							return;
+						}
+						
+						for(final JoinedTuple joinedTuple : result) {
+							if(result.isFailed()) {
+								logger.error("Got an error" + result.getAllMessages());
+								return;
+							}
+							
+							if(Thread.currentThread().isInterrupted()) {
+								logger.info("Worker for continuous query exited");
+								return;
+							}
+							
+							final Tuple tuple0 = joinedTuple.getTuple(0);
+							final OverlayElement overlayElement = getOverlayElement(tuple0, table, color);
+							final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
+							tupleToDraw.add(resultTuple);
+						}
+						
+						viewer.repaint();						
+					}
+				};
 			}
 		};
 		

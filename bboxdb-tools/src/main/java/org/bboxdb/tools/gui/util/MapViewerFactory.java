@@ -83,6 +83,16 @@ public class MapViewerFactory {
 		mapViewer.setZoom(7);
 		mapViewer.setAddressLocation(hagen);
 	}
+	
+	/**
+	 * Show the sydney in the viewer
+	 * @param mapViewer
+	 */
+	public static void showSydney(final JXMapViewer mapViewer) {
+		final GeoPosition sydney = new GeoPosition(-33.865143, 151.2099);
+		mapViewer.setZoom(9);
+		mapViewer.setAddressLocation(sydney);
+	}
 
 	/**
 	 * Show Berlin in the viewer
@@ -143,6 +153,19 @@ public class MapViewerFactory {
 		final JButton showHagenButton = new JButton("Show Hagen");
 		showHagenButton.addActionListener((l) -> {
 			showHagen(mapViewer);
+		}
+		); 
+		return showHagenButton;
+	}
+	
+	/**
+	 * Get the show hagen button
+	 * @return
+	 */
+	public static JButton getShowSydneyButton(final JXMapViewer mapViewer) {
+		final JButton showHagenButton = new JButton("Show Sydney");
+		showHagenButton.addActionListener((l) -> {
+			showSydney(mapViewer);
 		}
 		); 
 		return showHagenButton;

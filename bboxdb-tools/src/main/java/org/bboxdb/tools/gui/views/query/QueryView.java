@@ -19,6 +19,7 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -54,11 +55,17 @@ public class QueryView implements View {
 	 * The details screen
 	 */
 	private final ResultDetailsWindow resultDetailsWindow;
+	
+	/**
+	 * The running background threads
+	 */
+	private final List<Thread> backgroundThreads;
 
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 		this.tupleToDraw = new CopyOnWriteArrayList<>();
 		this.resultDetailsWindow = new ResultDetailsWindow();
+		this.backgroundThreads = new ArrayList<>();
 	}
 	
 	@Override
@@ -67,7 +74,7 @@ public class QueryView implements View {
 		resultDetailsWindow.setMapViewer(mapViewer);
 		
         final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter(tupleToDraw, 
-        		guiModel, mapViewer);
+        		guiModel, mapViewer, backgroundThreads);
         
         mapViewer.addMouseListener(selectionAdapter);
         mapViewer.addMouseMotionListener(selectionAdapter);
@@ -122,6 +129,9 @@ public class QueryView implements View {
 		final JButton showBerlinButton = MapViewerFactory.getShowBerlinButton(mapViewer);
 		buttonPanel.add(showBerlinButton);
 		
+		final JButton showSydneyButton = MapViewerFactory.getShowSydneyButton(mapViewer);
+		buttonPanel.add(showSydneyButton);
+		
 		final JButton queryButton = getQueryButton();
 		buttonPanel.add(queryButton);
 		
@@ -170,9 +180,8 @@ public class QueryView implements View {
 		final JButton queryButton = new JButton("Execute query");
 		
 		queryButton.addActionListener(l -> {
-			final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, () -> {
-				mapViewer.repaint();
-			});
+			final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, 
+					backgroundThreads, mapViewer);
 
 			queryWindow.show();
 		});
@@ -190,6 +199,8 @@ public class QueryView implements View {
 		clearButton.addActionListener(l -> {
 			tupleToDraw.clear();
 			mapViewer.repaint();
+			backgroundThreads.forEach(t -> t.interrupt());
+			backgroundThreads.clear();
 		});
 		
 		return clearButton;

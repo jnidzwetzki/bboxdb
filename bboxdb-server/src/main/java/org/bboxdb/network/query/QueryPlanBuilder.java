@@ -106,10 +106,24 @@ public class QueryPlanBuilder {
 	 * @return
 	 */
 	public QueryPlanBuilder compareWithStaticRegion(final Double... values) {
-		this.regionConst = new Hyperrectangle(values);
+		return compareWithStaticRegion(new Hyperrectangle(values));
+	}
+	
+	/**
+	 * Compare the tuples with a static region
+	 * @param region
+	 * @return
+	 */
+	public QueryPlanBuilder compareWithStaticRegion(final Hyperrectangle regionConst) {
+		this.regionConst = regionConst;
 		return this;
 	}
 	
+	/**
+	 * Compare with the given table
+	 * @param table
+	 * @return
+	 */
 	public QueryPlanBuilder compareWithTable(final String table) {
 		this.joinTable = table;
 		return this;

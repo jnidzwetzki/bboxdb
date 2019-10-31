@@ -64,12 +64,18 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 	 */
 	private final GuiModel guiModel;
 
+	/**
+	 * The running background threads
+	 */
+	private List<Thread> backgroundThreads;
+
 	public QueryRangeSelectionAdapter(final List<OverlayElementGroup> tupleToDraw, 
-			final GuiModel guiModel, final JXMapViewer viewer) {
+			final GuiModel guiModel, final JXMapViewer viewer, final List<Thread> backgroundThreads) {
 		
 		this.tupleToDraw = tupleToDraw;
 		this.guiModel = guiModel;
 		this.viewer = viewer;
+		this.backgroundThreads = backgroundThreads;
 	}
 
 	@Override
@@ -147,9 +153,7 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 		final Point2D realEndPos = getRealPos(stopPos);
 		final GeoPosition endPos = tileFactory.pixelToGeo(realEndPos, viewer.getZoom());
 
-		final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, () -> {
-			viewer.repaint();
-		});
+		final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, backgroundThreads, viewer);
 		
 		final double minLong = Math.min(beginPos.getLongitude(), endPos.getLongitude());
 		final double maxLong = Math.max(beginPos.getLongitude(), endPos.getLongitude());

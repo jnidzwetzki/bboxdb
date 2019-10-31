@@ -239,10 +239,10 @@ public class OverlayElement {
 		if(pointList.size() == 1) {
 			final Point2D thePoint = pointList.get(0);
 			graphicsContext.setColor(Color.BLUE);
-			final double size = (15 * (1.0 / map.getZoom()));
+			final double size = (200 * (1.0 / map.getZoom()));
 			final Ellipse2D ellipse = new Ellipse2D.Double(thePoint.getX(), thePoint.getX(), size, size);
 			lastRenderedShape = ellipse;
-			
+			System.out.println("POINT: " + size);
 			if(drawReally) {
 				graphicsContext.draw(ellipse);
 			}
