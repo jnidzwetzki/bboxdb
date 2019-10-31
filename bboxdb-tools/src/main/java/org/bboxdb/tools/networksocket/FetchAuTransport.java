@@ -128,7 +128,7 @@ public class FetchAuTransport implements Runnable {
 				final TripDescriptor trip = vehicle.getTrip();
 				final Position position = vehicle.getPosition();
 
-				final String idString = trip.getTripId();
+				final String idString = trip.getTripId().replace("_", "");
 				final long id = MathUtil.tryParseLongOrExit(idString);
 				
 				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id);
