@@ -128,13 +128,15 @@ public class FetchAuTransport implements Runnable {
 				final TripDescriptor trip = vehicle.getTrip();
 				final Position position = vehicle.getPosition();
 
-				final String idString = vehicle.getVehicle().getId();
+				final String idString = trip.getTripId();
 				final long id = MathUtil.tryParseLongOrExit(idString);
 				
 				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id);
 				
 				geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
 				geoJsonPolygon.addProperty("TripID", trip.getTripId());
+				geoJsonPolygon.addProperty("Speed", Float.toString(position.getSpeed()));
+				geoJsonPolygon.addProperty("Bearing", Float.toString(position.getBearing()));
 				geoJsonPolygon.addProperty("DirectionID", Integer.toString(trip.getDirectionId()));
 				geoJsonPolygon.addPoint(position.getLongitude(), position.getLatitude());
 				
