@@ -143,6 +143,7 @@ public class FetchAuTransport implements Runnable {
 				
 				if(! id.isPresent()) {
 					logger.warn("Skipping element with invalid id: {}", idString);
+					continue;
 				}
 				
 				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id.get());
