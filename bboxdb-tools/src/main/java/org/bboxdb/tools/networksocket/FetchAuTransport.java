@@ -31,7 +31,6 @@ import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
-import org.bboxdb.tools.gui.views.query.QueryWindow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +86,7 @@ public class FetchAuTransport implements Runnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
+	private final static Logger logger = LoggerFactory.getLogger(FetchAuTransport.class);
 
 	
 	public FetchAuTransport(final String authKey, final String connectionPoint, 
