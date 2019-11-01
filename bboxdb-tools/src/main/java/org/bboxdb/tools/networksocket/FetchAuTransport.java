@@ -20,6 +20,7 @@ package org.bboxdb.tools.networksocket;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MathUtil;
@@ -30,6 +31,9 @@ import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
+import org.bboxdb.tools.gui.views.query.QueryWindow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.transit.realtime.GtfsRealtime;
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
@@ -66,7 +70,7 @@ public class FetchAuTransport implements Runnable {
 	private final String connectionPoint;
 	
 	/**
-	 * The lcuter name
+	 * The cluster name
 	 */
 	private final String clustername;
 	
@@ -79,6 +83,12 @@ public class FetchAuTransport implements Runnable {
 	 * The pending futures
 	 */
 	private final FixedSizeFutureStore pendingFutures;
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
+
 	
 	public FetchAuTransport(final String authKey, final String connectionPoint, 
 			final String clustername, final String table) {
@@ -129,9 +139,13 @@ public class FetchAuTransport implements Runnable {
 				final Position position = vehicle.getPosition();
 
 				final String idString = trip.getTripId().replace("_", "");
-				final long id = MathUtil.tryParseLongOrExit(idString);
+				final Optional<Long> id = MathUtil.tryParseLong(idString);
 				
-				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id);
+				if(! id.isPresent()) {
+					logger.warn("Skipping element with invalid id: {}", idString);
+				}
+				
+				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id.get());
 				
 				geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
 				geoJsonPolygon.addProperty("TripID", trip.getTripId());
