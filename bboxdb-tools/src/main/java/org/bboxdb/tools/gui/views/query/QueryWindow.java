@@ -38,6 +38,7 @@ import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
@@ -467,38 +468,36 @@ public class QueryWindow {
 			 */
 			private void executeRangeQueryContinuous(final Hyperrectangle bbox, final String table, 
 					final Color color, final String customFilter, final String customValue) {
-				
-				try {					
-					final ContinuousQueryPlan qp = QueryPlanBuilder
-							.createQueryOnTable(table)
-							.compareWithStaticRegion(bbox)
-							.build();
 							
-					final JoinedTupleListFuture result = guimodel.getConnection().queryContinuous(qp);
-					final Runnable runable = getContinuousQueryRunable(table, color, result);
-					
-					final Thread fetchThread = new Thread(runable);
-					backgroundThreads.add(fetchThread);
-					fetchThread.start();
-					
-				} catch (BBoxDBException e) {
-					logger.error("Got error while performing query", e);
-				}
+				final ContinuousQueryPlan qp = QueryPlanBuilder
+						.createQueryOnTable(table)
+						.compareWithStaticRegion(bbox)
+						.build();
+						
+				final Runnable runable = getContinuousQueryRunable(table, color, qp);
+				
+				final Thread fetchThread = new Thread(runable);
+				backgroundThreads.add(fetchThread);
+				fetchThread.start();
 			}
 
 			/**
 			 * Get the continuous query runnable
 			 * @param table
 			 * @param color
-			 * @param result
+			 * @param qp
 			 * @return
 			 */
 			private ExceptionSafeRunnable getContinuousQueryRunable(final String table, final Color color,
-					final JoinedTupleListFuture result) {
+					final ContinuousQueryPlan qp) {
 				
 				return new ExceptionSafeRunnable() {
 					@Override
-					protected void runThread() throws Exception {						
+					protected void runThread() throws Exception {			
+						logger.info("New worker thread for a continuous query has started");
+						final BBoxDB connection = guimodel.getConnection();
+						final JoinedTupleListFuture result = connection.queryContinuous(qp);
+						
 						try {
 							result.waitForCompletion();
 						} catch (InterruptedException e) {
