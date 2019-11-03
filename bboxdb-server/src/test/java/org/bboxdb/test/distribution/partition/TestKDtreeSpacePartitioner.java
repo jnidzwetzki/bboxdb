@@ -20,6 +20,7 @@ package org.bboxdb.test.distribution.partition;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -292,7 +293,9 @@ public class TestKDtreeSpacePartitioner {
 		Assert.assertEquals(2, distributionGroup2.getConveringBox().getDimension());
 
 		Assert.assertEquals(0, distributionGroup1.getLevel());
-		
+		Assert.assertEquals(DoubleInterval.MIN_VALUE, distributionGroup1.getConveringBox().getCoordinateLow(0), DELTA);
+		Assert.assertEquals(DoubleInterval.MAX_VALUE, distributionGroup1.getConveringBox().getCoordinateHigh(0), DELTA);
+
 		// Update object 1
 		adapter1.splitNode(distributionGroup1, 10);
 		
