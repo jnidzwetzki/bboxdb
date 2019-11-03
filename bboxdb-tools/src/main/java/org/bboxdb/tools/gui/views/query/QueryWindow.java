@@ -20,7 +20,6 @@ package org.bboxdb.tools.gui.views.query;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -48,7 +47,6 @@ import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
-import org.jxmapviewer.JXMapViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +64,6 @@ public class QueryWindow {
 	private static final String QUERY_RANGE_CONTINUOUS = "Continuous range query";
 	private static final String QUERY_RANGE = "Range query";
 
-	/**
-	 * The callback 
-	 */
-	private final JXMapViewer viewer;
-	
 	/**
 	 * The main frame
 	 */
@@ -104,7 +97,7 @@ public class QueryWindow {
 	/**
 	 * The data to draw
 	 */
-	private final Collection<OverlayElementGroup> tupleToDraw;
+	private final ElementOverlayPainter painter;
 	
 	/**
 	 * The color names for the dropdowns
@@ -127,15 +120,13 @@ public class QueryWindow {
 	private final static Logger logger = LoggerFactory.getLogger(QueryWindow.class);
 
 	
-	public QueryWindow(final GuiModel guimodel, final Collection<OverlayElementGroup> tupleToDraw, 
-			final List<Thread> backgroundThreads, final JXMapViewer viewer) {
+	public QueryWindow(final GuiModel guimodel, final ElementOverlayPainter painter, 
+			final List<Thread> backgroundThreads) {
 		
 		this.guimodel = guimodel;
-		this.tupleToDraw = tupleToDraw;
+		this.painter = painter;
 		this.backgroundThreads = backgroundThreads;
-		this.viewer = viewer;
 	}
-
 
 	public void show() {
 		this.mainframe = new JFrame("BBoxDB - Execute query");
@@ -351,7 +342,6 @@ public class QueryWindow {
 						throw new IllegalArgumentException("Unknown action: " + queryType);
 					}				
 					
-					viewer.repaint();
 					mainframe.dispose();
 				} catch (InputParseException exception) {
 					JOptionPane.showMessageDialog(mainframe, "Got an error: " + exception.getMessage());
@@ -391,7 +381,7 @@ public class QueryWindow {
 							
 						final List<OverlayElement> tupleList = Arrays.asList(overlayElement0, overlayElement1);
 						final OverlayElementGroup resultTuple = new OverlayElementGroup(tupleList);
-						tupleToDraw.add(resultTuple);
+						painter.addElementToDraw(resultTuple);
 					}
 					
 				} catch (BBoxDBException e) {
@@ -448,7 +438,7 @@ public class QueryWindow {
 					for(final Tuple tuple : result) {
 						final OverlayElement overlayElement = getOverlayElement(tuple, table, color);
 						final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
-						tupleToDraw.add(resultTuple);
+						painter.addElementToDraw(resultTuple);
 					}
 					
 				} catch (BBoxDBException e) {
@@ -500,7 +490,7 @@ public class QueryWindow {
 				
 				return new ExceptionSafeRunnable() {
 					@Override
-					protected void runThread() throws Exception {
+					protected void runThread() throws Exception {						
 						try {
 							result.waitForCompletion();
 						} catch (InterruptedException e) {
@@ -519,13 +509,13 @@ public class QueryWindow {
 								return;
 							}
 							
+							logger.info("Fetched tuple");
+							
 							final Tuple tuple0 = joinedTuple.getTuple(0);
 							final OverlayElement overlayElement = getOverlayElement(tuple0, table, color);
 							final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
-							tupleToDraw.add(resultTuple);
-						}
-						
-						viewer.repaint();						
+							painter.addElementToDraw(resultTuple);
+						}						
 					}
 				};
 			}

@@ -21,7 +21,6 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,7 +56,7 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 	/**
 	 * The global data to draw
 	 */
-	private final Collection<OverlayElementGroup> tupleToDraw;
+	private ElementOverlayPainter elementOverlayPainter;
 	
 	/**
 	 * The global gui model
@@ -69,13 +68,20 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 	 */
 	private List<Thread> backgroundThreads;
 
-	public QueryRangeSelectionAdapter(final List<OverlayElementGroup> tupleToDraw, 
-			final GuiModel guiModel, final JXMapViewer viewer, final List<Thread> backgroundThreads) {
+	public QueryRangeSelectionAdapter(final GuiModel guiModel, final JXMapViewer viewer, 
+			final List<Thread> backgroundThreads) {
 		
-		this.tupleToDraw = tupleToDraw;
 		this.guiModel = guiModel;
 		this.viewer = viewer;
 		this.backgroundThreads = backgroundThreads;
+	}
+	
+	/**
+	 * Set the element overlay painter
+	 * @param elementOverlayPainter
+	 */
+	public void setElementOverlayPainter(final ElementOverlayPainter elementOverlayPainter) {
+		this.elementOverlayPainter = elementOverlayPainter;
 	}
 
 	@Override
@@ -153,7 +159,7 @@ public class QueryRangeSelectionAdapter extends MouseAdapter {
 		final Point2D realEndPos = getRealPos(stopPos);
 		final GeoPosition endPos = tileFactory.pixelToGeo(realEndPos, viewer.getZoom());
 
-		final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, backgroundThreads, viewer);
+		final QueryWindow queryWindow = new QueryWindow(guiModel, elementOverlayPainter, backgroundThreads);
 		
 		final double minLong = Math.min(beginPos.getLongitude(), endPos.getLongitude());
 		final double maxLong = Math.max(beginPos.getLongitude(), endPos.getLongitude());

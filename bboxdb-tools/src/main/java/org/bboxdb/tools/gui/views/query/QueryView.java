@@ -21,7 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,11 +46,6 @@ public class QueryView implements View {
 	private JXMapViewer mapViewer;
 	
 	/**
-	 * The data to draw
-	 */
-	private final List<OverlayElementGroup> tupleToDraw;
-	
-	/**
 	 * The details screen
 	 */
 	private final ResultDetailsWindow resultDetailsWindow;
@@ -60,10 +54,14 @@ public class QueryView implements View {
 	 * The running background threads
 	 */
 	private final List<Thread> backgroundThreads;
+	
+	/**
+	 * The element overlay painter
+	 */
+	private ElementOverlayPainter painter;
 
 	public QueryView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
-		this.tupleToDraw = new CopyOnWriteArrayList<>();
 		this.resultDetailsWindow = new ResultDetailsWindow();
 		this.backgroundThreads = new ArrayList<>();
 	}
@@ -73,14 +71,15 @@ public class QueryView implements View {
 		mapViewer = MapViewerFactory.createMapViewer();
 		resultDetailsWindow.setMapViewer(mapViewer);
 		
-        final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter(tupleToDraw, 
+        final QueryRangeSelectionAdapter selectionAdapter = new QueryRangeSelectionAdapter( 
         		guiModel, mapViewer, backgroundThreads);
-        
+        	
+		painter = new ElementOverlayPainter(selectionAdapter, mapViewer);
+		mapViewer.setOverlayPainter(painter);
+		selectionAdapter.setElementOverlayPainter(painter);
+	
         mapViewer.addMouseListener(selectionAdapter);
         mapViewer.addMouseMotionListener(selectionAdapter);
-		
-		final ElementOverlayPainter painter = new ElementOverlayPainter(tupleToDraw, selectionAdapter);
-		mapViewer.setOverlayPainter(painter);
 		
 	     // Prepare tooltip (Rendered by the MouseOverlayHandler)
         final JToolTip tooltip = new JToolTip() {
@@ -180,9 +179,7 @@ public class QueryView implements View {
 		final JButton queryButton = new JButton("Execute query");
 		
 		queryButton.addActionListener(l -> {
-			final QueryWindow queryWindow = new QueryWindow(guiModel, tupleToDraw, 
-					backgroundThreads, mapViewer);
-
+			final QueryWindow queryWindow = new QueryWindow(guiModel, painter, backgroundThreads);
 			queryWindow.show();
 		});
 		
@@ -197,7 +194,10 @@ public class QueryView implements View {
 		final JButton clearButton = new JButton("Clear map");
 		
 		clearButton.addActionListener(l -> {
-			tupleToDraw.clear();
+			if(painter != null) {
+				painter.clearAllElements();
+			}
+			
 			mapViewer.repaint();
 			backgroundThreads.forEach(t -> t.interrupt());
 			backgroundThreads.clear();

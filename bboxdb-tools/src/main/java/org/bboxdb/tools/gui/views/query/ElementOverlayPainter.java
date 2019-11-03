@@ -19,6 +19,7 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * The rendered elements
 	 */
-	private final List<OverlayElement> renderedElements = new ArrayList<OverlayElement>();
+	private final List<OverlayElement> renderedElements;
 
 	/**
 	 * Data valid for
@@ -71,7 +72,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * The selection adapter
 	 */
-	private QueryRangeSelectionAdapter selectionAdapter;
+	private final QueryRangeSelectionAdapter selectionAdapter;
 	
 	/**
 	 * Draw the bounding boxes of the objects
@@ -83,11 +84,18 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	private final List<Consumer<List<OverlayElement>>> callbacks;
 
-	public ElementOverlayPainter(final List<OverlayElementGroup> tupleToDraw, 
-			final QueryRangeSelectionAdapter selectionAdapter) {
+	/**
+	 * The map viewer
+	 */
+	private final JXMapViewer mapViewer;
+
+	public ElementOverlayPainter(final QueryRangeSelectionAdapter selectionAdapter, 
+			final JXMapViewer mapViewer) {
 		
-		this.tupleToDraw = tupleToDraw;
 		this.selectionAdapter = selectionAdapter;
+		this.mapViewer = mapViewer;
+		this.renderedElements = new ArrayList<>();
+		this.tupleToDraw = new CopyOnWriteArrayList<>();
 		this.callbacks = new CopyOnWriteArrayList<>();
 	}
 
@@ -218,8 +226,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		return false;
 	}
 	
-	
-	
 	/**
 	 * Set the drawing of the bounding boxes
 	 * @param drawBoundingBoxes
@@ -235,4 +241,52 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		callbacks.add(callback);
 	}
 	
+	/**
+	 * Add an element to draw
+	 * @param element
+	 */
+	public void addElementToDraw(final OverlayElementGroup element) {
+		tupleToDraw.add(element);
+		repaintElement(element, true);
+	}
+
+	/**
+	 * Repaint the given element
+	 * @param element
+	 * @param recalulatePosition
+	 */
+	private void repaintElement(final OverlayElementGroup element, final boolean recalulatePosition) {
+		for(final OverlayElement overlayElement : element) {
+			
+			if(recalulatePosition) {
+				overlayElement.updatePosition(mapViewer);
+			}
+			
+			final Rectangle viewport = mapViewer.getViewportBounds();
+			final Rectangle boundingBox = overlayElement.getBBoxToDrawOnGui();
+			final Point point = boundingBox.getLocation();
+			boundingBox.setLocation((int) (point.getX() - viewport.getX()), 
+					(int) (point.getY() - viewport.getY()));
+			
+			mapViewer.repaint(boundingBox);
+			System.out.println("Called repait for: " + boundingBox);
+		}
+	}
+	
+	/**
+	 * Remove an element to draw
+	 * @param element
+	 */
+	public void removeElementToDraw(final OverlayElementGroup element) {
+		tupleToDraw.remove(element);
+		repaintElement(element, false);
+	}
+	
+	/**
+	 * CLear all ata to draw
+	 */
+	public void clearAllElements() {
+		tupleToDraw.clear();
+		mapViewer.repaint();
+	}
 }
