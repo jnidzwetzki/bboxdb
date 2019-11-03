@@ -19,6 +19,7 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -370,6 +371,8 @@ public class QueryWindow {
 						return;
 					}
 					
+					final List<OverlayElementGroup> elements = new ArrayList<>();
+					
 					for(final JoinedTuple joinedTuple : result) {
 						// Handle tuple0
 						final Tuple tuple0 = joinedTuple.getTuple(0);
@@ -381,8 +384,10 @@ public class QueryWindow {
 							
 						final List<OverlayElement> tupleList = Arrays.asList(overlayElement0, overlayElement1);
 						final OverlayElementGroup resultTuple = new OverlayElementGroup(tupleList);
-						painter.addElementToDraw(resultTuple);
+						elements.add(resultTuple);
 					}
+					
+					painter.addElementToDrawBulk(elements);
 					
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
@@ -435,11 +440,15 @@ public class QueryWindow {
 						return;
 					}
 					
+					final List<OverlayElementGroup> elements = new ArrayList<>();
+					
 					for(final Tuple tuple : result) {
 						final OverlayElement overlayElement = getOverlayElement(tuple, table, color);
 						final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
-						painter.addElementToDraw(resultTuple);
+						elements.add(resultTuple);
 					}
+					
+					painter.addElementToDrawBulk(elements);
 					
 				} catch (BBoxDBException e) {
 					logger.error("Got error while performing query", e);
@@ -448,7 +457,6 @@ public class QueryWindow {
 					return;
 				}
 			}
-			
 
 			/**
 			 * Execute a continuous range query

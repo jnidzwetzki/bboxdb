@@ -249,6 +249,15 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		tupleToDraw.add(element);
 		repaintElement(element, true);
 	}
+	
+	/**
+	 * Add an element to draw
+	 * @param element
+	 */
+	public void addElementToDrawBulk(final Collection<OverlayElementGroup> elements) {
+		tupleToDraw.addAll(elements);
+		mapViewer.repaint();
+	}
 
 	/**
 	 * Repaint the given element
