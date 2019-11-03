@@ -34,9 +34,11 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.util.EnvironmentHelper;
 import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestKDtreeSpacePartitioner {
@@ -44,7 +46,7 @@ public class TestKDtreeSpacePartitioner {
 	/**
 	 * The name of the test region
 	 */
-	private static final String TEST_GROUP = "abc";
+	private static final String TEST_GROUP = "kdtreetest";
 	
 	/**
 	 * The distribution group adapter
@@ -55,6 +57,11 @@ public class TestKDtreeSpacePartitioner {
 	 * The compare delta
 	 */
 	private final static double DELTA = 0.0001;
+	
+	@BeforeClass
+	public static void beforeClass() throws ZookeeperException {		
+		EnvironmentHelper.resetTestEnvironment();
+	}
 	
 	@Before
 	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
