@@ -278,7 +278,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 					(int) (point.getY() - viewport.getY()));
 			
 			mapViewer.repaint(boundingBox);
-			System.out.println("Called repait for: " + boundingBox);
 		}
 	}
 	
