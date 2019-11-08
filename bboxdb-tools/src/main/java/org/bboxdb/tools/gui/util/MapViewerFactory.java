@@ -85,6 +85,16 @@ public class MapViewerFactory {
 	}
 	
 	/**
+	 * Show LA in the viewer
+	 * @param mapViewer
+	 */
+	public static void showLA(final JXMapViewer mapViewer) {
+		final GeoPosition la = new GeoPosition(34.052235, -118.243683);
+		mapViewer.setZoom(9);
+		mapViewer.setAddressLocation(la);
+	}
+	
+	/**
 	 * Show the sydney in the viewer
 	 * @param mapViewer
 	 */
@@ -156,6 +166,19 @@ public class MapViewerFactory {
 		}
 		); 
 		return showHagenButton;
+	}
+	
+	/**
+	 * Get the show hagen button
+	 * @return
+	 */
+	public static JButton getShowLAButton(final JXMapViewer mapViewer) {
+		final JButton showLAButton = new JButton("Show LA");
+		showLAButton.addActionListener((l) -> {
+			showLA(mapViewer);
+		}
+		); 
+		return showLAButton;
 	}
 	
 	/**
