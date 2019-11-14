@@ -70,7 +70,7 @@ $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfacto
 
 echo "===== Starting prepartitioning ($partition partitions) ====="
 read -p "Press enter to continue"
-$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions 80
+$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions $partitions
 
 echo "===== Creating tables ====="
 read -p "Press enter to continue"
