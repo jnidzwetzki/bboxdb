@@ -30,9 +30,12 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-base="/BIG/nidzwetzki/datasets/osm/germany/converted"
-#base="/export/homes/nidzwetzki/germany_complete"
-#base="/export/homes/nidzwetzki/osm-germany/berlin/osm"
+if [ "$#" -ne 1 ]; then
+   echo "$0 <basedir>"
+   exit -1
+fi
+
+base=$1
 wood="$base/WOOD"
 road="$base/ROAD"
 
@@ -56,12 +59,18 @@ if [ ! -f ${road}_FIXED ]; then
     egrep -v '"type":"Point"' ${road} > ${road}_FIXED
 fi
 
-$BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup osmgroup
-$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2 -maxregionsize 10485760
+road_size=$(stat -c%s "${road}_FIXED")
 
-echo "===== Starting prepartitioning ====="
+one_gb="1073741824"
+gigabytes=$(($road_size / $one_gb))
+partitions=$(($gigabytes * 4))
+
+$BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup osmgroup
+$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb
+
+echo "===== Starting prepartitioning ($partition partitions) ====="
 read -p "Press enter to continue"
-$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions 20
+$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions 80
 
 echo "===== Creating tables ====="
 read -p "Press enter to continue"
