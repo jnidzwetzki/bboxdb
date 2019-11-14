@@ -68,7 +68,7 @@ partitions=$(($gigabytes * 4))
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup osmgroup
 $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb
 
-echo "===== Starting prepartitioning ($partition partitions) ====="
+echo "===== Starting prepartitioning ($partitions partitions) ====="
 read -p "Press enter to continue"
 $BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup osmgroup -partitions $partitions
 
