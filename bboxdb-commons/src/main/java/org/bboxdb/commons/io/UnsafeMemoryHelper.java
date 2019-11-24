@@ -22,7 +22,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
