@@ -11,6 +11,7 @@ order: 1
 - New Feature: Added importer for gtfs realtime position streams (Sydney Busses)
 - Improvement: Added auto key generation in tuple builder
 - Improvement: Fixed bugs found by Coverity scan
+- Improvement: Removed direct binding to JDK8 and the internal class sun.nio.ch.DirectBuffer
 
 ### Version 0.9.2 - 20.10.2019
 - Improvement: Made Zookeeper ports configurable

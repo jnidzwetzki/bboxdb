@@ -17,16 +17,20 @@
  *******************************************************************************/
 package org.bboxdb.commons.io;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import sun.nio.ch.DirectBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("restriction")
+
 public class UnsafeMemoryHelper {
 	
 	/**
@@ -35,12 +39,32 @@ public class UnsafeMemoryHelper {
 	private static final String MBEAN_NAME = "java.nio:type=BufferPool,name=mapped";
 	
 	/**
-	 * Is the direct memory unmapper available? (Oracle JVM specific)
+	 * When available (e.g., on Oracle JVM) the method contains a reference to the memory cleaner
 	 */
-	protected final static boolean directMemoryUnmapperAvailable;
+    private static MethodHandle memoryCleaner;
+    
+    /**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(UnsafeMemoryHelper.class);
+	
 	
 	static {
-		directMemoryUnmapperAvailable = testMemoryUnmapperAvailable();
+		// The internal class it not always available.
+		// Use reflection to determine the feature at runtime and to prevent a 
+		// static binding to the internal class "sun.nio.ch.DirectBuffer"
+		
+		// Direct Oracle JDK 8 code:
+		// ((DirectBuffer) buf).cleaner().clean();
+		
+		try {
+			final Class<?> cleanerClass = Class.forName("sun.nio.ch.DirectBuffer");
+			final Method cleanderMethod = cleanerClass.getMethod("cleaner");
+			final Method cleanMethod = cleanderMethod.getReturnType().getMethod("clean");
+			memoryCleaner = MethodHandles.lookup().unreflect(cleanMethod);
+		} catch (Exception e) {
+			logger.warn("Unable to detect memory cleaner, direct cleaning of memory mapped io does not work");
+		} 
 	}
 
 	/**
@@ -48,9 +72,13 @@ public class UnsafeMemoryHelper {
 	 * @return
 	 */
 	public static boolean testMemoryUnmapperAvailable() {
+		if(memoryCleaner == null) {
+			return false;
+		}
+		
 		try {
 			final ByteBuffer buf = ByteBuffer.allocateDirect(1);
-			((DirectBuffer) buf).cleaner().clean();
+			memoryCleaner.bindTo(buf).invoke();
 			return true;
 		} catch (Throwable t) {
 			return false;
@@ -62,21 +90,28 @@ public class UnsafeMemoryHelper {
 	 * @return
 	 */
 	public static boolean isDirectMemoryUnmapperAvailable() {
-		return directMemoryUnmapperAvailable;
+		return memoryCleaner != null;
 	}
 	
 	/**
 	 * Unmap the given memory byte buffer
 	 * @param memory
 	 */
-	public static void unmapMemory(final MappedByteBuffer memory) {
+	public static boolean unmapMemory(final MappedByteBuffer memory) {
 		if(memory == null) {
-			return;
+			return false;
 		}
 		
-		if(memory.isDirect()) {
-			((DirectBuffer) memory).cleaner().clean();
+		if(memory.isDirect() && memoryCleaner != null) {
+			try {
+				memoryCleaner.bindTo(memory).invoke();
+				return true;
+			} catch (Throwable e) {
+				logger.warn("Unable to unmap memory", e);
+			}
 		}
+		
+		return false;
 	}
 
 	/**
