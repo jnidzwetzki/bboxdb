@@ -388,8 +388,6 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	public void deleteDataOfDistributionRegion(final String distributionGroup,
 			final long region) throws StorageManagerException {
 
-		logger.info("Deleting all data for: {} / {}", distributionGroup, region);
-
 		final Predicate<TupleStoreName> namePredicate = (t) ->
 			(t.getDistributionGroup().equals(distributionGroup));
 
@@ -411,7 +409,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			throws StorageManagerException {
 
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
-		final Set<TupleStoreName> copyOfInstances= new HashSet<>();
+		final Set<TupleStoreName> copyOfInstances = new HashSet<>();
 		
 		synchronized (this) {
 			copyOfInstances.addAll(managerInstances.keySet());
@@ -427,6 +425,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		final List<TupleStoreName> allTables = getAllTables();
 		for(final TupleStoreName tupleStoreName : allTables) {
 			if(deleteTablePredicate.test(tupleStoreName)) {
+				logger.info("Deleting all data for: {}", tupleStoreName);
 				deleteTable(tupleStoreName);
 			}
 		}
