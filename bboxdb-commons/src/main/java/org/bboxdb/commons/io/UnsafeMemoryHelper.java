@@ -41,6 +41,11 @@ public class UnsafeMemoryHelper {
 	/**
 	 * When available (e.g., on Oracle JVM) the method contains a reference to the memory cleaner
 	 */
+    private static MethodHandle memoryClean;
+    
+    /**
+     * Reference to the sun.nio.ch.DirectBuffer#cleaner
+     */
     private static MethodHandle memoryCleaner;
     
     /**
@@ -60,29 +65,29 @@ public class UnsafeMemoryHelper {
 		try {
 			final Class<?> cleanerClass = Class.forName("sun.nio.ch.DirectBuffer");
 			final Method cleanderMethod = cleanerClass.getMethod("cleaner");
+			memoryCleaner = MethodHandles.lookup().unreflect(cleanderMethod);
 			final Method cleanMethod = cleanderMethod.getReturnType().getMethod("clean");
-			memoryCleaner = MethodHandles.lookup().unreflect(cleanMethod);
+			memoryClean = MethodHandles.lookup().unreflect(cleanMethod);
+			
+			// Test unmapping
+			final ByteBuffer buf = ByteBuffer.allocateDirect(1);
+			final boolean result = unmapMemory(buf);
+			
+			if(! result) {
+				memoryUnmapperNotAvailable();
+			}
 		} catch (Exception e) {
 			logger.warn("Unable to detect memory cleaner, direct cleaning of memory mapped io does not work");
+			memoryUnmapperNotAvailable();
 		} 
 	}
-
+	
 	/**
-	 * Run the memory unmapper check
-	 * @return
+	 * Set the memory cleaner to not available
 	 */
-	public static boolean testMemoryUnmapperAvailable() {
-		if(memoryCleaner == null) {
-			return false;
-		}
-		
-		try {
-			final ByteBuffer buf = ByteBuffer.allocateDirect(1);
-			memoryCleaner.bindTo(buf).invoke();
-			return true;
-		} catch (Throwable t) {
-			return false;
-		}		
+	private static void memoryUnmapperNotAvailable() {
+		memoryClean = null;
+		memoryCleaner = null;
 	}
 	
 	/**
@@ -90,21 +95,22 @@ public class UnsafeMemoryHelper {
 	 * @return
 	 */
 	public static boolean isDirectMemoryUnmapperAvailable() {
-		return memoryCleaner != null;
+		return (memoryClean != null) && (memoryCleaner != null);
 	}
 	
 	/**
 	 * Unmap the given memory byte buffer
 	 * @param memory
 	 */
-	public static boolean unmapMemory(final MappedByteBuffer memory) {
+	public static boolean unmapMemory(final ByteBuffer memory) {
 		if(memory == null) {
 			return false;
 		}
 		
-		if(memory.isDirect() && memoryCleaner != null) {
+		if(memory.isDirect() && isDirectMemoryUnmapperAvailable()) {
 			try {
-				memoryCleaner.bindTo(memory).invoke();
+	            final Object cleanerBuffer = memoryCleaner.bindTo(memory).invoke();
+				memoryClean.bindTo(cleanerBuffer).invoke();
 				return true;
 			} catch (Throwable e) {
 				logger.warn("Unable to unmap memory", e);

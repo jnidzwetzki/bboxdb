@@ -32,9 +32,7 @@ public class TestUnsafeMemoryHandler {
 	 * @throws Exception
 	 */
 	@Test(timeout=60000)
-	public void testUnsafeMemoryHandler() throws Exception {
-		UnsafeMemoryHelper.testMemoryUnmapperAvailable();
-		
+	public void testUnsafeMemoryHandler() throws Exception {		
 		if(! UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable()) {
 			return;
 		}
