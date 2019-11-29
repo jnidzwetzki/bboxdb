@@ -898,7 +898,6 @@ public class CLI implements Runnable, AutoCloseable {
 	private void printSampleDistribution(
 			final Map<DistributionRegion, List<Hyperrectangle>> activeRegions) {
 		
-		
 		System.out.println("=============================================");
 		System.out.println("Distribution of samples after partitioning");
 		System.out.println("=============================================");
@@ -909,15 +908,26 @@ public class CLI implements Runnable, AutoCloseable {
 				.max()
 				.getAsLong();
 		
-		
 		final double dots = 30.0;
+		
+		final int maxRegionString = activeRegions.keySet()
+				.stream()
+				.map(s -> s.getIdentifier())
+				.mapToInt(i -> i.length())
+				.max()
+				.orElse(0);
 		
 		for(final Entry<DistributionRegion, List<Hyperrectangle>> entry : activeRegions.entrySet()) {
 			
 			final DistributionRegion region = entry.getKey();
 			final List<Hyperrectangle> samples = entry.getValue();
 
-			System.out.print("Region: " + region.getIdentifier() + ": ");
+			final String identifier = region.getIdentifier();
+			System.out.print("Region: '" + identifier + "' ");
+			
+			for(int i = 0; i < maxRegionString - identifier.length(); i++) {
+				System.out.print(" ");
+			}
 			
 			final double dotsForRegionDouble = (((double) samples.size() / (double) maxValue) * dots);
 			final int dotsForRegion = (int) MathUtil.round(dotsForRegionDouble, 0);
@@ -933,8 +943,7 @@ public class CLI implements Runnable, AutoCloseable {
 			System.out.println(" (samples: "+ samples.size() + ")");
 		}
 		
-		System.out.println("");
-		System.out.println("");
+		System.out.println("\n");
 	}
 
 	/**
