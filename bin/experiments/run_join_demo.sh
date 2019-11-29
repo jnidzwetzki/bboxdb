@@ -72,15 +72,18 @@ gigabytes=$(($road_size / $one_gb))
 partitions=$(($gigabytes * 4))
 groupname="osmgroup"
 
+# Create at lease 10 partitions
+partitions=$(( $partitions == 0 ? 10 : $partitions ))
+
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup $groupname
 $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup $groupname -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb
 
 echo "===== Starting prepartitioning ($partitions partitions) ====="
-wait_if_needed($2)
+wait_if_needed $2
 $BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup $groupname -partitions $partitions
 
 echo "===== Creating tables ====="
-wait_if_needed($2)
+wait_if_needed $2
 $BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_road
 $BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_forest
 $BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -table ${groupname}_road
@@ -90,17 +93,17 @@ $BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -tabl
 query_range="52.4,52.6:13.3,13.6"
 
 echo "===== Range query on road ====="
-wait_if_needed($2)
+wait_if_needed $2
 $BBOXDB_HOME/bin/cli.sh -action query_range -table ${groupname}_road -bbox $query_range
 
 echo "===== Range query on forest ====="
-wait_if_needed($2)
+wait_if_needed $2
 $BBOXDB_HOME/bin/cli.sh -action query_range -table ${groupname}_forest -bbox $query_range
 
 echo "===== Bounding box join ====="
-wait_if_needed($2)
+wait_if_needed $2
 $BBOXDB_HOME/bin/cli.sh -action query_join -table ${groupname}_road:${groupname}_forest -bbox $query_range
 
 echo "===== Spatial join ====="
-wait_if_needed($2)
+wait_if_needed $2
 $BBOXDB_HOME/bin/cli.sh -action query_join -table ${groupname}_road:${groupname}_forest -bbox $query_range -filter org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter 
