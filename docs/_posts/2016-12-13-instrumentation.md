@@ -86,9 +86,9 @@ Now you can open the URL ``http://your-node:9090`` and see on the page ``Status`
 [Grafana](https://grafana.com/) is widely used for the virtualization of time series. Also, Grafana allows querying Prometheus as a data source. The installation is quite easy; the software needs to be downloaded, unpacked and started. The configuration is done via the web interface.
 
 ```bash
-wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-5.1.3.linux-x64.tar.gz
-tar zxvf grafana-5.1.3.linux-x64.tar.gz
-cd grafana-5.1.3.linux
+wget https://dl.grafana.com/oss/release/grafana-6.5.1.linux-amd64.tar.gz
+tar -zxvf grafana-6.5.1.linux-amd64.tar.gz
+cd grafana-6.5.1/bin
 ./grafana-server
 ```
 
