@@ -13,6 +13,7 @@ order: 1
 - Improvement: Fixed bugs found by Coverity scan
 - Improvement: Removed direct binding to JDK8 and the internal class sun.nio.ch.DirectBuffer
 - Improvement: Added further counter for prometheus
+- Improvement: Updated prometheus / grafana examples
 
 ### Version 0.9.2 - 20.10.2019
 - Improvement: Made Zookeeper ports configurable

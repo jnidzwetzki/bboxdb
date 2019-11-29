@@ -40,9 +40,9 @@ All BBoxDB related counters are starting with the prefix ``bboxdb_``. Also, deta
 [Prometheus](https://prometheus.io) is used as the data store for the performance counter. To work with the software, download and unpack it into a certain directory. 
 
 ```bash
-wget https://github.com/prometheus/prometheus/releases/download/v2.2.1/prometheus-2.2.1.linux-amd64.tar.gz
-tar zxvf prometheus-2.2.1.linux-amd64.tar.gz
-cd prometheus-2.2.1.linux-amd64
+wget https://github.com/prometheus/prometheus/releases/download/v2.14.0/prometheus-2.14.0.linux-amd64.tar.gz
+tar zxvf prometheus-2.14.0.linux-amd64.tar.gz
+cd prometheus-2.14.0.linux-amd64/
 ```
 
 Then create a config file ``prometheus.yml`` which contains a job for all of your BBoxDB instances. In our configuration file, the data is read from the systems ``node1`` and ``node2`` from the port 10085.
@@ -71,7 +71,7 @@ rule_files:
 scrape_configs:
 
   - job_name: 'BBoxDB1'
-    scrape_interval:     10s
+    scrape_interval:     5s
     static_configs:
       - targets: ['node1:10085', 'node2:10085']
         labels:
