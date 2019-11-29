@@ -53,6 +53,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 
+import io.prometheus.client.Gauge;
+
 public class InsertTupleHandler implements RequestHandler {
 
 	/**
@@ -64,6 +66,13 @@ public class InsertTupleHandler implements RequestHandler {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(InsertTupleHandler.class);
+	
+	/**
+	 * The number of read insert packages
+	 */
+	private final static Gauge readInsertPackagesTotal = Gauge.build()
+			.name("bboxdb_network_read_insert_packages_total")
+			.help("Total amount read insert network packages").register();
 
 	@Override
 	/**
@@ -78,6 +87,7 @@ public class InsertTupleHandler implements RequestHandler {
 		}
 
 		try {
+			readInsertPackagesTotal.inc();
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 
 			// Does the tuple have the right dimension?

@@ -184,6 +184,13 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	private final static Gauge activeConnectionsTotal = Gauge.build()
 			.name("bboxdb_network_connections_total")
 			.help("Total amount of active network connections").register();
+	
+	/**
+	 * The number of read network packages
+	 */
+	private final static Gauge readPackagesTotal = Gauge.build()
+			.name("bboxdb_network_read_packages_total")
+			.help("Total amount read network packages").register();
 
 	/**
 	 * The Logger
@@ -426,6 +433,8 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @throws PackageEncodeException
 	 */
 	public void handleNextPackage(final InputStream inputStream) throws IOException, PackageEncodeException {
+		readPackagesTotal.inc();
+		
 		final ByteBuffer packageHeader = readNextPackageHeader(inputStream);
 
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);

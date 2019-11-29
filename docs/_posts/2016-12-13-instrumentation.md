@@ -21,6 +21,8 @@ All BBoxDB related counters are starting with the prefix ``bboxdb_``. Also, deta
 |----------------------------------------|-------------|----------------------------------------------------------------------|
 | ``bboxdb_network_read_bytes``          | Bytes       | The amount of read bytes from the network connection                 |
 | ``bboxdb_network_write_bytes``         | Bytes       | The amount of written bytes from the network connection              |
+| ``bboxdb_network_read_packages_total`` | Tuples     | The amount of read network package |
+| ``bboxdb_network_read_insert_packages_total``   | Packages       | The amount of processed insert calls |
 | ``bboxdb_network_connections_total``   | Connections | The amount of active client connections to the instance              |
 | ``bboxdb_read_tuple_keys_total``       | Keys        | The amount of read keys from SSTables                                |
 | ``bboxdb_read_tuple_total``            | Tuples      | The amount of read tuples from SSTables                              |
@@ -30,7 +32,9 @@ All BBoxDB related counters are starting with the prefix ``bboxdb_``. Also, deta
 | ``bboxdb_unflushed_memtables_total``   | Memtables   | The amount of unflushed memtables (grouped by disk storage)          |
 | ``bboxdb_unflushed_memtables_bytes``   | Bytes       | The amount of bytes allocated by unflushed memtables                 |
 | ``bboxdb_request_get_latency_seconds`` | Seconds     | The latency time of get() operations (across memtables and SSTables) |
-| ``bboxdb_network_tuple_locks_total``   | Locks       | The amount of active tuple locks
+| ``bboxdb_network_tuple_locks_total``   | Locks       | The amount of active tuple locks |
+
+
 
 ## Capture the performance counter with Prometheus
 [Prometheus](https://prometheus.io) is used as the data store for the performance counter. To work with the software, download and unpack it into a certain directory. 
