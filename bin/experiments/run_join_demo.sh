@@ -30,6 +30,8 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
+make_script_on_error_fail
+
 function wait_if_needed() {
 	if [[ $1 != "nowait" ]]; then
 	   read -p "Press enter to continue"
@@ -107,3 +109,6 @@ $BBOXDB_HOME/bin/cli.sh -action query_join -table ${groupname}_road:${groupname}
 echo "===== Spatial join ====="
 wait_if_needed $2
 $BBOXDB_HOME/bin/cli.sh -action query_join -table ${groupname}_road:${groupname}_forest -bbox $query_range -filter org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter 
+
+exit_script_successfully
+
