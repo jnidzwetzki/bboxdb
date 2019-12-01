@@ -204,11 +204,11 @@ public class QueryWindow {
 		latEnd.setText(selectedLatEnd);
 		builder.add(latEnd, cc.xy (7,  9));
 
-		builder.addLabel("Name", cc.xy (5,  11));
+		builder.addLabel("UDF Name", cc.xy (5,  11));
 		final JTextField filterField = new JTextField();
 		builder.add(filterField, cc.xy (7,  11));
 
-		builder.addLabel("Value", cc.xy (5,  13));
+		builder.addLabel("UDF Value", cc.xy (5,  13));
 		final JTextField valueField = new JTextField();
 		builder.add(valueField, cc.xy (7,  13));
 
