@@ -62,7 +62,7 @@ public class QueryWindow {
 	 * The query types
 	 */
 	private static final String QUERY_NONE = "---";
-	private static final String QUERY_JOIN = "Join";
+	private static final String QUERY_JOIN = "Spatial Join";
 	private static final String QUERY_RANGE_CONTINUOUS = "Continuous range query";
 	private static final String QUERY_RANGE = "Range query";
 
