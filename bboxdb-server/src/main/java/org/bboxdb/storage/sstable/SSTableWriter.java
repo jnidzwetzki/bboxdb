@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.storage.BloomFilterBuilder;
@@ -258,24 +260,15 @@ public class SSTableWriter implements AutoCloseable {
 	 * Delete written data from disk
 	 */
 	public void deleteFromDisk() {
-		if(sstableFile != null && sstableFile.exists()) {
-			sstableFile.delete();
-		}
+		final File filesArray[] = {sstableFile, sstableIndexFile, sstableBloomFilterFile, 
+				spatialIndexFile, metadataFile};
 		
-		if(sstableIndexFile != null && sstableIndexFile.exists()) {
-			sstableIndexFile.delete();
-		}
+		final List<File> filesToDelete = Arrays.asList(filesArray);
 		
-		if(sstableBloomFilterFile != null && sstableBloomFilterFile.exists()) {
-			sstableBloomFilterFile.delete();
-		}
-		
-		if(spatialIndexFile != null && spatialIndexFile.exists()) {
-			spatialIndexFile.delete();
-		}
-		
-		if(metadataFile != null && metadataFile.exists()) {
-			metadataFile.delete();
+		for(final File file : filesToDelete) {
+			if(file != null && file.exists()) {
+				file.delete();
+			}
 		}
 	}
 	
