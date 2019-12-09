@@ -71,12 +71,12 @@ public class Const {
 	/**
 	 * The default max region size in MB
 	 */
-	public final static int DEFAULT_MAX_REGION_SIZE = 256;
+	public final static int DEFAULT_MAX_REGION_SIZE_IN_MB = 256;
 
 	/**
 	 * The default min region size in MB
 	 */
-	public final static int DEFAULT_MIN_REGION_SIZE = DEFAULT_MAX_REGION_SIZE /3;
+	public final static int DEFAULT_MIN_REGION_SIZE_IN_MB = DEFAULT_MAX_REGION_SIZE_IN_MB / 3;
 
 	/**
 	 * Max tuples in uncompressed queue

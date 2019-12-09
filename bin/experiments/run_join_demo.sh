@@ -70,6 +70,8 @@ fi
 road_size=$(stat -c%s "${road}_FIXED")
 
 one_gb="1073741824"
+one_gb_in_mb=$(($one_gb / 1048576))
+
 gigabytes=$(($road_size / $one_gb))
 partitions=$(($gigabytes * 4))
 groupname="osmgroup"
@@ -78,7 +80,7 @@ groupname="osmgroup"
 partitions=$(( $partitions < 0 ? 10 : $partitions ))
 
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup $groupname
-$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup $groupname -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb
+$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup $groupname -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb_in_mb 
 
 echo "===== Starting prepartitioning ($partitions partitions) ====="
 wait_if_needed $2

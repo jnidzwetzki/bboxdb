@@ -145,8 +145,8 @@ public class DistributionGroupAdapter {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, 
 				Short.toString(configuration.getReplicationFactor()).getBytes());
 		
-		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSize(), 
-				configuration.getMinimumRegionSize());
+		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSizeInMB(), 
+				configuration.getMinimumRegionSizeInMB());
 		
 		// Placement
 		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
@@ -344,8 +344,8 @@ public class DistributionGroupAdapter {
 		configuration.setSpacePartitionerConfig(spacePartitionerConfig);
 		configuration.setSpacePartitioner(spacePartitoner);
 		configuration.setReplicationFactor(replicationFactor);
-		configuration.setMaximumRegionSize(maxRegionSize);
-		configuration.setMinimumRegionSize(minRegionSize);
+		configuration.setMaximumRegionSizeInMB(maxRegionSize);
+		configuration.setMinimumRegionSizeInMB(minRegionSize);
 		configuration.setDimensions(dimensions);
 		
 		return configuration;

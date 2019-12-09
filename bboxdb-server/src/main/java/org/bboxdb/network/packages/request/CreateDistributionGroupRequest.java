@@ -70,8 +70,8 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			bb.putShort((short) spacePartitionierBytes.length);
 			bb.putInt((int) placementConfigBytes.length);
 			bb.putInt((int) spacePartitionierConfigBytes.length);
-			bb.putInt(distributionGroupConfiguration.getMaximumRegionSize());
-			bb.putInt(distributionGroupConfiguration.getMinimumRegionSize());
+			bb.putInt(distributionGroupConfiguration.getMaximumRegionSizeInMB());
+			bb.putInt(distributionGroupConfiguration.getMinimumRegionSizeInMB());
 
 			// Body length
 			final long bodyLength = bb.capacity() + groupBytes.length 
@@ -153,8 +153,8 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(dimensions)
 				.withPlacementStrategy(placemeneStrategy, placementConfig)
 				.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
-				.withMaximumRegionSize(maximumRegionSize)
-				.withMinimumRegionSize(minimumRegionSize)
+				.withMaximumRegionSizeInMB(maximumRegionSize)
+				.withMinimumRegionSizeInMB(minimumRegionSize)
 				.withReplicationFactor(replicationFactor)
 				.build();
 				

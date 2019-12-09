@@ -34,12 +34,12 @@ public class DistributionGroupConfiguration {
 	/**
 	 * The maximal region size (in MB)
 	 */
-	protected int maximumRegionSizeMB = Const.DEFAULT_MAX_REGION_SIZE;
+	protected int maximumRegionSizeMB = Const.DEFAULT_MAX_REGION_SIZE_IN_MB;
 	
 	/**
 	 * The minimal region size (in MB)
 	 */
-	protected int minimumRegionSizeMB = Const.DEFAULT_MIN_REGION_SIZE;
+	protected int minimumRegionSizeMB = Const.DEFAULT_MIN_REGION_SIZE_IN_MB;
 	
 	/**
 	 * The default placement strategy
@@ -76,20 +76,20 @@ public class DistributionGroupConfiguration {
 		this.replicationFactor = replicationFactor;
 	}
 
-	public int getMaximumRegionSize() {
+	public int getMaximumRegionSizeInMB() {
 		return maximumRegionSizeMB;
 	}
 
-	public void setMaximumRegionSize(final int maximalRegionSize) {
-		this.maximumRegionSizeMB = maximalRegionSize;
+	public void setMaximumRegionSizeInMB(final int maximalRegionSizeInMB) {
+		this.maximumRegionSizeMB = maximalRegionSizeInMB;
 	}
 	
-	public int getMinimumRegionSize() {
+	public int getMinimumRegionSizeInMB() {
 		return minimumRegionSizeMB;
 	}
 
-	public void setMinimumRegionSize(final int minimalRegionSize) {
-		this.minimumRegionSizeMB = minimalRegionSize;
+	public void setMinimumRegionSizeInMB(final int minimalRegionSizeInMB) {
+		this.minimumRegionSizeMB = minimalRegionSizeInMB;
 	}
 
 	public String getPlacementStrategy() {

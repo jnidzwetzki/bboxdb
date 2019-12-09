@@ -57,7 +57,7 @@ public class RegionMergeHelper {
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(fullname);
 
-		return config.getMinimumRegionSize();
+		return config.getMinimumRegionSizeInMB();
 	}
 	
 	/**

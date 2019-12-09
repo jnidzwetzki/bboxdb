@@ -1182,10 +1182,10 @@ public class CLI implements Runnable, AutoCloseable {
 		checkRequiredArgs(requiredArgs);
 
 		final String maxRegionSizeString = CLIHelper.getParameterOrDefault(
-				line, CLIParameter.MAX_REGION_SIZE, Integer.toString(Const.DEFAULT_MAX_REGION_SIZE));
+				line, CLIParameter.MAX_REGION_SIZE, Integer.toString(Const.DEFAULT_MAX_REGION_SIZE_IN_MB));
 
 		final String minRegionSizeString = CLIHelper.getParameterOrDefault(
-				line, CLIParameter.MIN_REGION_SIZE, Integer.toString(Const.DEFAULT_MIN_REGION_SIZE));
+				line, CLIParameter.MIN_REGION_SIZE, Integer.toString(Const.DEFAULT_MIN_REGION_SIZE_IN_MB));
 
 		final int maxRegionSize = MathUtil.tryParseIntOrExit(maxRegionSizeString,
 				() -> "Unable to parse the max region size: " + maxRegionSizeString);
@@ -1223,8 +1223,8 @@ public class CLI implements Runnable, AutoCloseable {
 			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 					.create(dimensions)
 					.withReplicationFactor((short) replicationFactor)
-					.withMaximumRegionSize(maxRegionSize)
-					.withMinimumRegionSize(minRegionSize)
+					.withMaximumRegionSizeInMB(maxRegionSize)
+					.withMinimumRegionSizeInMB(minRegionSize)
 					.withPlacementStrategy(resourcePlacement, resourcePlacementConfig)
 					.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
 					.build();

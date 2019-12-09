@@ -80,7 +80,7 @@ public class RegionSplitHelper {
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(fullname);
 
-		return config.getMaximumRegionSize();
+		return config.getMaximumRegionSizeInMB();
 	}
 	
 	

@@ -213,7 +213,7 @@ public class TestQuadtreeSpacePartitioner {
 		ZookeeperNotFoundException, BBoxDBException {
 						
 		final long regionSize = RegionMergeHelper.getConfiguredRegionMinSizeInMB(TEST_GROUP);
-		Assert.assertEquals(Const.DEFAULT_MIN_REGION_SIZE, regionSize);
+		Assert.assertEquals(Const.DEFAULT_MIN_REGION_SIZE_IN_MB, regionSize);
 	}
 	
 	/**

@@ -706,8 +706,8 @@ public class TestZookeeperIntegration {
 		System.out.println("====> Executing testDistributionGroupConfiguration()");
 		
 		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(45);
-		configuration.setMaximumRegionSize(342);
-		configuration.setMinimumRegionSize(53454);
+		configuration.setMaximumRegionSizeInMB(342);
+		configuration.setMinimumRegionSizeInMB(53454);
 		configuration.setPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy");
 		configuration.setPlacementStrategyConfig("def");
 		configuration.setReplicationFactor((short) 1);

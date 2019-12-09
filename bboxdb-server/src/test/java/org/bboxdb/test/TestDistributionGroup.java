@@ -83,16 +83,16 @@ public class TestDistributionGroup {
 	public void testDistributionGroupConfiguration1() {
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder
 				.create(45)
-				.withMaximumRegionSize(342)
-				.withMinimumRegionSize(53454)
+				.withMaximumRegionSizeInMB(342)
+				.withMinimumRegionSizeInMB(53454)
 				.withPlacementStrategy("place1", "place2")
 				.withSpacePartitioner("abc", "456")
 				.withReplicationFactor((short) 99)
 				.build();
 		
 		Assert.assertEquals(45, config.getDimensions());
-		Assert.assertEquals(342, config.getMaximumRegionSize());
-		Assert.assertEquals(53454, config.getMinimumRegionSize());
+		Assert.assertEquals(342, config.getMaximumRegionSizeInMB());
+		Assert.assertEquals(53454, config.getMinimumRegionSizeInMB());
 		Assert.assertEquals("place1", config.getPlacementStrategy());
 		Assert.assertEquals("place2", config.getPlacementStrategyConfig());
 		Assert.assertEquals("abc", config.getSpacePartitioner());

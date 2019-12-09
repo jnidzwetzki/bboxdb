@@ -94,7 +94,7 @@ public class OptionsHelper {
 		final Option maxRegionSize = Option.builder(CLIParameter.MAX_REGION_SIZE)
 				.hasArg()
 				.argName("max region size (in MB)")
-				.desc("Default: " + Const.DEFAULT_MAX_REGION_SIZE)
+				.desc("Default: " + Const.DEFAULT_MAX_REGION_SIZE_IN_MB)
 				.build();
 		options.addOption(maxRegionSize);
 
@@ -102,7 +102,7 @@ public class OptionsHelper {
 		final Option minRegionSize = Option.builder(CLIParameter.MIN_REGION_SIZE)
 				.hasArg()
 				.argName("min region size (in MB)")
-				.desc("Default: " + Const.DEFAULT_MIN_REGION_SIZE)
+				.desc("Default: " + Const.DEFAULT_MIN_REGION_SIZE_IN_MB)
 				.build();
 		options.addOption(minRegionSize);
 
