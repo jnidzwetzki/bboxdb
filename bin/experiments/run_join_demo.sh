@@ -74,8 +74,8 @@ gigabytes=$(($road_size / $one_gb))
 partitions=$(($gigabytes * 4))
 groupname="osmgroup"
 
-# Create at lease 10 partitions
-partitions=$(( $partitions == 0 ? 10 : $partitions ))
+# Create at least 10 partitions
+partitions=$(( $partitions < 0 ? 10 : $partitions ))
 
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup $groupname
 $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup $groupname -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb
