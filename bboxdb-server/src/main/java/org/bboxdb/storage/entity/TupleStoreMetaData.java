@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bboxdb.storage.sstable.SSTableCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -65,7 +66,7 @@ public class TupleStoreMetaData {
 	/**
 	 * The SSTable creator
 	 */
-	protected String sstableCreator;
+	protected String sstableCreator = SSTableCreator.UNKNOWN.getCreatorString();
 	
 	/**
 	 * The logger
