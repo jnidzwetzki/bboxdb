@@ -117,9 +117,7 @@ public class TupleStoreMetaData {
 	 */
 	public void exportToYamlFile(final File outputFile) throws IOException {
 	    final Map<String, Object> data = getPropertyMap();
-	    
-	    System.out.println(data);
-	    
+	    	    
 	    final FileWriter writer = new FileWriter(outputFile);
 	    logger.debug("Output data to: " + outputFile);
 	    
