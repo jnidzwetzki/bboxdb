@@ -15,6 +15,7 @@ order: 1
 - Improvement: Removed direct binding to JDK8 and the internal class sun.nio.ch.DirectBuffer
 - Improvement: Added further counter for prometheus
 - Improvement: Updated prometheus / grafana examples
+- Improvement: Prevent ongoing major compactification tasks without data change
 - Bugfix: Improved invalid SSTable invalid metadata handling
 - Bugfix: SStables without metadata are ignored
 

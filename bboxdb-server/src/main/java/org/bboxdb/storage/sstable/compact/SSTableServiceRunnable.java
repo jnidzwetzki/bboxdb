@@ -70,7 +70,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 
 	public SSTableServiceRunnable(final DiskStorage storage) {
 		this.storage = storage;
-		this.mergeStrategy = new SimpleMergeStrategy();
+		this.mergeStrategy = new BasicMergeStrategy();
 	}
 
 	@Override

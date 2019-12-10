@@ -24,9 +24,10 @@ import java.util.stream.Collectors;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.sstable.SSTableConst;
+import org.bboxdb.storage.sstable.SSTableCreator;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
-public class SimpleMergeStrategy implements MergeStrategy {
+public class BasicMergeStrategy implements MergeStrategy {
 	
 	/**
 	 * The number of tables to merge per minor task
@@ -75,13 +76,14 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	protected List<SSTableFacade> generateMajorCompactTask(final List<SSTableFacade> sstables) {
 		
 		final long now = System.currentTimeMillis();
-		
 		final long smallTableThreshold = getSmallTableThreshold();
+		final String majorCompact = SSTableCreator.MAJOR_COMPACT.getCreatorString();
 		
 		// Any old big compact tables?
 		final boolean bigCompactNeeded = sstables
 			.stream()
 			.filter(f -> f.getSsTableMetadata().getTuples() >= smallTableThreshold)
+			.filter(f -> ! f.getSsTableMetadata().getSstableCreator().equals(majorCompact))
 			.map(f -> f.getSsTableReader())
 			.anyMatch(r -> r.getLastModifiedTimestamp() + SSTableConst.COMPACT_BIG_TABLE_UNTOUCHED_TIME < now);
 			
