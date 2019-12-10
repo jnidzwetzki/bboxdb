@@ -15,6 +15,8 @@ order: 1
 - Improvement: Removed direct binding to JDK8 and the internal class sun.nio.ch.DirectBuffer
 - Improvement: Added further counter for prometheus
 - Improvement: Updated prometheus / grafana examples
+- Bugfix: Improved invalid SSTable invalid metadata handling
+- Bugfix: SStables without metadata are ignored
 
 ### Version 0.9.2 - 20.10.2019
 - Improvement: Made Zookeeper ports configurable

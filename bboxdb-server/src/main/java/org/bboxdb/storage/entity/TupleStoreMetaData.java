@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.SSTableCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,16 +160,17 @@ public class TupleStoreMetaData {
 	 * 
 	 * @param tmpFile
 	 * @return
+	 * @throws StorageManagerException 
 	 * @throws FileNotFoundException
 	 */
-	public static TupleStoreMetaData importFromYamlFile(final File tmpFile) {
+	public static TupleStoreMetaData importFromYamlFile(final File tmpFile) throws StorageManagerException {
 		final Yaml yaml = new Yaml(); 
 		FileReader reader;
 		try {
 			reader = new FileReader(tmpFile);
 		} catch (FileNotFoundException e) {
-			logger.warn("Unable to load file: " + tmpFile, e);
-			return null;
+			logger.error("Unable to load file: " + tmpFile, e);
+			throw new StorageManagerException(e);
 		}
 
 		return yaml.loadAs(reader, TupleStoreMetaData.class);

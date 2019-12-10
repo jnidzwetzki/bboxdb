@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreMetaData;
@@ -266,20 +267,22 @@ public class TestSSTableMetadataBuilder {
 
 	/**
 	 * Read from non existing file
+	 * @throws StorageManagerException 
 	 */
-	@Test()
-	public void readFromNonEstingFile() {
+	@Test(timeout=60000, expected=StorageManagerException.class)
+	public void readFromNonEstingFile() throws StorageManagerException {
 		final File tmpFile = new File("/tmp/medatadafile");
-		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYamlFile(tmpFile);
-		Assert.assertTrue(metaDataRead == null);
+		TupleStoreMetaData.importFromYamlFile(tmpFile);
+		Assert.fail("This should not happen");
 	}
 
 	/**
 	 * Dump the index to yaml file and reread the data - zero tuples
 	 * @throws IOException
+	 * @throws StorageManagerException 
 	 */
 	@Test(timeout=60000)
-	public void testDumpAndReadFromYamlFile1() throws IOException {
+	public void testDumpAndReadFromYamlFile1() throws IOException, StorageManagerException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder(SSTableCreator.MEMTABLE);
 
 		final File tmpFile = File.createTempFile("test", ".tmp");
@@ -296,9 +299,10 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Dump the index to yaml file and reread the data - two tuple
 	 * @throws IOException
+	 * @throws StorageManagerException 
 	 */
 	@Test(timeout=60000)
-	public void testDumpAndReadFromYamlFile2() throws IOException {
+	public void testDumpAndReadFromYamlFile2() throws IOException, StorageManagerException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder(SSTableCreator.MEMTABLE);
 
 		addTwoTuples(ssTableIndexBuilder);

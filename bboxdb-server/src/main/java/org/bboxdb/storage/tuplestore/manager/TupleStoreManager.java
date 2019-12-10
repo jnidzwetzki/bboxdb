@@ -450,7 +450,7 @@ public class TupleStoreManager implements BBoxDBService {
 					facade.init();
 					tupleStoreInstances.addNewDetectedSSTable(facade);
 				} catch(BBoxDBException e) {
-					throw new StorageManagerException(e);
+					logger.error("Unable to load intance " + filename, e);
 				}
 			}
 		}

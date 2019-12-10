@@ -108,20 +108,20 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 
 	public SSTableFacade(final String directory, final TupleStoreName tablename, final int tablenumber, 
 			final int keyCacheElements) throws StorageManagerException {
-		super();
+		
 		this.tablename = tablename;
 		this.directory = directory;
 		this.tablenumber = tablenumber;
 		
-		ssTableReader = new SSTableReader(directory, tablename, tablenumber);
-		ssTableKeyIndexReader = new SSTableKeyIndexReader(ssTableReader);
+		this.ssTableReader = new SSTableReader(directory, tablename, tablenumber);
+		this.ssTableKeyIndexReader = new SSTableKeyIndexReader(ssTableReader);
 		
 		// Meta data
 		final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
-		ssTableMetadata = TupleStoreMetaData.importFromYamlFile(metadataFile);
+		this.ssTableMetadata = TupleStoreMetaData.importFromYamlFile(metadataFile);
 		
 		this.usage = new AtomicInteger(0);
-		deleteOnClose = false;
+		this.deleteOnClose = false;
 		this.keyCacheElements = keyCacheElements;
 	}
 
