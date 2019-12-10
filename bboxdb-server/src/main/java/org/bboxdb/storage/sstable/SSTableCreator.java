@@ -21,8 +21,8 @@ public enum SSTableCreator {
 	
 	UNKNOWN("unkown"), 
 	MEMTABLE("memtable"), 
-	MINOR("minor"), 
-	MAJOR("major");
+	MINOR_COMPACT("minor_compact"), 
+	MAJOR_COMPACT("major_compact");
 
 	private final String creator;
 

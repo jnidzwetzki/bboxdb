@@ -290,10 +290,10 @@ public class SSTableCompactor {
 	 */
 	private SSTableCreator getCreatorType() {
 		if(isMajorCompaction()) {
-			return SSTableCreator.MAJOR;
+			return SSTableCreator.MAJOR_COMPACT;
 		}
 		
-		return SSTableCreator.MINOR;
+		return SSTableCreator.MINOR_COMPACT;
 	}
 
 
