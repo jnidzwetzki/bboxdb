@@ -141,14 +141,15 @@ public class SSTableWriter implements AutoCloseable {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
+
 	
 	public SSTableWriter(final String directory, final TupleStoreName name, 
-			final int tablenumber, final long estimatedNumberOfTuples) {
+			final int tablenumber, final long estimatedNumberOfTuples, final SSTableCreator creator) {
 		
 		this.directory = directory;
 		this.name = name;
-		this.tablenumber = tablenumber;		
-		this.metadataBuilder = new SSTableMetadataBuilder();
+		this.tablenumber = tablenumber;
+		this.metadataBuilder = new SSTableMetadataBuilder(creator);
 		this.exceptionDuringWrite = false;
 		
 		// Bloom Filter
@@ -377,7 +378,7 @@ public class SSTableWriter implements AutoCloseable {
 			
 			// Add Tuple to the SSTable file
 			TupleHelper.writeTupleToStream(tuple, sstableOutputStream);
-			metadataBuilder.addTuple(tuple);
+			metadataBuilder.updateWithTuple(tuple);
 			
 			// Add tuple to the bloom filter
 			bloomFilter.put(tuple.getKey());

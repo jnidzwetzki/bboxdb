@@ -27,7 +27,9 @@ import org.bboxdb.commons.SortedIteratorMerger;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableConst;
+import org.bboxdb.storage.sstable.SSTableCreator;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
@@ -270,14 +272,28 @@ public class SSTableCompactor {
 
 		final String directory = sstableIndexReader.get(0).getDirectory();
 		final int tablenumber = tupleStoreManager.increaseTableNumber();
-
-		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreManager.getTupleStoreName(),
-				tablenumber, estimatedMaxNumberOfEntries);
+		final TupleStoreName tupleStoreName = tupleStoreManager.getTupleStoreName();
+		final SSTableCreator creatorType = getCreatorType();
+		
+		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreName,
+				tablenumber, estimatedMaxNumberOfEntries, creatorType);
 
 		sstableWriter.open();
 		resultList.add(sstableWriter);
 		logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
 		return sstableWriter;
+	}
+	
+	/**
+	 * Get the SSTable creator type
+	 * @return 
+	 */
+	private SSTableCreator getCreatorType() {
+		if(isMajorCompaction()) {
+			return SSTableCreator.MAJOR;
+		}
+		
+		return SSTableCreator.MINOR;
 	}
 
 

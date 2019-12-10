@@ -26,32 +26,41 @@ public class SSTableMetadataBuilder {
 	/**
 	 * The amount of tupes
 	 */
-	protected long tuples = 0;
+	private long tuples = 0;
 	
 	/**
 	 * The version timestamp of the oldest tuple
 	 */
-	protected long oldestTupleVersionTimestamp = Long.MAX_VALUE;
+	private long oldestTupleVersionTimestamp = Long.MAX_VALUE;
 	
 	/**
 	 * The version timestamp of the newest tuple
 	 */
-	protected long newestTupleVersionTimstamp = Long.MIN_VALUE;
+	private long newestTupleVersionTimstamp = Long.MIN_VALUE;
 	
 	/**
 	 * The inserted timestamp of the newest tuple
 	 */
-	protected long newestTupleInsertedTimstamp = Long.MIN_VALUE;
+	private long newestTupleInsertedTimstamp = Long.MIN_VALUE;
 
 	/**
 	 * The coresponding bounding box
 	 */
-	protected Hyperrectangle boundingBox;
+	private Hyperrectangle boundingBox;
 	
+	/**
+	 * The creator of the SSTable
+	 */
+	private final SSTableCreator creator;
+	
+	public SSTableMetadataBuilder(final SSTableCreator creator) {
+		this.creator = creator;
+	}
+
 	/**
 	 * Update the metadata 
 	 */
-	public void addTuple(final Tuple tuple) {
+	public void updateWithTuple(final Tuple tuple) {
 		tuples++;
 		
 		if(boundingBox == null) {
@@ -79,7 +88,7 @@ public class SSTableMetadataBuilder {
 			boundingBoxArray = boundingBox.toDoubleArray();
 		}
 		
-		return new TupleStoreMetaData(tuples, oldestTupleVersionTimestamp, 
+		return new TupleStoreMetaData(creator.getCreatorString(), tuples, oldestTupleVersionTimestamp, 
 				newestTupleVersionTimstamp, newestTupleInsertedTimstamp, boundingBoxArray);
 	}
 }

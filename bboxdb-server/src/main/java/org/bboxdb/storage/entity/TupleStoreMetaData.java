@@ -61,22 +61,36 @@ public class TupleStoreMetaData {
 	 * The dimensions of the bounding box
 	 */
 	protected int dimensions;
+
+	/**
+	 * The SSTable creator
+	 */
+	protected String sstableCreator;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreMetaData.class);
-
+	
 	/**
 	 * Needed for YAML deserializer
 	 */
 	public TupleStoreMetaData() {
 		
 	}
-	
-	public TupleStoreMetaData(final long tuples, final long oldestTuple, final long newestTuple, 
-			final long newestTupleInsertedTimstamp, final double[] boundingBoxData) {
+
+	/**
+	 * @param boundingBoxArray 
+	 * @param newestTupleInsertedTimstamp2 
+	 * @param newestTupleVersionTimstamp 
+	 * @param oldestTupleVersionTimestamp2 
+	 * @param tuples2 
+	 * @param creator 
+	 */
+	public TupleStoreMetaData(final String sstableCreator, final long tuples, final long oldestTuple, 
+			final long newestTuple, final long newestTupleInsertedTimstamp, final double[] boundingBoxData) {
 		
+		this.sstableCreator = sstableCreator;
 		this.tuples = tuples;
 		this.oldestTupleVersionTimestamp = oldestTuple;
 		this.newestTupleVersionTimestamp = newestTuple;
@@ -104,6 +118,8 @@ public class TupleStoreMetaData {
 	public void exportToYamlFile(final File outputFile) throws IOException {
 	    final Map<String, Object> data = getPropertyMap();
 	    
+	    System.out.println(data);
+	    
 	    final FileWriter writer = new FileWriter(outputFile);
 	    logger.debug("Output data to: " + outputFile);
 	    
@@ -124,6 +140,7 @@ public class TupleStoreMetaData {
 	    data.put("newestTupleInsertedTimstamp", newestTupleInsertedTimstamp);
 		data.put("dimensions", dimensions);
 	    data.put("boundingBoxData", boundingBoxData);
+	    data.put("sstableCreator", sstableCreator);
 		return data;
 	}
 	
@@ -174,7 +191,6 @@ public class TupleStoreMetaData {
 		this.newestTupleVersionTimestamp = newestTuple;
 	}
 
-	
 	public long getNewestTupleInsertedTimstamp() {
 		return newestTupleInsertedTimstamp;
 	}
@@ -203,8 +219,16 @@ public class TupleStoreMetaData {
 		return tuples;
 	}
 
-	public void setTuples(long tuples) {
+	public void setTuples(final long tuples) {
 		this.tuples = tuples;
+	}
+	
+	public String getSstableCreator() {
+		return sstableCreator;
+	}
+	
+	public void setSstableCreator(final String sstableCreator) {
+		this.sstableCreator = sstableCreator;
 	}
 
 	@Override
@@ -216,6 +240,7 @@ public class TupleStoreMetaData {
 		result = prime * result + (int) (newestTupleInsertedTimstamp ^ (newestTupleInsertedTimstamp >>> 32));
 		result = prime * result + (int) (newestTupleVersionTimestamp ^ (newestTupleVersionTimestamp >>> 32));
 		result = prime * result + (int) (oldestTupleVersionTimestamp ^ (oldestTupleVersionTimestamp >>> 32));
+		result = prime * result + ((sstableCreator == null) ? 0 : sstableCreator.hashCode());
 		result = prime * result + (int) (tuples ^ (tuples >>> 32));
 		return result;
 	}
@@ -239,6 +264,11 @@ public class TupleStoreMetaData {
 			return false;
 		if (oldestTupleVersionTimestamp != other.oldestTupleVersionTimestamp)
 			return false;
+		if (sstableCreator == null) {
+			if (other.sstableCreator != null)
+				return false;
+		} else if (!sstableCreator.equals(other.sstableCreator))
+			return false;
 		if (tuples != other.tuples)
 			return false;
 		return true;
@@ -246,10 +276,10 @@ public class TupleStoreMetaData {
 
 	@Override
 	public String toString() {
-		return "SStableMetaData [tuples=" + tuples + ", oldestTupleVersionTimestamp=" + oldestTupleVersionTimestamp
+		return "TupleStoreMetaData [tuples=" + tuples + ", oldestTupleVersionTimestamp=" + oldestTupleVersionTimestamp
 				+ ", newestTupleVersionTimestamp=" + newestTupleVersionTimestamp + ", newestTupleInsertedTimstamp="
 				+ newestTupleInsertedTimstamp + ", boundingBoxData=" + Arrays.toString(boundingBoxData)
-				+ ", dimensions=" + dimensions + "]";
+				+ ", dimensions=" + dimensions + ", sstableCreator=" + sstableCreator + "]";
 	}
-
+	
 }

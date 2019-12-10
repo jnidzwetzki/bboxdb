@@ -25,6 +25,7 @@ import org.bboxdb.commons.FileSizeHelper;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.sstable.SSTableCreator;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
@@ -193,15 +194,14 @@ public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 		
 		final int tableNumber = sstableManager.increaseTableNumber();
 		final TupleStoreName tupleStoreName = sstableManager.getTupleStoreName();
+		final long numberOfEntries = memtable.getNumberOfTuples();
+		final String sizeString = FileSizeHelper.readableFileSize(memtable.getSize());
 		
 		logger.info("Writing memtable number {} of {} with {} entries and a size of {}", 
-				tableNumber, 
-				tupleStoreName,
-				memtable.getNumberOfTuples(), 
-				FileSizeHelper.readableFileSize(memtable.getSize()));
+				tableNumber, tupleStoreName, numberOfEntries, sizeString);
 
 		try (final SSTableWriter ssTableWriter = new SSTableWriter(
-				dataDirectory, tupleStoreName, tableNumber, memtable.getMaxEntries())) {
+				dataDirectory, tupleStoreName, tableNumber, numberOfEntries, SSTableCreator.MEMTABLE)) {
 
 			ssTableWriter.open();
 			ssTableWriter.addTuples(memtable.getSortedTupleList());

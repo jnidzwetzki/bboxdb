@@ -34,6 +34,7 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.sstable.SSTableCreator;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
@@ -422,7 +423,7 @@ public class TestTableCompactor {
 
 		Collections.sort(tupleList);
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, number, EXPECTED_TUPLES);
+		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, number, EXPECTED_TUPLES, SSTableCreator.MEMTABLE);
 		ssTableWriter.open();
 		ssTableWriter.addTuples(tupleList);
 		ssTableWriter.close();
