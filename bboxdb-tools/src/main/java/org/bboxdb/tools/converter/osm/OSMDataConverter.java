@@ -27,7 +27,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -36,6 +41,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.tools.converter.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMBuildingsEntityFilter;
@@ -44,6 +50,12 @@ import org.bboxdb.tools.converter.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.WoodEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.singlepoint.OSMTreeEntityFilter;
+import org.bboxdb.tools.converter.osm.store.OSMBDBNodeStore;
+import org.bboxdb.tools.converter.osm.store.OSMJDBCNodeStore;
+import org.bboxdb.tools.converter.osm.store.OSMNodeStore;
+import org.bboxdb.tools.converter.osm.store.OSMSSTableNodeStore;
+import org.bboxdb.tools.converter.osm.util.SerializableNode;
+import org.bboxdb.tools.converter.osm.util.SerializerHelper;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
@@ -67,6 +79,11 @@ public class OSMDataConverter {
 	 */
 	protected final String output;
 	
+	/**
+	 * The node serializer
+	 */
+	protected final SerializerHelper<GeoJsonPolygon> serializerHelper = new SerializerHelper<>();
+    
     /**
      * The number element statistics
      */
@@ -82,11 +99,64 @@ public class OSMDataConverter {
 	 */
 	protected final Map<OSMType, Writer> writerMap = new HashMap<>();
 	
+	/**
+	 * The node store
+	 */
+	protected final OSMNodeStore osmNodeStore;
+
+	/**
+	 * The thread pool
+	 */
+	protected final ExecutorService threadPool;
+	
+	/**
+	 * The amount of consumer threads
+	 */
+	protected final int CONSUMER_THREADS = 5;
+	
+	/**
+	 * The Blocking queue
+	 */
+	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(1000);
+	
+	static class Backend {
+		/**
+		 * The name of the SSTable backend
+		 */
+		private static final String SSTABLE = "sstable";
+	
+		/**
+		 * The name of the BDB backend
+		 */
+		private static final String BDB = "bdb";
+	
+		/**
+		 * The name of the JDBC backend
+		 */
+		private static final String JDBC = "jdbc";
+		
+		/**
+		 * All known backends
+		 */
+		private static final List<String> ALL_BACKENDS 
+			= Arrays.asList(JDBC, BDB, SSTABLE);
+	}
+	
 	static class Parameter {
 		/**
 		 * The name of the output parameter
 		 */
 		private static final String OUTPUT = "output";
+	
+		/**
+		 * The name of the workfolder
+		 */
+		private static final String WORKFOLDER = "workfolder";
+	
+		/**
+		 * The name of the backend
+		 */
+		private static final String BACKEND = "backend";
 	
 		/**
 		 * The name of the input
@@ -114,10 +184,28 @@ public class OSMDataConverter {
 		filter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	
-	public OSMDataConverter(final String filename, final String output) {
+	public OSMDataConverter(final String filename, final String backend, 
+			final String workfolder, final String output) {
+		
 		this.filename = filename;
 		this.output = output;
-		this.statistics = new OSMConverterStatistics();		
+		this.statistics = new OSMConverterStatistics();
+		
+		final File inputFile = new File(filename);
+
+		final List<String> workfolders = Arrays.asList(workfolder.split(":"));
+		 
+		if(Backend.BDB.equals(backend)) {
+			this.osmNodeStore = new OSMBDBNodeStore(workfolders, inputFile.length());
+		} else if(Backend.JDBC.equals(backend)) {
+			this.osmNodeStore = new OSMJDBCNodeStore(workfolders, inputFile.length());
+		} else if(Backend.SSTABLE.equals(backend)) {
+			this.osmNodeStore = new OSMSSTableNodeStore(workfolders, inputFile.length());
+		} else {
+			throw new RuntimeException("Unknown backend: " + backend);
+		}
+		
+		threadPool = Executors.newCachedThreadPool();
 		statistics.start();
 	}
 
@@ -128,8 +216,7 @@ public class OSMDataConverter {
 		try {
 			// Open file handles
 			for(final OSMType osmType : filter.keySet()) {
-				final String outputFile = output + File.separator + osmType.toString();
-				final BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFile)));
+				final BufferedWriter bw = new BufferedWriter(new FileWriter(new File(output + File.separator + osmType.toString())));
 				writerMap.put(osmType, bw);
 			}
 			
@@ -148,17 +235,34 @@ public class OSMDataConverter {
 				
 				@Override
 				public void process(final EntityContainer entityContainer) {
-					if(entityContainer.getEntity() instanceof Node) {
-						final Node node = (Node) entityContainer.getEntity();
-						handleNode(node);
-						statistics.incProcessedNodes();
-					} else if(entityContainer.getEntity() instanceof Way) {							
-						final Way way = (Way) entityContainer.getEntity();
-						handleWay(way);
-						statistics.incProcessedWays();
-					} 
+					try {
+
+						if(entityContainer.getEntity() instanceof Node) {
+							// Nodes are cheap to handle, dispatching to another thread 
+							// is more expensive
+							
+							final Node node = (Node) entityContainer.getEntity();
+							handleNode(node);
+							statistics.incProcessedNodes();
+						} else if(entityContainer.getEntity() instanceof Way) {
+							// Ways are expensive to handle
+							
+							final Way way = (Way) entityContainer.getEntity();	
+							queue.put(way);
+							
+							statistics.incProcessedWays();
+						}
+					} catch (InterruptedException e) {
+						return;
+					}
 				}
+
 			});
+			
+			// The way consumer
+			for(int i = 0; i < CONSUMER_THREADS; i++) {
+				threadPool.submit(new Consumer());
+			}
 			
 			reader.run();
 		} catch (IOException e) {
@@ -173,6 +277,15 @@ public class OSMDataConverter {
 	 */
 	protected void shutdown() {
 		
+		threadPool.shutdownNow();
+		
+		try {
+			threadPool.awaitTermination(120, TimeUnit.SECONDS);
+		} catch (InterruptedException e1) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+		
 		statistics.stop();
 		
 		// Close file handles
@@ -185,7 +298,36 @@ public class OSMDataConverter {
 		}
 		
 		writerMap.clear();
+		osmNodeStore.close();
 	}
+	
+	
+	class Consumer extends ExceptionSafeRunnable {
+		/**
+		 * The consumer thread
+		 */
+		@Override
+		protected void runThread() {
+			
+			while(! Thread.currentThread().isInterrupted() ) {
+				try {
+					final Way way = queue.take();
+					handleWay(way);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}		
+			}
+			
+			// Thread is getting ready to die, but first,
+	        // handle the pending jobs
+			Way way = null;
+			while((way = queue.poll()) != null) {
+				handleWay(way);
+			}
+			
+		}
+	}
+	
 
 	/**
 	 * Handle a node
@@ -193,10 +335,8 @@ public class OSMDataConverter {
 	 */
 	protected void handleNode(final Node node) {
 		try {			
-			for(final Entry<OSMType, OSMTagEntityFilter> entry : filter.entrySet()) {
-				final OSMType osmType = entry.getKey();
-				final OSMTagEntityFilter entityFilter = entry.getValue();
-				
+			for(final OSMType osmType : filter.keySet()) {
+				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(node.getTags())) {
 					final GeoJsonPolygon geometricalStructure = new GeoJsonPolygon(node.getId());
 					
@@ -210,7 +350,9 @@ public class OSMDataConverter {
 					writePolygonToOutput(osmType, geometricalStructure);
 				}
 			}
-						
+			
+			osmNodeStore.storeNode(node);
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} 
@@ -236,10 +378,9 @@ public class OSMDataConverter {
 	 */
 	protected void handleWay(final Way way) {
 		try {			
-			for(final Entry<OSMType, OSMTagEntityFilter> entry : filter.entrySet()) {
-				final OSMType osmType = entry.getKey();
-				final OSMTagEntityFilter entityFilter = entry.getValue();
+			for(final OSMType osmType : filter.keySet()) {
 				
+				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(way.getTags())) {
 					
 					final GeoJsonPolygon geometricalStructure = new GeoJsonPolygon(way.getId());
@@ -248,8 +389,12 @@ public class OSMDataConverter {
 						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
 					}
 					
- 					for(final WayNode wayNode : way.getWayNodes()) { 						
- 						geometricalStructure.addPoint(wayNode.getLongitude(), wayNode.getLatitude()); 						
+					// Perform search async
+ 					for(final WayNode wayNode : way.getWayNodes()) {
+ 						final SerializableNode node = osmNodeStore.getNodeForId(wayNode.getNodeId());
+ 						
+ 						// GeoJSON: [longitude, latitude]
+ 						geometricalStructure.addPoint(node.getLongitude(), node.getLatitude()); 						
 					}
  			
 					writePolygonToOutput(osmType, geometricalStructure);
@@ -275,6 +420,8 @@ public class OSMDataConverter {
 			checkParameter(options, line);
 			
 			final String filename = line.getOptionValue(Parameter.INPUT);
+			final String backend = line.getOptionValue(Parameter.BACKEND);
+			final String workfolder = line.getOptionValue(Parameter.WORKFOLDER);
 			final String output = line.getOptionValue(Parameter.OUTPUT);
 			
 			// Check input file
@@ -296,7 +443,13 @@ public class OSMDataConverter {
 				System.exit(-1);
 			}
 			
-			final OSMDataConverter converter = new OSMDataConverter(filename, output);
+			// Check backends
+			if(! Backend.ALL_BACKENDS.contains(backend)) {
+				System.err.println("Backend with name is unkown: " + backend);
+				printHelpAndExit(options);
+			}
+
+			final OSMDataConverter converter = new OSMDataConverter(filename, backend, workfolder, output);
 			converter.start();
 		} catch (ParseException e) {
 			System.err.println("Unable to parse commandline arguments: " + e);
@@ -314,7 +467,9 @@ public class OSMDataConverter {
 			printHelpAndExit(options);
 		}
 					
-		final List<String> requiredArgs = Arrays.asList(Parameter.INPUT, Parameter.OUTPUT);
+		final List<String> requiredArgs = Arrays.asList(Parameter.INPUT, 
+				Parameter.OUTPUT, Parameter.BACKEND, 
+				Parameter.WORKFOLDER);
 		
 		final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
 		
@@ -352,6 +507,23 @@ public class OSMDataConverter {
 				.build();
 		options.addOption(output);
 		
+		// The backend
+		final String backendList = Backend.ALL_BACKENDS
+				.stream().collect(Collectors.joining(",", "[", "]"));
+		
+		final Option backend = Option.builder(Parameter.BACKEND)
+				.hasArg()
+				.argName(backendList)
+				.desc("The node converter backend")
+				.build();
+		options.addOption(backend);
+
+		final Option workfolder = Option.builder(Parameter.WORKFOLDER)
+				.hasArg()
+				.argName("workfolder1:workfolder2:workfolderN")
+				.desc("The working folder for the database")
+				.build();
+		options.addOption(workfolder);
 		return options;
 	}
 
