@@ -20,10 +20,11 @@ package org.bboxdb.tools.gui.views.query;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolTip;
@@ -131,16 +132,13 @@ public class QueryView implements View {
 		final JButton showSydneyButton = MapViewerFactory.getShowSydneyButton(mapViewer);
 		buttonPanel.add(showSydneyButton);
 		
-		final JButton queryButton = getQueryButton();
-		buttonPanel.add(queryButton);
-		
 		final JButton clearButton = getClearButton();
 		buttonPanel.add(clearButton);
 		
 		final JButton resultDetails = getResultDetailsButton();
 		buttonPanel.add(resultDetails);
 		
-		final JCheckBox bboxCheckbox = getBBoxCheckbox(painter);
+		final JComponent bboxCheckbox = getDrawModeComponent(painter);
 		buttonPanel.add(bboxCheckbox);
 
 		return mainPanel;	
@@ -157,33 +155,25 @@ public class QueryView implements View {
 	}
 
 	/**
-	 * Get the bounding box checkbox
+	 * Get the rendering mode component
 	 */
-	private JCheckBox getBBoxCheckbox(final ElementOverlayPainter painter) {
-		final JCheckBox bboxCheckbox = new JCheckBox("Show Bounding Boxes");
-		bboxCheckbox.setSelected(true);
+	private JComponent getDrawModeComponent(final ElementOverlayPainter painter) {
+		final ElementPaintMode[] valuesAsEnum = ElementPaintMode.values();
 		
-		bboxCheckbox.addActionListener((a) -> {
-			painter.setDrawBoundingBoxes(bboxCheckbox.isSelected());
+		final String[] valuesAsString = Arrays.asList(valuesAsEnum)
+				.stream()
+				.map(e -> e.getStringValue())
+				.toArray(String[]::new);
+		
+		final JComboBox<String> dropdown = new JComboBox<>(valuesAsString);
+		
+		dropdown.addActionListener((a) -> {
+			final ElementPaintMode mode = valuesAsEnum[dropdown.getSelectedIndex()];
+			painter.setPaintMode(mode);
 			mapViewer.repaint();
 		});
 		
-		return bboxCheckbox;
-	}
-
-	/**
-	 * Get the query button
-	 * @return
-	 */
-	private JButton getQueryButton() {
-		final JButton queryButton = new JButton("Execute query");
-		
-		queryButton.addActionListener(l -> {
-			final QueryWindow queryWindow = new QueryWindow(guiModel, painter, backgroundThreads);
-			queryWindow.show();
-		});
-		
-		return queryButton;
+		return dropdown;
 	}
 
 	/**

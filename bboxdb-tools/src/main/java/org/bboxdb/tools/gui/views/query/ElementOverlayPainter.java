@@ -77,7 +77,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * Draw the bounding boxes of the objects
 	 */
-	private boolean drawBoundingBoxes = true;
+	private ElementPaintMode paintMode = ElementPaintMode.ALL;
 	
 	/**
 	 * The callbacks for a changed list
@@ -194,10 +194,12 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			final Set<EntityIdentifier> alreadyRenderedElements, final OverlayElement element,
 			final EntityIdentifier identifier) {
 		
-		final boolean drawReally = alreadyRenderedElements.add(identifier);
-		element.drawOnGui(graphicsContext, map, drawReally);
+		if(paintMode == ElementPaintMode.ALL || paintMode == ElementPaintMode.GEOMETRY_ONLY) {
+			final boolean drawReally = alreadyRenderedElements.add(identifier);
+			element.drawOnGui(graphicsContext, map, drawReally);
+		}
 
-		if(drawBoundingBoxes) {
+		if(paintMode == ElementPaintMode.ALL || paintMode == ElementPaintMode.BOUNDING_BOXES_ONLY) {
 			final Rectangle boundingBox = element.getBBoxToDrawOnGui();
 			graphicsContext.setColor(Color.BLACK);
 			graphicsContext.draw(boundingBox);
@@ -227,11 +229,11 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	}
 	
 	/**
-	 * Set the drawing of the bounding boxes
-	 * @param drawBoundingBoxes
+	 * Set the paint mode
+	 * @param paintMode
 	 */
-	public void setDrawBoundingBoxes(final boolean drawBoundingBoxes) {
-		this.drawBoundingBoxes = drawBoundingBoxes;
+	public void setPaintMode(final ElementPaintMode paintMode) {
+		this.paintMode = paintMode;
 	}
 	
 	/**
