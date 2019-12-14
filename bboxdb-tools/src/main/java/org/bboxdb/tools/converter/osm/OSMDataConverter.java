@@ -44,7 +44,6 @@ import org.bboxdb.tools.converter.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.WoodEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.singlepoint.OSMTreeEntityFilter;
-import org.bboxdb.tools.converter.osm.util.SerializerHelper;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
@@ -68,11 +67,6 @@ public class OSMDataConverter {
 	 */
 	protected final String output;
 	
-	/**
-	 * The node serializer
-	 */
-	protected final SerializerHelper<GeoJsonPolygon> serializerHelper = new SerializerHelper<>();
-    
     /**
      * The number element statistics
      */
@@ -154,15 +148,15 @@ public class OSMDataConverter {
 				
 				@Override
 				public void process(final EntityContainer entityContainer) {
-					if(entityContainer.getEntity() instanceof Way) {							
-						final Way way = (Way) entityContainer.getEntity();
-						handleWay(way);
-						statistics.incProcessedWays();
-					} else if(entityContainer.getEntity() instanceof Node) {
+					if(entityContainer.getEntity() instanceof Node) {
 						final Node node = (Node) entityContainer.getEntity();
 						handleNode(node);
 						statistics.incProcessedNodes();
-					}
+					} else if(entityContainer.getEntity() instanceof Way) {							
+						final Way way = (Way) entityContainer.getEntity();
+						handleWay(way);
+						statistics.incProcessedWays();
+					} 
 				}
 			});
 			
@@ -254,7 +248,6 @@ public class OSMDataConverter {
 						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
 					}
 					
-					// Perform search async
  					for(final WayNode wayNode : way.getWayNodes()) { 						
  						geometricalStructure.addPoint(wayNode.getLongitude(), wayNode.getLatitude()); 						
 					}
@@ -303,7 +296,6 @@ public class OSMDataConverter {
 				System.exit(-1);
 			}
 			
-		
 			final OSMDataConverter converter = new OSMDataConverter(filename, output);
 			converter.start();
 		} catch (ParseException e) {
