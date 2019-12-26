@@ -67,7 +67,7 @@ When 2-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/Wo
 
 ## Contact / Stay informed
 * Visit our [website](https://bboxdb.org)
-* Read our [technical report](https://ub-deposit.fernuni-hagen.de/receive/mir_mods_00001277), our [demo paper](https://dl.acm.org/citation.cfm?id=3269208) about partitioning (presented at CIKM2018), our [full paper](https://link.springer.com/article/10.1007/s10619-019-07275-w) at Springer Distributed and Parallel Databases, and our demo paper about user defined filters (presented at [IEEE Big Spatial Data 2019](http://cse.ucdenver.edu/~BSD2019/), received the best paper award).
+* Read our [technical report](https://ub-deposit.fernuni-hagen.de/receive/mir_mods_00001277), our [demo paper](https://dl.acm.org/citation.cfm?id=3269208) about partitioning (presented at [CIKM2018](https://www.cikm2018.units.it/)), our [full paper](https://link.springer.com/article/10.1007/s10619-019-07275-w) at Springer Distributed and Parallel Databases, and our demo paper about user defined filters (presented at [IEEE Big Spatial Data 2019](http://cse.ucdenver.edu/~BSD2019/), received the best paper award).
 * Join our chat at [gitter](https://gitter.im/bboxdb/Lobby)
 * Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
 * Subscribe our mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
