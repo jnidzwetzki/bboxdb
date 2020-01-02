@@ -21,7 +21,9 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -505,6 +507,8 @@ public class QueryWindow {
 							return;
 						}
 						
+						final Map<String, OverlayElementGroup> seenElements = new HashMap<>();
+						
 						for(final JoinedTuple joinedTuple : result) {
 							if(result.isFailed()) {
 								logger.error("Got an error" + result.getAllMessages());
@@ -516,12 +520,18 @@ public class QueryWindow {
 								return;
 							}
 							
-							logger.info("Fetched tuple");
+							final Tuple tuple = joinedTuple.getTuple(0);
+							final OverlayElement overlayElement = getOverlayElement(tuple, table, color);
+							final OverlayElementGroup newElement = new OverlayElementGroup(Arrays.asList(overlayElement));
 							
-							final Tuple tuple0 = joinedTuple.getTuple(0);
-							final OverlayElement overlayElement = getOverlayElement(tuple0, table, color);
-							final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
-							painter.addElementToDraw(resultTuple);
+							final OverlayElementGroup oldElement = seenElements.get(tuple.getKey());
+
+							if(oldElement != null) {
+								painter.removeElementToDraw(oldElement);
+							}
+							
+							seenElements.put(tuple.getKey(), newElement);
+							painter.addElementToDraw(newElement);							
 						}						
 					}
 				};
