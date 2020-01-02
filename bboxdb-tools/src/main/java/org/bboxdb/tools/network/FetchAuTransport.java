@@ -56,7 +56,7 @@ public class FetchAuTransport implements Runnable {
 	/**
 	 * The polling delay
 	 */
-	private long DELAY = TimeUnit.SECONDS.toMillis(20);
+	private long DELAY = TimeUnit.SECONDS.toMillis(5);
 	
 	/**
 	 * The Auth key
