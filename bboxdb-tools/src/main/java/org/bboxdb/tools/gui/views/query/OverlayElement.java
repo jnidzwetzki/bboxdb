@@ -238,13 +238,22 @@ public class OverlayElement {
 
 		if(pointList.size() == 1) {
 			final Point2D thePoint = pointList.get(0);
-			graphicsContext.setColor(Color.BLUE);
-			final double size = (200 * (1.0 / map.getZoom()));
-			final Ellipse2D ellipse = new Ellipse2D.Double(thePoint.getX(), thePoint.getX(), size, size);
+			final double size = (100 * (1.0 / map.getZoom()));
+			
+			final Point2D point2 = new Point2D.Double(thePoint.getX() + size, thePoint.getY() + 100);
+
+			final GeoPosition translatedPoint1 = map.getTileFactory().pixelToGeo(thePoint, map.getZoom());
+			final GeoPosition translatedPoint2 = map.getTileFactory().pixelToGeo(point2, map.getZoom());
+			
+			final double diff = Math.abs(translatedPoint1.getLatitude() - translatedPoint2.getLatitude());
+			
+			final Ellipse2D ellipse = new Ellipse2D.Double(thePoint.getX(), thePoint.getX(), diff, diff);
 			lastRenderedShape = ellipse;
-			System.out.println("POINT: " + size);
+
+			System.out.println("POINT: " + size + " / " + diff + " / zoom " + map.getZoom());
 			if(drawReally) {
-				graphicsContext.draw(ellipse);
+				graphicsContext.setColor(Color.BLUE);
+				graphicsContext.fill(ellipse);
 			}
 			
 			return;
