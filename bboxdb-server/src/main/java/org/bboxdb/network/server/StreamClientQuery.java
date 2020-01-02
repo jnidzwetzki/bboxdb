@@ -297,4 +297,10 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	public long getTotalSendTuples() {
 		return totalSendTuples;
 	}
+	
+
+	@Override
+	public void maintenanceCallback() {
+		// Nothing to do
+	}
 }

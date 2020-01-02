@@ -49,5 +49,10 @@ public interface ClientQuery extends Closeable {
 	 * @return
 	 */
 	public long getTotalSendTuples();
+	
+	/**
+	 * Maintenance callback, performed by the connection maintenance thread
+	 */
+	public void maintenanceCallback();
 
 }

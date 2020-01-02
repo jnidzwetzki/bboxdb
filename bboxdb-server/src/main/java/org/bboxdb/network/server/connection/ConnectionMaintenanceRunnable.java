@@ -17,9 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.network.server.connection;
 
+import java.util.Map;
+
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.network.NetworkConst;
+import org.bboxdb.network.server.ClientQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +59,12 @@ public class ConnectionMaintenanceRunnable extends ExceptionSafeRunnable {
 
 		while(serviceState.isInStartingState() || serviceState.isInRunningState()) {
 
+			// Perform maintenance tasks for the queries
+			final Map<Short, ClientQuery> queries = clientConnectionHandler.getActiveQueries();
+			for(ClientQuery query : queries.values()) {
+				query.maintenanceCallback();
+			}
+			
 			// Write all waiting for compression packages
 			clientConnectionHandler.flushPendingCompressionPackages();
 

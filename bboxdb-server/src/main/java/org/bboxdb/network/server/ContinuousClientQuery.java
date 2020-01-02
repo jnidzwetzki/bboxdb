@@ -132,6 +132,11 @@ public class ContinuousClientQuery implements ClientQuery {
 	private final static JoinedTuple RED_PILL = new JoinedTuple(new ArrayList<>(), new ArrayList<>());
 	
 	/**
+	 * Keep alive pill
+	 */
+	private final static JoinedTuple KEEP_ALIVE_PILL = new JoinedTuple(new ArrayList<>(), new ArrayList<>());
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousClientQuery.class);
@@ -399,14 +404,16 @@ public class ContinuousClientQuery implements ClientQuery {
 		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 		while(queryActive) {
-			if(System.currentTimeMillis() >= lastFlushTime + FLUSH_TIME_IN_MS) {
-				clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
-				clientConnectionHandler.flushPendingCompressionPackages();
-				lastFlushTime = System.currentTimeMillis();
-				return;
-			}
-
 			try {
+				
+				// Finish query _PAGE_ after at least FLUSH_TIME_IN_MS
+				if(System.currentTimeMillis() >= lastFlushTime + FLUSH_TIME_IN_MS) {
+					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
+					clientConnectionHandler.flushPendingCompressionPackages();
+					lastFlushTime = System.currentTimeMillis();
+					return;
+				}
+				
 				// Send next tuple or wait
 				final JoinedTuple tuple = tupleQueue.take();
 				
@@ -416,6 +423,11 @@ public class ContinuousClientQuery implements ClientQuery {
 					clientConnectionHandler.flushPendingCompressionPackages();
 					this.queryActive = false;
 					return;
+				}
+				
+				// Test for query finish
+				if(tuple == KEEP_ALIVE_PILL) {
+					continue;
 				}
 				
 				clientConnectionHandler.writeResultTuple(packageSequence, tuple, true);
@@ -432,6 +444,17 @@ public class ContinuousClientQuery implements ClientQuery {
 		// All tuples are send
 		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 		clientConnectionHandler.flushPendingCompressionPackages();	
+	}
+	
+
+	@Override
+	public void maintenanceCallback() {
+		// Release waiting query processors and 
+		// let them finish the query page if needed
+		
+		if(tupleQueue.isEmpty()) {
+			tupleQueue.offer(KEEP_ALIVE_PILL);
+		}
 	}
 
 	@Override
