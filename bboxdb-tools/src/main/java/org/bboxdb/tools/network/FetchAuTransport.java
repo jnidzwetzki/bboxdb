@@ -51,12 +51,12 @@ public class FetchAuTransport implements Runnable {
 	/**
 	 * The amount of pending insert futures
 	 */
-	private final static int MAX_PENDING_FUTURES = 100;
+	private final static int MAX_PENDING_FUTURES = 1000;
 	
 	/**
 	 * The polling delay
 	 */
-	private long DELAY = TimeUnit.SECONDS.toMillis(5);
+	private long delay;
 	
 	/**
 	 * The Auth key
@@ -89,12 +89,15 @@ public class FetchAuTransport implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(FetchAuTransport.class);
 
 	
+
+	
 	public FetchAuTransport(final String authKey, final String connectionPoint, 
-			final String clustername, final String table) {
+			final String clustername, final String table, final int delay) {
 				this.authKey = authKey;
 				this.connectionPoint = connectionPoint;
 				this.clustername = clustername;
 				this.table = table;
+				this.delay = TimeUnit.SECONDS.toMillis(delay);
 				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
 	}
 
@@ -163,7 +166,7 @@ public class FetchAuTransport implements Runnable {
 			
 			System.out.format("Inserted %d elements %n", entities.size());
 			
-			Thread.sleep(DELAY);
+			Thread.sleep(delay);
 		}
 	}
 
@@ -185,8 +188,8 @@ public class FetchAuTransport implements Runnable {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		if(args.length != 4) {
-			System.err.println("Usage: <Class> <AuthKey> <Connection Endpoint> <Clustername> <Table>");
+		if(args.length != 5) {
+			System.err.println("Usage: <Class> <AuthKey> <Connection Endpoint> <Clustername> <Table> <Delay in sec>");
 			System.exit(-1);
 		}
 		
@@ -194,8 +197,9 @@ public class FetchAuTransport implements Runnable {
 		final String connectionPoint = args[1];
 		final String clustername = args[2];
 		final String table = args[3];
+		final int delay = MathUtil.tryParseIntOrExit(args[4], () -> "Unable to parse delay value: " + args[4]);
 				
-		final FetchAuTransport main = new FetchAuTransport(authKey, connectionPoint, clustername, table);
+		final FetchAuTransport main = new FetchAuTransport(authKey, connectionPoint, clustername, table, delay);
 		main.run();
 	}
 }
