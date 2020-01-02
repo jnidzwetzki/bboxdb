@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.networksocket;
+package org.bboxdb.tools.network;
 
 import java.net.HttpURLConnection;
 import java.net.URL;

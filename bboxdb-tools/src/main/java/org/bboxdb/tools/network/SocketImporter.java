@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.networksocket;
+package org.bboxdb.tools.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 
-public class Main implements Runnable {
+public class SocketImporter implements Runnable {
 
 	/**
 	 * The port to open the server socket
@@ -71,7 +71,7 @@ public class Main implements Runnable {
 	 */
 	private final static int MAX_PENDING_FUTURES = 100;
 
-	public Main(final int port, final String connectionPoint, 
+	public SocketImporter(final int port, final String connectionPoint, 
 			final String clustername, String table, final TupleBuilder tupleFactory) {
 				this.port = port;
 				this.connectionPoint = connectionPoint;
@@ -156,7 +156,7 @@ public class Main implements Runnable {
 		
 		final TupleBuilder tupleFactory = TupleBuilderFactory.getBuilderForFormat(format);
 		
-		final Main main = new Main(port, connectionPoint, clustername, table, tupleFactory);
+		final SocketImporter main = new SocketImporter(port, connectionPoint, clustername, table, tupleFactory);
 		main.run();
 	}
 }
