@@ -238,7 +238,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 
 		// The pending packages for compression
 		this.pendingCompressionPackages = new ArrayList<>();
-		this.maintenanceThread = new ConnectionMaintenanceRunnable();
+		this.maintenanceThread = new ConnectionMaintenanceRunnable(this);
 
 		final Thread thread = new Thread(maintenanceThread);
 		thread.start();
@@ -715,35 +715,6 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 
 		return sb.toString();
 	}
-
-	class ConnectionMaintenanceRunnable extends ExceptionSafeRunnable {
-
-		@Override
-		protected void beginHook() {
-			logger.debug("Starting connection mainteinance thread for: {}", getConnectionName());
-		}
-
-		@Override
-		protected void endHook() {
-			logger.debug("Mainteinance thread for {} has terminated", getConnectionName());
-		}
-
-		@Override
-		protected void runThread() throws Exception {
-			while(serviceState.isInStartingState() || serviceState.isInRunningState()) {
-
-				// Write all waiting for compression packages
-				flushPendingCompressionPackages();
-
-				try {
-					Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
-				} catch (InterruptedException e) {
-					// Handle InterruptedException directly
-					return;
-				}
-			}
-		}
-	};
 
 	/**
 	 * Get the storage registry
