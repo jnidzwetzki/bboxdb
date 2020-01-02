@@ -99,7 +99,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The last query flush time
 	 */
-	private long lastFlushTime = 0;
+	private long lastFlushTime = System.currentTimeMillis();
 
 	/**
 	 * The maximal queue capacity
