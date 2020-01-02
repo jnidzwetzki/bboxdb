@@ -247,6 +247,7 @@ public class CLI implements Runnable, AutoCloseable {
 		break;
 
 		default:
+			System.err.format("Unknown action %s%n", action);
 			break;
 		}
 	}
