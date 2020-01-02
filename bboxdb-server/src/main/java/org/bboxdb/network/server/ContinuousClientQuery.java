@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -94,6 +95,11 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * The tuples for the given key
 	 */
 	private final BlockingQueue<JoinedTuple> tupleQueue;
+	
+	/**
+	 * The last query flush time
+	 */
+	private long lastFlushTime = 0;
 
 	/**
 	 * The maximal queue capacity
@@ -103,7 +109,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The number of tuples per page
 	 */
-	private final static long TUPLES_PER_PAGE = 1;
+	private final static long FLUSH_TIME_IN_MS = TimeUnit.SECONDS.toMillis(1);
 
 	/**
 	 * The tuple insert callback
@@ -390,13 +396,13 @@ public class ContinuousClientQuery implements ClientQuery {
 	@Override
 	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
 
-		long sendTuplesInThisPage = 0;
 		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 		while(queryActive) {
-			if(sendTuplesInThisPage >= TUPLES_PER_PAGE) {
+			if(System.currentTimeMillis() >= lastFlushTime + FLUSH_TIME_IN_MS) {
 				clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 				clientConnectionHandler.flushPendingCompressionPackages();
+				lastFlushTime = System.currentTimeMillis();
 				return;
 			}
 
@@ -414,7 +420,6 @@ public class ContinuousClientQuery implements ClientQuery {
 				
 				clientConnectionHandler.writeResultTuple(packageSequence, tuple, true);
 				totalSendTuples++;
-				sendTuplesInThisPage++;
 			} catch (InterruptedException e) {
 				logger.info("Thread was interrupted while waiting for new tuples");
 				this.queryActive = false;
