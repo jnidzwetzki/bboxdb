@@ -238,7 +238,7 @@ public class OverlayElement {
 
 		if(pointList.size() == 1) {
 			final Point2D thePoint = pointList.get(0);
-			final double size = (50 * (1.0 / map.getZoom()));
+			final double size = (40 * (1.0 / map.getZoom()));
 		
 			final double pointX = thePoint.getX() - size/2;
 			final double pointY = thePoint.getY() - size/2;
