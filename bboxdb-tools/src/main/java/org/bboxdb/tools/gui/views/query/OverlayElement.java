@@ -27,6 +27,7 @@ import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -238,17 +239,27 @@ public class OverlayElement {
 
 		if(pointList.size() == 1) {
 			final Point2D thePoint = pointList.get(0);
-			final double size = (40 * (1.0 / map.getZoom()));
-		
+			
+			// Zoom can be 0
+			final int changedZoom = 2 * (map.getZoom() + 1);
+			final double size = (40 * (1.0 / changedZoom));
+					
 			final double pointX = thePoint.getX() - size/2;
 			final double pointY = thePoint.getY() - size/2;
 			final Ellipse2D ellipse = new Ellipse2D.Double(pointX, pointY, size, size);
 			lastRenderedShape = ellipse;
 			
 			if(drawReally) {
-				graphicsContext.setColor(Color.BLUE);
+				graphicsContext.setColor(color);
 				graphicsContext.fill(ellipse);
-				graphicsContext.drawString(Long.toString(polygon.getId()), (int) thePoint.getX(), (int) thePoint.getY()); 
+
+				final String stringValue = Long.toString(polygon.getId());
+				final Rectangle2D stringBounds = graphicsContext.getFontMetrics().getStringBounds(stringValue, graphicsContext);
+			
+				final int stringPosY = (int) (thePoint.getY() + (2 * size));
+				final int stringPosX = (int) pointX - ((int) stringBounds.getWidth() / 2);
+
+				graphicsContext.drawString(stringValue, stringPosX, stringPosY); 
 			}
 			
 			return;

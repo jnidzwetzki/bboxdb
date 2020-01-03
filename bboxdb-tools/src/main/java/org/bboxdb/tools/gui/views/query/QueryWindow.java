@@ -21,9 +21,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -36,8 +34,6 @@ import javax.swing.JTextField;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
-import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
@@ -46,9 +42,7 @@ import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
-import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.JoinedTuple;
-import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
@@ -379,11 +373,11 @@ public class QueryWindow {
 					for(final JoinedTuple joinedTuple : result) {
 						// Handle tuple0
 						final Tuple tuple0 = joinedTuple.getTuple(0);
-						final OverlayElement overlayElement0 = getOverlayElement(tuple0, table1, color1);
+						final OverlayElement overlayElement0 = OverlayElementHelper.getOverlayElement(tuple0, table1, color1);
 
 						// Handle tuple1
 						final Tuple tuple1 = joinedTuple.getTuple(1);
-						final OverlayElement overlayElement1 = getOverlayElement(tuple1, table2, color2);
+						final OverlayElement overlayElement1 = OverlayElementHelper.getOverlayElement(tuple1, table2, color2);
 							
 						final List<OverlayElement> tupleList = Arrays.asList(overlayElement0, overlayElement1);
 						final OverlayElementGroup resultTuple = new OverlayElementGroup(tupleList);
@@ -398,28 +392,6 @@ public class QueryWindow {
 					Thread.currentThread().interrupt();
 					return;
 				} 
-			}
-
-			/**
-			 * Add the tuples to the overlay
-			 * @param color1
-			 * @param tuples
-			 * @return 
-			 */
-			private OverlayElement getOverlayElement(final Tuple tuple, final String tupleStoreName, 
-					final Color color) {
-				
-				final String data = new String(tuple.getDataBytes());				
-				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
-				
-				// Add also the table to the identifier
-				final EntityIdentifier identifier = new JoinedTupleIdentifier(Arrays.asList(tuple), 
-						Arrays.asList(tupleStoreName));
-				
-				final OverlayElement overlayElement = new OverlayElement(identifier, 
-						tupleStoreName, polygon, color);
-				
-				return overlayElement;
 			}
 
 			/**
@@ -446,7 +418,7 @@ public class QueryWindow {
 					final List<OverlayElementGroup> elements = new ArrayList<>();
 					
 					for(final Tuple tuple : result) {
-						final OverlayElement overlayElement = getOverlayElement(tuple, table, color);
+						final OverlayElement overlayElement = OverlayElementHelper.getOverlayElement(tuple, table, color);
 						final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
 						elements.add(resultTuple);
 					}
@@ -475,66 +447,14 @@ public class QueryWindow {
 						.createQueryOnTable(table)
 						.compareWithStaticRegion(bbox)
 						.build();
-						
-				final Runnable runable = getContinuousQueryRunable(table, color, qp);
+				
+				final BBoxDB connection = guimodel.getConnection();
+
+				final Runnable runable = new ContinuousQueryRunable(table, color, qp, connection, painter);
 				
 				final Thread fetchThread = new Thread(runable);
 				backgroundThreads.add(fetchThread);
 				fetchThread.start();
-			}
-
-			/**
-			 * Get the continuous query runnable
-			 * @param table
-			 * @param color
-			 * @param qp
-			 * @return
-			 */
-			private ExceptionSafeRunnable getContinuousQueryRunable(final String table, final Color color,
-					final ContinuousQueryPlan qp) {
-				
-				return new ExceptionSafeRunnable() {
-					@Override
-					protected void runThread() throws Exception {			
-						logger.info("New worker thread for a continuous query has started");
-						final BBoxDB connection = guimodel.getConnection();
-						final JoinedTupleListFuture result = connection.queryContinuous(qp);
-						
-						try {
-							result.waitForCompletion();
-						} catch (InterruptedException e) {
-							Thread.currentThread().interrupt();
-							return;
-						}
-						
-						final Map<String, OverlayElementGroup> seenElements = new HashMap<>();
-						
-						for(final JoinedTuple joinedTuple : result) {
-							if(result.isFailed()) {
-								logger.error("Got an error" + result.getAllMessages());
-								return;
-							}
-							
-							if(Thread.currentThread().isInterrupted()) {
-								logger.info("Worker for continuous query exited");
-								return;
-							}
-							
-							final Tuple tuple = joinedTuple.getTuple(0);
-							final OverlayElement overlayElement = getOverlayElement(tuple, table, color);
-							final OverlayElementGroup newElement = new OverlayElementGroup(Arrays.asList(overlayElement));
-							
-							final OverlayElementGroup oldElement = seenElements.get(tuple.getKey());
-
-							if(oldElement != null) {
-								painter.removeElementToDraw(oldElement);
-							}
-							
-							seenElements.put(tuple.getKey(), newElement);
-							painter.addElementToDraw(newElement);							
-						}						
-					}
-				};
 			}
 		};
 		
