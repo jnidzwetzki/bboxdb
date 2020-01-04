@@ -10,6 +10,7 @@ order: 1
 - New Feature: Added generic data stream importer
 - New Feature: Added importer for gtfs realtime position streams (Sydney Busses)
 - New Feature: Added SSTable creator type to SSTable metadata
+- New Feature: Added continuous range queries to GUI
 - Improvement: Added auto key generation in tuple builder
 - Improvement: Fixed bugs found by Coverity scan
 - Improvement: Removed direct binding to JDK8 and the internal class sun.nio.ch.DirectBuffer
