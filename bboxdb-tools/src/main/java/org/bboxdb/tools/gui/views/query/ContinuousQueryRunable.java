@@ -108,13 +108,17 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 			}
 
 			if(Thread.currentThread().isInterrupted()) {
-				logger.info("Worker for continuous query exited");
 				return;
 			}
 
 			updateTupleOnGui(paintedElements, updateDates, joinedTuple);
 			removeStaleTupleIfNeeded(paintedElements, updateDates);
 		}
+	}
+	
+	@Override
+	protected void endHook() { 
+		logger.info("Worker for continuous query exited");
 	}
 
 	/**
