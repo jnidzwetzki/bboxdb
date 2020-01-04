@@ -264,10 +264,20 @@ public class TestStorageManager {
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final List<Tuple> readTuples = storageManager.get(Integer.toString(i));
 
-			Assert.assertEquals(1, readTuples.size());
-			Assert.assertTrue(readTuples.get(0) instanceof DeletedTuple);
+			if(readTuples.isEmpty()) {
+				// Tuple was deleted by compact
+				continue;
+			}
+			
+			if(readTuples.size() == 1) {
+				Assert.assertTrue(readTuples.get(0) instanceof DeletedTuple);
+				continue;
+			}
+
+			Assert.fail("Tuple list too large: " + readTuples);
 		}
 	}
+	
 	/*
 	@Test(timeout=60000)
 	public void testBigInsert() throws Exception {
