@@ -24,7 +24,6 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -85,6 +84,11 @@ public class OverlayElement {
 	 */
 	private final static int TRANSPARENCY = 127;
 	
+	/**
+	 * The size of a point
+	 */
+	private final static int POINT_SIZE = 50;
+	
 	public OverlayElement(final EntityIdentifier entityIdentifier, final String tablename, 
 			final GeoJsonPolygon polygon, final Color color) {
 		
@@ -116,9 +120,26 @@ public class OverlayElement {
 	 * @param map
 	 */
 	public void updatePosition(final JXMapViewer map) {
-		polygonPointsPixel = convertPointCoordinatesToGUICoordinates(map, polygon.getPointList());
 		
-		final Hyperrectangle bbox = polygon.getBoundingBox();
+		polygonPointsPixel = convertPointCoordinatesToGUICoordinates(map, polygon.getPointList());
+	
+		// Polycons with only one point are shown as a rectangle
+		// on the map
+		if(polygon.getPointList().size() == 1) {
+			 final Rectangle bbox = getRectangleForPoint(map, polygonPointsPixel);
+			 boundingBoxPixel.setBounds(bbox);
+		} else {
+			Hyperrectangle bbox = polygon.getBoundingBox();
+			updateElementBoundingBox(map, bbox);
+		}
+	}
+
+	/**
+	 * Update the bounding box of the element
+	 * @param map
+	 * @param bbox
+	 */
+	private void updateElementBoundingBox(final JXMapViewer map, final Hyperrectangle bbox) {
 		final Point2D startPos = new Point2D.Double (bbox.getCoordinateLow(0), bbox.getCoordinateLow(1));
 		final Point2D stopPos = new Point2D.Double (bbox.getCoordinateHigh(0), bbox.getCoordinateHigh(1));
 		
@@ -238,30 +259,25 @@ public class OverlayElement {
 		final Stroke oldStroke = graphicsContext.getStroke();
 
 		if(pointList.size() == 1) {
-			final Point2D thePoint = pointList.get(0);
-			
-			// Zoom can be 0
-			final int changedZoom = 2 * (map.getZoom() + 1);
-			final double size = (40 * (1.0 / changedZoom));
-					
-			final double pointX = thePoint.getX() - size/2;
-			final double pointY = thePoint.getY() - size/2;
-			final Ellipse2D ellipse = new Ellipse2D.Double(pointX, pointY, size, size);
-			lastRenderedShape = ellipse;
+			final Rectangle rectangle = getRectangleForPoint(map, pointList);
+			lastRenderedShape = rectangle;
 			
 			if(drawReally) {
 				graphicsContext.setColor(color);
-				graphicsContext.fill(ellipse);
+				graphicsContext.fill(rectangle);
+			
+				graphicsContext.setColor(Color.BLACK);
+				graphicsContext.draw(rectangle);
 
 				final String stringValue = Long.toString(polygon.getId());
 				final Rectangle2D stringBounds = graphicsContext.getFontMetrics().getStringBounds(stringValue, graphicsContext);
 			
-				final int stringPosY = (int) (thePoint.getY() + (2 * size));
-				final int stringPosX = (int) pointX - ((int) stringBounds.getWidth() / 2);
-
-				graphicsContext.drawString(stringValue, stringPosX, stringPosY); 
+				final int stringPosY = (int) (rectangle.getMaxY() + rectangle.getHeight() / 2 + stringBounds.getHeight());
+				final int stringPosX = (int) (rectangle.getCenterX() - (stringBounds.getWidth() / 2));
+				
+				graphicsContext.drawString(stringValue, stringPosX, stringPosY);
 			}
-			
+						
 			return;
 		}
 		
@@ -310,6 +326,26 @@ public class OverlayElement {
 		}
 		
 		graphicsContext.setStroke(oldStroke);
+	}
+
+	/**
+	 * Get the painting rectangle for a given point
+	 * @param map
+	 * @param pointList
+	 * @return
+	 */
+	private Rectangle getRectangleForPoint(final JXMapViewer map, final List<Point2D> pointList) {
+		final Point2D thePoint = pointList.get(0);
+		
+		// Zoom can be 0
+		final int changedZoom = 2 * (map.getZoom() + 1);
+		final int size = (int) (POINT_SIZE * (1.0 / changedZoom));
+				
+		final int pointX = (int) (thePoint.getX() - size/2);
+		final int pointY = (int) (thePoint.getY() - size/2);
+		
+		final Rectangle rectangle = new Rectangle(pointX, pointY, size, size);
+		return rectangle;
 	}
 	
 	/**
