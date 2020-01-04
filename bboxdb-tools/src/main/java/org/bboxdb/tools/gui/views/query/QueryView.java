@@ -184,13 +184,14 @@ public class QueryView implements View {
 		final JButton clearButton = new JButton("Clear map");
 		
 		clearButton.addActionListener(l -> {
+			backgroundThreads.forEach(t -> t.interrupt());
+			backgroundThreads.clear();
+			
 			if(painter != null) {
 				painter.clearAllElements();
 			}
 			
 			mapViewer.repaint();
-			backgroundThreads.forEach(t -> t.interrupt());
-			backgroundThreads.clear();
 		});
 		
 		return clearButton;
