@@ -195,7 +195,7 @@ public class SpacePartitionerCache implements Watcher {
 				final long zookeeperVersion 
 					= NodeMutationHelper.getNodeMutationVersion(zookeeperClient, path, this);
 				
-				final long memoryVersion = partitionerVersions.getOrDefault(groupname, 0l);
+				final long memoryVersion = getSpacePartitionerVersion(groupname);
 				
 				if(memoryVersion < zookeeperVersion) {
 					logger.info("Our space partitioner version is {}, zookeeper version is {}", 
@@ -211,6 +211,15 @@ public class SpacePartitionerCache implements Watcher {
 				logger.error("Got exception while reading dgroup", e);
 			}
 		}			
+	}
+
+	/**
+	 * Get the space partitioner version
+	 * @param groupname
+	 * @return
+	 */
+	public long getSpacePartitionerVersion(final String groupname) {
+		return partitionerVersions.getOrDefault(groupname, 0l);
 	}
 
 	/**

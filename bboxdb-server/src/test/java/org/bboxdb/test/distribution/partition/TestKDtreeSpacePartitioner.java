@@ -65,7 +65,9 @@ public class TestKDtreeSpacePartitioner {
 	}
 	
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
+	public void before() throws ZookeeperException, BBoxDBException, 
+		ResourceAllocationException, InterruptedException {
+		
 		distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
@@ -79,7 +81,25 @@ public class TestKDtreeSpacePartitioner {
 		BBoxDBTestHelper.registerFakeInstance(2);
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
+		
+		final long createdVersion = 
+				distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
+		
+		SpacePartitionerCache.getInstance().resetSpacePartitioner(TEST_GROUP);
+		
+		for(int i = 0; i < 10; i++) {
+			 final long readVersion = SpacePartitionerCache
+					.getInstance().getSpacePartitionerVersion(TEST_GROUP);
+			 
+			 
+			 if(readVersion == createdVersion) {
+				 break;
+			 }
+			 
+			 Thread.sleep(1000);
+		}
+		
+		Assert.fail("Unable to get the correct space partitioner version " + createdVersion);
 	}
 
 	/**

@@ -35,18 +35,22 @@ public class NodeMutationHelper {
 	 * Update the version for the node
 	 * @param path
 	 * @param position
+	 * @return 
 	 * @throws ZookeeperException 
 	 */
-	public static void markNodeMutationAsComplete(final ZookeeperClient zookeeperClient, 
+	public static long markNodeMutationAsComplete(final ZookeeperClient zookeeperClient, 
 			final String path) throws ZookeeperException {
 		
-		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(System.currentTimeMillis());
+		final long version = System.currentTimeMillis();
+		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(version);
 		
 		final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
 		
 		logger.debug("Mark mutation as complete {}", path);
 		
 		zookeeperClient.replacePersistentNode(nodePath, versionBytes.array());
+		
+		return version;
 	}
 	
 	/**

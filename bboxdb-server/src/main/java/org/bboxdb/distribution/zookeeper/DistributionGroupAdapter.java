@@ -127,11 +127,12 @@ public class DistributionGroupAdapter {
 	 * Create a new distribution group
 	 * @param distributionGroup
 	 * @param replicationFactor
+	 * @return 
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
-	public void createDistributionGroup(final String distributionGroup, 
+	public long createDistributionGroup(final String distributionGroup, 
 			final DistributionGroupConfiguration configuration) 
 					throws ZookeeperException, BBoxDBException, ResourceAllocationException {
 		
@@ -163,12 +164,14 @@ public class DistributionGroupAdapter {
 		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 		tupleStoreAdapter.createTupleStoreConfigNode(distributionGroup);
 		
-		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, path);
+		final long createdVersion = NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, path);
 		
 		final SpacePartitioner spacePartitioner 
 			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 		
 		spacePartitioner.createRootNode(configuration);
+		
+		return createdVersion;
 	}
 
 	/**
@@ -214,7 +217,8 @@ public class DistributionGroupAdapter {
 	 * @throws ZookeeperException 
 	 */
 	public void deleteDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		final String path = getDistributionGroupPath(distributionGroup);			
+		final String path = getDistributionGroupPath(distributionGroup);
+		
 		zookeeperClient.deleteNodesRecursive(path);
 	}
 	
