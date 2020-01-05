@@ -24,9 +24,15 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
+import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.junit.Assert;
 
 public class BBoxDBTestHelper {
 	
@@ -56,5 +62,64 @@ public class BBoxDBTestHelper {
 				
 		// Register instances
 		BBoxDBInstanceManager.getInstance().updateInstanceList(instances);
+	}
+	
+	/**
+	 * Wait until the space paritioner is reread
+	 * @param distributionGroup
+	 * @param desiredVersion
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	public static void waitForSpacepartitonerUpdate(final String distributionGroup, 
+			final long desiredVersion) throws BBoxDBException, InterruptedException {
+		
+		for(int i = 0; i < 10; i++) {
+			 SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+			
+			 final long readVersion = SpacePartitionerCache
+					.getInstance().getSpacePartitionerVersion(distributionGroup);
+			 
+			 if(readVersion == desiredVersion) {
+				 break;
+			 }
+			 
+			 if(i < 10) {
+				 Thread.sleep(1000);
+			 } else {
+				 Assert.fail("Unable to get the correct space partitioner version " 
+						 + desiredVersion + " / " + readVersion);
+			 }
+		}
+	}
+	
+	/**
+	 * Recreate the given distribution group
+	 * @param distributionGroupZookeeperAdapter 
+	 * @param configuration
+	 * @param fakeInstances 
+	 * @throws ZookeeperException
+	 * @throws BBoxDBException
+	 * @throws ResourceAllocationException
+	 * @throws InterruptedException
+	 */
+	public static void recreateDistributionGroup(DistributionGroupAdapter distributionGroupZookeeperAdapter, final String distributionGroup,
+			final DistributionGroupConfiguration configuration, final int fakeInstances)
+			throws ZookeeperException, BBoxDBException, ResourceAllocationException, InterruptedException {
+		
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+	
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
+		
+		final long createdVersion = 
+				distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, configuration);
+		
+		// Add fake instances for testing
+		registerFakeInstance(fakeInstances);
+				
+		SpacePartitionerCache.getInstance().resetSpacePartitioner(distributionGroup);
+		
+		waitForSpacepartitonerUpdate(distributionGroup, createdVersion);
 	}
 }

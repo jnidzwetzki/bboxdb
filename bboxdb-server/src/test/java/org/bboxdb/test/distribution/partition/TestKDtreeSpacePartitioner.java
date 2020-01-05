@@ -77,34 +77,7 @@ public class TestKDtreeSpacePartitioner {
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 		
-		// Add fake instances for testing
-		BBoxDBTestHelper.registerFakeInstance(2);
-		
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		
-		final long createdVersion = 
-				distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
-				
-		SpacePartitionerCache.getInstance().resetSpacePartitioner(TEST_GROUP);
-		
-		for(int i = 0; i < 10; i++) {
-			 SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
-			
-			 final long readVersion = SpacePartitionerCache
-					.getInstance().getSpacePartitionerVersion(TEST_GROUP);
-			 
-			 if(readVersion == createdVersion) {
-				 break;
-			 }
-			 
-			 if(i < 10) {
-				 Thread.sleep(1000);
-			 } else {
-				 Assert.fail("Unable to get the correct space partitioner version " 
-						 + createdVersion + " / " + readVersion);
-			 }
-		}
-		
+		BBoxDBTestHelper.recreateDistributionGroup(distributionGroupZookeeperAdapter, TEST_GROUP, configuration, 2);
 	}
 
 	/**
