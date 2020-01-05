@@ -203,7 +203,7 @@ public class FetchAuTransport implements Runnable {
 				inserts++;
 			}
 			
-			System.out.format("Inserted %d elements (merged %d) %n", inserts, processedElements.size());
+			System.out.format("Inserted %d elements (read %d) %n", inserts, polygonList.size());
 			
 			Thread.sleep(delay);
 		}
