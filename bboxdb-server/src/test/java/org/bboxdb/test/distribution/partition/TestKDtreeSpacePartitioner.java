@@ -84,9 +84,7 @@ public class TestKDtreeSpacePartitioner {
 		
 		final long createdVersion = 
 				distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
-		
-		System.out.println("---> Created version is: " + createdVersion);
-		
+				
 		SpacePartitionerCache.getInstance().resetSpacePartitioner(TEST_GROUP);
 		
 		for(int i = 0; i < 10; i++) {
@@ -95,15 +93,18 @@ public class TestKDtreeSpacePartitioner {
 			 final long readVersion = SpacePartitionerCache
 					.getInstance().getSpacePartitionerVersion(TEST_GROUP);
 			 
-			 System.out.println("---> Read version is: " + readVersion);
 			 if(readVersion == createdVersion) {
 				 break;
 			 }
 			 
-			 Thread.sleep(1000);
+			 if(i < 10) {
+				 Thread.sleep(1000);
+			 } else {
+				 Assert.fail("Unable to get the correct space partitioner version " 
+						 + createdVersion + " / " + readVersion);
+			 }
 		}
 		
-		Assert.fail("Unable to get the correct space partitioner version " + createdVersion);
 	}
 
 	/**
