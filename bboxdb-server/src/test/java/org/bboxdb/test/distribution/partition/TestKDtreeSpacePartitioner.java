@@ -90,6 +90,8 @@ public class TestKDtreeSpacePartitioner {
 		SpacePartitionerCache.getInstance().resetSpacePartitioner(TEST_GROUP);
 		
 		for(int i = 0; i < 10; i++) {
+			 SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
+			
 			 final long readVersion = SpacePartitionerCache
 					.getInstance().getSpacePartitionerVersion(TEST_GROUP);
 			 
