@@ -321,7 +321,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		if(System.currentTimeMillis() > lastCompleteRefresh + TOTAL_REFRESH_TIME_IN_MS) {
 			mapViewer.repaint();
 			lastCompleteRefresh = System.currentTimeMillis();
-			System.out.println("-- Complete refresh");
 		}
 	}
 }
