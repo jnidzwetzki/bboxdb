@@ -65,7 +65,7 @@ public class TestQuadtreeSpacePartitioner {
 	}
 	
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
+	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException, InterruptedException {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
@@ -73,11 +73,7 @@ public class TestQuadtreeSpacePartitioner {
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 		
-		// Add fake instances for testing
-		BBoxDBTestHelper.registerFakeInstance(2);
-		
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
+		BBoxDBTestHelper.recreateDistributionGroup(distributionGroupZookeeperAdapter, TEST_GROUP, configuration, 2);
 	}
 
 	@Test(timeout=60000)
