@@ -180,6 +180,7 @@ public class FetchAuTransport implements Runnable {
 			}
 						
 			final Set<Integer> processedElements = new HashSet<>();
+			int inserts = 0;
 			
 			for(int i = 0; i < polygonList.size(); i++) {
 				
@@ -199,9 +200,10 @@ public class FetchAuTransport implements Runnable {
 				
 				final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 				pendingFutures.put(insertFuture);
+				inserts++;
 			}
 			
-			System.out.format("Inserted %d elements (merged %d) %n", entities.size(), processedElements.size());
+			System.out.format("Inserted %d elements (merged %d) %n", inserts, processedElements.size());
 			
 			Thread.sleep(delay);
 		}
