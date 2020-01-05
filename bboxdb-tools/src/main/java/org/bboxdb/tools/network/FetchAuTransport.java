@@ -19,8 +19,11 @@ package org.bboxdb.tools.network;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MathUtil;
@@ -30,6 +33,9 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
 import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,6 +140,7 @@ public class FetchAuTransport implements Runnable {
 			final FeedMessage message = GtfsRealtime.FeedMessage.parseFrom(connection.getInputStream());
 			
 			final List<FeedEntity> entities = message.getEntityList();
+			final List<GeoJsonPolygon> polygonList = new ArrayList<>();
 			
 			for(final GtfsRealtime.FeedEntity entity : entities) {
 				final VehiclePosition vehicle = entity.getVehicle();
@@ -157,14 +164,44 @@ public class FetchAuTransport implements Runnable {
 				geoJsonPolygon.addProperty("DirectionID", Integer.toString(trip.getDirectionId()));
 				geoJsonPolygon.addPoint(position.getLongitude(), position.getLatitude());
 				
-				final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
-				final Tuple tuple = tupleBuilder.buildTuple(idString, geoJsonPolygon.toGeoJson());
+				polygonList.add(geoJsonPolygon);
+			}
+			
+			// Sort by id
+			polygonList.sort((p1, p2) -> Long.compare(p1.getId(), p2.getId()));
+			
+			final SpatialIndexBuilder index = new RTreeBuilder();
+			final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
+
+			for(int i = 0; i < polygonList.size(); i++) {
+				final GeoJsonPolygon polygon = polygonList.get(i);
+				final SpatialIndexEntry spe = new SpatialIndexEntry(polygon.getBoundingBox(), i);
+				index.insert(spe);
+			}
+						
+			final Set<Integer> processedElements = new HashSet<>();
+			
+			for(int i = 0; i < polygonList.size(); i++) {
+				
+				if(processedElements.contains(i)) {
+					continue;
+				}
+				
+				final GeoJsonPolygon polygon = polygonList.get(i);
+				final String key = Long.toString(polygon.getId());
+				final Tuple tuple = tupleBuilder.buildTuple(key, polygon.toGeoJson());
+				
+				// Merge entries
+				final List<? extends SpatialIndexEntry> entries = index.getEntriesForRegion(polygon.getBoundingBox());
+				for(SpatialIndexEntry entry : entries) {
+					processedElements.add(entry.getValue());
+				}
 				
 				final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 				pendingFutures.put(insertFuture);
 			}
 			
-			System.out.format("Inserted %d elements %n", entities.size());
+			System.out.format("Inserted %d elements (merged %d) %n", entities.size(), processedElements.size());
 			
 			Thread.sleep(delay);
 		}
