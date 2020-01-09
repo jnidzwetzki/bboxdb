@@ -17,8 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.tools.network;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,35 +34,7 @@ import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FetchAuTransport implements Runnable {
-	
-	/**
-	 * The data sources
-	 *
-	 */
-	public static class DataSources {
-		public final static String API_ENDPOINT_BASE = "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/";
-		
-		public final static String SYDNEYTRAINS = "trains";
-		public final static String BUSES = "buses";
-		public final static String FERRIES = "ferries";
-		public final static String LIGHTRAIL = "lightrail";
-		public final static String NSWTRAINS = "nswtrains";
-		public final static String REGIOBUSES = "regionbuses";
-		public final static String METRO = "metro";
-		
-		public final static Map<String, String> API_ENDPOINT = new HashMap<>();
-		
-		static {
-			API_ENDPOINT.put(SYDNEYTRAINS, API_ENDPOINT_BASE + "sydneytrains");
-			API_ENDPOINT.put(BUSES, API_ENDPOINT_BASE + "buses");
-			API_ENDPOINT.put(FERRIES, API_ENDPOINT_BASE + "ferries/sydneyferries");
-			API_ENDPOINT.put(LIGHTRAIL, API_ENDPOINT_BASE + "lightrail");
-			API_ENDPOINT.put(NSWTRAINS, API_ENDPOINT_BASE + "nswtrains");
-			API_ENDPOINT.put(REGIOBUSES, API_ENDPOINT_BASE + "regionbuses");
-			API_ENDPOINT.put(METRO, API_ENDPOINT_BASE + "metro");
-		}
-	}
+public class ImportAuTransport implements Runnable {
 
 	/**
 	 * The amount of pending insert futures
@@ -114,9 +84,9 @@ public class FetchAuTransport implements Runnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(FetchAuTransport.class);
+	private final static Logger logger = LoggerFactory.getLogger(ImportAuTransport.class);
 	
-	public FetchAuTransport(final String authKey, final String[] entities, final String connectionPoint, 
+	public ImportAuTransport(final String authKey, final String[] entities, final String connectionPoint, 
 			final String clustername, final String distributionGroup, final int delay) {
 				this.authKey = authKey;
 				this.entities = entities;
@@ -138,7 +108,7 @@ public class FetchAuTransport implements Runnable {
 			for(final String entity: entities) {
 				logger.info("Starting fetch thread for {}", entity);
 				
-				final String urlString = DataSources.API_ENDPOINT.get(entity);
+				final String urlString = AuTransportSources.API_ENDPOINT.get(entity);
 				
 				if(urlString == null) {
 					logger.error("Unable to determine URL for: " + entity);
@@ -205,7 +175,7 @@ public class FetchAuTransport implements Runnable {
 		final int delay = MathUtil.tryParseIntOrExit(args[5], () -> "Unable to parse delay value: " 
 				+ args[5]);
 				
-		final FetchAuTransport main = new FetchAuTransport(authKey, entities, connectionPoint, 
+		final ImportAuTransport main = new ImportAuTransport(authKey, entities, connectionPoint, 
 				clustername, distributionGroup, delay);
 		main.run();
 	}
