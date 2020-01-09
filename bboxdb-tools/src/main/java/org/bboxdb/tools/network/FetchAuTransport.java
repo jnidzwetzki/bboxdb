@@ -22,11 +22,17 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.math.GeoJsonPolygon;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,9 +146,21 @@ public class FetchAuTransport implements Runnable {
 				}
 				
 				final String table = distributionGroup + "_" + entity;
+				
+				final Consumer<GeoJsonPolygon> consumer = (polygon) -> {
+					final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
+					final String key = Long.toString(polygon.getId());
+					final Tuple tuple = tupleBuilder.buildTuple(key, polygon.toGeoJson());
+
+					try {
+						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
+						pendingFutures.put(insertFuture);
+					} catch (BBoxDBException e) {
+						logger.error("Got error while inserting tuple");
+					}
+				};
 			
-				final FetchRunable runable = new FetchRunable(urlString, authKey, bboxdbClient, 
-						table, pendingFutures, fetchDelay);
+				final FetchRunable runable = new FetchRunable(urlString, authKey, consumer, fetchDelay);
 				
 				threadPool.submit(runable);
 			}

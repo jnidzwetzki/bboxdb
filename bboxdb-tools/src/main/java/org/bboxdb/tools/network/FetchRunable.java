@@ -24,19 +24,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.network.client.future.client.EmptyResultFuture;
-import org.bboxdb.network.client.tools.FixedSizeFutureStore;
-import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
-import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,51 +46,38 @@ import com.google.transit.realtime.GtfsRealtime.VehiclePosition;
 public class FetchRunable extends ExceptionSafeRunnable {
 	
 	/**
-	 * The url to fetch the data
+	 * The polygon consumer
 	 */
-	private final String urlString;
-	
-	/**
-	 * The auth key to fetch the data
-	 */
-	private final String authKey;
-	
-	/**
-	 * The bboxdb client
-	 */
-	private final BBoxDB bboxdbClient;
-	
-	/**
-	 * The table to insert
-	 */
-	private final String table;
-	
+	private final Consumer<GeoJsonPolygon> consumer;
+
 	/**
 	 * The fetch delay
 	 */
 	private final long fetchDelay;
 	
 	/**
-	 * The pending futures
+	 * The url for fetching
 	 */
-	private final FixedSizeFutureStore pendingFutures;
-	
-	
+	private final String urlString;
+
+	/**
+	 * The auth key for fetching
+	 */
+	private final String authKey;
+
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FetchRunable.class);
+
+
 	
-	
-	
-	public FetchRunable(final String urlString, final String authKey, final BBoxDB bboxdbClient, 
-			final String table, final FixedSizeFutureStore pendingFutures, final long fetchDelay) {
-				this.urlString = urlString;
-				this.authKey = authKey;
-				this.bboxdbClient = bboxdbClient;
-				this.table = table;
-				this.fetchDelay = fetchDelay;
-				this.pendingFutures = pendingFutures;
+	public FetchRunable(final String urlString, final String authKey, 
+			final Consumer<GeoJsonPolygon> consumer, final long fetchDelay) {
+		this.urlString = urlString;
+		this.authKey = authKey;
+		this.consumer = consumer;
+		this.fetchDelay = fetchDelay;
 	}
 
 	/**
@@ -166,7 +149,6 @@ public class FetchRunable extends ExceptionSafeRunnable {
 		polygonList.sort((p1, p2) -> Long.compare(p1.getId(), p2.getId()));
 		
 		final SpatialIndexBuilder index = new RTreeBuilder();
-		final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
 
 		for(int i = 0; i < polygonList.size(); i++) {
 			final GeoJsonPolygon polygon = polygonList.get(i);
@@ -184,8 +166,6 @@ public class FetchRunable extends ExceptionSafeRunnable {
 			}
 			
 			final GeoJsonPolygon polygon = polygonList.get(i);
-			final String key = Long.toString(polygon.getId());
-			final Tuple tuple = tupleBuilder.buildTuple(key, polygon.toGeoJson());
 			
 			// Merge entries
 			final List<? extends SpatialIndexEntry> entries = index.getEntriesForRegion(polygon.getBoundingBox());
@@ -193,8 +173,8 @@ public class FetchRunable extends ExceptionSafeRunnable {
 				processedElements.add(entry.getValue());
 			}
 			
-			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
-			pendingFutures.put(insertFuture);
+			consumer.accept(polygon);
+			
 			inserts++;
 		}
 		return inserts;
