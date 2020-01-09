@@ -17,43 +17,49 @@
  *******************************************************************************/
 package org.bboxdb.tools.network;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
-import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.transit.realtime.GtfsRealtime;
-import com.google.transit.realtime.GtfsRealtime.FeedEntity;
-import com.google.transit.realtime.GtfsRealtime.FeedMessage;
-import com.google.transit.realtime.GtfsRealtime.Position;
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.VehiclePosition;
-
 public class FetchAuTransport implements Runnable {
-
-	/**
-	 * The connection endpoint
-	 */
-	private final static String ENDPOINT = "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/buses";
 	
+	/**
+	 * The data sources
+	 *
+	 */
+	public static class DataSources {
+		public final static String API_ENDPOINT_BASE = "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/";
+		
+		public final static String SYDNEYTRAINS = "trains";
+		public final static String BUSES = "buses";
+		public final static String FERRIES = "ferries";
+		public final static String LIGHTRAIL = "lightrail";
+		public final static String NSWTRAINS = "nswtrains";
+		public final static String REGIOBUSES = "regionbuses";
+		public final static String METRO = "metro";
+		
+		public final static Map<String, String> API_ENDPOINT = new HashMap<>();
+		
+		static {
+			API_ENDPOINT.put(SYDNEYTRAINS, API_ENDPOINT_BASE + "sydneytrains");
+			API_ENDPOINT.put(BUSES, API_ENDPOINT_BASE + "buses");
+			API_ENDPOINT.put(FERRIES, API_ENDPOINT_BASE + "ferries/sydneyferries");
+			API_ENDPOINT.put(LIGHTRAIL, API_ENDPOINT_BASE + "lightrail");
+			API_ENDPOINT.put(NSWTRAINS, API_ENDPOINT_BASE + "nswtrains");
+			API_ENDPOINT.put(REGIOBUSES, API_ENDPOINT_BASE + "regionbuses");
+			API_ENDPOINT.put(METRO, API_ENDPOINT_BASE + "metro");
+		}
+	}
+
 	/**
 	 * The amount of pending insert futures
 	 */
@@ -62,7 +68,7 @@ public class FetchAuTransport implements Runnable {
 	/**
 	 * The polling delay
 	 */
-	private long delay;
+	private long fetchDelay;
 	
 	/**
 	 * The Auth key
@@ -80,9 +86,9 @@ public class FetchAuTransport implements Runnable {
 	private final String clustername;
 	
 	/**
-	 * The table
+	 * The distributionGroup
 	 */
-	private final String table;
+	private final String distributionGroup;
 	
 	/**
 	 * The pending futures
@@ -90,21 +96,30 @@ public class FetchAuTransport implements Runnable {
 	private final FixedSizeFutureStore pendingFutures;
 	
 	/**
+	 * The thread pool
+	 */
+	private final ExecutorService threadPool;
+	
+	/**
+	 * The entities
+	 */
+	private final String[] entities;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FetchAuTransport.class);
-
 	
-
-	
-	public FetchAuTransport(final String authKey, final String connectionPoint, 
-			final String clustername, final String table, final int delay) {
+	public FetchAuTransport(final String authKey, final String[] entities, final String connectionPoint, 
+			final String clustername, final String distributionGroup, final int delay) {
 				this.authKey = authKey;
+				this.entities = entities;
 				this.connectionPoint = connectionPoint;
 				this.clustername = clustername;
-				this.table = table;
-				this.delay = TimeUnit.SECONDS.toMillis(delay);
+				this.distributionGroup = distributionGroup;
+				this.fetchDelay = TimeUnit.SECONDS.toMillis(delay);
 				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+				this.threadPool = Executors.newCachedThreadPool();
 	}
 
 	@Override
@@ -113,102 +128,34 @@ public class FetchAuTransport implements Runnable {
 	    		final BBoxDB bboxdbClient = new BBoxDBCluster(connectionPoint, clustername);
 	        ){
 			bboxdbClient.connect();
-			fetchData(bboxdbClient);
+
+			for(final String entity: entities) {
+				logger.info("Starting fetch thread for {}", entity);
+				
+				final String urlString = DataSources.API_ENDPOINT.get(entity);
+				
+				if(urlString == null) {
+					logger.error("Unable to determine URL for: " + entity);
+					System.exit(-1);
+				}
+				
+				final String table = distributionGroup + "_" + entity;
+			
+				final FetchRunable runable = new FetchRunable(urlString, authKey, bboxdbClient, 
+						table, pendingFutures, fetchDelay);
+				
+				threadPool.submit(runable);
+			}
+			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Got an exception", e);
 		} finally {
 			waitForPendingFutures();
+			threadPool.shutdownNow();
 		}   
 	}
 	
-	/**
-	 * Fetch and insert data
-	 * 
-	 * curl -X GET --header 'Accept: text/plain' --header 'Authorization: ' 'https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/buses'
-	 * @param bboxdbClient 
-	 */
-	private void fetchData(final BBoxDB bboxdbClient) throws Exception {
-
-		while(! Thread.currentThread().isInterrupted()) {
-			final URL url = new URL(ENDPOINT);
-			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setDoInput(true);
-			connection.setRequestProperty("Accept", "text/plain");
-			connection.setRequestProperty("Authorization", "apikey " + authKey);
-			
-			final FeedMessage message = GtfsRealtime.FeedMessage.parseFrom(connection.getInputStream());
-			
-			final List<FeedEntity> entities = message.getEntityList();
-			final List<GeoJsonPolygon> polygonList = new ArrayList<>();
-			
-			for(final GtfsRealtime.FeedEntity entity : entities) {
-				final VehiclePosition vehicle = entity.getVehicle();
-				final TripDescriptor trip = vehicle.getTrip();
-				final Position position = vehicle.getPosition();
-
-				final String idString = trip.getTripId().replace("_", "");
-				final Optional<Long> id = MathUtil.tryParseLong(idString);
-				
-				if(! id.isPresent()) {
-					logger.warn("Skipping element with invalid id: {}", idString);
-					continue;
-				}
-				
-				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id.get());
-				
-				geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
-				geoJsonPolygon.addProperty("TripID", trip.getTripId());
-				geoJsonPolygon.addProperty("Speed", Float.toString(position.getSpeed()));
-				geoJsonPolygon.addProperty("Bearing", Float.toString(position.getBearing()));
-				geoJsonPolygon.addProperty("DirectionID", Integer.toString(trip.getDirectionId()));
-				geoJsonPolygon.addPoint(position.getLongitude(), position.getLatitude());
-				
-				polygonList.add(geoJsonPolygon);
-			}
-			
-			// Sort by id
-			polygonList.sort((p1, p2) -> Long.compare(p1.getId(), p2.getId()));
-			
-			final SpatialIndexBuilder index = new RTreeBuilder();
-			final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
-
-			for(int i = 0; i < polygonList.size(); i++) {
-				final GeoJsonPolygon polygon = polygonList.get(i);
-				final SpatialIndexEntry spe = new SpatialIndexEntry(polygon.getBoundingBox(), i);
-				index.insert(spe);
-			}
-						
-			final Set<Integer> processedElements = new HashSet<>();
-			int inserts = 0;
-			
-			for(int i = 0; i < polygonList.size(); i++) {
-				
-				if(processedElements.contains(i)) {
-					continue;
-				}
-				
-				final GeoJsonPolygon polygon = polygonList.get(i);
-				final String key = Long.toString(polygon.getId());
-				final Tuple tuple = tupleBuilder.buildTuple(key, polygon.toGeoJson());
-				
-				// Merge entries
-				final List<? extends SpatialIndexEntry> entries = index.getEntriesForRegion(polygon.getBoundingBox());
-				for(SpatialIndexEntry entry : entries) {
-					processedElements.add(entry.getValue());
-				}
-				
-				final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
-				pendingFutures.put(insertFuture);
-				inserts++;
-			}
-			
-			System.out.format("Inserted %d elements (read %d) %n", inserts, polygonList.size());
-			
-			Thread.sleep(delay);
-		}
-	}
-
+	
 	/**
 	 * Wait for the pending futures
 	 */
@@ -228,17 +175,20 @@ public class FetchAuTransport implements Runnable {
 	public static void main(String[] args) throws Exception {
 		
 		if(args.length != 5) {
-			System.err.println("Usage: <Class> <AuthKey> <Connection Endpoint> <Clustername> <Table> <Delay in sec>");
+			System.err.println("Usage: <Class> <AuthKey> <Entity1:Entity2:EntityN> <Connection Endpoint> <Clustername> <DistributionGroup> <Delay in sec>");
 			System.exit(-1);
 		}
 		
 		final String authKey = args[0];
-		final String connectionPoint = args[1];
-		final String clustername = args[2];
-		final String table = args[3];
-		final int delay = MathUtil.tryParseIntOrExit(args[4], () -> "Unable to parse delay value: " + args[4]);
+		final String[] entities = args[1].split(":");
+		final String connectionPoint = args[2];
+		final String clustername = args[3];
+		final String distributionGroup = args[4];
+		final int delay = MathUtil.tryParseIntOrExit(args[5], () -> "Unable to parse delay value: " 
+				+ args[5]);
 				
-		final FetchAuTransport main = new FetchAuTransport(authKey, connectionPoint, clustername, table, delay);
+		final FetchAuTransport main = new FetchAuTransport(authKey, entities, connectionPoint, 
+				clustername, distributionGroup, delay);
 		main.run();
 	}
 }
