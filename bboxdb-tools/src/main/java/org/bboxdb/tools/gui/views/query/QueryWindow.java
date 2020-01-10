@@ -100,12 +100,14 @@ public class QueryWindow {
 	/**
 	 * The color names for the dropdowns
 	 */
-	private final static String[] COLOR_NAMES = new String[] {"Red", "Green", "Blue"};
+	private final static String[] COLOR_NAMES = new String[] {"Red", "Green", 
+			"Blue", "Yellow", "Orange", "Pink"};
 	
 	/**
 	 * The color values
 	 */
-	private final static Color[] COLOR_VALUES = new Color[] {Color.RED, Color.GREEN, Color.BLUE};
+	private final static Color[] COLOR_VALUES = new Color[] {Color.RED, Color.GREEN, 
+			Color.BLUE, Color.YELLOW, Color.ORANGE, Color.PINK};
 	
 	/**
 	 * The created background threads
