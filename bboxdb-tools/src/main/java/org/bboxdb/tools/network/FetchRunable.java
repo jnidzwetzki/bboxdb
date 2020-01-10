@@ -62,18 +62,24 @@ public class FetchRunable extends ExceptionSafeRunnable {
 	 * The auth key for fetching
 	 */
 	private final String authKey;
-
+	
+	/**
+	 * The entity name for fetching
+	 */
+	private final String entityName;
+	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FetchRunable.class);
 	
 	public FetchRunable(final String urlString, final String authKey, 
-			final Consumer<GeoJsonPolygon> consumer, final long fetchDelay) {
+			final Consumer<GeoJsonPolygon> consumer, final long fetchDelay, final String entityName) {
 		this.urlString = urlString;
 		this.authKey = authKey;
 		this.consumer = consumer;
 		this.fetchDelay = fetchDelay;
+		this.entityName = entityName;
 	}
 
 	/**
@@ -115,7 +121,7 @@ public class FetchRunable extends ExceptionSafeRunnable {
 			
 			final int inserts = insertData(polygonList);
 			
-			logger.info("Inserted {} elements (read {})", inserts, polygonList.size());
+			logger.info("Inserted {} {} (read {})", inserts, entityName, polygonList.size());
 			
 			Thread.sleep(fetchDelay);
 		}
