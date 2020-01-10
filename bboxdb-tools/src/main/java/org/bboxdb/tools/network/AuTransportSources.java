@@ -16,7 +16,6 @@ public class AuTransportSources {
 	public final static String FERRIES = "ferries";
 	public final static String LIGHTRAIL = "lightrail";
 	public final static String NSWTRAINS = "nswtrains";
-	public final static String REGIOBUSES = "regionbuses";
 	public final static String METRO = "metro";
 	
 	public final static Map<String, String> API_ENDPOINT = new HashMap<>();
@@ -29,7 +28,6 @@ public class AuTransportSources {
 		API_ENDPOINT.put(FERRIES, API_ENDPOINT_BASE + "ferries/sydneyferries");
 		API_ENDPOINT.put(LIGHTRAIL, API_ENDPOINT_BASE + "lightrail");
 		API_ENDPOINT.put(NSWTRAINS, API_ENDPOINT_BASE + "nswtrains");
-		API_ENDPOINT.put(REGIOBUSES, API_ENDPOINT_BASE + "regionbuses");
 		API_ENDPOINT.put(METRO, API_ENDPOINT_BASE + "metro");
 		
 		SUPPORTED_ENTITIES = API_ENDPOINT.keySet().stream().collect(Collectors.joining(",", "[", "]"));
