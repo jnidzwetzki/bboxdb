@@ -119,7 +119,7 @@ public class ImportAuTransport implements Runnable {
 				
 				final Consumer<GeoJsonPolygon> consumer = (polygon) -> {
 					final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
-					final String key = polygon.getProperties().get("TripID");
+					final String key = polygon.getProperties().get("TripID").replace(" ", "_");
 					final Tuple tuple = tupleBuilder.buildTuple(key, polygon.toGeoJson());
 
 					try {
