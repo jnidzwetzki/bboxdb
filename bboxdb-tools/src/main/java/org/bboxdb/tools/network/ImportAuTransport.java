@@ -135,6 +135,9 @@ public class ImportAuTransport implements Runnable {
 				threadPool.submit(runable);
 			}
 			
+			// Wait forever
+			threadPool.wait();
+			
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
 		} finally {
@@ -142,7 +145,6 @@ public class ImportAuTransport implements Runnable {
 			threadPool.shutdownNow();
 		}   
 	}
-	
 	
 	/**
 	 * Wait for the pending futures

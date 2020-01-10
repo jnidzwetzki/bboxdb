@@ -109,6 +109,9 @@ public class StoreAuTransport implements Runnable {
 				threadPool.submit(runable);
 			}
 			
+			// Wait forever
+			threadPool.wait();
+			
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
 		} finally {
