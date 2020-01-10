@@ -128,7 +128,7 @@ public class StoreAuTransport implements Runnable {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		if(args.length != 3) {
+		if(args.length != 4) {
 			System.err.println("Usage: <Class> <AuthKey> <Entity1:Entity2:EntityN> <OutputFolder> <Delay in sec>");
 			System.err.println("Entities: " + AuTransportSources.SUPPORTED_ENTITIES);
 			System.exit(-1);
