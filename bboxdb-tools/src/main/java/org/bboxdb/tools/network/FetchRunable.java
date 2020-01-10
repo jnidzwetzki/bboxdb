@@ -120,9 +120,14 @@ public class FetchRunable extends ExceptionSafeRunnable {
 				geoJsonPolygon.addProperty("Timestamp", Long.toString(System.currentTimeMillis()));
 				geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
 				geoJsonPolygon.addProperty("TripID", trip.getTripId());
+				geoJsonPolygon.addProperty("TripStartDate", trip.getStartDate());
+				geoJsonPolygon.addProperty("TripStartTime", trip.getStartTime());
+				geoJsonPolygon.addProperty("TripScheduleRelationship", trip.getScheduleRelationship().name());
 				geoJsonPolygon.addProperty("Speed", Float.toString(position.getSpeed()));
 				geoJsonPolygon.addProperty("Bearing", Float.toString(position.getBearing()));
 				geoJsonPolygon.addProperty("DirectionID", Integer.toString(trip.getDirectionId()));
+				geoJsonPolygon.addProperty("CongestionLevel", vehicle.getCongestionLevel().name());
+				geoJsonPolygon.addProperty("OccupancyStatus", vehicle.getOccupancyStatus().name());
 				geoJsonPolygon.addPoint(position.getLongitude(), position.getLatitude());
 				
 				polygonList.add(geoJsonPolygon);
