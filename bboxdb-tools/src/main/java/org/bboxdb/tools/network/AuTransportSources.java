@@ -2,6 +2,7 @@ package org.bboxdb.tools.network;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The data sources
@@ -20,6 +21,8 @@ public class AuTransportSources {
 	
 	public final static Map<String, String> API_ENDPOINT = new HashMap<>();
 	
+	public final static String SUPPORTED_ENTITIES;
+	
 	static {
 		API_ENDPOINT.put(SYDNEYTRAINS, API_ENDPOINT_BASE + "sydneytrains");
 		API_ENDPOINT.put(BUSES, API_ENDPOINT_BASE + "buses");
@@ -28,5 +31,7 @@ public class AuTransportSources {
 		API_ENDPOINT.put(NSWTRAINS, API_ENDPOINT_BASE + "nswtrains");
 		API_ENDPOINT.put(REGIOBUSES, API_ENDPOINT_BASE + "regionbuses");
 		API_ENDPOINT.put(METRO, API_ENDPOINT_BASE + "metro");
+		
+		SUPPORTED_ENTITIES = API_ENDPOINT.keySet().stream().collect(Collectors.joining(",", "[", "]"));
 	}
 }

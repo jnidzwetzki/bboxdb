@@ -162,8 +162,9 @@ public class ImportAuTransport implements Runnable {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		if(args.length != 5) {
+		if(args.length != 6) {
 			System.err.println("Usage: <Class> <AuthKey> <Entity1:Entity2:EntityN> <Connection Endpoint> <Clustername> <DistributionGroup> <Delay in sec>");
+			System.err.println("Entities: " + AuTransportSources.SUPPORTED_ENTITIES);
 			System.exit(-1);
 		}
 		
