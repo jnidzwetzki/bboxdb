@@ -136,7 +136,8 @@ public class ImportAuTransport implements Runnable {
 			}
 			
 			// Wait forever
-			threadPool.wait();
+			threadPool.shutdown();
+			threadPool.awaitTermination(999999, TimeUnit.DAYS);
 			
 		} catch (Exception e) {
 			logger.error("Got an exception", e);
