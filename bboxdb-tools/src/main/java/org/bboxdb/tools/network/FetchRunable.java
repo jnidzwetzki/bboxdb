@@ -69,17 +69,25 @@ public class FetchRunable extends ExceptionSafeRunnable {
 	private final String entityName;
 	
 	/**
+	 * Removed duplicates
+	 */
+	private final boolean removeDuplicates;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FetchRunable.class);
-	
+
 	public FetchRunable(final String urlString, final String authKey, 
-			final Consumer<GeoJsonPolygon> consumer, final long fetchDelay, final String entityName) {
+			final Consumer<GeoJsonPolygon> consumer, final long fetchDelay, final String entityName, 
+			final boolean removeDuplicates) {
+		
 		this.urlString = urlString;
 		this.authKey = authKey;
 		this.consumer = consumer;
 		this.fetchDelay = fetchDelay;
 		this.entityName = entityName;
+		this.removeDuplicates = removeDuplicates;
 	}
 
 	/**
@@ -109,6 +117,7 @@ public class FetchRunable extends ExceptionSafeRunnable {
 				final Position position = vehicle.getPosition();
 
 				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(0);
+				geoJsonPolygon.addProperty("Timestamp", Long.toString(System.currentTimeMillis()));
 				geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
 				geoJsonPolygon.addProperty("TripID", trip.getTripId());
 				geoJsonPolygon.addProperty("Speed", Float.toString(position.getSpeed()));
@@ -138,6 +147,21 @@ public class FetchRunable extends ExceptionSafeRunnable {
 	 */
 	private int insertData(final List<GeoJsonPolygon> polygonList) throws BBoxDBException {
 		
+		// Remove duplicates on same pos if needed
+		if(! removeDuplicates) {
+			polygonList.forEach(p -> consumer.accept(p));
+			return polygonList.size();
+		}
+		
+		return insertWithoutDuplicates(polygonList);
+	}
+
+	/**
+	 * Insert the data without duplicates
+	 * @param polygonList
+	 * @return
+	 */
+	private int insertWithoutDuplicates(final List<GeoJsonPolygon> polygonList) {
 		// Sort by id
 		polygonList.sort((p1, p2) -> Long.compare(p1.getId(), p2.getId()));
 		
@@ -170,6 +194,7 @@ public class FetchRunable extends ExceptionSafeRunnable {
 			
 			inserts++;
 		}
+		
 		return inserts;
 	}
 

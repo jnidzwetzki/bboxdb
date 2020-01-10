@@ -130,7 +130,8 @@ public class ImportAuTransport implements Runnable {
 					}
 				};
 			
-				final FetchRunable runable = new FetchRunable(urlString, authKey, consumer, fetchDelay, entity);
+				final FetchRunable runable = new FetchRunable(urlString, authKey, consumer, fetchDelay, 
+						entity, true);
 				
 				threadPool.submit(runable);
 			}

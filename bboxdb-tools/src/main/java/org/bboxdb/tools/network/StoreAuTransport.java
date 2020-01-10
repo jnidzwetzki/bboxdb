@@ -104,7 +104,8 @@ public class StoreAuTransport implements Runnable {
 					}
 				};
 			
-				final FetchRunable runable = new FetchRunable(urlString, authKey, consumer, fetchDelay, entity);
+				final FetchRunable runable = new FetchRunable(urlString, authKey, consumer, fetchDelay, 
+						entity, false);
 				
 				threadPool.submit(runable);
 			}
