@@ -268,8 +268,14 @@ public class OverlayElement {
 			
 				graphicsContext.setColor(Color.BLACK);
 				graphicsContext.draw(rectangle);
-
-				final String stringValue = Long.toString(polygon.getId());
+				
+				String stringValue = null;
+				if(polygon.getProperties().containsKey("RouteID")) {
+					stringValue = polygon.getProperties().get("RouteID");
+				} else {
+					stringValue = Long.toString(polygon.getId());
+				}
+				
 				final Rectangle2D stringBounds = graphicsContext.getFontMetrics().getStringBounds(stringValue, graphicsContext);
 			
 				final int stringPosY = (int) (rectangle.getMaxY() + rectangle.getHeight() / 2 + stringBounds.getHeight());

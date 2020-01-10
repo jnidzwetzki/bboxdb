@@ -22,11 +22,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.misc.BBoxDBException;
@@ -69,8 +67,6 @@ public class FetchRunable extends ExceptionSafeRunnable {
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FetchRunable.class);
-
-
 	
 	public FetchRunable(final String urlString, final String authKey, 
 			final Consumer<GeoJsonPolygon> consumer, final long fetchDelay) {
@@ -106,16 +102,7 @@ public class FetchRunable extends ExceptionSafeRunnable {
 				final TripDescriptor trip = vehicle.getTrip();
 				final Position position = vehicle.getPosition();
 
-				final String idString = trip.getTripId().replace("_", "");
-				final Optional<Long> id = MathUtil.tryParseLong(idString);
-				
-				if(! id.isPresent()) {
-					logger.warn("Skipping element with invalid id: {}", idString);
-					continue;
-				}
-				
-				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id.get());
-				
+				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(0);
 				geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
 				geoJsonPolygon.addProperty("TripID", trip.getTripId());
 				geoJsonPolygon.addProperty("Speed", Float.toString(position.getSpeed()));
@@ -128,7 +115,7 @@ public class FetchRunable extends ExceptionSafeRunnable {
 			
 			final int inserts = insertData(polygonList);
 			
-			System.out.format("Inserted %d elements (read %d) %n", inserts, polygonList.size());
+			logger.info("Inserted {} elements (read {})", inserts, polygonList.size());
 			
 			Thread.sleep(fetchDelay);
 		}
