@@ -66,7 +66,7 @@ public class AnalyzeAuData implements Runnable {
 				final long timestamp = MathUtil.tryParseLong(timestampString, 
 						() -> "Unable to parse: " + timestampString);
 				
-				final String timeslot = sdf.format(new Date(timestamp * 1000));
+				final String timeslot = sdf.format(new Date(timestamp));
 				
 				final long oldElements = counterMap.getOrDefault(timeslot, 0L);
 				counterMap.put(timeslot, oldElements + 1);
