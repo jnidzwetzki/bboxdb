@@ -22,6 +22,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.GeoJsonPolygon;
@@ -52,9 +56,8 @@ public class AnalyzeAuData implements Runnable {
 				final BufferedReader reader = new BufferedReader(new FileReader(file));
 		) {
 			String line = null;
-			String currentTimeslot = null;
-			long readElementInTimeframe = 0;
 			final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh");
+			final Map<String, Long> counterMap = new HashMap<>();
 			
 			while((line = reader.readLine()) != null) {
 				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(line);
@@ -63,23 +66,21 @@ public class AnalyzeAuData implements Runnable {
 				final long timestamp = MathUtil.tryParseLong(timestampString, 
 						() -> "Unable to parse: " + timestampString);
 				
-				final String timeslot = sdf.format(new Date(timestamp));
+				final String timeslot = sdf.format(new Date(timestamp * 1000));
 				
-				if(currentTimeslot == null) {
-					currentTimeslot = timeslot;
-					continue;
-				}
-				
-				if(! currentTimeslot.equals(timeslot)) {
-					System.out.println(currentTimeslot + "\t" + readElementInTimeframe);
-					readElementInTimeframe = 1;
-					currentTimeslot = timeslot;
-					continue;
-				}
-				
-				readElementInTimeframe++;
+				final long oldElements = counterMap.getOrDefault(timeslot, 0L);
+				counterMap.put(timeslot, oldElements);
 			}
 			
+			final List<String> keyList = counterMap.keySet()
+					.stream()
+					.sorted()
+					.collect(Collectors.toList());
+			
+			for(final String key : keyList) {
+				final long readElementInTimeframe = counterMap.get(key);
+				System.out.println(key + "\t" + readElementInTimeframe);
+			}	
 		} catch (Exception e) {
 			logger.error("Got error", e);
 		} 
