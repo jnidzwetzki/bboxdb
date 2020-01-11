@@ -56,7 +56,7 @@ public class AnalyzeAuData implements Runnable {
 				final BufferedReader reader = new BufferedReader(new FileReader(file));
 		) {
 			String line = null;
-			final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh");
+			final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh");
 			final Map<String, Long> counterMap = new HashMap<>();
 			
 			while((line = reader.readLine()) != null) {
@@ -69,7 +69,7 @@ public class AnalyzeAuData implements Runnable {
 				final String timeslot = sdf.format(new Date(timestamp * 1000));
 				
 				final long oldElements = counterMap.getOrDefault(timeslot, 0L);
-				counterMap.put(timeslot, oldElements);
+				counterMap.put(timeslot, oldElements + 1);
 			}
 			
 			final List<String> keyList = counterMap.keySet()
