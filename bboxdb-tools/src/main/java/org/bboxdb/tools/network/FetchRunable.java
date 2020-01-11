@@ -136,6 +136,7 @@ public class FetchRunable extends ExceptionSafeRunnable {
 
 			final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(0);
 			geoJsonPolygon.addProperty("Timestamp", Long.toString(vehicle.getTimestamp()));
+			geoJsonPolygon.addProperty("TimestampParsed", Long.toString(System.currentTimeMillis()));
 			geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
 			geoJsonPolygon.addProperty("TripID", trip.getTripId());
 			geoJsonPolygon.addProperty("TripStartDate", trip.getStartDate());
