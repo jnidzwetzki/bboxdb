@@ -62,7 +62,7 @@ public class AnalyzeAuData implements Runnable {
 			while((line = reader.readLine()) != null) {
 				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(line);
 				
-				final String timestampString = polygon.getProperties().get("Timestamp");
+				final String timestampString = polygon.getProperties().get("TimestampParsed");
 				final long timestamp = MathUtil.tryParseLong(timestampString, 
 						() -> "Unable to parse: " + timestampString);
 				
