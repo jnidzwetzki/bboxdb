@@ -56,7 +56,7 @@ public class AnalyzeAuData implements Runnable {
 				final BufferedReader reader = new BufferedReader(new FileReader(file));
 		) {
 			String line = null;
-			final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh");
+			final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH");
 			final Map<String, Long> counterMap = new HashMap<>();
 			
 			while((line = reader.readLine()) != null) {
