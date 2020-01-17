@@ -23,7 +23,7 @@
 
 # Is the environment configured?
 if [ -z "$BBOXDB_HOME" ]; then
-   echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
+   echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your installation."
    exit -1
 fi
 
