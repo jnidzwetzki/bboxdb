@@ -99,41 +99,60 @@ public class FetchRunable extends ExceptionSafeRunnable {
 	@Override
 	protected void runThread() throws Exception {
 		while(! Thread.currentThread().isInterrupted()) {
-			final URL url = new URL(urlString);
-			final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setDoInput(true);
-			connection.setRequestProperty("Accept", "text/plain");
-			connection.setRequestProperty("Authorization", "apikey " + authKey);
-			
-			final FeedMessage message = GtfsRealtime.FeedMessage.parseFrom(connection.getInputStream());
-			
-			final List<FeedEntity> entities = message.getEntityList();
-			final List<GeoJsonPolygon> polygonList = new ArrayList<>();
-			
-			for(final GtfsRealtime.FeedEntity entity : entities) {
-				final VehiclePosition vehicle = entity.getVehicle();
-				final TripDescriptor trip = vehicle.getTrip();
-				final Position position = vehicle.getPosition();
-
-				final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(0);
-				geoJsonPolygon.addProperty("Timestamp", Long.toString(System.currentTimeMillis()));
-				geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
-				geoJsonPolygon.addProperty("TripID", trip.getTripId());
-				geoJsonPolygon.addProperty("Speed", Float.toString(position.getSpeed()));
-				geoJsonPolygon.addProperty("Bearing", Float.toString(position.getBearing()));
-				geoJsonPolygon.addProperty("DirectionID", Integer.toString(trip.getDirectionId()));
-				geoJsonPolygon.addPoint(position.getLongitude(), position.getLatitude());
+			try {
+				final URL url = new URL(urlString);
+				final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setRequestMethod("GET");
+				connection.setDoInput(true);
+				connection.setRequestProperty("Accept", "text/plain");
+				connection.setRequestProperty("Authorization", "apikey " + authKey);
 				
-				polygonList.add(geoJsonPolygon);
+				final FeedMessage message = GtfsRealtime.FeedMessage.parseFrom(connection.getInputStream());
+				
+				final List<GeoJsonPolygon> polygonList = parseElements(message);
+				final int inserts = insertData(polygonList);
+				logger.info("Inserted {} {} (read {})", inserts, entityName, polygonList.size());
+			} catch (Exception e) {
+				logger.error("Got exception", e);
 			}
-			
-			final int inserts = insertData(polygonList);
-			
-			logger.info("Inserted {} {} (read {})", inserts, entityName, polygonList.size());
 			
 			Thread.sleep(fetchDelay);
 		}
+	}
+
+	/**
+	 * Parse the elements from stream
+	 * @param message
+	 * @return
+	 */
+	private List<GeoJsonPolygon> parseElements(final FeedMessage message) {
+		final List<FeedEntity> entities = message.getEntityList();
+		final List<GeoJsonPolygon> polygonList = new ArrayList<>();
+		
+		for(final GtfsRealtime.FeedEntity entity : entities) {
+			final VehiclePosition vehicle = entity.getVehicle();
+			final TripDescriptor trip = vehicle.getTrip();
+			final Position position = vehicle.getPosition();
+
+			final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(0);
+			geoJsonPolygon.addProperty("Timestamp", Long.toString(vehicle.getTimestamp()));
+			geoJsonPolygon.addProperty("TimestampParsed", Long.toString(System.currentTimeMillis()));
+			geoJsonPolygon.addProperty("RouteID", trip.getRouteId());
+			geoJsonPolygon.addProperty("TripID", trip.getTripId());
+			geoJsonPolygon.addProperty("TripStartDate", trip.getStartDate());
+			geoJsonPolygon.addProperty("TripStartTime", trip.getStartTime());
+			geoJsonPolygon.addProperty("TripScheduleRelationship", trip.getScheduleRelationship().name());
+			geoJsonPolygon.addProperty("Speed", Float.toString(position.getSpeed()));
+			geoJsonPolygon.addProperty("Bearing", Float.toString(position.getBearing()));
+			geoJsonPolygon.addProperty("DirectionID", Integer.toString(trip.getDirectionId()));
+			geoJsonPolygon.addProperty("CongestionLevel", vehicle.getCongestionLevel().name());
+			geoJsonPolygon.addProperty("OccupancyStatus", vehicle.getOccupancyStatus().name());
+			geoJsonPolygon.addPoint(position.getLongitude(), position.getLatitude());
+			
+			polygonList.add(geoJsonPolygon);
+		}
+		
+		return polygonList;
 	}
 
 
