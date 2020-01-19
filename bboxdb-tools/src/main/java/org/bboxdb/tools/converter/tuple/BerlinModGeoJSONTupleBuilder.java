@@ -20,6 +20,7 @@ package org.bboxdb.tools.converter.tuple;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.GeoJsonPolygon;
@@ -31,7 +32,12 @@ public class BerlinModGeoJSONTupleBuilder extends TupleBuilder {
 	/**
 	 * The date parser
 	 */
-	private final SimpleDateFormat dateParser = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+	private final SimpleDateFormat dateParser;
+	
+	public BerlinModGeoJSONTupleBuilder() {
+		this.dateParser = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		this.dateParser.setTimeZone(TimeZone.getTimeZone("GMT"));
+	}
 
 	@Override
 	public Tuple buildTuple(final String valueData, final String keyData) {

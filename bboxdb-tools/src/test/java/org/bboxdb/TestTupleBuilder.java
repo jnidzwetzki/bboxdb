@@ -408,7 +408,7 @@ public class TestTupleBuilder {
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(13.2983d, 13.2983d, 52.5722d, 52.5722d);
 		
-		Assert.assertEquals(1180324936000L, tuple.getVersionTimestamp());
+		Assert.assertEquals(1180332136000L, tuple.getVersionTimestamp());
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
 
