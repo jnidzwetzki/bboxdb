@@ -148,7 +148,7 @@ public class TestBaselineApproach implements AutoCloseable {
 		    final long id = row.getLong(0);
 		    final String text = row.getString(1);
 
-		    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(id), text);
+		    final Tuple tuple = tupleBuilder.buildTuple(text, Long.toString(id));
 
 		    if(tuple.getBoundingBox().intersects(range)) {
 		    	resultRecords++;
@@ -213,7 +213,7 @@ public class TestBaselineApproach implements AutoCloseable {
 		    final long id1 = row1.getLong(0);
 		    final String text1 = row1.getString(1);
 
-		    final Tuple tuple1 = tupleBuilder1.buildTuple(Long.toString(id1), text1);
+		    final Tuple tuple1 = tupleBuilder1.buildTuple(text1, Long.toString(id1));
 
 		    // Tuple is outside of our query range
 		    if(! tuple1.getBoundingBox().intersects(range)) {
@@ -237,7 +237,7 @@ public class TestBaselineApproach implements AutoCloseable {
 			    final long id2 = row2.getLong(0);
 			    final String text2 = row2.getString(1);
 
-			    final Tuple tuple2 = tupleBuilder2.buildTuple(Long.toString(id2), text2);
+			    final Tuple tuple2 = tupleBuilder2.buildTuple(text2, Long.toString(id2));
 
 			    if(tuple1.getBoundingBox().intersects(tuple2.getBoundingBox().enlargeByAmount(padding))) {
 			    	resultRecords++;

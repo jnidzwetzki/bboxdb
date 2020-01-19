@@ -243,7 +243,7 @@ public class DataRedistributionLoader implements Runnable {
 		try(final Stream<String> lines = Files.lines(Paths.get(filename))) {
 			lines.forEach(l -> {
 				final String key = prefix + lineNumber.getAndIncrement();
-				final Tuple tuple = tupleBuilder.buildTuple(key, l);
+				final Tuple tuple = tupleBuilder.buildTuple(l, key);
 
 				try {
 					if(tuple != null) {

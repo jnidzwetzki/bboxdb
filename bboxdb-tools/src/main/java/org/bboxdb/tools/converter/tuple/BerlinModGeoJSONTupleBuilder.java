@@ -34,7 +34,7 @@ public class BerlinModGeoJSONTupleBuilder extends TupleBuilder {
 	private final SimpleDateFormat dateParser = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 	@Override
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 
 		// 28-05-2007 06:02:16,272,14773,13.2983,52.5722
 		// Date, Moid, Tripid, Long, Lat

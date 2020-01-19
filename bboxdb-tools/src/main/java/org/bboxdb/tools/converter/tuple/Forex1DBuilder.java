@@ -33,7 +33,7 @@ public class Forex1DBuilder extends TupleBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(Forex1DBuilder.class);
 
 	@Override
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 		
 		try {
 			final String key = keyData != null ? keyData : getKey(valueData);

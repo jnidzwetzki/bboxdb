@@ -77,7 +77,7 @@ public class RandomSamplesReader {
 				final long pos = fli.locateLine(lineNumber);
 				randomAccessFile.seek(pos);
 				final String lineString = randomAccessFile.readLine();
-			    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), lineString);
+			    final Tuple tuple = tupleBuilder.buildTuple(lineString, Long.toString(lineNumber));
 			    samples.add(tuple.getBoundingBox());
 			}
 		}

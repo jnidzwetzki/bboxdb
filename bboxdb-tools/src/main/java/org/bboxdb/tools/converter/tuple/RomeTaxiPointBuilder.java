@@ -38,7 +38,7 @@ public class RomeTaxiPointBuilder extends TupleBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(RomeTaxiPointBuilder.class);
 
 	// 173;2014-01-04 00:00:07.028304+01;POINT(41.91924450823211 12.5027184734508)
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 		final String[] data = valueData.split(";");
 
 		try {

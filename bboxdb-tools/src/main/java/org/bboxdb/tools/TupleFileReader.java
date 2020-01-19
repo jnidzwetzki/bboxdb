@@ -118,7 +118,7 @@ public class TupleFileReader {
 			
 			for (final Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
 				fileLine = iterator.next();
-				final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), fileLine);
+				final Tuple tuple = tupleBuilder.buildTuple(fileLine, Long.toString(lineNumber));
 				
 				if(tuple == null) {
 					skippedLines++;

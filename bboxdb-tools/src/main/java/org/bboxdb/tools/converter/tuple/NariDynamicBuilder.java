@@ -41,7 +41,7 @@ public class NariDynamicBuilder extends TupleBuilder {
 	// [7] lat,
 	// [8] t
 
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 		final String[] data = valueData.split(",");
 		
 		if(data.length != 9) {

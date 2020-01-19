@@ -23,7 +23,7 @@ import org.bboxdb.storage.entity.Tuple;
 public class GeoJSONTupleBuilder extends TupleBuilder {
 
 	@Override
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 
 		final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(valueData);
 		

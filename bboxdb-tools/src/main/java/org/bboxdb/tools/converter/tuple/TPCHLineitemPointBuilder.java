@@ -59,7 +59,7 @@ public class TPCHLineitemPointBuilder extends TupleBuilder {
 	 * Comment      - 15
 	 */
 	// 3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 		final String[] data = valueData.split("\\|");
 
 		try {

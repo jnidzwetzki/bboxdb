@@ -52,7 +52,7 @@ public class TPCHOrderPointBuilder extends TupleBuilder {
 	 * Comment        - 8
 	 */
 	// 1|738001|O|215050.73|1996-01-02|5-LOW|Clerk#000019011|0|nstructions sleep furiously among |
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 		final String[] data = valueData.split("\\|");
 
 		try {

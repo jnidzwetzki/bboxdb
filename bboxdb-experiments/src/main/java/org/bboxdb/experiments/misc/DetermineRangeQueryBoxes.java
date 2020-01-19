@@ -92,7 +92,7 @@ public class DetermineRangeQueryBoxes implements Runnable {
 					final long pos = fli.locateLine(sampleId + 1);
 					randomAccessFile.seek(pos);
 					final String line = randomAccessFile.readLine();
-				    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(sampleId), line);
+				    final Tuple tuple = tupleBuilder.buildTuple(line, Long.toString(sampleId));
 
 				    // E.g. Table header
 				    if(tuple == null) {

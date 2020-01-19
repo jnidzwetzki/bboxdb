@@ -30,7 +30,7 @@ public class SyntheticTupleBuilder extends TupleBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(SyntheticTupleBuilder.class);
 
 	@Override
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 		try {
 			final String[] data = valueData.split(" ");
 			

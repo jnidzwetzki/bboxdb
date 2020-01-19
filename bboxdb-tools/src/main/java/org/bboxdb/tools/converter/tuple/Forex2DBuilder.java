@@ -40,7 +40,7 @@ public class Forex2DBuilder extends TupleBuilder {
 	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
 	
 	@Override
-	public Tuple buildTuple(final String keyData, final String valueData) {
+	public Tuple buildTuple(final String valueData, final String keyData) {
 		try {
 			final String key = keyData != null ? keyData : getKey(valueData);
 

@@ -91,7 +91,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.GEOJSON);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(GEO_JSON_LINE, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -108,7 +108,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.ROME_TAXI_POINT);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", ROME_TAXI_1);
+		final Tuple tuple = tupleBuilder.buildTuple(ROME_TAXI_1, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -130,7 +130,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.FOREX_1D);
 
-		final Tuple tuple1 = tupleBuilder.buildTuple("1", FOREX_LINE);
+		final Tuple tuple1 = tupleBuilder.buildTuple(FOREX_LINE, "1");
 
 		Assert.assertNotNull(tuple1);
 		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
@@ -150,7 +150,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.FOREX_2D);
 
-		final Tuple tuple1 = tupleBuilder.buildTuple("1", FOREX_LINE);
+		final Tuple tuple1 = tupleBuilder.buildTuple(FOREX_LINE, "1");
 
 		Assert.assertNotNull(tuple1);
 		Assert.assertEquals(Integer.toString(1), tuple1.getKey());
@@ -169,8 +169,8 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.ROME_TAXI_RANGE);
 
-		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
-		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
+		final Tuple tuple1 = tupleBuilder.buildTuple(ROME_TAXI_1, "1");
+		final Tuple tuple2 = tupleBuilder.buildTuple(ROME_TAXI_2, "1");
 
 		Assert.assertNull(tuple1);
 		Assert.assertNotNull(tuple2);
@@ -192,8 +192,8 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.ROME_TAXI_RANGE);
 
-		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
-		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
+		final Tuple tuple1 = tupleBuilder.buildTuple(ROME_TAXI_2, "1");
+		final Tuple tuple2 = tupleBuilder.buildTuple(ROME_TAXI_1, "1");
 
 		Assert.assertNull(tuple1);
 		Assert.assertNotNull(tuple2);
@@ -217,8 +217,8 @@ public class TestTupleBuilder {
 
 		tupleBuilder.setPadding(1.0);
 
-		final Tuple tuple1 = tupleBuilder.buildTuple("1", ROME_TAXI_2);
-		final Tuple tuple2 = tupleBuilder.buildTuple("1", ROME_TAXI_1);
+		final Tuple tuple1 = tupleBuilder.buildTuple(ROME_TAXI_2, "1");
+		final Tuple tuple2 = tupleBuilder.buildTuple(ROME_TAXI_1, "1");
 
 		Assert.assertNull(tuple1);
 		Assert.assertNotNull(tuple2);
@@ -240,7 +240,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.YELLOWTAXI_RANGE);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", TAXI_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(TAXI_TEST_LINE, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -265,7 +265,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.YELLOWTAXI_POINT);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", TAXI_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(TAXI_TEST_LINE, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -289,7 +289,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.TPCH_LINEITEM_POINT);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_LINEITEM_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(TPCH_LINEITEM_TEST_LINE, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -312,7 +312,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.TPCH_LINEITEM_RANGE);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_LINEITEM_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(TPCH_LINEITEM_TEST_LINE, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -338,7 +338,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.TPCH_ORDER_POINT);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_ORDER_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(TPCH_ORDER_TEST_LINE, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -362,7 +362,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.SYNTHETIC);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", SYNTHETIC_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(SYNTHETIC_TEST_LINE, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -382,7 +382,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.NARI_DYNAMIC);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", NARI_DYNAMIC);
+		final Tuple tuple = tupleBuilder.buildTuple(NARI_DYNAMIC, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -401,7 +401,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.BERLINMOD_GEOJSON);
 
-		final Tuple tuple = tupleBuilder.buildTuple("1", BERLINMOD);
+		final Tuple tuple = tupleBuilder.buildTuple(BERLINMOD, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -441,7 +441,7 @@ public class TestTupleBuilder {
 		// The reference tuple
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.GEOJSON);
-		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(GEO_JSON_LINE, "1");
 
 		final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 		writer.write(GEO_JSON_LINE);
@@ -477,7 +477,7 @@ public class TestTupleBuilder {
 		// The reference tuple
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.GEOJSON);
-		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(GEO_JSON_LINE, "1");
 
 		final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 		writer.write(GEO_JSON_LINE);
@@ -517,7 +517,7 @@ public class TestTupleBuilder {
 		// The reference tuple
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.GEOJSON);
-		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple(GEO_JSON_LINE, "1");
 
 		final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 		writer.write(GEO_JSON_LINE);

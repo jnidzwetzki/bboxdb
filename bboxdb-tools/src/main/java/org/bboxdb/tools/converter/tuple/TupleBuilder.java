@@ -49,7 +49,7 @@ public abstract class TupleBuilder {
 	 * @return
 	 */
 	public Tuple buildTuple(final String valueData) {
-		return buildTuple(null, valueData);
+		return buildTuple(valueData, null);
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public abstract class TupleBuilder {
 	 * @param data
 	 * @return
 	 */
-	public abstract Tuple buildTuple(final String keyData, final String valueData);
+	public abstract Tuple buildTuple(final String valueData, final String keyData);
 
 	/**
 	 * Set the padding of the bounding box
