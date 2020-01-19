@@ -77,6 +77,11 @@ public class TestTupleBuilder {
 	 * The line for nari dynamic tests
 	 */
 	private final static String NARI_DYNAMIC = "245257000,0,0,0.1,13.1,36,-4.4657183,48.38249,1443650402";
+	
+	/**
+	 * The line for BerlinMod data
+	 */
+	private final static String BERLINMOD = "28-05-2007 06:02:16,272,14773,13.2983,52.5722";
 		
 	/**
 	 * Test the geo json tuple builder
@@ -385,6 +390,25 @@ public class TestTupleBuilder {
 		final Hyperrectangle exptectedBox = new Hyperrectangle(1443650402d, 1443650402d,
 				-4.4657183d, -4.4657183d, 48.38249d, 48.38249d);
 		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
+	
+	/**
+	 * Test the berlin mod geojson tuple builder
+	 */
+	@Test
+	public void testBerlinModGeoJSONTupleBuilder() {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.BERLINMOD_GEOJSON);
+
+		final Tuple tuple = tupleBuilder.buildTuple("1", BERLINMOD);
+
+		Assert.assertNotNull(tuple);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+
+		final Hyperrectangle exptectedBox = new Hyperrectangle(13.2983d, 13.2983d, 52.5722d, 52.5722d);
+		
+		Assert.assertEquals(1180324936000L, tuple.getVersionTimestamp());
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
 
