@@ -43,7 +43,8 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 			customGeomety = geoJoinToGeomety(customString);
 		}
 		
-		final OGCGeometry geometry = extractGeometry(tuple);
+		final String geoJsonString = new String(tuple.getDataBytes());
+		final OGCGeometry geometry = extractGeometry(geoJsonString);
 
         return geometry.intersects(customGeomety);
 	}
@@ -53,8 +54,21 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 */
 	@Override
 	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
-		final OGCGeometry geometry1 = extractGeometry(tuple1);
-		final OGCGeometry geometry2 = extractGeometry(tuple2);
+		
+		final String geoJsonString1 = new String(tuple1.getDataBytes());
+		final String geoJsonString2 = new String(tuple2.getDataBytes());
+
+		// Full text search on string (if provided)
+		if(customData != null) {
+			final String customDataString = new String(customData);
+			if(! geoJsonString1.contains(customDataString) && 
+					! geoJsonString2.contains(customDataString)) {
+				return false;
+			}
+		}
+		
+		final OGCGeometry geometry1 = extractGeometry(geoJsonString1);
+		final OGCGeometry geometry2 = extractGeometry(geoJsonString2);
 
 	    return geometry1.intersects(geometry2);
 	}
@@ -64,8 +78,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 * @param tuple
 	 * @return
 	 */
-	private OGCGeometry extractGeometry(final Tuple tuple) {
-		final String geoJsonString = new String(tuple.getDataBytes());
+	private OGCGeometry extractGeometry(final String geoJsonString) {
 
 		final JSONObject geoJson = new JSONObject(geoJsonString);
 		

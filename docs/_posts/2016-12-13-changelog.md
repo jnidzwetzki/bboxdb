@@ -20,6 +20,7 @@ order: 1
 - Improvement: Prevent ongoing major compactification tasks without data change
 - Improvement: Results on the GUI can be hidden
 - Improvement: Changed to time based flushing in continuous queries
+- Improvement: Added full-text search to GeoJSON spatial join
 - Bugfix: Improved invalid SSTable invalid metadata handling
 - Bugfix: SStables without metadata are ignored
 
