@@ -21,11 +21,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.GeoJsonPolygon;
@@ -59,6 +58,9 @@ public class AnalyzeAuData implements Runnable {
 			final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH");
 			final Map<String, Long> counterMap = new HashMap<>();
 			
+			long minTime = Long.MAX_VALUE;
+			long maxTime = Long.MIN_VALUE;
+			
 			while((line = reader.readLine()) != null) {
 				final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(line);
 				
@@ -70,16 +72,23 @@ public class AnalyzeAuData implements Runnable {
 				
 				final long oldElements = counterMap.getOrDefault(timeslot, 0L);
 				counterMap.put(timeslot, oldElements + 1);
+				
+				minTime = Math.min(minTime, timestamp);
+				maxTime = Math.max(maxTime, timestamp);
 			}
 			
-			final List<String> keyList = counterMap.keySet()
-					.stream()
-					.sorted()
-					.collect(Collectors.toList());
+		    final Calendar calendar = Calendar.getInstance();
+		    calendar.setTimeInMillis(minTime);
+			calendar.set(Calendar.FRIDAY, 0);
+			calendar.set(Calendar.HOUR, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
 			
-			for(final String key : keyList) {
-				final long readElementInTimeframe = counterMap.get(key);
+			while(calendar.getTimeInMillis() < maxTime) {
+				final String key = sdf.format(calendar.getTime());
+				final long readElementInTimeframe = counterMap.getOrDefault(key, 0L);
 				System.out.println(key + "\t" + readElementInTimeframe);
+				calendar.add(Calendar.HOUR, 1);
 			}	
 		} catch (Exception e) {
 			logger.error("Got error", e);
