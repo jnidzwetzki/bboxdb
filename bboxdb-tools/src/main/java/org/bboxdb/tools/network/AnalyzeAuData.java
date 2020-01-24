@@ -79,7 +79,6 @@ public class AnalyzeAuData implements Runnable {
 			
 		    final Calendar calendar = Calendar.getInstance();
 		    calendar.setTimeInMillis(minTime);
-			calendar.set(Calendar.FRIDAY, 0);
 			calendar.set(Calendar.HOUR, 0);
 			calendar.set(Calendar.SECOND, 0);
 			calendar.set(Calendar.MILLISECOND, 0);
