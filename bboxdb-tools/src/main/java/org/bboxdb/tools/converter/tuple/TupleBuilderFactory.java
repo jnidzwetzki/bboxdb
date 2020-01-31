@@ -95,6 +95,10 @@ public class TupleBuilderFactory {
 		 */
 		public static final String BERLINMOD_GEOJSON = "berlinmod_geojson";
 		
+		/**
+		 * The ADSB tuple builder
+		 */
+		public static final String ADSB = "adsb";	
 	}
 	
 	/**
@@ -106,7 +110,8 @@ public class TupleBuilderFactory {
 			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE, 
 			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
 			Name.ROME_TAXI_RANGE, Name.NARI_DYNAMIC,
-			Name.FOREX_1D, Name.FOREX_2D, Name.BERLINMOD_GEOJSON);
+			Name.FOREX_1D, Name.FOREX_2D, Name.BERLINMOD_GEOJSON,
+			Name.ADSB);
 
 	/**
 	 * Return the parser for the tuple format
@@ -142,6 +147,8 @@ public class TupleBuilderFactory {
 				return new Forex2DBuilder();
 			case Name.BERLINMOD_GEOJSON:
 				return new BerlinModGeoJSONTupleBuilder();
+			case Name.ADSB:
+				return new ADSBTupleBuilder();
 			default:
 				throw new RuntimeException("Unknown format: " + format);
 		}

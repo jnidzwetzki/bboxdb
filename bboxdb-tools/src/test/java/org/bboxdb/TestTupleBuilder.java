@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.TupleFileReader;
@@ -82,7 +83,98 @@ public class TestTupleBuilder {
 	 * The line for BerlinMod data
 	 */
 	private final static String BERLINMOD = "28-05-2007 06:02:16,272,14773,13.2983,52.5722";
+	
+	/**
+	 * The ADS-B Messages
+	 */
+	// Flight - AW119KX
+	private final static String ADS_B_1 = "MSG,1,0,0,71B4,0,2020/01/30,16:36:35.000,2020/01/30,16:36:34.000,AW119KX,,,,,,,,,,,";
+	private final static String ADS_B_2 = "MSG,3,0,0,71B4,0,2020/01/30,16:36:35.000,2020/01/30,16:36:34.000,,6600,,,-34.003143,18.668631,,,,,,";
+	private final static String ADS_B_3 = "MSG,4,0,0,71B4,0,2020/01/30,16:36:35.000,2020/01/30,16:36:34.000,,,125.706009,297.992065,,,-64,,,,,";
+	
+	// Flight - MSR706
+	private final static String ADS_B_4 = "MSG,1,0,0,1010B,0,2020/01/30,16:36:35.000,2020/01/30,16:36:34.000,MSR706,,,,,,,,,,,";
+	private final static String ADS_B_5 = "MSG,3,0,0,1010B,0,2020/01/30,16:36:35.000,2020/01/30,16:36:34.000,,37000,,,45.088634,12.469348,,,,,,";
+	private final static String ADS_B_6 = "MSG,4,0,0,1010B,0,2020/01/30,16:36:35.000,2020/01/30,16:36:34.000,,,487.345886,102.924118,,,0,,,,,";
+	
+	// Flight - AW119KX
+	private final static String ADS_B_7 = "MSG,1,0,0,71B4,0,2020/01/30,16:36:40.000,2020/01/30,16:36:39.000,AW119KX,,,,,,,,,,,";
+	private final static String ADS_B_8 = "MSG,3,0,0,71B4,0,2020/01/30,16:36:40.000,2020/01/30,16:36:39.000,,6500,,,-34.001831,18.665827,,,,,,";
+	private final static String ADS_B_9 = "MSG,4,0,0,71B4,0,2020/01/30,16:36:40.000,2020/01/30,16:36:39.000,,,126.909416,300.808899,,,-128,,,,,";
+	
+	// Flight - MSR706
+	private final static String ADS_B_10 = "MSG,1,0,0,1010B,0,2020/01/30,16:37:01.000,2020/01/30,16:37:00.000,MSR706,,,,,,,,,,,";
+	private final static String ADS_B_11 = "MSG,3,0,0,1010B,0,2020/01/30,16:37:01.000,2020/01/30,16:37:00.000,,37000,,,45.076355,12.545340,,,,,,";
+	private final static String ADS_B_12 = "MSG,4,0,0,1010B,0,2020/01/30,16:37:01.000,2020/01/30,16:37:00.000,,,488.320587,102.897881,,,0,,,,,";
+
+	/**
+	 * Test ADS-B tuple builder
+	 */
+	@Test
+	public void testADSBTupleBuilder() {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.ADSB);
 		
+		final Tuple tuple1 = tupleBuilder.buildTuple(ADS_B_1);
+		final Tuple tuple2 = tupleBuilder.buildTuple(ADS_B_2);
+		final Tuple tuple3 = tupleBuilder.buildTuple(ADS_B_3);
+		final Tuple tuple4 = tupleBuilder.buildTuple(ADS_B_4);
+		final Tuple tuple5 = tupleBuilder.buildTuple(ADS_B_5);
+		final Tuple tuple6 = tupleBuilder.buildTuple(ADS_B_6);
+		final Tuple tuple7 = tupleBuilder.buildTuple(ADS_B_7);
+		final Tuple tuple8 = tupleBuilder.buildTuple(ADS_B_8);
+		final Tuple tuple9 = tupleBuilder.buildTuple(ADS_B_9);
+		final Tuple tuple10 = tupleBuilder.buildTuple(ADS_B_10);
+		final Tuple tuple11 = tupleBuilder.buildTuple(ADS_B_11);
+		final Tuple tuple12 = tupleBuilder.buildTuple(ADS_B_12);
+		
+		Assert.assertNull(tuple1);
+		Assert.assertNull(tuple2);
+		Assert.assertNotNull(tuple3);
+		Assert.assertNull(tuple4);
+		Assert.assertNull(tuple5);
+		Assert.assertNotNull(tuple6);
+		Assert.assertNull(tuple7);
+		Assert.assertNull(tuple8);
+		Assert.assertNotNull(tuple9);
+		Assert.assertNull(tuple10);
+		Assert.assertNull(tuple11);
+		Assert.assertNotNull(tuple12);
+		
+		final GeoJsonPolygon geoJson1 = GeoJsonPolygon.fromGeoJson(new String(tuple3.getDataBytes()));
+		final GeoJsonPolygon geoJson2 = GeoJsonPolygon.fromGeoJson(new String(tuple6.getDataBytes()));
+		final GeoJsonPolygon geoJson3 = GeoJsonPolygon.fromGeoJson(new String(tuple9.getDataBytes()));
+		final GeoJsonPolygon geoJson4 = GeoJsonPolygon.fromGeoJson(new String(tuple12.getDataBytes()));
+	
+		Assert.assertEquals("AW119KX", geoJson1.getProperties().get("callsign"));
+		Assert.assertEquals("6600", geoJson1.getProperties().get("altitude"));
+		Assert.assertEquals("125.706009", geoJson1.getProperties().get("groundSpeed"));
+		Assert.assertEquals("297.992065", geoJson1.getProperties().get("track"));
+		Assert.assertEquals(18.668631, tuple3.getBoundingBox().getCoordinateHigh(0), 0.00001);
+		Assert.assertEquals(-34.003143, tuple3.getBoundingBox().getCoordinateHigh(1), 0.00001);
+
+		Assert.assertEquals("MSR706", geoJson2.getProperties().get("callsign"));
+		Assert.assertEquals("37000", geoJson2.getProperties().get("altitude"));
+		Assert.assertEquals("487.345886", geoJson2.getProperties().get("groundSpeed"));
+		Assert.assertEquals("102.924118", geoJson2.getProperties().get("track"));
+		Assert.assertEquals(12.469348, tuple6.getBoundingBox().getCoordinateHigh(0), 0.00001);
+		Assert.assertEquals(45.088634, tuple6.getBoundingBox().getCoordinateHigh(1), 0.00001);
+
+		Assert.assertEquals("AW119KX", geoJson3.getProperties().get("callsign"));
+		Assert.assertEquals("6500", geoJson3.getProperties().get("altitude"));
+		Assert.assertEquals("126.909416", geoJson3.getProperties().get("groundSpeed"));
+		Assert.assertEquals("300.808899", geoJson3.getProperties().get("track"));
+		Assert.assertEquals(18.665827, tuple9.getBoundingBox().getCoordinateHigh(0), 0.00001);
+		Assert.assertEquals(-34.001831, tuple9.getBoundingBox().getCoordinateHigh(1), 0.00001);
+
+		Assert.assertEquals("MSR706", geoJson4.getProperties().get("callsign"));
+		Assert.assertEquals("37000", geoJson4.getProperties().get("altitude"));
+		Assert.assertEquals("488.320587", geoJson4.getProperties().get("groundSpeed"));
+		Assert.assertEquals("102.897881", geoJson4.getProperties().get("track"));
+		Assert.assertEquals(12.54534, tuple12.getBoundingBox().getCoordinateHigh(0), 0.00001);
+		Assert.assertEquals(45.076355, tuple12.getBoundingBox().getCoordinateHigh(1), 0.00001);	
+	}
+
 	/**
 	 * Test the geo json tuple builder
 	 */
