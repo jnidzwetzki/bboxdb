@@ -114,6 +114,8 @@ public class SocketImporter implements Runnable {
 	private void handleConnection(final ServerSocket serverSocket, final BBoxDB bboxdbClient)
 			throws IOException, BBoxDBException {
 		
+		logger.info("Ready and waiting for connections on port {}", port);
+		
 		try(
 				final Socket clientSocket = serverSocket.accept();
 				final InputStreamReader reader = new InputStreamReader(clientSocket.getInputStream());
