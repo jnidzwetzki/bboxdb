@@ -66,13 +66,32 @@ public class ImportStoredData implements Runnable {
 				final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		) {
 			String line = null;
-			long currentSecondSlot = System.currentTimeMillis() / 1000;
+			long currentSecondSlot = getTimeSlot();
 			int processedLines = 0;
 			
 			while((line = reader.readLine()) != null) {
-				final long currentSecond = System.currentTimeMillis() / 1000;
 				writer.write(line + "\n");
 				processedLines++;
+				
+				if(Thread.currentThread().isInterrupted()) {
+					logger.info("Thread is interruped");
+					return;
+				}
+
+				long currentSecond = getTimeSlot();
+				
+				if(processedLines >= linesPerSecond) {
+					while(currentSecond == currentSecondSlot) {
+
+						if(Thread.currentThread().isInterrupted()) {
+							logger.info("Thread is interruped");
+							return;
+						}
+						
+						Thread.sleep(10);
+						currentSecond = getTimeSlot();
+					}
+				}
 				
 				if(currentSecond != currentSecondSlot) {
 					currentSecondSlot = currentSecond;
@@ -80,14 +99,18 @@ public class ImportStoredData implements Runnable {
 					writer.flush();
 					continue;
 				}
-				
-				while((processedLines > linesPerSecond) && ! Thread.currentThread().isInterrupted()) {
-					Thread.sleep(10);
-				}
 			}
 		} catch (Exception e) {
 			logger.error("Got error", e);
 		} 
+	}
+
+	/**
+	 * Get the time slot
+	 * @return
+	 */
+	private long getTimeSlot() {
+		return System.currentTimeMillis() / 1000;
 	}
 
 	/**
