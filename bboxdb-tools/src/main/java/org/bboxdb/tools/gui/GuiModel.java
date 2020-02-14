@@ -350,6 +350,8 @@ public class GuiModel implements DistributionRegionCallback {
 				final List<String> allTablesInGroup = adapter.getAllTables(distributionGroup);
 				allTables.addAll(allTablesInGroup);
 			}
+			
+			Collections.sort(allTables);
 		} catch (Exception e) {
 			logger.error("Got error while fetchting distribution groups", e);
 		} 
