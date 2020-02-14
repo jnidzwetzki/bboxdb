@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -44,11 +43,6 @@ public class FixedSizeFutureStore {
 	private final long maxPendingFutures;
 
 	/**
-	 * The pending futures list
-	 */
-	private final List<OperationFuture> pendingFutures;
-
-	/**
 	 * The failed future callback
 	 */
 	private final List<Consumer<OperationFuture>> failedFutureCallbacks;
@@ -59,9 +53,9 @@ public class FixedSizeFutureStore {
 	private final AtomicLong futureCounter;
 
 	/**
-	 * The future counter
+	 * The future counter (pendingFuture, counter)
 	 */
-	private final Map<OperationFuture, Long> futureCounterMap;
+	private final Map<OperationFuture, Long> pendingFutureMap;
 
 	/**
 	 * The statistics writer
@@ -80,11 +74,10 @@ public class FixedSizeFutureStore {
 
 	public FixedSizeFutureStore(final long maxPendingFutures) {
 		this.maxPendingFutures = maxPendingFutures;
-		this.pendingFutures = new CopyOnWriteArrayList<>();
 		this.failedFutureCallbacks = new ArrayList<>();
 		this.statisticsWriter = null;
 		this.futureCounter = new AtomicLong();
-		this.futureCounterMap = new ConcurrentHashMap<>();
+		this.pendingFutureMap = new ConcurrentHashMap<>();
 		this.stopwatch = Stopwatch.createStarted();
 	}
 
@@ -107,8 +100,9 @@ public class FixedSizeFutureStore {
 			return false;
 		}
 		
-		pendingFutures.add(futureToAdd);
-		futureCounterMap.put(futureToAdd, futureCounter.getAndIncrement());
+		final long futureId = futureCounter.getAndIncrement();
+		pendingFutureMap.put(futureToAdd, futureId);
+		
 		checkAndCleanupRunningFuture();
 		
 		return true;
@@ -118,7 +112,7 @@ public class FixedSizeFutureStore {
 	 * Check and cleanup running futures
 	 */
 	private void checkAndCleanupRunningFuture() {
-		if (pendingFutures.size() <= maxPendingFutures) {
+		if (pendingFutureMap.size() <= maxPendingFutures) {
 			return;
 		}
 
@@ -146,7 +140,7 @@ public class FixedSizeFutureStore {
 	public void removeCompleteFutures() {
 
 		// Get done futures
-		final List<OperationFuture> doneFutures = pendingFutures.stream()
+		final List<OperationFuture> doneFutures = pendingFutureMap.keySet().stream()
 			.filter(f -> f.isDone())
 			.collect(Collectors.toList());
 
@@ -156,9 +150,6 @@ public class FixedSizeFutureStore {
 				.forEach(f -> handleFailedFuture(f));
 
 		writeStatistics(doneFutures);
-
-		// Remove old futures
-		pendingFutures.removeAll(doneFutures);
 	}
 
 	/**
@@ -168,7 +159,7 @@ public class FixedSizeFutureStore {
 	private void writeStatistics(final List<OperationFuture> doneFutures) {
 
 		for(final OperationFuture future : doneFutures) {
-			final long futureNumber = futureCounterMap.remove(future);
+			final long futureNumber = pendingFutureMap.remove(future);
 			final long completionTime = future.getCompletionTime(TimeUnit.MILLISECONDS);
 			final int executions = future.getNeededExecutions();
 
@@ -200,7 +191,7 @@ public class FixedSizeFutureStore {
 	 * @return
 	 */
 	private boolean isCleanupNeeded() {
-		return pendingFutures.size() > maxPendingFutures * 0.8;
+		return pendingFutureMap.size() > maxPendingFutures * 0.8;
 	}
 
 	/**
@@ -216,7 +207,7 @@ public class FixedSizeFutureStore {
 	 * @return
 	 */
 	public long getPendingFutureCount() {
-		return pendingFutures.size();
+		return pendingFutureMap.size();
 	}
 
 	/**
@@ -233,9 +224,9 @@ public class FixedSizeFutureStore {
 	 */
 	public void waitForCompletion() throws InterruptedException {
 
-		while(! pendingFutures.isEmpty()) {
+		while(! pendingFutureMap.isEmpty()) {
 
-			for(final OperationFuture future : pendingFutures) {
+			for(final OperationFuture future : pendingFutureMap.keySet()) {
 				future.waitForCompletion();
 			}
 
