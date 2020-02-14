@@ -58,7 +58,7 @@ public class ADSBTupleBuilder extends TupleBuilder {
 		public String toGeoJSON() {
 			final int id = Integer.parseInt(hexIdent, 16);
 			final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id);
-			geoJsonPolygon.addPoint(longitude, latitude);
+			geoJsonPolygon.addPoint(latitude, longitude);
 			geoJsonPolygon.addProperty("callsign", callsign);
 			geoJsonPolygon.addProperty("altitude", altitude);
 			geoJsonPolygon.addProperty("groundSpeed", groundSpeed);
