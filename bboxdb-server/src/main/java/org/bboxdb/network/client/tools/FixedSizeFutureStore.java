@@ -143,20 +143,20 @@ public class FixedSizeFutureStore {
 		final List<OperationFuture> doneFutures = pendingFutureMap.keySet().stream()
 			.filter(f -> f.isDone())
 			.collect(Collectors.toList());
-
+		
 		// Handle failed futures
 		doneFutures.stream()
 				.filter(f -> f.isFailed())
 				.forEach(f -> handleFailedFuture(f));
 
-		writeStatistics(doneFutures);
+		writeStatisticsAndRemoveFuturesFromMap(doneFutures);
 	}
 
 	/**
 	 * Write performance statistics
 	 * @param doneFutures
 	 */
-	private void writeStatistics(final List<OperationFuture> doneFutures) {
+	private void writeStatisticsAndRemoveFuturesFromMap(final List<OperationFuture> doneFutures) {
 
 		for(final OperationFuture future : doneFutures) {
 			final long futureNumber = pendingFutureMap.remove(future);
