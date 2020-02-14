@@ -25,6 +25,7 @@ order: 1
 - Bugfix: Improved invalid SSTable invalid metadata handling
 - Bugfix: SStables without metadata are ignored
 - Bugfix: Fixed serveral race conditions in FixedSizeFutureStore
+- Bugfix: Fixed repainting in GUI
 
 ### Version 0.9.2 - 20.10.2019
 - Improvement: Made Zookeeper ports configurable

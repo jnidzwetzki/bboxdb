@@ -287,7 +287,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			}
 			
 			final Rectangle viewport = mapViewer.getViewportBounds();
-			final Rectangle boundingBox = overlayElement.getBBoxToDrawOnGui();
+			final Rectangle boundingBox = overlayElement.getDirtyPixel();
 			final Point point = boundingBox.getLocation();
 			boundingBox.setLocation((int) (point.getX() - viewport.getX()), 
 					(int) (point.getY() - viewport.getY()));

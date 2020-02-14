@@ -65,6 +65,11 @@ public class OverlayElement {
 	private final Rectangle boundingBoxPixel;
 	
 	/**
+	 * The dirty pixel of the last rendering
+	 */
+	private final Rectangle dirtyPixel;
+	
+	/**
 	 * The last rendered shape
 	 */
 	private Shape lastRenderedShape;
@@ -87,7 +92,7 @@ public class OverlayElement {
 	/**
 	 * The size of a point
 	 */
-	private final static int POINT_SIZE = 50;
+	private final static int POINT_SIZE = 5;
 	
 	public OverlayElement(final EntityIdentifier entityIdentifier, final String tablename, 
 			final GeoJsonPolygon polygon, final Color color) {
@@ -97,6 +102,7 @@ public class OverlayElement {
 		this.polygon = polygon;
 		this.color = color;
 		this.boundingBoxPixel = new Rectangle();
+		this.dirtyPixel = new Rectangle();
 	}
 
 	/**
@@ -126,10 +132,12 @@ public class OverlayElement {
 		// Polycons with only one point are shown as a rectangle
 		// on the map
 		if(polygon.getPointList().size() == 1) {
-			 final Rectangle bbox = getRectangleForPoint(map, polygonPointsPixel);
+			 final Rectangle bbox = getRectangleForPoint(map, polygonPointsPixel);			 
 			 boundingBoxPixel.setBounds(bbox);
+			 dirtyPixel.setBounds(boundingBoxPixel);
+			 dirtyPixel.grow((int) boundingBoxPixel.getHeight() * 4, (int) boundingBoxPixel.getWidth() * 4); 
 		} else {
-			Hyperrectangle bbox = polygon.getBoundingBox();
+			final Hyperrectangle bbox = polygon.getBoundingBox();
 			updateElementBoundingBox(map, bbox);
 		}
 	}
@@ -154,6 +162,7 @@ public class OverlayElement {
 		
 		boundingBoxPixel.setBounds((int) (bboxPixelStart.getX() - 0.5), (int) (bboxPixelStop.getY() - 0.5), 
 				elementWidth, elementHeight);
+		dirtyPixel.setBounds(boundingBoxPixel);
 	}
 	
 	/**
@@ -269,19 +278,20 @@ public class OverlayElement {
 				graphicsContext.setColor(Color.BLACK);
 				graphicsContext.draw(rectangle);
 				
-				String stringValue = null;
-				if(polygon.getProperties().containsKey("RouteID")) {
-					stringValue = polygon.getProperties().get("RouteID");
-				} else {
-					stringValue = Long.toString(polygon.getId());
-				}
+				final String stringValue = getStringValueForPointElement();
 				
 				final Rectangle2D stringBounds = graphicsContext.getFontMetrics().getStringBounds(stringValue, graphicsContext);
 			
 				final int stringPosY = (int) (rectangle.getMaxY() + rectangle.getHeight() / 2 + stringBounds.getHeight());
 				final int stringPosX = (int) (rectangle.getCenterX() - (stringBounds.getWidth() / 2));
 				
+				final Rectangle2D stringDrawPos = new Rectangle2D.Double(
+						stringPosX,
+						stringPosY - stringBounds.getHeight(), 
+						stringBounds.getWidth(), stringBounds.getHeight());
+				
 				graphicsContext.drawString(stringValue, stringPosX, stringPosY);
+				Rectangle2D.union(stringDrawPos, boundingBoxPixel, dirtyPixel);
 			}
 						
 			return;
@@ -335,6 +345,23 @@ public class OverlayElement {
 	}
 
 	/**
+	 * Get the string value for a point element
+	 * @return
+	 */
+	private String getStringValueForPointElement() {
+
+		final Map<String, String> properties = polygon.getProperties();
+		
+		if(properties.containsKey("RouteID")) {
+			return properties.get("RouteID");
+		} else if(properties.containsKey("callsign")) {
+			return properties.get("callsign");
+		} else {
+			return Long.toString(polygon.getId());
+		}		
+	}
+
+	/**
 	 * Get the painting rectangle for a given point
 	 * @param map
 	 * @param pointList
@@ -344,14 +371,14 @@ public class OverlayElement {
 		final Point2D thePoint = pointList.get(0);
 		
 		// Zoom can be 0
-		final int changedZoom = 2 * (map.getZoom() + 1);
-		final int size = (int) (POINT_SIZE * (1.0 / changedZoom));
-				
+		final int zoom = map.getZoom() + 1;
+		final int changedZoom = zoom / 4;
+		final int size = Math.max(POINT_SIZE, (int) (POINT_SIZE * changedZoom));
+			
 		final int pointX = (int) (thePoint.getX() - size/2);
 		final int pointY = (int) (thePoint.getY() - size/2);
 		
-		final Rectangle rectangle = new Rectangle(pointX, pointY, size, size);
-		return rectangle;
+		return new Rectangle(pointX, pointY, size, size);
 	}
 	
 	/**
@@ -384,5 +411,13 @@ public class OverlayElement {
 	 */
 	public Shape getLastRenderedShape() {
 		return lastRenderedShape;
+	}
+	
+	/**
+	 * The dirty pixel
+	 * @return
+	 */
+	public Rectangle getDirtyPixel() {
+		return dirtyPixel;
 	}
 }
