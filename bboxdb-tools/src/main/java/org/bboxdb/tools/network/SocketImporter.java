@@ -71,7 +71,7 @@ public class SocketImporter implements Runnable {
 	/**
 	 * The amount of pending insert futures
 	 */
-	private final static int MAX_PENDING_FUTURES = 100;
+	private final static int MAX_PENDING_FUTURES = 1000;
 	
 	/**
 	 * The logger
