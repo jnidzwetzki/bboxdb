@@ -20,7 +20,9 @@ package org.bboxdb.tools.gui.views.query;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
@@ -137,9 +139,14 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 			return;
 		}
 		
-		for(Map.Entry<String, Long> entry : updateDates.entrySet()) {
+		final Iterator<Entry<String, Long>> iter = updateDates.entrySet().iterator();
+		
+		while (iter.hasNext()) {
+			final Map.Entry<String, Long> entry = (Map.Entry<String, Long>) iter.next();
+			
 			if(entry.getValue() + STALE_TIME_IN_MS < currentTime) {
-				updateDates.remove(entry.getKey());
+				iter.remove();
+				
 				final OverlayElementGroup oldElement = paintedElements.remove(entry.getKey());
 				
 				if(oldElement != null) {
