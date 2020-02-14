@@ -101,10 +101,17 @@ public class FixedSizeFutureStore {
 	 *
 	 * This method might block when to much futures are unfinished
 	 */
-	public void put(final OperationFuture futureToAdd) {
+	public boolean put(final OperationFuture futureToAdd) {
+		
+		if(futureToAdd == null) {
+			return false;
+		}
+		
 		pendingFutures.add(futureToAdd);
 		futureCounterMap.put(futureToAdd, futureCounter.getAndIncrement());
 		checkAndCleanupRunningFuture();
+		
+		return true;
 	}
 
 	/**
