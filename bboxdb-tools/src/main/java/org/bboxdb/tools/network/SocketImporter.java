@@ -33,6 +33,8 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SocketImporter implements Runnable {
 
@@ -70,6 +72,11 @@ public class SocketImporter implements Runnable {
 	 * The amount of pending insert futures
 	 */
 	private final static int MAX_PENDING_FUTURES = 100;
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SocketImporter.class);
 
 	public SocketImporter(final int port, final String connectionPoint, 
 			final String clustername, String table, final TupleBuilder tupleFactory) {
@@ -112,12 +119,17 @@ public class SocketImporter implements Runnable {
 				final InputStreamReader reader = new InputStreamReader(clientSocket.getInputStream());
 				final BufferedReader inputStream = new BufferedReader(reader);
 			){
-		
+			
+			logger.info("Handle connection from: {}", clientSocket.getRemoteSocketAddress());
+
 			String line;
 			while ((line = inputStream.readLine()) != null) {
 				final Tuple tuple = tupleFactory.buildTuple(line);
-				final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
-				pendingFutures.put(result);	
+				
+				if(tuple != null) {
+					final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
+					pendingFutures.put(result);
+				}
 			}
 		} catch(Exception e) {
 			throw e;
