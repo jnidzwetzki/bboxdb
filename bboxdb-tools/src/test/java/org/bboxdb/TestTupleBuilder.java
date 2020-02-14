@@ -150,29 +150,29 @@ public class TestTupleBuilder {
 		Assert.assertEquals("6600", geoJson1.getProperties().get("altitude"));
 		Assert.assertEquals("125.706009", geoJson1.getProperties().get("groundSpeed"));
 		Assert.assertEquals("297.992065", geoJson1.getProperties().get("track"));
-		Assert.assertEquals(18.668631, tuple3.getBoundingBox().getCoordinateHigh(0), 0.00001);
-		Assert.assertEquals(-34.003143, tuple3.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(18.668631, tuple3.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(-34.003143, tuple3.getBoundingBox().getCoordinateHigh(0), 0.00001);
 
 		Assert.assertEquals("MSR706", geoJson2.getProperties().get("callsign"));
 		Assert.assertEquals("37000", geoJson2.getProperties().get("altitude"));
 		Assert.assertEquals("487.345886", geoJson2.getProperties().get("groundSpeed"));
 		Assert.assertEquals("102.924118", geoJson2.getProperties().get("track"));
-		Assert.assertEquals(12.469348, tuple6.getBoundingBox().getCoordinateHigh(0), 0.00001);
-		Assert.assertEquals(45.088634, tuple6.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(12.469348, tuple6.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(45.088634, tuple6.getBoundingBox().getCoordinateHigh(0), 0.00001);
 
 		Assert.assertEquals("AW119KX", geoJson3.getProperties().get("callsign"));
 		Assert.assertEquals("6500", geoJson3.getProperties().get("altitude"));
 		Assert.assertEquals("126.909416", geoJson3.getProperties().get("groundSpeed"));
 		Assert.assertEquals("300.808899", geoJson3.getProperties().get("track"));
-		Assert.assertEquals(18.665827, tuple9.getBoundingBox().getCoordinateHigh(0), 0.00001);
-		Assert.assertEquals(-34.001831, tuple9.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(18.665827, tuple9.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(-34.001831, tuple9.getBoundingBox().getCoordinateHigh(0), 0.00001);
 
 		Assert.assertEquals("MSR706", geoJson4.getProperties().get("callsign"));
 		Assert.assertEquals("37000", geoJson4.getProperties().get("altitude"));
 		Assert.assertEquals("488.320587", geoJson4.getProperties().get("groundSpeed"));
 		Assert.assertEquals("102.897881", geoJson4.getProperties().get("track"));
-		Assert.assertEquals(12.54534, tuple12.getBoundingBox().getCoordinateHigh(0), 0.00001);
-		Assert.assertEquals(45.076355, tuple12.getBoundingBox().getCoordinateHigh(1), 0.00001);	
+		Assert.assertEquals(12.54534, tuple12.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(45.076355, tuple12.getBoundingBox().getCoordinateHigh(0), 0.00001);	
 	}
 	
 	/**

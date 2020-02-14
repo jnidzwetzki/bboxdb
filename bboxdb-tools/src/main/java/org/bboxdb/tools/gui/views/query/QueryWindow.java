@@ -425,6 +425,7 @@ public class QueryWindow {
 						elements.add(resultTuple);
 					}
 					
+					logger.info("Got {} tuples back", elements.size());
 					painter.addElementToDrawBulk(elements);
 					
 				} catch (BBoxDBException e) {

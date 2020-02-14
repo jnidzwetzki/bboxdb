@@ -129,8 +129,8 @@ public class ADSBTupleBuilder extends TupleBuilder {
 			// Emit new tuple after receiving 'Airborne Position Message'
 			if("4".equals(transmissionType) && aircraft.isComplete()) {
 
-				final Hyperrectangle boundingBox = new Hyperrectangle(aircraft.longitude, 
-						aircraft.longitude, aircraft.latitude, aircraft.latitude);
+				final Hyperrectangle boundingBox = new Hyperrectangle(aircraft.latitude, aircraft.latitude, 
+						aircraft.longitude, aircraft.longitude);
 				
 				return new Tuple(aircraft.callsign, boundingBox.enlargeByAmount(boxPadding), 
 						aircraft.toGeoJSON().getBytes(), aircraft.lastUpdateTimestamp);
