@@ -94,6 +94,7 @@ public class ImportStoredData implements Runnable {
 				}
 				
 				if(currentSecond != currentSecondSlot) {
+					logger.info("Processed {} elements", processedLines);
 					currentSecondSlot = currentSecond;
 					processedLines = 0;
 					writer.flush();
