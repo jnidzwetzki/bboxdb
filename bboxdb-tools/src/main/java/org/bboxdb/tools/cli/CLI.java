@@ -679,7 +679,11 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param joinedTuple
 	 */
 	private void printJoinedTuple(final JoinedTuple joinedTuple) {
-		System.out.println(joinedTuple.getFormatedString());
+		if(joinedTuple.getNumberOfTuples() == 1) {
+			printTuple(joinedTuple.getTuple(0));
+		} else {
+			System.out.println(joinedTuple.getFormatedString());
+		}
 	}
 
 	/**
