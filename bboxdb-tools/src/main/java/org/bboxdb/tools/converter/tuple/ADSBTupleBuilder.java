@@ -36,20 +36,20 @@ public class ADSBTupleBuilder extends TupleBuilder {
 	
 	private class Aircraft {
 		
+		public final String hexIdent;
+		
+		public String callsign = null;
+		public String altitude = null;
+		public String groundSpeed = null;
+		public String track = null;
+		public String verticalRate = null;
+		public double latitude = -1;
+		public double longitude = -1;
+		public long lastUpdateTimestamp = -1;
+		
 		public Aircraft(final String hexIdent) {
 			this.hexIdent = hexIdent;
 		}
-		
-		public final String hexIdent;
-		
-		public String callsign;		
-		public String altitude;
-		public String groundSpeed;
-		public String track;
-		public String verticalRate;
-		public double latitude;
-		public double longitude;
-		public long lastUpdateTimestamp;
 		
 		/**
 		 * Return as GeoJSON String
@@ -68,6 +68,12 @@ public class ADSBTupleBuilder extends TupleBuilder {
 
 			return geoJsonPolygon.toGeoJson();
 		}
+		
+		public boolean isComplete() {
+			return callsign != null && altitude != null && groundSpeed != null && track != null 
+					&& verticalRate != null && latitude != -1 && longitude != -1 
+					&& lastUpdateTimestamp != -1;
+		}
 
 		@Override
 		public String toString() {
@@ -76,7 +82,6 @@ public class ADSBTupleBuilder extends TupleBuilder {
 					+ ", latitude=" + latitude + ", longitude=" + longitude + ", lastUpdateTimestamp="
 					+ lastUpdateTimestamp + "]";
 		}
-		
 	}
 	
 	/**
@@ -122,7 +127,8 @@ public class ADSBTupleBuilder extends TupleBuilder {
 			final Aircraft aircraft = updateAircraft(data, transmissionType);
 
 			// Emit new tuple after receiving 'Airborne Position Message'
-			if("4".equals(transmissionType)) {
+			if("4".equals(transmissionType) && aircraft.isComplete()) {
+
 				final Hyperrectangle boundingBox = new Hyperrectangle(aircraft.longitude, 
 						aircraft.longitude, aircraft.latitude, aircraft.latitude);
 				
@@ -165,7 +171,7 @@ public class ADSBTupleBuilder extends TupleBuilder {
 		
 		aircraft.lastUpdateTimestamp = date.getTime();
 		
-		for(int pos = 10; pos < 16; pos++) {
+		for(int pos = 10; pos <= 16; pos++) {
 			
 			if(data.length < pos + 1) {
 				break;

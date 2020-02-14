@@ -111,7 +111,7 @@ public class TestTupleBuilder {
 	 * Test ADS-B tuple builder
 	 */
 	@Test
-	public void testADSBTupleBuilder() {
+	public void testADSBTupleBuilder1() {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.ADSB);
 		
@@ -173,6 +173,25 @@ public class TestTupleBuilder {
 		Assert.assertEquals("102.897881", geoJson4.getProperties().get("track"));
 		Assert.assertEquals(12.54534, tuple12.getBoundingBox().getCoordinateHigh(0), 0.00001);
 		Assert.assertEquals(45.076355, tuple12.getBoundingBox().getCoordinateHigh(1), 0.00001);	
+	}
+	
+	/**
+	 * Test ADS-B tuple builder - wrong order
+	 */
+	@Test
+	public void testADSBTupleBuilder2() {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.ADSB);
+		
+		final Tuple tuple1 = tupleBuilder.buildTuple(ADS_B_3);
+		final Tuple tuple2 = tupleBuilder.buildTuple(ADS_B_2);
+		final Tuple tuple3 = tupleBuilder.buildTuple(ADS_B_1);
+		final Tuple tuple4 = tupleBuilder.buildTuple(ADS_B_3);
+
+		Assert.assertNull(tuple1);
+		Assert.assertNull(tuple2);
+		Assert.assertNull(tuple3);
+		Assert.assertNotNull(tuple4);
 	}
 
 	/**
