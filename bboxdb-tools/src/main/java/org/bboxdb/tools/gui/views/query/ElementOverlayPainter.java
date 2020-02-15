@@ -249,7 +249,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	public void addElementToDraw(final OverlayElementGroup element) {
 		tupleToDraw.add(element);
 		repaintElement(element, true);
-		//checkForCompleteRefresh();
 		mapViewer.getParent().repaint();
 	}
 	
