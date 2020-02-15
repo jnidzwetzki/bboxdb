@@ -96,7 +96,10 @@ public class SocketImporter implements Runnable {
 	    		final BBoxDB bboxdbClient = new BBoxDBCluster(connectionPoint, clustername);
 	        ) {
 			bboxdbClient.connect();
-			handleConnection(serverSocket, bboxdbClient);
+			
+			while(! Thread.currentThread().isInterrupted()) {
+				handleConnection(serverSocket, bboxdbClient);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
