@@ -13,6 +13,7 @@ order: 1
 - New Feature: Added continuous range queries to GUI
 - New Feature: Added importer for BerlinMod GeoJSON data
 - New Feature: Added importer for ADS-B data (SBS-1 CSV Format)
+- New Feature: Added importer for adsbhub.org
 - Improvement: Added auto key generation in tuple builder
 - Improvement: Fixed bugs found by Coverity scan
 - Improvement: Removed direct binding to JDK8 and the internal class sun.nio.ch.DirectBuffer
