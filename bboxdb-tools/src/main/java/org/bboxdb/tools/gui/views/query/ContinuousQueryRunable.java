@@ -114,7 +114,7 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 			}
 
 			logger.debug("Read a tuple from: {}", table);
-			
+
 			updateTupleOnGui(paintedElements, updateDates, joinedTuple);
 			removeStaleTupleIfNeeded(paintedElements, updateDates);
 		}

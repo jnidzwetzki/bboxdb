@@ -106,7 +106,7 @@ public class QueryWindow {
 	/**
 	 * The color values
 	 */
-	private final static Color[] COLOR_VALUES = new Color[] {Color.RED, Color.GREEN, 
+	private final static Color[] COLOR_VALUES = new Color[] {Color.GREEN, Color.RED,
 			Color.BLUE, Color.YELLOW, Color.ORANGE, Color.PINK};
 	
 	/**

@@ -420,4 +420,13 @@ public class OverlayElement {
 	public Rectangle getDirtyPixel() {
 		return dirtyPixel;
 	}
+
+	@Override
+	public String toString() {
+		return "OverlayElement [tablename=" + tablename + ", polygon=" + polygon + ", color=" + color
+				+ ", polygonPointsPixel=" + polygonPointsPixel + ", boundingBoxPixel=" + boundingBoxPixel
+				+ ", dirtyPixel=" + dirtyPixel + ", lastRenderedShape=" + lastRenderedShape + ", entityIdentifier="
+				+ entityIdentifier + "]";
+	}
+	
 }

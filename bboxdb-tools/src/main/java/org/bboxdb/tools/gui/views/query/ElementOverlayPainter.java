@@ -19,7 +19,6 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.bboxdb.storage.entity.EntityIdentifier;
@@ -84,16 +82,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * The callbacks for a changed list
 	 */
 	private final List<Consumer<List<OverlayElement>>> callbacks;
-	
-	/**
-	 * Last compete refresh
-	 */
-	private long lastCompleteRefresh = 0;
-	
-	/**
-	 * The min complete refresh time
-	 */
-	private long TOTAL_REFRESH_TIME_IN_MS = TimeUnit.SECONDS.toMillis(5);
 
 	/**
 	 * The map viewer
@@ -261,7 +249,8 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	public void addElementToDraw(final OverlayElementGroup element) {
 		tupleToDraw.add(element);
 		repaintElement(element, true);
-		checkForCompleteRefresh();
+		//checkForCompleteRefresh();
+		mapViewer.getParent().repaint();
 	}
 	
 	/**
@@ -271,7 +260,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	public void addElementToDrawBulk(final Collection<OverlayElementGroup> elements) {
 		tupleToDraw.addAll(elements);
 		mapViewer.repaint();
-		checkForCompleteRefresh();
 	}
 
 	/**
@@ -280,20 +268,15 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * @param recalulatePosition
 	 */
 	private void repaintElement(final OverlayElementGroup element, final boolean recalulatePosition) {
+		
 		for(final OverlayElement overlayElement : element) {
 			
 			if(recalulatePosition) {
 				overlayElement.updatePosition(mapViewer);
 			}
-			
-			final Rectangle viewport = mapViewer.getViewportBounds();
-			final Rectangle boundingBox = overlayElement.getDirtyPixel();
-			final Point point = boundingBox.getLocation();
-			boundingBox.setLocation((int) (point.getX() - viewport.getX()), 
-					(int) (point.getY() - viewport.getY()));
-			
-			mapViewer.repaint(boundingBox);
 		}
+		
+		element.repaintElement(mapViewer);
 	}
 	
 	/**
@@ -303,7 +286,6 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	public void removeElementToDraw(final OverlayElementGroup element) {
 		tupleToDraw.remove(element);
 		repaintElement(element, false);
-		checkForCompleteRefresh();
 	}
 	
 	/**
@@ -312,15 +294,5 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	public void clearAllElements() {
 		tupleToDraw.clear();
 		mapViewer.repaint();
-	}
-	
-	/**
-	 * Check for a complete refresh
-	 */
-	public void checkForCompleteRefresh() {
-		if(System.currentTimeMillis() > lastCompleteRefresh + TOTAL_REFRESH_TIME_IN_MS) {
-			mapViewer.repaint();
-			lastCompleteRefresh = System.currentTimeMillis();
-		}
 	}
 }

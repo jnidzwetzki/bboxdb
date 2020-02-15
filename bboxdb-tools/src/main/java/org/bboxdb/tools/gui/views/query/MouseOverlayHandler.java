@@ -94,7 +94,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 				
 				element.setSelected(true);
 				highlightedElements.add(element);
-				repaintElement(rect, element.getOverlayElementGroup());
+				element.getOverlayElementGroup().repaintElement(mapViewer);
 			}
 		}
 		
@@ -105,7 +105,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 			if(shape != null && ! shape.intersects(mousePos)) {
 				iterator.remove();
 				element.setSelected(false);
-				repaintElement(rect, element.getOverlayElementGroup());
+				element.getOverlayElementGroup().repaintElement(mapViewer);
 			}
 		}
 		
@@ -144,21 +144,5 @@ public class MouseOverlayHandler extends MouseAdapter {
 		} else {
 			toolTip.setVisible(false);
 		}
-	}
-
-	/**
-	 * Repaint the given area
-	 * @param rect
-	 * @param bbox
-	 */
-	private void repaintElement(final Rectangle rect, final OverlayElementGroup overlayElementGroup) {		
-		final Rectangle bbox = new Rectangle(overlayElementGroup.getOverlay(0).getBBoxToDrawOnGui());
-		
-		for(final OverlayElement element : overlayElementGroup) {
-			bbox.add(element.getBBoxToDrawOnGui());
-		}
-		
-		bbox.translate((int) -rect.getX(), (int) -rect.getY());
-		mapViewer.repaint(bbox);
 	}
 }
