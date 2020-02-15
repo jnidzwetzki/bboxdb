@@ -102,7 +102,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 			final OverlayElement element = (OverlayElement) iterator.next();
 			final Shape shape = element.getLastRenderedShape();
 
-			if(shape != null && ! shape.intersects(mousePos)) {
+			if((shape != null && ! shape.intersects(mousePos)) || ! renderedElements.contains(element)) {
 				iterator.remove();
 				element.setSelected(false);
 				element.getOverlayElementGroup().repaintElement(mapViewer);
