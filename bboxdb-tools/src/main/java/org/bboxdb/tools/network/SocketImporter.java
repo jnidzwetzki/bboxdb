@@ -137,7 +137,7 @@ public class SocketImporter implements Runnable {
 				}
 			}
 		} catch(Exception e) {
-			throw e;
+			logger.error("Got exception", e);
 		}
 	}
 
