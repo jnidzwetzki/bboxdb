@@ -355,7 +355,7 @@ public class OverlayElement {
 		if(properties.containsKey("RouteID")) {
 			return properties.get("RouteID");
 		} else if(properties.containsKey("callsign")) {
-			return properties.get("callsign");
+			return properties.get("callsign") + "(" + properties.get("altitude") + " f)";
 		} else {
 			return Long.toString(polygon.getId());
 		}		
