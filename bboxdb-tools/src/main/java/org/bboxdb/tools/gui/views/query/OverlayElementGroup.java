@@ -75,8 +75,11 @@ public class OverlayElementGroup implements Iterable<OverlayElement> {
 			} else {
 				SwingUtilities.invokeAndWait(() -> mapViewer.repaint(bbox));
 			}
-		} catch (InvocationTargetException | InterruptedException e) {
+		} catch (InvocationTargetException e) {
 			e.printStackTrace();
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return false;
 		}
 		
 		return true;
