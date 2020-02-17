@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.network;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -119,7 +120,9 @@ public class ImportAuTransport implements Runnable {
 				
 				final Consumer<GeoJsonPolygon> consumer = (polygon) -> {
 					final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
-					final String key = polygon.getProperties().get("TripID").replace(" ", "_");
+					
+					final String key = getKeyForPolygon(polygon);
+					
 					final Tuple tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);
 
 					try {
@@ -146,6 +149,17 @@ public class ImportAuTransport implements Runnable {
 			waitForPendingFutures();
 			threadPool.shutdownNow();
 		}   
+	}
+
+	private String getKeyForPolygon(GeoJsonPolygon polygon) {
+		
+		final Map<String, String> properties = polygon.getProperties();
+		
+		if(properties.containsKey("RouteID")) {
+			return properties.get("RouteID").replace(" ", "_");
+		}
+		
+		return properties.get("TripID").replace(" ", "_");
 	}
 	
 	/**
