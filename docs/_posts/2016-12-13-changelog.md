@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.4 - TBA
+- Improvement: Improved out of order handling for GeoJSON polygons
 
 ### Version 0.9.3 - 16.02.2020
 - New Feature: Added generic data stream importer
