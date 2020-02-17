@@ -38,7 +38,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 	/**
 	 * The map viewer
 	 */
-	private final JXMapViewer mapViewer;
+	private final ElementOverlayPainter overlayPainter;
 	
 	/**
 	 * The overlay painter
@@ -55,9 +55,8 @@ public class MouseOverlayHandler extends MouseAdapter {
 	 */
 	private final JToolTip toolTip;
 
-	MouseOverlayHandler(final JXMapViewer mapViewer, final JToolTip toolTip) {
-		
-		this.mapViewer = mapViewer;
+	MouseOverlayHandler(final ElementOverlayPainter painter, final JToolTip toolTip) {
+		this.overlayPainter = painter;
 		this.toolTip = toolTip;
 	}
 	
@@ -77,6 +76,8 @@ public class MouseOverlayHandler extends MouseAdapter {
 			return;
 		}
 		
+		final JXMapViewer mapViewer = overlayPainter.getMapViewer();
+		
 		final Rectangle rect = mapViewer.getViewportBounds();
 		final Point mousePosPoint = new Point((int) (e.getX() + rect.getX()), 
 				(int) (e.getY() + rect.getY()));
@@ -94,7 +95,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 				
 				element.setSelected(true);
 				highlightedElements.add(element);
-				element.getOverlayElementGroup().repaintElement(mapViewer);
+				overlayPainter.markRegionAsDirty(element.getOverlayElementGroup());
 			}
 		}
 		
@@ -105,7 +106,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 			if((shape != null && ! shape.intersects(mousePos)) || ! renderedElements.contains(element)) {
 				iterator.remove();
 				element.setSelected(false);
-				element.getOverlayElementGroup().repaintElement(mapViewer);
+				overlayPainter.markRegionAsDirty(element.getOverlayElementGroup());
 			}
 		}
 		

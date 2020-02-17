@@ -352,8 +352,8 @@ public class OverlayElement {
 
 		final Map<String, String> properties = polygon.getProperties();
 		
-		if(properties.containsKey("RouteID")) {
-			return properties.get("RouteID");
+		if(properties.containsKey("TripID")) {
+			return properties.get("TripID");
 		} else if(properties.containsKey("callsign")) {
 			return properties.get("callsign") + "(" + properties.get("altitude") + " f)";
 		} else {

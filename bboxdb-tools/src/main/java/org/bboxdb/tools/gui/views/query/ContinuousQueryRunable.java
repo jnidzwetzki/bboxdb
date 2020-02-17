@@ -101,6 +101,7 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 		}
 
 		final Map<String, Long> updateDates = new HashMap<>();
+		final Map<String, Long> tupleVersions = new HashMap<>();
 		final Map<String, OverlayElementGroup> paintedElements = new HashMap<>();
 
 		for(final JoinedTuple joinedTuple : result) {
@@ -115,8 +116,8 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 
 			logger.debug("Read a tuple from: {}", table);
 
-			updateTupleOnGui(paintedElements, updateDates, joinedTuple);
-			removeStaleTupleIfNeeded(paintedElements, updateDates);
+			updateTupleOnGui(paintedElements, updateDates, tupleVersions, joinedTuple);
+			removeStaleTupleIfNeeded(paintedElements, updateDates, tupleVersions);
 		}
 	}
 	
@@ -129,9 +130,10 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 	 * Remove stale (old) tuple if needed from GUI
 	 * @param updateDates 
 	 * @param paintedElements 
+	 * @param updateDates2 
 	 */
 	private void removeStaleTupleIfNeeded(final Map<String, OverlayElementGroup> paintedElements, 
-			final Map<String, Long> updateDates) {
+			final Map<String, Long> updateDates, Map<String, Long> tupleVersions) {
 		
 		final long currentTime = System.currentTimeMillis();
 		
@@ -146,6 +148,7 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 			
 			if(entry.getValue() + STALE_TIME_IN_MS < currentTime) {
 				iter.remove();
+				tupleVersions.remove(entry.getKey());
 				
 				final OverlayElementGroup oldElement = paintedElements.remove(entry.getKey());
 				
@@ -163,10 +166,12 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 	 * Update the given tuple on the GUI
 	 * @param paintedElements
 	 * @param updateDates 
+	 * @param tupleVersions 
 	 * @param joinedTuple
 	 */
 	private void updateTupleOnGui(final Map<String, OverlayElementGroup> paintedElements, 
-			final Map<String, Long> updateDates, final JoinedTuple joinedTuple) {
+			final Map<String, Long> updateDates, final Map<String, Long> tupleVersions, 
+			final JoinedTuple joinedTuple) {
 		
 		final Tuple tuple = joinedTuple.getTuple(0);
 		final OverlayElement overlayElement = OverlayElementHelper.getOverlayElement(tuple, table, color);
@@ -177,11 +182,20 @@ public class ContinuousQueryRunable extends ExceptionSafeRunnable {
 		final OverlayElementGroup oldElement = paintedElements.get(key);
 
 		if(oldElement != null) {
+			final long existingTimestamp = tupleVersions.get(key);
+			
+			if(tuple.getVersionTimestamp() < existingTimestamp) {
+				logger.info("Ignoring outdated version for tuple {} old={} new={}", key, existingTimestamp, tuple.getVersionTimestamp());
+				return;
+			}
+			
 			painter.removeElementToDraw(oldElement);
-		}
-
+		} 
+		
 		paintedElements.put(key, newElement);
+		tupleVersions.put(key, tuple.getVersionTimestamp());
 		updateDates.put(key, System.currentTimeMillis());
+
 		painter.addElementToDraw(newElement);
 	}
 }

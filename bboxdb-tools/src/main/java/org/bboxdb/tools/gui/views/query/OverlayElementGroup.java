@@ -17,15 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views.query;
 
-import java.awt.EventQueue;
-import java.awt.Rectangle;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.SwingUtilities;
-
-import org.jxmapviewer.JXMapViewer;
 
 public class OverlayElementGroup implements Iterable<OverlayElement> {
 
@@ -46,43 +39,6 @@ public class OverlayElementGroup implements Iterable<OverlayElement> {
 		for(final OverlayElement overlayElement : elements) {
 			overlayElement.setOverlayElementGroup(this);
 		}
-	}
-	
-	/**
-	 * Repaint the given area
-	 * @param mapViewer
-	 * @param bbox
-	 */
-	public boolean repaintElement(final JXMapViewer mapViewer) {
-		
-		if(elements.isEmpty()) {
-			return false;
-		}
-		
-		final Rectangle bbox = new Rectangle(getOverlay(0).getBBoxToDrawOnGui());
-		
-		for(final OverlayElement element : elements) {
-			bbox.add(element.getDirtyPixel());
-		}
-		
-		final Rectangle rect = mapViewer.getViewportBounds();
-		
-		bbox.translate((int) -rect.getX(), (int) -rect.getY());
-
-		try {
-			if(EventQueue.isDispatchThread()) {
-				mapViewer.repaint(bbox);
-			} else {
-				SwingUtilities.invokeAndWait(() -> mapViewer.repaint(bbox));
-			}
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return false;
-		}
-		
-		return true;
 	}
 	
 	/**

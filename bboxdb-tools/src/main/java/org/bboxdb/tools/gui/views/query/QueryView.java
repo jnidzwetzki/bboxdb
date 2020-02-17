@@ -100,7 +100,7 @@ public class QueryView implements View {
         tooltip.setComponent(mapViewer);
         mapViewer.add(tooltip);
         
-		final MouseOverlayHandler mouseOverlayHandler = new MouseOverlayHandler(mapViewer, tooltip);
+		final MouseOverlayHandler mouseOverlayHandler = new MouseOverlayHandler(painter, tooltip);
 		mapViewer.addMouseMotionListener(mouseOverlayHandler);
 		
 		painter.registerCallback((e) -> mouseOverlayHandler.setRenderedElements(e));

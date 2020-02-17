@@ -18,6 +18,7 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -30,6 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+
+import javax.swing.SwingUtilities;
 
 import org.bboxdb.storage.entity.EntityIdentifier;
 import org.jxmapviewer.JXMapViewer;
@@ -82,11 +85,12 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * The callbacks for a changed list
 	 */
 	private final List<Consumer<List<OverlayElement>>> callbacks;
-
+	
 	/**
 	 * The map viewer
 	 */
 	private final JXMapViewer mapViewer;
+	
 
 	public ElementOverlayPainter(final QueryRangeSelectionAdapter selectionAdapter, 
 			final JXMapViewer mapViewer) {
@@ -97,9 +101,39 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 		this.tupleToDraw = new CopyOnWriteArrayList<>();
 		this.callbacks = new CopyOnWriteArrayList<>();
 	}
+	
+	/**
+	 * Repaint the given area
+	 * @param mapViewer
+	 * @param bbox
+	 */
+	public boolean markRegionAsDirty(final OverlayElementGroup overlayElementGroup) {
+		
+		if(overlayElementGroup.getNumberOfOverlays() == 0) {
+			return false;
+		}
+		
+		final Rectangle bbox = new Rectangle(overlayElementGroup.getOverlay(0).getBBoxToDrawOnGui());
+		
+		for(final OverlayElement element : overlayElementGroup) {
+			bbox.add(element.getDirtyPixel());
+		}
+		
+		final Rectangle rect = mapViewer.getViewportBounds();
+		
+		bbox.translate((int) -rect.getX(), (int) -rect.getY());
+		
+		if(EventQueue.isDispatchThread()) {
+			mapViewer.repaint(bbox);
+		} else {
+			SwingUtilities.invokeLater(() -> mapViewer.repaint(bbox));
+		}
+
+		return true;
+	}
 
 	@Override
-	public void paint(final Graphics2D g, final JXMapViewer map, final int width, final int height) {
+	public void paint(final Graphics2D g, final JXMapViewer map, final int width, final int height) {		
 		final Graphics2D graphicsContext = (Graphics2D) g.create();
 		final Color oldColor = graphicsContext.getColor();
 		
@@ -211,7 +245,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 * @return
 	 */
 	private boolean hasDataChanged(final Rectangle viewBounds) {
-		
+				
 		if(validForRectangle == null || validForElements == 0) {
 			return true;
 		}
@@ -249,7 +283,8 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	public void addElementToDraw(final OverlayElementGroup element) {
 		tupleToDraw.add(element);
 		repaintElement(element, true);
-		mapViewer.getParent().repaint();
+		setDirty();
+		mapViewer.repaint();
 	}
 	
 	/**
@@ -258,6 +293,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	public void addElementToDrawBulk(final Collection<OverlayElementGroup> elements) {
 		tupleToDraw.addAll(elements);
+		setDirty();
 		mapViewer.repaint();
 	}
 
@@ -275,7 +311,7 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 			}
 		}
 		
-		element.repaintElement(mapViewer);
+		markRegionAsDirty(element);
 	}
 	
 	/**
@@ -284,7 +320,15 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	public void removeElementToDraw(final OverlayElementGroup element) {
 		tupleToDraw.remove(element);
+		setDirty();
 		repaintElement(element, false);
+	}
+
+	/**
+	 * Set dirty
+	 */
+	private void setDirty() {
+		validForRectangle = null;
 	}
 	
 	/**
@@ -292,6 +336,16 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	 */
 	public void clearAllElements() {
 		tupleToDraw.clear();
+		setDirty();
 		mapViewer.repaint();
 	}
+	
+	/**
+	 * Get the map viewer
+	 * @return
+	 */
+	public JXMapViewer getMapViewer() {
+		return mapViewer;
+	}
+	
 }
