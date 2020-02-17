@@ -159,7 +159,10 @@ public class FixedSizeFutureStore {
 	private void writeStatisticsAndRemoveFuturesFromMap(final List<OperationFuture> doneFutures) {
 
 		for(final OperationFuture future : doneFutures) {
-			final long futureNumber = pendingFutureMap.remove(future);
+			final Long futureNumberLong = pendingFutureMap.remove(future);
+			
+			final long futureNumber = futureNumberLong != null ? futureNumberLong : -1;
+			
 			final long completionTime = future.getCompletionTime(TimeUnit.MILLISECONDS);
 			final int executions = future.getNeededExecutions();
 
