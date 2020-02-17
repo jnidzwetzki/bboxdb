@@ -155,11 +155,11 @@ public class ImportAuTransport implements Runnable {
 		
 		final Map<String, String> properties = polygon.getProperties();
 		
-		if(properties.containsKey("RouteID")) {
-			return properties.get("RouteID").replace(" ", "_");
+		if(properties.containsKey("TripID")) {
+			return properties.get("TripID").replace(" ", "_");
 		}
 		
-		return properties.get("TripID").replace(" ", "_");
+		return properties.get("RouteID").replace(" ", "_");
 	}
 	
 	/**
