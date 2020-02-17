@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.util.Map;
+
 import org.bboxdb.commons.math.GeoJsonPolygon;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 
 public class GeoJSONTupleBuilder extends TupleBuilder {
@@ -38,7 +41,15 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 			return null;
 		}
 		
-		return new Tuple(key, polygon.getBoundingBox().enlargeByAmount(boxPadding), tupleBytes);
+		final Hyperrectangle bbox = polygon.getBoundingBox().enlargeByAmount(boxPadding);
+		
+		final Map<String, String> properties = polygon.getProperties();
+		
+		if(properties.containsKey("UpdateTimestamp")) {
+			return new Tuple(key, bbox, tupleBytes, Long.parseLong(properties.get("UpdateTimestamp")));
+		}
+		
+		return new Tuple(key, bbox, tupleBytes);
 	}
 
 }
