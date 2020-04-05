@@ -43,56 +43,6 @@ if [ "$#" -lt 1 ]; then
    exit -1
 fi
 
-base=$1
-wood="$base/WOOD"
-road="$base/ROAD"
-
-if [ ! -f ${wood} ]; then
-   echo "${wood} - file not found"
-   exit -1
-fi
-
-if [ ! -f ${road} ]; then
-   echo "${road} - file not found"
-   exit -1
-fi
-
-if [ ! -f ${wood}_FIXED ]; then
-    echo "Extracting geometries from ${wood}, this may take while..."
-    egrep -v '"type":"Point"' ${wood} > ${wood}_FIXED
-fi
-
-if [ ! -f ${road}_FIXED ]; then
-    echo "Extracting geometries from ${road}, this may take while..."
-    egrep -v '"type":"Point"' ${road} > ${road}_FIXED
-fi
-
-road_size=$(stat -c%s "${road}_FIXED")
-
-one_gb="1073741824"
-one_gb_in_mb=$(($one_gb / 1048576))
-
-gigabytes=$(($road_size / $one_gb))
-partitions=$(($gigabytes * 4))
-groupname="osmgroup"
-
-# Create at least 10 partitions
-partitions=$(( $partitions < 0 ? 10 : $partitions ))
-
-$BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup $groupname
-$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup $groupname -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb_in_mb 
-
-echo "===== Starting prepartitioning ($partitions partitions) ====="
-wait_if_needed $2
-$BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup $groupname -partitions $partitions
-
-echo "===== Creating tables ====="
-wait_if_needed $2
-$BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_road
-$BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_forest
-$BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -table ${groupname}_road
-$BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -table ${groupname}_forest
-
 # The query range
 query_range="52.4,52.6:13.3,13.6"
 
