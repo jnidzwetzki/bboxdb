@@ -58,9 +58,10 @@ public class QueryWindow {
 	 * The query types
 	 */
 	private static final String QUERY_NONE = "---";
-	private static final String QUERY_JOIN = "Spatial Join";
-	private static final String QUERY_RANGE_CONTINUOUS = "Continuous range query";
 	private static final String QUERY_RANGE = "Range query";
+	private static final String QUERY_JOIN = "Spatial join";
+	private static final String QUERY_RANGE_CONTINUOUS = "Continuous range query";
+	private static final String QUERY_JOIN_CONTINUOUS = "Continuous spatial join";
 
 	/**
 	 * The main frame
@@ -154,7 +155,8 @@ public class QueryWindow {
 		final CellConstraints cc = new CellConstraints();
 		builder.addSeparator("Query", cc.xyw(1,  1, 3));
 		builder.addLabel("Type", cc.xy (1,  3));
-		final String[] queries = new String[] {QUERY_NONE, QUERY_RANGE, QUERY_RANGE_CONTINUOUS, QUERY_JOIN};
+		final String[] queries = new String[] {QUERY_NONE, QUERY_RANGE, QUERY_JOIN, 
+				QUERY_RANGE_CONTINUOUS, QUERY_JOIN_CONTINUOUS};
 		final JComboBox<String> queryTypeBox = new JComboBox<>(queries);
 		builder.add(queryTypeBox, cc.xy (3,  3));
 		
@@ -203,12 +205,12 @@ public class QueryWindow {
 		builder.add(latEnd, cc.xy (7,  9));
 
 		builder.addLabel("UDF Name", cc.xy (5,  11));
-		final JTextField filterField = new JTextField();
-		builder.add(filterField, cc.xy (7,  11));
+		final JTextField udfNameField = new JTextField();
+		builder.add(udfNameField, cc.xy (7,  11));
 
 		builder.addLabel("UDF Value", cc.xy (5,  13));
-		final JTextField valueField = new JTextField();
-		builder.add(valueField, cc.xy (7,  13));
+		final JTextField udfValueField = new JTextField();
+		builder.add(udfValueField, cc.xy (7,  13));
 
 		// Close
 		final JButton closeButton = new JButton();
@@ -219,14 +221,14 @@ public class QueryWindow {
 		
 		final Action executeAction = getExecuteAction(queryTypeBox, 
 				table1Field, table1ColorField, table2Field, table2ColorField, 
-				longBegin, longEnd, latBegin, latEnd, filterField, valueField);
+				longBegin, longEnd, latBegin, latEnd, udfNameField, udfValueField);
 		
 		final JButton executeButton = new JButton(executeAction);
 		executeButton.setText("Execute");
 		executeButton.setEnabled(false);
 		
 		addActionListener(queryTypeBox, table1Field,  table1ColorField, table2Field, 
-				table2ColorField, executeButton, filterField);
+				table2ColorField, executeButton, udfNameField, udfValueField);
 
 		builder.add(closeButton, cc.xy(5, 17));
 		builder.add(executeButton, cc.xy(7, 17));
@@ -243,7 +245,7 @@ public class QueryWindow {
 	 */
 	private void addActionListener(final JComboBox<String> queryTypeBox, final JComponent table1Field,
 			final JComponent table1ColorField, final JComponent table2Field, final JComponent table2ColorField, 
-			final JButton executeButton, JTextField filterField) {
+			final JButton executeButton, final JTextField udfNameField, final JTextField udfValueField) {
 		
 		queryTypeBox.addActionListener(l -> {
 			
@@ -257,7 +259,8 @@ public class QueryWindow {
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
 				executeButton.setEnabled(true);
-				filterField.setText("");
+				udfNameField.setText("");
+				udfValueField.setText("");
 				break;
 				
 			case QUERY_JOIN:
@@ -266,7 +269,18 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				executeButton.setEnabled(true);
-				filterField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("");
+				break;
+				
+			case QUERY_JOIN_CONTINUOUS:
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
+				executeButton.setEnabled(true);
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("Elisabeth Street");
 				break;
 
 			default:
@@ -275,6 +289,8 @@ public class QueryWindow {
 				table2Field.setEnabled(false);
 				table1ColorField.setEnabled(false);
 				executeButton.setEnabled(false);
+				udfNameField.setText("");
+				udfValueField.setText("");
 				break;
 			}
 		});
