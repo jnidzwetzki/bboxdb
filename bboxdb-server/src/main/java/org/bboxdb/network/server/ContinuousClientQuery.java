@@ -184,9 +184,12 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @return
 	 */
 	private Consumer<Tuple> getCallbackForTableQuery(final ContinuousTableQueryPlan qp) {
+		
+		final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
+		final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(qp);
 				
 		return (streamTuple) -> {
-			final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
+			
 			final TupleAndBoundingBox transformedStreamTuple 
 				= applyStreamTupleTransformations(streamTransformations, streamTuple);
 			
@@ -194,10 +197,13 @@ public class ContinuousClientQuery implements ClientQuery {
 			if(transformedStreamTuple == null) {
 				return;
 			}
-						
-			final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(qp);
 			
-			// The tuple consumer for the join query
+			// Ignore stream elements outside of our query box
+			if(! transformedStreamTuple.getBoundingBox().intersects(qp.getQueryRange())) {
+				return;
+			}
+			
+			// Callback for the stored tuple
 			final Consumer<Tuple> tupleConsumer = (storedTuple) -> {
 				final List<TupleTransformation> tableTransformations 
 					= qp.getTableTransformation(); 
