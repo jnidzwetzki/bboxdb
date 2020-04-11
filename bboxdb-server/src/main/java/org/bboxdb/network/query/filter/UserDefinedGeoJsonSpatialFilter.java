@@ -32,7 +32,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	
 	private OGCGeometry customGeomety = null;
 	
-	private final static double MAX_OVERLAPPING_POINT_DISTANCE = 0.001;
+	private final static double MAX_OVERLAPPING_POINT_DISTANCE = 0.0001;
 
 	/**
 	 * Perform a real filter based on the geometry of the data
