@@ -7,9 +7,12 @@ order: 1
 ---
 
 ### Version 0.9.4 - TBA
+- New Feature: Support for continuous joins on GUI
 - Improvement: Improved out of order handling for GeoJSON polygons
 - Improvement: Added version timestamp to joined tuples
 - Improvement: Improved memory usage on joined tuple identifier
+- Improvement: Speed-up GUI repainting
+- Improvement: Introduced tuple identifier compare strategies
 
 ### Version 0.9.3 - 16.02.2020
 - New Feature: Added generic data stream importer

@@ -18,14 +18,33 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.storage.entity.EntityIdentifier;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 
-public class OverlayElementHelper {
+public class OverlayElementBuilder {
+	
+
+	/**
+	 * Create a new overlay element group from one tuple
+	 * @param tuple
+	 * @param tupleStoreName
+	 * @param color
+	 * @return
+	 */
+	public static OverlayElementGroup createOverlayElementGroup(final Tuple tuple, final String tupleStoreName,
+			final Color color) {
+		
+		final OverlayElement overlayElement = generateOverlayElement(tuple, tupleStoreName, color);
+		
+		return new OverlayElementGroup(Arrays.asList(overlayElement));
+	}
 	
 	/**
 	 * Add the tuples to the overlay
@@ -33,19 +52,46 @@ public class OverlayElementHelper {
 	 * @param tuples
 	 * @return 
 	 */
-	public static OverlayElement getOverlayElement(final Tuple tuple, final String tupleStoreName, 
+	public static OverlayElementGroup createOverlayElementGroup(final JoinedTuple joinedTuple, 
+			final List<Color> colors) {
+
+		final List<OverlayElement> elements = new ArrayList<>();
+		
+		for(int i = 0; i < joinedTuple.getNumberOfTuples(); i++) {
+			
+			final Tuple tuple = joinedTuple.getTuple(i);
+			final String tupleStoreName = joinedTuple.getTupleStoreName(i);
+			final Color color = colors.get(i % colors.size());
+			
+			final OverlayElement overlayElement = generateOverlayElement(tuple, tupleStoreName, color);
+			
+			elements.add(overlayElement);
+		}
+		
+		return new OverlayElementGroup(elements);
+	}
+
+	/**
+	 * Generate a new overlayElemnt
+	 * @param tuple
+	 * @param tupleStoreName
+	 * @param color
+	 * @return
+	 */
+	private static OverlayElement generateOverlayElement(final Tuple tuple, final String tupleStoreName,
 			final Color color) {
 		
 		final String data = new String(tuple.getDataBytes());				
 		final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
 		
 		// Add also the table to the identifier
-		final EntityIdentifier identifier = new JoinedTupleIdentifier(Arrays.asList(tuple), 
+		JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple), 
 				Arrays.asList(tupleStoreName));
+		final EntityIdentifier identifier = new JoinedTupleIdentifier(joinedTuple);
 		
 		final OverlayElement overlayElement = new OverlayElement(identifier, 
 				tupleStoreName, polygon, color);
-		
 		return overlayElement;
 	}
+
 }

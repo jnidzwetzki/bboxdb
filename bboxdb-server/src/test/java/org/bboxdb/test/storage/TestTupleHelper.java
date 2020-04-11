@@ -30,6 +30,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
+import org.bboxdb.storage.entity.JoinedTupleIdentifier.Strategy;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
@@ -381,7 +382,7 @@ public class TestTupleHelper {
 	 * Test the joined tuple identifier
 	 */
 	@Test(timeout=60000)
-	public void testJoinedTupleIdentifier() {
+	public void testJoinedTupleIdentifier1() {
 		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes());
 		
@@ -391,5 +392,67 @@ public class TestTupleHelper {
 				new JoinedTupleIdentifier(joinedTuple);
 		
 		Assert.assertTrue(joinedTupleIdentifier.toString().length() > 10);
+	}
+	
+	/**
+	 * Test the joined tuple identifier
+	 */
+	@Test(timeout=60000)
+	public void testJoinedTupleIdentifier2() {
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
+		
+		final Tuple tuple3 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes(), 1);
+		final Tuple tuple4 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
+		
+		final Tuple tuple5 = new Tuple("ijk", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
+		
+		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple3), Arrays.asList("abc", "def"));
+		final JoinedTuple joinedTuple2 = new JoinedTuple(Arrays.asList(tuple1, tuple4), Arrays.asList("abc", "def"));
+		final JoinedTuple joinedTuple3 = new JoinedTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
+		final JoinedTuple joinedTuple4 = new JoinedTuple(Arrays.asList(tuple2, tuple4), Arrays.asList("abc", "def"));
+		final JoinedTuple joinedTuple5 = new JoinedTuple(Arrays.asList(tuple2, tuple5), Arrays.asList("abc", "def"));
+
+		final JoinedTupleIdentifier id1 = new JoinedTupleIdentifier(joinedTuple1, Strategy.FULL);
+		final JoinedTupleIdentifier id2 = new JoinedTupleIdentifier(joinedTuple2, Strategy.FULL);
+		final JoinedTupleIdentifier id3 = new JoinedTupleIdentifier(joinedTuple3, Strategy.FULL);
+		final JoinedTupleIdentifier id4 = new JoinedTupleIdentifier(joinedTuple4, Strategy.FULL);
+		final JoinedTupleIdentifier id5 = new JoinedTupleIdentifier(joinedTuple5, Strategy.FULL);
+
+		final JoinedTupleIdentifier id1_2 = new JoinedTupleIdentifier(joinedTuple1, Strategy.KEY_AND_TABLE);
+		final JoinedTupleIdentifier id2_2 = new JoinedTupleIdentifier(joinedTuple2, Strategy.KEY_AND_TABLE);
+		final JoinedTupleIdentifier id3_2 = new JoinedTupleIdentifier(joinedTuple3, Strategy.KEY_AND_TABLE);
+		final JoinedTupleIdentifier id4_2 = new JoinedTupleIdentifier(joinedTuple4, Strategy.KEY_AND_TABLE);
+		final JoinedTupleIdentifier id5_2 = new JoinedTupleIdentifier(joinedTuple5, Strategy.KEY_AND_TABLE);
+
+		// Full 
+		Assert.assertFalse(id1.equals(id2));
+		Assert.assertFalse(id1.equals(id3));
+		Assert.assertFalse(id1.equals(id4));
+		Assert.assertFalse(id1.equals(id5));
+		
+		Assert.assertFalse(id2.equals(id3));
+		Assert.assertFalse(id2.equals(id4));
+		Assert.assertFalse(id2.equals(id5));
+		
+		Assert.assertFalse(id3.equals(id4));
+		Assert.assertFalse(id3.equals(id5));		
+		
+		Assert.assertFalse(id4.equals(id5));
+
+		// Key and table
+		Assert.assertTrue(id1_2.equals(id2_2));
+		Assert.assertTrue(id1_2.equals(id3_2));
+		Assert.assertTrue(id1_2.equals(id4_2));
+		Assert.assertFalse(id1_2.equals(id5_2));
+		
+		Assert.assertTrue(id2_2.equals(id3_2));
+		Assert.assertTrue(id2_2.equals(id4_2));
+		Assert.assertFalse(id2_2.equals(id5_2));
+		
+		Assert.assertTrue(id3_2.equals(id4_2));
+		Assert.assertFalse(id3_2.equals(id5_2));
+
+		Assert.assertFalse(id4_2.equals(id5_2));
 	}
 }

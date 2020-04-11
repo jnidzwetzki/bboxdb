@@ -21,22 +21,57 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class JoinedTupleIdentifier implements EntityIdentifier {
+	
+	public enum Strategy {
+		FULL, // Key, Version, Table
+		KEY_AND_TABLE, // Key, Table
+	}
 
 	/**
 	 * The tuples
 	 */
-	private List<EntityIdentifier> tupleIdentifier;
+	private final List<Object> tupleIdentifier;
 	
 	/**
 	 * The tuple store names
 	 */
 	private List<String> tupleStoreNames;
-
+	
 	public JoinedTupleIdentifier(final JoinedTuple joinedTuple) {
+		this(joinedTuple, Strategy.FULL);
+	}
+
+	public JoinedTupleIdentifier(final JoinedTuple joinedTuple, final Strategy strategy) {
+		
 		this.tupleStoreNames = joinedTuple.getTupleStoreNames();
 		
+		if(strategy == Strategy.FULL) {
+			this.tupleIdentifier = buildFullIdenfifierList(joinedTuple);
+		} else if(strategy == Strategy.KEY_AND_TABLE) {
+			this.tupleIdentifier = buildKeyIdentiierList(joinedTuple);
+		} else {
+			throw new RuntimeException("Unkown strategy: " + strategy);
+		}
+	}
+
+	/**
+	 * Build the key identifier list
+	 */
+	private List<Object> buildKeyIdentiierList(final JoinedTuple joinedTuple) {
+		return joinedTuple.getTuples()
+				.stream()
+				.map(t -> t.getKey())
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Build the full identifier list
+	 * @param joinedTuple
+	 * @return
+	 */
+	private List<Object> buildFullIdenfifierList(final JoinedTuple joinedTuple) {
 		// Only keep the getEntityIdentifiers in memory
-		this.tupleIdentifier = joinedTuple.getTuples()
+		return joinedTuple.getTuples()
 					.stream()
 					.map(t -> t.getEntityIdentifier())
 					.collect(Collectors.toList());

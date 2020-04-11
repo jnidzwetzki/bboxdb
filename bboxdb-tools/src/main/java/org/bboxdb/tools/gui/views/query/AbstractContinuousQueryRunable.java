@@ -1,0 +1,165 @@
+/*******************************************************************************
+ *
+ *    Copyright (C) 2015-2020 the BBoxDB project
+ *  
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License. 
+ *    
+ *******************************************************************************/
+package org.bboxdb.tools.gui.views.query;
+
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
+import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.storage.entity.EntityIdentifier;
+import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.JoinedTupleIdentifier;
+import org.bboxdb.storage.entity.JoinedTupleIdentifier.Strategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnable {
+
+	/**
+	 * The query plan
+	 */
+	protected final ContinuousQueryPlan qp;
+	
+	/***
+	 * The BBoxDB connection
+	 */
+	
+	protected final BBoxDB connection;
+	
+	/**
+	 * The element overlay painter
+	 */
+	protected final ElementOverlayPainter painter;
+	
+	/**
+	 * The last stale check
+	 */
+	private long lastStaleCheck = 0;
+	
+	/**
+	 * The update dates
+	 */
+	private final Map<EntityIdentifier, Long> updateDates = new HashMap<>();
+	
+	/**
+	 * The tuple versions
+	 */
+	private final Map<EntityIdentifier, Long> tupleVersions = new HashMap<>();
+	
+	/**
+	 * The painted elements
+	 */
+	private final Map<EntityIdentifier, OverlayElementGroup> paintedElements = new HashMap<>();
+	
+	/**
+	 * Stale time
+	 */
+	private long STALE_TIME_IN_MS = TimeUnit.MINUTES.toMillis(5);
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(AbstractContinuousQueryRunable.class);
+
+	public AbstractContinuousQueryRunable(final ContinuousQueryPlan qp, 
+			final BBoxDB connection, final ElementOverlayPainter painter) {
+		this.qp = qp;
+		this.connection = connection;
+		this.painter = painter;
+	}
+
+	@Override
+	protected void endHook() { 
+		logger.info("Worker for continuous query exited");
+	}
+
+	/**
+	 * Remove stale (old) tuple if needed from GUI
+	 */
+	protected void removeStaleTupleIfNeeded() {
+		
+		final long currentTime = System.currentTimeMillis();
+		
+		if(currentTime < lastStaleCheck + STALE_TIME_IN_MS) {
+			return;
+		}
+		
+		final Iterator<Entry<EntityIdentifier, Long>> iter = updateDates.entrySet().iterator();
+		
+		while (iter.hasNext()) {
+			final Map.Entry<EntityIdentifier, Long> entry = (Map.Entry<EntityIdentifier, Long>) iter.next();
+			
+			if(entry.getValue() + STALE_TIME_IN_MS < currentTime) {
+				iter.remove();
+				tupleVersions.remove(entry.getKey());
+				
+				final OverlayElementGroup oldElement = paintedElements.remove(entry.getKey());
+				
+				if(oldElement != null) {
+					logger.info("Removed one stale element");
+					painter.removeElementToDraw(oldElement);
+				}
+			}
+		}
+		
+		lastStaleCheck = currentTime;
+	}
+
+	/**
+	 * Update the given tuple on the GUI
+	 * @param paintedElements
+	 * @param updateDates 
+	 * @param tupleVersions 
+	 * @param joinedTuple
+	 */
+	protected void updateTupleOnGui(final JoinedTuple joinedTuple, final List<Color> colors) {
+		
+		final OverlayElementGroup overlayElementGroup = OverlayElementBuilder.createOverlayElementGroup(
+				joinedTuple, colors);
+	
+		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, Strategy.KEY_AND_TABLE);
+				
+		final OverlayElementGroup oldElement = paintedElements.get(key);
+	
+		if(oldElement != null) {
+			final long existingTimestamp = tupleVersions.get(key);
+			
+			if(joinedTuple.getVersionTimestamp() < existingTimestamp) {
+				logger.info("Ignoring outdated version for tuple {} old={} new={}", key, 
+						existingTimestamp, joinedTuple.getVersionTimestamp());
+				return;
+			}
+			
+			painter.removeElementToDraw(oldElement);
+		} 
+		
+		paintedElements.put(key, overlayElementGroup);
+		tupleVersions.put(key, joinedTuple.getVersionTimestamp());
+		updateDates.put(key, System.currentTimeMillis());
+	
+		painter.addElementToDraw(overlayElementGroup);
+	}
+
+}

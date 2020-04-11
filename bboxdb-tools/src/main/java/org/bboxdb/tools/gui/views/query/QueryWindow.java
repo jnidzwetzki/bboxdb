@@ -41,6 +41,7 @@ import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
@@ -345,13 +346,17 @@ public class QueryWindow {
 					case QUERY_RANGE:
 						executeRangeQuery(resultBox, table1, color1, filter, value);
 						break;
-					
+				
+					case QUERY_JOIN:
+						executeJoinQuery(resultBox, table1, color1, table2, color2, filter, value);
+						break;
+				
 					case QUERY_RANGE_CONTINUOUS:
 						executeRangeQueryContinuous(resultBox, table1, color1, filter, value);
 						break;
 						
-					case QUERY_JOIN:
-						executeJoinQuery(resultBox, table1, color1, table2, color2, filter, value);
+					case QUERY_JOIN_CONTINUOUS:
+						executeJoinQueryContinuous(resultBox, table1, table2, color1, color2, filter, value);
 						break;
 
 					default:
@@ -387,19 +392,13 @@ public class QueryWindow {
 					}
 					
 					final List<OverlayElementGroup> elements = new ArrayList<>();
+					final List<Color> colors = Arrays.asList(color1, color2);
 					
 					for(final JoinedTuple joinedTuple : result) {
-						// Handle tuple0
-						final Tuple tuple0 = joinedTuple.getTuple(0);
-						final OverlayElement overlayElement0 = OverlayElementHelper.getOverlayElement(tuple0, table1, color1);
-
-						// Handle tuple1
-						final Tuple tuple1 = joinedTuple.getTuple(1);
-						final OverlayElement overlayElement1 = OverlayElementHelper.getOverlayElement(tuple1, table2, color2);
-							
-						final List<OverlayElement> tupleList = Arrays.asList(overlayElement0, overlayElement1);
-						final OverlayElementGroup resultTuple = new OverlayElementGroup(tupleList);
-						elements.add(resultTuple);
+						final OverlayElementGroup group 
+							= OverlayElementBuilder.createOverlayElementGroup(joinedTuple, colors);
+						
+						elements.add(group);
 					}
 					
 					painter.addElementToDrawBulk(elements);
@@ -436,9 +435,8 @@ public class QueryWindow {
 					final List<OverlayElementGroup> elements = new ArrayList<>();
 					
 					for(final Tuple tuple : result) {
-						final OverlayElement overlayElement = OverlayElementHelper.getOverlayElement(tuple, table, color);
-						final OverlayElementGroup resultTuple = new OverlayElementGroup(Arrays.asList(overlayElement));
-						elements.add(resultTuple);
+						final OverlayElementGroup overlayElement = OverlayElementBuilder.createOverlayElementGroup(tuple, table, color);
+						elements.add(overlayElement);
 					}
 					
 					logger.info("Got {} tuples back", elements.size());
@@ -452,6 +450,36 @@ public class QueryWindow {
 				}
 			}
 
+			/**
+			 * Execute a continuous join query
+			 * @param customValue 
+			 * @param customFilter 
+			 * @param table 
+			 * @param bbox 
+			 */
+			private void executeJoinQueryContinuous(final Hyperrectangle bbox, final String table1, 
+					final String table2, final Color color1, final Color color2, 
+					final String customFilter, final String customValue) {
+							
+				final UserDefinedFilterDefinition userDefinedFilter 
+					= new UserDefinedFilterDefinition(customFilter, customValue);
+				
+				final ContinuousQueryPlan qp = QueryPlanBuilder
+						.createQueryOnTable(table1)
+						.compareWithStaticRegion(bbox)
+						.compareWithTable(table2)
+						.addJoinFilter(userDefinedFilter)
+						.build();
+				
+				final BBoxDB connection = guimodel.getConnection();
+
+				/*final Runnable runable = new ContinuousRangeQueryRunable(table, color, qp, connection, painter);
+				
+				final Thread fetchThread = new Thread(runable);
+				backgroundThreads.add(fetchThread);
+				fetchThread.start();*/
+			}
+			
 			/**
 			 * Execute a continuous range query
 			 * @param customValue 
@@ -469,7 +497,7 @@ public class QueryWindow {
 				
 				final BBoxDB connection = guimodel.getConnection();
 
-				final Runnable runable = new ContinuousQueryRunable(table, color, qp, connection, painter);
+				final Runnable runable = new ContinuousRangeQueryRunable(table, color, qp, connection, painter);
 				
 				final Thread fetchThread = new Thread(runable);
 				backgroundThreads.add(fetchThread);
