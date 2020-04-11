@@ -281,7 +281,7 @@ public class QueryWindow {
 				table2ColorField.setEnabled(true);
 				executeButton.setEnabled(true);
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
-				udfValueField.setText("Elisabeth Street");
+				udfValueField.setText("Elizabeth Street");
 				break;
 
 			default:
