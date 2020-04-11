@@ -210,8 +210,8 @@ public class ContinuousClientQuery implements ClientQuery {
 					return;
 				}
 				
-				final boolean insertection = transformedStoredTuple.getBoundingBox()
-						.intersects(transformedStreamTuple.getBoundingBox());
+				final boolean insertection = transformedStreamTuple.getBoundingBox()
+						.intersects(transformedStoredTuple.getBoundingBox());
 				
 				// Is the tuple important for the query?
 				if(insertection && queryPlan.isReportPositive()) {
