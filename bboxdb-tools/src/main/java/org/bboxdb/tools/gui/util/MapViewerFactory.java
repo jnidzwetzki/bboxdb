@@ -17,9 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.util;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.JButton;
 import javax.swing.event.MouseInputListener;
@@ -39,13 +39,14 @@ public class MapViewerFactory {
 	private static Path cacheDir;
 	
 	static {
-		try {
-			cacheDir = Files.createTempDirectory("jxmapviewer2");
-			System.out.println("Caching maps to: " + cacheDir);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
+		final String tempdir = System.getProperty("java.io.tmpdir");
+		final String username = System.getProperty("user.name");
+
+		cacheDir = Paths.get(tempdir, "jxmapviewer2cache_" + username);
+		final File file = cacheDir.toFile();
+		file.mkdirs();
+
+		System.out.println("Caching maps to: " + cacheDir);
 	}
 
 	public static JXMapViewer createMapViewer() {
