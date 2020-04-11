@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 	public enum Strategy {
 		FULL, // Key, Version, Table
 		KEY_AND_TABLE, // Key, Table
+		FIRST_KEY_AND_TABLE, // 1st key and table
 	}
 
 	/**
@@ -45,19 +47,29 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 		
 		this.tupleStoreNames = joinedTuple.getTupleStoreNames();
 		
-		if(strategy == Strategy.FULL) {
-			this.tupleIdentifier = buildFullIdenfifierList(joinedTuple);
-		} else if(strategy == Strategy.KEY_AND_TABLE) {
-			this.tupleIdentifier = buildKeyIdentiierList(joinedTuple);
-		} else {
-			throw new RuntimeException("Unkown strategy: " + strategy);
+		switch(strategy) {
+			case FULL:
+				this.tupleIdentifier = buildFullIdenfifierList(joinedTuple);
+				break;
+
+			case KEY_AND_TABLE:
+				this.tupleIdentifier = buildKeyIdentifierList(joinedTuple);
+				break;
+				
+			case FIRST_KEY_AND_TABLE:
+				this.tupleIdentifier = Arrays.asList(joinedTuple.getTuple(0).getKey());
+				break;
+				
+			default:
+				throw new RuntimeException("Unkown strategy: " + strategy);
 		}
+		
 	}
 
 	/**
 	 * Build the key identifier list
 	 */
-	private List<Object> buildKeyIdentiierList(final JoinedTuple joinedTuple) {
+	private List<Object> buildKeyIdentifierList(final JoinedTuple joinedTuple) {
 		return joinedTuple.getTuples()
 				.stream()
 				.map(t -> t.getKey())
