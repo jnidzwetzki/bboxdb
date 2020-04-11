@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -98,7 +99,7 @@ public class RangeQueryExecutor {
 		final List<DistributionRegion> regions = RoutingHopHelper.getRegionsForPredicate(
 				partitioner.getRootNode(), range, DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
 				
-		for(DistributionRegion region : regions) {
+		for(final DistributionRegion region : regions) {
 			perfomReadOnRegion(region);
 		}
 	}
@@ -118,11 +119,11 @@ public class RangeQueryExecutor {
 		try {
 			if(region.getSystems().contains(localInstance)) {
 				if(performLocalRead()) {
-					mergeDataByLocalRead(region);
+					readDataLocal(region);
 				}
 			} else {
 				if(performNetworkRead()) {
-					mergeDataByNetworkRead(region);	
+					readDataNetwork(region);	
 				}
 			}
 		} catch (StorageManagerException e) {
@@ -170,20 +171,30 @@ public class RangeQueryExecutor {
 	 * @throws StorageManagerException 
 	 * @throws TupleStoreManagerRegistry 
 	 */
-	private void mergeDataByLocalRead(final DistributionRegion region) throws StorageManagerException {
+	private void readDataLocal(final DistributionRegion region) throws StorageManagerException {
 
 		final long regionId = region.getRegionId();
 		final TupleStoreName childRegionName = tupleStoreName.cloneWithDifferntRegionId(regionId);
-		
 		final TupleStoreManager tupleStoreManager = registry.getTupleStoreManager(childRegionName);
-		
+	
 		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(tupleStoreManager)) {
 			for(final ReadOnlyTupleStore storage : tupleStoreAquirer.getTupleStores()) {
-				for(final Tuple tuple : storage) {
-					consumer.accept(tuple);
-				}
+				
+				// When the region is complexly covered,
+				// full table scan, otherwise index read
+				if(range.isCovering(region.getConveringBox())) {
+					for(final Tuple tuple : storage) {
+						consumer.accept(tuple);
+					}
+				} else {
+					final Iterator<Tuple> iter = storage.getAllTuplesInBoundingBox(range);
+					while(iter.hasNext()) {
+						final Tuple tuple = iter.next();
+						consumer.accept(tuple);
+					}
+				}	
 			}
-		} 
+		}
 	}
 
 	/**
@@ -197,7 +208,7 @@ public class RangeQueryExecutor {
 	 * @throws StorageManagerException
 	 * @throws Exception
 	 */
-	private void mergeDataByNetworkRead(final DistributionRegion region) 
+	private void readDataNetwork(final DistributionRegion region) 
 			throws InterruptedException, StorageManagerException {
 
 		final List<BBoxDBInstance> systems = region.getSystems();

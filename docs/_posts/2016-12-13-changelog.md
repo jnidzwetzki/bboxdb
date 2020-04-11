@@ -13,6 +13,7 @@ order: 1
 - Improvement: Improved memory usage on joined tuple identifier
 - Improvement: Speed-up GUI repainting
 - Improvement: Introduced tuple identifier compare strategies
+- Improvement: Improved continuous join performance
 
 ### Version 0.9.3 - 16.02.2020
 - New Feature: Added generic data stream importer
