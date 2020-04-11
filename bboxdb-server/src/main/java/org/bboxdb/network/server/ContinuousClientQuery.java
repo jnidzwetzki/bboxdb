@@ -247,9 +247,11 @@ public class ContinuousClientQuery implements ClientQuery {
 			try {
 				final TupleStoreName tupleStoreName = new TupleStoreName(qp.getJoinTable());
 				
+				TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
+				
 				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
 						transformedStreamTuple.getBoundingBox(), 
-						tupleConsumer, clientConnectionHandler.getStorageRegistry(),
+						tupleConsumer, storageRegistry,
 						ExecutionPolicy.LOCAL_ONLY);
 				
 				rangeQueryExecutor.performDataRead();
