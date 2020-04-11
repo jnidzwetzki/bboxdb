@@ -68,6 +68,9 @@ public class OverlayElementBuilder {
 			elements.add(overlayElement);
 		}
 		
+		// Draw points first
+		elements.sort((c1, c2) -> Integer.compare(c2.getPolygon().getNumberOfPoints(), c1.getPolygon().getNumberOfPoints()));
+		
 		return new OverlayElementGroup(elements);
 	}
 
