@@ -168,6 +168,19 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	public EntityIdentifier getEntityIdentifier() {
 		return new JoinedTupleIdentifier(tuples, tupleStoreNames);
 	}
+	
+	/**
+	 * Get the most recent version of the joined tuple
+	 * @return 
+	 */
+	public long getVersionTimestamp() {
+		long result = Long.MIN_VALUE;
+		for(final Tuple tuple : tuples) {
+			result = Math.max(result, tuple.getVersionTimestamp());
+		}
+		
+		return result;
+	}
 
 	@Override
 	public int hashCode() {

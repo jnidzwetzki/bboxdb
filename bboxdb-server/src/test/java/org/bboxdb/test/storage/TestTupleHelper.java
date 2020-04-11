@@ -326,9 +326,9 @@ public class TestTupleHelper {
 	 */
 	@Test(timeout=60000)
 	public void testJoinedTupleMisc() {
-		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes());
-		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes());
-		final Tuple tuple3 = new Tuple("yjk", new Hyperrectangle(1d, 2d), "".getBytes());
+		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
+		final Tuple tuple3 = new Tuple("yjk", new Hyperrectangle(1d, 2d), "".getBytes(), 3);
 
 		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
 		final JoinedTuple joinedTuple2 = new JoinedTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
@@ -348,6 +348,10 @@ public class TestTupleHelper {
 		Assert.assertTrue(joinedTuple1.getFormatedString().length() > 10);
 		Assert.assertTrue(joinedTuple2.getFormatedString().length() > 10);
 		Assert.assertTrue(joinedTuple3.getFormatedString().length() > 10);
+		
+		Assert.assertEquals(2, joinedTuple1.getVersionTimestamp());
+		Assert.assertEquals(3, joinedTuple2.getVersionTimestamp());
+		Assert.assertEquals(2, joinedTuple3.getVersionTimestamp());
 	}
 	
 	/**
