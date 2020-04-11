@@ -166,7 +166,7 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 
 	@Override
 	public EntityIdentifier getEntityIdentifier() {
-		return new JoinedTupleIdentifier(tuples, tupleStoreNames);
+		return new JoinedTupleIdentifier(this);
 	}
 	
 	/**

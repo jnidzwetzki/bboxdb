@@ -32,9 +32,14 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 	 */
 	private List<String> tupleStoreNames;
 
-	public JoinedTupleIdentifier(final List<Tuple> tuples, final List<String> tupleStoreNames) {
-		this.tupleIdentifier = tuples.stream().map(t -> t.getEntityIdentifier()).collect(Collectors.toList());
-		this.tupleStoreNames = tupleStoreNames;
+	public JoinedTupleIdentifier(final JoinedTuple joinedTuple) {
+		this.tupleStoreNames = joinedTuple.getTupleStoreNames();
+		
+		// Only keep the getEntityIdentifiers in memory
+		this.tupleIdentifier = joinedTuple.getTuples()
+					.stream()
+					.map(t -> t.getEntityIdentifier())
+					.collect(Collectors.toList());
 	}
 
 	@Override

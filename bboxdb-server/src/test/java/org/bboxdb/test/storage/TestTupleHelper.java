@@ -384,9 +384,11 @@ public class TestTupleHelper {
 	public void testJoinedTupleIdentifier() {
 		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes());
+		
+		final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
 
 		final JoinedTupleIdentifier joinedTupleIdentifier = 
-				new JoinedTupleIdentifier(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+				new JoinedTupleIdentifier(joinedTuple);
 		
 		Assert.assertTrue(joinedTupleIdentifier.toString().length() > 10);
 	}
