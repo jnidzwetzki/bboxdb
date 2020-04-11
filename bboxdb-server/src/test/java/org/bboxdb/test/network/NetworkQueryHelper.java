@@ -204,8 +204,8 @@ public class NetworkQueryHelper {
 
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
 				.createQueryOnTable(table)
-				.forAllNewTuplesStoredInRegion(-1d, 2d, -1d, 2d)
-				.compareWithStaticRegion(-1d, 2d, -1d, 2d)
+				.forAllNewTuplesStoredInRegion(new Hyperrectangle(-1d, 2d, -1d, 2d))
+				.compareWithStaticRegion(new Hyperrectangle(-1d, 2d, -1d, 2d))
 				.build();
 
 		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
@@ -258,7 +258,7 @@ public class NetworkQueryHelper {
 
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
 				.createQueryOnTable(table)
-				.forAllNewTuplesStoredInRegion(-1d, 2d, -1d, 2d)
+				.forAllNewTuplesStoredInRegion(new Hyperrectangle(-1d, 2d, -1d, 2d))
 				.compareWithTable(table)
 				.build();
 

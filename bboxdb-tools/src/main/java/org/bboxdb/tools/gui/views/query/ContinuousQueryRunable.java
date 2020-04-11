@@ -18,7 +18,6 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.network.client.BBoxDB;
@@ -28,12 +27,7 @@ import org.bboxdb.storage.entity.JoinedTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContinuousRangeQueryRunable extends AbstractContinuousQueryRunable {
-	
-	/**
-	 * The name of the table to query
-	 */
-	private final String table;
+public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 	
 	/**
 	 * The color of the results
@@ -43,14 +37,13 @@ public class ContinuousRangeQueryRunable extends AbstractContinuousQueryRunable 
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ContinuousRangeQueryRunable.class);
+	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryRunable.class);
 
-	public ContinuousRangeQueryRunable(final String table, final Color color, final ContinuousQueryPlan qp, 
+	public ContinuousQueryRunable(final List<Color> colors, final ContinuousQueryPlan qp, 
 			final BBoxDB connection, final ElementOverlayPainter painter) {
 		
 		super(qp, connection, painter);
-		this.table = table;
-		this.colors = Arrays.asList(color);
+		this.colors = colors;
 	}
 	
 	@Override
@@ -75,9 +68,7 @@ public class ContinuousRangeQueryRunable extends AbstractContinuousQueryRunable 
 			if(Thread.currentThread().isInterrupted()) {
 				return;
 			}
-	
-			logger.debug("Read a tuple from: {}", table);
-	
+					
 			updateTupleOnGui(joinedTuple, colors);
 			removeStaleTupleIfNeeded();
 		}

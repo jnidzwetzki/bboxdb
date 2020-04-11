@@ -158,9 +158,11 @@ public class ContinuousClientQuery implements ClientQuery {
 
 			// Add each tuple to our tuple queue
 			if(queryPlan instanceof ContinuousConstQueryPlan) {
-				this.tupleInsertCallback = getCallbackForConstQuery();
+				final ContinuousConstQueryPlan qp = (ContinuousConstQueryPlan) queryPlan;
+				this.tupleInsertCallback = getCallbackForConstQuery(qp);
 			} else if(queryPlan instanceof ContinuousTableQueryPlan) {
-				this.tupleInsertCallback = getCallbackForTableQuery();
+				final ContinuousTableQueryPlan qp = (ContinuousTableQueryPlan) queryPlan;
+				this.tupleInsertCallback = getCallbackForTableQuery(qp);
 			} else { 
 				this.tupleInsertCallback = null;
 				logger.error("Unknown query type: " + queryPlan);
@@ -178,61 +180,71 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	/**
 	 * Get the callback for a table query
+	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForTableQuery() {
-		
-		final ContinuousTableQueryPlan tableQueryPlan = (ContinuousTableQueryPlan) queryPlan;
-		
-		return (t) -> {
-			final List<TupleTransformation> transformations = tableQueryPlan.getStreamTransformation(); 
-			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, t);
-						
+	private Consumer<Tuple> getCallbackForTableQuery(final ContinuousTableQueryPlan qp) {
+				
+		return (streamTuple) -> {
+			final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
+			final TupleAndBoundingBox transformedStreamTuple 
+				= applyStreamTupleTransformations(streamTransformations, streamTuple);
+			
 			// Tuple was removed during transformation
-			if(tuple == null) {
+			if(transformedStreamTuple == null) {
 				return;
 			}
+						
+			final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(qp);
 			
-			final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(tableQueryPlan);
-			
-			final Consumer<Tuple> tupleConsumer = (tupleToConsume) -> {
-				final List<TupleTransformation> tupleTransfor 
-					= tableQueryPlan.getTableTransformation(); 
+			// The tuple consumer for the join query
+			final Consumer<Tuple> tupleConsumer = (storedTuple) -> {
+				final List<TupleTransformation> tableTransformations 
+					= qp.getTableTransformation(); 
 				
-				final TupleAndBoundingBox transformedTuple 
-					= applyStreamTupleTransformations(tupleTransfor, tupleToConsume);
+				final TupleAndBoundingBox transformedStoredTuple 
+					= applyStreamTupleTransformations(tableTransformations, storedTuple);
 				
-				if(transformedTuple == null) {
+				if(transformedStoredTuple == null) {
 					logger.error("Transformed tuple is null, please check filter");
 					return;
 				}
 				
-				final boolean matches = doUserDefinedFilterMatch(t, filters, transformedTuple);
-
+				final boolean insertection = transformedStoredTuple.getBoundingBox()
+						.intersects(transformedStreamTuple.getBoundingBox());
+				
 				// Is the tuple important for the query?
-				if(tuple.getBoundingBox().intersects(transformedTuple.getTuple().getBoundingBox())) {
-					if(queryPlan.isReportPositive() && matches == true) {
-						final JoinedTuple joinedTuple = new JoinedTuple(
-								Arrays.asList(t, transformedTuple.getTuple()), 
-								Arrays.asList(requestTable.getFullname(), requestTable.getFullname()));
+				if(insertection && queryPlan.isReportPositive()) {
+				
+					// Perform expensive UDF
+					final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
+							storedTuple, filters);
+
+					if(udfMatches == true) {
+						final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
 						queueTupleForClientProcessing(joinedTuple);
 					}
-				} else {
-					if(! queryPlan.isReportPositive() && matches != true) {
-						final JoinedTuple joinedTuple = new JoinedTuple(
-								Arrays.asList(t, transformedTuple.getTuple()), 
-								Arrays.asList(requestTable.getFullname(), requestTable.getFullname()));
+					
+				} else if(! insertection && ! queryPlan.isReportPositive()) {
+					
+					// Perform expensive UDF
+					final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
+							storedTuple, filters);
+					
+					if(udfMatches != true) {
+						final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
 						queueTupleForClientProcessing(joinedTuple);
 					}
 				}
 			};
 			
 			try {
-				final TupleStoreName tupleStoreName = new TupleStoreName(tableQueryPlan.getJoinTable());
+				final TupleStoreName tupleStoreName = new TupleStoreName(qp.getJoinTable());
+				
 				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
-						tuple.getBoundingBox(), 
+						transformedStreamTuple.getBoundingBox(), 
 						tupleConsumer, clientConnectionHandler.getStorageRegistry(),
-						ExecutionPolicy.ALL);
+						ExecutionPolicy.LOCAL_ONLY);
 				
 				rangeQueryExecutor.performDataRead();
 			} catch (BBoxDBException e) {
@@ -247,8 +259,30 @@ public class ContinuousClientQuery implements ClientQuery {
 		};
 	}
 
-	private boolean doUserDefinedFilterMatch(Tuple t, final Map<UserDefinedFilter, byte[]> filters,
-			final TupleAndBoundingBox transformedTuple) {
+	/**
+	 * Build a joined tuple 
+	 * @param qp
+	 * @param streamTuple
+	 * @param storedTuple
+	 * @return
+	 */
+	private JoinedTuple buildJoinedTuple(final ContinuousTableQueryPlan qp, 
+			final Tuple streamTuple, final Tuple storedTuple) {
+		
+		return new JoinedTuple(
+				Arrays.asList(streamTuple, storedTuple), 
+				Arrays.asList(qp.getStreamTable(), qp.getJoinTable()));
+	}
+
+	/**
+	 * Perform the user defined filters on the given stream and stored tuple
+	 * @param streamTuple
+	 * @param storedTuple
+	 * @param filters
+	 * @return
+	 */
+	private boolean doUserDefinedFilterMatch(final Tuple streamTuple, final Tuple storedTuple,
+			final Map<UserDefinedFilter, byte[]> filters) {
 		
 		boolean matches = true;
 		
@@ -258,7 +292,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			final byte[] value = entry.getValue();
 			
 			final boolean result 
-				= operator.filterJoinCandidate(t, transformedTuple.getTuple(), value);
+				= operator.filterJoinCandidate(streamTuple, storedTuple, value);
 			
 			if(! result) {
 				matches = false;
@@ -293,9 +327,10 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	/**
 	 * Get the consumer for the const query
+	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForConstQuery() {
+	private Consumer<Tuple> getCallbackForConstQuery(final ContinuousConstQueryPlan qp) {
 		
 		final ContinuousConstQueryPlan constQueryPlan = (ContinuousConstQueryPlan) queryPlan;
 		

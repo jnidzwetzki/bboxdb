@@ -461,23 +461,40 @@ public class QueryWindow {
 					final String table2, final Color color1, final Color color2, 
 					final String customFilter, final String customValue) {
 							
-				final UserDefinedFilterDefinition userDefinedFilter 
-					= new UserDefinedFilterDefinition(customFilter, customValue);
-				
-				final ContinuousQueryPlan qp = QueryPlanBuilder
+				QueryPlanBuilder qpb = QueryPlanBuilder
 						.createQueryOnTable(table1)
-						.compareWithStaticRegion(bbox)
 						.compareWithTable(table2)
-						.addJoinFilter(userDefinedFilter)
-						.build();
+						.forAllNewTuplesStoredInRegion(bbox);
+				
+				if(customFilter.length() > 2) {
+					final UserDefinedFilterDefinition userDefinedFilter 
+						= new UserDefinedFilterDefinition(customFilter, customValue);
+					
+					qpb.addJoinFilter(userDefinedFilter);
+				}
 				
 				final BBoxDB connection = guimodel.getConnection();
+				final List<Color> colors = Arrays.asList(color1, color2);
 
-				/*final Runnable runable = new ContinuousRangeQueryRunable(table, color, qp, connection, painter);
+				final ContinuousQueryPlan qp = qpb.build();
+		
+				startQueryRunable(qp, connection, colors);
+			}
+
+			/**
+			 * Start the given query runable
+			 * @param qp
+			 * @param connection
+			 * @param colors
+			 */
+			private void startQueryRunable(final ContinuousQueryPlan qp, final BBoxDB connection,
+					final List<Color> colors) {
+				
+				final Runnable runable = new ContinuousQueryRunable(colors, qp, connection, painter);
 				
 				final Thread fetchThread = new Thread(runable);
 				backgroundThreads.add(fetchThread);
-				fetchThread.start();*/
+				fetchThread.start();
 			}
 			
 			/**
@@ -497,11 +514,8 @@ public class QueryWindow {
 				
 				final BBoxDB connection = guimodel.getConnection();
 
-				final Runnable runable = new ContinuousRangeQueryRunable(table, color, qp, connection, painter);
-				
-				final Thread fetchThread = new Thread(runable);
-				backgroundThreads.add(fetchThread);
-				fetchThread.start();
+				final List<Color> colors = Arrays.asList(color);
+				startQueryRunable(qp, connection, colors);
 			}
 		};
 		

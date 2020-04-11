@@ -31,8 +31,8 @@ public class TestQueryPlanBuilder {
 	public void testInvalidPlan1() {
 		QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInRegion(3d, 4d)
-			.compareWithStaticRegion(2d, 4d)
+			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
+			.compareWithStaticRegion(new Hyperrectangle(2d, 4d))
 			.compareWithTable("testtable")
 			.build();	
 	}
@@ -41,7 +41,7 @@ public class TestQueryPlanBuilder {
 	public void testInvalidPlan2() {
 		QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInRegion(3d, 4d)
+			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
 			.build();	
 	}
 
@@ -49,8 +49,8 @@ public class TestQueryPlanBuilder {
 	public void testConstPlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInRegion(3d, 4d)
-			.compareWithStaticRegion(2d, 4d)
+			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
+			.compareWithStaticRegion(new Hyperrectangle(2d, 4d))
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
@@ -66,9 +66,9 @@ public class TestQueryPlanBuilder {
 	public void testConstPlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInRegion(3d, 4d)
-			.compareWithStaticRegion(2d, 4d)
-			.filterStreamTupleByBoundingBox(3d, 5d)
+			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
+			.compareWithStaticRegion(new Hyperrectangle(2d, 4d))
+			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.build();
@@ -86,8 +86,8 @@ public class TestQueryPlanBuilder {
 	public void testTablePlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInRegion(3d, 4d)
-			.filterStreamTupleByBoundingBox(1d, 5d)
+			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
+			.filterStreamTupleByBoundingBox(new Hyperrectangle(1d, 5d))
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.reportNegativeMatches()
@@ -107,9 +107,9 @@ public class TestQueryPlanBuilder {
 	public void testTablePlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInRegion(3d, 4d)
-			.filterStreamTupleByBoundingBox(3d, 5d)
-			.filterStoredTupleByBoundingBox(3d, 6d)
+			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
+			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
+			.filterStoredTupleByBoundingBox(new Hyperrectangle(3d, 6d))
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.enlargeStreamTupleBoundBoxByWGS84Meter(7.2, 13.3)

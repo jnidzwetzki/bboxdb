@@ -95,18 +95,9 @@ public class QueryPlanBuilder {
 	 * @param values
 	 * @return
 	 */
-	public QueryPlanBuilder forAllNewTuplesStoredInRegion(final Double... values) {
-		this.queryRegion = new Hyperrectangle(values);
+	public QueryPlanBuilder forAllNewTuplesStoredInRegion(final Hyperrectangle hyperrectangle) {
+		this.queryRegion = hyperrectangle;
 		return this;
-	}
-	
-	/**
-	 * Compare the tuples with a static region
-	 * @param region
-	 * @return
-	 */
-	public QueryPlanBuilder compareWithStaticRegion(final Double... values) {
-		return compareWithStaticRegion(new Hyperrectangle(values));
 	}
 	
 	/**
@@ -164,8 +155,7 @@ public class QueryPlanBuilder {
 	 * @param key
 	 * @return
 	 */
-	public QueryPlanBuilder filterStreamTupleByBoundingBox(final Double... values) {
-		final Hyperrectangle bbox = new Hyperrectangle(values);
+	public QueryPlanBuilder filterStreamTupleByBoundingBox(final Hyperrectangle bbox) {
 		streamTupleTransformation.add(new BoundingBoxFilterTransformation(bbox));
 		return this;
 	}
@@ -215,8 +205,7 @@ public class QueryPlanBuilder {
 	 * @param key
 	 * @return
 	 */
-	public QueryPlanBuilder filterStoredTupleByBoundingBox(final Double... values) {
-		final Hyperrectangle bbox = new Hyperrectangle(values);
+	public QueryPlanBuilder filterStoredTupleByBoundingBox(final Hyperrectangle bbox) {
 		storedTupleTransformation.add(new BoundingBoxFilterTransformation(bbox));
 		return this;
 	}
