@@ -26,6 +26,7 @@ import com.esri.core.geometry.OperatorFactoryLocal;
 import com.esri.core.geometry.OperatorImportFromGeoJson;
 import com.esri.core.geometry.WktImportFlags;
 import com.esri.core.geometry.ogc.OGCGeometry;
+import com.esri.core.geometry.ogc.OGCPoint;
 
 public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	
@@ -69,8 +70,12 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		
 		final OGCGeometry geometry1 = extractGeometry(geoJsonString1);
 		final OGCGeometry geometry2 = extractGeometry(geoJsonString2);
-
-	    return geometry1.intersects(geometry2);
+		
+		if(geometry1 instanceof OGCPoint) {
+			return geometry1.distance(geometry2) < 0.000001;
+		} else {
+		    return geometry1.intersects(geometry2);
+		}
 	}
 	
 	/**
@@ -80,10 +85,10 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 */
 	private OGCGeometry extractGeometry(final String geoJsonString) {
 
-		final JSONObject geoJson = new JSONObject(geoJsonString);
+		final JSONObject jsonObject = new JSONObject(geoJsonString);
 		
 		// Extract geometry (if exists)
-		final JSONObject geometryObject = geoJson.optJSONObject("geometry");
+		final JSONObject geometryObject = jsonObject.optJSONObject("geometry");
 		
 		if(geometryObject != null) {
 			return geoJoinToGeomety(geometryObject.toString());
