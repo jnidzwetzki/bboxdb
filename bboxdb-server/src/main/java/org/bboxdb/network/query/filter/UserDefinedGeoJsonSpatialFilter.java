@@ -31,6 +31,8 @@ import com.esri.core.geometry.ogc.OGCPoint;
 public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	
 	private OGCGeometry customGeomety = null;
+	
+	private final static double MAX_OVERLAPPING_POINT_DISTANCE = 0.001;
 
 	/**
 	 * Perform a real filter based on the geometry of the data
@@ -72,7 +74,8 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		final OGCGeometry geometry2 = extractGeometry(geoJsonString2);
 		
 		if(geometry1 instanceof OGCPoint) {
-			return geometry1.distance(geometry2) < 0.000001;
+			final double geometryDistrance = geometry1.distance(geometry2);
+			return geometryDistrance < MAX_OVERLAPPING_POINT_DISTANCE;
 		} else {
 		    return geometry1.intersects(geometry2);
 		}
