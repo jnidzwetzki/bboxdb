@@ -8,6 +8,8 @@ order: 1
 
 ### Version 0.9.4 - TBA
 - Improvement: Improved out of order handling for GeoJSON polygons
+- Improvement: Added version timestamp to joined tuples
+- Improvement: Improved memory usage on joined tuple identifier
 
 ### Version 0.9.3 - 16.02.2020
 - New Feature: Added generic data stream importer

@@ -18,13 +18,14 @@
 package org.bboxdb.storage.entity;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JoinedTupleIdentifier implements EntityIdentifier {
 
 	/**
 	 * The tuples
 	 */
-	private List<Tuple> tuples;
+	private List<EntityIdentifier> tupleIdentifier;
 	
 	/**
 	 * The tuple store names
@@ -32,13 +33,13 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 	private List<String> tupleStoreNames;
 
 	public JoinedTupleIdentifier(final List<Tuple> tuples, final List<String> tupleStoreNames) {
-		this.tuples = tuples;
+		this.tupleIdentifier = tuples.stream().map(t -> t.getEntityIdentifier()).collect(Collectors.toList());
 		this.tupleStoreNames = tupleStoreNames;
 	}
 
 	@Override
 	public String toString() {
-		return "JoinedTupleIdentifier [tuples=" + tuples + ", tupleStoreNames=" + tupleStoreNames + "]";
+		return "JoinedTupleIdentifier [tuples=" + tupleIdentifier + ", tupleStoreNames=" + tupleStoreNames + "]";
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((tupleStoreNames == null) ? 0 : tupleStoreNames.hashCode());
-		result = prime * result + ((tuples == null) ? 0 : tuples.hashCode());
+		result = prime * result + ((tupleIdentifier == null) ? 0 : tupleIdentifier.hashCode());
 		return result;
 	}
 
@@ -64,10 +65,10 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 				return false;
 		} else if (!tupleStoreNames.equals(other.tupleStoreNames))
 			return false;
-		if (tuples == null) {
-			if (other.tuples != null)
+		if (tupleIdentifier == null) {
+			if (other.tupleIdentifier != null)
 				return false;
-		} else if (!tuples.equals(other.tuples))
+		} else if (!tupleIdentifier.equals(other.tupleIdentifier))
 			return false;
 		return true;
 	}
