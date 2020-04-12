@@ -396,7 +396,7 @@ public class ContinuousClientQuery implements ClientQuery {
 		final boolean insertResult = tupleQueue.offer(t);
 
 		if(! insertResult) {
-			logger.error("Unable to add tuple to continuous query, queue is full");
+			logger.error("Unable to add tuple to continuous query, queue is full (seq={})", querySequence);
 		}
 	}
 
@@ -464,7 +464,7 @@ public class ContinuousClientQuery implements ClientQuery {
 					logger.info("Got the red pill from the queue, cancel query");
 					clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 					clientConnectionHandler.flushPendingCompressionPackages();
-					this.queryActive = false;
+					close();
 					return;
 				}
 				
@@ -507,6 +507,10 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	@Override
 	public void close() {
+		if(! queryActive) {
+			return;
+		}
+		
 		logger.info("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
 
 		if(storageManager != null) {

@@ -869,8 +869,8 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Register a new insert callback
 	 * @param callback
 	 */
-	public void registerInsertCallback(final Consumer<Tuple> callback) {
-		insertCallbacks.add(callback);
+	public boolean registerInsertCallback(final Consumer<Tuple> callback) {
+		return insertCallbacks.add(callback);
 	}
 
 	/**
