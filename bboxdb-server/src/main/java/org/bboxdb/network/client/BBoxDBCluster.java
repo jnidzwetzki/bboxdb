@@ -385,14 +385,16 @@ public class BBoxDBCluster implements BBoxDB {
 		
 		final List<DistributionRegion> regions = DistributionRegionHelper
 				.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
-
-		System.out.println("Query Range " + queryRange);
-		
+				
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 
 			final List<NetworkOperationFuture> resultList = new ArrayList<>();
 
 			for(final DistributionRegion regionToQuery : regions) {
+				
+				if(! DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ.test(regionToQuery.getState())) {
+					continue;
+				}
 
 				final BBoxDBInstance firstSystem = regionToQuery.getSystems().get(0);
 				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
@@ -400,14 +402,9 @@ public class BBoxDBCluster implements BBoxDB {
 				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
 				final Supplier<List<NetworkOperationFuture>> future = bboxDBClient.getQueryBoundingBoxContinousFuture(queryPlan);
 				
-				System.out.println("====> Region: " + regionToQuery);
-
-				
 				resultList.addAll(future.get());
 			}
 			
-			System.out.println("====> CALlled: " + resultList);
-
 			return resultList;
 		};
 
