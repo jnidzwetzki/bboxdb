@@ -509,6 +509,7 @@ public class QueryWindow {
 							
 				final ContinuousQueryPlan qp = QueryPlanBuilder
 						.createQueryOnTable(table)
+						.forAllNewTuplesStoredInRegion(bbox)
 						.compareWithStaticRegion(bbox)
 						.build();
 				
