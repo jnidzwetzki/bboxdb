@@ -507,10 +507,15 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	@Override
 	public void close() {
-		logger.debug("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
+		logger.info("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
 
 		if(storageManager != null) {
-			storageManager.removeInsertCallback(tupleInsertCallback);
+			final boolean removeResult = storageManager.removeInsertCallback(tupleInsertCallback);
+			if(! removeResult) {
+				logger.error("Unable to remove insert callback, got bad remove callback");
+			}
+		} else {
+			logger.error("Unable to remove insert callback, storage manager is NULL");
 		}
 
 		queryActive = false;
