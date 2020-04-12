@@ -654,7 +654,7 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * Cancel the given query
 	 */
-	public void cancelQuery(final Map<BBoxDBClient, Short> cancelData)
+	public void cancelQuery(final Map<BBoxDBClient, List<Short>> cancelData)
 			throws BBoxDBException, InterruptedException {
 
 		BBoxDBClientHelper.cancelQuery(cancelData);

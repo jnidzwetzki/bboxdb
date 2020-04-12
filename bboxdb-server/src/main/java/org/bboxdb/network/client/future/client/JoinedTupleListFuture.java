@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -61,13 +62,14 @@ public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 	 * Get all used connections
 	 * @return
 	 */
-	public Map<BBoxDBClient, Short> getAllConnections() {
+	public Map<BBoxDBClient, List<Short>> getAllConnections() {
 		
-		final Map<BBoxDBClient, Short> result = new HashMap<>();
+		final Map<BBoxDBClient, List<Short>> result = new HashMap<>();
 		
 		for(final NetworkOperationFuture future : futures) {
-			result.put(future.getConnection().getBboxDBClient(), 
-					future.getTransmittedPackage().getSequenceNumber());
+			final BBoxDBClient key = future.getConnection().getBboxDBClient();
+			result.computeIfAbsent(key, k -> new ArrayList<Short>());
+			result.get(key).add(future.getTransmittedPackage().getSequenceNumber());
 		}
 		
 		return result;

@@ -381,9 +381,13 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(queryPlan.getStreamTable());
 
+		final Hyperrectangle queryRange = queryPlan.getQueryRange();
+		
 		final List<DistributionRegion> regions = DistributionRegionHelper
-				.getDistributionRegionsForBoundingBox(distributionRegion, queryPlan.getQueryRange());
+				.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
 
+		System.out.println("Query Range " + queryRange);
+		
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 
 			final List<NetworkOperationFuture> resultList = new ArrayList<>();
@@ -395,9 +399,14 @@ public class BBoxDBCluster implements BBoxDB {
 
 				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
 				final Supplier<List<NetworkOperationFuture>> future = bboxDBClient.getQueryBoundingBoxContinousFuture(queryPlan);
+				
+				System.out.println("====> Region: " + regionToQuery);
 
+				
 				resultList.addAll(future.get());
 			}
+			
+			System.out.println("====> CALlled: " + resultList);
 
 			return resultList;
 		};
@@ -515,7 +524,7 @@ public class BBoxDBCluster implements BBoxDB {
 	/**
 	 * Cancel the given query
 	 */
-	public void cancelQuery(final Map<BBoxDBClient, Short> cancelData)
+	public void cancelQuery(final Map<BBoxDBClient, List<Short>> cancelData)
 			throws BBoxDBException, InterruptedException {
 
 		BBoxDBClientHelper.cancelQuery(cancelData);

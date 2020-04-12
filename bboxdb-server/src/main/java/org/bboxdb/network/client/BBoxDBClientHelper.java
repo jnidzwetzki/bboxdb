@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -39,20 +41,22 @@ public class BBoxDBClientHelper {
 	 * @param future
 	 * @throws InterruptedException
 	 */
-	public static void cancelQuery(final Map<BBoxDBClient, Short> cancelData)
+	public static void cancelQuery(final Map<BBoxDBClient, List<Short>> cancelData)
 			throws BBoxDBException, InterruptedException {
 		
-		for(Entry<BBoxDBClient, Short> entry : cancelData.entrySet()) {
+		for(Entry<BBoxDBClient, List<Short>> entry : cancelData.entrySet()) {
 			
 			final BBoxDBClient client = entry.getKey();
-			final short queryId = entry.getValue();
-
-			final EmptyResultFuture cancelResult = client.cancelRequest(queryId);
-
-			cancelResult.waitForCompletion();
-
-			if(cancelResult.isFailed()) {
-				throw new BBoxDBException("Cancel query has failed: " + cancelResult.getAllMessages());
+			final List<Short> values = entry.getValue();
+			
+			for(final short queryId : values) {	
+				final EmptyResultFuture cancelResult = client.cancelRequest(queryId);
+	
+				cancelResult.waitForCompletion();
+	
+				if(cancelResult.isFailed()) {
+					throw new BBoxDBException("Cancel query has failed: " + cancelResult.getAllMessages());
+				}
 			}
 		}
 	}
@@ -65,7 +69,7 @@ public class BBoxDBClientHelper {
 	public static void cancelQuery(final AbstractListFuture<? extends Object> future)
 			throws BBoxDBException, InterruptedException {
 		
-		final Map<BBoxDBClient, Short> cancelData = new HashMap<>();
+		final Map<BBoxDBClient, List<Short>> cancelData = new HashMap<>();
 
 		for(int i = 0; i < future.getNumberOfResultObjets(); i++) {
 			final short queryId = future.getRequestId(i);
@@ -74,7 +78,8 @@ public class BBoxDBClientHelper {
 			final BBoxDBConnection connection = future.getConnection(i);
 			final BBoxDBClient client = connection.getBboxDBClient();
 			
-			cancelData.put(client, queryId);
+			cancelData.computeIfAbsent(client, k -> new ArrayList<>());
+			cancelData.get(client).add(queryId);
 		}
 		
 		cancelQuery(cancelData);

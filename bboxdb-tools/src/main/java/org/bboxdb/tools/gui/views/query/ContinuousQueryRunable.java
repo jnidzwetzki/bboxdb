@@ -19,9 +19,11 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.Map;
 
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.JoinedTuple;
@@ -85,12 +87,24 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 		
 		if(queryResult != null) {
 			logger.info("Canceling continuous query");
+			
+			// Clear interrupted flag, to be able to cancel the query on server
+			boolean interruptedFlag = Thread.interrupted();
+			
 			try {
-				connection.cancelQuery(queryResult.getAllConnections());
+				final Map<BBoxDBClient, List<Short>> cancelData = queryResult.getAllConnections();
+				logger.info("Canceling {}", cancelData);
+				connection.cancelQuery(cancelData);
 			} catch (BBoxDBException e) {
 				logger.error("Got exception", e);
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				logger.info("Got interrupted exception");
+				interruptedFlag = true;
+			} finally {
+				// Restore interrupted flag
+				if(interruptedFlag) {
+					Thread.currentThread().interrupt();
+				}
 			}
 		}
 		

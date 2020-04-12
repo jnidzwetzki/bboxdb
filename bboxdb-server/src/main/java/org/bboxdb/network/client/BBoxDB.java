@@ -191,7 +191,7 @@ public interface BBoxDB extends Closeable {
 	 * Cancel a given query
 	 * @param future
 	 */
-	public void cancelQuery(final Map<BBoxDBClient, Short> cancelData) 
+	public void cancelQuery(final Map<BBoxDBClient, List<Short>> cancelData) 
 			throws BBoxDBException, InterruptedException;
 
 	/**
