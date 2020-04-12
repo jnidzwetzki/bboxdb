@@ -15,6 +15,7 @@ order: 1
 - Improvement: Introduced tuple identifier compare strategies
 - Improvement: Improved continuous join performance
 - Improvement: Improved OSM tile caching on GUI
+- Improvement: Improved cancellation of running continuous queries
 
 ### Version 0.9.3 - 16.02.2020
 - New Feature: Added generic data stream importer

@@ -19,10 +19,10 @@ package org.bboxdb.network.client;
 
 import java.io.Closeable;
 import java.util.List;
+import java.util.Map;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
@@ -191,7 +191,7 @@ public interface BBoxDB extends Closeable {
 	 * Cancel a given query
 	 * @param future
 	 */
-	public void cancelQuery(final AbstractListFuture<? extends Object> future) 
+	public void cancelQuery(final Map<BBoxDBClient, Short> cancelData) 
 			throws BBoxDBException, InterruptedException;
 
 	/**

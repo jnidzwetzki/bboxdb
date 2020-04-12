@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
@@ -35,15 +39,13 @@ public class BBoxDBClientHelper {
 	 * @param future
 	 * @throws InterruptedException
 	 */
-	public static void cancelQuery(final AbstractListFuture<? extends Object> future)
+	public static void cancelQuery(final Map<BBoxDBClient, Short> cancelData)
 			throws BBoxDBException, InterruptedException {
-
-		for(int i = 0; i < future.getNumberOfResultObjets(); i++) {
-			final short queryId = future.getRequestId(i);
-			logger.info("Canceling query: {}", queryId);
-
-			final BBoxDBConnection connection = future.getConnection(i);
-			final BBoxDBClient client = connection.getBboxDBClient();
+		
+		for(Entry<BBoxDBClient, Short> entry : cancelData.entrySet()) {
+			
+			final BBoxDBClient client = entry.getKey();
+			final short queryId = entry.getValue();
 
 			final EmptyResultFuture cancelResult = client.cancelRequest(queryId);
 
@@ -54,5 +56,27 @@ public class BBoxDBClientHelper {
 			}
 		}
 	}
+	
+	/**
+	 * Cancel a complete query
+	 * @param future
+	 * @throws InterruptedException
+	 */
+	public static void cancelQuery(final AbstractListFuture<? extends Object> future)
+			throws BBoxDBException, InterruptedException {
+		
+		final Map<BBoxDBClient, Short> cancelData = new HashMap<>();
 
+		for(int i = 0; i < future.getNumberOfResultObjets(); i++) {
+			final short queryId = future.getRequestId(i);
+			logger.info("Canceling query: {}", queryId);
+
+			final BBoxDBConnection connection = future.getConnection(i);
+			final BBoxDBClient client = connection.getBboxDBClient();
+			
+			cancelData.put(client, queryId);
+		}
+		
+		cancelQuery(cancelData);
+	}
 }

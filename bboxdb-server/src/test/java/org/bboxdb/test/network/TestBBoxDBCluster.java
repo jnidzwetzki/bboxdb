@@ -223,7 +223,7 @@ public class TestBBoxDBCluster {
 
 		Assert.assertFalse(future.isFailed());
 
-		bboxDBClient.cancelQuery(future);
+		bboxDBClient.cancelQuery(future.getAllConnections());
 
 		disconnect(bboxDBClient);
 	}

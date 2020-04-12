@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
@@ -39,7 +40,6 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
@@ -515,10 +515,10 @@ public class BBoxDBCluster implements BBoxDB {
 	/**
 	 * Cancel the given query
 	 */
-	public void cancelQuery(final AbstractListFuture<? extends Object> future)
+	public void cancelQuery(final Map<BBoxDBClient, Short> cancelData)
 			throws BBoxDBException, InterruptedException {
 
-		BBoxDBClientHelper.cancelQuery(future);
+		BBoxDBClientHelper.cancelQuery(cancelData);
 	}
 
 	@Override

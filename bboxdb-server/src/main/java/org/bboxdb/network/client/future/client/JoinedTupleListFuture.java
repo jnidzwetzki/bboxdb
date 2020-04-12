@@ -17,10 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.client;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.client.helper.ThreadedJoinedTupleListFutureIterator;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.storage.entity.JoinedTuple;
@@ -53,5 +56,20 @@ public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 
 		return allTuples.iterator();
 	}
-
+	
+	/**
+	 * Get all used connections
+	 * @return
+	 */
+	public Map<BBoxDBClient, Short> getAllConnections() {
+		
+		final Map<BBoxDBClient, Short> result = new HashMap<>();
+		
+		for(final NetworkOperationFuture future : futures) {
+			result.put(future.getConnection().getBboxDBClient(), 
+					future.getTransmittedPackage().getSequenceNumber());
+		}
+		
+		return result;
+	}
 }
