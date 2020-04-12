@@ -20,6 +20,7 @@ package org.bboxdb.tools.gui.views.query;
 import java.awt.Color;
 import java.util.List;
 
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
@@ -33,6 +34,11 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 	 * The color of the results
 	 */
 	private final List<Color> colors;
+	
+	/**
+	 * The query result
+	 */
+	private JoinedTupleListFuture queryResult;
 	
 	/**
 	 * The logger
@@ -50,18 +56,18 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 	protected void runThread() throws Exception {
 	
 		logger.info("New worker thread for a continuous query has started");
-		final JoinedTupleListFuture result = connection.queryContinuous(qp);
+		queryResult = connection.queryContinuous(qp);
 	
 		try {
-			result.waitForCompletion();
+			queryResult.waitForCompletion();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return;
 		}
 	
-		for(final JoinedTuple joinedTuple : result) {
-			if(result.isFailed()) {
-				logger.error("Got an error" + result.getAllMessages());
+		for(final JoinedTuple joinedTuple : queryResult) {
+			if(queryResult.isFailed()) {
+				logger.error("Got an error" + queryResult.getAllMessages());
 				return;
 			}
 	
@@ -72,5 +78,22 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 			updateTupleOnGui(joinedTuple, colors);
 			removeStaleTupleIfNeeded();
 		}
+	}
+	
+	@Override
+	protected void endHook() { 
+		
+		if(queryResult != null) {
+			logger.info("Canceling continuous query");
+			try {
+				connection.cancelQuery(queryResult.getAllConnections());
+			} catch (BBoxDBException e) {
+				logger.error("Got exception", e);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		
+		logger.info("Worker for continuous query exited");
 	}
 }

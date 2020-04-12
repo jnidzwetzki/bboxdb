@@ -16,10 +16,11 @@ order: 1
 - Improvement: Improved continuous join performance
 - Improvement: Improved OSM tile caching on GUI
 - Improvement: Improved cancellation of running continuous queries
+- Improvement: GUI cancels continuous queries on server instead of ignoring results
 
 ### Version 0.9.3 - 16.02.2020
 - New Feature: Added generic data stream importer
-- New Feature: Added importer for gtfs realtime position streams (Sydney Busses)
+- New Feature: Added importer for GTFS realtime position streams (Sydney Busses)
 - New Feature: Added SSTable creator type to SSTable metadata
 - New Feature: Added continuous range queries to GUI
 - New Feature: Added importer for BerlinMod GeoJSON data

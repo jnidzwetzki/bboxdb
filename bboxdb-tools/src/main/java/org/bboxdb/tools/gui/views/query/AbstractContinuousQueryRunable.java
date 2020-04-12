@@ -59,6 +59,11 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	private long lastStaleCheck = 0;
 	
 	/**
+	 * Filter stale elements
+	 */
+	protected boolean FILTER_STALE_ELEMENTS = false;
+	
+	/**
 	 * The update dates
 	 */
 	private final Map<EntityIdentifier, Long> updateDates = new HashMap<>();
@@ -88,11 +93,6 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 		this.qp = qp;
 		this.connection = connection;
 		this.painter = painter;
-	}
-
-	@Override
-	protected void endHook() { 
-		logger.info("Worker for continuous query exited");
 	}
 
 	/**
@@ -139,17 +139,19 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 		final OverlayElementGroup overlayElementGroup = OverlayElementBuilder.createOverlayElementGroup(
 				joinedTuple, colors);
 	
-		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, Strategy.KEY_AND_TABLE);
+		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, Strategy.FIRST_KEY_AND_TABLE);
 				
 		final OverlayElementGroup oldElement = paintedElements.get(key);
 	
 		if(oldElement != null) {
-			final long existingTimestamp = tupleVersions.get(key);
-			
-			if(joinedTuple.getVersionTimestamp() < existingTimestamp) {
-				logger.info("Ignoring outdated version for tuple {} old={} new={}", key, 
-						existingTimestamp, joinedTuple.getVersionTimestamp());
-				return;
+			if(FILTER_STALE_ELEMENTS) {
+				final long existingTimestamp = tupleVersions.get(key);
+				
+				if(joinedTuple.getVersionTimestamp() < existingTimestamp) {
+					logger.info("Ignoring outdated version for tuple {} old={} new={}", key, 
+							existingTimestamp, joinedTuple.getVersionTimestamp());
+					return;
+				}
 			}
 			
 			painter.removeElementToDraw(oldElement);
