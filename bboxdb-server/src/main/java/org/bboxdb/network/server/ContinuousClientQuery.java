@@ -408,6 +408,8 @@ public class ContinuousClientQuery implements ClientQuery {
 	private void init() throws BBoxDBException {
 
 		try {
+			logger.info("Starting new continuous client query (seq={})", querySequence);
+			
 			final TupleStoreManagerRegistry storageRegistry
 				= clientConnectionHandler.getStorageRegistry();
 
