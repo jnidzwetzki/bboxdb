@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.ContinuousTableQueryPlan;
 import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
@@ -79,6 +80,11 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	private final Map<EntityIdentifier, OverlayElementGroup> paintedElements = new HashMap<>();
 	
 	/**
+	 * The duplicate handling strategy
+	 */
+	private Strategy strategy;
+	
+	/**
 	 * Stale time
 	 */
 	private long STALE_TIME_IN_MS = TimeUnit.MINUTES.toMillis(5);
@@ -90,9 +96,21 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 
 	public AbstractContinuousQueryRunable(final ContinuousQueryPlan qp, 
 			final BBoxDB connection, final ElementOverlayPainter painter) {
+		
 		this.qp = qp;
 		this.connection = connection;
 		this.painter = painter;
+		
+		strategy = Strategy.KEY_AND_TABLE;
+		
+		if(qp instanceof ContinuousTableQueryPlan) {
+			final ContinuousTableQueryPlan queryPlan = (ContinuousTableQueryPlan) qp;
+			if(! queryPlan.getAfterJoinFilter().isEmpty()) {
+				strategy = Strategy.FIRST_KEY_AND_TABLE;
+			}
+		}
+		
+		logger.info("Duplicate strategy is: {}", strategy);
 	}
 
 	/**
@@ -138,8 +156,8 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 		
 		final OverlayElementGroup overlayElementGroup = OverlayElementBuilder.createOverlayElementGroup(
 				joinedTuple, colors);
-	
-		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, Strategy.FIRST_KEY_AND_TABLE);
+		
+		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, strategy);
 				
 		final OverlayElementGroup oldElement = paintedElements.get(key);
 	
