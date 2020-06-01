@@ -60,7 +60,7 @@ public class BerlinModGeoJSONTupleBuilder extends TupleBuilder {
 		final double lat = MathUtil.tryParseDoubleOrExit(latString, () -> "Unable to parse lat: " + latString);
 		final double lon = MathUtil.tryParseDoubleOrExit(lonString, () -> "Unable to parse lon: " + lonString);
 
-		polygon.addPoint(lat, lon);
+		polygon.addPoint(lon, lat);
 		polygon.addProperty("MOID", key);
 		polygon.addProperty("TRIP", values[2]);
 
