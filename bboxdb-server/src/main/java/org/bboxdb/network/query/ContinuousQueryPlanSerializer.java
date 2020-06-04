@@ -48,8 +48,8 @@ public class ContinuousQueryPlanSerializer {
 	 * Query type key and values
 	 */
 	private static final String QUERY_TYPE_KEY = "query-type";
-	private static final String QUERY_TYPE_TABLE_VALUE = "table-query";
-	private static final String QUERY_TYPE_CONST_VALUE = "const-query";
+	private static final String QUERY_TYPE_JOIN_VALUE = "join-query";
+	private static final String QUERY_TYPE_RANGE_VALUE = "range-query";
 	
 	/**
 	 * Misc keys
@@ -104,12 +104,12 @@ public class ContinuousQueryPlanSerializer {
 		json.put(TYPE_KEY, TYPE_VALUE);
 		
 		if(queryPlan instanceof ContinuousConstQueryPlan) {
-			json.put(QUERY_TYPE_KEY, QUERY_TYPE_CONST_VALUE);
+			json.put(QUERY_TYPE_KEY, QUERY_TYPE_RANGE_VALUE);
 			
 			final ContinuousConstQueryPlan constQueryPlan = (ContinuousConstQueryPlan) queryPlan;
 			json.put(COMPARE_RECTANGLE_KEY, constQueryPlan.getCompareRectangle().toCompactString());
 		} else if(queryPlan instanceof ContinuousTableQueryPlan) {
-			json.put(QUERY_TYPE_KEY, QUERY_TYPE_TABLE_VALUE);
+			json.put(QUERY_TYPE_KEY, QUERY_TYPE_JOIN_VALUE);
 
 			final ContinuousTableQueryPlan tableQueryPlan = (ContinuousTableQueryPlan) queryPlan;
 			
@@ -224,14 +224,14 @@ public class ContinuousQueryPlanSerializer {
 				= decodeTransformation(json, STREAM_TRANSFORMATIONS_KEY);
 			
 			switch(queryType) {
-			case QUERY_TYPE_CONST_VALUE:
+			case QUERY_TYPE_RANGE_VALUE:
 				final Hyperrectangle compareRectangle = Hyperrectangle.fromString(json.getString(COMPARE_RECTANGLE_KEY));
 				
 				final ContinuousConstQueryPlan constQuery = new ContinuousConstQueryPlan(streamTable, 
 						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative);
 				
 				return constQuery;
-			case QUERY_TYPE_TABLE_VALUE:
+			case QUERY_TYPE_JOIN_VALUE:
 				final List<TupleTransformation> tableTransformation 
 					= decodeTransformation(json, TABLE_TRANSFORMATIONS_KEY);
 				
