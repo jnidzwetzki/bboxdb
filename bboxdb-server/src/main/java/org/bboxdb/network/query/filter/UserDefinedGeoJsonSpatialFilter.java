@@ -40,6 +40,11 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	@Override
 	public boolean filterTuple(final Tuple tuple, final byte[] customData) {
 		
+		// No custom geometry is passed
+		if(customData == null) { 
+			return true;
+		}
+		
 		// Cache the custom geometry between method calls
 		if(customGeomety == null) {
 			final String customString = new String(customData);
