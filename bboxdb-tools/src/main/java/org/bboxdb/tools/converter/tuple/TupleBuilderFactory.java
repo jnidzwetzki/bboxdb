@@ -91,10 +91,15 @@ public class TupleBuilderFactory {
 		public static final String FOREX_2D = "forex_2d";
 		
 		/**
-		 * Berlinmod GeoJSON
+		 * Berlinmod player data
 		 */
-		public static final String BERLINMOD_GEOJSON = "berlinmod_geojson";
+		public static final String BERLINMOD_PLAYER = "berlinmod_player";
 		
+		/**
+		 * BerlinMod data
+		 */
+		public static final String BERLINMOD = "berlinmod";
+
 		/**
 		 * The ADSB tuple builder
 		 */
@@ -110,8 +115,8 @@ public class TupleBuilderFactory {
 			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE, 
 			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
 			Name.ROME_TAXI_RANGE, Name.NARI_DYNAMIC,
-			Name.FOREX_1D, Name.FOREX_2D, Name.BERLINMOD_GEOJSON,
-			Name.ADSB);
+			Name.FOREX_1D, Name.FOREX_2D, Name.BERLINMOD_PLAYER,
+			Name.BERLINMOD, Name.ADSB);
 
 	/**
 	 * Return the parser for the tuple format
@@ -145,8 +150,10 @@ public class TupleBuilderFactory {
 				return new Forex1DBuilder();
 			case Name.FOREX_2D:
 				return new Forex2DBuilder();
-			case Name.BERLINMOD_GEOJSON:
-				return new BerlinModGeoJSONTupleBuilder();
+			case Name.BERLINMOD_PLAYER:
+				return new BerlinModPlayerTupleBuilder();
+			case Name.BERLINMOD:
+				return new BerlinModTupleBuilder();
 			case Name.ADSB:
 				return new ADSBTupleBuilder();
 			default:

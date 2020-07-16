@@ -80,9 +80,14 @@ public class TestTupleBuilder {
 	private final static String NARI_DYNAMIC = "245257000,0,0,0.1,13.1,36,-4.4657183,48.38249,1443650402";
 	
 	/**
+	 * The line for BerlinMod player data
+	 */
+	private final static String BERLINMOD_PLAYER = "28-05-2007 06:02:16,272,14773,13.2983,52.5722";
+	
+	/**
 	 * The line for BerlinMod data
 	 */
-	private final static String BERLINMOD = "28-05-2007 06:02:16,272,14773,13.2983,52.5722";
+	private final static String BERLINMOD = "2000,292882,2007-05-27,2007-05-28 09:00:34.446,13.327,52.4981,13.327,52.4981";
 	
 	/**
 	 * The ADS-B Messages
@@ -505,14 +510,14 @@ public class TestTupleBuilder {
 	}
 	
 	/**
-	 * Test the berlin mod geojson tuple builder
+	 * Test the berlinmod player tuple builder
 	 */
 	@Test
-	public void testBerlinModGeoJSONTupleBuilder() {
+	public void testBerlinModPlayerTupleBuilder() {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
-				TupleBuilderFactory.Name.BERLINMOD_GEOJSON);
+				TupleBuilderFactory.Name.BERLINMOD_PLAYER);
 
-		final Tuple tuple = tupleBuilder.buildTuple(BERLINMOD, "1");
+		final Tuple tuple = tupleBuilder.buildTuple(BERLINMOD_PLAYER, "1");
 
 		Assert.assertNotNull(tuple);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -522,7 +527,27 @@ public class TestTupleBuilder {
 		Assert.assertEquals(1180332136000L, tuple.getVersionTimestamp());
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
+	
+	/**
+	 * Test the berlinmod tuple builder
+	 */
+	@Test
+	public void testBerlinModTupleBuilder() {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.BERLINMOD);
 
+		final Tuple tuple = tupleBuilder.buildTuple(BERLINMOD, "1");
+
+		Assert.assertNotNull(tuple);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+
+		final Hyperrectangle exptectedBox = new Hyperrectangle(52.4981d, 52.4981d, 13.327d, 13.327d);
+				
+		Assert.assertEquals(1180342834000L, tuple.getVersionTimestamp());
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
+
+	
 	/**
 	 * Test the tuple file builder - Process non existing file
 	 * @throws IOException
