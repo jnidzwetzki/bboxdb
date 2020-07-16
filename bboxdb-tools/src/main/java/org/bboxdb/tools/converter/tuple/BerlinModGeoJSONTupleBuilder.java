@@ -41,6 +41,11 @@ public class BerlinModGeoJSONTupleBuilder extends TupleBuilder {
 
 	@Override
 	public Tuple buildTuple(final String valueData, final String keyData) {
+		
+		// Ignore the header
+		if("Moid,Tripid,Tstart,Tend,Xstart,Ystart,Xend,Yend".equals(valueData)) {
+			return null;
+		}
 
 		// 28-05-2007 06:02:16,272,14773,13.2983,52.5722
 		// Date, Moid, Tripid, Long, Lat
