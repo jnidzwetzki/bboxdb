@@ -19,6 +19,7 @@ package org.bboxdb.commons.math;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -624,22 +625,26 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		// Construct the covering bounding box
 		for(int d = 0; d < dimensions; d++) {
-
-			double resultMin = Double.MAX_VALUE;
-			double resultMax = Double.MIN_VALUE;
-
+			final List<Double> values = new ArrayList<>();
+			
 			for(final Hyperrectangle currentBox : boundingBoxes) {
 
 				if(currentBox == FULL_SPACE) {
 					continue;
 				}
 
-				resultMin = Math.min(resultMin, currentBox.getCoordinateLow(d));
-				resultMax = Math.max(resultMax, currentBox.getCoordinateHigh(d));
+				values.add(currentBox.getCoordinateLow(d));
+				values.add(currentBox.getCoordinateHigh(d));
+			}
+			
+			values.sort(Comparator.naturalOrder());
+			
+			if(values.isEmpty()) {
+				return Hyperrectangle.FULL_SPACE;
 			}
 
-			coverBox[2 * d] = resultMin;     // Begin position
-			coverBox[2 * d + 1] = resultMax; // End position
+			coverBox[2 * d] = values.get(0); // Begin position
+			coverBox[2 * d + 1] = values.get(values.size() - 1); // End position
 		}
 
 		return new Hyperrectangle(coverBox);

@@ -325,6 +325,20 @@ public class TestHyperrectangle {
 
 		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
+	
+	
+	/**
+	 * Test merge on array
+	 */
+	@Test(timeout=60000)
+	public void testMergeBoxes2() {
+		final Hyperrectangle boundingBox1 = new Hyperrectangle(-2d, -1d, -1d, -1d);
+		final Hyperrectangle boundingBox2 = new Hyperrectangle(-1.1d, -1.0d, -4d, -1d);
+		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(
+				new ArrayList<>(Arrays.asList(boundingBox1, boundingBox2)));
+
+		Assert.assertArrayEquals(new double[] {-2d, -1d, -4d, -1d}, resultBox.toDoubleArray(), EQUALS_DELTA);
+	}
 
 	/**
 	 * Test merge on array
