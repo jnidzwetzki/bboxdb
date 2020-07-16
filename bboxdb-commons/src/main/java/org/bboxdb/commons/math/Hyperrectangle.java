@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
 
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.StringUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
 
@@ -460,14 +461,15 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 			sb.append(", dimension ");
 			sb.append(d);
 			sb.append(" low: ");
-			sb.append(getCoordinateLow(d));
+			sb.append(MathUtil.doubleToString(getCoordinateLow(d)));
 			sb.append(" high: ");
-			sb.append(getCoordinateHigh(d));
+			sb.append(MathUtil.doubleToString(getCoordinateHigh(d)));			
 		}
 
 		sb.append("]");
 		return sb.toString();
 	}
+	
 
 	/**
 	 * Return a compact string that describes the box

@@ -312,4 +312,13 @@ public class MathUtil {
 
 		throw new InputParseException(errorMessageSupplier.get());
 	}
+	
+	/**
+	 * Convert a double into a printable string
+	 * @param d
+	 * @return
+	 */
+	public static String doubleToString(final double d) {
+		return String.format("%.15f", d);
+	}
 }
