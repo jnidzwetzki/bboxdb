@@ -296,7 +296,7 @@ public class MathUtil {
 	public static boolean tryParseBoolean(final String valueToParse,
 			final Supplier<String> errorMessageSupplier) throws InputParseException {
 
-		// Boolean.parseBoolean(valueToParse) does not thow an exception on invalid input
+		// Boolean.parseBoolean(valueToParse) does not throw an exception on invalid input
 
 		if(valueToParse == null) {
 			throw new InputParseException(errorMessageSupplier.get());
@@ -319,6 +319,6 @@ public class MathUtil {
 	 * @return
 	 */
 	public static String doubleToString(final double d) {
-		return String.format("%.15f", d);
+		return String.format("%.16f", d);
 	}
 }
