@@ -82,11 +82,18 @@ public class BerlinModTupleBuilder extends TupleBuilder {
 		}
 		
 		try {
-			final Date date = dateParser.parse(values[3]);
+			String dateString = values[3];
+			
+			// Fix incomplete dates (e.g., 2007-05-28 10:00)
+			if(dateString.split(":").length == 2) {
+				dateString = dateString + ":00";
+			}
+			
+			final Date date = dateParser.parse(dateString);
 			final Hyperrectangle enlargedBox = polygon.getBoundingBox().enlargeByAmount(boxPadding);
 			return new Tuple(key, enlargedBox, tupleBytes, date.getTime());
 		} catch (ParseException e) {
-			throw new RuntimeException("Unable to decode tuple: " + valueData, e);
+			throw new RuntimeException("Unable to decode tuple (date parse): " + valueData, e);
 		}
 	}
 
