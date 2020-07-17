@@ -20,6 +20,7 @@ package org.bboxdb.experiments;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.commons.MathUtil;
@@ -66,6 +67,11 @@ public class MultiContinuousQueryClient implements Runnable {
 	 */
 	private final double parallelQueries;
 
+	/**
+	 *
+	 */
+	private final List<Thread> allThreads = new CopyOnWriteArrayList<>();
+	
 	public MultiContinuousQueryClient(final String contactPoint, final String clusterName, 
 			final String table, final Hyperrectangle range, final double percentage,
 			final double parallelQueries) {
@@ -124,9 +130,15 @@ public class MultiContinuousQueryClient implements Runnable {
 				final JoinedTupleListFuture queryFuture = connection.queryContinuous(queryPlan);
 				readResultsInThread(queryFuture);
 			}
+			
+			for(final Thread thread : allThreads) {
+				thread.join();
+			}
 		} catch (BBoxDBException e) {
 			e.printStackTrace();
-		}
+		} catch (InterruptedException e) {
+			return;
+		} 
 	}
 	
 	/**
@@ -147,6 +159,7 @@ public class MultiContinuousQueryClient implements Runnable {
 			}
 		});
 		
+		allThreads.add(thread);
 		thread.start();
 	}
 
