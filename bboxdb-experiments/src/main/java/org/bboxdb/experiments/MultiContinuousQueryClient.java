@@ -94,7 +94,9 @@ public class MultiContinuousQueryClient implements Runnable {
 			final double coordinateHigh = range.getCoordinateHigh(dimension);
 
 			final double bboxStartPos = coordinateLow + bboxOffset;
-			final double bboxEndPos = Math.min(bboxStartPos + dataExtent * percentage, coordinateHigh);
+			
+			final double queryExtend = dataExtent * percentage;
+			final double bboxEndPos = Math.min(bboxStartPos + queryExtend, coordinateHigh);
 
 			final DoubleInterval doubleInterval = new DoubleInterval(bboxStartPos, bboxEndPos);
 			bboxIntervals.add(doubleInterval);
