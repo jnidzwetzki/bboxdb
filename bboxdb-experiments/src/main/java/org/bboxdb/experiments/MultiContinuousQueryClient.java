@@ -135,8 +135,15 @@ public class MultiContinuousQueryClient implements Runnable {
 	 */
 	private void readResultsInThread(final JoinedTupleListFuture queryFuture) {
 		final Thread thread = new Thread(() -> {
-			for(final JoinedTuple tuple : queryFuture) {
-				tuple.getBoundingBox(); // Consume and ignore the tuple
+			
+			try {
+				queryFuture.waitForCompletion();
+				
+				for(final JoinedTuple tuple : queryFuture) {
+					tuple.getBoundingBox(); // Consume and ignore the tuple
+				}
+			} catch (InterruptedException e) {
+				return;
 			}
 		});
 		
