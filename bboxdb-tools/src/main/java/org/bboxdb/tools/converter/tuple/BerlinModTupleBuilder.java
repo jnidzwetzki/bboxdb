@@ -99,9 +99,7 @@ public class BerlinModTupleBuilder extends TupleBuilder {
 			if(timeElements == 2) {
 				dateString = dateString + ":00";
 			}
-			
-			System.out.println(dateString);
-			
+						
 			final Date date = dateParser.parse(dateString);
 			final Hyperrectangle enlargedBox = polygon.getBoundingBox().enlargeByAmount(boxPadding);
 			return new Tuple(key, enlargedBox, tupleBytes, date.getTime());
