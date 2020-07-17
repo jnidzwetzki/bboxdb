@@ -87,17 +87,20 @@ public class BerlinModTupleBuilder extends TupleBuilder {
 			// Fix incomplete dates (e.g., 2007-05-28 10:00)
 			final int timeElements = dateString.split(":").length;
 			
-			if(timeElements == 0) {
-				dateString = dateString + "00:00:00";
-			}
 			
 			if(timeElements == 1) {
-				dateString = dateString + ":00:00";
+				if(dateString.split(" ").length == 1) {
+					dateString = dateString + " 00:00:00";
+				} else {
+					dateString = dateString + ":00:00";
+				}
 			}
 			
 			if(timeElements == 2) {
 				dateString = dateString + ":00";
 			}
+			
+			System.out.println(dateString);
 			
 			final Date date = dateParser.parse(dateString);
 			final Hyperrectangle enlargedBox = polygon.getBoundingBox().enlargeByAmount(boxPadding);
