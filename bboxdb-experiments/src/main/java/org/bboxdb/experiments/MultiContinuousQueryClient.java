@@ -19,11 +19,13 @@ package org.bboxdb.experiments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -157,12 +159,18 @@ public class MultiContinuousQueryClient implements Runnable {
 		final String percentageString = args[4];
 		final String parallelQueriesString = args[5];
 		
-		final Hyperrectangle range = Hyperrectangle.fromString(rangeString);
+		
+		final Optional<Hyperrectangle> range = HyperrectangleHelper.parseBBox(rangeString);
+		
+		if(! range.isPresent()) {
+			System.err.println("Unable to parse as bounding box: " + rangeString);
+		}
+		
 		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
 		final double parallelQueries = MathUtil.tryParseDoubleOrExit(parallelQueriesString, () -> "Unable to parse: " + parallelQueriesString);
 		
 		final MultiContinuousQueryClient runable = new MultiContinuousQueryClient(contactPoint, clusterName, 
-				table, range, percentage, parallelQueries);
+				table, range.get(), percentage, parallelQueries);
 		
 		runable.run();
 	}
