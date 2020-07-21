@@ -25,10 +25,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 public class ImportStoredData implements Runnable {
 	
@@ -67,11 +70,14 @@ public class ImportStoredData implements Runnable {
 		) {
 			String line = null;
 			long currentSecondSlot = getTimeSlot();
-			int processedLines = 0;
+			long processedLines = 0;
+			long totalProcessedLines = 0;
+			final Stopwatch stopwatch = Stopwatch.createStarted();
 			
 			while((line = reader.readLine()) != null) {
 				writer.write(line + "\n");
 				processedLines++;
+				totalProcessedLines++;
 				
 				if(Thread.currentThread().isInterrupted()) {
 					logger.info("Thread is interruped");
@@ -100,6 +106,9 @@ public class ImportStoredData implements Runnable {
 					writer.flush();
 					continue;
 				}
+				
+				logger.info("Total processed elements {} in {} ms", 
+						totalProcessedLines, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			}
 		} catch (Exception e) {
 			logger.error("Got error", e);
