@@ -105,11 +105,11 @@ public class ImportStoredData implements Runnable {
 					processedLines = 0;
 					writer.flush();
 					continue;
-				}
-				
-				logger.info("Total processed elements {} in {} ms", 
-						totalProcessedLines, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+				}				
 			}
+			
+			logger.info("Total processed elements {} in {} ms", 
+					totalProcessedLines, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 		} catch (Exception e) {
 			logger.error("Got error", e);
 		} 
