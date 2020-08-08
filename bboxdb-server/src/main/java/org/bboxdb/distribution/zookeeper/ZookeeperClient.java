@@ -593,6 +593,25 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			throw new ZookeeperException(e);
 		}
 	}
+	
+	/**
+	 * Create a ephemeral sequencial node
+	 * @param path
+	 * @param bytes
+	 * @throws ZookeeperException
+	 */
+	public void craateEphemeralSequencialNode(final String path, final byte[] bytes) throws ZookeeperException {
+
+		try {
+			zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		}
+	}
+
 
 	/**
 	 * Replace the value for the given path, only if the old value matches. This

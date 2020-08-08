@@ -132,9 +132,20 @@ public class TupleStoreAdapter {
 	 * @param tupleStoreName
 	 * @return
 	 */
-	private String getTablePath(final TupleStoreName tupleStoreName) {
+	public String getTablePath(final TupleStoreName tupleStoreName) {
 		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		return getAllTablesPath(distributionGroup) + "/" + tupleStoreName.getFullnameWithoutPrefix();
+		final String tuplestoreName = tupleStoreName.getFullnameWithoutPrefix();
+		return getTablePath(distributionGroup, tuplestoreName);
+	}
+
+	/**
+	 * Get the table path
+	 * @param distributionGroup
+	 * @param tuplestoreName
+	 * @return
+	 */
+	public String getTablePath(final String distributionGroup, final String tuplestoreName) {
+		return getAllTablesPath(distributionGroup) + "/" + tuplestoreName;
 	}
 	
 	/**

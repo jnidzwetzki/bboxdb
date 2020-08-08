@@ -181,7 +181,6 @@ public class MultiContinuousQueryClient implements Runnable {
 		final String percentageString = args[4];
 		final String parallelQueriesString = args[5];
 		
-		
 		final Optional<Hyperrectangle> range = HyperrectangleHelper.parseBBox(rangeString);
 		
 		if(! range.isPresent()) {
