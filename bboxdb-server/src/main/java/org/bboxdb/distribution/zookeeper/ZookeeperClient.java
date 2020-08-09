@@ -573,9 +573,10 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * Replace the ephemeral node
 	 * @param path
 	 * @param bytes
+	 * @return 
 	 * @throws ZookeeperException
 	 */
-	public void replaceEphemeralNode(final String path, final byte[] bytes) throws ZookeeperException {
+	public String replaceEphemeralNode(final String path, final byte[] bytes) throws ZookeeperException {
 
 		try {
 			// Delete old state if exists (e.g. caused by a fast restart of the
@@ -585,7 +586,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			}
 
 			// Register new state
-			zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
 		} catch (InterruptedException e) {
@@ -598,12 +599,13 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * Create a ephemeral sequencial node
 	 * @param path
 	 * @param bytes
+	 * @return 
 	 * @throws ZookeeperException
 	 */
-	public void craateEphemeralSequencialNode(final String path, final byte[] bytes) throws ZookeeperException {
+	public String craateEphemeralSequencialNode(final String path, final byte[] bytes) throws ZookeeperException {
 
 		try {
-			zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
 		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
 		} catch (InterruptedException e) {

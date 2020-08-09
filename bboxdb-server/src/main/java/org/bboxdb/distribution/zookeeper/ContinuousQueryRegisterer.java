@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -38,9 +40,19 @@ public class ContinuousQueryRegisterer implements Watcher {
 	private final String pathEnlargementAbsolute;
 	
 	/**
+	 * The created enlargement absolute path
+	 */
+	private Optional<String> createdEnlargementAbsolutePath = Optional.empty();
+	
+	/**
 	 * The factor enlargement path
 	 */
 	private final String pathEnlargementFactor;
+	
+	/**
+	 * The created enlargement factor path
+	 */
+	private Optional<String> createdEnlargementFactorPath = Optional.empty();
 	
 	/**
 	 * The query enlargement for the given table
@@ -80,22 +92,27 @@ public class ContinuousQueryRegisterer implements Watcher {
 
 	/**
 	 * Register a continuous query enlargement of the given table
-	 * 
+	 * @param enlagementFactor
 	 * @param distributionGroup
 	 * @param table
-	 * @param enlagementFactor
 	 * @param enlargement
+	 * 
 	 * @throws ZookeeperException 
 	 */
-	public void registerQueryOnTable(final double enlagementFactor, final double absoluteEnlargement) throws ZookeeperException {
-		final String queryNodeEnlargementAbsolute = pathEnlargementAbsolute + "/query";
-		final String queryNodeEnlargementFactor = pathEnlargementFactor + "/query";
+	public void updateQueryOnTable(final double absoluteEnlargement, final double enlagementFactor) throws ZookeeperException {
+		unregisterOldQuery();
+		
+		final String queryNodeEnlargementAbsolute = pathEnlargementAbsolute + "/query-";
+		final String queryNodeEnlargementFactor = pathEnlargementFactor + "/query-";
 		
 		final byte[] absoluteEnlargementBytes = Double.toString(absoluteEnlargement).getBytes();
 		final byte[] factorEnlargementBytes = Double.toString(enlagementFactor).getBytes();
 
-		zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementAbsolute, absoluteEnlargementBytes);
-		zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementFactor, factorEnlargementBytes);
+		final String createdAbsoluteEnlargementPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementAbsolute, absoluteEnlargementBytes);
+		createdEnlargementAbsolutePath = Optional.of(createdAbsoluteEnlargementPath);
+		
+		final String cratedFactorEnlargementPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementFactor, factorEnlargementBytes);
+		createdEnlargementFactorPath = Optional.of(cratedFactorEnlargementPath);
 	}
 	
 	/**
@@ -111,23 +128,55 @@ public class ContinuousQueryRegisterer implements Watcher {
 	}
 
 	/**
+	 * Get the children values a 
+	 * @param basePath
+	 * @param chrindren
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	protected List<Double> getChildrenValues(final String basePath, final List<String> chrindren) throws ZookeeperException {
+		
+		final List<Double> resultList = new ArrayList<Double>();
+		
+		for(final String child: chrindren) {
+			final String fullpath = basePath + "/" + child;
+			final String value = zookeeperClient.getData(fullpath);
+			final Optional<Double> doubleValue = MathUtil.tryParseDouble(value);
+			
+			if(! doubleValue.isPresent()) {
+				logger.error("Unable to parse {} as double", value);
+			} else {
+				resultList.add(doubleValue.get());
+			}
+		}
+		
+		return resultList;
+	}
+	
+	/**
 	 * Update the enlargement data
 	 */
 	private void updateQueryEnlargement() {
 		try {
 			final List<String> absoluteEnlargements = zookeeperClient.getChildren(pathEnlargementAbsolute, this);
+			final List<Double> doubleAbsoluteEnlargements = getChildrenValues(pathEnlargementAbsolute, absoluteEnlargements);
 			
-			final double maxAbsoluteEnlargement = absoluteEnlargements.stream()
-				.mapToDouble(s -> MathUtil.tryParseDouble(s).get())
-				.max().orElse(0);
+			final double maxAbsoluteEnlargement = doubleAbsoluteEnlargements
+				.stream()
+				.mapToDouble(s -> s)
+				.max()
+				.orElse(0);
 			
 			queryEnlagement.setMaxAbsoluteEnlargement(maxAbsoluteEnlargement);
 			
 			final List<String> factorEnlargements = zookeeperClient.getChildren(pathEnlargementFactor, this);
-			
-			final double maxFactorEnlargement = factorEnlargements.stream()
-					.mapToDouble(s -> MathUtil.tryParseDouble(s).get())
-					.max().orElse(0);
+			final List<Double> doubleFactorEnlargements = getChildrenValues(pathEnlargementFactor, factorEnlargements);
+
+			final double maxFactorEnlargement = doubleFactorEnlargements
+					.stream()
+					.mapToDouble(s -> s)
+					.max()
+					.orElse(0);
 			
 			queryEnlagement.setMaxEnlargementFactor(maxFactorEnlargement);
 			
@@ -143,6 +192,25 @@ public class ContinuousQueryRegisterer implements Watcher {
 	@Override
 	public void process(final WatchedEvent watchedEvent) {
 		updateQueryEnlargement();
+	}
+	
+	/**
+	 * Unregister all queries
+	 */
+	public void unregisterOldQuery() {
+		try {
+			if(createdEnlargementFactorPath.isPresent()) {
+				zookeeperClient.deleteNodesRecursive(createdEnlargementFactorPath.get());
+				createdEnlargementFactorPath = Optional.empty();
+			}
+			
+			if(createdEnlargementAbsolutePath.isPresent()) {
+				zookeeperClient.deleteNodesRecursive(createdEnlargementAbsolutePath.get());
+				createdEnlargementAbsolutePath = Optional.empty();
+			}
+		} catch (ZookeeperException e) {
+			logger.error("Got an exception while deleting enlargement", e);
+		}
 	}
 	
 }
