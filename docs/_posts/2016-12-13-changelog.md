@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.9.4 - TBA
 - New Feature: Support for continuous joins on GUI
+- New Feature: Added automatic bounding box padding stream distribution
 - Improvement: Improved out of order handling for GeoJSON polygons
 - Improvement: Added version timestamp to joined tuples
 - Improvement: Improved memory usage on joined tuple identifier

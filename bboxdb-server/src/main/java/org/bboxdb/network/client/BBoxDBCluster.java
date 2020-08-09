@@ -53,6 +53,7 @@ import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -434,22 +435,38 @@ public class BBoxDBCluster implements BBoxDB {
 
 		try {
 			final double maxEnlargementAbsolute = queryPlan.getStreamTransformation()
-				.stream()
-				.filter(t -> t instanceof EnlargeBoundingBoxByAmountTransformation)
-				.map(t -> (EnlargeBoundingBoxByAmountTransformation) t)
-				.mapToDouble(t -> t.getAmount())
-				.max()
-				.orElse(0);
+					.stream()
+					.filter(t -> t instanceof EnlargeBoundingBoxByAmountTransformation)
+					.map(t -> (EnlargeBoundingBoxByAmountTransformation) t)
+					.mapToDouble(t -> t.getAmount())
+					.max()
+					.orElse(0);
 				
 			final double maxEnlargementFactor = queryPlan.getStreamTransformation()
-						.stream()
-						.filter(t -> t instanceof EnlargeBoundingBoxByFactorTransformation)
-						.map(t -> (EnlargeBoundingBoxByFactorTransformation) t)
-						.mapToDouble(t -> t.getFactor())
-						.max()
-						.orElse(0);
+					.stream()
+					.filter(t -> t instanceof EnlargeBoundingBoxByFactorTransformation)
+					.map(t -> (EnlargeBoundingBoxByFactorTransformation) t)
+					.mapToDouble(t -> t.getFactor())
+					.max()
+					.orElse(0);
 			
-			registerer.updateQueryOnTable(maxEnlargementAbsolute, maxEnlargementFactor);			
+			final double maxEnlargementLatMeter = queryPlan.getStreamTransformation()
+					.stream()
+					.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
+					.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
+					.mapToDouble(t -> t.getMeterLat())
+					.max()
+					.orElse(0);
+			
+			final double maxEnlargementLonMeter = queryPlan.getStreamTransformation()
+					.stream()
+					.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
+					.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
+					.mapToDouble(t -> t.getMeterLat())
+					.max()
+					.orElse(0);
+			
+			registerer.updateQueryOnTable(maxEnlargementAbsolute, maxEnlargementFactor, maxEnlargementLatMeter, maxEnlargementLonMeter);			
 		} catch (ZookeeperException e) {
 			logger.error("Unable to register enlargement query details", e);
 		}

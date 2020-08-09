@@ -55,9 +55,30 @@ public class ContinuousQueryRegisterer implements Watcher {
 	private Optional<String> createdEnlargementFactorPath = Optional.empty();
 	
 	/**
+	 * The factor enlargement meter lat path
+	 */
+	private final String pathEnlargementMeterLat;
+	
+	/**
+	 * The created enlargement meter lat path
+	 */
+	private Optional<String> createdEnlargementMeterLatPath = Optional.empty();
+
+	/**
+	 * The query enlargement meter lon the given table
+	 */
+	private final String pathEnlargementMeterLon;
+	
+	/**
+	 * The created enlargement meter lon path
+	 */
+	private Optional<String> createdEnlargementMeterLonPath = Optional.empty();
+		
+	/**
 	 * The query enlargement for the given table
 	 */
 	private final QueryEnlagement queryEnlagement;
+	
 	
 	/**
 	 * The logger
@@ -78,16 +99,19 @@ public class ContinuousQueryRegisterer implements Watcher {
 		final TupleStoreAdapter tupleStoreAdapter = zookeeperClient.getTupleStoreAdapter();
 		final String tablePath = tupleStoreAdapter.getTablePath(distributionGroup, table);
 
-		pathEnlargementAbsolute = tablePath + "/queries-absolute-enlargement"; 	
-		pathEnlargementFactor = tablePath + "/queries-factor-enlargement";
+		pathEnlargementAbsolute = tablePath + "/queries/absolute-enlargement"; 	
+		pathEnlargementFactor = tablePath + "/queries/factor-enlargement";
+		pathEnlargementMeterLat = tablePath + "/queries/meter-lan-enlargement"; 	
+		pathEnlargementMeterLon = tablePath + "/queries/meter-lon-enlargement";
 		
 		try {
 			zookeeperClient.createDirectoryStructureRecursive(pathEnlargementAbsolute);
 			zookeeperClient.createDirectoryStructureRecursive(pathEnlargementFactor);
+			zookeeperClient.createDirectoryStructureRecursive(pathEnlargementMeterLat);
+			zookeeperClient.createDirectoryStructureRecursive(pathEnlargementMeterLon);
 		} catch (ZookeeperException e) {
 			logger.error("Got exception while accessing zookeeper", e);
 		}
-		
 	}
 
 	/**
@@ -99,20 +123,32 @@ public class ContinuousQueryRegisterer implements Watcher {
 	 * 
 	 * @throws ZookeeperException 
 	 */
-	public void updateQueryOnTable(final double absoluteEnlargement, final double enlagementFactor) throws ZookeeperException {
+	public void updateQueryOnTable(final double absoluteEnlargement, final double enlagementFactor, 
+			final double enlargementMeterLat, final double enlargementMeterLon) throws ZookeeperException {
+		
 		unregisterOldQuery();
 		
 		final String queryNodeEnlargementAbsolute = pathEnlargementAbsolute + "/query-";
 		final String queryNodeEnlargementFactor = pathEnlargementFactor + "/query-";
+		final String queryNodeEnlargementMeterLat = pathEnlargementMeterLat + "/query-";
+		final String queryNodeEnlargementMeterLon = pathEnlargementMeterLon + "/query-";
 		
 		final byte[] absoluteEnlargementBytes = Double.toString(absoluteEnlargement).getBytes();
 		final byte[] factorEnlargementBytes = Double.toString(enlagementFactor).getBytes();
+		final byte[] enlargementLatBytes = Double.toString(enlargementMeterLat).getBytes();
+		final byte[] enlargementLonBytes = Double.toString(enlargementMeterLon).getBytes();
 
 		final String createdAbsoluteEnlargementPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementAbsolute, absoluteEnlargementBytes);
 		createdEnlargementAbsolutePath = Optional.of(createdAbsoluteEnlargementPath);
 		
 		final String cratedFactorEnlargementPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementFactor, factorEnlargementBytes);
 		createdEnlargementFactorPath = Optional.of(cratedFactorEnlargementPath);
+		
+		final String cratedEnlragementLatPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementMeterLat, enlargementLatBytes);
+		createdEnlargementMeterLatPath = Optional.of(cratedEnlragementLatPath);
+		
+		final String cratedEnlragementLonPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementMeterLon, enlargementLonBytes);
+		createdEnlargementMeterLonPath = Optional.of(cratedEnlragementLonPath);
 	}
 	
 	/**
@@ -162,10 +198,10 @@ public class ContinuousQueryRegisterer implements Watcher {
 			final List<Double> doubleAbsoluteEnlargements = getChildrenValues(pathEnlargementAbsolute, absoluteEnlargements);
 			
 			final double maxAbsoluteEnlargement = doubleAbsoluteEnlargements
-				.stream()
-				.mapToDouble(s -> s)
-				.max()
-				.orElse(0);
+					.stream()
+					.mapToDouble(s -> s)
+					.max()
+					.orElse(0);
 			
 			queryEnlagement.setMaxAbsoluteEnlargement(maxAbsoluteEnlargement);
 			
@@ -179,6 +215,28 @@ public class ContinuousQueryRegisterer implements Watcher {
 					.orElse(0);
 			
 			queryEnlagement.setMaxEnlargementFactor(maxFactorEnlargement);
+			
+			final List<String> latEnlargements = zookeeperClient.getChildren(pathEnlargementMeterLat, this);
+			final List<Double> doublelatEnlargements = getChildrenValues(pathEnlargementMeterLat, latEnlargements);
+
+			final double maxLatEnlargement = doublelatEnlargements
+					.stream()
+					.mapToDouble(s -> s)
+					.max()
+					.orElse(0);
+			
+			queryEnlagement.setMaxEnlargementLat(maxLatEnlargement);
+			
+			final List<String> lonEnlargements = zookeeperClient.getChildren(pathEnlargementMeterLon, this);
+			final List<Double> doublelonEnlargements = getChildrenValues(pathEnlargementMeterLon, lonEnlargements);
+
+			final double maxLonEnlargement = doublelonEnlargements
+					.stream()
+					.mapToDouble(s -> s)
+					.max()
+					.orElse(0);
+			
+			queryEnlagement.setMaxEnlargementLon(maxLonEnlargement);
 			
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.error("Got an exception while updating enlargement", e);
@@ -207,6 +265,16 @@ public class ContinuousQueryRegisterer implements Watcher {
 			if(createdEnlargementAbsolutePath.isPresent()) {
 				zookeeperClient.deleteNodesRecursive(createdEnlargementAbsolutePath.get());
 				createdEnlargementAbsolutePath = Optional.empty();
+			}
+			
+			if(createdEnlargementMeterLatPath.isPresent()) {
+				zookeeperClient.deleteNodesRecursive(createdEnlargementMeterLatPath.get());
+				createdEnlargementMeterLatPath = Optional.empty();
+			}
+			
+			if(createdEnlargementMeterLonPath.isPresent()) {
+				zookeeperClient.deleteNodesRecursive(createdEnlargementMeterLonPath.get());
+				createdEnlargementMeterLonPath = Optional.empty();
 			}
 		} catch (ZookeeperException e) {
 			logger.error("Got an exception while deleting enlargement", e);

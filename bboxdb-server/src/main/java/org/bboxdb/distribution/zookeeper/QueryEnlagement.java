@@ -28,6 +28,17 @@ public class QueryEnlagement {
 	 * The max absolute enlargement
 	 */
 	private double maxAbsoluteEnlargement = 0;
+	
+	/**
+	 * Max enlargement lat in meter
+	 */
+	private double maxEnlargementLat = 0;
+	
+	/**
+	 * Max enlargement lon in meter
+	 */
+	private double maxEnlargementLon = 0;
+
 
 	@Override
 	public int hashCode() {
@@ -37,6 +48,10 @@ public class QueryEnlagement {
 		temp = Double.doubleToLongBits(maxAbsoluteEnlargement);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(maxEnlargementFactor);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(maxEnlargementLat);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(maxEnlargementLon);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -53,6 +68,10 @@ public class QueryEnlagement {
 		if (Double.doubleToLongBits(maxAbsoluteEnlargement) != Double.doubleToLongBits(other.maxAbsoluteEnlargement))
 			return false;
 		if (Double.doubleToLongBits(maxEnlargementFactor) != Double.doubleToLongBits(other.maxEnlargementFactor))
+			return false;
+		if (Double.doubleToLongBits(maxEnlargementLat) != Double.doubleToLongBits(other.maxEnlargementLat))
+			return false;
+		if (Double.doubleToLongBits(maxEnlargementLon) != Double.doubleToLongBits(other.maxEnlargementLon))
 			return false;
 		return true;
 	}
@@ -73,9 +92,27 @@ public class QueryEnlagement {
 		this.maxAbsoluteEnlargement = maxAbsoluteEnlargement;
 	}
 
+	public double getMaxEnlargementLat() {
+		return maxEnlargementLat;
+	}
+
+	public void setMaxEnlargementLat(final double maxEnlargementLat) {
+		this.maxEnlargementLat = maxEnlargementLat;
+	}
+
+	public double getMaxEnlargementLon() {
+		return maxEnlargementLon;
+	}
+
+	public void setMaxEnlargementLon(final double maxEnlargementLon) {
+		this.maxEnlargementLon = maxEnlargementLon;
+	}
+
 	@Override
 	public String toString() {
 		return "QueryEnlagement [maxEnlargementFactor=" + maxEnlargementFactor + ", maxAbsoluteEnlargement="
-				+ maxAbsoluteEnlargement + "]";
-	}	
+				+ maxAbsoluteEnlargement + ", maxEnlargementLat=" + maxEnlargementLat + ", maxEnlargementLon="
+				+ maxEnlargementLon + "]";
+	}
+
 }

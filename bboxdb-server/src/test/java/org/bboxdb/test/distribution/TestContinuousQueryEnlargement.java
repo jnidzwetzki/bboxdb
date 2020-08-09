@@ -48,43 +48,53 @@ public class TestContinuousQueryEnlargement {
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(0, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementFactor(), DELTA);
+		Assert.assertEquals(0, enlargement.getMaxEnlargementLat(), DELTA);
+		Assert.assertEquals(0, enlargement.getMaxEnlargementLon(), DELTA);
 	}
 	
 	@Test(timeout=60_000)
 	public void testQueryRegister1() throws ZookeeperException {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc2");
-		registerer.updateQueryOnTable(10, 20);
+		registerer.updateQueryOnTable(10, 20, 30, 40);
 		
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(10, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(20, enlargement.getMaxEnlargementFactor(), DELTA);
+		Assert.assertEquals(30, enlargement.getMaxEnlargementLat(), DELTA);
+		Assert.assertEquals(40, enlargement.getMaxEnlargementLon(), DELTA);
 	}
 	
 	
 	@Test(timeout=60_000)
 	public void testQueryRegister2() throws ZookeeperException {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc3");
-		registerer.updateQueryOnTable(30, 40);
+		registerer.updateQueryOnTable(30, 40, 50, 60);
 		
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(30, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(40, enlargement.getMaxEnlargementFactor(), DELTA);
+		Assert.assertEquals(50, enlargement.getMaxEnlargementLat(), DELTA);
+		Assert.assertEquals(60, enlargement.getMaxEnlargementLon(), DELTA);
 	}
 	
 	@Test(timeout=60_000)
 	public void testQueryUnRegister0() throws ZookeeperException, InterruptedException {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc4");
-		registerer.updateQueryOnTable(30, 40);
+		registerer.updateQueryOnTable(30, 40, 50, 60);
 
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(30, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(40, enlargement.getMaxEnlargementFactor(), DELTA);
+		Assert.assertEquals(50, enlargement.getMaxEnlargementLat(), DELTA);
+		Assert.assertEquals(60, enlargement.getMaxEnlargementLon(), DELTA);
 		
 		registerer.unregisterOldQuery();
 		Thread.sleep(3000);
 				
 		Assert.assertEquals(0, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementFactor(), DELTA);
+		Assert.assertEquals(0, enlargement.getMaxEnlargementLat(), DELTA);
+		Assert.assertEquals(0, enlargement.getMaxEnlargementLon(), DELTA);
 	}
 	
 }

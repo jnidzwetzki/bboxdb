@@ -120,5 +120,12 @@ public class EnlargeBoundingBoxByWGS84Transformation implements TupleTransformat
 	public String getSerializedData() {
 		return Double.toString(meterLat) + "," + Double.toString(meterLon);
 	}
-	
+
+	public double getMeterLat() {
+		return meterLat;
+	}
+
+	public double getMeterLon() {
+		return meterLon;
+	}
 }
