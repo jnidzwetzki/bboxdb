@@ -75,4 +75,11 @@ public class EnlargeBoundingBoxByAmountTransformation implements TupleTransforma
 		return Double.toString(amount);
 	}
 	
+	/**
+	 * Get the enlargement amount
+	 * @return
+	 */
+	public double getAmount() {
+		return amount;
+	}
 }

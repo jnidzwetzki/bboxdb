@@ -75,4 +75,11 @@ public class EnlargeBoundingBoxByFactorTransformation implements TupleTransforma
 		return Double.toString(factor);
 	}
 	
+	/**
+	 * Get the enlargement factor
+	 * @return
+	 */
+	public double getFactor() {
+		return factor;
+	}
 }

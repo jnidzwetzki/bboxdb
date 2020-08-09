@@ -38,7 +38,9 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
+import org.bboxdb.distribution.zookeeper.ContinuousQueryRegisterer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
@@ -49,11 +51,14 @@ import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
 import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -383,6 +388,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final Hyperrectangle queryRange = queryPlan.getQueryRange();
 		
+		final ContinuousQueryRegisterer queryEnlargementRegisterer = registerQueryEnlargement(queryPlan);	
+		
 		final List<DistributionRegion> regions = DistributionRegionHelper
 				.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
 				
@@ -408,7 +415,46 @@ public class BBoxDBCluster implements BBoxDB {
 			return resultList;
 		};
 
-		return new JoinedTupleListFuture(supplier);
+		final JoinedTupleListFuture resultFuture = new JoinedTupleListFuture(supplier);
+		resultFuture.addSuccessCallbackConsumer(s -> queryEnlargementRegisterer.unregisterOldQuery());
+		return resultFuture; 
+	}
+
+	/**
+	 * Register the query enlargement
+	 * 
+	 * @param queryPlan
+	 * @return
+	 */
+	private ContinuousQueryRegisterer registerQueryEnlargement(final ContinuousQueryPlan queryPlan) {
+
+		final TupleStoreName tupleStoreName = new TupleStoreName(queryPlan.getStreamTable());
+
+		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
+
+		try {
+			final double maxEnlargementAbsolute = queryPlan.getStreamTransformation()
+				.stream()
+				.filter(t -> t instanceof EnlargeBoundingBoxByAmountTransformation)
+				.map(t -> (EnlargeBoundingBoxByAmountTransformation) t)
+				.mapToDouble(t -> t.getAmount())
+				.max()
+				.orElse(0);
+				
+			final double maxEnlargementFactor = queryPlan.getStreamTransformation()
+						.stream()
+						.filter(t -> t instanceof EnlargeBoundingBoxByFactorTransformation)
+						.map(t -> (EnlargeBoundingBoxByFactorTransformation) t)
+						.mapToDouble(t -> t.getFactor())
+						.max()
+						.orElse(0);
+			
+			registerer.updateQueryOnTable(maxEnlargementAbsolute, maxEnlargementFactor);			
+		} catch (ZookeeperException e) {
+			logger.error("Unable to register enlargement query details", e);
+		}
+		
+		return registerer;
 	}
 
 	@Override

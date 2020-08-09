@@ -17,12 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.client;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -70,6 +72,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * The future supplier
 	 */
 	private Supplier<List<NetworkOperationFuture>> futureSupplier;
+	
+	/**
+	 * The success callbacks
+	 */
+	protected final List<Consumer<OperationFuture>> completeCallbacks = new ArrayList<>();
 
 	/**
 	 * The Logger
@@ -124,7 +131,16 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		if (allDone) {
 			readyLatch.countDown();
+			completeCallbacks.forEach(c -> c.accept(this));
 		}
+	}
+	
+	/**
+	 * Add the future to the lust of success futures
+	 * @param consumer
+	 */
+	public void addSuccessCallbackConsumer(final Consumer<OperationFuture> consumer) {
+		completeCallbacks.add(consumer);
 	}
 
 	/*
