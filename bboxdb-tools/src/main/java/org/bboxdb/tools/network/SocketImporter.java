@@ -22,15 +22,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.zookeeper.ContinuousQueryRegisterer;
+import org.bboxdb.distribution.zookeeper.QueryEnlagement;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
@@ -67,6 +73,11 @@ public class SocketImporter implements Runnable {
 	 * The pending futures
 	 */
 	private final FixedSizeFutureStore pendingFutures;
+
+	/**
+	 * The Query enlargement
+	 */
+	private final QueryEnlagement enlargement;
 	
 	/**
 	 * The amount of pending insert futures
@@ -78,13 +89,14 @@ public class SocketImporter implements Runnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SocketImporter.class);
 
-	public SocketImporter(final int port, final String connectionPoint, 
-			final String clustername, String table, final TupleBuilder tupleFactory) {
+	public SocketImporter(final int port, final String connectionPoint, final String clustername, 
+			final String table, final TupleBuilder tupleFactory, final QueryEnlagement enlargement) {
 				this.port = port;
 				this.connectionPoint = connectionPoint;
 				this.clustername = clustername;
 				this.table = table;
 				this.tupleFactory = tupleFactory;
+				this.enlargement = enlargement;
 				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
 	}
 
@@ -95,6 +107,7 @@ public class SocketImporter implements Runnable {
 	    		final ServerSocket serverSocket = new ServerSocket(port);
 	    		final BBoxDB bboxdbClient = new BBoxDBCluster(connectionPoint, clustername);
 	        ) {
+	    	
 			bboxdbClient.connect();
 			
 			while(! Thread.currentThread().isInterrupted()) {
@@ -132,6 +145,9 @@ public class SocketImporter implements Runnable {
 				final Tuple tuple = tupleFactory.buildTuple(line);
 				
 				if(tuple != null) {
+					final List<Hyperrectangle> bboxes = getEnlargedBBoxForTuple(tuple);
+					final Hyperrectangle tupleBBox = Hyperrectangle.getCoveringBox(bboxes);
+					tuple.setBoundingBox(tupleBBox);
 					final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
 					pendingFutures.put(result);
 				}
@@ -139,6 +155,35 @@ public class SocketImporter implements Runnable {
 		} catch(Exception e) {
 			logger.error("Got exception", e);
 		}
+	}
+
+	/**
+	 * Get the enlarged BBox for the tuple
+	 * @param tuple
+	 * @return
+	 */
+	private List<Hyperrectangle> getEnlargedBBoxForTuple(final Tuple tuple) {
+		final double maxAbsoluteEnlargement = enlargement.getMaxAbsoluteEnlargement();
+		final double maxEnlargementFactor = enlargement.getMaxEnlargementFactor();
+		final double maxEnlargementLat = enlargement.getMaxEnlargementLat();
+		final double maxEnlargementLon = enlargement.getMaxEnlargementLon();
+		
+		final List<Hyperrectangle> bboxes = new ArrayList<>();
+		bboxes.add(tuple.getBoundingBox());
+
+		if(maxAbsoluteEnlargement != 0) {
+			bboxes.add(tuple.getBoundingBox().enlargeByAmount(maxAbsoluteEnlargement));
+		}
+		
+		if(maxEnlargementFactor != 0) {
+			bboxes.add(tuple.getBoundingBox().enlargeByFactor(maxEnlargementFactor));
+		}
+		
+		if(maxEnlargementLat != 0 || maxEnlargementLon != 0) {
+			bboxes.add(tuple.getBoundingBox().enlargeByMeters(maxEnlargementLat, maxEnlargementLon));
+		}
+		
+		return bboxes;
 	}
 
 	/**
@@ -159,8 +204,8 @@ public class SocketImporter implements Runnable {
 	 */
 	public static void main(final String[] args) throws InputParseException {
 		
-		if(args.length != 5) {
-			System.err.println("Usage: <Class> <Port> <Connection Endpoint> <Clustername> <Table> <Format>");
+		if(args.length != 6) {
+			System.err.println("Usage: <Class> <Port> <Connection Endpoint> <Clustername> <Table> <Format> <Enlargement>");
 			System.exit(-1);
 		}
 		
@@ -170,10 +215,23 @@ public class SocketImporter implements Runnable {
 		final String clustername = args[2];
 		final String table = args[3];
 		final String format = args[4];
+		final String enlargement = args[5];
 		
 		final TupleBuilder tupleFactory = TupleBuilderFactory.getBuilderForFormat(format);
+		QueryEnlagement queryEnlargement = null;
 		
-		final SocketImporter main = new SocketImporter(port, connectionPoint, clustername, table, tupleFactory);
+		// Read dynamic enlargement
+		if("dynamic".equals(enlargement)) {
+			final TupleStoreName tupleStoreName = new TupleStoreName(table);
+			final ContinuousQueryRegisterer continuousQueryRegisterer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
+			queryEnlargement = continuousQueryRegisterer.getMaxEnlagementFactorForTable();
+		} else {
+			final double enlargementFactor = MathUtil.tryParseDoubleOrExit(enlargement, () -> "Unable to parse enlargement: " + enlargement);
+			queryEnlargement = new QueryEnlagement();
+			queryEnlargement.setMaxEnlargementFactor(enlargementFactor);
+		}
+		
+		final SocketImporter main = new SocketImporter(port, connectionPoint, clustername, table, tupleFactory, queryEnlargement);
 		main.run();
 	}
 }

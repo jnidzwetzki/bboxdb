@@ -33,11 +33,6 @@ public class EnlargeBoundingBoxByWGS84Transformation implements TupleTransformat
 	 * The change in the latitude
 	 */
 	private final double meterLon;
-	
-	/**
-     * The equatorial radius as defined by WGS84
-     */
-    public static final double EQUATORIAL_RADIUS = 6378137.0;
 
 	public EnlargeBoundingBoxByWGS84Transformation(final double meterLat, final double meterLon) {
 		this.meterLat = meterLat;
@@ -57,29 +52,7 @@ public class EnlargeBoundingBoxByWGS84Transformation implements TupleTransformat
 
 	@Override
 	public TupleAndBoundingBox apply(final TupleAndBoundingBox input) {
-		
-		final int dimension = input.getBoundingBox().getDimension();
-		
-		if(dimension != 2) {
-			throw new IllegalArgumentException("Bounding box has the wrong dimension: " + dimension);
-		}
-		
-		final Hyperrectangle inputBox = input.getBoundingBox();
-		
-		final double latitudeLow = inputBox.getCoordinateLow(0);
-		final double lonitudeLow = inputBox.getCoordinateLow(1);
-		final double latitudeHigh = inputBox.getCoordinateHigh(0);
-		final double lonitudeHigh = inputBox.getCoordinateHigh(1);
-		
-		double latChange = (meterLat / 2 * 360) / (2 * Math.PI * EQUATORIAL_RADIUS);
-		double longChange = (meterLon / 2 * 360) / (2 * Math.PI * EQUATORIAL_RADIUS * Math.cos(Math.toRadians(latitudeLow)));
-
-		final Hyperrectangle resultBox = new Hyperrectangle(
-				latitudeLow - latChange, 
-				latitudeHigh + latChange, 
-				lonitudeLow - longChange, 
-				lonitudeHigh + longChange);
-		
+		final Hyperrectangle resultBox = input.getBoundingBox().enlargeByMeters(meterLat, meterLon);
 		return new TupleAndBoundingBox(input.getTuple(), resultBox);
 	}
 	

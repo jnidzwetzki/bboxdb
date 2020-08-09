@@ -313,6 +313,38 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	}
 	
 	/**
+	 * Enlarge the bounding box by meters
+	 * @param meterLat
+	 * @param meterLon
+	 * @return
+	 */
+	public Hyperrectangle enlargeByMeters(final double meterLat, final double meterLon) {
+		
+	    // The equatorial radius as defined by WGS84
+	    final double EQUATORIAL_RADIUS = 6378137.0;
+
+	    final int dimension = getDimension();
+		
+		if(dimension != 2) {
+			throw new IllegalArgumentException("Bounding box has the wrong dimension: " + dimension);
+		}
+				
+		final double latitudeLow = getCoordinateLow(0);
+		final double lonitudeLow = getCoordinateLow(1);
+		final double latitudeHigh = getCoordinateHigh(0);
+		final double lonitudeHigh = getCoordinateHigh(1);
+		
+		final double latChange = (meterLat / 2 * 360) / (2 * Math.PI * EQUATORIAL_RADIUS);
+		final double longChange = (meterLon / 2 * 360) / (2 * Math.PI * EQUATORIAL_RADIUS * Math.cos(Math.toRadians(latitudeLow)));
+
+		return new Hyperrectangle(
+				latitudeLow - latChange, 
+				latitudeHigh + latChange, 
+				lonitudeLow - longChange, 
+				lonitudeHigh + longChange);
+	}
+	
+	/**
 	 * Add the padding given by the bounding box
 	 * @param paddingBox
 	 * @return

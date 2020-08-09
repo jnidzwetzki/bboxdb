@@ -100,6 +100,14 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 	}
 
 	/**
+	 * Update the bounding box
+	 * @param boundingBox
+	 */
+	public void setBoundingBox(final Hyperrectangle boundingBox) {
+		this.boundingBox = boundingBox;
+	}
+	
+	/**
 	 * Get the data of the tuple
 	 * 
 	 * @return
