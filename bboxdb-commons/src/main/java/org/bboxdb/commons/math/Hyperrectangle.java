@@ -334,14 +334,14 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		final double latitudeHigh = getCoordinateHigh(0);
 		final double lonitudeHigh = getCoordinateHigh(1);
 		
-		final double latChange = (meterLat / 2 * 360) / (2 * Math.PI * EQUATORIAL_RADIUS);
-		final double longChange = (meterLon / 2 * 360) / (2 * Math.PI * EQUATORIAL_RADIUS * Math.cos(Math.toRadians(latitudeLow)));
-
+		final double latChange = (180.0/Math.PI) * (meterLat / EQUATORIAL_RADIUS);
+		final double longChange = (180.0/Math.PI) * (meterLon / EQUATORIAL_RADIUS) / Math.cos(Math.toRadians(latitudeLow));
+		
 		return new Hyperrectangle(
-				latitudeLow - latChange, 
-				latitudeHigh + latChange, 
-				lonitudeLow - longChange, 
-				lonitudeHigh + longChange);
+				latitudeLow - (latChange / 2.0), 
+				latitudeHigh + (latChange / 2.0), 
+				lonitudeLow - (longChange / 2.0), 
+				lonitudeHigh + (longChange / 2.0));
 	}
 	
 	/**
