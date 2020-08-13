@@ -30,7 +30,7 @@ public class TestContinuousQueryEnlargement {
 	/**
 	 * The name of the cluster for this test
 	 */
-	private static final String CLUSTER_NAME = "testcluster";
+	private static final String DISTRIBUTION_GROUP = "testgroupenlagement";
 	
 	/**
 	 * The delta for the asserts
@@ -44,7 +44,7 @@ public class TestContinuousQueryEnlargement {
 	
 	@Test(timeout=60_000)
 	public void testQueryRegister0() {
-		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc1");
+		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc1");
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(0, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(1, enlargement.getMaxEnlargementFactor(), DELTA);
@@ -54,7 +54,7 @@ public class TestContinuousQueryEnlargement {
 	
 	@Test(timeout=60_000)
 	public void testQueryRegister1() throws ZookeeperException {
-		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc2");
+		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc2");
 		registerer.updateQueryOnTable(10, 20, 30, 40);
 		
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
@@ -67,7 +67,7 @@ public class TestContinuousQueryEnlargement {
 	
 	@Test(timeout=60_000)
 	public void testQueryRegister2() throws ZookeeperException {
-		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc3");
+		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc3");
 		registerer.updateQueryOnTable(30, 40, 50, 60);
 		
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
@@ -79,7 +79,7 @@ public class TestContinuousQueryEnlargement {
 	
 	@Test(timeout=60_000)
 	public void testQueryUnRegister0() throws ZookeeperException, InterruptedException {
-		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc4");
+		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc4");
 		registerer.updateQueryOnTable(30, 40, 50, 60);
 
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
@@ -95,6 +95,11 @@ public class TestContinuousQueryEnlargement {
 		Assert.assertEquals(1, enlargement.getMaxEnlargementFactor(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementLat(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementLon(), DELTA);
+	}
+	
+	public static void main(String[] args) throws ZookeeperException {
+		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer("mydgroup", "table1");
+		registerer.updateQueryOnTable(30, 40, 50, 60);
 	}
 	
 }

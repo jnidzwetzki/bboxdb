@@ -320,28 +320,35 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 */
 	public Hyperrectangle enlargeByMeters(final double meterLat, final double meterLon) {
 		
-	    // The equatorial radius as defined by WGS84
-	    final double EQUATORIAL_RADIUS = 6378137.0;
-
 	    final int dimension = getDimension();
 		
 		if(dimension != 2) {
 			throw new IllegalArgumentException("Bounding box has the wrong dimension: " + dimension);
 		}
-				
+		
 		final double latitudeLow = getCoordinateLow(0);
 		final double lonitudeLow = getCoordinateLow(1);
 		final double latitudeHigh = getCoordinateHigh(0);
 		final double lonitudeHigh = getCoordinateHigh(1);
 		
-		final double latChange = (180.0/Math.PI) * (meterLat / EQUATORIAL_RADIUS);
-		final double longChange = (180.0/Math.PI) * (meterLon / EQUATORIAL_RADIUS) / Math.cos(Math.toRadians(latitudeLow));
+	    //final double lat0 = Math.toRadians(latitudeLow);
+	    final double lat0=(latitudeLow * (Math.PI) / 180);
+
+	    // The radius as defined by WGS84
+	    final double equator_circumference = 6371000.0;
+	    final double polar_circumference = 6356800.0;
+
+	    final double m_per_deg_long = 360 / polar_circumference;
+	    final double m_per_deg_lat = Math.abs(360 / (Math.cos(lat0) * equator_circumference));
+
+	    final double deg_diff_lat = meterLat * m_per_deg_lat; 
+	    final double deg_diff_long = meterLon * m_per_deg_long;
 		
 		return new Hyperrectangle(
-				latitudeLow - (latChange / 2.0), 
-				latitudeHigh + (latChange / 2.0), 
-				lonitudeLow - (longChange / 2.0), 
-				lonitudeHigh + (longChange / 2.0));
+				latitudeLow - (deg_diff_lat / 2.0), 
+				latitudeHigh + (deg_diff_lat / 2.0), 
+				lonitudeLow - (deg_diff_long / 2.0), 
+				lonitudeHigh + (deg_diff_long / 2.0));
 	}
 	
 	/**
