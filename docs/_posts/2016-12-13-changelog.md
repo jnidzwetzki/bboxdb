@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 0.9.5 - TBD
+
 ### Version 0.9.4 - 13.08.2020
 - New Feature: Support for continuous joins on GUI
 - New Feature: Added automatic bounding box padding stream distribution
