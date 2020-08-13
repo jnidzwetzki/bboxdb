@@ -47,7 +47,7 @@ public class TestContinuousQueryEnlargement {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(CLUSTER_NAME, "abc1");
 		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(0, enlargement.getMaxAbsoluteEnlargement(), DELTA);
-		Assert.assertEquals(0, enlargement.getMaxEnlargementFactor(), DELTA);
+		Assert.assertEquals(1, enlargement.getMaxEnlargementFactor(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementLat(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementLon(), DELTA);
 	}
@@ -92,7 +92,7 @@ public class TestContinuousQueryEnlargement {
 		Thread.sleep(3000);
 				
 		Assert.assertEquals(0, enlargement.getMaxAbsoluteEnlargement(), DELTA);
-		Assert.assertEquals(0, enlargement.getMaxEnlargementFactor(), DELTA);
+		Assert.assertEquals(1, enlargement.getMaxEnlargementFactor(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementLat(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementLon(), DELTA);
 	}

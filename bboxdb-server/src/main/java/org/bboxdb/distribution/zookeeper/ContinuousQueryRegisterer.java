@@ -200,8 +200,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 			final double maxAbsoluteEnlargement = doubleAbsoluteEnlargements
 					.stream()
 					.mapToDouble(s -> s)
-					.max()
-					.orElse(0);
+					.sum();
 			
 			queryEnlagement.setMaxAbsoluteEnlargement(maxAbsoluteEnlargement);
 			
@@ -211,8 +210,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 			final double maxFactorEnlargement = doubleFactorEnlargements
 					.stream()
 					.mapToDouble(s -> s)
-					.max()
-					.orElse(0);
+					.reduce(1,  (a, b) -> a*b);
 			
 			queryEnlagement.setMaxEnlargementFactor(maxFactorEnlargement);
 			
@@ -222,8 +220,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 			final double maxLatEnlargement = doublelatEnlargements
 					.stream()
 					.mapToDouble(s -> s)
-					.max()
-					.orElse(0);
+					.sum();
 			
 			queryEnlagement.setMaxEnlargementLat(maxLatEnlargement);
 			
@@ -233,8 +230,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 			final double maxLonEnlargement = doublelonEnlargements
 					.stream()
 					.mapToDouble(s -> s)
-					.max()
-					.orElse(0);
+					.sum();
 			
 			queryEnlagement.setMaxEnlargementLon(maxLonEnlargement);
 			
