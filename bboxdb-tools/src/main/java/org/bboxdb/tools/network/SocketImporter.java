@@ -175,7 +175,7 @@ public class SocketImporter implements Runnable {
 			bboxes.add(tuple.getBoundingBox().enlargeByAmount(maxAbsoluteEnlargement));
 		}
 		
-		if(maxEnlargementFactor != 0) {
+		if(maxEnlargementFactor != 1) {
 			bboxes.add(tuple.getBoundingBox().enlargeByFactor(maxEnlargementFactor));
 		}
 		
