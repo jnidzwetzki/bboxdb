@@ -133,12 +133,12 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * Number of pending requests
 	 */
-	private final static int MAX_PENDING_REQUESTS = 25;
+	private final static int MAX_PENDING_REQUESTS = 1024;
 
 	/**
 	 * Number of maximal running queries
 	 */
-	private final static int MAX_RUNNING_QUERIES = 25;
+	private final static int MAX_RUNNING_QUERIES = 1024;
 
 	/**
 	 * The request handlers
@@ -509,7 +509,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			return false;
 		}
 
-		if(activeQueries.size() > MAX_RUNNING_QUERIES) {
+		if(activeQueries.size() >= MAX_RUNNING_QUERIES) {
 			logger.warn("Client requested more than {} parallel queries", MAX_RUNNING_QUERIES);
 			final ErrorResponse errorResponse = new ErrorResponse(packageSequence,
 					ErrorMessages.ERROR_QUERY_TO_MUCH);

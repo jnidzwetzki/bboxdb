@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.5 - TBD
+- Improvement: Increased MAX_PENDING_REQUESTS to 1024 to handle more parallel queries
 - Bugfix: Fixed ConcurrentModificationException in ClientConnectionHandler query register logic
 
 ### Version 0.9.4 - 13.08.2020
