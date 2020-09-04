@@ -21,12 +21,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.GeoJsonPolygon;
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.commons.math.HyperrectangleHelper;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.tools.converter.tuple.TupleBuilder;
+import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 
-public class FilterJSONData implements Runnable {
+public class FilterJSONDataByBBox implements Runnable {
 	
 	/**
 	 * The file to read
@@ -34,19 +38,19 @@ public class FilterJSONData implements Runnable {
 	private final File file;
 	
 	/**
-	 * The begin timestamp
+	 * The boudnign box
 	 */
-	private final long begin;
-	
-	/**
-	 * The end timestamp
-	 */
-	private final long end;
+	private final Hyperrectangle boundingBox;
 
-	public FilterJSONData(final File file, final long begin, final long end) {
+	/**
+	 * The tuple builder
+	 */
+	private final TupleBuilder tupleBuilder;
+
+	public FilterJSONDataByBBox(final File file, final String importFormat, final Hyperrectangle boundingBox) {
 		this.file = file;
-		this.begin = begin;
-		this.end = end;
+		this.boundingBox = boundingBox;
+		this.tupleBuilder = TupleBuilderFactory.getBuilderForFormat(importFormat);
 	}
 
 	@Override
@@ -63,19 +67,17 @@ public class FilterJSONData implements Runnable {
 	 * @param line
 	 */
 	private void handleline(final String line) {
-		final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(line);
-		final String timestampstring = polygon.getProperties().get("Timestamp");
-		final long timestamp = MathUtil.tryParseLongOrExit(timestampstring);
-		
-		if(timestamp > begin && timestamp < end) {
-			System.out.println(line);
+		final Tuple tuple = tupleBuilder.buildTuple(line);
+
+		if(boundingBox.intersects(tuple.getBoundingBox())) {
+ 			System.out.println(line);
 		}
 	}
 
 	public static void main(final String[] args) {
 		
-		if(args.length != 3) {
-			System.err.println("Usage: <Class> <Filename> <Begin> <End>");
+		if(args.length != 2) {
+			System.err.println("Usage: <Class> <Filename <InputFormat> <BBox>");
 			System.exit(-1);
 		}
 		
@@ -86,10 +88,16 @@ public class FilterJSONData implements Runnable {
 			System.exit(-1);
 		}
 		
-		final long begin = MathUtil.tryParseLongOrExit(args[1]);
-		final long end = MathUtil.tryParseLongOrExit(args[2]);
+		final String inputFormat = args[1];
 		
-		final FilterJSONData filter = new FilterJSONData(file, begin, end);
+		final Optional<Hyperrectangle> boundingBox = HyperrectangleHelper.parseBBox(args[2]);
+		
+		if(! boundingBox.isPresent()) {
+			System.err.println("Invalid bounding box: " + args[2]);
+			System.exit(-1);
+		}
+		
+		final FilterJSONDataByBBox filter = new FilterJSONDataByBBox(file, inputFormat, boundingBox.get());
 		filter.run();
 	}
 }
