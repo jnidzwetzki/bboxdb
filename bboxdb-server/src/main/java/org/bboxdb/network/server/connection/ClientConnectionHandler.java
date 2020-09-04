@@ -280,7 +280,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		final List<NetworkResponsePackage> packagesToWrite = new ArrayList<>();
 
 		// We have to ensure that the buffer clear and socket write
-		// are perfomed in one synchronized block otherwise
+		// are performed in one synchronized block otherwise
 		// we will create out of order packages
 		synchronized (pendingCompressionPackages) {
 			if(pendingCompressionPackages.isEmpty()) {
@@ -301,6 +301,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 				writePackageToSocket(compressionEnvelopeRequest);
 			} catch (PackageEncodeException | IOException e) {
 				logger.error("Got an exception while write pending compression packages to client", e);
+				serviceState.dispatchToFailed(e);
 			}
 		}
 	}
