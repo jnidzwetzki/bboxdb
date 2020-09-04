@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.5 - TBD
+- Bugfix: Fixed ConcurrentModificationException in ClientConnectionHandler query register logic
 
 ### Version 0.9.4 - 13.08.2020
 - New Feature: Support for continuous joins on GUI

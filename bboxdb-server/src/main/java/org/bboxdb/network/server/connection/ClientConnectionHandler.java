@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
@@ -228,7 +229,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		}
 
 		// The active queries
-		this.activeQueries = new HashMap<>();
+		this.activeQueries = new ConcurrentHashMap<>();
 
 		// Create a thread pool that blocks after submitting more than MAX_PENDING_REQUESTS
 		this.threadPool = ExecutorUtil.getBoundThreadPoolExecutor(25, MAX_PENDING_REQUESTS);
@@ -393,8 +394,8 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		getThreadPool().shutdown();
 
 		// Close active query iterators
-		getActiveQueries().values().forEach(i -> i.close());
-		getActiveQueries().clear();
+		activeQueries.values().forEach(i -> i.close());
+		activeQueries.clear();
 
 		CloseableHelper.closeWithoutException(clientSocket);
 	}
@@ -606,7 +607,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	public void sendNextResultsForQuery(final short packageSequence, final short querySequence)
 			throws IOException, PackageEncodeException {
 
-		if(! getActiveQueries().containsKey(querySequence)) {
+		if(! activeQueries.containsKey(querySequence)) {
 			logger.error("Unable to resume query {} - package {} - not found", querySequence, packageSequence);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			return;
@@ -616,7 +617,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 
 			@Override
 			protected void runThread() throws IOException, PackageEncodeException {
-				final ClientQuery clientQuery = getActiveQueries().get(querySequence);
+				final ClientQuery clientQuery = activeQueries.get(querySequence);
 
 				if(clientQuery == null) {
 					logger.error("Unable to resume query {}, not found", querySequence);
@@ -630,7 +631,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 							querySequence,
 							clientQuery.getTotalSendTuples());
 					clientQuery.close();
-					getActiveQueries().remove(querySequence);
+					activeQueries.remove(querySequence);
 				}
 			}
 
