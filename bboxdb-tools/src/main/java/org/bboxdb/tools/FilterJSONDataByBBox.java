@@ -77,7 +77,7 @@ public class FilterJSONDataByBBox implements Runnable {
 	public static void main(final String[] args) {
 		
 		if(args.length != 2) {
-			System.err.println("Usage: <Class> <Filename <InputFormat> <BBox>");
+			System.err.println("Usage: <Class> <Filename> <InputFormat> <BBox>");
 			System.exit(-1);
 		}
 		
