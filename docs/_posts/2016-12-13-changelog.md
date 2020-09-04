@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.5 - TBD
+- Improvement: Added the ability to register a continuous query on multiple local tables
 - Improvement: Increased MAX_PENDING_REQUESTS to 1024 to handle more parallel queries
 - Bugfix: Fixed ConcurrentModificationException in ClientConnectionHandler query register logic
 

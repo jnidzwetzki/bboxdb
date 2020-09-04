@@ -119,7 +119,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The tuple store manager
 	 */
-	private TupleStoreManager storageManager;
+	private final List<TupleStoreManager> storageManager;
 	
 	/**
 	 * The query plan
@@ -155,6 +155,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			this.tupleQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
 
 			this.totalSendTuples = 0;
+			this.storageManager = new ArrayList<>();
 
 			// Add each tuple to our tuple queue
 			if(queryPlan instanceof ContinuousConstQueryPlan) {
@@ -423,17 +424,15 @@ public class ContinuousClientQuery implements ClientQuery {
 			final List<TupleStoreName> localTables
 				= regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
 
-			if(localTables.size() != 1) {
-				logger.error("Got more than one table for the continuous query {}", localTables);
-				close();
-				return;
+			// Register insert new tuple callback
+			for(final TupleStoreName tupleStoreName : localTables) {
+				final TupleStoreManager tableStorageManager 
+					= QueryHelper.getTupleStoreManager(storageRegistry, tupleStoreName);
+				
+				tableStorageManager.registerInsertCallback(tupleInsertCallback);
+				
+				storageManager.add(tableStorageManager);
 			}
-
-			final TupleStoreName tupleStoreName = localTables.get(0);
-
-			storageManager = QueryHelper.getTupleStoreManager(storageRegistry, tupleStoreName);
-
-			storageManager.registerInsertCallback(tupleInsertCallback);
 
 			// Remove tuple store insert listener on connection close
 			clientConnectionHandler.addConnectionClosedHandler((c) -> close());
@@ -515,12 +514,14 @@ public class ContinuousClientQuery implements ClientQuery {
 		
 		logger.info("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
 
-		if(storageManager != null) {
-			final boolean removeResult = storageManager.removeInsertCallback(tupleInsertCallback);
+		for(final TupleStoreManager tableTupleStoreManager : storageManager) {
+			final boolean removeResult = tableTupleStoreManager.removeInsertCallback(tupleInsertCallback);
 			if(! removeResult) {
 				logger.error("Unable to remove insert callback, got bad remove callback");
 			}
-		} else {
+		}
+		
+		if(storageManager.isEmpty()) {
 			logger.error("Unable to remove insert callback, storage manager is NULL");
 		}
 
