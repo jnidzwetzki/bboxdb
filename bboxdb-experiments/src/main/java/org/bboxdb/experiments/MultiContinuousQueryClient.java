@@ -34,6 +34,8 @@ import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.storage.entity.JoinedTuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MultiContinuousQueryClient implements Runnable {
 
@@ -66,11 +68,16 @@ public class MultiContinuousQueryClient implements Runnable {
 	 * The amount of parallel queries
 	 */
 	private final double parallelQueries;
-
+	
 	/**
-	 *
+	 * All threads
 	 */
 	private final List<Thread> allThreads = new CopyOnWriteArrayList<>();
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(MultiContinuousQueryClient.class);
 	
 	public MultiContinuousQueryClient(final String contactPoint, final String clusterName, 
 			final String table, final Hyperrectangle range, final double percentage,
@@ -131,11 +138,13 @@ public class MultiContinuousQueryClient implements Runnable {
 				readResultsInThread(queryFuture);
 			}
 			
+			logger.info("Successfully registered {} queries", parallelQueries);
+			
 			for(final Thread thread : allThreads) {
 				thread.join();
 			}
 		} catch (BBoxDBException e) {
-			e.printStackTrace();
+			logger.error("Got an exception", e);
 		} catch (InterruptedException e) {
 			return;
 		} 
