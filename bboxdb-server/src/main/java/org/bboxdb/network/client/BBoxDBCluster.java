@@ -462,7 +462,7 @@ public class BBoxDBCluster implements BBoxDB {
 					.stream()
 					.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
 					.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
-					.mapToDouble(t -> t.getMeterLat())
+					.mapToDouble(t -> t.getMeterLon())
 					.max()
 					.orElse(0);
 			
