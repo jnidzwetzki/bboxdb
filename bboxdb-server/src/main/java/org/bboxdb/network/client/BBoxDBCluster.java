@@ -439,32 +439,28 @@ public class BBoxDBCluster implements BBoxDB {
 					.filter(t -> t instanceof EnlargeBoundingBoxByAmountTransformation)
 					.map(t -> (EnlargeBoundingBoxByAmountTransformation) t)
 					.mapToDouble(t -> t.getAmount())
-					.max()
-					.orElse(0);
+					.sum();
 				
 			final double maxEnlargementFactor = queryPlan.getStreamTransformation()
 					.stream()
 					.filter(t -> t instanceof EnlargeBoundingBoxByFactorTransformation)
 					.map(t -> (EnlargeBoundingBoxByFactorTransformation) t)
 					.mapToDouble(t -> t.getFactor())
-					.max()
-					.orElse(1);
+					.reduce(1,  (a, b) -> a*b);
 			
 			final double maxEnlargementLatMeter = queryPlan.getStreamTransformation()
 					.stream()
 					.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
 					.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
 					.mapToDouble(t -> t.getMeterLat())
-					.max()
-					.orElse(0);
+					.sum();
 			
 			final double maxEnlargementLonMeter = queryPlan.getStreamTransformation()
 					.stream()
 					.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
 					.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
 					.mapToDouble(t -> t.getMeterLon())
-					.max()
-					.orElse(0);
+					.sum();
 			
 			registerer.updateQueryOnTable(maxEnlargementAbsolute, maxEnlargementFactor, maxEnlargementLatMeter, maxEnlargementLonMeter);			
 		} catch (ZookeeperException e) {
