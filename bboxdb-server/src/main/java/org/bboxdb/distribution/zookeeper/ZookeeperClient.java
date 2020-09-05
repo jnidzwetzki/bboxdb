@@ -608,7 +608,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * @return 
 	 * @throws ZookeeperException
 	 */
-	public String craateEphemeralSequencialNode(final String path, final byte[] bytes) throws ZookeeperException {
+	public String createEphemeralSequencialNode(final String path, final byte[] bytes) throws ZookeeperException {
 
 		try {
 			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);

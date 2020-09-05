@@ -128,6 +128,10 @@ public class ContinuousQueryRegisterer implements Watcher {
 		
 		unregisterOldQuery();
 		
+		logger.debug("Register query enlargement (absoluteEnlargement={}, enlagementFactor={}, "
+				+ "enlargementMeterLat={}, enlargementMeterLon={})", 
+				absoluteEnlargement, enlagementFactor, enlargementMeterLat, enlargementMeterLon);
+		
 		final String queryNodeEnlargementAbsolute = pathEnlargementAbsolute + "/query-";
 		final String queryNodeEnlargementFactor = pathEnlargementFactor + "/query-";
 		final String queryNodeEnlargementMeterLat = pathEnlargementMeterLat + "/query-";
@@ -138,16 +142,16 @@ public class ContinuousQueryRegisterer implements Watcher {
 		final byte[] enlargementLatBytes = Double.toString(enlargementMeterLat).getBytes();
 		final byte[] enlargementLonBytes = Double.toString(enlargementMeterLon).getBytes();
 
-		final String createdAbsoluteEnlargementPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementAbsolute, absoluteEnlargementBytes);
+		final String createdAbsoluteEnlargementPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementAbsolute, absoluteEnlargementBytes);
 		createdEnlargementAbsolutePath = Optional.of(createdAbsoluteEnlargementPath);
 		
-		final String cratedFactorEnlargementPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementFactor, factorEnlargementBytes);
+		final String cratedFactorEnlargementPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementFactor, factorEnlargementBytes);
 		createdEnlargementFactorPath = Optional.of(cratedFactorEnlargementPath);
 		
-		final String cratedEnlragementLatPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementMeterLat, enlargementLatBytes);
+		final String cratedEnlragementLatPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementMeterLat, enlargementLatBytes);
 		createdEnlargementMeterLatPath = Optional.of(cratedEnlragementLatPath);
 		
-		final String cratedEnlragementLonPath = zookeeperClient.craateEphemeralSequencialNode(queryNodeEnlargementMeterLon, enlargementLonBytes);
+		final String cratedEnlragementLonPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementMeterLon, enlargementLonBytes);
 		createdEnlargementMeterLonPath = Optional.of(cratedEnlragementLonPath);
 	}
 	
