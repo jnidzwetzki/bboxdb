@@ -89,7 +89,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	 * Prevent null results
 	 */
 	@Override
-	public List<T> get(int resultId) throws InterruptedException {
+	public List<T> get(final int resultId) throws InterruptedException {
 		final List<T> result = super.get(resultId);
 
 		if(result == null) {
