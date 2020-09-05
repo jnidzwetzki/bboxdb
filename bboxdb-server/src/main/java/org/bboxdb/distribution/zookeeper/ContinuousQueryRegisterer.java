@@ -169,20 +169,27 @@ public class ContinuousQueryRegisterer implements Watcher {
 	 * @param chrindren
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	protected List<Double> getChildrenValues(final String basePath, final List<String> chrindren) throws ZookeeperException {
+	protected List<Double> getChildrenValues(final String basePath, final List<String> chrindren) 
+			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final List<Double> resultList = new ArrayList<Double>();
 		
 		for(final String child: chrindren) {
 			final String fullpath = basePath + "/" + child;
-			final String value = zookeeperClient.getData(fullpath);
-			final Optional<Double> doubleValue = MathUtil.tryParseDouble(value);
 			
-			if(! doubleValue.isPresent()) {
-				logger.error("Unable to parse {} as double", value);
-			} else {
-				resultList.add(doubleValue.get());
+			try {
+				final String value = zookeeperClient.getData(fullpath);
+				final Optional<Double> doubleValue = MathUtil.tryParseDouble(value);
+				
+				if(! doubleValue.isPresent()) {
+					logger.error("Unable to parse {} as double", value);
+				} else {
+					resultList.add(doubleValue.get());
+				}
+			} catch(ZookeeperNotFoundException e) {
+				// Node delete during read, ignore
 			}
 		}
 		

@@ -38,6 +38,7 @@ import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 
@@ -174,7 +175,7 @@ public class DistributionRegionHelper {
 				if(regionResult != null) {
 					result.add(regionResult);
 				}
-			} catch (ZookeeperException e) {
+			} catch (ZookeeperException | ZookeeperNotFoundException e) {
 				throw new BBoxDBException(e);
 			}
 		}
@@ -195,7 +196,7 @@ public class DistributionRegionHelper {
 	 */
 	private static OutdatedDistributionRegion processRegion(final BBoxDBInstance distributedInstance,
 			final ZookeeperClient zookeeperClient,
-			final DistributionRegion regionToInspect) throws ZookeeperException, BBoxDBException {
+			final DistributionRegion regionToInspect) throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 
 		final Map<BBoxDBInstance, Long> versions = new HashMap<>();
 

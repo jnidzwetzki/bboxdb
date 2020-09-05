@@ -408,9 +408,10 @@ public class DistributionRegionAdapter {
 	 * @param system
 	 * @return 
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
 	public long getCheckpointForDistributionRegion(final DistributionRegion region, 
-			final BBoxDBInstance system) throws ZookeeperException {
+			final BBoxDBInstance system) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");

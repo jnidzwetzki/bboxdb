@@ -9,6 +9,7 @@ order: 1
 ### Version 0.9.5 - TBD
 - Improvement: Added the ability to register a continuous query on multiple local tables
 - Improvement: Increased MAX_PENDING_REQUESTS to 1024 to handle more parallel queries
+- Improvement: Improved handling of deleted nodes in Zookeeper during read
 - Bugfix: Fixed ConcurrentModificationException in ClientConnectionHandler query register logic
 - Bugfix: An error on the connection handler now leads to a closing connection
 

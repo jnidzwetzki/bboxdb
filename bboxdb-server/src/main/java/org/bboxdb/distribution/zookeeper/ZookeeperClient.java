@@ -254,12 +254,17 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * Read the data and the stat from the given path
 	 *
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public String getData(final String path, final Stat stat) throws ZookeeperException {
+	public String getData(final String path, final Stat stat) throws ZookeeperException, ZookeeperNotFoundException {
 		try {
 			return new String(zookeeper.getData(path, false, stat));
 		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
+			if (e.code() == Code.NONODE) {
+				throw new ZookeeperNotFoundException("The path does not exist: " + path, e);
+			} else {
+				throw new ZookeeperException(e);
+			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
@@ -272,8 +277,9 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * @param path
 	 * @return
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public String getData(final String path) throws ZookeeperException {
+	public String getData(final String path) throws ZookeeperException, ZookeeperNotFoundException {
 		return getData(path, null);
 	}
 
@@ -624,9 +630,10 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * @param newValue
 	 * @return
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
 	public boolean testAndReplaceValue(final String path, final String oldValue, final String newValue)
-			throws ZookeeperException {
+			throws ZookeeperException, ZookeeperNotFoundException {
 
 		if (oldValue == null || newValue == null) {
 			throw new IllegalArgumentException("Invalid parameter null for old or new value");
