@@ -186,10 +186,13 @@ public class SocketImporter implements Runnable {
 		
 		// CLI print
 		if(logger.isDebugEnabled()) {
+			logger.debug("==========================");
+			logger.debug("Enlargement: {}", enlargement);
 			logger.debug("Original bounding box");
 			logger.debug("{}", tuple.getBoundingBox());
 			logger.debug("Enlarged bounding box");
 			logger.debug("{}", resultBox);
+			logger.debug("");
 		}
 		
 		return resultBox;

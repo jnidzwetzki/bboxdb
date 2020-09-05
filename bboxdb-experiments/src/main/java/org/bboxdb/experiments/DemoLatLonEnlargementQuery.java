@@ -33,7 +33,7 @@ import org.bboxdb.storage.entity.JoinedTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DemoFactorEnlargementQuery implements Runnable {
+public class DemoLatLonEnlargementQuery implements Runnable {
 
 	/**
 	 * The cluster contact point
@@ -51,9 +51,14 @@ public class DemoFactorEnlargementQuery implements Runnable {
 	private final String table;
 	
 	/**
-	 * The amount of parallel queries
+	 * The latitude enlargement
 	 */
-	private final double enlargement;
+	private final double enlargementLat;
+	
+	/**
+	 * The longitude enlargement
+	 */
+	private final double enlargementLon;
 	
 	/**
 	 * All threads
@@ -63,15 +68,16 @@ public class DemoFactorEnlargementQuery implements Runnable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DemoFactorEnlargementQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(DemoLatLonEnlargementQuery.class);
 	
-	public DemoFactorEnlargementQuery(final String contactPoint, final String clusterName, 
-			final String table, final double enlargement) {
+	public DemoLatLonEnlargementQuery(final String contactPoint, final String clusterName, 
+			final String table, final double enlargementLat, final double enlargementLon) {
 			
 				this.contactPoint = contactPoint;
 				this.clusterName = clusterName;
 				this.table = table;
-				this.enlargement = enlargement;
+				this.enlargementLat = enlargementLat;
+				this.enlargementLon = enlargementLon;
 	}
 	
 	@Override
@@ -86,7 +92,7 @@ public class DemoFactorEnlargementQuery implements Runnable {
 			final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 					.createQueryOnTable(table)
 					.forAllNewTuplesStoredInRegion(queryRectangle)
-					.enlargeStreamTupleBoundBoxByFactor(enlargement)
+					.enlargeStreamTupleBoundBoxByWGS84Meter(enlargementLat, enlargementLon)
 					.compareWithStaticRegion(queryRectangle)
 					.build();
 			
@@ -132,19 +138,22 @@ public class DemoFactorEnlargementQuery implements Runnable {
 	 */
 	public static void main(String[] args) throws InputParseException {
 		
-		if(args.length != 4) {
-			System.err.println("Usage: <Class> <ClusterContactPoint> <Clusterneme> <Table> <Enlargement>");
+		if(args.length != 5) {
+			System.err.println("Usage: <Class> <ClusterContactPoint> <Clusterneme> <Table> <Enlargement Lat> <Enlagement Lon>");
 			System.exit(-1);
 		}
 		
 		final String contactPoint = args[0];
 		final String clusterName = args[1];
 		final String table = args[2];
-		final String enlargementString = args[3];
-		final double enlargement = MathUtil.tryParseDouble(enlargementString, () -> "Unable to parse: " + enlargementString);
+		final String enlargementLatString = args[3];
+		final String enlargementLonString = args[4];
+		
+		final double enlargementLat = MathUtil.tryParseDouble(enlargementLatString, () -> "Unable to parse: " + enlargementLatString);
+		final double enlargementLon = MathUtil.tryParseDouble(enlargementLonString, () -> "Unable to parse: " + enlargementLonString);
 
-		final DemoFactorEnlargementQuery runable = new DemoFactorEnlargementQuery(contactPoint, clusterName, 
-				table, enlargement);
+		final DemoLatLonEnlargementQuery runable = new DemoLatLonEnlargementQuery(contactPoint, clusterName, 
+				table, enlargementLat, enlargementLon);
 		
 		runable.run();
 	}
