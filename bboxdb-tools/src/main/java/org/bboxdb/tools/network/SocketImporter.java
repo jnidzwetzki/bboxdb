@@ -183,10 +183,13 @@ public class SocketImporter implements Runnable {
 		}
 		
 		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(bboxes);
-
 		
+		// CLI print
 		if(logger.isDebugEnabled()) {
-			logger.debug("Original bounding box {}, enlarged bounding box {}", tuple.getBoundingBox(), resultBox);
+			logger.debug("Original bounding box");
+			logger.debug("{}", tuple.getBoundingBox());
+			logger.debug("Enlarged bounding box");
+			logger.debug("{}", resultBox);
 		}
 		
 		return resultBox;
