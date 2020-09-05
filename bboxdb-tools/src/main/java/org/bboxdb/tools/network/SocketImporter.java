@@ -145,8 +145,7 @@ public class SocketImporter implements Runnable {
 				final Tuple tuple = tupleFactory.buildTuple(line);
 				
 				if(tuple != null) {
-					final List<Hyperrectangle> bboxes = getEnlargedBBoxForTuple(tuple);
-					final Hyperrectangle tupleBBox = Hyperrectangle.getCoveringBox(bboxes);
+					final Hyperrectangle tupleBBox = getEnlargedBBoxForTuple(tuple);
 					tuple.setBoundingBox(tupleBBox);
 					final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
 					pendingFutures.put(result);
@@ -162,7 +161,7 @@ public class SocketImporter implements Runnable {
 	 * @param tuple
 	 * @return
 	 */
-	private List<Hyperrectangle> getEnlargedBBoxForTuple(final Tuple tuple) {
+	private Hyperrectangle getEnlargedBBoxForTuple(final Tuple tuple) {
 		final double maxAbsoluteEnlargement = enlargement.getMaxAbsoluteEnlargement();
 		final double maxEnlargementFactor = enlargement.getMaxEnlargementFactor();
 		final double maxEnlargementLat = enlargement.getMaxEnlargementLat();
@@ -183,7 +182,14 @@ public class SocketImporter implements Runnable {
 			bboxes.add(tuple.getBoundingBox().enlargeByMeters(maxEnlargementLat, maxEnlargementLon));
 		}
 		
-		return bboxes;
+		final Hyperrectangle resultBox = Hyperrectangle.getCoveringBox(bboxes);
+
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Original bounding box {}, enlarged bounding box {}", tuple.getBoundingBox(), resultBox);
+		}
+		
+		return resultBox;
 	}
 
 	/**
