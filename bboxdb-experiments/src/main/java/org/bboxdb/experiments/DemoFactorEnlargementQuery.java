@@ -86,7 +86,7 @@ public class DemoFactorEnlargementQuery implements Runnable {
 			final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 					.createQueryOnTable(table)
 					.forAllNewTuplesStoredInRegion(queryRectangle)
-					.enlargeStoredTupleBoundBoxByFactor(enlargement)
+					.enlargeStreamTupleBoundBoxByFactor(enlargement)
 					.compareWithStaticRegion(queryRectangle)
 					.build();
 			
