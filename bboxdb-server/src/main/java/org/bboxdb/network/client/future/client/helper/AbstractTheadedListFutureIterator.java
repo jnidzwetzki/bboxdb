@@ -69,9 +69,9 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 	/**
 	 * The instance to iterate
 	 *
-	 * @param abstractLisFuture
+	 * @param abstractListFuture
 	 */
-	protected final AbstractListFuture<T> abstractLisFuture;
+	protected final AbstractListFuture<T> abstractListFuture;
 
 	/**
 	 * The executor pool
@@ -90,7 +90,7 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 
 
 	public AbstractTheadedListFutureIterator(final AbstractListFuture<T> abstractListFuture) {
-		this.abstractLisFuture = abstractListFuture;
+		this.abstractListFuture = abstractListFuture;
 		this.futuresToQuery = abstractListFuture.getNumberOfResultObjets();
 
 		for(int i = 0; i < abstractListFuture.getNumberOfResultObjets(); i++) {
@@ -117,11 +117,11 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			public void run() {
 
 				try {
-					final List<T> tupleList = abstractLisFuture.get(resultId);
+					final List<T> tupleList = abstractListFuture.get(resultId);
 
 					addTupleListToQueue(tupleList);
 
-					if(! abstractLisFuture.isCompleteResult(resultId)) {
+					if(! abstractListFuture.isCompleteResult(resultId)) {
 						handleAdditionalPages();
 					}
 
@@ -144,14 +144,14 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			@SuppressWarnings("unchecked")
 			protected void handleAdditionalPages() throws InterruptedException, ExecutionException {
 
-				final BBoxDBConnection bboxdbConnection = abstractLisFuture.getConnection(resultId);
+				final BBoxDBConnection bboxdbConnection = abstractListFuture.getConnection(resultId);
 
 				if(bboxdbConnection == null) {
 					logger.error("Unable to get connection for paging: {}", resultId);
 					return;
 				}
 
-				final short queryRequestId = abstractLisFuture.getRequestId(resultId);
+				final short queryRequestId = abstractListFuture.getRequestId(resultId);
 				final BBoxDBClient bbBoxDBClient = bboxdbConnection.getBboxDBClient();
 
 				AbstractListFuture<T> nextPage = null;
@@ -197,6 +197,8 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 					// Got the interrupted exception while addint the
 					// terminal, ignoring
 				}
+				
+				abstractListFuture.runShutdownCallbacks();
 			}
 		};
 

@@ -79,6 +79,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	protected final List<Consumer<OperationFuture>> completeCallbacks = new ArrayList<>();
 
 	/**
+	 * The shutdown callbacks
+	 */
+	protected final List<Consumer<OperationFuture>> shutdownCallbacks = new ArrayList<>();
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(OperationFutureImpl.class);
@@ -131,8 +136,22 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		if (allDone) {
 			readyLatch.countDown();
-			completeCallbacks.forEach(c -> c.accept(this));
+			runCompleteCallbacks();
 		}
+	}
+
+	/**
+	 * Run the complete callbacks
+	 */
+	public void runCompleteCallbacks() {
+		completeCallbacks.forEach(c -> c.accept(this));
+	}
+	
+	/**
+	 * Run the complete callbacks
+	 */
+	public void runShutdownCallbacks() {
+		shutdownCallbacks.forEach(c -> c.accept(this));
 	}
 	
 	/**
@@ -141,6 +160,14 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 */
 	public void addSuccessCallbackConsumer(final Consumer<OperationFuture> consumer) {
 		completeCallbacks.add(consumer);
+	}
+	
+	/**
+	 * Add the future to the lust of shutdown futures
+	 * @param consumer
+	 */
+	public void addShutdownCallbackConsumer(final Consumer<OperationFuture> consumer) {
+		shutdownCallbacks.add(consumer);
 	}
 
 	/*

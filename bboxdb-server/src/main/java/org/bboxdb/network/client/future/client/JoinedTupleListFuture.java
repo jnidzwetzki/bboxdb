@@ -54,7 +54,9 @@ public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 				iterator.remove();
 			}
 		}
-
+		
+		runShutdownCallbacks();
+		
 		return allTuples.iterator();
 	}
 	

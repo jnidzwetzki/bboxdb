@@ -417,7 +417,7 @@ public class BBoxDBCluster implements BBoxDB {
 		};
 
 		final JoinedTupleListFuture resultFuture = new JoinedTupleListFuture(supplier);
-		resultFuture.addSuccessCallbackConsumer(s -> queryEnlargementRegisterer.unregisterOldQuery());
+		resultFuture.addShutdownCallbackConsumer(s -> queryEnlargementRegisterer.unregisterOldQuery());
 		return resultFuture; 
 	}
 
