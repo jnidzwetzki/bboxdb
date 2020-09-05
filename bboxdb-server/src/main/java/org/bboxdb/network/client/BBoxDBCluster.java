@@ -448,7 +448,7 @@ public class BBoxDBCluster implements BBoxDB {
 					.map(t -> (EnlargeBoundingBoxByFactorTransformation) t)
 					.mapToDouble(t -> t.getFactor())
 					.max()
-					.orElse(0);
+					.orElse(1);
 			
 			final double maxEnlargementLatMeter = queryPlan.getStreamTransformation()
 					.stream()
