@@ -12,8 +12,8 @@ before_install:
    
   # Install zookeeper
   - mkdir /tmp/zookeeper
-  - export ZK="apache-zookeeper-3.5.5-bin"
-  - wget https://archive.apache.org/dist/zookeeper/zookeeper-3.5.5/$ZK.tar.gz
+  - export ZK="apache-zookeeper-3.6.1-bin"
+  - wget https://archive.apache.org/dist/zookeeper/zookeeper-3.6.1/$ZK.tar.gz
   - tar xzf $ZK.tar.gz -C /tmp/zookeeper
   - cp /tmp/zookeeper/$ZK/conf/zoo_sample.cfg /tmp/zookeeper/$ZK/conf/zoo.cfg
   - /tmp/zookeeper/$ZK/bin/zkServer.sh start
