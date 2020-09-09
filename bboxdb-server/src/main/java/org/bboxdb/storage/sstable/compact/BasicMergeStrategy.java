@@ -108,7 +108,7 @@ public class BasicMergeStrategy implements MergeStrategy {
 	 */
 	protected long getSmallTableThreshold() {
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		return configuration.getMemtableEntriesMax() * 5;
+		return ((long) configuration.getMemtableEntriesMax()) * 5;
 	}
 
 	/**
