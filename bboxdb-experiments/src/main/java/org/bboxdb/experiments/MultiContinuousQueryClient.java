@@ -17,14 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.experiments;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.misc.BBoxDBException;
@@ -34,6 +31,7 @@ import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,33 +88,6 @@ public class MultiContinuousQueryClient implements Runnable {
 				this.percentage = percentage;
 				this.parallelQueries = parallelQueries;
 	}
-
-	/**
-	 * Determine a random query rectangle
-	 * @return
-	 */
-	public Hyperrectangle getRandomQueryRange() {
-		final List<DoubleInterval> bboxIntervals = new ArrayList<>();
-		
-		// Determine query bounding box
-		for(int dimension = 0; dimension < range.getDimension(); dimension++) {
-			final double dataExtent = range.getExtent(dimension);
-			final double randomDouble = ThreadLocalRandom.current().nextDouble();
-			final double bboxOffset = (randomDouble % 1) * dataExtent;
-			final double coordinateLow = range.getCoordinateLow(dimension);
-			final double coordinateHigh = range.getCoordinateHigh(dimension);
-
-			final double bboxStartPos = coordinateLow + bboxOffset;
-			
-			final double queryExtend = dataExtent * percentage;
-			final double bboxEndPos = Math.min(bboxStartPos + queryExtend, coordinateHigh);
-
-			final DoubleInterval doubleInterval = new DoubleInterval(bboxStartPos, bboxEndPos);
-			bboxIntervals.add(doubleInterval);
-		}
-		
-		return new Hyperrectangle(bboxIntervals);
-	}
 	
 	@Override
 	public void run() {
@@ -125,7 +96,7 @@ public class MultiContinuousQueryClient implements Runnable {
 			connection.connect();
 			
 			for(int i = 0; i < parallelQueries; i++) {
-				final Hyperrectangle queryRectangle = getRandomQueryRange();
+				final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range, percentage);
 				System.out.println("Creating query in range: " + queryRectangle);
 				
 				final ContinuousQueryPlan queryPlan = QueryPlanBuilder
