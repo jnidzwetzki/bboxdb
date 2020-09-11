@@ -169,14 +169,14 @@ public class MultiContinuousQueryClient implements Runnable {
 	 */
 	private static void performReadData(final String[] args) {
 		if(args.length != 5) {
-			System.err.println("Usage: <Class> readfile <ClusterContactPoint> <Clustername> <Table> <File>");
+			System.err.println("Usage: <Class> readfile <File> <ClusterContactPoint> <Clustername> <Table> ");
 			System.exit(-1);
 		}
 		
-		final String contactPoint = args[1];
-		final String clusterName = args[2];
-		final String table = args[3];
-		final File inputFile = new File(args[4]);
+		final File inputFile = new File(args[1]);
+		final String contactPoint = args[2];
+		final String clusterName = args[3];
+		final String table = args[4];
 		
 		 new ArrayList<>();
 
