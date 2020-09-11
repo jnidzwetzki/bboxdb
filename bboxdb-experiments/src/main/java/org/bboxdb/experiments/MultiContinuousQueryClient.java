@@ -144,7 +144,7 @@ public class MultiContinuousQueryClient implements Runnable {
 	 */
 	public static void main(String[] args) {
 		
-		if(args.length < 2) {
+		if(args.length < 1) {
 			System.err.println("Usage: <Class> Action:{autogenerate, writefile, readfile}");
 			System.exit(-1);
 		}
