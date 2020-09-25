@@ -18,7 +18,7 @@
 package org.bboxdb.test.distribution;
 
 import org.bboxdb.distribution.zookeeper.ContinuousQueryRegisterer;
-import org.bboxdb.distribution.zookeeper.QueryEnlagement;
+import org.bboxdb.distribution.zookeeper.QueryEnlargement;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.Assert;
@@ -45,7 +45,7 @@ public class TestContinuousQueryEnlargement {
 	@Test(timeout=60_000)
 	public void testQueryRegister0() {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc1");
-		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
+		final QueryEnlargement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(0, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(1, enlargement.getMaxEnlargementFactor(), DELTA);
 		Assert.assertEquals(0, enlargement.getMaxEnlargementLat(), DELTA);
@@ -57,7 +57,7 @@ public class TestContinuousQueryEnlargement {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc2");
 		registerer.updateQueryOnTable(10, 20, 30, 40);
 		
-		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
+		final QueryEnlargement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(10, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(20, enlargement.getMaxEnlargementFactor(), DELTA);
 		Assert.assertEquals(30, enlargement.getMaxEnlargementLat(), DELTA);
@@ -70,7 +70,7 @@ public class TestContinuousQueryEnlargement {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc3");
 		registerer.updateQueryOnTable(30, 40, 50, 60);
 		
-		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
+		final QueryEnlargement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(30, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(40, enlargement.getMaxEnlargementFactor(), DELTA);
 		Assert.assertEquals(50, enlargement.getMaxEnlargementLat(), DELTA);
@@ -82,7 +82,7 @@ public class TestContinuousQueryEnlargement {
 		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(DISTRIBUTION_GROUP, "abc4");
 		registerer.updateQueryOnTable(30, 40, 50, 60);
 
-		final QueryEnlagement enlargement = registerer.getMaxEnlagementFactorForTable();
+		final QueryEnlargement enlargement = registerer.getMaxEnlagementFactorForTable();
 		Assert.assertEquals(30, enlargement.getMaxAbsoluteEnlargement(), DELTA);
 		Assert.assertEquals(40, enlargement.getMaxEnlargementFactor(), DELTA);
 		Assert.assertEquals(50, enlargement.getMaxEnlargementLat(), DELTA);

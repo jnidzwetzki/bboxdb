@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
-public class QueryEnlagement {
+public class QueryEnlargement {
 	
 	/**
 	 * The max enlargement factor
@@ -64,7 +64,7 @@ public class QueryEnlagement {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		QueryEnlagement other = (QueryEnlagement) obj;
+		QueryEnlargement other = (QueryEnlargement) obj;
 		if (Double.doubleToLongBits(maxAbsoluteEnlargement) != Double.doubleToLongBits(other.maxAbsoluteEnlargement))
 			return false;
 		if (Double.doubleToLongBits(maxEnlargementFactor) != Double.doubleToLongBits(other.maxEnlargementFactor))
@@ -110,7 +110,7 @@ public class QueryEnlagement {
 
 	@Override
 	public String toString() {
-		return "QueryEnlagement [maxEnlargementFactor=" + maxEnlargementFactor + ", maxAbsoluteEnlargement="
+		return "QueryEnlargement [maxEnlargementFactor=" + maxEnlargementFactor + ", maxAbsoluteEnlargement="
 				+ maxAbsoluteEnlargement + ", maxEnlargementLat=" + maxEnlargementLat + ", maxEnlargementLon="
 				+ maxEnlargementLon + "]";
 	}

@@ -29,7 +29,7 @@ import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.zookeeper.ContinuousQueryRegisterer;
-import org.bboxdb.distribution.zookeeper.QueryEnlagement;
+import org.bboxdb.distribution.zookeeper.QueryEnlargement;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -77,7 +77,7 @@ public class SocketImporter implements Runnable {
 	/**
 	 * The Query enlargement
 	 */
-	private final QueryEnlagement enlargement;
+	private final QueryEnlargement enlargement;
 	
 	/**
 	 * The amount of pending insert futures
@@ -90,7 +90,7 @@ public class SocketImporter implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(SocketImporter.class);
 
 	public SocketImporter(final int port, final String connectionPoint, final String clustername, 
-			final String table, final TupleBuilder tupleFactory, final QueryEnlagement enlargement) {
+			final String table, final TupleBuilder tupleFactory, final QueryEnlargement enlargement) {
 				this.port = port;
 				this.connectionPoint = connectionPoint;
 				this.clustername = clustername;
@@ -230,7 +230,7 @@ public class SocketImporter implements Runnable {
 		final String enlargement = args[5];
 		
 		final TupleBuilder tupleFactory = TupleBuilderFactory.getBuilderForFormat(format);
-		QueryEnlagement queryEnlargement = null;
+		QueryEnlargement queryEnlargement = null;
 		
 		// Read dynamic enlargement
 		if("dynamic".equals(enlargement)) {
@@ -239,7 +239,7 @@ public class SocketImporter implements Runnable {
 			queryEnlargement = continuousQueryRegisterer.getMaxEnlagementFactorForTable();
 		} else {
 			final double enlargementFactor = MathUtil.tryParseDoubleOrExit(enlargement, () -> "Unable to parse enlargement: " + enlargement);
-			queryEnlargement = new QueryEnlagement();
+			queryEnlargement = new QueryEnlargement();
 			queryEnlargement.setMaxEnlargementFactor(enlargementFactor);
 		}
 		

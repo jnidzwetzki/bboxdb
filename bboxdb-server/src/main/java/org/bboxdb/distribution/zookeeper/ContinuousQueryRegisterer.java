@@ -77,7 +77,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 	/**
 	 * The query enlargement for the given table
 	 */
-	private final QueryEnlagement queryEnlagement;
+	private final QueryEnlargement queryEnlagement;
 	
 	
 	/**
@@ -94,7 +94,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 			final String table, final ZookeeperClient zookeeperClient) {
 		
 		this.zookeeperClient = zookeeperClient;
-		this.queryEnlagement = new QueryEnlagement();
+		this.queryEnlagement = new QueryEnlargement();
 		
 		final TupleStoreAdapter tupleStoreAdapter = zookeeperClient.getTupleStoreAdapter();
 		final String tablePath = tupleStoreAdapter.getTablePath(distributionGroup, table);
@@ -162,7 +162,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 	 * @param table
 	 * @return
 	 */
-	public QueryEnlagement getMaxEnlagementFactorForTable() {		
+	public QueryEnlargement getMaxEnlagementFactorForTable() {		
 		updateQueryEnlargement();
 		return queryEnlagement;
 	}
