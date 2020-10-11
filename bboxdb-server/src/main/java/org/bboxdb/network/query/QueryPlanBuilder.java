@@ -115,7 +115,7 @@ public class QueryPlanBuilder {
 	 * @param table
 	 * @return
 	 */
-	public QueryPlanBuilder compareWithTable(final String table) {
+	public QueryPlanBuilder spatialJoinWithTable(final String table) {
 		this.joinTable = table;
 		return this;
 	}

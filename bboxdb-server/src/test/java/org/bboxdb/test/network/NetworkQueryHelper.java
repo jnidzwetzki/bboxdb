@@ -259,7 +259,7 @@ public class NetworkQueryHelper {
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
 				.createQueryOnTable(table)
 				.forAllNewTuplesStoredInRegion(new Hyperrectangle(-1d, 2d, -1d, 2d))
-				.compareWithTable(table)
+				.spatialJoinWithTable(table)
 				.build();
 
 		final Tuple storedTuple = new Tuple("abc", new Hyperrectangle(0.5d, 1d, 0.5d, 1d), "".getBytes());

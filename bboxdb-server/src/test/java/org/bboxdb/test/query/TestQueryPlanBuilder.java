@@ -33,7 +33,7 @@ public class TestQueryPlanBuilder {
 			.createQueryOnTable("table")
 			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
 			.compareWithStaticRegion(new Hyperrectangle(2d, 4d))
-			.compareWithTable("testtable")
+			.spatialJoinWithTable("testtable")
 			.build();	
 	}
 	
@@ -91,7 +91,7 @@ public class TestQueryPlanBuilder {
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.reportNegativeMatches()
-			.compareWithTable("testtable")
+			.spatialJoinWithTable("testtable")
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
@@ -117,7 +117,7 @@ public class TestQueryPlanBuilder {
 			.enlargeStoredTupleBoundBoxByWGS84Meter(3.1, 3.1)
 			.filterStoredTupleByKey("abc")
 			.filterStreamTupleByKey("def")
-			.compareWithTable("testtable")
+			.spatialJoinWithTable("testtable")
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());

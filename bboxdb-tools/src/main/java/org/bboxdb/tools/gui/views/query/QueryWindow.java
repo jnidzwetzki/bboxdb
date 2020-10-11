@@ -463,7 +463,7 @@ public class QueryWindow {
 							
 				QueryPlanBuilder qpb = QueryPlanBuilder
 						.createQueryOnTable(table1)
-						.compareWithTable(table2)
+						.spatialJoinWithTable(table2)
 						.forAllNewTuplesStoredInRegion(bbox);
 				
 				if(customFilter.length() > 2) {
