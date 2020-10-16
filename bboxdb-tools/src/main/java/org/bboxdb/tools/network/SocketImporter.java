@@ -170,6 +170,11 @@ public class SocketImporter implements Runnable {
 	 * @return
 	 */
 	private Hyperrectangle getEnlargedBBoxForTuple(final Tuple tuple) {
+		
+		if(enlargement == null) {
+			return tuple.getBoundingBox();
+		}
+		
 		final double maxAbsoluteEnlargement = enlargement.getMaxAbsoluteEnlargement();
 		final double maxEnlargementFactor = enlargement.getMaxEnlargementFactor();
 		final double maxEnlargementLat = enlargement.getMaxEnlargementLat();
@@ -245,7 +250,7 @@ public class SocketImporter implements Runnable {
 			final TupleStoreName tupleStoreName = new TupleStoreName(table);
 			final ContinuousQueryRegisterer continuousQueryRegisterer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
 			queryEnlargement = continuousQueryRegisterer.getMaxEnlagementFactorForTable();
-		} else {
+		} else if(! "0".equals(enlargement)) {
 			final double enlargementFactor = MathUtil.tryParseDoubleOrExit(enlargement, () -> "Unable to parse enlargement: " + enlargement);
 			queryEnlargement = new QueryEnlargement();
 			queryEnlargement.setMaxEnlargementFactor(enlargementFactor);
