@@ -85,6 +85,11 @@ public class SocketImporter implements Runnable {
 	private final static int MAX_PENDING_FUTURES = 1000;
 	
 	/**
+	 * The null table
+	 */
+	private final static String NULL_TABLE = "NULL";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SocketImporter.class);
@@ -147,8 +152,11 @@ public class SocketImporter implements Runnable {
 				if(tuple != null) {
 					final Hyperrectangle tupleBBox = getEnlargedBBoxForTuple(tuple);
 					tuple.setBoundingBox(tupleBBox);
-					final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
-					pendingFutures.put(result);
+					
+					if(! NULL_TABLE.equals(table)) {
+						final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
+						pendingFutures.put(result);
+					}
 				}
 			}
 		} catch(Exception e) {
