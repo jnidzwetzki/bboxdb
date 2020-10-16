@@ -87,7 +87,7 @@ public class SocketImporter implements Runnable {
 	/**
 	 * The null table
 	 */
-	private final static String NULL_TABLE = "NULL";
+	private final static String NULL_STRING = "NULL";
 	
 	/**
 	 * The logger
@@ -153,7 +153,7 @@ public class SocketImporter implements Runnable {
 					final Hyperrectangle tupleBBox = getEnlargedBBoxForTuple(tuple);
 					tuple.setBoundingBox(tupleBBox);
 					
-					if(! NULL_TABLE.equals(table)) {
+					if(! NULL_STRING.equals(table)) {
 						final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
 						pendingFutures.put(result);
 					}
@@ -247,10 +247,15 @@ public class SocketImporter implements Runnable {
 		
 		// Read dynamic enlargement
 		if("dynamic".equals(enlargement)) {
+			System.out.println("Performing dynamic enlargement");
 			final TupleStoreName tupleStoreName = new TupleStoreName(table);
 			final ContinuousQueryRegisterer continuousQueryRegisterer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
 			queryEnlargement = continuousQueryRegisterer.getMaxEnlagementFactorForTable();
-		} else if(! "0".equals(enlargement)) {
+		} else if(NULL_STRING.equals(enlargement)) {
+			System.out.println("Performing NULL enlargement");
+			queryEnlargement = null;
+		} else {
+			System.out.println("Performing factor enlargement");
 			final double enlargementFactor = MathUtil.tryParseDoubleOrExit(enlargement, () -> "Unable to parse enlargement: " + enlargement);
 			queryEnlargement = new QueryEnlargement();
 			queryEnlargement.setMaxEnlargementFactor(enlargementFactor);
