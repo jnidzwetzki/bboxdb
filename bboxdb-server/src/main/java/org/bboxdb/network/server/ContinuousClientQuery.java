@@ -205,50 +205,12 @@ public class ContinuousClientQuery implements ClientQuery {
 			}
 			
 			// Callback for the stored tuple
-			final Consumer<Tuple> tupleConsumer = (storedTuple) -> {
-				final List<TupleTransformation> tableTransformations 
-					= qp.getTableTransformation(); 
-				
-				final TupleAndBoundingBox transformedStoredTuple 
-					= applyStreamTupleTransformations(tableTransformations, storedTuple);
-				
-				if(transformedStoredTuple == null) {
-					logger.error("Transformed tuple is null, please check filter");
-					return;
-				}
-				
-				final boolean intersection = transformedStreamTuple.getBoundingBox()
-						.intersects(transformedStoredTuple.getBoundingBox());
-				
-				// Is the tuple important for the query?
-				if(intersection && queryPlan.isReportPositive()) {
-				
-					// Perform expensive UDF
-					final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
-							storedTuple, filters);
-
-					if(udfMatches == true) {
-						final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
-						queueTupleForClientProcessing(joinedTuple);
-					}
-					
-				} else if(! intersection && ! queryPlan.isReportPositive()) {
-					
-					// Perform expensive UDF
-					final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
-							storedTuple, filters);
-					
-					if(udfMatches != true) {
-						final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
-						queueTupleForClientProcessing(joinedTuple);
-					}
-				}
-			};
+			final Consumer<Tuple> tupleConsumer = getStoredTupleReader(qp, filters, streamTuple, transformedStreamTuple);
 			
 			try {
 				final TupleStoreName tupleStoreName = new TupleStoreName(qp.getJoinTable());
 				
-				TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
+				final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 				
 				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
 						transformedStreamTuple.getBoundingBox(), 
@@ -265,6 +227,59 @@ public class ContinuousClientQuery implements ClientQuery {
 				queryActive = false;
 				return;
 			}	
+		};
+	}
+
+	/**
+	 * The callback handler for the range query of a continuous spatial join
+	 * @param qp
+	 * @param filters
+	 * @param streamTuple
+	 * @param transformedStreamTuple
+	 * @return
+	 */
+	private Consumer<Tuple> getStoredTupleReader(final ContinuousTableQueryPlan qp,
+			final Map<UserDefinedFilter, byte[]> filters, Tuple streamTuple,
+			final TupleAndBoundingBox transformedStreamTuple) {
+		
+		return (storedTuple) -> {
+			final List<TupleTransformation> tableTransformations 
+				= qp.getTableTransformation(); 
+			
+			final TupleAndBoundingBox transformedStoredTuple 
+				= applyStreamTupleTransformations(tableTransformations, storedTuple);
+			
+			if(transformedStoredTuple == null) {
+				logger.error("Transformed tuple is null, please check filter");
+				return;
+			}
+			
+			final boolean intersection = transformedStreamTuple.getBoundingBox()
+					.intersects(transformedStoredTuple.getBoundingBox());
+			
+			// Is the tuple important for the query?
+			if(intersection && queryPlan.isReportPositive()) {
+			
+				// Perform expensive UDF
+				final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
+						storedTuple, filters);
+
+				if(udfMatches == true) {
+					final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
+					queueTupleForClientProcessing(joinedTuple);
+				}
+				
+			} else if(! intersection && ! queryPlan.isReportPositive()) {
+				
+				// Perform expensive UDF
+				final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
+						storedTuple, filters);
+				
+				if(udfMatches != true) {
+					final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
+					queueTupleForClientProcessing(joinedTuple);
+				}
+			}
 		};
 	}
 
@@ -335,7 +350,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	}
 
 	/**
-	 * Get the consumer for the const query
+	 * Get the consumer for the range query
 	 * @param qp 
 	 * @return
 	 */
