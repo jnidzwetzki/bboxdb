@@ -105,7 +105,9 @@ public class RangeQueryExecutor {
 	}
 
 	/**
-	 * Perform the read on the given region
+	 * Perform the read on the given region, 
+	 * a local read is preferred over a network read
+	 * 
 	 * @param region
 	 * @throws StorageManagerException 
 	 * @throws InterruptedException 
