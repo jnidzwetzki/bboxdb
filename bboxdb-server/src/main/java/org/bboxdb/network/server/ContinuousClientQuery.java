@@ -160,10 +160,10 @@ public class ContinuousClientQuery implements ClientQuery {
 			// Add each tuple to our tuple queue
 			if(queryPlan instanceof ContinuousConstQueryPlan) {
 				final ContinuousConstQueryPlan qp = (ContinuousConstQueryPlan) queryPlan;
-				this.tupleInsertCallback = getCallbackForConstQuery(qp);
+				this.tupleInsertCallback = getCallbackForRangeQuery(qp);
 			} else if(queryPlan instanceof ContinuousTableQueryPlan) {
 				final ContinuousTableQueryPlan qp = (ContinuousTableQueryPlan) queryPlan;
-				this.tupleInsertCallback = getCallbackForTableQuery(qp);
+				this.tupleInsertCallback = getCallbackForSpatialJoinQuery(qp);
 			} else { 
 				this.tupleInsertCallback = null;
 				logger.error("Unknown query type: " + queryPlan);
@@ -180,11 +180,11 @@ public class ContinuousClientQuery implements ClientQuery {
 	}
 
 	/**
-	 * Get the callback for a table query
+	 * Get the callback for a spatial join query
 	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForTableQuery(final ContinuousTableQueryPlan qp) {
+	private Consumer<Tuple> getCallbackForSpatialJoinQuery(final ContinuousTableQueryPlan qp) {
 		
 		final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
 		final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(qp);
@@ -217,11 +217,11 @@ public class ContinuousClientQuery implements ClientQuery {
 					return;
 				}
 				
-				final boolean insertection = transformedStreamTuple.getBoundingBox()
+				final boolean intersection = transformedStreamTuple.getBoundingBox()
 						.intersects(transformedStoredTuple.getBoundingBox());
 				
 				// Is the tuple important for the query?
-				if(insertection && queryPlan.isReportPositive()) {
+				if(intersection && queryPlan.isReportPositive()) {
 				
 					// Perform expensive UDF
 					final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
@@ -232,7 +232,7 @@ public class ContinuousClientQuery implements ClientQuery {
 						queueTupleForClientProcessing(joinedTuple);
 					}
 					
-				} else if(! insertection && ! queryPlan.isReportPositive()) {
+				} else if(! intersection && ! queryPlan.isReportPositive()) {
 					
 					// Perform expensive UDF
 					final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
@@ -339,7 +339,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForConstQuery(final ContinuousConstQueryPlan qp) {
+	private Consumer<Tuple> getCallbackForRangeQuery(final ContinuousConstQueryPlan qp) {
 		
 		final ContinuousConstQueryPlan constQueryPlan = (ContinuousConstQueryPlan) queryPlan;
 		
