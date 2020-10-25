@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 
-public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEntity {
+public class MultiTuple implements Comparable<MultiTuple>, PagedTransferableEntity {
 	
 	/**
 	 * The joined tuples
@@ -34,7 +34,7 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	 */
 	private final List<String> tupleStoreNames;
 	
-	public JoinedTuple(final List<Tuple> tuples, final List<String> tupleStoreNames) {
+	public MultiTuple(final List<Tuple> tuples, final List<String> tupleStoreNames) {
 		if(tuples.size() != tupleStoreNames.size()) {
 			throw new IllegalArgumentException("Unable to create joined tuple with different argument sizes");
 		}
@@ -43,7 +43,7 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 		this.tupleStoreNames = tupleStoreNames;
 	}
 	
-	public JoinedTuple(final Tuple tuple, final String tupleStoreName) {
+	public MultiTuple(final Tuple tuple, final String tupleStoreName) {
 		this.tuples = new ArrayList<>();
 		this.tupleStoreNames = new ArrayList<>();
 		
@@ -128,7 +128,7 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	}
 
 	@Override
-	public int compareTo(final JoinedTuple o) {
+	public int compareTo(final MultiTuple o) {
 		final int elements = Math.min(o.getNumberOfTuples(), getNumberOfTuples());
 		
 		for(int i = 0; i < elements; i++) {
@@ -199,7 +199,7 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		JoinedTuple other = (JoinedTuple) obj;
+		MultiTuple other = (MultiTuple) obj;
 		if (tupleStoreNames == null) {
 			if (other.tupleStoreNames != null)
 				return false;

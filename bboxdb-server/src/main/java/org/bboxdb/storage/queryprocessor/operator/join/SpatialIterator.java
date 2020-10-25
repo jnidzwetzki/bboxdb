@@ -24,16 +24,16 @@ import java.util.List;
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 
-public class SpatialIterator implements Iterator<JoinedTuple> {
+public class SpatialIterator implements Iterator<MultiTuple> {
 
 	/**
 	 * The stream source
 	 */
-	private final Iterator<JoinedTuple> tupleStreamSource;
+	private final Iterator<MultiTuple> tupleStreamSource;
 
 	/**
 	 * The index reader
@@ -43,17 +43,17 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 	/**
 	 * The tuple stream source
 	 */
-	private JoinedTuple tupleFromStreamSource = null;
+	private MultiTuple tupleFromStreamSource = null;
 
 	/**
 	 * The candidates
 	 */
-	private Iterator<JoinedTuple> candidatesForCurrentTuple = null;
+	private Iterator<MultiTuple> candidatesForCurrentTuple = null;
 
 	/**
 	 * The next tuple 
 	 */
-	private JoinedTuple nextTuple = null;
+	private MultiTuple nextTuple = null;
 
 	/**
 	 * The current operation range
@@ -65,7 +65,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 	 */
 	private final Hyperrectangle queryBox;
 
-	public SpatialIterator(final Iterator<JoinedTuple> tupleStreamSource, 
+	public SpatialIterator(final Iterator<MultiTuple> tupleStreamSource, 
 			final SpatialIndexReadOperator indexReader) {
 
 		this.tupleStreamSource = tupleStreamSource;
@@ -105,7 +105,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 				} 
 			}
 
-			final JoinedTuple nextJoinedTuple = candidatesForCurrentTuple.next();
+			final MultiTuple nextJoinedTuple = candidatesForCurrentTuple.next();
 			final Tuple nextCandidateTuple = nextJoinedTuple.convertToSingleTupleIfPossible();
 			
 			assert (nextCandidateTuple.getBoundingBox().intersects(currentOperationRange)) : "Wrong join, no overlap";
@@ -120,7 +120,7 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 	 * @param nextCandidateTuple
 	 * @return
 	 */
-	protected JoinedTuple buildNextJoinedTuple(final Tuple nextCandidateTuple) {
+	protected MultiTuple buildNextJoinedTuple(final Tuple nextCandidateTuple) {
 
 		// Build tuple store name
 		final List<String> tupleStoreNames = new ArrayList<>();
@@ -139,17 +139,17 @@ public class SpatialIterator implements Iterator<JoinedTuple> {
 			}
 		}
 
-		return new JoinedTuple(tupesToJoin, tupleStoreNames);
+		return new MultiTuple(tupesToJoin, tupleStoreNames);
 	}
 
 	@Override
-	public JoinedTuple next() {
+	public MultiTuple next() {
 
 		if(nextTuple == null) {
 			throw new IllegalArgumentException("Next tuple is null, do you forget to call hasNext()?");
 		}
 
-		final JoinedTuple returnTuple = nextTuple;
+		final MultiTuple returnTuple = nextTuple;
 		nextTuple = null;
 		return returnTuple;
 	}

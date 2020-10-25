@@ -30,7 +30,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
 
@@ -39,9 +39,9 @@ public class JoinedTupleResponse extends NetworkResponsePackage {
 	/**
 	 * The joined tuple
 	 */
-	private final JoinedTuple joinedTuple;
+	private final MultiTuple joinedTuple;
 
-	public JoinedTupleResponse(final short sequenceNumber, final JoinedTuple joinedTuple) {
+	public JoinedTupleResponse(final short sequenceNumber, final MultiTuple joinedTuple) {
 		super(sequenceNumber);
 		this.joinedTuple = joinedTuple;
 	}
@@ -105,7 +105,7 @@ public class JoinedTupleResponse extends NetworkResponsePackage {
 			tuples.add(tupleAndTable.getTuple());
 		}
 		
-		final JoinedTuple joinedTuple = new JoinedTuple(tuples, tupleStoreNames);
+		final MultiTuple joinedTuple = new MultiTuple(tuples, tupleStoreNames);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after encoding: " + encodedPackage.remaining());
@@ -114,7 +114,7 @@ public class JoinedTupleResponse extends NetworkResponsePackage {
 		return new JoinedTupleResponse(requestId, joinedTuple);
 	}
 
-	public JoinedTuple getJoinedTuple() {
+	public MultiTuple getJoinedTuple() {
 		return joinedTuple;
 	}
 }

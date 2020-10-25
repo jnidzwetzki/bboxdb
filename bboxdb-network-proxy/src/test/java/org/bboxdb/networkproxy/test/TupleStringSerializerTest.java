@@ -25,7 +25,7 @@ import java.util.Arrays;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.junit.Assert;
 import org.junit.Test;
@@ -124,20 +124,20 @@ public class TupleStringSerializerTest {
 	
 	@Test(timeout=60000)
 	public void testJoinedTuple0() throws IOException {
-		final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(), Arrays.asList());
+		final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(), Arrays.asList());
 		
 		final byte[] serirializedTuple = TupleStringSerializer.joinedTupleToProxyBytes(joinedTuple);
-		final JoinedTuple unserializedTuple = TupleStringSerializer.proxyBytesToJoinedTuple(serirializedTuple);
+		final MultiTuple unserializedTuple = TupleStringSerializer.proxyBytesToJoinedTuple(serirializedTuple);
 		Assert.assertEquals(joinedTuple, unserializedTuple);
 	}
 	
 	@Test(timeout=60000)
 	public void testJoinedTuple1() throws IOException {
 		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes());
-		final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple1), Arrays.asList("abc"));
+		final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple1), Arrays.asList("abc"));
 		
 		final byte[] serirializedTuple = TupleStringSerializer.joinedTupleToProxyBytes(joinedTuple);
-		final JoinedTuple unserializedTuple = TupleStringSerializer.proxyBytesToJoinedTuple(serirializedTuple);
+		final MultiTuple unserializedTuple = TupleStringSerializer.proxyBytesToJoinedTuple(serirializedTuple);
 		Assert.assertEquals(joinedTuple, unserializedTuple);
 	}
 	
@@ -145,10 +145,10 @@ public class TupleStringSerializerTest {
 	public void testJoinedTuple2() throws IOException {
 		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes());
 		final Tuple tuple2 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "def".getBytes());
-		final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
 		
 		final byte[] serirializedTuple = TupleStringSerializer.joinedTupleToProxyBytes(joinedTuple);
-		final JoinedTuple unserializedTuple = TupleStringSerializer.proxyBytesToJoinedTuple(serirializedTuple);
+		final MultiTuple unserializedTuple = TupleStringSerializer.proxyBytesToJoinedTuple(serirializedTuple);
 		Assert.assertEquals(joinedTuple, unserializedTuple);
 	}
 	
@@ -156,13 +156,13 @@ public class TupleStringSerializerTest {
 	public void testJoinedTupleStream1() throws IOException {
 		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes());
 		final Tuple tuple2 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "def".getBytes());
-		final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		TupleStringSerializer.writeJoinedTuple(joinedTuple, bos);
 		bos.close();
 		final ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-		final JoinedTuple unserializedTuple = TupleStringSerializer.readJoinedTuple(bis);
+		final MultiTuple unserializedTuple = TupleStringSerializer.readJoinedTuple(bis);
 		
 		Assert.assertEquals(joinedTuple, unserializedTuple);
 	}

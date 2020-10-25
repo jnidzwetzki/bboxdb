@@ -25,7 +25,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTablescanOperator implements Operator {
 	
-	private final class TablescanIterator implements Iterator<JoinedTuple> {
+	private final class TablescanIterator implements Iterator<MultiTuple> {
 		/**
 		 * The active iterator
 		 */
@@ -45,7 +45,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 		/**
 		 * The next precomputed tuple
 		 */
-		protected final Queue<JoinedTuple> nextTuples = new LinkedList<>();
+		protected final Queue<MultiTuple> nextTuples = new LinkedList<>();
 
 		/**
 		 * Setup the next iterator
@@ -120,7 +120,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 			
 			tupleVersions
 				.stream()
-				.map(t -> new JoinedTuple(t, tupleStorename))
+				.map(t -> new MultiTuple(t, tupleStorename))
 				.forEach(t -> nextTuples.add(t));
 			
 			seenTuples.add(key);
@@ -140,7 +140,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 		}
 
 		@Override
-		public JoinedTuple next() {
+		public MultiTuple next() {
 
 			if(ready == false) {
 				throw new IllegalStateException("Iterator is not ready");
@@ -243,7 +243,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 	 */
 	protected abstract void filterTupleVersions(final List<Tuple> tupleVersions);
 	
-	public Iterator<JoinedTuple> iterator() {
+	public Iterator<MultiTuple> iterator() {
 
 		aquireStorage();
 		

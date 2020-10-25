@@ -32,7 +32,7 @@ import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 
 public class NetworkProxyClient implements AutoCloseable {
@@ -145,8 +145,8 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	private List<JoinedTuple> readJoinedTupleListFromServer() throws IOException {
-		final List<JoinedTuple> tupleList = new ArrayList<>();
+	private List<MultiTuple> readJoinedTupleListFromServer() throws IOException {
+		final List<MultiTuple> tupleList = new ArrayList<>();
 
 		boolean continueRead = true;
 
@@ -159,7 +159,7 @@ public class NetworkProxyClient implements AutoCloseable {
 
 				case ProxyConst.RESULT_FOLLOW:
 					continueRead = true;
-					final JoinedTuple tuple = TupleStringSerializer.readJoinedTuple(socketInputStream);
+					final MultiTuple tuple = TupleStringSerializer.readJoinedTuple(socketInputStream);
 					tupleList.add(tuple);
 					break;
 
@@ -231,7 +231,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public synchronized List<JoinedTuple> join(final Hyperrectangle queryRectangle, final String table1,
+	public synchronized List<MultiTuple> join(final Hyperrectangle queryRectangle, final String table1,
 			final String table2) throws IOException {
 
 		sendToServer(ProxyConst.COMMAND_JOIN);
@@ -250,7 +250,7 @@ public class NetworkProxyClient implements AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public synchronized List<JoinedTuple> joinLocal(final Hyperrectangle queryRectangle, final String table1,
+	public synchronized List<MultiTuple> joinLocal(final Hyperrectangle queryRectangle, final String table1,
 			final String table2) throws IOException {
 
 		sendToServer(ProxyConst.COMMAND_JOIN_LOCAL);

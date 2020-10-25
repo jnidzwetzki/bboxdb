@@ -30,7 +30,7 @@ import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.TupleHelper;
 
@@ -72,7 +72,7 @@ public class TupleStringSerializer {
 	 * @param writer
 	 * @throws IOException
 	 */
-	public static void writeJoinedTuple(final JoinedTuple tuple, final OutputStream outputStream) throws IOException {
+	public static void writeJoinedTuple(final MultiTuple tuple, final OutputStream outputStream) throws IOException {
 		final byte[] tupleData = TupleStringSerializer.joinedTupleToProxyBytes(tuple);
 
 		outputStream.write(DataEncoderHelper.intToByteBuffer(tupleData.length).array());
@@ -85,7 +85,7 @@ public class TupleStringSerializer {
 	 * @return
 	 * @throws IOException
 	 */
-	public static JoinedTuple readJoinedTuple(final InputStream reader) throws IOException {
+	public static MultiTuple readJoinedTuple(final InputStream reader) throws IOException {
 		final int tupleLength = DataEncoderHelper.readIntFromStream(reader);
 		final byte[] tupleBytes = new byte[tupleLength];
 
@@ -130,7 +130,7 @@ public class TupleStringSerializer {
 	 * @return
 	 * @throws IOException
 	 */
-	public static byte[] joinedTupleToProxyBytes(final JoinedTuple joinedTuple) throws IOException {
+	public static byte[] joinedTupleToProxyBytes(final MultiTuple joinedTuple) throws IOException {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		// Amount of tuples in the joined tuple
@@ -213,7 +213,7 @@ public class TupleStringSerializer {
 	 * @return
 	 * @throws IOException
 	 */
-	public static JoinedTuple proxyBytesToJoinedTuple(final byte[] bytes) throws IOException {
+	public static MultiTuple proxyBytesToJoinedTuple(final byte[] bytes) throws IOException {
 		try {
 			if(bytes == null) {
 				throw new IOException("Unable to handle a null argument");
@@ -244,7 +244,7 @@ public class TupleStringSerializer {
 				tupleList.add(tuple);
 			}
 			
-			return new JoinedTuple(tupleList, tupleStoreNames);
+			return new MultiTuple(tupleList, tupleStoreNames);
 		} catch (BufferUnderflowException e) {
 			throw new IOException(e);
 		}

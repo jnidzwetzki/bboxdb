@@ -37,7 +37,7 @@ import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
@@ -61,7 +61,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	/**
 	 * The current iterator
 	 */
-	protected Iterator<JoinedTuple> activeOperatorIterator;
+	protected Iterator<MultiTuple> activeOperatorIterator;
 
 	/**
 	 * Page the result
@@ -203,7 +203,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 				}
 
 				// Send next tuple
-				final JoinedTuple tuple = activeOperatorIterator.next();
+				final MultiTuple tuple = activeOperatorIterator.next();
 
 				clientConnectionHandler.writeResultTuple(packageSequence, tuple, false);
 				totalSendTuples++;

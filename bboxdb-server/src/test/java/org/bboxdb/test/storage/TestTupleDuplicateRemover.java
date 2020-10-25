@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
 import org.junit.Assert;
@@ -80,9 +80,9 @@ public class TestTupleDuplicateRemover {
 		final List<Tuple> tupleList2 = Arrays.asList(tuple1, tuple2);
 		final List<Tuple> tupleList3 = Arrays.asList(tuple1, tuple2, tuple3);
 
-		final JoinedTuple joinedTuple1 = new JoinedTuple(tupleList1, Arrays.asList("table1"));
-		final JoinedTuple joinedTuple2 = new JoinedTuple(tupleList2, Arrays.asList("table1", "table2"));
-		final JoinedTuple joinedTuple3 = new JoinedTuple(tupleList3, Arrays.asList("table1", "table2", "table3"));
+		final MultiTuple joinedTuple1 = new MultiTuple(tupleList1, Arrays.asList("table1"));
+		final MultiTuple joinedTuple2 = new MultiTuple(tupleList2, Arrays.asList("table1", "table2"));
+		final MultiTuple joinedTuple3 = new MultiTuple(tupleList3, Arrays.asList("table1", "table2", "table3"));
 
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(joinedTuple1));
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(joinedTuple1));

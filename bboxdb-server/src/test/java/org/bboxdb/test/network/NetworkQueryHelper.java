@@ -31,7 +31,7 @@ import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.junit.Assert;
@@ -222,8 +222,8 @@ public class NetworkQueryHelper {
 		System.out.println("=== Wait for query result");
 		queryFuture.waitForCompletion();
 
-		final List<JoinedTuple> resultList = new ArrayList<>();
-		final Iterator<JoinedTuple> iterator = queryFuture.iterator();
+		final List<MultiTuple> resultList = new ArrayList<>();
+		final Iterator<MultiTuple> iterator = queryFuture.iterator();
 
 		for(int i = 0; i < tuples; i++) {
 			if(iterator.hasNext()) {
@@ -280,10 +280,10 @@ public class NetworkQueryHelper {
 		System.out.println("=== Wait for query result");
 		queryFuture.waitForCompletion();
 
-		final Iterator<JoinedTuple> iterator = queryFuture.iterator();
+		final Iterator<MultiTuple> iterator = queryFuture.iterator();
 		Assert.assertTrue(iterator.hasNext());
 
-		final JoinedTuple foundTuple = iterator.next();
+		final MultiTuple foundTuple = iterator.next();
 
 		Assert.assertEquals(2, foundTuple.getNumberOfTuples());
 		Assert.assertEquals(table, foundTuple.getTupleStoreName(0));
@@ -408,7 +408,7 @@ public class NetworkQueryHelper {
 		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2),
 				new Hyperrectangle(0.0, 10.0, 0.0, 10.0), "", "".getBytes());
 		joinResult.waitForCompletion();
-		final List<JoinedTuple> resultList = Lists.newArrayList(joinResult.iterator());
+		final List<MultiTuple> resultList = Lists.newArrayList(joinResult.iterator());
 
 		System.out.println(resultList);
 		Assert.assertEquals(2, resultList.size());

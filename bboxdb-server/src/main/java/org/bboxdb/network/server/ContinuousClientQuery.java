@@ -51,7 +51,7 @@ import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -94,7 +94,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The tuples for the given key
 	 */
-	private final BlockingQueue<JoinedTuple> tupleQueue;
+	private final BlockingQueue<MultiTuple> tupleQueue;
 	
 	/**
 	 * The last query flush time
@@ -129,12 +129,12 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The dead pill for the queue
 	 */
-	private final static JoinedTuple RED_PILL = new JoinedTuple(new ArrayList<>(), new ArrayList<>());
+	private final static MultiTuple RED_PILL = new MultiTuple(new ArrayList<>(), new ArrayList<>());
 	
 	/**
 	 * Keep alive pill
 	 */
-	private final static JoinedTuple KEEP_ALIVE_PILL = new JoinedTuple(new ArrayList<>(), new ArrayList<>());
+	private final static MultiTuple KEEP_ALIVE_PILL = new MultiTuple(new ArrayList<>(), new ArrayList<>());
 	
 	/**
 	 * The Logger
@@ -265,7 +265,7 @@ public class ContinuousClientQuery implements ClientQuery {
 						storedTuple, filters);
 
 				if(udfMatches == true) {
-					final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
+					final MultiTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
 					queueTupleForClientProcessing(joinedTuple);
 				}
 				
@@ -276,7 +276,7 @@ public class ContinuousClientQuery implements ClientQuery {
 						storedTuple, filters);
 				
 				if(udfMatches != true) {
-					final JoinedTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
+					final MultiTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
 					queueTupleForClientProcessing(joinedTuple);
 				}
 			}
@@ -290,10 +290,10 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param storedTuple
 	 * @return
 	 */
-	private JoinedTuple buildJoinedTuple(final ContinuousTableQueryPlan qp, 
+	private MultiTuple buildJoinedTuple(final ContinuousTableQueryPlan qp, 
 			final Tuple streamTuple, final Tuple storedTuple) {
 		
-		return new JoinedTuple(
+		return new MultiTuple(
 				Arrays.asList(streamTuple, storedTuple), 
 				Arrays.asList(qp.getStreamTable(), qp.getJoinTable()));
 	}
@@ -370,12 +370,12 @@ public class ContinuousClientQuery implements ClientQuery {
 			// Is the tuple important for the query?
 			if(tuple.getBoundingBox().intersects(constQueryPlan.getCompareRectangle())) {
 				if(queryPlan.isReportPositive()) {
-					final JoinedTuple joinedTuple = new JoinedTuple(t, requestTable.getFullname());
+					final MultiTuple joinedTuple = new MultiTuple(t, requestTable.getFullname());
 					queueTupleForClientProcessing(joinedTuple);
 				}
 			} else {
 				if(! queryPlan.isReportPositive()) {
-					final JoinedTuple joinedTuple = new JoinedTuple(t, requestTable.getFullname());
+					final MultiTuple joinedTuple = new MultiTuple(t, requestTable.getFullname());
 					queueTupleForClientProcessing(joinedTuple);
 				}
 			}
@@ -408,7 +408,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * Queue the tuple for client processing
 	 * @param t
 	 */
-	private void queueTupleForClientProcessing(final JoinedTuple t) {
+	private void queueTupleForClientProcessing(final MultiTuple t) {
 		final boolean insertResult = tupleQueue.offer(t);
 
 		if(! insertResult) {
@@ -474,7 +474,7 @@ public class ContinuousClientQuery implements ClientQuery {
 				}
 				
 				// Send next tuple or wait
-				final JoinedTuple tuple = tupleQueue.take();
+				final MultiTuple tuple = tupleQueue.take();
 				
 				if(tuple == RED_PILL) {
 					logger.info("Got the red pill from the queue, cancel query");

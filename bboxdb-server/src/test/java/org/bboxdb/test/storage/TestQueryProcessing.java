@@ -26,7 +26,7 @@ import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -118,9 +118,9 @@ public class TestQueryProcessing {
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
-		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
+		final Iterator<MultiTuple> iterator = queryPlan.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
 		queryPlan.close();
 
@@ -154,9 +154,9 @@ public class TestQueryProcessing {
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
-		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
+		final Iterator<MultiTuple> iterator = queryPlan.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
 		queryPlan.close();
 
@@ -166,9 +166,9 @@ public class TestQueryProcessing {
 		Assert.assertTrue(resultTupleList.contains(tuple3));
 
 		// Reopen
-		final Iterator<JoinedTuple> iterator2 = queryPlan.iterator();
+		final Iterator<MultiTuple> iterator2 = queryPlan.iterator();
 
-		final List<JoinedTuple> resultList2 = Lists.newArrayList(iterator2);
+		final List<MultiTuple> resultList2 = Lists.newArrayList(iterator2);
 		final List<Tuple> resultTupleList2 = resultList2.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
 		queryPlan.close();
 
@@ -205,9 +205,9 @@ public class TestQueryProcessing {
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
-		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
+		final Iterator<MultiTuple> iterator = queryPlan.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
 		queryPlan.close();
 
@@ -247,9 +247,9 @@ public class TestQueryProcessing {
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
-		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
+		final Iterator<MultiTuple> iterator = queryPlan.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
 		queryPlan.close();
 
@@ -289,9 +289,9 @@ public class TestQueryProcessing {
 		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
 		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
-		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
+		final Iterator<MultiTuple> iterator = queryPlan.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
 		queryPlan.close();
 
@@ -324,9 +324,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor = new IndexedSpatialJoinOperator(operator1,
 				operator2);
 
-		final Iterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
+		final Iterator<MultiTuple> iterator = joinQueryProcessor.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 		joinQueryProcessor.close();
 
 		Assert.assertEquals(0, resultList.size());
@@ -370,9 +370,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1,
 				operator2);
 
-		final Iterator<JoinedTuple> iterator1 = joinQueryProcessor1.iterator();
+		final Iterator<MultiTuple> iterator1 = joinQueryProcessor1.iterator();
 
-		final List<JoinedTuple> resultList1 = Lists.newArrayList(iterator1);
+		final List<MultiTuple> resultList1 = Lists.newArrayList(iterator1);
 		joinQueryProcessor1.close();
 
 		Assert.assertEquals(1, resultList1.size());
@@ -384,9 +384,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(operator2,
 				operator1);
 
-		final Iterator<JoinedTuple> iterator2 = joinQueryProcessor2.iterator();
+		final Iterator<MultiTuple> iterator2 = joinQueryProcessor2.iterator();
 
-		final List<JoinedTuple> resultList2 = Lists.newArrayList(iterator2);
+		final List<MultiTuple> resultList2 = Lists.newArrayList(iterator2);
 		joinQueryProcessor2.close();
 
 		Assert.assertEquals(1, resultList2.size());
@@ -446,9 +446,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator11,
 				operator12);
 
-		final Iterator<JoinedTuple> iterator1 = joinQueryProcessor1.iterator();
+		final Iterator<MultiTuple> iterator1 = joinQueryProcessor1.iterator();
 
-		final List<JoinedTuple> resultList1 = Lists.newArrayList(iterator1);
+		final List<MultiTuple> resultList1 = Lists.newArrayList(iterator1);
 		joinQueryProcessor1.close();
 		
 		// Join 2: Operator 2 // Operator 1
@@ -458,9 +458,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(operator22,
 				operator21);
 
-		final Iterator<JoinedTuple> iterator2 = joinQueryProcessor2.iterator();
+		final Iterator<MultiTuple> iterator2 = joinQueryProcessor2.iterator();
 
-		final List<JoinedTuple> resultList2 = Lists.newArrayList(iterator2);
+		final List<MultiTuple> resultList2 = Lists.newArrayList(iterator2);
 		joinQueryProcessor2.close();
 		
 		Assert.assertEquals(resultList1.size(), resultList2.size());
@@ -474,9 +474,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor3 = new IndexedSpatialJoinOperator(operator31,
 				operator32);
 
-		final Iterator<JoinedTuple> iterator3 = joinQueryProcessor3.iterator();
+		final Iterator<MultiTuple> iterator3 = joinQueryProcessor3.iterator();
 
-		final List<JoinedTuple> resultList3 = Lists.newArrayList(iterator3);
+		final List<MultiTuple> resultList3 = Lists.newArrayList(iterator3);
 		joinQueryProcessor3.close();
 		
 		//System.out.println("---> " + resultList3.get(0).getTuple(0).getBoundingBox().toCompactString());
@@ -491,9 +491,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor4 = new IndexedSpatialJoinOperator(operator42,
 				operator41);
 
-		final Iterator<JoinedTuple> iterator4 = joinQueryProcessor4.iterator();
+		final Iterator<MultiTuple> iterator4 = joinQueryProcessor4.iterator();
 
-		final List<JoinedTuple> resultList4 = Lists.newArrayList(iterator4);
+		final List<MultiTuple> resultList4 = Lists.newArrayList(iterator4);
 		joinQueryProcessor4.close();
 		
 		//System.out.println("---> " + resultList4.get(0).getTuple(0).getBoundingBox().toCompactString());
@@ -552,9 +552,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(joinQueryProcessor1,
 				operator3);
 
-		final Iterator<JoinedTuple> iterator = joinQueryProcessor2.iterator();
+		final Iterator<MultiTuple> iterator = joinQueryProcessor2.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 
 		joinQueryProcessor2.close();
 
@@ -604,9 +604,9 @@ public class TestQueryProcessing {
 		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1,
 				operator2);
 
-		final Iterator<JoinedTuple> iterator = joinQueryProcessor1.iterator();
+		final Iterator<MultiTuple> iterator = joinQueryProcessor1.iterator();
 
-		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<MultiTuple> resultList = Lists.newArrayList(iterator);
 
 		joinQueryProcessor1.close();
 

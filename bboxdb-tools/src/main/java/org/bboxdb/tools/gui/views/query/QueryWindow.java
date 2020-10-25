@@ -43,7 +43,7 @@ import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
@@ -394,7 +394,7 @@ public class QueryWindow {
 					final List<OverlayElementGroup> elements = new ArrayList<>();
 					final List<Color> colors = Arrays.asList(color1, color2);
 					
-					for(final JoinedTuple joinedTuple : result) {
+					for(final MultiTuple joinedTuple : result) {
 						final OverlayElementGroup group 
 							= OverlayElementBuilder.createOverlayElementGroup(joinedTuple, colors);
 						

@@ -30,7 +30,7 @@ import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;
@@ -279,7 +279,7 @@ public class ProxyTest {
 		networkProxyClient.delete(KEY2, TEST_TABLE_1);
 		networkProxyClient.delete(KEY3, TEST_TABLE_1);
 
-		final List<JoinedTuple> joinResult = networkProxyClient.join(
+		final List<MultiTuple> joinResult = networkProxyClient.join(
 				Hyperrectangle.FULL_SPACE, TEST_TABLE_1, TEST_TABLE_2);
 
 		System.out.println("--> Result: " + joinResult);
@@ -297,17 +297,17 @@ public class ProxyTest {
 		networkProxyClient.put(tuple2Table1, TEST_TABLE_1);
 		networkProxyClient.put(tuple1Table2, TEST_TABLE_2);
 
-		final List<JoinedTuple> joinResult1 = networkProxyClient.join(
+		final List<MultiTuple> joinResult1 = networkProxyClient.join(
 				new Hyperrectangle(100d, 200d, 100d, 200d), TEST_TABLE_1, TEST_TABLE_2);
 
 		Assert.assertTrue(joinResult1.isEmpty());
 
-		final List<JoinedTuple> joinResult2 = networkProxyClient.join(
+		final List<MultiTuple> joinResult2 = networkProxyClient.join(
 				Hyperrectangle.FULL_SPACE, TEST_TABLE_1, TEST_TABLE_2);
 
 		Assert.assertEquals(1, joinResult2.size());
 
-		final JoinedTuple resultTuple = new JoinedTuple(Arrays.asList(tuple2Table1, tuple1Table2), Arrays.asList(TEST_TABLE_1, TEST_TABLE_2));
+		final MultiTuple resultTuple = new MultiTuple(Arrays.asList(tuple2Table1, tuple1Table2), Arrays.asList(TEST_TABLE_1, TEST_TABLE_2));
 		Assert.assertEquals(resultTuple, joinResult2.get(0));
 	}
 
@@ -321,17 +321,17 @@ public class ProxyTest {
 		networkProxyClient.put(tuple2Table1, TEST_TABLE_1);
 		networkProxyClient.put(tuple1Table2, TEST_TABLE_2);
 
-		final List<JoinedTuple> joinResult1 = networkProxyClient.joinLocal(
+		final List<MultiTuple> joinResult1 = networkProxyClient.joinLocal(
 				new Hyperrectangle(100d, 200d, 100d, 200d), TEST_TABLE_1, TEST_TABLE_2);
 
 		Assert.assertTrue(joinResult1.isEmpty());
 
-		final List<JoinedTuple> joinResult2 = networkProxyClient.joinLocal(
+		final List<MultiTuple> joinResult2 = networkProxyClient.joinLocal(
 				Hyperrectangle.FULL_SPACE, TEST_TABLE_1, TEST_TABLE_2);
 
 		Assert.assertEquals(1, joinResult2.size());
 
-		final JoinedTuple resultTuple = new JoinedTuple(Arrays.asList(tuple2Table1, tuple1Table2), Arrays.asList(TEST_TABLE_1, TEST_TABLE_2));
+		final MultiTuple resultTuple = new MultiTuple(Arrays.asList(tuple2Table1, tuple1Table2), Arrays.asList(TEST_TABLE_1, TEST_TABLE_2));
 		Assert.assertEquals(resultTuple, joinResult2.get(0));
 	}
 

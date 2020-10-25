@@ -20,17 +20,17 @@ package org.bboxdb.network.client.future.client.helper;
 import java.util.ArrayList;
 
 import org.bboxdb.network.client.future.client.AbstractListFuture;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 
-public class ThreadedJoinedTupleListFutureIterator extends AbstractTheadedListFutureIterator<JoinedTuple> {
+public class ThreadedJoinedTupleListFutureIterator extends AbstractTheadedListFutureIterator<MultiTuple> {
 	
-	public ThreadedJoinedTupleListFutureIterator(final AbstractListFuture<JoinedTuple> abstractListFuture) {
+	public ThreadedJoinedTupleListFutureIterator(final AbstractListFuture<MultiTuple> abstractListFuture) {
 		super(abstractListFuture);
 	}
 
 	@Override
-	protected JoinedTuple buildQueueTerminal() {
-		return new JoinedTuple(new ArrayList<>(), new ArrayList<>());
+	protected MultiTuple buildQueueTerminal() {
+		return new MultiTuple(new ArrayList<>(), new ArrayList<>());
 	}
 
 }

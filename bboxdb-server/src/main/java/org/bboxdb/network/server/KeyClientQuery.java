@@ -33,7 +33,7 @@ import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
@@ -192,7 +192,7 @@ public class KeyClientQuery implements ClientQuery {
 			final Tuple tuple = tupleListIterator.next();
 			tupleListIterator.remove();
 
-			final JoinedTuple joinedTuple = new JoinedTuple(tuple, requestTable.getFullname());
+			final MultiTuple joinedTuple = new MultiTuple(tuple, requestTable.getFullname());
 
 			clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple, false);
 			totalSendTuples++;

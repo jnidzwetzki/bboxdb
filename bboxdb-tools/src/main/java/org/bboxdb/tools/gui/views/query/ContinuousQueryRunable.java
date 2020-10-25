@@ -26,7 +26,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 			return;
 		}
 	
-		for(final JoinedTuple joinedTuple : queryResult) {
+		for(final MultiTuple joinedTuple : queryResult) {
 			if(queryResult.isFailed()) {
 				logger.error("Got an error" + queryResult.getAllMessages());
 				return;

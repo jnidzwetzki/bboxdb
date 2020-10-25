@@ -27,28 +27,28 @@ import java.util.function.Supplier;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.client.helper.ThreadedJoinedTupleListFutureIterator;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
 
-public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
+public class JoinedTupleListFuture extends AbstractListFuture<MultiTuple>{
 
 	public JoinedTupleListFuture(final Supplier<List<NetworkOperationFuture>> futures) {
 		super(futures);
 	}
 
 	@Override
-	protected Iterator<JoinedTuple> createThreadedIterator() {
+	protected Iterator<MultiTuple> createThreadedIterator() {
 		return new ThreadedJoinedTupleListFutureIterator(this);
 	}
 
 	@Override
-	protected Iterator<JoinedTuple> createSimpleIterator() {
-		final List<JoinedTuple> allTuples = getListWithAllResults();
+	protected Iterator<MultiTuple> createSimpleIterator() {
+		final List<MultiTuple> allTuples = getListWithAllResults();
 		final EntityDuplicateTracker entityDuplicateTracker = new EntityDuplicateTracker();
 
-		final Iterator<JoinedTuple> iterator = allTuples.iterator();
+		final Iterator<MultiTuple> iterator = allTuples.iterator();
 		while(iterator.hasNext()) {
-			final JoinedTuple nextElement = iterator.next();
+			final MultiTuple nextElement = iterator.next();
 
 			if(entityDuplicateTracker.isElementAlreadySeen(nextElement)) {
 				iterator.remove();

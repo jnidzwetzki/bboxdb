@@ -73,7 +73,7 @@ import org.bboxdb.network.server.connection.handler.request.NextPageHandler;
 import org.bboxdb.network.server.connection.handler.request.RequestHandler;
 import org.bboxdb.network.server.connection.lock.LockHelper;
 import org.bboxdb.network.server.connection.lock.LockManager;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -468,7 +468,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @throws PackageEncodeException
 	 * @throws IOException
 	 */
-	public void writeResultTuple(final short packageSequence, final JoinedTuple joinedTuple,
+	public void writeResultTuple(final short packageSequence, final MultiTuple joinedTuple,
 			final boolean forceJoinedTupleResult) throws IOException, PackageEncodeException {
 
 		if(joinedTuple.getNumberOfTuples() > 1 || forceJoinedTupleResult) {

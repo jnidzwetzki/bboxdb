@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.storage.entity.EntityIdentifier;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 
@@ -52,7 +52,7 @@ public class OverlayElementBuilder {
 	 * @param tuples
 	 * @return 
 	 */
-	public static OverlayElementGroup createOverlayElementGroup(final JoinedTuple joinedTuple, 
+	public static OverlayElementGroup createOverlayElementGroup(final MultiTuple joinedTuple, 
 			final List<Color> colors) {
 
 		final List<OverlayElement> elements = new ArrayList<>();
@@ -88,7 +88,7 @@ public class OverlayElementBuilder {
 		final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(data);
 		
 		// Add also the table to the identifier
-		JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple), 
+		MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple), 
 				Arrays.asList(tupleStoreName));
 		final EntityIdentifier identifier = new JoinedTupleIdentifier(joinedTuple);
 		

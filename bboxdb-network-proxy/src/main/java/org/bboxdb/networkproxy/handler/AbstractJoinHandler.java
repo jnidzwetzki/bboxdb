@@ -29,7 +29,7 @@ import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyHelper;
 import org.bboxdb.networkproxy.misc.TupleStringSerializer;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +72,7 @@ public abstract class AbstractJoinHandler implements ProxyCommandHandler {
 					"", "".getBytes());
 			tupleResult.waitForCompletion();
 
-			for(final JoinedTuple tuple : tupleResult) {
+			for(final MultiTuple tuple : tupleResult) {
 				socketOutputStream.write(ProxyConst.RESULT_FOLLOW);
 				TupleStringSerializer.writeJoinedTuple(tuple, socketOutputStream);
 			}

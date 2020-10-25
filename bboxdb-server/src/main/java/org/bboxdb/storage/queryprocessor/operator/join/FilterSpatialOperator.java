@@ -20,7 +20,7 @@ package org.bboxdb.storage.queryprocessor.operator.join;
 import java.util.Iterator;
 
 import org.bboxdb.network.query.filter.UserDefinedFilter;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 
@@ -36,7 +36,7 @@ public class FilterSpatialOperator extends SpatialIterator {
 	 */
 	private final byte[] userDefinedValue;
 
-	public FilterSpatialOperator(final Iterator<JoinedTuple> tupleStreamSource, 
+	public FilterSpatialOperator(final Iterator<MultiTuple> tupleStreamSource, 
 			final SpatialIndexReadOperator indexReader, final UserDefinedFilter userDefinedFilter, 
 			final byte[] userDefinedValue) {
 		
@@ -46,8 +46,8 @@ public class FilterSpatialOperator extends SpatialIterator {
 	}
 	
 	@Override
-	protected JoinedTuple buildNextJoinedTuple(Tuple nextCandidateTuple) {
-		final JoinedTuple tuple = super.buildNextJoinedTuple(nextCandidateTuple);
+	protected MultiTuple buildNextJoinedTuple(Tuple nextCandidateTuple) {
+		final MultiTuple tuple = super.buildNextJoinedTuple(nextCandidateTuple);
 		
 		if(tuple == null) {
 			return null;

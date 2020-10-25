@@ -39,11 +39,11 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 	 */
 	private List<String> tupleStoreNames;
 	
-	public JoinedTupleIdentifier(final JoinedTuple joinedTuple) {
+	public JoinedTupleIdentifier(final MultiTuple joinedTuple) {
 		this(joinedTuple, Strategy.FULL);
 	}
 
-	public JoinedTupleIdentifier(final JoinedTuple joinedTuple, final Strategy strategy) {
+	public JoinedTupleIdentifier(final MultiTuple joinedTuple, final Strategy strategy) {
 		
 		this.tupleStoreNames = joinedTuple.getTupleStoreNames();
 		
@@ -69,7 +69,7 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 	/**
 	 * Build the key identifier list
 	 */
-	private List<Object> buildKeyIdentifierList(final JoinedTuple joinedTuple) {
+	private List<Object> buildKeyIdentifierList(final MultiTuple joinedTuple) {
 		return joinedTuple.getTuples()
 				.stream()
 				.map(t -> t.getKey())
@@ -81,7 +81,7 @@ public class JoinedTupleIdentifier implements EntityIdentifier {
 	 * @param joinedTuple
 	 * @return
 	 */
-	private List<Object> buildFullIdenfifierList(final JoinedTuple joinedTuple) {
+	private List<Object> buildFullIdenfifierList(final MultiTuple joinedTuple) {
 		// Only keep the getEntityIdentifiers in memory
 		return joinedTuple.getTuples()
 					.stream()

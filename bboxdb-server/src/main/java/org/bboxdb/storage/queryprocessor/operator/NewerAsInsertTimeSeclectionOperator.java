@@ -20,7 +20,7 @@ package org.bboxdb.storage.queryprocessor.operator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsInsertedTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateJoinedTupleFilterIterator;
@@ -43,7 +43,7 @@ public class NewerAsInsertTimeSeclectionOperator implements Operator {
 	}
 
 	@Override
-	public Iterator<JoinedTuple> iterator() {
+	public Iterator<MultiTuple> iterator() {
 		final Predicate predicate = new NewerAsInsertedTimePredicate(timestamp);
 		return new PredicateJoinedTupleFilterIterator(parentOperator.iterator(), predicate);		
 	}

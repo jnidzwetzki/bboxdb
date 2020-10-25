@@ -30,7 +30,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousTableQueryPlan;
 import org.bboxdb.storage.entity.EntityIdentifier;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier.Strategy;
 import org.slf4j.Logger;
@@ -152,7 +152,7 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	 * @param tupleVersions 
 	 * @param joinedTuple
 	 */
-	protected void updateTupleOnGui(final JoinedTuple joinedTuple, final List<Color> colors) {
+	protected void updateTupleOnGui(final MultiTuple joinedTuple, final List<Color> colors) {
 		
 		final OverlayElementGroup overlayElementGroup = OverlayElementBuilder.createOverlayElementGroup(
 				joinedTuple, colors);

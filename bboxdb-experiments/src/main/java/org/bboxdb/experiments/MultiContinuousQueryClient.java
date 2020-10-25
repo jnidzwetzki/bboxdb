@@ -39,7 +39,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +126,7 @@ public class MultiContinuousQueryClient implements Runnable {
 			try {
 				queryFuture.waitForCompletion();
 				
-				for(final JoinedTuple tuple : queryFuture) {
+				for(final MultiTuple tuple : queryFuture) {
 					tuple.getBoundingBox(); // Consume and ignore the tuple
 				}
 			} catch (InterruptedException e) {

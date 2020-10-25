@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.bboxdb.network.query.filter.UserDefinedFilter;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateJoinedTupleFilterIterator;
 import org.bboxdb.storage.queryprocessor.predicate.UserDefinedFilterPredicate;
@@ -52,7 +52,7 @@ public class UserDefinedFilterOperator implements Operator {
 	}
 
 	@Override
-	public Iterator<JoinedTuple> iterator() {
+	public Iterator<MultiTuple> iterator() {
 		final Predicate predicate = new UserDefinedFilterPredicate(filterOperator, userDefinedFilterData);
 		return new PredicateJoinedTupleFilterIterator(parentOperator.iterator(), predicate);
 	}

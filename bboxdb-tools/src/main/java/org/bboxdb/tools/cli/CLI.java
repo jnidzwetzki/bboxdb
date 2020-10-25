@@ -63,7 +63,7 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.network.query.ContinuousConstQueryPlan;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
@@ -559,7 +559,7 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		long resultTuples = 0;
 				
-		for(final JoinedTuple tuple : resultFuture1) {
+		for(final MultiTuple tuple : resultFuture1) {
 			
 			assert tuple.getBoundingBox().intersects(boundingBox) : "Bounding box mismatch: " + tuple.getBoundingBox();
 			
@@ -651,7 +651,7 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 
 			long resultTuples = 0;
-			for(final JoinedTuple tuple : resultFuture) {
+			for(final MultiTuple tuple : resultFuture) {
 				printJoinedTuple(tuple);
 				resultTuples++;
 			}
@@ -678,7 +678,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Print the given joined tuple
 	 * @param joinedTuple
 	 */
-	private void printJoinedTuple(final JoinedTuple joinedTuple) {
+	private void printJoinedTuple(final MultiTuple joinedTuple) {
 		if(joinedTuple.getNumberOfTuples() == 1) {
 			printTuple(joinedTuple.getTuple(0));
 		} else {

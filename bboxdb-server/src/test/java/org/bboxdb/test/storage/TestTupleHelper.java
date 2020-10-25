@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier.Strategy;
 import org.bboxdb.storage.entity.Tuple;
@@ -331,9 +331,9 @@ public class TestTupleHelper {
 		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
 		final Tuple tuple3 = new Tuple("yjk", new Hyperrectangle(1d, 2d), "".getBytes(), 3);
 
-		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple2 = new JoinedTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple3 = new JoinedTuple(Arrays.asList(tuple2), Arrays.asList("abc"));
+		final MultiTuple joinedTuple1 = new MultiTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple2 = new MultiTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple3 = new MultiTuple(Arrays.asList(tuple2), Arrays.asList("abc"));
 
 		Assert.assertEquals(joinedTuple1, joinedTuple1);
 		Assert.assertEquals(joinedTuple1.hashCode(), joinedTuple1.hashCode());
@@ -363,7 +363,7 @@ public class TestTupleHelper {
 		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes());
 
-		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple1 = new MultiTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
 		joinedTuple1.convertToSingleTupleIfPossible();
 	}
 	
@@ -375,7 +375,7 @@ public class TestTupleHelper {
 		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes());
 
-		new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc"));
+		new MultiTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc"));
 	}
 	
 	/**
@@ -386,7 +386,7 @@ public class TestTupleHelper {
 		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(1d, 2d), "".getBytes());
 		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes());
 		
-		final JoinedTuple joinedTuple = new JoinedTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple1, tuple2), Arrays.asList("abc", "def"));
 
 		final JoinedTupleIdentifier joinedTupleIdentifier = 
 				new JoinedTupleIdentifier(joinedTuple);
@@ -407,11 +407,11 @@ public class TestTupleHelper {
 		
 		final Tuple tuple5 = new Tuple("ijk", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
 		
-		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple3), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple2 = new JoinedTuple(Arrays.asList(tuple1, tuple4), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple3 = new JoinedTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple4 = new JoinedTuple(Arrays.asList(tuple2, tuple4), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple5 = new JoinedTuple(Arrays.asList(tuple2, tuple5), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple1 = new MultiTuple(Arrays.asList(tuple1, tuple3), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple2 = new MultiTuple(Arrays.asList(tuple1, tuple4), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple3 = new MultiTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple4 = new MultiTuple(Arrays.asList(tuple2, tuple4), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple5 = new MultiTuple(Arrays.asList(tuple2, tuple5), Arrays.asList("abc", "def"));
 
 		final JoinedTupleIdentifier id1 = new JoinedTupleIdentifier(joinedTuple1, Strategy.FULL);
 		final JoinedTupleIdentifier id2 = new JoinedTupleIdentifier(joinedTuple2, Strategy.FULL);
@@ -467,10 +467,10 @@ public class TestTupleHelper {
 		final Tuple tuple3 = new Tuple("def", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
 		final Tuple tuple4 = new Tuple("ijk", new Hyperrectangle(1d, 2d), "".getBytes(), 2);
 		
-		final JoinedTuple joinedTuple1 = new JoinedTuple(Arrays.asList(tuple1, tuple3), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple2 = new JoinedTuple(Arrays.asList(tuple1, tuple4), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple3 = new JoinedTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
-		final JoinedTuple joinedTuple4 = new JoinedTuple(Arrays.asList(tuple2, tuple4), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple1 = new MultiTuple(Arrays.asList(tuple1, tuple3), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple2 = new MultiTuple(Arrays.asList(tuple1, tuple4), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple3 = new MultiTuple(Arrays.asList(tuple2, tuple3), Arrays.asList("abc", "def"));
+		final MultiTuple joinedTuple4 = new MultiTuple(Arrays.asList(tuple2, tuple4), Arrays.asList("abc", "def"));
 
 		final JoinedTupleIdentifier id1 = new JoinedTupleIdentifier(joinedTuple1, Strategy.FIRST_KEY_AND_TABLE);
 		final JoinedTupleIdentifier id2 = new JoinedTupleIdentifier(joinedTuple2, Strategy.FIRST_KEY_AND_TABLE);

@@ -20,7 +20,7 @@ package org.bboxdb.storage.queryprocessor.operator;
 import java.io.Closeable;
 import java.util.Iterator;
 
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 
 public interface Operator extends Closeable {
 
@@ -28,6 +28,6 @@ public interface Operator extends Closeable {
 	 * Get the tuple iterator
 	 * @return
 	 */
-	public Iterator<JoinedTuple> iterator();
+	public Iterator<MultiTuple> iterator();
 	
 }

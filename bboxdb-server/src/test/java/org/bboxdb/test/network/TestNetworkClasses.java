@@ -69,7 +69,7 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
@@ -259,7 +259,7 @@ public class TestNetworkClasses {
 		final List<Tuple> tupleList = Arrays.asList(tuple1, tuple2, tuple3);
 		final List<String> tableNames = Arrays.asList("abc", "def", "geh");
 		
-		final JoinedTuple joinedTuple = new JoinedTuple(tupleList, tableNames);
+		final MultiTuple joinedTuple = new MultiTuple(tupleList, tableNames);
 		
 		final JoinedTupleResponse joinedResponse = new JoinedTupleResponse(sequenceNumber, joinedTuple);
 
@@ -269,7 +269,7 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		final JoinedTupleResponse decodedPackage = JoinedTupleResponse.decodePackage(bb);
 		
-		final JoinedTuple decodedJoinedTuple = decodedPackage.getJoinedTuple();
+		final MultiTuple decodedJoinedTuple = decodedPackage.getJoinedTuple();
 		Assert.assertEquals(3, decodedJoinedTuple.getNumberOfTuples());
 				
 		for(int i = 0; i < 3; i++) {

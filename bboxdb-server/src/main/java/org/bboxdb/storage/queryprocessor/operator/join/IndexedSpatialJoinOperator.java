@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 
@@ -75,8 +75,8 @@ public class IndexedSpatialJoinOperator implements Operator {
 	 * Get the query processing result
 	 * @return
 	 */
-	public Iterator<JoinedTuple> iterator() {
-		final Iterator<JoinedTuple> iterator = tupleStreamOperator.iterator();
+	public Iterator<MultiTuple> iterator() {
+		final Iterator<MultiTuple> iterator = tupleStreamOperator.iterator();
 
 		if(userDefinedFilterClass.equals("")) {
 			return new SpatialIterator(iterator, indexReader);

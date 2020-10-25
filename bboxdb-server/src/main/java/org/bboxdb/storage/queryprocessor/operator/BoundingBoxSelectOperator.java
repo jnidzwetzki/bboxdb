@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.queryprocessor.predicate.IntersectsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateJoinedTupleFilterIterator;
@@ -44,7 +44,7 @@ public class BoundingBoxSelectOperator implements Operator {
 	}
 
 	@Override
-	public Iterator<JoinedTuple> iterator() {
+	public Iterator<MultiTuple> iterator() {
 		final Predicate predicate = new IntersectsBoundingBoxPredicate(boundingBox);
 		return new PredicateJoinedTupleFilterIterator(parentOpeator.iterator(), predicate);		
 	}
