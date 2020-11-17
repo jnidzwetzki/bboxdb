@@ -347,7 +347,7 @@ public class GuiModel implements DistributionRegionCallback {
 		try {
 			final List<String> allGroups = getDistributionGroups();
 			for(final String distributionGroup : allGroups) {
-				final List<String> allTablesInGroup = adapter.getAllTables(distributionGroup);
+				final List<String> allTablesInGroup = adapter.getAllTables(distributionGroup);				
 				allTables.addAll(allTablesInGroup);
 			}
 			
