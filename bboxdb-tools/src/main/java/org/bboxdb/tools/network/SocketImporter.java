@@ -250,7 +250,7 @@ public class SocketImporter implements Runnable {
 			System.out.println("Performing dynamic enlargement");
 			final TupleStoreName tupleStoreName = new TupleStoreName(table);
 			final ContinuousQueryRegisterer continuousQueryRegisterer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
-			queryEnlargement = continuousQueryRegisterer.getMaxEnlagementFactorForTable();
+			queryEnlargement = continuousQueryRegisterer.getEnlagementForTable();
 		} else if(NULL_STRING.equals(enlargement)) {
 			System.out.println("Performing NULL enlargement");
 			queryEnlargement = null;

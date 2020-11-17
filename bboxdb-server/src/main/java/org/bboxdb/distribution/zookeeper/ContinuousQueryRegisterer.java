@@ -162,7 +162,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 	 * @param table
 	 * @return
 	 */
-	public QueryEnlargement getMaxEnlagementFactorForTable() {		
+	public QueryEnlargement getEnlagementForTable() {		
 		updateQueryEnlargement();
 		return queryEnlagement;
 	}

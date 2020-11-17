@@ -150,7 +150,7 @@ public class TestTupleBuilder {
 		final GeoJsonPolygon geoJson2 = GeoJsonPolygon.fromGeoJson(new String(tuple6.getDataBytes()));
 		final GeoJsonPolygon geoJson3 = GeoJsonPolygon.fromGeoJson(new String(tuple9.getDataBytes()));
 		final GeoJsonPolygon geoJson4 = GeoJsonPolygon.fromGeoJson(new String(tuple12.getDataBytes()));
-	
+			
 		Assert.assertEquals("AW119KX", geoJson1.getProperties().get("callsign"));
 		Assert.assertEquals("6600", geoJson1.getProperties().get("altitude"));
 		Assert.assertEquals("125.706009", geoJson1.getProperties().get("groundSpeed"));
