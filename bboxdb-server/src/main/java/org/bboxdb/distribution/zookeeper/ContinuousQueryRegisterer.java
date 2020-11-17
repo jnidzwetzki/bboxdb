@@ -97,7 +97,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 		this.queryEnlagement = new QueryEnlargement();
 		
 		final TupleStoreAdapter tupleStoreAdapter = zookeeperClient.getTupleStoreAdapter();
-		final String tablePath = tupleStoreAdapter.getTablePath(distributionGroup, table);
+		final String tablePath = tupleStoreAdapter.getTablePath(distributionGroup, distributionGroup + "_" + table);
 
 		pathEnlargementAbsolute = tablePath + "/queries/absolute-enlargement"; 	
 		pathEnlargementFactor = tablePath + "/queries/factor-enlargement";
