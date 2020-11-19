@@ -88,10 +88,10 @@ $BBOXDB_HOME/bin/cli.sh -action prepartition -file $road -format geojson -dgroup
 
 echo "===== Creating tables ====="
 wait_if_needed $2
-$BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_road
-$BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_forest
-$BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -table ${groupname}_road
-$BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -table ${groupname}_forest
+$BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_roads
+$BBOXDB_HOME/bin/cli.sh -action create_table -table ${groupname}_forests
+$BBOXDB_HOME/bin/cli.sh -action import -file ${road}_FIXED -format geojson -table ${groupname}_roads
+$BBOXDB_HOME/bin/cli.sh -action import -file ${wood}_FIXED -format geojson -table ${groupname}_forests
 
 exit_script_successfully
 
