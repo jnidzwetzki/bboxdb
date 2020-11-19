@@ -525,9 +525,6 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 */
 	public String createPersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
 		try {
-			
-			System.out.println("Called: " + path);
-			
 			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
