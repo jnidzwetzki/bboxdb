@@ -1,6 +1,6 @@
 #!/bin/bash
 
-$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2 -maxregionsize 10485760
+$BBOXDB_HOME/bin/import_osm.sh /BIG/nidzwetzki/datasets/osm/australia/converted
 
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_lightrail
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_buses
