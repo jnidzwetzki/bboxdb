@@ -26,25 +26,16 @@ to avoid the expensive full data scan and to make the work with multi-dimensiona
 
 <p><img src="docs/images/space.jpg" width="400"></p>
 
-
 ## Key features
-* The well-known key-value data model is enhanced by a bounding box to describe the location of n-dimensional data in space.
-
-* Data (point and non-point) of any dimension is supported.
-
-* The data is indexed, which enables efficient range query processing.
-
-* BigData is supported by spreading the data across a cluster of systems. Each node stores only a small part of the whole dataset.
-
-* Multi-dimensional shards are created dynamically on the actual distribution of the data (automatically scale-up/scale-down).
-
-* Data of multiple tables is stored co-partitioned, and spatial-joins can be executed efficiently without data shuffling between nodes.
-
-* Data are re-distributed in the background without any service interruption.
-
-* Continuous queries with bounding box query predicates are supported.
-
-* User defined filters for query processing on custom data types. 
+* ✅ A distributed and fault-tolerant data store for n-dimensional data.
+* ✅ Data (point and non-point) of any dimension is supported.
+* ✅ The data is indexed, which enables efficient range query processing.
+* ✅ BigData is supported by spreading the data across a cluster of systems. Each node stores only a small part of the whole dataset.
+* ✅ Multi-dimensional shards are created dynamically on the actual distribution of the data (automatically scale-up/scale-down).
+* ✅ Data of multiple tables is stored co-partitioned, and spatial-joins can be executed efficiently without data shuffling between nodes.
+* ✅ Data are re-distributed in the background without any service interruption.
+* ✅ Continuous queries with bounding box query predicates are supported.
+* ✅ User-defined filters for query processing on custom data types. 
 
 ## Documentation
 The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
