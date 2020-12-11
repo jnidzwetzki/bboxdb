@@ -53,7 +53,7 @@ BBoxDB ships with a GUI that allows observing the global index structure. Below 
 
 </p>
 
-When 2-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the top right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported. In addition, the GUI provides operations to explore 2 dimensional GeoJSON encoded data.
+When two-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the top right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported. In addition, the GUI provides operations to explore two dimensional GeoJSON encoded data.
 
 
 ## Contact / Stay informed
