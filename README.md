@@ -52,7 +52,6 @@ BBoxDB ships with a GUI that allows observing the global index structure. Below 
 BBoxDB is also able to handle data streams. The first screenshot shows the busses in Sydney in realtime. The data is fetched from the [Transport for New South Wales Website](https://opendata.transport.nsw.gov.au/). The second screenshot shows the aircraft in the area of Berlin. The data is fetched from the Automatic Dependent Surveillance–Broadcast (ADS–B) data feed from the [ADSBHub Website](https://www.adsbhub.org/).
 
 <p><img src="docs/images/bboxdb_sydney.jpg" width="400"> <img src="docs/images/bboxdb_adsb.jpg" width="400"><br>
-<br>
 <i>(The screenshots contain content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
 </p>
 
