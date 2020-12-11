@@ -41,17 +41,20 @@ The documentation of the project is located at [https://jnidzwetzki.github.io/bb
 For a guided tour through the features of BBoxDB, see the [getting started](https://jnidzwetzki.github.io/bboxdb/doc/gettingstarted.html) chapter in the documentation. We also recommend reading the [creating client code section](https://jnidzwetzki.github.io/bboxdb/doc/client.html). The [install guide](https://jnidzwetzki.github.io/bboxdb/doc/installation.html) explains the needed steps to deploy an own BBoxDB cluster. The guide also describes how you can setup a virtualized cluster with 5 BBoxDB nodes in under two minutes, by using [Docker](https://hub.docker.com/r/jnidzwetzki/bboxdb/) and [Docker Compose](https://docs.docker.com/compose/).
 
 ## Screenshots
-BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown.
+BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown. When two-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the top right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported. In addition, the GUI provides operations to explore two dimensional GeoJSON encoded data.
 
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
 <br>
 <p><img src="docs/images/bboxdb_gui3.jpg" width="400"> <img src="docs/images/bboxdb_gui4.jpg" width="400"><br>
 <i>(The screenshots contain content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
-
 </p>
 
-When two-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the top right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported. In addition, the GUI provides operations to explore two dimensional GeoJSON encoded data.
+BBoxDB is also able to handle data streams. The first screenshot shows the busses in Sydney in realtime. The data is fetched from the [Transport for New South Wales Website](https://opendata.transport.nsw.gov.au/). The second screenshot shows the aircraft in the area of Berlin. The data is fetched from the Automatic Dependent Surveillance–Broadcast (ADS–B) data feed from the [ADSBHub Website](https://www.adsbhub.org/).
 
+<p><img src="docs/images/bboxdb_sydney.jpg" width="400"> <img src="docs/images/bboxdb_adsb.jpg" width="400"><br>
+<br>
+<i>(The screenshots contain content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
+</p>
 
 ## Contact / Stay informed
 * Visit our [website](https://bboxdb.org)
