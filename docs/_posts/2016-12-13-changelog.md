@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.9.5 - TBD
+### Version 0.9.5 - 11.12.2020
 - Improvement: Added shutdown callbacks to network futures
 - Improvement: Added the ability to register a continuous query on multiple local tables
 - Improvement: Increased MAX_PENDING_REQUESTS to 1024 to handle more parallel queries
