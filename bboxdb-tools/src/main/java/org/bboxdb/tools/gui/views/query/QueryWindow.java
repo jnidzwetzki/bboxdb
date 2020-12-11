@@ -43,6 +43,7 @@ import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
+import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilterStrict;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.gui.GuiModel;
@@ -179,7 +180,7 @@ public class QueryWindow {
 		
 		builder.addLabel("Color for table 2", cc.xy (1,  11));
 		final JComboBox<String> table2ColorField = new JComboBox<>(COLOR_NAMES);
-		table2ColorField.setSelectedItem(COLOR_NAMES[1]);
+		table2ColorField.setSelectedItem(COLOR_NAMES[2]);
 		table2ColorField.setEnabled(false);
 		builder.add(table2ColorField, cc.xy (3, 11));
 		
@@ -280,8 +281,12 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				executeButton.setEnabled(true);
+				//udfNameField.setText(UserDefinedGeoJsonSpatialFilterStrict.class.getCanonicalName());
+				//udfValueField.setText("");
+
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
 				udfValueField.setText("Elizabeth Street");
+				
 				break;
 
 			default:
