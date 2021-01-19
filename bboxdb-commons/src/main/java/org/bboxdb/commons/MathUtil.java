@@ -263,7 +263,7 @@ public class MathUtil {
 	 * @return
 	 */
 	public static boolean tryParseBooleanOrExit(final String valueToParse) {
-		return tryParseBooleanOrExit(valueToParse, () -> "Unable to convert to double: " + valueToParse);
+		return tryParseBooleanOrExit(valueToParse, () -> "Unable to convert to boolean: " + valueToParse);
 	}
 
 	/**
