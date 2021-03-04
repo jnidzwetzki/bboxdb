@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.6 - TBA
+- New Feature: Predefined queries in the GUI
 
 ### Version 0.9.5 - 11.12.2020
 - Improvement: Added shutdown callbacks to network futures

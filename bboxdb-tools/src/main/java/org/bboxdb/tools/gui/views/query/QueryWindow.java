@@ -64,7 +64,19 @@ public class QueryWindow {
 	private static final String QUERY_JOIN = "Spatial join";
 	private static final String QUERY_RANGE_CONTINUOUS = "Continuous range query";
 	private static final String QUERY_JOIN_CONTINUOUS = "Continuous spatial join";
-
+	
+	/**
+	 * The predefined quries
+	 */
+	private static final String QUERY_PREDEFINED_NONE = "----";
+	private static final String QUERY_PREDEFINED_AIRCRAFT = "Aircraft";
+	private static final String QUERY_PREDEFINED_BUS = "Bus";
+	private static final String QUERY_PREDEFINED_BUS_ROAD = "Bus joined with Road";
+	private static final String QUERY_PREDEFINED_BUS_ELIZABETH = "Bus on Elizabeth Street";
+	private static final String QUERY_PREDEFINED_BUS_FOREST_BBOX = "Bus joined with Forrest (bbox)";
+	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Bus joined with Forrest (relaxed)";
+	private static final String QUERY_PREDEFINED_BUS_FOREST_STRICT = "Bus joined with Forrest (strict)";
+	
 	/**
 	 * The main frame
 	 */
@@ -111,6 +123,14 @@ public class QueryWindow {
 	 */
 	private final static Color[] COLOR_VALUES = new Color[] {Color.RED, Color.GREEN,
 			Color.BLUE, Color.YELLOW, Color.ORANGE, Color.PINK};
+	
+	/**
+	 * The predefined query values
+	 */
+	private final static String[] PREDEFINED_QUERIES = new String[] {QUERY_PREDEFINED_NONE, 
+			QUERY_PREDEFINED_AIRCRAFT, QUERY_PREDEFINED_BUS, QUERY_PREDEFINED_BUS_ROAD, 
+			QUERY_PREDEFINED_BUS_ELIZABETH, QUERY_PREDEFINED_BUS_FOREST_BBOX,
+			QUERY_PREDEFINED_BUS_FOREST_RELAXTED, QUERY_PREDEFINED_BUS_FOREST_STRICT};
 	
 	/**
 	 * The created background threads
@@ -183,6 +203,13 @@ public class QueryWindow {
 		table2ColorField.setSelectedItem(COLOR_NAMES[2]);
 		table2ColorField.setEnabled(false);
 		builder.add(table2ColorField, cc.xy (3, 11));
+	
+		builder.addSeparator("Predefined Queries", cc.xyw(1,  13, 3));
+		builder.addLabel("Query", cc.xy (1,  15));
+		final JComboBox<String> predefinedQueriesBox = new JComboBox<>(PREDEFINED_QUERIES);
+		predefinedQueriesBox.setSelectedItem(PREDEFINED_QUERIES[0]);
+		predefinedQueriesBox.setEnabled(true);
+		builder.add(predefinedQueriesBox, cc.xy (3, 15));
 		
 		builder.addSeparator("Parameter", cc.xyw(5,  1, 3));
 		
@@ -229,7 +256,8 @@ public class QueryWindow {
 		executeButton.setText("Execute");
 		executeButton.setEnabled(false);
 		
-		addActionListener(queryTypeBox, table1Field,  table1ColorField, table2Field, 
+		addActionListener(queryTypeBox, predefinedQueriesBox, 
+				table1Field,  table1ColorField, table2Field, 
 				table2ColorField, executeButton, udfNameField, udfValueField);
 
 		builder.add(closeButton, cc.xy(5, 17));
@@ -245,13 +273,128 @@ public class QueryWindow {
 	 * @param table2Field
 	 * @param executeButton 
 	 */
-	private void addActionListener(final JComboBox<String> queryTypeBox, final JComponent table1Field,
-			final JComponent table1ColorField, final JComponent table2Field, final JComponent table2ColorField, 
+	private void addActionListener(final JComboBox<String> queryTypeBox, final JComboBox<String> predefinedQueriesBox,
+			final JComboBox<String> table1Field, final JComboBox<String> table1ColorField, 
+			final JComboBox<String> table2Field, final JComboBox<String> table2ColorField, 
 			final JButton executeButton, final JTextField udfNameField, final JTextField udfValueField) {
 		
+		
+
+		// The predefined queries
+		predefinedQueriesBox.addActionListener(l -> {
+
+			final String selectedPredefinedQuery = predefinedQueriesBox.getSelectedItem().toString();
+			
+			switch(selectedPredefinedQuery) {
+			case QUERY_PREDEFINED_NONE:
+				udfNameField.setText("");
+				udfValueField.setText("");
+				queryTypeBox.setSelectedItem(QUERY_RANGE);
+				break;
+			case QUERY_PREDEFINED_AIRCRAFT:
+				udfNameField.setText("");
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_adsb");
+				queryTypeBox.setSelectedItem(QUERY_RANGE_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(false);
+				table2ColorField.setEnabled(false);
+				break;
+			case QUERY_PREDEFINED_BUS: 
+				udfNameField.setText("");
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_buses");
+				queryTypeBox.setSelectedItem(QUERY_RANGE_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(false);
+				table2ColorField.setEnabled(false);
+				table2ColorField.setSelectedItem("Blue");
+				break;
+			case QUERY_PREDEFINED_BUS_ROAD:
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_buses");
+				table2Field.setSelectedItem("osmgroup_roads");
+				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
+				table2ColorField.setSelectedItem("Blue");
+				break;
+			case QUERY_PREDEFINED_BUS_ELIZABETH:
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("Elizabeth Street");
+				table1Field.setSelectedItem("osmgroup_buses");
+				table2Field.setSelectedItem("osmgroup_roads");
+				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
+				table2ColorField.setSelectedItem("Blue");
+				break;
+			case QUERY_PREDEFINED_BUS_FOREST_BBOX:
+				udfNameField.setText("");
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_buses");
+				table2Field.setSelectedItem("osmgroup_forests");
+				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
+				table2ColorField.setSelectedItem("Green");
+				break;
+			case QUERY_PREDEFINED_BUS_FOREST_RELAXTED:
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_buses");
+				table2Field.setSelectedItem("osmgroup_forests");
+				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
+				table2ColorField.setSelectedItem("Green");
+				break;
+			case QUERY_PREDEFINED_BUS_FOREST_STRICT:
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilterStrict.class.getCanonicalName());
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_buses");
+				table2Field.setSelectedItem("osmgroup_forests");
+				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
+				table2ColorField.setSelectedItem("Green");
+				break;
+			default:
+				logger.error("Unknown selection: " + selectedPredefinedQuery);
+			}
+			
+		});
+		
+		// The normal queries
 		queryTypeBox.addActionListener(l -> {
 			
+			// Are predefined queries in control?
+			if(! predefinedQueriesBox.getSelectedItem().toString().equals(QUERY_PREDEFINED_NONE)) {
+				return;
+			}
+			
 			final String selectedQuery = queryTypeBox.getSelectedItem().toString();
+			
 			switch (selectedQuery) {
 			
 			case QUERY_RANGE:
@@ -271,7 +414,7 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				executeButton.setEnabled(true);
-				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfNameField.setText("");
 				udfValueField.setText("");
 				break;
 				
@@ -281,12 +424,8 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				executeButton.setEnabled(true);
-				//udfNameField.setText(UserDefinedGeoJsonSpatialFilterStrict.class.getCanonicalName());
-				//udfValueField.setText("");
-
-				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
-				udfValueField.setText("Elizabeth Street");
-				
+				udfNameField.setText("");
+				udfValueField.setText("");
 				break;
 
 			default:
