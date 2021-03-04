@@ -104,6 +104,11 @@ public class TupleBuilderFactory {
 		 * The ADSB tuple builder
 		 */
 		public static final String ADSB = "adsb";	
+		
+		/**
+		 * The ADSB tuple builder
+		 */
+		public static final String AUTRANSPORT = "au_transport";	
 	}
 	
 	/**
@@ -116,7 +121,7 @@ public class TupleBuilderFactory {
 			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
 			Name.ROME_TAXI_RANGE, Name.NARI_DYNAMIC,
 			Name.FOREX_1D, Name.FOREX_2D, Name.BERLINMOD_PLAYER,
-			Name.BERLINMOD, Name.ADSB);
+			Name.BERLINMOD, Name.ADSB, Name.AUTRANSPORT);
 
 	/**
 	 * Return the parser for the tuple format
@@ -156,6 +161,8 @@ public class TupleBuilderFactory {
 				return new BerlinModTupleBuilder();
 			case Name.ADSB:
 				return new ADSBTupleBuilder();
+			case Name.AUTRANSPORT:
+				return new AuTransportGeoJSONTupleBuilder();
 			default:
 				throw new RuntimeException("Unknown format: " + format);
 		}
