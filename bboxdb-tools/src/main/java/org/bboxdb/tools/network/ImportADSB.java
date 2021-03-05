@@ -85,6 +85,7 @@ public class ImportADSB implements Runnable {
 			
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String line = null;
+			long readTuples = 0;
 			
 			while((line = reader.readLine()) != null) {
 				if(Thread.currentThread().isInterrupted()) {
@@ -97,9 +98,15 @@ public class ImportADSB implements Runnable {
 					if(tuple != null) {
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, tuple);
 						pendingFutures.put(insertFuture);
+						readTuples++;
 					}
 				} catch (BBoxDBException e) {
 					logger.error("Got error while inserting tuple");
+				}
+				
+				if(readTuples % 1000 == 0) {
+					System.out.print(".");
+					System.out.flush();
 				}
 			}
 		} catch (Exception e) {
