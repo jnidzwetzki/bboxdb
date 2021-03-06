@@ -116,7 +116,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
-			throw new PackageEncodeException("Table " + table + " is unkown");
+			throw new PackageEncodeException("Table " + table.getFullname() + " is unkown");
 		}
 		
 		try {
