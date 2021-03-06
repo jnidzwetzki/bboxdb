@@ -212,6 +212,10 @@ public class BBoxDBCluster implements BBoxDB {
 	private EmptyResultFuture executeInsert(final String table, final Tuple tuple, 
 			final Hyperrectangle boundingBox, final EnumSet<InsertOption> insertOptions) throws BBoxDBException {
 		
+		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
+			throw new BBoxDBException("Table " + table + " is unkown");
+		}
+		
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.WRITE_TO_NODES, table, boundingBox) {
 
