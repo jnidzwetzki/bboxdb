@@ -129,7 +129,7 @@ public class ImportAuTransport implements Runnable {
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 						pendingFutures.put(insertFuture);
 					} catch (BBoxDBException e) {
-						logger.error("Got error while inserting tuple");
+						logger.error("Got error while inserting tuple", e);
 					}
 				};
 			
