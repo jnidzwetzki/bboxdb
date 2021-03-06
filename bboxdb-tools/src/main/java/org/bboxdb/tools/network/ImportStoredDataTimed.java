@@ -90,10 +90,18 @@ public class ImportStoredDataTimed implements Runnable {
 
 				final Tuple tuple = tupleFactory.buildTuple(line);
 				
+				// Not all lines (like adsb messages generate a tuple)
+				if(tuple == null) {
+					continue;
+				}
+				
+				
 				if(timeOffset == -1) {
 					timeOffset = (System.currentTimeMillis() * 1000) - tuple.getVersionTimestamp();
 				}
 				
+				// System.out.println("Tuple timestamp: " + tuple.getVersionTimestamp());
+				// System.out.println("Current time: " + System.currentTimeMillis() * 1000);
 				
 				while(tuple.getVersionTimestamp() + timeOffset > System.currentTimeMillis() * 1000) {
 
