@@ -19,6 +19,8 @@ package org.bboxdb.distribution;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
@@ -32,6 +34,10 @@ import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactor
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 public class TupleStoreConfigurationCache {
 
 	/**
@@ -43,6 +49,22 @@ public class TupleStoreConfigurationCache {
 	 * The cache
 	 */
 	protected final Map<String, DuplicateResolver<Tuple>> cache;
+	
+	/**
+	 * The tuple store name cache
+	 */
+	protected final LoadingCache<TupleStoreName, Boolean> tupleStoreNameCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build(
+			new CacheLoader<TupleStoreName, Boolean>() {
+
+				@Override
+				public Boolean load(final TupleStoreName key) throws Exception {
+					final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+							.getZookeeperClient().getTupleStoreAdapter();
+					
+					return tupleStoreAdapter.isTableKnown(key);
+				}
+				
+			});
 	
 	/**
 	 * The Logger
@@ -71,6 +93,11 @@ public class TupleStoreConfigurationCache {
 		return instance;
 	}
 	
+	/**
+	 * Get the duplicate resolver
+	 * @param tupleStorename
+	 * @return
+	 */
 	public synchronized DuplicateResolver<Tuple> getDuplicateResolverForTupleStore(final String tupleStorename) {
 		
 		if(!cache.containsKey(tupleStorename)) {
@@ -97,6 +124,19 @@ public class TupleStoreConfigurationCache {
 		final DuplicateResolver<Tuple> duplicateResolver = cache.get(tupleStorename);
 			
 		return duplicateResolver;
+	}
+	
+	/**
+	 * Is the tuple store known
+	 * @param tupleStoreName
+	 */
+	public synchronized boolean isTupleStoreKnown(final TupleStoreName tupleStoreName) {
+		try {
+			return tupleStoreNameCache.get(tupleStoreName);
+		} catch (ExecutionException e) {
+			logger.error("Got exception while checking tuplestore name: " + tupleStoreName, e);
+			return false;
+		}
 	}
 	
 	/**

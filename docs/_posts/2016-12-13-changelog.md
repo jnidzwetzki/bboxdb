@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.9.6 - TBA
 - New Feature: Predefined queries in the GUI
+- Bugfix: The client performs table name check before insert operation is executed
 
 ### Version 0.9.5 - 11.12.2020
 - Improvement: Added shutdown callbacks to network futures

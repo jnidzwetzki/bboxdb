@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
@@ -79,6 +80,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 */
 	public static InsertTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws IOException, PackageEncodeException {
 
+
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
@@ -113,6 +115,10 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	@Override
 	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
+		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
+			throw new PackageEncodeException("Table " + table + " is unkown");
+		}
+		
 		try {
 			
 			int optionsInt = 0;
