@@ -163,10 +163,13 @@ public class ADSBTupleBuilder extends TupleBuilder {
 		final Aircraft aircraft = aircrafts.computeIfAbsent(hexIdent, (k) -> new Aircraft(k));
 		
 		// Calculate update time
-		final String generatedDate = data[6];
-		final String generatedTime = data[7];
+		//final String generatedDate = data[6];
+		//final String generatedTime = data[7];
 
-		final String dateTime = generatedDate + " " + generatedTime;
+		final String receivedDate = data[8];
+		final String receivedTime = data[9];
+
+		final String dateTime = receivedDate + " " + receivedTime;
 		final Date date = dateParser.parse(dateTime);
 		
 		aircraft.lastUpdateTimestamp = date.getTime();
