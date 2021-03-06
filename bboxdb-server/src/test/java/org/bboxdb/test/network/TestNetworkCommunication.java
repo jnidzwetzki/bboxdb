@@ -387,6 +387,29 @@ public class TestNetworkCommunication {
 
 		System.out.println("=== End testConnectionState");
 	}
+	
+	/**
+	 * The the insert into a non existing table, insert should return immediately
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 * @throws BBoxDBException
+	 */
+	@Test(timeout=20_000, expected = BBoxDBException.class)
+	public void testInsertInNonExistingTable() throws InterruptedException, ExecutionException, BBoxDBException {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+		
+		final String table = DISTRIBUTION_GROUP + "_nonexistingtable";
+
+		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abc".getBytes());
+		final EmptyResultFuture insertResult1 = bboxDBClient.insertTuple(table, tuple1);
+		insertResult1.waitForCompletion();
+
+		Assert.fail("No exception was thrown during insert");
+		
+		disconnect(bboxDBClient);
+	}
+
 
 	/**
 	 * The the insert and the deletion of a tuple
