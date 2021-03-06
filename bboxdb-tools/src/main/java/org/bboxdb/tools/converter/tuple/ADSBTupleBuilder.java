@@ -133,7 +133,7 @@ public class ADSBTupleBuilder extends TupleBuilder {
 						aircraft.longitude, aircraft.longitude);
 				
 				return new Tuple(aircraft.callsign, boundingBox.enlargeByAmount(boxPadding), 
-						aircraft.toGeoJSON().getBytes(), aircraft.lastUpdateTimestamp);
+						aircraft.toGeoJSON().getBytes(), aircraft.lastUpdateTimestamp * 1000);
 			} 
 			
 			return null;
