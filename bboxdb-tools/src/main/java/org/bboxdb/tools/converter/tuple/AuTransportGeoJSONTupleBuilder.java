@@ -53,7 +53,7 @@ public class AuTransportGeoJSONTupleBuilder extends TupleBuilder {
 		final Hyperrectangle bbox = polygon.getBoundingBox().enlargeByAmount(boxPadding);
 				
 		if(properties.containsKey("Timestamp")) {
-			return new Tuple(key, bbox, tupleBytes, Long.parseLong(properties.get("Timestamp")) * 1000);
+			return new Tuple(key, bbox, tupleBytes, Long.parseLong(properties.get("Timestamp")) * 1000 * 1000);
 		}
 		
 		return new Tuple(key, bbox, tupleBytes);
