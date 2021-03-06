@@ -106,10 +106,12 @@ public class ImportStoredDataTimed implements Runnable {
 				}
 			
 				// Dump time slot statistics
-				if(getTimeSlot() > currentSecondSlot) {
+				final long curTimeSlot = getTimeSlot();
+				
+				if(curTimeSlot > currentSecondSlot) {
 					logger.info("Processed {} elements", processedLines);
 					processedLines = 0;
-					currentSecondSlot = getTimeSlot();
+					currentSecondSlot = curTimeSlot;
 					writer.flush();
 					continue;
 				}				
