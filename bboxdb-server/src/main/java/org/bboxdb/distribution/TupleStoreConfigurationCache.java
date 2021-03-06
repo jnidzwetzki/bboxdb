@@ -53,15 +53,16 @@ public class TupleStoreConfigurationCache {
 	/**
 	 * The tuple store name cache
 	 */
-	protected final LoadingCache<TupleStoreName, Boolean> tupleStoreNameCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build(
-			new CacheLoader<TupleStoreName, Boolean>() {
+	protected final LoadingCache<String, Boolean> tupleStoreNameCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build(
+			new CacheLoader<String, Boolean>() {
 
 				@Override
-				public Boolean load(final TupleStoreName key) throws Exception {
+				public Boolean load(final String key) throws Exception {
+					final TupleStoreName tupleStoreNameObject = new TupleStoreName(key);
 					final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
 							.getZookeeperClient().getTupleStoreAdapter();
 					
-					return tupleStoreAdapter.isTableKnown(key);
+					return tupleStoreAdapter.isTableKnown(tupleStoreNameObject);
 				}
 				
 			});
@@ -94,7 +95,7 @@ public class TupleStoreConfigurationCache {
 	}
 	
 	/**
-	 * Get the duplicate resolver
+	 * 
 	 * @param tupleStorename
 	 * @return
 	 */
@@ -130,7 +131,7 @@ public class TupleStoreConfigurationCache {
 	 * Is the tuple store known
 	 * @param tupleStoreName
 	 */
-	public synchronized boolean isTupleStoreKnown(final TupleStoreName tupleStoreName) {
+	public synchronized boolean isTupleStoreKnown(final String tupleStoreName) {
 		try {
 			return tupleStoreNameCache.get(tupleStoreName);
 		} catch (ExecutionException e) {

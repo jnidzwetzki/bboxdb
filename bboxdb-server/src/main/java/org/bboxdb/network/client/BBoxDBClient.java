@@ -148,6 +148,10 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
+		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
+			throw new BBoxDBException("Table " + table + " is unkown");
+		}
+		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, tuple.getBoundingBox(), false, connection.getServerAddress());
 
