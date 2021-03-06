@@ -29,6 +29,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;
 import org.junit.AfterClass;
@@ -228,6 +229,27 @@ public class TestBBoxDBCluster {
 		disconnect(bboxDBClient);
 	}
 
+	/**
+	 * The the insert into a non existing table, insert should return immediately
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 * @throws BBoxDBException
+	 */
+	@Test(timeout=20_000, expected = BBoxDBException.class)
+	public void testInsertInNonExistingTable() throws InterruptedException, ExecutionException, BBoxDBException {
+		final BBoxDB bboxDBClient = EnvironmentHelper.connectToServer();
+		
+		final String table = DISTRIBUTION_GROUP + "_nonexistingtable";
+
+		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abc".getBytes());
+		final EmptyResultFuture insertResult1 = bboxDBClient.insertTuple(table, tuple1);
+		insertResult1.waitForCompletion();
+
+		Assert.fail("No exception was thrown during insert");
+		
+		disconnect(bboxDBClient);
+	}
+	
 	/**
 	 * Test misc methods
 	 * @throws InterruptedException
