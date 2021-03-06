@@ -213,7 +213,7 @@ public class BBoxDBCluster implements BBoxDB {
 			final Hyperrectangle boundingBox, final EnumSet<InsertOption> insertOptions) throws BBoxDBException {
 		
 		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
-			throw new BBoxDBException("Table " + table + " is unkown");
+			throw new BBoxDBException("Table " + table + " is unknown");
 		}
 		
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
