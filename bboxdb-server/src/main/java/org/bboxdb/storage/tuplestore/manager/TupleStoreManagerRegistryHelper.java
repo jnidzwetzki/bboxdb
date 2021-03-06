@@ -49,7 +49,7 @@ public class TupleStoreManagerRegistryHelper {
 					.getZookeeperClient().getTupleStoreAdapter();
 
 			if(! tupleStoreAdapter.isTableKnown(requestTable)) {
-				throw new StorageManagerException("Table: " + requestTable.getFullname() + " is unkown");
+				throw new StorageManagerException("Table: " + requestTable.getFullname() + " is unknown");
 			}
 
 			final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(requestTable);
