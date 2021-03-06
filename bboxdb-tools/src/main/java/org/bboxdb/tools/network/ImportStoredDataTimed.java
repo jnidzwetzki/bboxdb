@@ -91,11 +91,11 @@ public class ImportStoredDataTimed implements Runnable {
 				final Tuple tuple = tupleFactory.buildTuple(line);
 				
 				if(timeOffset == -1) {
-					timeOffset = System.currentTimeMillis() - tuple.getVersionTimestamp();
+					timeOffset = (System.currentTimeMillis() * 1000) - tuple.getVersionTimestamp();
 				}
 				
 				
-				while(tuple.getVersionTimestamp() + timeOffset > System.currentTimeMillis()) {
+				while(tuple.getVersionTimestamp() + timeOffset > System.currentTimeMillis() * 1000) {
 
 					if(Thread.currentThread().isInterrupted()) {
 						logger.info("Thread is interruped");
