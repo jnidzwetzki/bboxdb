@@ -116,7 +116,7 @@ public class ImportStoredDataTimed implements Runnable {
 				final long curTimeSlot = getTimeSlot();
 				
 				if(curTimeSlot > currentSecondSlot) {
-					logger.info("Processed {} elements ({} filtered)", processedLines);
+					logger.info("Processed {} elements", processedLines);
 					processedLines = 0;
 					currentSecondSlot = curTimeSlot;
 					writer.flush();
