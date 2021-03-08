@@ -35,11 +35,11 @@ public class AuTransportGeoJSONTupleBuilder extends TupleBuilder {
 		
 		String key = keyData;
 
-		//if(properties.containsKey("TripID")) {
-		//	key = properties.get("TripID").replace(" ", "_");
-		//} else {
+		if(properties.containsKey("TripID")) {
+			key = properties.get("TripID").replace(" ", "_");
+		} else {
 			key = properties.get("RouteID").replace(" ", "_");
-		//}
+		}
 		
 		// Longitude / Latitude switch
 		polygon.invertPolygonCoordinates();
