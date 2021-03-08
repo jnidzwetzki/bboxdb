@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
@@ -77,6 +79,7 @@ public class ImportStoredDataTimed implements Runnable {
 			long processedLines = 0;
 			final Stopwatch stopwatch = Stopwatch.createStarted();
 			long timeOffset = -1;
+			SpatialIndexBuilder index = new RTreeBuilder();
 			
 			while((line = reader.readLine()) != null) {
 				writer.write(line + "\n");
@@ -95,6 +98,10 @@ public class ImportStoredDataTimed implements Runnable {
 					continue;
 				}
 				
+				// Filter duplicates
+				if(! index.getEntriesForRegion(tuple.getBoundingBox()).isEmpty()) {
+					continue;
+				}
 				
 				if(timeOffset == -1) {
 					timeOffset = (System.currentTimeMillis() * 1000) - tuple.getVersionTimestamp();
@@ -121,6 +128,7 @@ public class ImportStoredDataTimed implements Runnable {
 					processedLines = 0;
 					currentSecondSlot = curTimeSlot;
 					writer.flush();
+					index = new RTreeBuilder();
 					continue;
 				}				
 			}
