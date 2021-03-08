@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
@@ -105,6 +106,9 @@ public class ImportStoredDataTimed implements Runnable {
 					continue;
 				}
 				
+				final SpatialIndexEntry spe = new SpatialIndexEntry(tuple.getBoundingBox(), 0);
+				index.insert(spe);
+								
 				if(timeOffset == -1) {
 					timeOffset = (System.currentTimeMillis() * 1000) - tuple.getVersionTimestamp();
 				}
