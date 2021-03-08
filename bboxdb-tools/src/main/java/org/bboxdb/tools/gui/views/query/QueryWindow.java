@@ -27,7 +27,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -69,6 +68,7 @@ public class QueryWindow {
 	 * The predefined quries
 	 */
 	private static final String QUERY_PREDEFINED_NONE = "----";
+	private static final String QUERY_PREDEFINED_STATIC_ROADS = "Roads (Static)";
 	private static final String QUERY_PREDEFINED_AIRCRAFT = "Aircraft";
 	private static final String QUERY_PREDEFINED_BUS = "Bus";
 	private static final String QUERY_PREDEFINED_BUS_ROAD = "Bus joined with Road";
@@ -128,8 +128,8 @@ public class QueryWindow {
 	 * The predefined query values
 	 */
 	private final static String[] PREDEFINED_QUERIES = new String[] {QUERY_PREDEFINED_NONE, 
-			QUERY_PREDEFINED_AIRCRAFT, QUERY_PREDEFINED_BUS, QUERY_PREDEFINED_BUS_ROAD, 
-			QUERY_PREDEFINED_BUS_ELIZABETH, QUERY_PREDEFINED_BUS_FOREST_BBOX,
+			QUERY_PREDEFINED_STATIC_ROADS, QUERY_PREDEFINED_AIRCRAFT, QUERY_PREDEFINED_BUS, 
+			QUERY_PREDEFINED_BUS_ROAD, QUERY_PREDEFINED_BUS_ELIZABETH, QUERY_PREDEFINED_BUS_FOREST_BBOX,
 			QUERY_PREDEFINED_BUS_FOREST_RELAXTED, QUERY_PREDEFINED_BUS_FOREST_STRICT};
 	
 	/**
@@ -290,6 +290,17 @@ public class QueryWindow {
 				udfNameField.setText("");
 				udfValueField.setText("");
 				queryTypeBox.setSelectedItem(QUERY_RANGE);
+				break;
+			case QUERY_PREDEFINED_STATIC_ROADS:
+				udfNameField.setText("");
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_roads");
+				queryTypeBox.setSelectedItem(QUERY_RANGE);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(false);
+				table2ColorField.setEnabled(false);
 				break;
 			case QUERY_PREDEFINED_AIRCRAFT:
 				udfNameField.setText("");
