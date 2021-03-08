@@ -167,7 +167,7 @@ public class QueryWindow {
 	private PanelBuilder buildDialog() {
 
 		final FormLayout layout = new FormLayout(
-			    "right:pref, 3dlu, 100dlu, 10dlu, right:pref, 3dlu, 100dlu", 			// columns
+			    "right:pref, 3dlu, 120dlu, 10dlu, right:pref, 3dlu, 100dlu", 			// columns
 			    "p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 9dlu, p");	// rows
 		
 		final PanelBuilder builder = new PanelBuilder(layout);
