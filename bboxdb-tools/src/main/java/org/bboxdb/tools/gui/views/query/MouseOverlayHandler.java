@@ -111,7 +111,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 		}
 		
 		if(! highlightedElements.isEmpty()) {
-			final StringBuilder sb = new StringBuilder("<html>");
+			final StringBuilder sb = new StringBuilder();
 			
 			final Set<String> knownElements = new HashSet<>();
 			
@@ -131,15 +131,35 @@ public class MouseOverlayHandler extends MouseAdapter {
 					}
 					
 					knownElements.add(tooltipText);
-					
-					sb.append("===========================<br>");
+
+					if(i != 0) {
+						sb.append("<hr>");
+					}
+					sb.append("%%FONT_START%%");
 					sb.append(tooltipText);
+					sb.append("</font>");
 				}
 			}
 			
-			sb.append("</html>");
+			final int lines = sb.toString().split("\\<br\\>").length;
+			System.out.println("==> " + lines);
+			
+		
+			final StringBuilder htmlStringBuilder = new StringBuilder("<html>");
+			htmlStringBuilder.append(sb);
+			htmlStringBuilder.append("</html>");
+			
+			String htmlString = htmlStringBuilder.toString();
 
-			toolTip.setTipText(sb.toString());
+			if(lines > 45) {
+				htmlString = htmlString.replace("%%FONT_START%%", "<font size=\"1\">");
+			} else if(lines > 25) {
+				htmlString = htmlString.replace("%%FONT_START%%", "<font size=\"2\">");
+			} else {
+				htmlString = htmlString.replace("%%FONT_START%%", "<font size=\"3\">");
+			}
+						
+			toolTip.setTipText(htmlString);
 			toolTip.setLocation(new Point(e.getX(), e.getY()));
 			toolTip.setVisible(true);
 		} else {
