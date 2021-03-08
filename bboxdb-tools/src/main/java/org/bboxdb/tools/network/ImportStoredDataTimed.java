@@ -77,6 +77,7 @@ public class ImportStoredDataTimed implements Runnable {
 			long currentSecondSlot = getTimeSlot();
 			long totalProcessedLines = 0;
 			long processedLines = 0;
+			long filteredLines = 0;
 			final Stopwatch stopwatch = Stopwatch.createStarted();
 			long timeOffset = -1;
 			SpatialIndexBuilder index = new RTreeBuilder();
@@ -100,6 +101,7 @@ public class ImportStoredDataTimed implements Runnable {
 				
 				// Filter duplicates
 				if(! index.getEntriesForRegion(tuple.getBoundingBox()).isEmpty()) {
+					filteredLines++;
 					continue;
 				}
 				
@@ -124,8 +126,9 @@ public class ImportStoredDataTimed implements Runnable {
 				final long curTimeSlot = getTimeSlot();
 				
 				if(curTimeSlot > currentSecondSlot) {
-					logger.info("Processed {} elements", processedLines);
+					logger.info("Processed {} elements ({} filtered)", processedLines, filteredLines);
 					processedLines = 0;
+					filteredLines = 0;
 					currentSecondSlot = curTimeSlot;
 					writer.flush();
 					index = new RTreeBuilder();
