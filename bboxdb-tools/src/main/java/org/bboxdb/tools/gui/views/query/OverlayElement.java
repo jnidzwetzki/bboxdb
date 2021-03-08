@@ -237,7 +237,10 @@ public class OverlayElement {
 		final StringBuffer sb = new StringBuffer();
 		
 		sb.append("<b>Table:</b> " + tablename + "<br>");
-		sb.append("<b>Id: </b> " + getPolygon().getId() + "<br>");
+		
+		if(getPolygon().getId() != 0) {
+			sb.append("<b>Id: </b> " + getPolygon().getId() + "<br>");
+		}
 		
 		for(Map.Entry<String, String> property : getPolygon().getProperties().entrySet()) {
 			sb.append("<b>" + property.getKey() + ":</b> " +  property.getValue() + "<br>");

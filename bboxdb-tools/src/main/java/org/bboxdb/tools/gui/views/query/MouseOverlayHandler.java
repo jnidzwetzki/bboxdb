@@ -142,9 +142,7 @@ public class MouseOverlayHandler extends MouseAdapter {
 			}
 			
 			final int lines = sb.toString().split("\\<br\\>").length;
-			System.out.println("==> " + lines);
-			
-		
+					
 			final StringBuilder htmlStringBuilder = new StringBuilder("<html>");
 			htmlStringBuilder.append(sb);
 			htmlStringBuilder.append("</html>");
