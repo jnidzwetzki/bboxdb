@@ -297,7 +297,7 @@ public class QueryWindow {
 				udfNameField.setText("");
 				udfValueField.setText("");
 				table1Field.setSelectedItem("osmgroup_roads");
-				table1ColorField.setSelectedItem("Red");
+				table1ColorField.setSelectedItem("Blue");
 				queryTypeBox.setSelectedItem(QUERY_RANGE);
 				executeButton.setEnabled(true);
 				table1Field.setEnabled(true);
