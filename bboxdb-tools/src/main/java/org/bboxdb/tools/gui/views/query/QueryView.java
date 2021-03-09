@@ -166,6 +166,7 @@ public class QueryView implements View {
 				.toArray(String[]::new);
 		
 		final JComboBox<String> dropdown = new JComboBox<>(valuesAsString);
+		dropdown.setSelectedIndex(2);
 		
 		dropdown.addActionListener((a) -> {
 			final ElementPaintMode mode = valuesAsEnum[dropdown.getSelectedIndex()];
