@@ -167,7 +167,8 @@ public class QueryView implements View {
 		
 		final JComboBox<String> dropdown = new JComboBox<>(valuesAsString);
 		dropdown.setSelectedIndex(2);
-		
+		painter.setPaintMode(ElementPaintMode.GEOMETRY_ONLY);
+
 		dropdown.addActionListener((a) -> {
 			final ElementPaintMode mode = valuesAsEnum[dropdown.getSelectedIndex()];
 			painter.setPaintMode(mode);
