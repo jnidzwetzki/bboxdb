@@ -59,14 +59,29 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 			return true;
 		}
 		
-		// Cache the custom geometry between method calls
-		if(customGeomety == null) {
-			final String customString = new String(customData);
-			customGeomety = geoJoinToGeomety(customString);
-		}
+		final String customString = new String(customData);
 		
 		final String geoJsonString = new String(tuple.getDataBytes());
 		final JSONObject geoJsonObject = new JSONObject(geoJsonString);
+		
+		if(customString.contains(":")) {
+			
+			final String[] customParts = customString.split(":");
+
+			if(customParts.length != 2) {
+				logger.error("Unable to split {} into two parts", customString);
+			}
+			
+			final String key = customParts[0];
+			final String value = customParts[1];
+						
+			return containsProperty(geoJsonObject, key, value);
+		}
+		
+		// Cache the custom geometry between method calls
+		if(customGeomety == null) {
+			customGeomety = geoJoinToGeomety(customString);
+		}
 
 		final OGCGeometry geometry = extractGeometry(geoJsonObject);
 
