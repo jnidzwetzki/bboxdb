@@ -355,7 +355,7 @@ public class QueryWindow {
 				break;
 			case QUERY_PREDEFINED_BUS_ELIZABETH:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
-				udfValueField.setText("Elizabeth Street");
+				udfValueField.setText("name:Elizabeth Street");
 				table1Field.setSelectedItem("osmgroup_buses");
 				table2Field.setSelectedItem("osmgroup_roads");
 				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);

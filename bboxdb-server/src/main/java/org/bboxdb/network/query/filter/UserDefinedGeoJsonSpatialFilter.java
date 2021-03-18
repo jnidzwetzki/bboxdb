@@ -19,6 +19,8 @@ package org.bboxdb.network.query.filter;
 
 import org.bboxdb.storage.entity.Tuple;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esri.core.geometry.MapOGCStructure;
 import com.esri.core.geometry.Operator;
@@ -29,10 +31,22 @@ import com.esri.core.geometry.ogc.OGCGeometry;
 import com.esri.core.geometry.ogc.OGCPoint;
 
 public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
-	
+
+	/**
+	 * The cached geometry
+	 */
 	private OGCGeometry customGeomety = null;
 	
+	/**
+	 * The overlapping distance
+	 */
 	private final static double MAX_OVERLAPPING_POINT_DISTANCE = 0.0001;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(UserDefinedGeoJsonSpatialFilter.class);
+
 
 	/**
 	 * Perform a real filter based on the geometry of the data
@@ -52,7 +66,9 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		}
 		
 		final String geoJsonString = new String(tuple.getDataBytes());
-		final OGCGeometry geometry = extractGeometry(geoJsonString);
+		final JSONObject geoJsonObject = new JSONObject(geoJsonString);
+
+		final OGCGeometry geometry = extractGeometry(geoJsonObject);
 
         return geometry.intersects(customGeomety);
 	}
@@ -66,18 +82,63 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		final String geoJsonString1 = new String(tuple1.getDataBytes());
 		final String geoJsonString2 = new String(tuple2.getDataBytes());
 
+		final JSONObject jsonObject1 = new JSONObject(geoJsonString1);
+		final JSONObject jsonObject2 = new JSONObject(geoJsonString2);
+		
 		// Full text search on string (if provided)
 		if(customData != null) {
 			final String customDataString = new String(customData);
-			if(! geoJsonString1.contains(customDataString) && 
-					! geoJsonString2.contains(customDataString)) {
+			final String[] customParts = customDataString.split(":");
+			
+			if(customParts.length != 2) {
+				logger.error("Unable to split {} into two parts", customDataString);
+			}
+			
+			final String key = customParts[0];
+			final String value = customParts[1];
+			
+			if(! containsProperty(jsonObject1, key, value) && ! containsProperty(jsonObject2, key, value)) {
 				return false;
 			}
 		}
 		
-		final OGCGeometry geometry1 = extractGeometry(geoJsonString1);
-		final OGCGeometry geometry2 = extractGeometry(geoJsonString2);
+		final OGCGeometry geometry1 = extractGeometry(jsonObject1);
+		final OGCGeometry geometry2 = extractGeometry(jsonObject2);
 		
+		return performIntersectionTest(geometry1, geometry2);
+	}
+
+	/**
+	 * Contains the given json a proper element in the map?
+	 * @param json
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	private boolean containsProperty(final JSONObject json, final String key, final String value) {
+		final JSONObject properties = json.optJSONObject("properties");
+		
+		if(properties == null) {
+			return false;
+		}
+		
+		final String valueForKey = properties.optString(key);
+		
+		if(valueForKey == null) {
+			return false;
+		}
+		
+		return value.equals(valueForKey);
+	}
+	
+	/**
+	 * Perform the intersection test of the geometries
+	 * 
+	 * @param geometry1
+	 * @param geometry2
+	 * @return
+	 */
+	protected boolean performIntersectionTest(final OGCGeometry geometry1, final OGCGeometry geometry2) {
 		if(geometry1 instanceof OGCPoint) {
 			final double geometryDistrance = geometry1.distance(geometry2);
 			return geometryDistrance < MAX_OVERLAPPING_POINT_DISTANCE;
@@ -91,9 +152,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 * @param tuple
 	 * @return
 	 */
-	private OGCGeometry extractGeometry(final String geoJsonString) {
-
-		final JSONObject jsonObject = new JSONObject(geoJsonString);
+	private OGCGeometry extractGeometry(final JSONObject jsonObject) {
 		
 		// Extract geometry (if exists)
 		final JSONObject geometryObject = jsonObject.optJSONObject("geometry");
@@ -102,7 +161,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 			return geoJoinToGeomety(geometryObject.toString());
 		}
 		
-		return geoJoinToGeomety(geoJsonString);
+		return geoJoinToGeomety(jsonObject.toString());
 	}
 
 	/**
