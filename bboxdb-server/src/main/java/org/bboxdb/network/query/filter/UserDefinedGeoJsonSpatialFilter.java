@@ -86,7 +86,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		final JSONObject jsonObject2 = new JSONObject(geoJsonString2);
 		
 		// Full text search on string (if provided)
-		if(customData != null) {
+		if(customData != null && customData.length > 1) {
 			final String customDataString = new String(customData);
 			final String[] customParts = customDataString.split(":");
 			
