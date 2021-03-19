@@ -1222,7 +1222,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final int dimensions = MathUtil.tryParseIntOrExit(dimensionsString,
 				() -> "This is not a valid dimension: " + dimensionsString);
 
-		System.out.println("Create new distribution group: " + distributionGroup);
+		System.out.println("Creating new distribution group: " + distributionGroup);
 
 		try {
 			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
