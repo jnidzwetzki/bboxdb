@@ -77,6 +77,8 @@ public class QueryWindow {
 	private static final String QUERY_PREDEFINED_BUS_FOREST_BBOX = "Bus joined with Forest (bbox)";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Bus joined with Forrst (relaxed)";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_STRICT = "Bus joined with Forest (strict)";
+	private static final String QUERY_PREDEFINED_STATIC_ROAD_VALUE = "Road with value";
+	
 	
 	/**
 	 * The main frame
@@ -132,7 +134,8 @@ public class QueryWindow {
 			QUERY_PREDEFINED_STATIC_ROADS, QUERY_PREDEFINED_STATIC_FOREST,
 			QUERY_PREDEFINED_AIRCRAFT, QUERY_PREDEFINED_BUS, QUERY_PREDEFINED_BUS_ROAD, 
 			QUERY_PREDEFINED_BUS_ELIZABETH, QUERY_PREDEFINED_BUS_FOREST_BBOX,
-			QUERY_PREDEFINED_BUS_FOREST_RELAXTED, QUERY_PREDEFINED_BUS_FOREST_STRICT};
+			QUERY_PREDEFINED_BUS_FOREST_RELAXTED, QUERY_PREDEFINED_BUS_FOREST_STRICT,
+			QUERY_PREDEFINED_STATIC_ROAD_VALUE};
 	
 	/**
 	 * The created background threads
@@ -296,6 +299,18 @@ public class QueryWindow {
 			case QUERY_PREDEFINED_STATIC_ROADS:
 				udfNameField.setText("");
 				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_roads");
+				table1ColorField.setSelectedItem("Blue");
+				queryTypeBox.setSelectedItem(QUERY_RANGE);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(false);
+				table2ColorField.setEnabled(false);
+				break;
+			case QUERY_PREDEFINED_STATIC_ROAD_VALUE:
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("lanes:4");
 				table1Field.setSelectedItem("osmgroup_roads");
 				table1ColorField.setSelectedItem("Blue");
 				queryTypeBox.setSelectedItem(QUERY_RANGE);
@@ -726,3 +741,4 @@ public class QueryWindow {
 	}
 
 }
+
