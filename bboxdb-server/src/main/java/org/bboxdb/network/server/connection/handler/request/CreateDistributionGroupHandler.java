@@ -91,6 +91,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final DistributionRegion region = spacePartitioner.getRootNode();
 			
 			distributionRegionAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
+			spacePartitioner.waitUntilNodeStateIs(region, DistributionRegionState.ACTIVE);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch(ResourceAllocationException e) {

@@ -152,5 +152,22 @@ public interface SpacePartitioner {
 	 * Shutdown the space partitioner
 	 */
 	public void shutdown();
+	
+	/**
+	 * Wait until the node state is
+	 * @param region
+	 * @param state
+	 * @throws InterruptedException 
+	 */
+	public void waitUntilNodeStateIs(final DistributionRegion region, final DistributionRegionState state) 
+			throws InterruptedException;
+	
+	/**
+	 * Wait until the node is removed
+	 * @param region
+	 * @param state
+	 * @throws InterruptedException 
+	 */
+	public void waitUntilNodeIsRemoved(final DistributionRegion region) throws InterruptedException;
 
 }

@@ -87,7 +87,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * @param configuration
 	 * @return
 	 */
-	private Hyperrectangle getRootBox(DistributionGroupConfiguration configuration) {
+	private Hyperrectangle getRootBox(final DistributionGroupConfiguration configuration) {
 		
 		final String spConfig = configuration.getSpacePartitionerConfig();
 		

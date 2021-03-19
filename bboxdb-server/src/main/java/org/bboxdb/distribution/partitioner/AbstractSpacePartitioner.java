@@ -73,7 +73,7 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner {
 	protected SpacePartitionerContext spacePartitionerContext;
 	
 	/**
-	 * Is the space partitoner active?
+	 * Is the space partitioner active?
 	 */
 	protected volatile boolean active;
 	
@@ -229,7 +229,6 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner {
 	 * @param state
 	 * @throws InterruptedException 
 	 */
-	@VisibleForTesting
 	public void waitUntilNodeStateIs(final DistributionRegion region, final DistributionRegionState state) throws InterruptedException {
 		final Predicate<DistributionRegion> predicate = (r) -> r.getState() == state;
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, region, distributionRegionSyncer);
@@ -241,7 +240,6 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner {
 	 * @param state
 	 * @throws InterruptedException 
 	 */
-	@VisibleForTesting
 	public void waitUntilNodeIsRemoved(final DistributionRegion region) throws InterruptedException {
 		DistributionRegionSyncerHelper.waitUntilRegionRemoved(region, distributionRegionSyncer);
 	}
