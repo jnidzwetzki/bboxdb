@@ -41,7 +41,23 @@ public class NodeMutationHelper {
 	public static long markNodeMutationAsComplete(final ZookeeperClient zookeeperClient, 
 			final String path) throws ZookeeperException {
 		
+		// Ensure we don't set an older version
+		long oldVersion = 0;
+				
+		try {
+			oldVersion = getNodeMutationVersion(zookeeperClient, path, null);
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+			// ignore not found
+		}
+		
 		final long version = System.currentTimeMillis();
+		
+		if(version <= oldVersion) {
+			logger.error("Unable to update node mutation to {}, remote value is newer {}", 
+					version, oldVersion);
+			throw new ZookeeperException("Version problem for " + path);
+		}
+		
 		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(version);
 		
 		final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
