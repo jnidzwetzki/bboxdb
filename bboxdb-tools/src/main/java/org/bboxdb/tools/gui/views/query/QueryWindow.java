@@ -75,7 +75,7 @@ public class QueryWindow {
 	private static final String QUERY_PREDEFINED_BUS_ROAD = "Bus joined with Road";
 	private static final String QUERY_PREDEFINED_BUS_ELIZABETH = "Bus on Elizabeth Street";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_BBOX = "Bus joined with Forest (bbox)";
-	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Bus joined with Forrst (relaxed)";
+	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Bus joined with Forest (relaxed)";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_STRICT = "Bus joined with Forest (strict)";
 	private static final String QUERY_PREDEFINED_STATIC_ROAD_VALUE = "Road with value";
 	
