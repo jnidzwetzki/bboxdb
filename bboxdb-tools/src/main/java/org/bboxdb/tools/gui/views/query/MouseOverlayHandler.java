@@ -132,9 +132,10 @@ public class MouseOverlayHandler extends MouseAdapter {
 					
 					knownElements.add(tooltipText);
 
-					if(i != 0) {
+					if(knownElements.size() != 1) {
 						sb.append("<hr>");
 					}
+					
 					sb.append("%%FONT_START%%");
 					sb.append(tooltipText);
 					sb.append("</font>");
