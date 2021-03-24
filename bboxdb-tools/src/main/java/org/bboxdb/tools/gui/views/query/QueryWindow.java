@@ -71,12 +71,12 @@ public class QueryWindow {
 	private static final String QUERY_PREDEFINED_STATIC_ROADS = "Roads (Static)";
 	private static final String QUERY_PREDEFINED_STATIC_FOREST = "Forest (Static)";
 	private static final String QUERY_PREDEFINED_AIRCRAFT = "Aircraft";
-	private static final String QUERY_PREDEFINED_BUS = "Bus";
-	private static final String QUERY_PREDEFINED_BUS_ROAD = "Bus joined with Road";
-	private static final String QUERY_PREDEFINED_BUS_ELIZABETH = "Bus on Elizabeth Street";
-	private static final String QUERY_PREDEFINED_BUS_FOREST_BBOX = "Bus joined with Forest (bbox)";
-	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Bus joined with Forest (relaxed)";
-	private static final String QUERY_PREDEFINED_BUS_FOREST_STRICT = "Bus joined with Forest (strict)";
+	private static final String QUERY_PREDEFINED_BUS = "Buses";
+	private static final String QUERY_PREDEFINED_BUS_ROAD = "Buses joined with Road";
+	private static final String QUERY_PREDEFINED_BUS_ELIZABETH = "Buses on Elizabeth Street";
+	private static final String QUERY_PREDEFINED_BUS_FOREST_BBOX = "Buses joined with Forest (bbox)";
+	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Buses joined with Forest (relaxed)";
+	private static final String QUERY_PREDEFINED_BUS_FOREST_STRICT = "Buses joined with Forest (strict)";
 	private static final String QUERY_PREDEFINED_STATIC_ROAD_VALUE = "Road with value";
 	
 	
