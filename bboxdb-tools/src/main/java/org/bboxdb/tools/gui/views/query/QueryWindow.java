@@ -65,7 +65,7 @@ public class QueryWindow {
 	private static final String QUERY_JOIN_CONTINUOUS = "Continuous spatial join";
 	
 	/**
-	 * The predefined quries
+	 * The predefined queries
 	 */
 	private static final String QUERY_PREDEFINED_NONE = "----";
 	private static final String QUERY_PREDEFINED_STATIC_ROADS = "Roads (Static)";
@@ -74,6 +74,7 @@ public class QueryWindow {
 	private static final String QUERY_PREDEFINED_BUS = "Buses";
 	private static final String QUERY_PREDEFINED_BUS_ROAD = "Buses joined with Road";
 	private static final String QUERY_PREDEFINED_BUS_ELIZABETH = "Buses on Elizabeth Street";
+	private static final String QUERY_PREDEFINED_BUS_BRIDGE = "Buses on a Bridge";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_BBOX = "Buses joined with Forest (bbox)";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Buses joined with Forest (relaxed)";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_STRICT = "Buses joined with Forest (strict)";
@@ -133,7 +134,7 @@ public class QueryWindow {
 	private final static String[] PREDEFINED_QUERIES = new String[] {QUERY_PREDEFINED_NONE, 
 			QUERY_PREDEFINED_STATIC_ROADS, QUERY_PREDEFINED_STATIC_FOREST,
 			QUERY_PREDEFINED_AIRCRAFT, QUERY_PREDEFINED_BUS, QUERY_PREDEFINED_BUS_ROAD, 
-			QUERY_PREDEFINED_BUS_ELIZABETH, QUERY_PREDEFINED_BUS_FOREST_BBOX,
+			QUERY_PREDEFINED_BUS_ELIZABETH, QUERY_PREDEFINED_BUS_BRIDGE, QUERY_PREDEFINED_BUS_FOREST_BBOX,
 			QUERY_PREDEFINED_BUS_FOREST_RELAXTED, QUERY_PREDEFINED_BUS_FOREST_STRICT,
 			QUERY_PREDEFINED_STATIC_ROAD_VALUE};
 	
@@ -371,6 +372,19 @@ public class QueryWindow {
 			case QUERY_PREDEFINED_BUS_ELIZABETH:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
 				udfValueField.setText("name:Elizabeth Street");
+				table1Field.setSelectedItem("osmgroup_buses");
+				table2Field.setSelectedItem("osmgroup_roads");
+				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
+				table2ColorField.setSelectedItem("Blue");
+				break;
+			case QUERY_PREDEFINED_BUS_BRIDGE:
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("bridge:yes");
 				table1Field.setSelectedItem("osmgroup_buses");
 				table2Field.setSelectedItem("osmgroup_roads");
 				queryTypeBox.setSelectedItem(QUERY_JOIN_CONTINUOUS);

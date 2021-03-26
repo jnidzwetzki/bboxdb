@@ -15,7 +15,7 @@ This tutorial shows, how you can process a real-world data set of position data 
 * Which bus is currently driving through a forest (continuous spatial join query)?
 * Which bus is currently located on a bridge (continuous spatial join query)?
 
-<p><img src="docs/images/bboxdb_sydney.jpg" width="400"></p>
+<p><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg" width="400"></p>
 
 ## Download and Convert Open Street Map Data into GeoJSON
 https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf
