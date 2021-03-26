@@ -8,18 +8,26 @@ order: 5
 
 # Handle a real-world data stream with BBoxDB Streams
 
-This tutorial shows, how you can process a real-world data set of position data with BBoxDB Streams. Queries such as spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as data stream. Spatial data from the OpenStreetMap project is used for the static dataset. 
+This tutorial shows, how you can process a real-world data set of position data with BBoxDB Streams. Queries such as spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as data stream. Spatial data from the OpenStreetMap project is used for the static dataset. Queries such as:
+
+* Which bus / train / ferry is currently located in a given query rectangle (continuous range query)?
+* Which bus is currently located on a Bridge (continuous spatial join query)?
+* Which bus is currently driving through a forest (continuous spatial join query)?
+* Which bus is currently located on a bridge (continuous spatial join query)?
+
+<p><img src="docs/images/bboxdb_sydney.jpg" width="400"></p>
 
 ## Download and Convert Open Street Map Data into GeoJSON
 https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf
 
 http://download.geofabrik.de/
 
-$BBOXDB_HOME/bin/osm_data_converter.sh -input $datadir/north-america-latest.osm.pbf -backend bdb -workfolder /BIG/nidzwetzki/work -output $datadir/converted
+$BBOXDB_HOME/bin/osm_data_converter.sh -input <your-dataset>.osm.pbf -backend bdb -workfolder /tmp/work -output <outputdir>
 
+See [this page](https://jnidzwetzki.github.io/bboxdb//tools/dataset.html) for more information about the data converter. 
 
 # Prepartition the Space and Import the GeoJSON Data
-$BBOXDB_HOME/bin/import_osm.sh /BIG/nidzwetzki/datasets/osm/australia/converted nowait
+$BBOXDB_HOME/bin/import_osm.sh <outputdir> nowait
 
 # Create an Account to Access the Data Stream
 
@@ -39,4 +47,18 @@ $BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.ImportAuTransport "<
 
 # Perform Queries on the Data Stream
 
+On the CLI, you can perform the following continuous query to see all data of the data stream. The provided bounding box for the range query `-35:-30:150:152` covers the area of Australia.
 
+```
+$BBOXDB_HOME/bin/cli.sh -action query_continuous -table osmgroup_buses -bbox -35:-30:150:152
+```
+
+For more queries, please use the GUI of BBoxDB. You can start the GUI by executing:
+
+```
+$BBOXDB_HOME/bin/gui.sh
+```
+
+Open the `query view` on the GUI and navigate to Sydney. In the GUI the queries from the introduction are pre-defined. In addition, you can execute individual queries.
+
+__Note:__ For more information, have a look at our Stream Processing [paper](https://edbt2021proceedings.github.io/docs/p170.pdf), presented at EDBT 2021.
