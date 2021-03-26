@@ -15,8 +15,11 @@ This tutorial shows how you can process a real-world data stream of position dat
 * _Which bus is currently driving through a forest_ (continuous spatial join query)?
 * _Which bus is currently located on a particular road_ (continuous spatial join query)?
 
-<div align="center">
+
+<div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg" width="400"></a>
+<br>
+<font size="small">The buses in Sydney, interactively shown as a continuous range query in the GUI of BBoxDB.</font>
 </div>
 
 __Note:__ For more information, have a look at our Stream Processing [paper](https://edbt2021proceedings.github.io/docs/p170.pdf), presented at EDBT 2021.
@@ -137,17 +140,17 @@ Open the `query view` on the GUI and navigate to Sydney. In the GUI the queries 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_predefined_queries.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_predefined_queries.png" width="400"></a>
 <br>
-<font size="small">The predefined queries in the GUI</font>
+<font size="small">The predefined queries in the GUI.</font>
 </div>
 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_forest_joined_with_bus.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_forest_joined_with_bus.png" width="400"></a>
 <br>
-<font size="small">A bus in a forest</font>
+<font size="small">A bus in a forest.</font>
 </div>
 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_bus_on_bridge.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_bus_on_bridge.png" width="400"></a>
 <br>
-<font size="small">A bus on a bridge</font>
+<font size="small">A bus on a bridge.</font>
 </div>
