@@ -8,7 +8,7 @@ order: 5
 
 # Handle a real-world data stream with BBoxDB Streams
 
-This tutorial shows, how you can process a real-world data set of position data with BBoxDB Streams. Queries such as spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as data stream. Spatial data from the OpenStreetMap project is used for the static dataset. Queries such as:
+This tutorial shows how you can process a real-world data set of position data with BBoxDB Streams. Queries such as spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as a data stream. Spatial data from the OpenStreetMap project is used for the static dataset. Queries such as:
 
 * _Which bus / train / ferry is currently located in a given query rectangle_ (continuous range query)?
 * _Which bus is currently located on a Bridge_ (continuous spatial join query)?
@@ -32,15 +32,29 @@ $BBOXDB_HOME/bin/osm_data_converter.sh -input <your-dataset>.osm.pbf -backend bd
 See [this page](https://jnidzwetzki.github.io/bboxdb/tools/dataset.html) for more information about the data converter. 
 
 # Prepartition the Space and Import the GeoJSON Data
+
+After the spatial data is converted into GeoJSO, you can import the data by calling the following command:
+
+```
 $BBOXDB_HOME/bin/import_osm.sh <outputdir> nowait
+```
+
+The command does the following:
+
+* The distribution group `osm` (short for OpenStreetMap) is created.
+* The tables `osm_road` and `osm_forst` are created.
+* A sample is taken from the data, and the space is pre-partitioned into 10 distribution regions. 
+* The spatial data is read and imported into BBoxDB.
+
+__Hint__: When you remote the `nowait` parameter from the command, the command will stop after each step, and you can analyze the output.
 
 # Create an Account to Access the Data Stream
 
-https://opendata.transport.nsw.gov.au/
+To fetch the data stream of the vehicles in Sydney, you have to apply for a API key. This can be done at the following [website](https://opendata.transport.nsw.gov.au/). Please create an API key that is capable of accessing the "GTFS real-time" encoded data stream of the vehicles.
 
 # Import the Datastream
 
-To import the data stream, the following tables needs to be created in BBoxDB.
+To import the data stream, the following tables need to be created in BBoxDB.
 
 ```
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_lightrail
@@ -51,13 +65,13 @@ $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_ferries
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_trains
 ```
 
-Afterward you can start the import of the data stream into BBoxDB. 
+Afterward, you can start the import of the data stream into BBoxDB. 
 
 ```
 $BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.ImportAuTransport "<Your-API-Key>" lightrail:buses:metro:nswtrains:ferries:trains <cluster-contact-point> <your-cluster-name> osmgroup 2
 ```
 
-__Note__: The `2` at the end of the command means, that the data source is pulled every 2 seconds and the data is imported into BBoxDB.
+__Note__: The `2` at the end of the command means that the data source is pulled every 2 seconds, and the data is imported into BBoxDB.
 
 # Perform Queries on the Data Stream
 
