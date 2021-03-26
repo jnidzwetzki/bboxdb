@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "User defined filter"
+title: "User-defined filter"
 category: doc
 date: 2016-12-12 12:18:27
 order: 3

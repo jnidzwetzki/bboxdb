@@ -81,7 +81,7 @@ After the spatial data is converted into GeoJSO, you can import the data by call
 $BBOXDB_HOME/bin/import_osm.sh <outputdir> nowait
 ```
 
-The command does the following:
+The command performs the following tasks:
 
 * The distribution group `osm` (short for OpenStreetMap) is created.
 * The tables `osm_road` and `osm_forst` are created.
