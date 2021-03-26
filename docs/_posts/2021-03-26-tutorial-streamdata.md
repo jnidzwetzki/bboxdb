@@ -13,7 +13,7 @@ This tutorial shows how you can process a real-world data set of position data w
 * _Which bus / train / ferry is currently located in a given query rectangle_ (continuous range query)?
 * _Which bus is currently located on a Bridge_ (continuous spatial join query)?
 * _Which bus is currently driving through a forest_ (continuous spatial join query)?
-* _Which bus is currently located on a bridge_ (continuous spatial join query)?
+* _Which bus is currently located on a particular road_ (continuous spatial join query)?
 
 <div align="center">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg" width="400"></a>
@@ -27,6 +27,48 @@ After the dataset is downloaded, it needs to be converted into GeoJSON elements.
 
 ```
 $BBOXDB_HOME/bin/osm_data_converter.sh -input <your-dataset>.osm.pbf -backend bdb -workfolder /tmp/work -output <outputdir>
+```
+
+After the command finishes, you have serveral files in the output folder like `ROADS` or `FORSTS`. These files contains the spatial data of the corresponding OpenStreetMap elements as GeoJSON elements. Each like of the file contains one GeoJSON element. For example, one entry might look like (the entry is formatted for improved reading):
+
+```json
+{
+   "geometry":{
+      "coordinates":[
+         [
+            151.2054938,
+            -33.9045641
+         ],
+         [
+            151.2056594,
+            -33.9047744
+         ],
+         [
+            151.20597560000002,
+            -33.905176000000004
+         ],
+         [
+            151.2063965,
+            -33.9057107
+         ],
+         [
+            151.20641930000002,
+            -33.905739700000005
+         ]
+      ],
+      "type":"LineString"
+   },
+   "id":756564602,
+   "type":"Feature",
+   "properties":{
+      "surface":"paved",
+      "hgv":"destination",
+      "maxspeed":"40",
+      "name":"Elizabeth Street",
+      "highway":"residential",
+      "maxweight":"3"
+   }
+}
 ```
 
 See [this page](https://jnidzwetzki.github.io/bboxdb/tools/dataset.html) for more information about the data converter. 
