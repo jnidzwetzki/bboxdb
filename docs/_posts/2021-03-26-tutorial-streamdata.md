@@ -94,4 +94,7 @@ Open the `query view` on the GUI and navigate to Sydney. In the GUI the queries 
 <font size="small">A bus on a bridge</font>
 </div>
 
+
+<br>
+
 __Note:__ For more information, have a look at our Stream Processing [paper](https://edbt2021proceedings.github.io/docs/p170.pdf), presented at EDBT 2021.
