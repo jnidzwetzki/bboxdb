@@ -8,7 +8,7 @@ order: 5
 
 # Handle a real-world data stream with BBoxDB Streams
 
-This tutorial shows how you can process a real-world data stream of position data with BBoxDB Streams. Continuous queries such as range queries or spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as the real-world data stream. The data stream can be fetched from the opendata website of the public transport company in [New South Wales](https://opendata.transport.nsw.gov.au/). Spatial data from the [OpenStreetMap project](https://www.openstreetmap.org) is used for the static dataset. Queries such as:
+This tutorial shows how you can process a real-world data stream of position data with BBoxDB Streams. Continuous queries such as range queries or spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as the real-world data stream. The data stream can be fetched from the open data website of the public transport company in [New South Wales](https://opendata.transport.nsw.gov.au/). Spatial data from the [OpenStreetMap project](https://www.openstreetmap.org) is used for the static dataset. Queries such as:
 
 * _Which bus / train / ferry is currently located in a given query rectangle_ (continuous range query)?
 * _Which bus is currently located on a Bridge_ (continuous spatial join query)?
@@ -34,7 +34,7 @@ After the dataset is downloaded, it needs to be converted into GeoJSON elements.
 $BBOXDB_HOME/bin/osm_data_converter.sh -input <your-dataset>.osm.pbf -backend bdb -workfolder /tmp/work -output <outputdir>
 ```
 
-After the command finishes, you have serveral files in the output folder like `ROADS` or `FORSTS`. These files contains the spatial data of the corresponding OpenStreetMap elements as GeoJSON elements. Each like of the file contains one GeoJSON element. For example, one entry might look like (the entry is formatted and split-up into multiple lines for improved reading):
+After the command finishes, several files in the output folder like `ROADS` or `FORSTS` are generated. These files contain the spatial data of the corresponding OpenStreetMap elements as GeoJSON elements. Each like of the file contains one GeoJSON element. For example, one entry might look like (the entry is formatted and split-up into multiple lines for improved reading):
 
 ```json
 {
@@ -101,7 +101,7 @@ To fetch the data stream of the vehicles in Sydney, you have to apply for a API 
 
 # Import the Datastream
 
-To import the data stream, the following tables need to be created in BBoxDB. In this tables, the data stream elements will be stored. All tables are part of the distribution group `osm`.
+To import the data stream, the following tables need to be created in BBoxDB. In these tables, the data stream elements will be stored. All tables are part of the distribution group `osm`.
 
 ```
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_lightrail
