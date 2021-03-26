@@ -10,21 +10,24 @@ order: 5
 
 This tutorial shows, how you can process a real-world data set of position data with BBoxDB Streams. Queries such as spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as data stream. Spatial data from the OpenStreetMap project is used for the static dataset. Queries such as:
 
-* Which bus / train / ferry is currently located in a given query rectangle (continuous range query)?
-* Which bus is currently located on a Bridge (continuous spatial join query)?
-* Which bus is currently driving through a forest (continuous spatial join query)?
-* Which bus is currently located on a bridge (continuous spatial join query)?
+* _Which bus / train / ferry is currently located in a given query rectangle_ (continuous range query)?
+* _Which bus is currently located on a Bridge_ (continuous spatial join query)?
+* _Which bus is currently driving through a forest_ (continuous spatial join query)?
+* _Which bus is currently located on a bridge_ (continuous spatial join query)?
 
-<p><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg" width="400"></p>
+<p><a href=https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg" width="400"></a></p>
 
 ## Download and Convert Open Street Map Data into GeoJSON
-https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf
 
-http://download.geofabrik.de/
+For performing the continuous spatial joins, you need to import the spatial dataset of the area first. Please download the complete [Planet dataset](https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf) or the [Australia dataset](http://download.geofabrik.de/) in `.osm.pbf` format.
 
+After the dataset is downloaded, it needs to be converted into GeoJSON elements. This can be done by calling the following command:
+
+```
 $BBOXDB_HOME/bin/osm_data_converter.sh -input <your-dataset>.osm.pbf -backend bdb -workfolder /tmp/work -output <outputdir>
+```
 
-See [this page](https://jnidzwetzki.github.io/bboxdb//tools/dataset.html) for more information about the data converter. 
+See [this page](https://jnidzwetzki.github.io/bboxdb/tools/dataset.html) for more information about the data converter. 
 
 # Prepartition the Space and Import the GeoJSON Data
 $BBOXDB_HOME/bin/import_osm.sh <outputdir> nowait
@@ -34,16 +37,25 @@ $BBOXDB_HOME/bin/import_osm.sh <outputdir> nowait
 https://opendata.transport.nsw.gov.au/
 
 # Import the Datastream
+
+To import the data stream, the following tables needs to be created in BBoxDB.
+
+```
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_lightrail
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_buses
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_metro
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_nswtrains
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_ferries
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_trains
+```
 
+Afterward you can start the import of the data stream into BBoxDB. 
 
-$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.ImportAuTransport "<Your-API-Key>" lightrail:buses:metro:nswtrains:ferries:trains newton1:50181 mycluster osmgroup 2
+```
+$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.ImportAuTransport "<Your-API-Key>" lightrail:buses:metro:nswtrains:ferries:trains <cluster-contact-point> <your-cluster-name> osmgroup 2
+```
 
+__Note__: The `2` at the end of the command means, that the data source is pulled every 2 seconds and the data is imported into BBoxDB.
 
 # Perform Queries on the Data Stream
 
