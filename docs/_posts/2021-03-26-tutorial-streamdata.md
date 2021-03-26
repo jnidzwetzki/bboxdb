@@ -76,19 +76,19 @@ $BBOXDB_HOME/bin/gui.sh
 Open the `query view` on the GUI and navigate to Sydney. In the GUI the queries from the introduction are pre-defined. In addition, you can execute individual queries.
 
 
-<div align="center">
+<div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_predefined_queries.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_predefined_queries.png" width="400"></a>
 <br>
 <font size="small">The predefined queries in the GUI</font>
 </div>
 
-<div align="center">
+<div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_forest_joined_with_bus.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_forest_joined_with_bus.png" width="400"></a>
 <br>
 <font size="small">A bus in a forest</font>
 </div>
 
-<div align="center">
+<div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_bus_on_bridge.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_gui_bus_on_bridge.png" width="400"></a>
 <br>
 <font size="small">A bus on a bridge</font>
