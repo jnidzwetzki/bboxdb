@@ -211,36 +211,6 @@ public class QueryPlanBuilder {
 	}
 	
 	/**
-	 * Enlarge bounding box of the stored tuple by amount
-	 * @param key
-	 * @return
-	 */
-	public QueryPlanBuilder enlargeStoredTupleBoundBoxByAmount(final double amount) {
-		storedTupleTransformation.add(new EnlargeBoundingBoxByAmountTransformation(amount));
-		return this;
-	}
-	
-	/**
-	 * Enlarge bounding box of the stored tuple by factor
-	 * @param key
-	 * @return
-	 */
-	public QueryPlanBuilder enlargeStoredTupleBoundBoxByFactor(final double factor) {
-		storedTupleTransformation.add(new EnlargeBoundingBoxByFactorTransformation(factor));
-		return this;
-	}
-	
-	/**
-	 * Enlarge bounding box of the stored tuple by factor
-	 * @param key
-	 * @return
-	 */
-	public QueryPlanBuilder enlargeStoredTupleBoundBoxByWGS84Meter(final double meterLat, final double meterLong) {
-		storedTupleTransformation.add(new EnlargeBoundingBoxByWGS84Transformation(meterLat, meterLong));
-		return this;
-	}
-	
-	/**
 	 * Add a join filter
 	 * @param userDefinedFilter
 	 * @return

@@ -124,8 +124,6 @@ public class TestQueryPlanBuilder {
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
 			.enlargeStreamTupleBoundBoxByWGS84Meter(7.2, 13.3)
-			.enlargeStoredTupleBoundBoxByAmount(2)
-			.enlargeStoredTupleBoundBoxByWGS84Meter(3.1, 3.1)
 			.filterStoredTupleByKey("abc")
 			.filterStreamTupleByKey("def")
 			.spatialJoinWithTable("testtable")
