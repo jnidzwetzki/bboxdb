@@ -60,7 +60,7 @@ import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
-import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.MultiTuple;
@@ -633,7 +633,7 @@ public class CLI implements Runnable, AutoCloseable {
 
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			
-			final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, 
+			final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, 
 					new ArrayList<>(), boundingBox, boundingBox, true);
 		
 			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryContinuous(constQueryPlan);

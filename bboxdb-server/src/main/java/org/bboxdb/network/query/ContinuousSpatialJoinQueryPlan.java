@@ -24,7 +24,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
+public class ContinuousSpatialJoinQueryPlan extends ContinuousQueryPlan {
 
 	/** 
 	 * The transformations of the tuples in the table
@@ -41,15 +41,15 @@ public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
 	 */
 	private final String joinTable;
 	
-	public ContinuousTableQueryPlan(final String streamTable,
+	public ContinuousSpatialJoinQueryPlan(final String streamTable,
 			final String joinTable,
 			final List<TupleTransformation> streamTransformation,
 			final Hyperrectangle queryRectangle,
 			final List<TupleTransformation> tableTransformation,
-			final List<UserDefinedFilterDefinition> afterJoinFilter,
-			final boolean reportPositiveNegative) {
+			final List<UserDefinedFilterDefinition> afterJoinFilter) {
 		
-			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
+			super(streamTable, streamTransformation, queryRectangle);
+			
 			this.afterJoinFilter = Objects.requireNonNull(afterJoinFilter);
 			this.tableTransformation = Objects.requireNonNull(tableTransformation);
 			this.joinTable = Objects.requireNonNull(joinTable);
@@ -102,7 +102,7 @@ public class ContinuousTableQueryPlan extends ContinuousQueryPlan {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ContinuousTableQueryPlan other = (ContinuousTableQueryPlan) obj;
+		ContinuousSpatialJoinQueryPlan other = (ContinuousSpatialJoinQueryPlan) obj;
 		if (afterJoinFilter == null) {
 			if (other.afterJoinFilter != null)
 				return false;

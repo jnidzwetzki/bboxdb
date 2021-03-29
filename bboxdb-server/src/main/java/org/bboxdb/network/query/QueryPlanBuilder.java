@@ -265,13 +265,18 @@ public class QueryPlanBuilder {
 		}
 		
 		if(regionConst != null) {
-			return new ContinuousConstQueryPlan(streamTable, streamTupleTransformation, 
+			return new ContinuousRangeQueryPlan(streamTable, streamTupleTransformation, 
 					queryRegion, regionConst, reportPositiveMatches);
 		}
 		
 		if(joinTable != null) {
-			return new ContinuousTableQueryPlan(streamTable, joinTable, streamTupleTransformation, 
-					queryRegion, storedTupleTransformation, joinFilters, reportPositiveMatches);
+			
+			if(reportPositiveMatches == false) {
+				throw new IllegalArgumentException("Unable to create continous join queries with negative matches");
+			}
+			
+			return new ContinuousSpatialJoinQueryPlan(streamTable, joinTable, streamTupleTransformation, 
+					queryRegion, storedTupleTransformation, joinFilters);
 		}
 		
 		throw new IllegalArgumentException("Join table or const region need to be set");

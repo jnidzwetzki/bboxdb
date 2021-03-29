@@ -103,15 +103,16 @@ public class ContinuousQueryPlanSerializer {
 		final JSONObject json = new JSONObject();
 		json.put(TYPE_KEY, TYPE_VALUE);
 		
-		if(queryPlan instanceof ContinuousConstQueryPlan) {
+		if(queryPlan instanceof ContinuousRangeQueryPlan) {
 			json.put(QUERY_TYPE_KEY, QUERY_TYPE_RANGE_VALUE);
 			
-			final ContinuousConstQueryPlan constQueryPlan = (ContinuousConstQueryPlan) queryPlan;
+			final ContinuousRangeQueryPlan constQueryPlan = (ContinuousRangeQueryPlan) queryPlan;
 			json.put(COMPARE_RECTANGLE_KEY, constQueryPlan.getCompareRectangle().toCompactString());
-		} else if(queryPlan instanceof ContinuousTableQueryPlan) {
+			json.put(REPORT_KEY, constQueryPlan.isReportPositive());
+		} else if(queryPlan instanceof ContinuousSpatialJoinQueryPlan) {
 			json.put(QUERY_TYPE_KEY, QUERY_TYPE_JOIN_VALUE);
 
-			final ContinuousTableQueryPlan tableQueryPlan = (ContinuousTableQueryPlan) queryPlan;
+			final ContinuousSpatialJoinQueryPlan tableQueryPlan = (ContinuousSpatialJoinQueryPlan) queryPlan;
 			
 			final List<TupleTransformation> tableTransformations = tableQueryPlan.getTableTransformation();
 			final JSONArray tableTransformationsJSON = writeTransformationsToJSON(json, tableTransformations);
@@ -128,7 +129,6 @@ public class ContinuousQueryPlanSerializer {
 		
 		json.put(QUERY_RANGE_KEY, queryPlan.getQueryRange().toCompactString());
 		json.put(STREAM_TABLE_KEY, queryPlan.getStreamTable());
-		json.put(REPORT_KEY, queryPlan.isReportPositive());
 		
 		final List<TupleTransformation> transformations = queryPlan.getStreamTransformation();
 		final JSONArray streamTransformations = writeTransformationsToJSON(json, transformations);
@@ -218,20 +218,21 @@ public class ContinuousQueryPlanSerializer {
 			final String queryType = json.getString(QUERY_TYPE_KEY);
 			final String streamTable = json.getString(STREAM_TABLE_KEY);
 			final Hyperrectangle queryRectangle = Hyperrectangle.fromString(json.getString(QUERY_RANGE_KEY));
-			final boolean reportPositiveNegative = json.getBoolean(REPORT_KEY);
 			
 			final List<TupleTransformation> streamTransformation 
 				= decodeTransformation(json, STREAM_TRANSFORMATIONS_KEY);
 			
 			switch(queryType) {
 			case QUERY_TYPE_RANGE_VALUE:
+				final boolean reportPositiveNegative = json.getBoolean(REPORT_KEY);
+
 				final Hyperrectangle compareRectangle = Hyperrectangle.fromString(json.getString(COMPARE_RECTANGLE_KEY));
 				
-				final ContinuousConstQueryPlan constQuery = new ContinuousConstQueryPlan(streamTable, 
+				final ContinuousRangeQueryPlan constQuery = new ContinuousRangeQueryPlan(streamTable, 
 						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative);
 				
 				return constQuery;
-			case QUERY_TYPE_JOIN_VALUE:
+			case QUERY_TYPE_JOIN_VALUE:				
 				final List<TupleTransformation> tableTransformation 
 					= decodeTransformation(json, TABLE_TRANSFORMATIONS_KEY);
 				
@@ -239,9 +240,9 @@ public class ContinuousQueryPlanSerializer {
 				
 				final String joinTable = json.getString(JOIN_TABLE_KEY);
 				
-				final ContinuousTableQueryPlan tableQuery = new ContinuousTableQueryPlan(streamTable, 
+				final ContinuousSpatialJoinQueryPlan tableQuery = new ContinuousSpatialJoinQueryPlan(streamTable, 
 						joinTable, streamTransformation, queryRectangle, 
-						tableTransformation, joinFilters, reportPositiveNegative);
+						tableTransformation, joinFilters);
 		
 				return tableQuery;
 			default:

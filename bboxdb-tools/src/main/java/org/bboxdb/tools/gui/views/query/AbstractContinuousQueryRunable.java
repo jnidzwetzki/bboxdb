@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousTableQueryPlan;
+import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
@@ -103,8 +103,8 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 		
 		strategy = Strategy.KEY_AND_TABLE;
 		
-		if(qp instanceof ContinuousTableQueryPlan) {
-			final ContinuousTableQueryPlan queryPlan = (ContinuousTableQueryPlan) qp;
+		if(qp instanceof ContinuousSpatialJoinQueryPlan) {
+			final ContinuousSpatialJoinQueryPlan queryPlan = (ContinuousSpatialJoinQueryPlan) qp;
 			if(! queryPlan.getAfterJoinFilter().isEmpty()) {
 				strategy = Strategy.FIRST_KEY_AND_TABLE;
 			}

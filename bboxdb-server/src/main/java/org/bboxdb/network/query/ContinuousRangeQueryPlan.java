@@ -23,21 +23,28 @@ import java.util.Objects;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
-public class ContinuousConstQueryPlan extends ContinuousQueryPlan {
+public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
 
 	/**
 	 * The hyperrectangle to compare
 	 */
 	private final Hyperrectangle compareRectangle;
+	
+	/**
+	 * Report positive or negative elements to the user
+	 */
+	private final boolean reportPositive;
 
-	public ContinuousConstQueryPlan(final String streamTable,
+
+	public ContinuousRangeQueryPlan(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
 			final Hyperrectangle queryRectangle,
 			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative) {
 		
-			super(streamTable, streamTransformation, queryRectangle, reportPositiveNegative);
+			super(streamTable, streamTransformation, queryRectangle);
 			this.compareRectangle = Objects.requireNonNull(compareRectangle);
+			this.reportPositive = reportPositiveNegative;
 	}
 
 	/** 
@@ -47,9 +54,12 @@ public class ContinuousConstQueryPlan extends ContinuousQueryPlan {
 		return compareRectangle;
 	}
 
-	@Override
-	public String toString() {
-		return "ContinuousConstQuery [compareRectangle=" + compareRectangle + "]";
+	/**
+	 * Is this a positive match?
+	 * @return
+	 */
+	public boolean isReportPositive() {
+		return reportPositive;
 	}
 
 	@Override
@@ -57,6 +67,7 @@ public class ContinuousConstQueryPlan extends ContinuousQueryPlan {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((compareRectangle == null) ? 0 : compareRectangle.hashCode());
+		result = prime * result + (reportPositive ? 1231 : 1237);
 		return result;
 	}
 
@@ -68,13 +79,21 @@ public class ContinuousConstQueryPlan extends ContinuousQueryPlan {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ContinuousConstQueryPlan other = (ContinuousConstQueryPlan) obj;
+		ContinuousRangeQueryPlan other = (ContinuousRangeQueryPlan) obj;
 		if (compareRectangle == null) {
 			if (other.compareRectangle != null)
 				return false;
 		} else if (!compareRectangle.equals(other.compareRectangle))
 			return false;
+		if (reportPositive != other.reportPositive)
+			return false;
 		return true;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "ContinuousRangeQueryPlan [compareRectangle=" + compareRectangle + ", reportPositive=" + reportPositive
+				+ "]";
+	}
+
 }

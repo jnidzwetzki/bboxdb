@@ -63,7 +63,7 @@ import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.packages.response.TupleLockedResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
-import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -572,7 +572,7 @@ public class TestNetworkClasses {
 	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PackageEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
-		final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, new ArrayList<>(), boundingBox, boundingBox, true);
+		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), boundingBox, boundingBox, true);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final QueryContinuousRequest queryRequest = new QueryContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, constQueryPlan);

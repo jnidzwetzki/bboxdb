@@ -36,22 +36,16 @@ public abstract class ContinuousQueryPlan {
 	private final List<TupleTransformation> streamTransformation;
 
 	/**
-	 * Report positive or negative elements to the user
-	 */
-	private final boolean reportPositive;
-
-	/**
 	 * The query range
 	 */
 	private Hyperrectangle queryRange;
 
 	public ContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
-			final Hyperrectangle queryRange, final boolean reportPositiveNegative) {
+			final Hyperrectangle queryRange) {
 		
 		this.streamTable = Objects.requireNonNull(streamTable);
 		this.streamTransformation = Objects.requireNonNull(streamTransformation);
 		this.queryRange = Objects.requireNonNull(queryRange);
-		this.reportPositive = Objects.requireNonNull(reportPositiveNegative);
 	}
 
 	public String getStreamTable() {
@@ -66,14 +60,10 @@ public abstract class ContinuousQueryPlan {
 		return queryRange;
 	}
 
-	public boolean isReportPositive() {
-		return reportPositive;
-	}
-
 	@Override
 	public String toString() {
 		return "ContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation=" + streamTransformation
-				+ ", reportPositive=" + reportPositive + ", queryRange=" + queryRange + "]";
+				+ ", queryRange=" + queryRange + "]";
 	}
 
 	@Override
@@ -81,7 +71,6 @@ public abstract class ContinuousQueryPlan {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((queryRange == null) ? 0 : queryRange.hashCode());
-		result = prime * result + (reportPositive ? 1231 : 1237);
 		result = prime * result + ((streamTable == null) ? 0 : streamTable.hashCode());
 		result = prime * result + ((streamTransformation == null) ? 0 : streamTransformation.hashCode());
 		return result;
@@ -101,8 +90,6 @@ public abstract class ContinuousQueryPlan {
 				return false;
 		} else if (!queryRange.equals(other.queryRange))
 			return false;
-		if (reportPositive != other.reportPositive)
-			return false;
 		if (streamTable == null) {
 			if (other.streamTable != null)
 				return false;
@@ -115,5 +102,5 @@ public abstract class ContinuousQueryPlan {
 			return false;
 		return true;
 	}
-	
+
 }

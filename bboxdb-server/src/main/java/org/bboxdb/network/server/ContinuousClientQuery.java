@@ -42,9 +42,9 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
-import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousTableQueryPlan;
+import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
@@ -158,11 +158,11 @@ public class ContinuousClientQuery implements ClientQuery {
 			this.storageManager = new ArrayList<>();
 
 			// Add each tuple to our tuple queue
-			if(queryPlan instanceof ContinuousConstQueryPlan) {
-				final ContinuousConstQueryPlan qp = (ContinuousConstQueryPlan) queryPlan;
+			if(queryPlan instanceof ContinuousRangeQueryPlan) {
+				final ContinuousRangeQueryPlan qp = (ContinuousRangeQueryPlan) queryPlan;
 				this.tupleInsertCallback = getCallbackForRangeQuery(qp);
-			} else if(queryPlan instanceof ContinuousTableQueryPlan) {
-				final ContinuousTableQueryPlan qp = (ContinuousTableQueryPlan) queryPlan;
+			} else if(queryPlan instanceof ContinuousSpatialJoinQueryPlan) {
+				final ContinuousSpatialJoinQueryPlan qp = (ContinuousSpatialJoinQueryPlan) queryPlan;
 				this.tupleInsertCallback = getCallbackForSpatialJoinQuery(qp);
 			} else { 
 				this.tupleInsertCallback = null;
@@ -184,7 +184,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForSpatialJoinQuery(final ContinuousTableQueryPlan qp) {
+	private Consumer<Tuple> getCallbackForSpatialJoinQuery(final ContinuousSpatialJoinQueryPlan qp) {
 		
 		final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
 		final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(qp);
@@ -238,7 +238,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param transformedStreamTuple
 	 * @return
 	 */
-	private Consumer<Tuple> getStoredTupleReader(final ContinuousTableQueryPlan qp,
+	private Consumer<Tuple> getStoredTupleReader(final ContinuousSpatialJoinQueryPlan qp,
 			final Map<UserDefinedFilter, byte[]> filters, final Tuple streamTuple,
 			final TupleAndBoundingBox transformedStreamTuple) {
 		
@@ -258,7 +258,7 @@ public class ContinuousClientQuery implements ClientQuery {
 					.intersects(transformedStoredTuple.getBoundingBox());
 			
 			// Is the tuple important for the query?
-			if(intersection && queryPlan.isReportPositive()) {
+			if(intersection) {
 			
 				// Perform expensive UDF
 				final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
@@ -269,16 +269,6 @@ public class ContinuousClientQuery implements ClientQuery {
 					queueTupleForClientProcessing(joinedTuple);
 				}
 				
-			} else if(! intersection && ! queryPlan.isReportPositive()) {
-				
-				// Perform expensive UDF
-				final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
-						storedTuple, filters);
-				
-				if(udfMatches != true) {
-					final MultiTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
-					queueTupleForClientProcessing(joinedTuple);
-				}
 			}
 		};
 	}
@@ -290,7 +280,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param storedTuple
 	 * @return
 	 */
-	private MultiTuple buildJoinedTuple(final ContinuousTableQueryPlan qp, 
+	private MultiTuple buildJoinedTuple(final ContinuousSpatialJoinQueryPlan qp, 
 			final Tuple streamTuple, final Tuple storedTuple) {
 		
 		return new MultiTuple(
@@ -331,7 +321,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @return 
 	 */
 	private Map<UserDefinedFilter, byte[]> getUserDefinedFilter(
-			final ContinuousTableQueryPlan tableQueryPlan) {
+			final ContinuousSpatialJoinQueryPlan tableQueryPlan) {
 		
 		final Map<UserDefinedFilter, byte[]> operators = new HashMap<>();
 		
@@ -354,12 +344,12 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForRangeQuery(final ContinuousConstQueryPlan qp) {
+	private Consumer<Tuple> getCallbackForRangeQuery(final ContinuousRangeQueryPlan qp) {
 		
-		final ContinuousConstQueryPlan constQueryPlan = (ContinuousConstQueryPlan) queryPlan;
+		final ContinuousRangeQueryPlan rangeQueryPlan = (ContinuousRangeQueryPlan) queryPlan;
 		
 		return (t) -> {
-			final List<TupleTransformation> transformations = constQueryPlan.getStreamTransformation(); 
+			final List<TupleTransformation> transformations = rangeQueryPlan.getStreamTransformation(); 
 			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, t);
 			
 			// Tuple was removed during transformation
@@ -368,13 +358,13 @@ public class ContinuousClientQuery implements ClientQuery {
 			}
 			
 			// Is the tuple important for the query?
-			if(tuple.getBoundingBox().intersects(constQueryPlan.getCompareRectangle())) {
-				if(queryPlan.isReportPositive()) {
+			if(tuple.getBoundingBox().intersects(rangeQueryPlan.getCompareRectangle())) {
+				if(rangeQueryPlan.isReportPositive()) {
 					final MultiTuple joinedTuple = new MultiTuple(t, requestTable.getFullname());
 					queueTupleForClientProcessing(joinedTuple);
 				}
 			} else {
-				if(! queryPlan.isReportPositive()) {
+				if(! rangeQueryPlan.isReportPositive()) {
 					final MultiTuple joinedTuple = new MultiTuple(t, requestTable.getFullname());
 					queueTupleForClientProcessing(joinedTuple);
 				}

@@ -28,7 +28,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
-import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;
@@ -219,7 +219,7 @@ public class TestBBoxDBCluster {
 
 		// Execute query
 		final Hyperrectangle bbox = new Hyperrectangle(-1d, 2d, -1d, 2d);
-		final ContinuousConstQueryPlan constQueryPlan = new ContinuousConstQueryPlan(table, new ArrayList<>(), bbox, bbox, true);
+		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), bbox, bbox, true);
 		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
 
 		Assert.assertFalse(future.isFailed());

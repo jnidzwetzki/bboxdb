@@ -18,9 +18,9 @@
 package org.bboxdb.test.query;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.query.ContinuousConstQueryPlan;
+import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousTableQueryPlan;
+import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,11 +54,10 @@ public class TestQueryPlanBuilder {
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
-		Assert.assertTrue(queryPlan.isReportPositive());
 		Assert.assertEquals(new Hyperrectangle(3d, 4d), queryPlan.getQueryRange());
 		Assert.assertTrue(queryPlan.getStreamTransformation().isEmpty());
 		
-		final ContinuousConstQueryPlan cqp = (ContinuousConstQueryPlan) queryPlan;
+		final ContinuousRangeQueryPlan cqp = (ContinuousRangeQueryPlan) queryPlan;
 		Assert.assertEquals(new Hyperrectangle(2d, 4d), cqp.getCompareRectangle());
 	}
 	
@@ -74,12 +73,26 @@ public class TestQueryPlanBuilder {
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
-		Assert.assertTrue(queryPlan.isReportPositive());
 		Assert.assertEquals(new Hyperrectangle(3d, 4d), queryPlan.getQueryRange());
 		Assert.assertEquals(3, queryPlan.getStreamTransformation().size());
 		
-		final ContinuousConstQueryPlan cqp = (ContinuousConstQueryPlan) queryPlan;
+		final ContinuousRangeQueryPlan cqp = (ContinuousRangeQueryPlan) queryPlan;
 		Assert.assertEquals(new Hyperrectangle(2d, 4d), cqp.getCompareRectangle());
+	}
+	
+	@Test(timeout=60_000, expected=IllegalArgumentException.class)
+	public void testTablePlanException() {
+		
+		// Spatial join query with negative matches
+		QueryPlanBuilder
+			.createQueryOnTable("table")
+			.forAllNewTuplesStoredInRegion(new Hyperrectangle(3d, 4d))
+			.filterStreamTupleByBoundingBox(new Hyperrectangle(1d, 5d))
+			.enlargeStreamTupleBoundBoxByAmount(4)
+			.enlargeStreamTupleBoundBoxByFactor(2)
+			.reportNegativeMatches()
+			.spatialJoinWithTable("testtable")
+			.build();
 	}
 	
 	@Test(timeout=60_000)
@@ -90,16 +103,14 @@ public class TestQueryPlanBuilder {
 			.filterStreamTupleByBoundingBox(new Hyperrectangle(1d, 5d))
 			.enlargeStreamTupleBoundBoxByAmount(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
-			.reportNegativeMatches()
 			.spatialJoinWithTable("testtable")
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
-		Assert.assertFalse(queryPlan.isReportPositive());
 		Assert.assertEquals(new Hyperrectangle(3d, 4d), queryPlan.getQueryRange());
 		Assert.assertEquals(3, queryPlan.getStreamTransformation().size());
 		
-		final ContinuousTableQueryPlan cqp = (ContinuousTableQueryPlan) queryPlan;
+		final ContinuousSpatialJoinQueryPlan cqp = (ContinuousSpatialJoinQueryPlan) queryPlan;
 		Assert.assertTrue(cqp.getTableTransformation().isEmpty());
 	}
 	
@@ -124,7 +135,7 @@ public class TestQueryPlanBuilder {
 		Assert.assertEquals(new Hyperrectangle(3d, 4d), queryPlan.getQueryRange());
 		Assert.assertEquals(5, queryPlan.getStreamTransformation().size());
 		
-		final ContinuousTableQueryPlan cqp = (ContinuousTableQueryPlan) queryPlan;
+		final ContinuousSpatialJoinQueryPlan cqp = (ContinuousSpatialJoinQueryPlan) queryPlan;
 		Assert.assertEquals(4, cqp.getTableTransformation().size());
 	}
 }
