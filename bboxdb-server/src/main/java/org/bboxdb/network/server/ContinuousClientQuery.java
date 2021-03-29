@@ -239,7 +239,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @return
 	 */
 	private Consumer<Tuple> getStoredTupleReader(final ContinuousTableQueryPlan qp,
-			final Map<UserDefinedFilter, byte[]> filters, Tuple streamTuple,
+			final Map<UserDefinedFilter, byte[]> filters, final Tuple streamTuple,
 			final TupleAndBoundingBox transformedStreamTuple) {
 		
 		return (storedTuple) -> {
