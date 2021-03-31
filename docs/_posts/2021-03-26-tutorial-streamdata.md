@@ -6,17 +6,19 @@ date: 2021-03-26 12:18:27
 order: 5
 ---
 
+This tutorial shows how you can process two real-world data streams of position data with BBoxDB Streams. BBoxDB Streams is a distributed stream processing system that allows the handling of multi-dimensional data. The system is an extension of BBoxDB. BBoxDB is a key-bounding-box value store, which allows the efficient storage and retrieval of multi-dimensional data.
+
+The efficient spatial join between a data stream and n-dimensional big data is a unique feature of BBoxDB Streams. Data of multiple-tables of the same dimensionality can be stored co-partitioned. This means that the data of the two tables are partitioned and distributed in the same way. Spatial joins can be efficiently executed, no data needs to be transferred between the nodes to calculate the join.
+
 
 # Process a Real-World Stream of Public Transport Data
-
-This tutorial shows how you can process a real-world data stream of position data with BBoxDB Streams. Continuous queries such as range queries or spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as the real-world data stream. The data stream can be fetched from the open data website of the public transport company in [New South Wales](https://opendata.transport.nsw.gov.au/). Spatial data from the [OpenStreetMap project](https://www.openstreetmap.org) is used for the static dataset. Queries such as:
+The position data of public transport vehicles in Sydney are used as the real-world data stream. Continuous queries such as range queries or spatial joins between the stream elements and n-dimensional data will be performed. The data stream can be fetched from the open data website of the public transport company in [New South Wales](https://opendata.transport.nsw.gov.au/). Spatial data from the [OpenStreetMap project](https://www.openstreetmap.org) is used for the static dataset. Queries such as:
 
 * _Which bus / train / ferry is currently located in a given query rectangle_ (continuous range query)?
 * _Which bus is currently located on a Bridge_ (continuous spatial join query)?
 * _Which bus is currently driving through a forest_ (continuous spatial join query)?
 * _Which bus is currently located on a particular road_ (continuous spatial join query)?
 
-The efficient spatial join between a data stream and n-dimensional big data is a unique feature of BBoxDB Streams.
 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg" width="400"></a>
