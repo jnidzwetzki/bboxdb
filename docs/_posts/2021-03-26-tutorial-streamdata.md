@@ -7,7 +7,7 @@ order: 5
 ---
 
 
-# Handle a Real-World Stream of Public Transport Data
+# Process a Real-World Stream of Public Transport Data
 
 This tutorial shows how you can process a real-world data stream of position data with BBoxDB Streams. Continuous queries such as range queries or spatial joins between the stream elements and n-dimensional data will be performed. The position data of public transport vehicles in Sydney are used as the real-world data stream. The data stream can be fetched from the open data website of the public transport company in [New South Wales](https://opendata.transport.nsw.gov.au/). Spatial data from the [OpenStreetMap project](https://www.openstreetmap.org) is used for the static dataset. Queries such as:
 
@@ -157,16 +157,16 @@ Open the `query view` on the GUI and navigate to Sydney. In the GUI the queries 
 </div>
 
 
-# Handle a Real-World Stream of ADS-B Data
+# Process a Real-World Stream of ADS-B Data
 
-In this part of the tutorial, a stream of [ADS-B data](https://de.wikipedia.org/wiki/Automatic_Dependent_Surveillance) (Automatic Dependent Surveillance-Broadcast) is processed with BBoxDB Streams. ADS-B data contains the position data of aircraft. The GUI of BBoxDB is used to show live data of aircraft (containing the position, height, heading, call sign, and much more). Continuous queries such as *which aircraft is currently in the airspace over Berlin?* can be performed.
+In this part of the tutorial, a stream of [ADS-B data](https://de.wikipedia.org/wiki/Automatic_Dependent_Surveillance) (Automatic Dependent Surveillance-Broadcast) is processed with BBoxDB Streams. ADS-B data contains data of aircraft (containing the position, height, heading, call sign, and much more). The GUI of BBoxDB is used to show live data of aircraft. Continuous queries such as *which aircraft is currently in the airspace over Berlin?* can be performed.
 
 In this tutorial, the data is fetched from two input sources:
 
 * A local ADS-B receiver
 * The website [ADSBHub.org](https://www.adsbhub.org/)
 
-As a local ADS-B receiver, an AirNav USB-Stick is used. This is a small USB-receiver that is delivered together with an antenna. The receiver can be bought at websites such as [Amazon](https://www.amazon.de/gp/product/B07K47P7XD) or eBay.
+As the local ADS-B receiver, an AirNav USB-Stick is used in this tutorial. This is a small USB-receiver that is delivered together with an antenna. The receiver can be bought at websites such as [Amazon](https://www.amazon.de/gp/product/B07K47P7XD) or eBay.
 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/adsb_receiver.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/adsb_receiver.jpg" width="400"></a>
