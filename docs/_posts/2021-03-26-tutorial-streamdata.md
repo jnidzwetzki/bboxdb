@@ -331,3 +331,5 @@ Open the `query view` on the GUI and perform range queries or continuous range q
 <br>
 <font size="small">A continuous range query on the ADS-B data stream in the area of Berlin, shown in the GUI of BBoxDB.</font>
 </div>
+
+Each rectangle in the screenshot is one aircraft. Below each aircraft, the call sign and the altitude are shown. Placing the mouse over the aircraft will open a tooltip containing additional information like the heading or the speed.
