@@ -179,7 +179,7 @@ The local ADS-B receiver captures the data of aircraft in the region of the ante
 To access this data stream of adsbhub.org, you have to upload your received ADS-B data stream to adsbhub.org website. Afterward, you have access to the data of all other stations that are transmitting data to adsbhub.org.
 
 <div align="center" style="padding-bottom:20px">
-<a href="https://jnidzwetzki.github.io/bboxdb/images/adsb_coverage.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/adsb_coverage.jpg" width="400"></a>
+<a href="https://jnidzwetzki.github.io/bboxdb/images/adsb_coverage.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/adsb_coverage.png" width="400"></a>
 <br>
 <font size="small">The coverage of the adsbhub.org website.</font>
 </div>
@@ -322,5 +322,5 @@ Open the `query view` on the GUI and perform range queries or continuous range q
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_adsb.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_adsb.jpg" width="400"></a>
 <br>
-<font size="small">Handling ADS-B data streams in BBoxDB.</font>
+<font size="small">A continuous range query on the ADS-B data stream in the area of Berlin, shown in the GUI of BBoxDB.</font>
 </div>
