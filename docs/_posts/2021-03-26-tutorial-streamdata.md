@@ -159,14 +159,14 @@ Open the `query view` on the GUI and navigate to Sydney. In the GUI the queries 
 
 # Handle a Real-World Stream of ADS-B Data
 
-In this part of the tutorial, a stream of [ADS-B data](https://de.wikipedia.org/wiki/Automatic_Dependent_Surveillance) (Automatic Dependent Surveillance-Broadcast) is processed with BBoxDB Streams. ADS-B data contains the position data of aircraft. The GUI of BBoxDB is used to show live data of aircraft (containing the position, height, heading, call sign, and much more). 
+In this part of the tutorial, a stream of [ADS-B data](https://de.wikipedia.org/wiki/Automatic_Dependent_Surveillance) (Automatic Dependent Surveillance-Broadcast) is processed with BBoxDB Streams. ADS-B data contains the position data of aircraft. The GUI of BBoxDB is used to show live data of aircraft (containing the position, height, heading, call sign, and much more). Continuous queries such as *which aircraft is currently in the airspace over Berlin?* can be performed.
 
 In this tutorial, the data is fetched from two input sources:
 
 * A local ADS-B receiver
-* The website [ADSBHub.org](https://www.adsbhub.org/). 
+* The website [ADSBHub.org](https://www.adsbhub.org/)
 
-To capture ADS-B data, an AirNav USB-Stick is used. This is a small USB-receiver that is delivered together with an antenna. The receiver can be bought at websites such as [Amazon](https://www.amazon.de/gp/product/B07K47P7XD).
+As a local ADS-B receiver, an AirNav USB-Stick is used. This is a small USB-receiver that is delivered together with an antenna. The receiver can be bought at websites such as [Amazon](https://www.amazon.de/gp/product/B07K47P7XD) or eBay.
 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/adsb_receiver.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/adsb_receiver.jpg" width="400"></a>
@@ -260,11 +260,15 @@ MSG,5,1,1,3C64A7,1,2021/03/31,10:59:35.870,2021/03/31,10:59:35.889,,6750,,,,,220
 MSG,5,1,1,3C64A7,1,2021/03/31,10:59:35.888,2021/03/31,10:59:35.942,,6750,,,,,,,0,,0,
 ```
 
+When the local data stream can be accessed successfully, you should register your receiver at adsbhub.org. Afterward, the data stream can be uploaded to the website. This can be done by the script `upload_to_adsbhub.sh`, which is contained in the BBoxDB repository. The script automatically re-starts the upload when your Internet connection becomes unavailable.
+
 ``` 
 wget https://raw.githubusercontent.com/jnidzwetzki/bboxdb/master/misc/upload_to_adsbhub.sh
 chmod +x ./upload_to_adsbhub.sh 
 ./upload_to_adsbhub.sh 
 ```
+
+When everything works correctly, you should see your received data under the following [URL](https://www.adsbhub.org/statistic.php).
 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/adsb_data.png"><img src="https://jnidzwetzki.github.io/bboxdb/images/adsb_data.png" width="400"></a>
@@ -272,13 +276,13 @@ chmod +x ./upload_to_adsbhub.sh
 <font size="small">Your station data at the website adsbhub.org.</font>
 </div>
 
-You can verify that you can download the ADS-B data stream by executing:
+Now you can access the complete ADS-B data stream of the adsbhub.org website. You can verify this by executing:
 
 ```
 nc data.adsbhub.org 5002
 ```
 
-The command should show you the current ads-b data stream of adsbhub.org. The data stream looks like this and contains the data of airplanes of the whole world.
+The command should show you the current ADS-B data stream of adsbhub.org. The data stream looks like this and contains the data of airplanes of the whole world.
 
 ```
 MSG,3,0,0,E495D8,0,2021/03/31,09:35:22.000,2021/03/31,09:35:22.000,,38000,,,-22.659973,-44.255676,,,,,,
