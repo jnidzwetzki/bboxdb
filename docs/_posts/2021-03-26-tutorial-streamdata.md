@@ -16,6 +16,7 @@ This tutorial shows how you can process a real-world data stream of position dat
 * _Which bus is currently driving through a forest_ (continuous spatial join query)?
 * _Which bus is currently located on a particular road_ (continuous spatial join query)?
 
+The efficient spatial join between a data stream and n-dimensional big data is a unique feature of BBoxDB Streams.
 
 <div align="center" style="padding-bottom:20px">
 <a href="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg"><img src="https://jnidzwetzki.github.io/bboxdb/images/bboxdb_sydney.jpg" width="400"></a>
