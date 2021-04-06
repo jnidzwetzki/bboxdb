@@ -663,7 +663,7 @@ public class QueryWindow {
 				QueryPlanBuilder qpb = QueryPlanBuilder
 						.createQueryOnTable(table1)
 						.spatialJoinWithTable(table2)
-						.forAllNewTuplesStoredInRegion(bbox);
+						.forAllNewTuplesStoredInSpace(bbox);
 				
 				if(customFilter.length() > 2) {
 					final UserDefinedFilterDefinition userDefinedFilter 
@@ -708,8 +708,8 @@ public class QueryWindow {
 							
 				final ContinuousQueryPlan qp = QueryPlanBuilder
 						.createQueryOnTable(table)
-						.forAllNewTuplesStoredInRegion(bbox)
-						.compareWithStaticRegion(bbox)
+						.forAllNewTuplesStoredInSpace(bbox)
+						.compareWithStaticSpace(bbox)
 						.build();
 				
 				final BBoxDB connection = guimodel.getConnection();

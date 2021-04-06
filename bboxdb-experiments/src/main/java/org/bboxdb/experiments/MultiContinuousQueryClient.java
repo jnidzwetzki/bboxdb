@@ -96,8 +96,8 @@ public class MultiContinuousQueryClient implements Runnable {
 				
 				final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 						.createQueryOnTable(table)
-						.compareWithStaticRegion(queryRectangle)
-						.forAllNewTuplesStoredInRegion(queryRectangle)
+						.compareWithStaticSpace(queryRectangle)
+						.forAllNewTuplesStoredInSpace(queryRectangle)
 						.build();
 				
 				final JoinedTupleListFuture queryFuture = connection.queryContinuous(queryPlan);

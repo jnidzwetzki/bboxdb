@@ -95,7 +95,7 @@ public class QueryPlanBuilder {
 	 * @param values
 	 * @return
 	 */
-	public QueryPlanBuilder forAllNewTuplesStoredInRegion(final Hyperrectangle hyperrectangle) {
+	public QueryPlanBuilder forAllNewTuplesStoredInSpace(final Hyperrectangle hyperrectangle) {
 		this.queryRegion = hyperrectangle;
 		return this;
 	}
@@ -105,7 +105,7 @@ public class QueryPlanBuilder {
 	 * @param region
 	 * @return
 	 */
-	public QueryPlanBuilder compareWithStaticRegion(final Hyperrectangle regionConst) {
+	public QueryPlanBuilder compareWithStaticSpace(final Hyperrectangle regionConst) {
 		this.regionConst = regionConst;
 		return this;
 	}
@@ -165,7 +165,7 @@ public class QueryPlanBuilder {
 	 * @param key
 	 * @return
 	 */
-	public QueryPlanBuilder enlargeStreamTupleBoundBoxByAmount(final double amount) {
+	public QueryPlanBuilder enlargeStreamTupleBoundBoxByValue(final double amount) {
 		streamTupleTransformation.add(new EnlargeBoundingBoxByAmountTransformation(amount));
 		return this;
 	}
