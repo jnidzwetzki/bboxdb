@@ -46,9 +46,10 @@ public class ContinuousSpatialJoinQueryPlan extends ContinuousQueryPlan {
 			final List<TupleTransformation> streamTransformation,
 			final Hyperrectangle queryRectangle,
 			final List<TupleTransformation> tableTransformation,
+			final List<UserDefinedFilterDefinition> streamFilters,
 			final List<UserDefinedFilterDefinition> afterJoinFilter) {
 		
-			super(streamTable, streamTransformation, queryRectangle);
+			super(streamTable, streamTransformation, queryRectangle, streamFilters);
 			
 			this.afterJoinFilter = Objects.requireNonNull(afterJoinFilter);
 			this.tableTransformation = Objects.requireNonNull(tableTransformation);

@@ -634,7 +634,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			
 			final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, 
-					new ArrayList<>(), boundingBox, boundingBox, true);
+					new ArrayList<>(), boundingBox, boundingBox, true, new ArrayList<>());
 		
 			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryContinuous(constQueryPlan);
 

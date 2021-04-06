@@ -219,7 +219,7 @@ public class TestBBoxDBCluster {
 
 		// Execute query
 		final Hyperrectangle bbox = new Hyperrectangle(-1d, 2d, -1d, 2d);
-		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), bbox, bbox, true);
+		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), bbox, bbox, true, new ArrayList<>());
 		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
 
 		Assert.assertFalse(future.isFailed());

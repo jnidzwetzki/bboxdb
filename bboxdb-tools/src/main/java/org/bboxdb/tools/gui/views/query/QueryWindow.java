@@ -663,7 +663,7 @@ public class QueryWindow {
 				QueryPlanBuilder qpb = QueryPlanBuilder
 						.createQueryOnTable(table1)
 						.spatialJoinWithTable(table2)
-						.forAllNewTuplesStoredInSpace(bbox);
+						.forAllNewTuplesInSpace(bbox);
 				
 				if(customFilter.length() > 2) {
 					final UserDefinedFilterDefinition userDefinedFilter 
@@ -706,13 +706,21 @@ public class QueryWindow {
 			private void executeRangeQueryContinuous(final Hyperrectangle bbox, final String table, 
 					final Color color, final String customFilter, final String customValue) {
 							
-				final ContinuousQueryPlan qp = QueryPlanBuilder
+				final QueryPlanBuilder qpb = QueryPlanBuilder
 						.createQueryOnTable(table)
-						.forAllNewTuplesStoredInSpace(bbox)
-						.compareWithStaticSpace(bbox)
-						.build();
+						.forAllNewTuplesInSpace(bbox)
+						.compareWithStaticSpace(bbox);
+				
+				if(customFilter.length() > 2) {
+					final UserDefinedFilterDefinition userDefinedFilter 
+						= new UserDefinedFilterDefinition(customFilter, customValue);
+					
+					qpb.addStreamFilter(userDefinedFilter);
+				}
 				
 				final BBoxDB connection = guimodel.getConnection();
+				
+				final ContinuousQueryPlan qp = qpb.build();
 
 				final List<Color> colors = Arrays.asList(color);
 				startQueryRunable(qp, connection, colors);

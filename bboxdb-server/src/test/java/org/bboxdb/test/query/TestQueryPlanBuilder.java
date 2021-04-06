@@ -31,7 +31,7 @@ public class TestQueryPlanBuilder {
 	public void testInvalidPlan1() {
 		QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInSpace(new Hyperrectangle(3d, 4d))
+			.forAllNewTuplesInSpace(new Hyperrectangle(3d, 4d))
 			.compareWithStaticSpace(new Hyperrectangle(2d, 4d))
 			.spatialJoinWithTable("testtable")
 			.build();	
@@ -41,7 +41,7 @@ public class TestQueryPlanBuilder {
 	public void testInvalidPlan2() {
 		QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInSpace(new Hyperrectangle(3d, 4d))
+			.forAllNewTuplesInSpace(new Hyperrectangle(3d, 4d))
 			.build();	
 	}
 
@@ -49,7 +49,7 @@ public class TestQueryPlanBuilder {
 	public void testConstPlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInSpace(new Hyperrectangle(3d, 4d))
+			.forAllNewTuplesInSpace(new Hyperrectangle(3d, 4d))
 			.compareWithStaticSpace(new Hyperrectangle(2d, 4d))
 			.build();
 		
@@ -65,7 +65,7 @@ public class TestQueryPlanBuilder {
 	public void testConstPlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInSpace(new Hyperrectangle(3d, 4d))
+			.forAllNewTuplesInSpace(new Hyperrectangle(3d, 4d))
 			.compareWithStaticSpace(new Hyperrectangle(2d, 4d))
 			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
 			.enlargeStreamTupleBoundBoxByValue(4)
@@ -86,7 +86,7 @@ public class TestQueryPlanBuilder {
 		// Spatial join query with negative matches
 		QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInSpace(new Hyperrectangle(3d, 4d))
+			.forAllNewTuplesInSpace(new Hyperrectangle(3d, 4d))
 			.filterStreamTupleByBoundingBox(new Hyperrectangle(1d, 5d))
 			.enlargeStreamTupleBoundBoxByValue(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
@@ -99,7 +99,7 @@ public class TestQueryPlanBuilder {
 	public void testTablePlan1() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInSpace(new Hyperrectangle(3d, 4d))
+			.forAllNewTuplesInSpace(new Hyperrectangle(3d, 4d))
 			.filterStreamTupleByBoundingBox(new Hyperrectangle(1d, 5d))
 			.enlargeStreamTupleBoundBoxByValue(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
@@ -118,13 +118,21 @@ public class TestQueryPlanBuilder {
 	public void testTablePlan2() {
 		final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 			.createQueryOnTable("table")
-			.forAllNewTuplesStoredInSpace(new Hyperrectangle(3d, 4d))
+			.forAllNewTuplesInSpace(new Hyperrectangle(3d, 4d))
+			
+			// Stream
 			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
+			// Stored
 			.filterStoredTupleByBoundingBox(new Hyperrectangle(3d, 6d))
+			// Stream
 			.enlargeStreamTupleBoundBoxByValue(4)
+			// Stream
 			.enlargeStreamTupleBoundBoxByFactor(2)
+			// Stream
 			.enlargeStreamTupleBoundBoxByWGS84Meter(7.2, 13.3)
+			// Stored
 			.filterStoredTupleByKey("abc")
+			// Stream
 			.filterStreamTupleByKey("def")
 			.spatialJoinWithTable("testtable")
 			.build();
@@ -134,6 +142,9 @@ public class TestQueryPlanBuilder {
 		Assert.assertEquals(5, queryPlan.getStreamTransformation().size());
 		
 		final ContinuousSpatialJoinQueryPlan cqp = (ContinuousSpatialJoinQueryPlan) queryPlan;
-		Assert.assertEquals(4, cqp.getTableTransformation().size());
+		System.out.println(cqp.getTableTransformation());
+		Assert.assertEquals(2, cqp.getTableTransformation().size());
+		Assert.assertEquals(5, cqp.getStreamTransformation().size());
+
 	}
 }

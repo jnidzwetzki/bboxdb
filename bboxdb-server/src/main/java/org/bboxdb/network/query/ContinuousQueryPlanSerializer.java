@@ -56,6 +56,7 @@ public class ContinuousQueryPlanSerializer {
 	 */
 	private static final String TABLE_TRANSFORMATIONS_KEY = "table-transformations";
 	private static final String STREAM_TRANSFORMATIONS_KEY = "stream-transformations";
+	private static final String STREAM_FILTER_KEY = "stream-filter";
 	private static final String JOIN_FILTER_KEY = "join-filter";
 	
 	private static final String REPORT_KEY = "report-positive";
@@ -119,7 +120,7 @@ public class ContinuousQueryPlanSerializer {
 			json.put(TABLE_TRANSFORMATIONS_KEY, tableTransformationsJSON);
 			
 			final List<UserDefinedFilterDefinition> joinTransformations = tableQueryPlan.getAfterJoinFilter();
-			final JSONArray joinFilterJSON = writeFilterToJSON(json, joinTransformations);
+			final JSONArray joinFilterJSON = writeFilterToJSON(joinTransformations);
 			json.put(JOIN_FILTER_KEY, joinFilterJSON);
 			
 			json.put(JOIN_TABLE_KEY, tableQueryPlan.getJoinTable());					
@@ -129,6 +130,10 @@ public class ContinuousQueryPlanSerializer {
 		
 		json.put(QUERY_RANGE_KEY, queryPlan.getQueryRange().toCompactString());
 		json.put(STREAM_TABLE_KEY, queryPlan.getStreamTable());
+		
+		final List<UserDefinedFilterDefinition> streamFilters = queryPlan.getStreamFilters();
+		final JSONArray streamFilterJSON = writeFilterToJSON(streamFilters);
+		json.put(STREAM_FILTER_KEY, streamFilterJSON);
 		
 		final List<TupleTransformation> transformations = queryPlan.getStreamTransformation();
 		final JSONArray streamTransformations = writeTransformationsToJSON(json, transformations);
@@ -181,8 +186,7 @@ public class ContinuousQueryPlanSerializer {
 	 * @param joinTransformations
 	 * @return
 	 */
-	private static JSONArray writeFilterToJSON(JSONObject json,
-			List<UserDefinedFilterDefinition> filters) {
+	private static JSONArray writeFilterToJSON(final List<UserDefinedFilterDefinition> filters) {
 		
 		final JSONArray transfomationArray = new JSONArray();
 		
@@ -222,6 +226,8 @@ public class ContinuousQueryPlanSerializer {
 			final List<TupleTransformation> streamTransformation 
 				= decodeTransformation(json, STREAM_TRANSFORMATIONS_KEY);
 			
+			final List<UserDefinedFilterDefinition> streamFilters = decodeFilters(json, STREAM_FILTER_KEY);
+
 			switch(queryType) {
 			case QUERY_TYPE_RANGE_VALUE:
 				final boolean reportPositiveNegative = json.getBoolean(REPORT_KEY);
@@ -229,7 +235,7 @@ public class ContinuousQueryPlanSerializer {
 				final Hyperrectangle compareRectangle = Hyperrectangle.fromString(json.getString(COMPARE_RECTANGLE_KEY));
 				
 				final ContinuousRangeQueryPlan constQuery = new ContinuousRangeQueryPlan(streamTable, 
-						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative);
+						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative, streamFilters);
 				
 				return constQuery;
 			case QUERY_TYPE_JOIN_VALUE:				
@@ -242,7 +248,7 @@ public class ContinuousQueryPlanSerializer {
 				
 				final ContinuousSpatialJoinQueryPlan tableQuery = new ContinuousSpatialJoinQueryPlan(streamTable, 
 						joinTable, streamTransformation, queryRectangle, 
-						tableTransformation, joinFilters);
+						tableTransformation, streamFilters, joinFilters);
 		
 				return tableQuery;
 			default:

@@ -79,7 +79,7 @@ public class TestContinuousQueryPlan {
 		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("abc", 
 				new ArrayList<>(), 
 				Hyperrectangle.FULL_SPACE, 
-				new Hyperrectangle(12d, 13d, 14d, 15d), false);
+				new Hyperrectangle(12d, 13d, 14d, 15d), false, new ArrayList<>());
 		
 		serializeAndDeserialize(continuousQueryPlan);
 	}
@@ -89,7 +89,7 @@ public class TestContinuousQueryPlan {
 		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("testtable", 
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
-				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+				new Hyperrectangle(12d, 13d, 14d, 15d), true, new ArrayList<>());
 		
 		serializeAndDeserialize(continuousQueryPlan);
 	}
@@ -100,7 +100,7 @@ public class TestContinuousQueryPlan {
 		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("testtable", 
 				Arrays.asList(new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d))), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
-				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+				new Hyperrectangle(12d, 13d, 14d, 15d), true, new ArrayList<>());
 		
 		serializeAndDeserialize(continuousQueryPlan);
 	}
@@ -112,7 +112,7 @@ public class TestContinuousQueryPlan {
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd")), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
-				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+				new Hyperrectangle(12d, 13d, 14d, 15d), true, new ArrayList<>());
 		
 		serializeAndDeserialize(continuousQueryPlan);
 	}
@@ -125,7 +125,7 @@ public class TestContinuousQueryPlan {
 						new KeyFilterTransformation("abcd"),
 						new EnlargeBoundingBoxByAmountTransformation(4)), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
-				new Hyperrectangle(12d, 13d, 14d, 15d), true);
+				new Hyperrectangle(12d, 13d, 14d, 15d), true, new ArrayList<>());
 		
 		serializeAndDeserialize(continuousQueryPlan);
 	}
@@ -136,6 +136,7 @@ public class TestContinuousQueryPlan {
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new ArrayList<>(), 
+				new ArrayList<>(),
 				new ArrayList<>());
 		
 		serializeAndDeserialize(continuousQueryPlan);
@@ -151,7 +152,9 @@ public class TestContinuousQueryPlan {
 						new KeyFilterTransformation("abcd"),
 						new EnlargeBoundingBoxByAmountTransformation(4),
 						new EnlargeBoundingBoxByFactorTransformation(3)), 
-				Arrays.asList(new UserDefinedFilterDefinition("abc", "def")));
+				Arrays.asList(new UserDefinedFilterDefinition("abc", "def")),
+				Arrays.asList(new UserDefinedFilterDefinition("xyyz", "456"))
+			);
 		
 		serializeAndDeserialize(continuousQueryPlan);
 	}
@@ -171,6 +174,7 @@ public class TestContinuousQueryPlan {
 						new EnlargeBoundingBoxByAmountTransformation(4),
 						new EnlargeBoundingBoxByWGS84Transformation(3.2, 1.0)
 						), 
+				new ArrayList<>(),
 				new ArrayList<>());
 		
 		serializeAndDeserialize(continuousQueryPlan);

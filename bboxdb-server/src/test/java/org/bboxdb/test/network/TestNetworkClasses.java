@@ -572,7 +572,7 @@ public class TestNetworkClasses {
 	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PackageEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
-		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), boundingBox, boundingBox, true);
+		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), boundingBox, boundingBox, true, new ArrayList<>());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final QueryContinuousRequest queryRequest = new QueryContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, constQueryPlan);

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
 public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
@@ -35,14 +36,14 @@ public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
 	 */
 	private final boolean reportPositive;
 
-
 	public ContinuousRangeQueryPlan(final String streamTable,
 			final List<TupleTransformation> streamTransformation,
 			final Hyperrectangle queryRectangle,
 			final Hyperrectangle compareRectangle,
-			final boolean reportPositiveNegative) {
+			final boolean reportPositiveNegative, 
+			final List<UserDefinedFilterDefinition> streamFilters) {
 		
-			super(streamTable, streamTransformation, queryRectangle);
+			super(streamTable, streamTransformation, queryRectangle, streamFilters);
 			this.compareRectangle = Objects.requireNonNull(compareRectangle);
 			this.reportPositive = reportPositiveNegative;
 	}

@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.9.6 - TBA
 - New Feature: Predefined queries in the GUI
+- New Feature: UDF support for the stream elements in continuous queries
 - Improvement: Improved filtering of the UserDefinedGeoJsonSpatialFilter
 - Bugfix: When a distribution group is created, the server call waits until the changes in Zookeeper are visible
 - Bugfix: The client performs table name check before insert operation is executed

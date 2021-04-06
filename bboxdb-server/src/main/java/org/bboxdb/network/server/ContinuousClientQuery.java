@@ -187,7 +187,8 @@ public class ContinuousClientQuery implements ClientQuery {
 	private Consumer<Tuple> getCallbackForSpatialJoinQuery(final ContinuousSpatialJoinQueryPlan qp) {
 		
 		final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
-		final Map<UserDefinedFilter, byte[]> filters = getUserDefinedFilter(qp);
+		final Map<UserDefinedFilter, byte[]> streamFilters = getUserDefinedFilter(qp.getStreamFilters());
+		final Map<UserDefinedFilter, byte[]> joinFilters = getUserDefinedFilter(qp.getAfterJoinFilter());
 				
 		return (streamTuple) -> {
 			
@@ -204,8 +205,15 @@ public class ContinuousClientQuery implements ClientQuery {
 				return;
 			}
 			
+			// Perform stream UDFs
+			final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, streamFilters);
+			
+			if(! udfMatches) {
+				return;
+			}
+			
 			// Callback for the stored tuple
-			final Consumer<Tuple> tupleConsumer = getStoredTupleReader(qp, filters, streamTuple, transformedStreamTuple);
+			final Consumer<Tuple> tupleConsumer = getStoredTupleReader(qp, joinFilters, streamTuple, transformedStreamTuple);
 			
 			try {
 				final TupleStoreName tupleStoreName = new TupleStoreName(qp.getJoinTable());
@@ -288,6 +296,34 @@ public class ContinuousClientQuery implements ClientQuery {
 				Arrays.asList(qp.getStreamTable(), qp.getJoinTable()));
 	}
 
+	
+	/**
+	 * Perform the user defined filters on the given stream and stored tuple
+	 * @param streamTuple
+	 * @param storedTuple
+	 * @param filters
+	 * @return
+	 */
+	private boolean doUserDefinedFilterMatch(final Tuple streamTuple,
+			final Map<UserDefinedFilter, byte[]> filters) {
+		
+		boolean matches = true;
+		
+		for(final Entry<UserDefinedFilter, byte[]> entry : filters.entrySet()) {
+			
+			final UserDefinedFilter operator = entry.getKey();
+			final byte[] value = entry.getValue();
+			
+			final boolean result 
+				= operator.filterTuple(streamTuple, value);
+			
+			if(! result) {
+				matches = false;
+			}
+		}
+		return matches;
+	}
+	
 	/**
 	 * Perform the user defined filters on the given stream and stored tuple
 	 * @param streamTuple
@@ -317,15 +353,15 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	/**
 	 * Get the user defined operators
-	 * @param tableQueryPlan
+	 * @param filters
 	 * @return 
 	 */
 	private Map<UserDefinedFilter, byte[]> getUserDefinedFilter(
-			final ContinuousSpatialJoinQueryPlan tableQueryPlan) {
+			final List<UserDefinedFilterDefinition> filters) {
 		
 		final Map<UserDefinedFilter, byte[]> operators = new HashMap<>();
 		
-		for(final UserDefinedFilterDefinition filter : tableQueryPlan.getAfterJoinFilter()) {
+		for(final UserDefinedFilterDefinition filter : filters) {
 			try {
 				final Class<?> filterClass = Class.forName(filter.getUserDefinedFilterClass());
 				final UserDefinedFilter operator = 
@@ -348,12 +384,21 @@ public class ContinuousClientQuery implements ClientQuery {
 		
 		final ContinuousRangeQueryPlan rangeQueryPlan = (ContinuousRangeQueryPlan) queryPlan;
 		
+		final Map<UserDefinedFilter, byte[]> streamFilters = getUserDefinedFilter(qp.getStreamFilters());
+		
 		return (t) -> {
 			final List<TupleTransformation> transformations = rangeQueryPlan.getStreamTransformation(); 
 			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, t);
 			
 			// Tuple was removed during transformation
 			if(tuple == null) {
+				return;
+			}
+			
+			// Perform stream UDFs
+			final boolean udfMatches = doUserDefinedFilterMatch(t, streamFilters);
+			
+			if(! udfMatches) {
 				return;
 			}
 			

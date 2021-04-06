@@ -64,6 +64,11 @@ public class QueryPlanBuilder {
 	/**
 	 * The join filters
 	 */
+	private final List<UserDefinedFilterDefinition> streamFilters;
+	
+	/**
+	 * The join filters
+	 */
 	private final List<UserDefinedFilterDefinition> joinFilters;
 	
 	/**
@@ -75,6 +80,7 @@ public class QueryPlanBuilder {
 		this.streamTable = tablename;
 		this.streamTupleTransformation = new ArrayList<>();
 		this.storedTupleTransformation = new ArrayList<>();
+		this.streamFilters = new ArrayList<>();
 		this.joinFilters = new ArrayList<>();
 		this.reportPositiveMatches = true;
 		this.queryRegion = Hyperrectangle.FULL_SPACE;
@@ -95,7 +101,7 @@ public class QueryPlanBuilder {
 	 * @param values
 	 * @return
 	 */
-	public QueryPlanBuilder forAllNewTuplesStoredInSpace(final Hyperrectangle hyperrectangle) {
+	public QueryPlanBuilder forAllNewTuplesInSpace(final Hyperrectangle hyperrectangle) {
 		this.queryRegion = hyperrectangle;
 		return this;
 	}
@@ -221,6 +227,17 @@ public class QueryPlanBuilder {
 	}
 	
 	/**
+	 * Add a range filter
+	 * @param userDefinedFilter
+	 * @return 
+	 * @return
+	 */
+	public QueryPlanBuilder addStreamFilter(UserDefinedFilterDefinition userDefinedFilter) {
+		streamFilters.add(userDefinedFilter);
+		return this;
+	}
+	
+	/**
 	 * Build the query plan
 	 * 
 	 * Query region is per default the complete space
@@ -236,7 +253,7 @@ public class QueryPlanBuilder {
 		
 		if(regionConst != null) {
 			return new ContinuousRangeQueryPlan(streamTable, streamTupleTransformation, 
-					queryRegion, regionConst, reportPositiveMatches);
+					queryRegion, regionConst, reportPositiveMatches, streamFilters);
 		}
 		
 		if(joinTable != null) {
@@ -246,7 +263,7 @@ public class QueryPlanBuilder {
 			}
 			
 			return new ContinuousSpatialJoinQueryPlan(streamTable, joinTable, streamTupleTransformation, 
-					queryRegion, storedTupleTransformation, joinFilters);
+					queryRegion, storedTupleTransformation, streamFilters, joinFilters);
 		}
 		
 		throw new IllegalArgumentException("Join table or const region need to be set");

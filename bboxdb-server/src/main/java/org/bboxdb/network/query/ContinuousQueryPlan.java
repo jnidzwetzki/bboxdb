@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
 public abstract class ContinuousQueryPlan {
@@ -34,6 +35,11 @@ public abstract class ContinuousQueryPlan {
 	 * The transformations of the stream entry
 	 */
 	private final List<TupleTransformation> streamTransformation;
+	
+	/**
+	 * The range filters
+	 */
+	private final List<UserDefinedFilterDefinition> streamFilters;
 
 	/**
 	 * The query range
@@ -41,11 +47,12 @@ public abstract class ContinuousQueryPlan {
 	private Hyperrectangle queryRange;
 
 	public ContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
-			final Hyperrectangle queryRange) {
+			final Hyperrectangle queryRange, final List<UserDefinedFilterDefinition> streamFilters) {
 		
 		this.streamTable = Objects.requireNonNull(streamTable);
 		this.streamTransformation = Objects.requireNonNull(streamTransformation);
 		this.queryRange = Objects.requireNonNull(queryRange);
+		this.streamFilters = Objects.requireNonNull(streamFilters);
 	}
 
 	public String getStreamTable() {
@@ -60,10 +67,14 @@ public abstract class ContinuousQueryPlan {
 		return queryRange;
 	}
 
+	public List<UserDefinedFilterDefinition> getStreamFilters() {
+		return streamFilters;
+	}
+
 	@Override
 	public String toString() {
 		return "ContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation=" + streamTransformation
-				+ ", queryRange=" + queryRange + "]";
+				+ ", streamFilters=" + streamFilters + ", queryRange=" + queryRange + "]";
 	}
 
 	@Override
@@ -71,6 +82,7 @@ public abstract class ContinuousQueryPlan {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((queryRange == null) ? 0 : queryRange.hashCode());
+		result = prime * result + ((streamFilters == null) ? 0 : streamFilters.hashCode());
 		result = prime * result + ((streamTable == null) ? 0 : streamTable.hashCode());
 		result = prime * result + ((streamTransformation == null) ? 0 : streamTransformation.hashCode());
 		return result;
@@ -89,6 +101,11 @@ public abstract class ContinuousQueryPlan {
 			if (other.queryRange != null)
 				return false;
 		} else if (!queryRange.equals(other.queryRange))
+			return false;
+		if (streamFilters == null) {
+			if (other.streamFilters != null)
+				return false;
+		} else if (!streamFilters.equals(other.streamFilters))
 			return false;
 		if (streamTable == null) {
 			if (other.streamTable != null)

@@ -91,7 +91,7 @@ public class DemoLatLonEnlargementQuery implements Runnable {
 			
 			final ContinuousQueryPlan queryPlan = QueryPlanBuilder
 					.createQueryOnTable(table)
-					.forAllNewTuplesStoredInSpace(queryRectangle)
+					.forAllNewTuplesInSpace(queryRectangle)
 					.enlargeStreamTupleBoundBoxByWGS84Meter(enlargementLat, enlargementLon)
 					.compareWithStaticSpace(queryRectangle)
 					.build();

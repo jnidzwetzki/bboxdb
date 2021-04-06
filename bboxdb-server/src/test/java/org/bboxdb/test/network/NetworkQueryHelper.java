@@ -204,7 +204,7 @@ public class NetworkQueryHelper {
 
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
 				.createQueryOnTable(table)
-				.forAllNewTuplesStoredInSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
+				.forAllNewTuplesInSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
 				.compareWithStaticSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
 				.build();
 
@@ -258,7 +258,7 @@ public class NetworkQueryHelper {
 
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
 				.createQueryOnTable(table)
-				.forAllNewTuplesStoredInSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
+				.forAllNewTuplesInSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
 				.spatialJoinWithTable(table)
 				.build();
 
