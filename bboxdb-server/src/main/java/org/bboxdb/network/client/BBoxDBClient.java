@@ -153,6 +153,19 @@ public class BBoxDBClient implements BBoxDB {
 
 		return insertTuple(table, tuple, routingHeader, EnumSet.noneOf(InsertOption.class));
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
+	 */
+	@Override
+	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
+			final EnumSet<InsertOption> insertOptions) throws BBoxDBException {
+
+		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+				table, tuple.getBoundingBox(), false, connection.getServerAddress());
+
+		return insertTuple(table, tuple, routingHeader, insertOptions);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
