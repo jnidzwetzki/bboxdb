@@ -64,7 +64,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		final String geoJsonString = new String(tuple.getDataBytes());
 		final JSONObject geoJsonObject = new JSONObject(geoJsonString);
 		
-		if(customString.contains(":")) {
+		if(!customString.startsWith("{") && customString.contains(":")) {
 			
 			final String[] customParts = customString.split(":");
 
