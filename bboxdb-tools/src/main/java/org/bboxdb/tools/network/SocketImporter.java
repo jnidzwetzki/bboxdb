@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.bboxdb.commons.InputParseException;
@@ -35,6 +36,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
+import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
@@ -80,6 +82,11 @@ public class SocketImporter implements Runnable {
 	private final QueryEnlargement enlargement;
 	
 	/**
+	 * The insert options
+	 */
+	private EnumSet<InsertOption> insertOptions;
+	
+	/**
 	 * The amount of pending insert futures
 	 */
 	private final static int MAX_PENDING_FUTURES = 1000;
@@ -95,13 +102,15 @@ public class SocketImporter implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(SocketImporter.class);
 
 	public SocketImporter(final int port, final String connectionPoint, final String clustername, 
-			final String table, final TupleBuilder tupleFactory, final QueryEnlargement enlargement) {
+			final String table, final TupleBuilder tupleFactory, final QueryEnlargement enlargement, 
+			final EnumSet<InsertOption> insertOptions) {
 				this.port = port;
 				this.connectionPoint = connectionPoint;
 				this.clustername = clustername;
 				this.table = table;
 				this.tupleFactory = tupleFactory;
 				this.enlargement = enlargement;
+				this.insertOptions = insertOptions;
 				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
 	}
 
@@ -154,7 +163,7 @@ public class SocketImporter implements Runnable {
 					tuple.setBoundingBox(tupleBBox);
 					
 					if(! NULL_STRING.equals(table)) {
-						final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple);
+						final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple, insertOptions);
 						pendingFutures.put(result);
 					}
 				}
@@ -229,8 +238,8 @@ public class SocketImporter implements Runnable {
 	 */
 	public static void main(final String[] args) throws InputParseException {
 		
-		if(args.length != 6) {
-			System.err.println("Usage: <Class> <Port> <Connection Endpoint> <Clustername> <Table> <Format> <Enlargement>");
+		if(args.length != 7) {
+			System.err.println("Usage: <Class> <Port> <Connection Endpoint> <Clustername> <Table> <Format> <Enlargement> <Write-To-Disk>");
 			System.exit(-1);
 		}
 		
@@ -241,27 +250,39 @@ public class SocketImporter implements Runnable {
 		final String table = args[3];
 		final String format = args[4];
 		final String enlargement = args[5];
-		
+		final String writeToDiskString = args[6];
+
 		final TupleBuilder tupleFactory = TupleBuilderFactory.getBuilderForFormat(format);
 		QueryEnlargement queryEnlargement = null;
 		
 		// Read dynamic enlargement
 		if("dynamic".equals(enlargement)) {
-			System.out.println("Performing dynamic enlargement");
+			logger.info("Performing dynamic enlargement");
 			final TupleStoreName tupleStoreName = new TupleStoreName(table);
 			final ContinuousQueryRegisterer continuousQueryRegisterer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
 			queryEnlargement = continuousQueryRegisterer.getEnlagementForTable();
 		} else if(NULL_STRING.equals(enlargement)) {
-			System.out.println("Performing NULL enlargement");
+			logger.info("Performing NULL enlargement");
 			queryEnlargement = null;
 		} else {
-			System.out.println("Performing factor enlargement");
+			logger.info("Performing factor enlargement");
 			final double enlargementFactor = MathUtil.tryParseDoubleOrExit(enlargement, () -> "Unable to parse enlargement: " + enlargement);
 			queryEnlargement = new QueryEnlargement();
 			queryEnlargement.setMaxEnlargementFactor(enlargementFactor);
 		}
 		
-		final SocketImporter main = new SocketImporter(port, connectionPoint, clustername, table, tupleFactory, queryEnlargement);
+		final boolean writeToDisk = MathUtil.tryParseBooleanOrExit(writeToDiskString);
+		final EnumSet<InsertOption> insertOptions = EnumSet.noneOf(InsertOption.class);;
+		
+		if(! writeToDisk) {
+			insertOptions.add(InsertOption.STREAMING_ONLY);
+		}
+		
+		logger.info("Use the following insert options {}", insertOptions);
+		
+		final SocketImporter main = new SocketImporter(port, connectionPoint, clustername, table, tupleFactory, 
+				queryEnlargement, insertOptions);
+		
 		main.run();
 	}
 }
