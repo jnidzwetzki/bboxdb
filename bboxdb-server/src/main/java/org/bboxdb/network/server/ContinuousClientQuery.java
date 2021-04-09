@@ -36,6 +36,8 @@ import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBConfiguration.ContinuousSpatialJoinFetchMode;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -220,10 +222,20 @@ public class ContinuousClientQuery implements ClientQuery {
 				
 				final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 				
+				final ContinuousSpatialJoinFetchMode fetchMode = BBoxDBConfigurationManager.getConfiguration()
+						.getContinuousSpatialJoinFetchModeENUM();
+				
+				// Handle non local data during spatial join
+				ExecutionPolicy executionPolicy = ExecutionPolicy.LOCAL_ONLY;
+				
+				if(fetchMode == ContinuousSpatialJoinFetchMode.FETCH) {
+					executionPolicy = ExecutionPolicy.ALL;
+				} 
+				
 				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
 						transformedStreamTuple.getBoundingBox(), 
 						tupleConsumer, storageRegistry,
-						ExecutionPolicy.LOCAL_ONLY);
+						executionPolicy);
 				
 				rangeQueryExecutor.performDataRead();
 			} catch (BBoxDBException e) {

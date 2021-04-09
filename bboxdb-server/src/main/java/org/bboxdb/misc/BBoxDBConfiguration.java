@@ -27,6 +27,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BBoxDBConfiguration {
+	
+	/**
+	 * The fetch modes of the continuous spatial join
+	 *
+	 */
+	public enum ContinuousSpatialJoinFetchMode {
+		NONE,
+		FETCH
+	}
 
 	/**
 	 *  The directories to store data
@@ -103,6 +112,16 @@ public class BBoxDBConfiguration {
 	 */
 	private int performanceCounterPort = 10085;
 	
+	/**
+	 * The ContinuousSpatialJoinFetchMode
+	 */
+	private String continuousSpatialJoinFetchMode = "NONE";
+	
+	/**
+	 * ContinuousSpatialJoinFetchMode as ENUM
+	 */
+	private ContinuousSpatialJoinFetchMode continuousSpatialJoinFetchModeENUM = ContinuousSpatialJoinFetchMode.NONE;
+
 	/**
 	 * The Logger
 	 */
@@ -234,6 +253,24 @@ public class BBoxDBConfiguration {
 
 	public void setStorageWriteAheadLog(final boolean storageWriteAheadLog) {
 		this.storageWriteAheadLog = storageWriteAheadLog;
+	}
+
+	public String getContinuousSpatialJoinFetchMode() {
+		return continuousSpatialJoinFetchMode;
+	}
+
+	public void setContinuousSpatialJoinFetchMode(final String continuousSpatialJoinFetchMode) {
+		this.continuousSpatialJoinFetchMode = continuousSpatialJoinFetchMode;
+		this.continuousSpatialJoinFetchModeENUM = ContinuousSpatialJoinFetchMode.valueOf(continuousSpatialJoinFetchMode);
+	}
+
+	public ContinuousSpatialJoinFetchMode getContinuousSpatialJoinFetchModeENUM() {
+		return continuousSpatialJoinFetchModeENUM;
+	}
+
+	public void setContinuousSpatialJoinFetchModeENUM(final ContinuousSpatialJoinFetchMode continuousSpatialJoinFetchModeENUM) {
+		this.continuousSpatialJoinFetchModeENUM = continuousSpatialJoinFetchModeENUM;
+		this.continuousSpatialJoinFetchMode = continuousSpatialJoinFetchModeENUM.name();
 	}
 	
 }
