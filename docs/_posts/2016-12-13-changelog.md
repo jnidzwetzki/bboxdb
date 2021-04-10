@@ -10,6 +10,7 @@ order: 1
 - New Feature: Predefined queries in the GUI
 - New Feature: UDF support for the stream elements in continuous queries
 - New Feature: Made continuousSpatialJoinFetch mode configurable
+- New Feature: Added stream sampling experiment
 - Improvement: Improved filtering of the UserDefinedGeoJsonSpatialFilter
 - Improvement: Made tuple insert options visible in the BBoxDB interface
 - Bugfix: When a distribution group is created, the server call waits until the changes in Zookeeper are visible
