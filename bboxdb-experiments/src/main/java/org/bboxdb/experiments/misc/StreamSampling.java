@@ -110,7 +110,7 @@ public class StreamSampling implements Runnable {
 					.max((entry1, entry2) -> entry1.getValue().size() > entry2.getValue().size() ? 1 : -1)
 					.get().getKey();
 				
-				System.out.format("Splitting region %d%n", regionToSplit);
+				System.out.format("Splitting region " + regionToSplit);
 				
 				final List<Hyperrectangle> samples = activeRegions.get(regionToSplit);
 				Collections.sort(samples);
