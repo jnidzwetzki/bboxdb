@@ -110,7 +110,6 @@ public class StreamSampling implements Runnable {
 					.max((entry1, entry2) -> entry1.getValue().size() > entry2.getValue().size() ? 1 : -1)
 					.get().getKey();
 				
-				System.out.format("Splitting region " + regionToSplit);
 				
 				final List<Hyperrectangle> samples = activeRegions.get(regionToSplit);
 				Collections.sort(samples);
@@ -119,6 +118,9 @@ public class StreamSampling implements Runnable {
 				final Hyperrectangle splitHyperrectangle = samples.get(samples.size() / 2);
 				final DoubleInterval splitPoint = splitHyperrectangle.getIntervalForDimension(dimension);
 				final double midPoint = splitPoint.getMidpoint();
+				
+				System.out.format("Splitting region " + regionToSplit + " at " + midPoint);
+
 				
 				final Hyperrectangle leftRegion = splitHyperrectangle.splitAndGetLeft(midPoint, dimension, true);
 				final Hyperrectangle rightRegion = splitHyperrectangle.splitAndGetRight(midPoint, dimension, false);
