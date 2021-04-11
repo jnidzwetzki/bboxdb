@@ -111,18 +111,20 @@ public class StreamSampling implements Runnable {
 			}
 		});
 
-		final ArrayList<AtomicLong> elements = new ArrayList<>(buckets.values());
-
-		IntStream.range(0, elements.size()).forEach(
-				i -> System.out.format("%d\t%d%n", i, elements.get(i).get())
-		);
-		
 		try {
 			tupleFile.processFile();
 		} catch (Exception e) {
 			logger.error("Got an Exception while reading file", e);
 			System.exit(-1);
 		}
+		
+
+		final ArrayList<AtomicLong> elements = new ArrayList<>(buckets.values());
+
+		IntStream.range(0, elements.size()).forEach(
+				i -> System.out.format("%d\t%d%n", i, elements.get(i).get())
+		);
+		
 	}
 
 	/**
