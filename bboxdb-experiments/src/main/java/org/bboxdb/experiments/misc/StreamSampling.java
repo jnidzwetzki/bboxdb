@@ -132,8 +132,9 @@ public class StreamSampling implements Runnable {
 				newRegions.add(leftRegion);
 				newRegions.add(rightRegion);
 				
-				dimensions.put(leftRegion, dimension + 1 % splitHyperrectangle.getDimension());
-				dimensions.put(rightRegion, dimension + 1 % splitHyperrectangle.getDimension());
+				final int nextDimension = (dimension + 1) % splitHyperrectangle.getDimension();
+				dimensions.put(leftRegion, nextDimension);
+				dimensions.put(rightRegion, nextDimension);
 
 				// Redistribute samples
 				newRegions.forEach(d -> activeRegions.put(d, new ArrayList<>()));
