@@ -37,6 +37,8 @@ import org.bboxdb.tools.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.math.Stats;
+
 public class StreamSampling implements Runnable {
 
 	/**
@@ -125,6 +127,12 @@ public class StreamSampling implements Runnable {
 				i -> System.out.format("%d\t%d%n", i, elements.get(i).get())
 		);
 		
+		
+		final Stats experimentStats = Stats.of(elements);
+		System.out.println("Min: " + experimentStats.min());
+		System.out.println("Max: " + experimentStats.max());
+		System.out.println("Mean: " + experimentStats.mean());
+		System.out.println("StdDev: " + experimentStats.populationStandardDeviation());
 	}
 
 	/**
