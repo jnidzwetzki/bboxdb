@@ -24,7 +24,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.DoubleInterval;
@@ -88,14 +92,54 @@ public class StreamSampling implements Runnable {
 	 * @throws ClassNotFoundException 
 	 */
 	protected void runExperiment(final int numberOfElements) {
+		final Set<Hyperrectangle> activePartitions = partitionSpace(numberOfElements);
+	
+		final Map<Hyperrectangle, AtomicLong> buckets = new HashMap<>();
+		for(final Hyperrectangle bucket : activePartitions) {
+			buckets.put(bucket, new AtomicLong(0));
+		}
+		
+		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
+
+		tupleFile.addTupleListener(t -> {
+			final Hyperrectangle polygonBoundingBox = t.getBoundingBox();
+			
+			for(final Entry<Hyperrectangle, AtomicLong> entry : buckets.entrySet()) {
+				if(polygonBoundingBox.intersects(entry.getKey())) {
+					entry.getValue().incrementAndGet();
+				}
+			}
+		});
+
+		final ArrayList<AtomicLong> elements = new ArrayList<>(buckets.values());
+
+		IntStream.range(0, elements.size()).forEach(
+				i -> System.out.format("%d\t%d%n", i, elements.get(i).get())
+		);
+		
+		try {
+			tupleFile.processFile();
+		} catch (Exception e) {
+			logger.error("Got an Exception while reading file", e);
+			System.exit(-1);
+		}
+	}
+
+	/**
+	 * Partition the space
+	 * @param numberOfElements
+	 * @return
+	 */
+	private Set<Hyperrectangle> partitionSpace(final int numberOfElements) {
+		final Map<Hyperrectangle, List<Hyperrectangle>> activeRegions = new HashMap<>();
+		final Map<Hyperrectangle, Integer> dimensions = new HashMap<>();
+		
 		try {
 			System.out.println("Simulating with sample size: " + numberOfElements);
 
 			final List<Hyperrectangle> allSamples = getSamplesFromFile(numberOfElements);
 			
-			final Map<Hyperrectangle, List<Hyperrectangle>> activeRegions = new HashMap<>();
-			final Map<Hyperrectangle, Integer> dimensions = new HashMap<>();
-			
+		
 			final int sampleDimension = allSamples.get(0).getDimension();
 			final Hyperrectangle fullSpace = Hyperrectangle.createFullCoveringDimensionBoundingBox(sampleDimension);
 			
@@ -121,11 +165,19 @@ public class StreamSampling implements Runnable {
 				final Hyperrectangle splitHyperrectangle = samples.get(samples.size() / 2);
 				final DoubleInterval splitPoint = splitHyperrectangle.getIntervalForDimension(dimension);
 				final double midPoint = splitPoint.getMidpoint();
-				
+								
 				System.out.format("Splitting region " + regionToSplit + " at " + midPoint);
 
-				final Hyperrectangle leftRegion = regionToSplit.splitAndGetLeft(midPoint, dimension, true);
-				final Hyperrectangle rightRegion = regionToSplit.splitAndGetRight(midPoint, dimension, false);
+				
+				Hyperrectangle leftRegion;
+				Hyperrectangle rightRegion;
+				try {
+					leftRegion = regionToSplit.splitAndGetLeft(midPoint, dimension, true);
+					rightRegion = regionToSplit.splitAndGetRight(midPoint, dimension, false);
+				} catch (Exception e) {
+					logger.error("Unable to split, ignoring", e);
+					break;
+				}
 
 				final List<Hyperrectangle> newRegions = new ArrayList<>();
 				newRegions.add(leftRegion);
@@ -149,11 +201,14 @@ public class StreamSampling implements Runnable {
 				
 				activeRegions.remove(regionToSplit);
 			}
+			
 		} catch (ClassNotFoundException e) {
 			logger.error("Got exception during experiment", e);
 		} catch (IOException e) {
 			logger.error("Got exception during experiment", e);
 		}
+		
+		return activeRegions.keySet();
 	}
 	
 	
