@@ -417,6 +417,6 @@ Afterward, the simulation can be started by executing:
 ./bmodplayer -i <path_to_berlin_mod>/trips_wgs.csv -u tcp://localhost/10000 -s adaptive -r 1 -f 2 -b '2007-05-28 06:10:14'
 ```
 
-For more details about the used parameter, have a look at the [documentation](https://secondo-database.github.io/BerlinMOD/BerlinMOD.html) of the BerlinModPlayer.
+For more details about the used parameter, have a look at the [documentation](https://github.com/jnidzwetzki/berlinmodplayer) of the BerlinModPlayer.
 
 Now you can start the GUI of BBoxDB as described in the last two sections. The data stream is written to the table `osmgroup_berlinmod`; continuous queries can be performed on this table.
