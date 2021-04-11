@@ -103,7 +103,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		
 		if(begin == end) {
 			if(beginIncluded == false || endIncluded == false) {
-				throw new IllegalArgumentException("Unable to construct open interval with: begin = end" 
+				throw new IllegalArgumentException("Unable to construct open interval with: begin = end " 
 						+ begin + " / " + end);
 			}
 		}

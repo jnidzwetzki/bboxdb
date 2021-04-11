@@ -124,9 +124,8 @@ public class StreamSampling implements Runnable {
 				
 				System.out.format("Splitting region " + regionToSplit + " at " + midPoint);
 
-				
-				final Hyperrectangle leftRegion = splitHyperrectangle.splitAndGetLeft(midPoint, dimension, true);
-				final Hyperrectangle rightRegion = splitHyperrectangle.splitAndGetRight(midPoint, dimension, false);
+				final Hyperrectangle leftRegion = regionToSplit.splitAndGetLeft(midPoint, dimension, true);
+				final Hyperrectangle rightRegion = regionToSplit.splitAndGetRight(midPoint, dimension, false);
 
 				final List<Hyperrectangle> newRegions = new ArrayList<>();
 				newRegions.add(leftRegion);
