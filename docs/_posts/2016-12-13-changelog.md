@@ -16,6 +16,7 @@ order: 1
 - Bugfix: When a distribution group is created, the server call waits until the changes in Zookeeper are visible
 - Bugfix: The client performs table name check before insert operation is executed
 - Bugfix: Don't decrease the update timestamp for node mutations
+- Bugfix: Prevent NPE in RandomSamplesReader on ADS-B data
 
 ### Version 0.9.5 - 11.12.2020
 - Improvement: Added shutdown callbacks to network futures

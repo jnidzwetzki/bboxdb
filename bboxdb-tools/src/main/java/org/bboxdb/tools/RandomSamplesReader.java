@@ -74,14 +74,38 @@ public class RandomSamplesReader {
 			Collections.sort(sampleLinesOrdered);
 			
 			for(final long lineNumber : sampleLinesOrdered) {
-				final long pos = fli.locateLine(lineNumber);
-				randomAccessFile.seek(pos);
-				final String lineString = randomAccessFile.readLine();
-			    final Tuple tuple = tupleBuilder.buildTuple(lineString, Long.toString(lineNumber));
+				
+				Tuple tuple = null;
+				int offset = 0;
+				
+				// Some tuple (e.g., ADS-B data) need some line for one tuple
+				do {
+					final String lineString = getLine(randomAccessFile, fli, lineNumber + offset);
+					tuple = tupleBuilder.buildTuple(lineString, Long.toString(lineNumber + offset));
+					offset++;
+				} while(tuple == null);
+			    
 			    samples.add(tuple.getBoundingBox());
 			}
 		}
 		
 		return samples;
+	}
+
+	/**
+	 * Get the given line
+	 * @param randomAccessFile
+	 * @param fli
+	 * @param lineNumber
+	 * @return
+	 * @throws IOException
+	 */
+	private static String getLine(final RandomAccessFile randomAccessFile, final FileLineIndex fli,
+			final long lineNumber) throws IOException {
+		
+		final long pos = fli.locateLine(lineNumber);
+		randomAccessFile.seek(pos);
+		final String lineString = randomAccessFile.readLine();
+		return lineString;
 	}
 }
