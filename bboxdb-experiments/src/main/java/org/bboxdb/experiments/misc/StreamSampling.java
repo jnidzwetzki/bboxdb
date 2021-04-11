@@ -96,8 +96,11 @@ public class StreamSampling implements Runnable {
 			final Map<Hyperrectangle, List<Hyperrectangle>> activeRegions = new HashMap<>();
 			final Map<Hyperrectangle, Integer> dimensions = new HashMap<>();
 			
-			activeRegions.put(Hyperrectangle.FULL_SPACE, allSamples);
-			dimensions.put(Hyperrectangle.FULL_SPACE, 0);
+			final int sampleDimension = allSamples.get(0).getDimension();
+			final Hyperrectangle fullSpace = Hyperrectangle.createFullCoveringDimensionBoundingBox(sampleDimension);
+			
+			activeRegions.put(fullSpace, allSamples);
+			dimensions.put(fullSpace, 0);
 
 			while(activeRegions.keySet().size() < partitions) {
 				
