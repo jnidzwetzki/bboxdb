@@ -168,7 +168,7 @@ public class StreamSampling implements Runnable {
 				final DoubleInterval splitPoint = splitHyperrectangle.getIntervalForDimension(dimension);
 				final double midPoint = splitPoint.getMidpoint();
 								
-				System.out.format("Splitting region " + regionToSplit + " at " + midPoint);
+				System.out.println("Splitting region " + regionToSplit + " at " + midPoint);
 
 				
 				Hyperrectangle leftRegion;
