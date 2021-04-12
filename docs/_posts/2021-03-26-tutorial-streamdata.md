@@ -202,7 +202,7 @@ make
 
 ## Execute dump1090
 
-Some Linux distributions load some kernel drivers automatically for the USB stick. These drivers prevent that `dump1090` can access the receiver directly. Please unload the driver first to ensure that `dump1090` works correctly.
+Some Linux distributions load some kernel drivers automatically to support the USB stick. These drivers prevent that `dump1090` can access the receiver directly. Please unload the driver first to ensure that `dump1090` works correctly.
 
 ```
 rmmod rtl2832 rtl2832_sdr rtl2832 dvb_core dvb_usb_v2 dvb_usb_rtl28xxu
