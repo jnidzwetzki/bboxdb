@@ -81,7 +81,8 @@ public class StreamSampling implements Runnable {
 			7000, 7250, 7500, 7750,
 			8000, 8250, 8500, 8750,
 			9000, 9250, 9500, 9750,
-			1000, 10250, 10500, 10750
+			1000, 10250, 10500, 10750,
+			20000, 30000, 40000, 50000
 		);
 
 		sampleSizes.forEach(s -> runExperiment(s));
