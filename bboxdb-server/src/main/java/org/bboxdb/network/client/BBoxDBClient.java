@@ -146,7 +146,14 @@ public class BBoxDBClient implements BBoxDB {
 			return new DeleteTableRequest(nextSequenceNumber, table);
 		};
 
-		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
+		return () -> {
+			final NetworkOperationFutureImpl networkOperationFuture = new NetworkOperationFutureImpl(connection, packageSupplier);
+			
+			// Let the operation fail fast
+			networkOperationFuture.setTotalRetries(NetworkOperationFutureImpl.FAST_FAIL_RETRIES);
+			
+			return Arrays.asList(networkOperationFuture);
+		};
 	}
 
 	/* (non-Javadoc)
@@ -329,7 +336,14 @@ public class BBoxDBClient implements BBoxDB {
 			return new DeleteDistributionGroupRequest(nextSequenceNumber, distributionGroup);
 		};
 
-		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
+		return () -> {
+			final NetworkOperationFutureImpl future = new NetworkOperationFutureImpl(connection, packageSupplier);
+
+			// Let future fail fast
+			future.setTotalRetries(NetworkOperationFutureImpl.FAST_FAIL_RETRIES);
+
+			return Arrays.asList(future);
+		};
 	}
 
 	/* (non-Javadoc)

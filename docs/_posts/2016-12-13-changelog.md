@@ -14,6 +14,7 @@ order: 1
 - Improvement: Improved filtering of the UserDefinedGeoJsonSpatialFilter
 - Improvement: Made tuple insert options visible in the BBoxDB interface
 - Improvement: Register failed future logger per default in FixedSizeFutureStore
+- Improvement: Let certain interactive based operations (e.g., create and delete table) fail fast
 - Bugfix: When a distribution group is created, the server call waits until the changes in Zookeeper are visible
 - Bugfix: The client performs table name check before insert operation is executed
 - Bugfix: Don't decrease the update timestamp for node mutations
