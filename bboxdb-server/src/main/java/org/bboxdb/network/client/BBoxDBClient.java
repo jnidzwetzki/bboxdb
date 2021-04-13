@@ -101,7 +101,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration)
 			throws BBoxDBException {
 
-		final NetworkOperationFuture future = getCreateTableFugure(table, configuration);
+		final NetworkOperationFuture future = getCreateTableFuture(table, configuration);
 
 		return new EmptyResultFuture(() -> Arrays.asList(future));
 	}
@@ -111,13 +111,18 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param configuration
 	 * @return
 	 */
-	public NetworkOperationFuture getCreateTableFugure(final String table,
+	public NetworkOperationFuture getCreateTableFuture(final String table,
 			final TupleStoreConfiguration configuration) {
 
-		return new NetworkOperationFutureImpl(connection, () -> {
+		final NetworkOperationFutureImpl future = new NetworkOperationFutureImpl(connection, () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new CreateTableRequest(nextSequenceNumber, table, configuration);
 		});
+		
+		// Let the operation fail fast
+		future.setTotalRetries(NetworkOperationFutureImpl.FAST_FAIL_RETRIES);
+		
+		return future;
 	}
 
 	/* (non-Javadoc)
@@ -125,14 +130,16 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteTable(final String table) {
-		return new EmptyResultFuture(getDeleteTableFuture(table));
+		final EmptyResultFuture future = new EmptyResultFuture(getDeleteTableSupplier(table));
+		
+		return future;
 	}
 
 	/**
 	 * @param table
 	 * @return
 	 */
-	public Supplier<List<NetworkOperationFuture>> getDeleteTableFuture(final String table) {
+	public Supplier<List<NetworkOperationFuture>> getDeleteTableSupplier(final String table) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();

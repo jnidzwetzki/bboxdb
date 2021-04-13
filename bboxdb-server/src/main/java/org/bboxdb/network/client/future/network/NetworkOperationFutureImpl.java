@@ -112,6 +112,11 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(NetworkOperationFutureImpl.class);
+	
+	/**
+	 * The number of reties for operations that should fail fast
+	 */
+	public static final int FAST_FAIL_RETRIES = 3;
 
 	/**
 	 * Empty constructor
