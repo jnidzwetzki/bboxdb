@@ -689,11 +689,16 @@ public class BBoxDBConnection {
 
 			pendingCalls.put(sequenceNumber, future);
 		}
+		
 
 		try {
 			synchronized (pendingCalls) {
+				final int curPendingCalls = pendingCalls.size();
+				
+				logger.debug("Pedending call for server={} are={}", serverAddress, curPendingCalls);
+				
 				// Ensure that not more then maxInFlightCalls are active
-				while(pendingCalls.size() > maxInFlightCalls) {
+				while(curPendingCalls > maxInFlightCalls) {
 					pendingCalls.wait();
 				}
 			}
