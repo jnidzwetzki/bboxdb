@@ -77,7 +77,7 @@ public class IndexedTupleUpdateHelper {
 
 	public IndexedTupleUpdateHelper(final BBoxDBCluster cluster) {
 		this.cluster = cluster;
-		this.futureStore = new FixedSizeFutureStore(10);
+		this.futureStore = new FixedSizeFutureStore(10, true);
 
 		// Log failed futures
 		futureStore.addFailedFutureCallback(f -> logger.error("Failed future" + f.getAllMessages()));

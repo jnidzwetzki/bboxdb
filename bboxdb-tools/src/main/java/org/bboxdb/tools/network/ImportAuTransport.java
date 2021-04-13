@@ -95,7 +95,7 @@ public class ImportAuTransport implements Runnable {
 				this.clustername = clustername;
 				this.distributionGroup = distributionGroup;
 				this.fetchDelay = TimeUnit.SECONDS.toMillis(delay);
-				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 				this.threadPool = Executors.newCachedThreadPool();
 	}
 

@@ -42,7 +42,7 @@ public class TestFixedFutureStore {
 	 */
 	@Test(timeout=30_000)
 	public void testRemove1() {
-		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
+		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10, true);
 		futureStore.removeCompleteFutures();
 	}
 
@@ -51,7 +51,7 @@ public class TestFixedFutureStore {
 	 */
 	@Test(timeout=30_000)
 	public void testTupleStore1() {
-		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
+		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10, true);
 
 		for(int i = 0; i < 20; i++) {
 			final EmptyResultFuture future = new EmptyResultFuture(() -> (new ArrayList<>()));
@@ -64,7 +64,7 @@ public class TestFixedFutureStore {
 	 */
 	@Test(timeout=30_000)
 	public void testTupleStore2() {
-		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
+		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10, true);
 
 		// Fail test on failed callback
 		futureStore.addFailedFutureCallback(c -> {Assert.assertTrue(false);});
@@ -83,7 +83,7 @@ public class TestFixedFutureStore {
 	 */
 	@Test(timeout=30_000)
 	public void testTupleStore3() throws InterruptedException {
-		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
+		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10, true);
 		final AtomicInteger atomicInteger = new AtomicInteger(0);
 
 		futureStore.addFailedFutureCallback(c -> {atomicInteger.incrementAndGet();});
@@ -113,7 +113,7 @@ public class TestFixedFutureStore {
 
 		final BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
 
-		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10);
+		final FixedSizeFutureStore futureStore = new FixedSizeFutureStore(10, true);
 		futureStore.writeStatistics(bw);
 
 		for(int i = 0; i < 20; i++) {

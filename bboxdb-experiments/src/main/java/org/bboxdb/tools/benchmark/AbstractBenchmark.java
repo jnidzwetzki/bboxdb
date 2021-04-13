@@ -69,7 +69,7 @@ public abstract class AbstractBenchmark implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractBenchmark.class);
 
 	public AbstractBenchmark() {
-		pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+		pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 		
 		// Log failed futures
 		pendingFutures.addFailedFutureCallback((f) -> logger.error("Failed future detected: {}", f));

@@ -68,7 +68,7 @@ public class ImportADSB implements Runnable {
 		this.connectionPoint = connectionPoint;
 		this.clustername = clustername;
 		this.tablename = tablename;
-		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 	}
 
 	@Override

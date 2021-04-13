@@ -728,7 +728,7 @@ public class BBoxDBConnection {
 		}
 
 		if(! serverResponseHandler.containsKey(packageType)) {
-			logger.error("Unknown respose package type: {}", packageType);
+			logger.error("Unknown response package type: {}", packageType);
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
 
 			if(future != null) {

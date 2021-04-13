@@ -71,14 +71,23 @@ public class FixedSizeFutureStore {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FixedSizeFutureStore.class);
+	
+	/**
+	 * The failed futures log callback
+	 */
+    private final Consumer<OperationFuture> FAILED_FUTURE_LOG_CALLBACK = (f) -> logger.error("Failed future detected: {} / {}", f, f.getAllMessages());
 
-	public FixedSizeFutureStore(final long maxPendingFutures) {
+	public FixedSizeFutureStore(final long maxPendingFutures, final boolean logFailedFutures) {
 		this.maxPendingFutures = maxPendingFutures;
 		this.failedFutureCallbacks = new ArrayList<>();
 		this.statisticsWriter = null;
 		this.futureCounter = new AtomicLong();
 		this.pendingFutureMap = new ConcurrentHashMap<>();
 		this.stopwatch = Stopwatch.createStarted();
+		
+		if(logFailedFutures) {
+			addFailedFutureCallback(FAILED_FUTURE_LOG_CALLBACK);
+		}
 	}
 
 	/**
@@ -143,6 +152,10 @@ public class FixedSizeFutureStore {
 		final List<OperationFuture> doneFutures = pendingFutureMap.keySet().stream()
 			.filter(f -> f.isDone())
 			.collect(Collectors.toList());
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Removed {} futures", doneFutures.size());
+		}
 		
 		// Handle failed futures
 		doneFutures.stream()

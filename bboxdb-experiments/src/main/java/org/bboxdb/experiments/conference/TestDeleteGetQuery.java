@@ -200,7 +200,7 @@ public class TestDeleteGetQuery implements Runnable {
 		@SuppressWarnings("resource")
 		final Runnable run = () -> {
 			try {
-				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
+				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000, true);
 
 				for(int i = 0; i < queries; i++) {
 					final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);
@@ -234,7 +234,7 @@ public class TestDeleteGetQuery implements Runnable {
 		final Runnable run = () -> {
 
 			try {
-				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
+				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000, true);
 
 				for(int i = 0; i < queries; i++) {
 					final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);

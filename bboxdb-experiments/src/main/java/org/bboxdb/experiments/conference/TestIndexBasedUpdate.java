@@ -197,7 +197,7 @@ public class TestIndexBasedUpdate implements Runnable {
 	private Runnable getNewRunableNonIndex(final BBoxDBCluster bboxDBConnection, final int dimensions) {
 		final Runnable run = () -> {
 			final ExecutorService executor = Executors.newFixedThreadPool(100);
-			final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
+			final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000, true);
 
 			for(int i = 0; i < queries; i++) {
 				final Runnable runable = () -> {
@@ -263,7 +263,7 @@ public class TestIndexBasedUpdate implements Runnable {
 		final Runnable run = () -> {
 
 			try {
-				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000);
+				final FixedSizeFutureStore pendingFutures = new FixedSizeFutureStore(1000, true);
 				final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(bboxDBConnection);
 
 				for(int i = 0; i < queries; i++) {

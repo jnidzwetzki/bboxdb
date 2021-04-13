@@ -108,7 +108,7 @@ public class CLI implements Runnable, AutoCloseable {
 		this.line = line;
 
 		// The pending future store
-		pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+		pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 
 		// Log failed futures
 		pendingFutures.addFailedFutureCallback((f) -> {

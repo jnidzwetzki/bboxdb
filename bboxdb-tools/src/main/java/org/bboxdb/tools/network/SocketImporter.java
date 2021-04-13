@@ -111,7 +111,7 @@ public class SocketImporter implements Runnable {
 				this.tupleFactory = tupleFactory;
 				this.enlargement = enlargement;
 				this.insertOptions = insertOptions;
-				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+				this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 	}
 
 	@Override

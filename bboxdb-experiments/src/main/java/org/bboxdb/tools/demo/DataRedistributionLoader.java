@@ -112,15 +112,10 @@ public class DataRedistributionLoader implements Runnable {
 		this.numberOfFilesToLoad = numberOfFilesToLoad;
 		this.bboxDBCluster = bboxDBCluster;
 		this.loadedFiles = new HashSet<>();
-		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 		this.files = files.split(":");
 		this.tupleBuilder = new GeoJSONTupleBuilder();
 		this.random = new Random();
-
-		// Log failed futures
-		pendingFutures.addFailedFutureCallback(
-				(f) -> logger.error("Failed future detected: {} / {}", f, f.getAllMessages()
-		));
 	}
 
 	/**
