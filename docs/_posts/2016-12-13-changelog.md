@@ -16,6 +16,7 @@ order: 1
 - Improvement: Register failed future logger per default in FixedSizeFutureStore
 - Improvement: Let certain interactive based operations (e.g., create and delete table) fail fast
 - Improvement: Added UUID to continuous queries
+- Improvement: Prevent the duplicate registration of continuous queries
 - Bugfix: When a distribution group is created, the server call waits until the changes in Zookeeper are visible
 - Bugfix: The client performs table name check before insert operation is executed
 - Bugfix: Don't decrease the update timestamp for node mutations

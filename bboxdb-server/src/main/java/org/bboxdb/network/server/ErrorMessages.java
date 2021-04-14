@@ -74,6 +74,12 @@ public class ErrorMessages {
 	 */
 	public final static String ERROR_QUERY_SHUTDOWN = "Unable to execute query, server started shutdown";
 
+
+	/**
+	 * Exception during query registration
+	 */
+	public final static String ERROR_QUERY_CONTINOUS_DUPLICATE = "Unable to register duplicate query, check server logs";
+
 	/**
 	 * Routing failed
 	 */

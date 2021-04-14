@@ -753,6 +753,21 @@ public class TestNetworkCommunication {
 
 		disconnect(bboxDBClient);
 	}
+	
+	/**
+	 * Try to re-register the same query
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 * @throws BBoxDBException
+	 */
+	@Test(timeout=60000)
+	public void testContinousQueryRegisterFail() throws InterruptedException, ExecutionException, BBoxDBException {
+		final BBoxDBConnection bboxdbConnection = connectToServer();
+		final BBoxDBClient bboxDBClient = bboxdbConnection.getBboxDBClient();
+
+		NetworkQueryHelper.testQueryContinousFailed(bboxDBClient, DISTRIBUTION_GROUP);
+		disconnect(bboxDBClient);
+	}
 
 	/**
 	 * Insert some tuples and start a bounding box query afterwards

@@ -597,4 +597,12 @@ public class ContinuousClientQuery implements ClientQuery {
 	public long getTotalSendTuples() {
 		return totalSendTuples;
 	}
+	
+	/**
+	 * Get the current query plan
+	 * @return
+	 */
+	public ContinuousQueryPlan getQueryPlan() {
+		return queryPlan;
+	}
 }

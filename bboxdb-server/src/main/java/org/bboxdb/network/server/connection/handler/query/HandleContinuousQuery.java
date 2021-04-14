@@ -19,6 +19,7 @@ package org.bboxdb.network.server.connection.handler.query;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryContinuousRequest;
@@ -50,7 +51,9 @@ public class HandleContinuousQuery implements QueryHandler {
 					throws IOException, PackageEncodeException {
 		
 		try {
-			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
+			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
+			
+			if(activeQueries.containsKey(packageSequence)) {
 				logger.error("Query sequence {} is already known, please close old query first", packageSequence);
 				return;
 			}
@@ -65,10 +68,25 @@ public class HandleContinuousQuery implements QueryHandler {
 				return;
 			}
 						
-			final ClientQuery clientQuery = new ContinuousClientQuery(queryPlan,
+			final ContinuousClientQuery clientQuery = new ContinuousClientQuery(queryPlan,
 					clientConnectionHandler, packageSequence);
 			
-			clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
+			final String newUUID = clientQuery.getQueryPlan().getQueryUUID();
+
+			for(final ClientQuery query : activeQueries.values()) {
+				if(query instanceof ContinuousClientQuery) {
+					final ContinuousClientQuery registeredQuery = (ContinuousClientQuery) query;
+					final String knownUUID = registeredQuery.getQueryPlan().getQueryUUID();
+
+					if(knownUUID.equals(newUUID)) {
+						logger.error("Unable to register query, UUID {} already known", knownUUID);
+						clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_CONTINOUS_DUPLICATE));	
+						return;
+					}
+				}
+			}
+			
+			activeQueries.put(packageSequence, clientQuery);
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);

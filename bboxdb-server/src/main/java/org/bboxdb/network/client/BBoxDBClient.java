@@ -445,12 +445,20 @@ public class BBoxDBClient implements BBoxDB {
 					queryPlan.getStreamTable(), queryPlan.getQueryRange(), false, connection.getServerAddress());
 
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
-
+	
 			return new QueryContinuousRequest(
 					nextSequenceNumber, routingHeaderSupplier, queryPlan);
 		};
 
-		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
+
+		return () -> {
+			final NetworkOperationFutureImpl future = new NetworkOperationFutureImpl(connection, packageSupplier);
+			
+			// Let the operation fail fast
+			future.setTotalRetries(NetworkOperationFutureImpl.FAST_FAIL_RETRIES);
+			
+			return Arrays.asList(future);
+		};
 	}
 
 	/* (non-Javadoc)

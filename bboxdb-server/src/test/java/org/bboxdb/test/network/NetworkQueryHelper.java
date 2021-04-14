@@ -185,6 +185,36 @@ public class NetworkQueryHelper {
 		return Lists.newArrayList(future.iterator());
 	}
 
+
+
+	/**
+	 * Test a duplicate continuous query registration
+	 * @param bboxDBConnection
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	public static void testQueryContinousFailed(final BBoxDBClient bboxDBClient, final String distributionGroup)
+			throws BBoxDBException, InterruptedException {
+
+		System.out.println("=== Running testBoundingBoxQueryContinous 1");
+		final String table = distributionGroup + "_relation9991";
+
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForCompletion();
+		Assert.assertFalse(resultCreateTable.isFailed());
+
+		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
+				.createQueryOnTable(table)
+				.forAllNewTuplesInSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
+				.compareWithStaticSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
+				.build();
+
+		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
+		Assert.assertFalse(queryFuture.isFailed());
+		
+	}
+	
 	/**
 	 * Test a bounding box query
 	 * @param bboxDBConnection
