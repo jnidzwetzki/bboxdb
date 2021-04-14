@@ -73,18 +73,12 @@ public class HandleContinuousQuery implements QueryHandler {
 			
 			final String newUUID = clientQuery.getQueryPlan().getQueryUUID();
 
-			for(final ClientQuery query : activeQueries.values()) {
-				if(query instanceof ContinuousClientQuery) {
-					final ContinuousClientQuery registeredQuery = (ContinuousClientQuery) query;
-					final String knownUUID = registeredQuery.getQueryPlan().getQueryUUID();
-
-					if(knownUUID.equals(newUUID)) {
-						logger.error("Unable to register query, UUID {} already known", knownUUID);
-						clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_CONTINOUS_DUPLICATE));	
-						return;
-					}
-				}
-			}
+			final boolean alreadyRegistered = isQueryAlreadyRegistered(packageSequence, clientConnectionHandler, activeQueries, newUUID);
+		
+			if(alreadyRegistered) {
+				logger.error("Unable to register query, UUID {} already known", newUUID);
+				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_CONTINOUS_DUPLICATE));	
+			} 
 			
 			activeQueries.put(packageSequence, clientQuery);
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
@@ -92,5 +86,34 @@ public class HandleContinuousQuery implements QueryHandler {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}		
+	}
+
+
+	/**
+	 * Is the query with the given UUID already registered?
+	 * @param packageSequence
+	 * @param clientConnectionHandler
+	 * @param activeQueries
+	 * @param newUUID
+	 * @return 
+	 * @throws IOException
+	 * @throws PackageEncodeException
+	 */
+	private boolean isQueryAlreadyRegistered(final short packageSequence,
+			final ClientConnectionHandler clientConnectionHandler, final Map<Short, ClientQuery> activeQueries,
+			final String newUUID) throws IOException, PackageEncodeException {
+		
+		for(final ClientQuery query : activeQueries.values()) {
+			if(query instanceof ContinuousClientQuery) {
+				final ContinuousClientQuery registeredQuery = (ContinuousClientQuery) query;
+				final String knownUUID = registeredQuery.getQueryPlan().getQueryUUID();
+
+				if(knownUUID.equals(newUUID)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 }
