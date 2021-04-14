@@ -216,6 +216,7 @@ public class NetworkQueryHelper {
 		
 		// Register query
 		final JoinedTupleListFuture queryFuture2 = bboxDBClient.queryContinuous(constQueryPlan);
+		queryFuture2.waitForCompletion();
 		Assert.assertTrue(queryFuture2.isFailed());
 		
 	}
