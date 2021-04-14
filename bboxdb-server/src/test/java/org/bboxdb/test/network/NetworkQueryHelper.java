@@ -211,7 +211,7 @@ public class NetworkQueryHelper {
 				.build();
 
 		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
-		Assert.assertFalse(queryFuture.isFailed());
+		Assert.assertTrue(queryFuture.isFailed());
 		
 	}
 	
