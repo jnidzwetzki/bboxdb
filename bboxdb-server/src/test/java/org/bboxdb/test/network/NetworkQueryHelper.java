@@ -210,8 +210,13 @@ public class NetworkQueryHelper {
 				.compareWithStaticSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
 				.build();
 
-		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
-		Assert.assertTrue(queryFuture.isFailed());
+		final JoinedTupleListFuture queryFuture1 = bboxDBClient.queryContinuous(constQueryPlan);
+		Assert.assertFalse(queryFuture1.isFailed());
+		
+		
+		// Register query
+		final JoinedTupleListFuture queryFuture2 = bboxDBClient.queryContinuous(constQueryPlan);
+		Assert.assertTrue(queryFuture2.isFailed());
 		
 	}
 	
