@@ -19,6 +19,7 @@ package org.bboxdb.test.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
@@ -76,7 +77,8 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery1() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("abc", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
+				"abc", 
 				new ArrayList<>(), 
 				Hyperrectangle.FULL_SPACE, 
 				new Hyperrectangle(12d, 13d, 14d, 15d), false, new ArrayList<>());
@@ -86,7 +88,8 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery2() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
+				"testtable", 
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), true, new ArrayList<>());
@@ -97,7 +100,8 @@ public class TestContinuousQueryPlan {
 
 	@Test(timeout=60_000)
 	public void testConstQuery3() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
+				"testtable", 
 				Arrays.asList(new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d))), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), true, new ArrayList<>());
@@ -107,7 +111,8 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery4() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
+				"testtable", 
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd")), 
@@ -119,7 +124,8 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testConstQuery5() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan("testtable", 
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
+				"testtable", 
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd"),
@@ -132,7 +138,8 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery1() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousSpatialJoinQueryPlan("mytable", "mytable",
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousSpatialJoinQueryPlan(UUID.randomUUID().toString(),
+				"mytable", "mytable",
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				new ArrayList<>(), 
@@ -144,7 +151,8 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery2() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousSpatialJoinQueryPlan("mytable", "mytable",
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousSpatialJoinQueryPlan(UUID.randomUUID().toString(),
+				"mytable", "mytable",
 				new ArrayList<>(), 
 				new Hyperrectangle(12d, 13d, 14d, 15d), 
 				Arrays.asList(
@@ -161,7 +169,8 @@ public class TestContinuousQueryPlan {
 	
 	@Test(timeout=60_000)
 	public void testTableQuery3() throws BBoxDBException {
-		final ContinuousQueryPlan continuousQueryPlan = new ContinuousSpatialJoinQueryPlan("mytable", "mytable",
+		final ContinuousQueryPlan continuousQueryPlan = new ContinuousSpatialJoinQueryPlan(UUID.randomUUID().toString(),
+				"mytable", "mytable",
 				Arrays.asList(
 						new BoundingBoxFilterTransformation(new Hyperrectangle(12d, 13d, 14d, 15d)),
 						new KeyFilterTransformation("abcd"),

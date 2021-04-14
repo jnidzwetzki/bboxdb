@@ -36,14 +36,14 @@ public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
 	 */
 	private final boolean reportPositive;
 
-	public ContinuousRangeQueryPlan(final String streamTable,
+	public ContinuousRangeQueryPlan(final String queryUUID, final String streamTable,
 			final List<TupleTransformation> streamTransformation,
 			final Hyperrectangle queryRectangle,
 			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative, 
 			final List<UserDefinedFilterDefinition> streamFilters) {
 		
-			super(streamTable, streamTransformation, queryRectangle, streamFilters);
+			super(queryUUID, streamTable, streamTransformation, queryRectangle, streamFilters);
 			this.compareRectangle = Objects.requireNonNull(compareRectangle);
 			this.reportPositive = reportPositiveNegative;
 	}

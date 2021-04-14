@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -572,7 +573,8 @@ public class TestNetworkClasses {
 	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PackageEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
-		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), boundingBox, boundingBox, true, new ArrayList<>());
+		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
+				table, new ArrayList<>(), boundingBox, boundingBox, true, new ArrayList<>());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final QueryContinuousRequest queryRequest = new QueryContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, constQueryPlan);

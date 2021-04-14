@@ -43,6 +43,8 @@ public class ContinuousQueryPlanSerializer {
 	 */
 	private static final String TYPE_KEY = "type";
 	private static final String TYPE_VALUE = "query-plan";
+	private static final String QUERY_UUID = "query-uuid";
+	
 
 	/**
 	 * Query type key and values
@@ -103,6 +105,7 @@ public class ContinuousQueryPlanSerializer {
 	public static String toJSON(final ContinuousQueryPlan queryPlan) {
 		final JSONObject json = new JSONObject();
 		json.put(TYPE_KEY, TYPE_VALUE);
+		json.put(QUERY_UUID, queryPlan.getQueryUUID());
 		
 		if(queryPlan instanceof ContinuousRangeQueryPlan) {
 			json.put(QUERY_TYPE_KEY, QUERY_TYPE_RANGE_VALUE);
@@ -219,6 +222,7 @@ public class ContinuousQueryPlanSerializer {
 				throw new BBoxDBException("JSON does not contain a valid query plan: " + jsonString);
 			}
 			
+			final String queryUUID = json.getString(QUERY_UUID);
 			final String queryType = json.getString(QUERY_TYPE_KEY);
 			final String streamTable = json.getString(STREAM_TABLE_KEY);
 			final Hyperrectangle queryRectangle = Hyperrectangle.fromString(json.getString(QUERY_RANGE_KEY));
@@ -234,7 +238,7 @@ public class ContinuousQueryPlanSerializer {
 
 				final Hyperrectangle compareRectangle = Hyperrectangle.fromString(json.getString(COMPARE_RECTANGLE_KEY));
 				
-				final ContinuousRangeQueryPlan constQuery = new ContinuousRangeQueryPlan(streamTable, 
+				final ContinuousRangeQueryPlan constQuery = new ContinuousRangeQueryPlan(queryUUID, streamTable, 
 						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative, streamFilters);
 				
 				return constQuery;
@@ -246,7 +250,7 @@ public class ContinuousQueryPlanSerializer {
 				
 				final String joinTable = json.getString(JOIN_TABLE_KEY);
 				
-				final ContinuousSpatialJoinQueryPlan tableQuery = new ContinuousSpatialJoinQueryPlan(streamTable, 
+				final ContinuousSpatialJoinQueryPlan tableQuery = new ContinuousSpatialJoinQueryPlan(queryUUID, streamTable, 
 						joinTable, streamTransformation, queryRectangle, 
 						tableTransformation, streamFilters, joinFilters);
 		

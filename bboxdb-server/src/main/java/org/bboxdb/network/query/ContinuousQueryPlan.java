@@ -40,19 +40,31 @@ public abstract class ContinuousQueryPlan {
 	 * The range filters
 	 */
 	private final List<UserDefinedFilterDefinition> streamFilters;
+	
+	/**
+	 * The query UUID
+	 */
+	private final String queryUUID;
 
 	/**
 	 * The query range
 	 */
 	private Hyperrectangle queryRange;
 
-	public ContinuousQueryPlan(final String streamTable, final List<TupleTransformation> streamTransformation, 
-			final Hyperrectangle queryRange, final List<UserDefinedFilterDefinition> streamFilters) {
+	public ContinuousQueryPlan(final String queryUUID, final String streamTable, 
+			final List<TupleTransformation> streamTransformation, 
+			final Hyperrectangle queryRange, 
+			final List<UserDefinedFilterDefinition> streamFilters) {
 		
+		this.queryUUID = queryUUID;
 		this.streamTable = Objects.requireNonNull(streamTable);
 		this.streamTransformation = Objects.requireNonNull(streamTransformation);
 		this.queryRange = Objects.requireNonNull(queryRange);
 		this.streamFilters = Objects.requireNonNull(streamFilters);
+	}
+	
+	public String getQueryUUID() {
+		return queryUUID;
 	}
 
 	public String getStreamTable() {
@@ -74,7 +86,7 @@ public abstract class ContinuousQueryPlan {
 	@Override
 	public String toString() {
 		return "ContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation=" + streamTransformation
-				+ ", streamFilters=" + streamFilters + ", queryRange=" + queryRange + "]";
+				+ ", streamFilters=" + streamFilters + ", queryUUID=" + queryUUID + ", queryRange=" + queryRange + "]";
 	}
 
 	@Override
@@ -82,6 +94,7 @@ public abstract class ContinuousQueryPlan {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((queryRange == null) ? 0 : queryRange.hashCode());
+		result = prime * result + ((queryUUID == null) ? 0 : queryUUID.hashCode());
 		result = prime * result + ((streamFilters == null) ? 0 : streamFilters.hashCode());
 		result = prime * result + ((streamTable == null) ? 0 : streamTable.hashCode());
 		result = prime * result + ((streamTransformation == null) ? 0 : streamTransformation.hashCode());
@@ -101,6 +114,11 @@ public abstract class ContinuousQueryPlan {
 			if (other.queryRange != null)
 				return false;
 		} else if (!queryRange.equals(other.queryRange))
+			return false;
+		if (queryUUID == null) {
+			if (other.queryUUID != null)
+				return false;
+		} else if (!queryUUID.equals(other.queryUUID))
 			return false;
 		if (streamFilters == null) {
 			if (other.streamFilters != null)

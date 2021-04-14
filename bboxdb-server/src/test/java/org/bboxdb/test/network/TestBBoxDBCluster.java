@@ -18,6 +18,7 @@
 package org.bboxdb.test.network;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
@@ -219,7 +220,9 @@ public class TestBBoxDBCluster {
 
 		// Execute query
 		final Hyperrectangle bbox = new Hyperrectangle(-1d, 2d, -1d, 2d);
-		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(table, new ArrayList<>(), bbox, bbox, true, new ArrayList<>());
+		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
+				table, new ArrayList<>(), bbox, bbox, true, new ArrayList<>());
+		
 		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
 
 		Assert.assertFalse(future.isFailed());

@@ -19,6 +19,7 @@ package org.bboxdb.network.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
@@ -30,6 +31,11 @@ import org.bboxdb.network.query.transformation.KeyFilterTransformation;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 
 public class QueryPlanBuilder {
+	
+	/**
+	 * The query UUID
+	 */
+	private final String queryUUID;
 	
 	/**
 	 * The tablename
@@ -77,6 +83,7 @@ public class QueryPlanBuilder {
 	private boolean reportPositiveMatches;
 
 	public QueryPlanBuilder(final String tablename) {
+		this.queryUUID = UUID.randomUUID().toString();
 		this.streamTable = tablename;
 		this.streamTupleTransformation = new ArrayList<>();
 		this.storedTupleTransformation = new ArrayList<>();
@@ -252,7 +259,7 @@ public class QueryPlanBuilder {
 		}
 		
 		if(regionConst != null) {
-			return new ContinuousRangeQueryPlan(streamTable, streamTupleTransformation, 
+			return new ContinuousRangeQueryPlan(queryUUID, streamTable, streamTupleTransformation, 
 					queryRegion, regionConst, reportPositiveMatches, streamFilters);
 		}
 		
@@ -262,7 +269,7 @@ public class QueryPlanBuilder {
 				throw new IllegalArgumentException("Unable to create continous join queries with negative matches");
 			}
 			
-			return new ContinuousSpatialJoinQueryPlan(streamTable, joinTable, streamTupleTransformation, 
+			return new ContinuousSpatialJoinQueryPlan(queryUUID, streamTable, joinTable, streamTupleTransformation, 
 					queryRegion, storedTupleTransformation, streamFilters, joinFilters);
 		}
 		
