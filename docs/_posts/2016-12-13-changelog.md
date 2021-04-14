@@ -21,6 +21,7 @@ order: 1
 - Bugfix: The client performs table name check before insert operation is executed
 - Bugfix: Don't decrease the update timestamp for node mutations
 - Bugfix: Prevent NPE in RandomSamplesReader on ADS-B data
+- Bugfix: Handle deleted tuples properly in continuous queries
 
 ### Version 0.9.5 - 11.12.2020
 - Improvement: Added shutdown callbacks to network futures

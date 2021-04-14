@@ -53,6 +53,7 @@ import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -193,6 +194,10 @@ public class ContinuousClientQuery implements ClientQuery {
 		final Map<UserDefinedFilter, byte[]> joinFilters = getUserDefinedFilter(qp.getAfterJoinFilter());
 				
 		return (streamTuple) -> {
+			
+			if(streamTuple instanceof DeletedTuple) {
+				return;
+			}
 			
 			final TupleAndBoundingBox transformedStreamTuple 
 				= applyStreamTupleTransformations(streamTransformations, streamTuple);
@@ -398,9 +403,14 @@ public class ContinuousClientQuery implements ClientQuery {
 		
 		final Map<UserDefinedFilter, byte[]> streamFilters = getUserDefinedFilter(qp.getStreamFilters());
 		
-		return (t) -> {
+		return (streamTuple) -> {
+			
+			if(streamTuple instanceof DeletedTuple) {
+				return;
+			}
+			
 			final List<TupleTransformation> transformations = rangeQueryPlan.getStreamTransformation(); 
-			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, t);
+			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, streamTuple);
 			
 			// Tuple was removed during transformation
 			if(tuple == null) {
@@ -408,7 +418,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			}
 			
 			// Perform stream UDFs
-			final boolean udfMatches = doUserDefinedFilterMatch(t, streamFilters);
+			final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, streamFilters);
 			
 			if(! udfMatches) {
 				return;
@@ -417,12 +427,12 @@ public class ContinuousClientQuery implements ClientQuery {
 			// Is the tuple important for the query?
 			if(tuple.getBoundingBox().intersects(rangeQueryPlan.getCompareRectangle())) {
 				if(rangeQueryPlan.isReportPositive()) {
-					final MultiTuple joinedTuple = new MultiTuple(t, requestTable.getFullname());
+					final MultiTuple joinedTuple = new MultiTuple(streamTuple, requestTable.getFullname());
 					queueTupleForClientProcessing(joinedTuple);
 				}
 			} else {
 				if(! rangeQueryPlan.isReportPositive()) {
-					final MultiTuple joinedTuple = new MultiTuple(t, requestTable.getFullname());
+					final MultiTuple joinedTuple = new MultiTuple(streamTuple, requestTable.getFullname());
 					queueTupleForClientProcessing(joinedTuple);
 				}
 			}
