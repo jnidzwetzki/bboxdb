@@ -25,7 +25,7 @@ public class Const {
 	/**
 	 *  The version of the software
 	 */
-	public final static String VERSION = "0.9.6";
+	public final static String VERSION = "0.9.7";
 
 	/**
 	 * The name of the configuration file
