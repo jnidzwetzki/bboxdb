@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.9.6 - TBA
+### Version 0.9.6 - 14.04.2021
 - New Feature: Predefined queries in the GUI
 - New Feature: UDF support for the stream elements in continuous queries
 - New Feature: Made continuousSpatialJoinFetch mode configurable
