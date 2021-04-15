@@ -1185,7 +1185,7 @@ public class CLI implements Runnable, AutoCloseable {
 	private void actionCreateDgroup(final CommandLine line) {
 
 		final List<String> requiredArgs = Arrays.asList(CLIParameter.DISTRIBUTION_GROUP,
-				CLIParameter.DIMENSIONS, CLIParameter.REPLICATION_FACTOR);
+				CLIParameter.DIMENSIONS);
 
 		checkRequiredArgs(requiredArgs);
 
@@ -1215,7 +1215,8 @@ public class CLI implements Runnable, AutoCloseable {
 
 		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
 
-		final String replicationFactorString = line.getOptionValue(CLIParameter.REPLICATION_FACTOR);
+		final String replicationFactorString = CLIHelper.getParameterOrDefault(line, 
+				CLIParameter.REPLICATION_FACTOR, "1");
 
 		final int replicationFactor = MathUtil.tryParseIntOrExit(replicationFactorString,
 				() -> "This is not a valid replication factor: " + replicationFactorString);
