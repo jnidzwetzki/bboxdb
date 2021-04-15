@@ -399,7 +399,7 @@ make
 Now, BBoxDB can be prepared for the import of the data stream. A proper distribution group and a table for the data stream have to be created:
 
 ```
-$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -replicationfactor 1 -dimensions 2 -maxregionsize 10485760
+$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup osmgroup -dimensions 2 -maxregionsize 10485760
 $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_berlinmod
 ```
 
