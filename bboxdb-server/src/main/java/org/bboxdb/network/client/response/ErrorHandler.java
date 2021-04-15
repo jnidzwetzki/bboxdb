@@ -46,7 +46,8 @@ public class ErrorHandler implements ServerResponseHandler {
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Handle error package (seq={}, message={})", result.getSequenceNumber(), result.getBody());
+			logger.debug("Handle error package (seq={}, message={} from={})", 
+					result.getSequenceNumber(), result.getBody(), bBoxDBConnection.getConnectionName());
 		}
 		
 		if(future != null) {

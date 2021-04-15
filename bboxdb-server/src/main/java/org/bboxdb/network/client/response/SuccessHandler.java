@@ -47,7 +47,8 @@ public class SuccessHandler implements ServerResponseHandler {
 		final AbstractBodyResponse result = SuccessResponse.decodePackage(encodedPackage);
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Handle success package (seq={})", result.getSequenceNumber());
+			logger.debug("Handle success package (seq={}) from={}", 
+					result.getSequenceNumber(), bBoxDBConnection.getConnectionName());
 		}
 		
 		if(future != null) {
