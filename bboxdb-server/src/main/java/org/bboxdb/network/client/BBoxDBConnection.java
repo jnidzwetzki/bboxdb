@@ -693,11 +693,9 @@ public class BBoxDBConnection {
 
 		try {
 			synchronized (pendingCalls) {
-				final int curPendingCalls = pendingCalls.size();
-				
 				// Ensure that not more then maxInFlightCalls are active
-				while(curPendingCalls > maxInFlightCalls) {
-					logger.info("Wait queue for={} is full ({})", serverAddress, curPendingCalls);
+				while(pendingCalls.size() > maxInFlightCalls) {
+					logger.info("Wait queue for={} is full ({})", serverAddress, pendingCalls.size());
 					logger.debug("Pending calls for server={} are={}", serverAddress, pendingCalls.keySet());
 					pendingCalls.wait();
 				}
