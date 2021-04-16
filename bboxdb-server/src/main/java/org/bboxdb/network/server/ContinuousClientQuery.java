@@ -90,6 +90,11 @@ public class ContinuousClientQuery implements ClientQuery {
 	private long totalSendTuples;
 	
 	/**
+	 * The total amount of send tuples for this page
+	 */
+	private long tuplesInPage;
+	
+	/**
 	 * Is the continuous query active
 	 */
 	private boolean queryActive = true;
@@ -158,6 +163,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			this.tupleQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
 
 			this.totalSendTuples = 0;
+			this.tuplesInPage = 0;
 			this.storageManager = new ArrayList<>();
 
 			// Add each tuple to our tuple queue
@@ -523,10 +529,15 @@ public class ContinuousClientQuery implements ClientQuery {
 			try {
 				
 				// Finish query _PAGE_ after at least FLUSH_TIME_IN_MS
-				if(System.currentTimeMillis() >= lastFlushTime + FLUSH_TIME_IN_MS) {
+				if(System.currentTimeMillis() >= lastFlushTime + FLUSH_TIME_IN_MS && tuplesInPage > 0) {
+					
+					logger.debug("Flushing page for continous query {}, old time {}, cur time {}, send tuples {}",
+							packageSequence, lastFlushTime, System.currentTimeMillis(), totalSendTuples);
+					
 					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 					clientConnectionHandler.flushPendingCompressionPackages();
 					lastFlushTime = System.currentTimeMillis();
+					tuplesInPage = 0;
 					return;
 				}
 				
@@ -546,8 +557,14 @@ public class ContinuousClientQuery implements ClientQuery {
 					continue;
 				}
 				
+				if(logger.isDebugEnabled()) {
+					logger.debug("Adding tuple to query {}", packageSequence);
+				}
+				
 				clientConnectionHandler.writeResultTuple(packageSequence, tuple, true);
 				totalSendTuples++;
+				tuplesInPage++;
+				
 			} catch (InterruptedException e) {
 				logger.info("Thread was interrupted while waiting for new tuples");
 				this.queryActive = false;
