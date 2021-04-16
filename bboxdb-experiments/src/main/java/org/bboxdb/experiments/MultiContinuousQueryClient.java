@@ -126,6 +126,11 @@ public class MultiContinuousQueryClient implements Runnable {
 			try {
 				queryFuture.waitForCompletion();
 				
+				if(queryFuture.isFailed()) {
+					logger.error("Query error {}", queryFuture.getAllMessages());
+					return;
+				}
+				
 				for(final MultiTuple tuple : queryFuture) {
 					tuple.getBoundingBox(); // Consume and ignore the tuple
 				}
