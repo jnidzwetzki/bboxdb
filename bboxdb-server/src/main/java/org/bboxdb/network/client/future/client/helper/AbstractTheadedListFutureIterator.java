@@ -156,6 +156,10 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 
 				AbstractListFuture<T> nextPage = null;
 				do {
+					 if(logger.isDebugEnabled()) {
+						 logger.debug("Requesting next page for {}", queryRequestId);
+					 }
+					 
 					 nextPage = (AbstractListFuture<T>) bbBoxDBClient.getNextPage(queryRequestId);
 
 					 nextPage.waitForCompletion();
