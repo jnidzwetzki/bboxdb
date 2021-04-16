@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
@@ -397,7 +399,9 @@ public class BBoxDBCluster implements BBoxDB {
 		
 		final List<DistributionRegion> regions = DistributionRegionHelper
 				.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
-				
+		
+		final Set<BBoxDBInstance> knownSystems = new HashSet<BBoxDBInstance>();
+		
 		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
 
 			final List<NetworkOperationFuture> resultList = new ArrayList<>();
@@ -409,6 +413,13 @@ public class BBoxDBCluster implements BBoxDB {
 				}
 
 				final BBoxDBInstance firstSystem = regionToQuery.getSystems().get(0);
+				
+				// Register query only one time per system
+				if(knownSystems.contains(firstSystem)) {
+					continue;
+				}
+				
+				knownSystems.add(firstSystem);
 				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
 
 				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();

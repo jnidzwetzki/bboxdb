@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.7 - TBA
+- Improvement: Register a continuous query only one time per instance
 - Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 - Bugfix: Don't start response handler for duplicate continuous queries
 
