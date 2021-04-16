@@ -175,7 +175,13 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 						 logger.error("Got a non expected number of result objects {}", nextPage.getNumberOfResultObjets());
 					 }
 
-					 addTupleListToQueue(nextPage.get(0));
+					 final List<T> tuples = nextPage.get(0);
+					 
+					 if(logger.isDebugEnabled()) {
+						 logger.debug("Next page for {} contains {} tuples", queryRequestId, tuples.size());
+					 }
+					 
+					 addTupleListToQueue(tuples);
 
 				} while(! nextPage.isCompleteResult(0));
 			}
