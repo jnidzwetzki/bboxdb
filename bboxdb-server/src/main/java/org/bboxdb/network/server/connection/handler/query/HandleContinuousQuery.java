@@ -78,10 +78,10 @@ public class HandleContinuousQuery implements QueryHandler {
 			if(alreadyRegistered) {
 				logger.error("Unable to register query, UUID {} already known", newUUID);
 				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_CONTINOUS_DUPLICATE));	
-			} 
-			
-			activeQueries.put(packageSequence, clientQuery);
-			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
+			} else {
+				activeQueries.put(packageSequence, clientQuery);
+				clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
+			}
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
