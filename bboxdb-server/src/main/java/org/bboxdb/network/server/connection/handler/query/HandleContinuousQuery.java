@@ -67,18 +67,18 @@ public class HandleContinuousQuery implements QueryHandler {
 			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
 				return;
 			}
-						
-			final ContinuousClientQuery clientQuery = new ContinuousClientQuery(queryPlan,
-					clientConnectionHandler, packageSequence);
 			
-			final String newUUID = clientQuery.getQueryPlan().getQueryUUID();
+			final String newUUID = queryPlan.getQueryUUID();
 
-			final boolean alreadyRegistered = isQueryAlreadyRegistered(packageSequence, clientConnectionHandler, activeQueries, newUUID);
+			final boolean alreadyRegistered = isQueryAlreadyRegistered(activeQueries, newUUID);
 		
 			if(alreadyRegistered) {
 				logger.error("Unable to register query, UUID {} already known", newUUID);
 				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_CONTINOUS_DUPLICATE));	
 			} else {
+				final ContinuousClientQuery clientQuery = new ContinuousClientQuery(queryPlan,
+						clientConnectionHandler, packageSequence);
+				
 				activeQueries.put(packageSequence, clientQuery);
 				clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
 			}
@@ -91,16 +91,13 @@ public class HandleContinuousQuery implements QueryHandler {
 
 	/**
 	 * Is the query with the given UUID already registered?
-	 * @param packageSequence
-	 * @param clientConnectionHandler
 	 * @param activeQueries
 	 * @param newUUID
 	 * @return 
 	 * @throws IOException
 	 * @throws PackageEncodeException
 	 */
-	private boolean isQueryAlreadyRegistered(final short packageSequence,
-			final ClientConnectionHandler clientConnectionHandler, final Map<Short, ClientQuery> activeQueries,
+	private boolean isQueryAlreadyRegistered(final Map<Short, ClientQuery> activeQueries,
 			final String newUUID) throws IOException, PackageEncodeException {
 		
 		for(final ClientQuery query : activeQueries.values()) {
