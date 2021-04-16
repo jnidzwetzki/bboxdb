@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.7 - TBA
+- Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 
 ### Version 0.9.6 - 14.04.2021
 - New Feature: Predefined queries in the GUI
