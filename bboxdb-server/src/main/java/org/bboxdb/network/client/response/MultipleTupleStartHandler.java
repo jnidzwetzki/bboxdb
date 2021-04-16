@@ -47,6 +47,11 @@ public class MultipleTupleStartHandler implements ServerResponseHandler {
 			logger.debug("Handle multiple tuple start package");
 		}
 		
+		if(future == null) {
+			logger.error("We don't have a result future for sequence nummer {}");
+			return true;
+		}
+		
 		future.setOperationResult(new ArrayList<PagedTransferableEntity>());
 		
 		return false;

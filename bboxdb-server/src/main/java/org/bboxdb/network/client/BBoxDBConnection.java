@@ -725,10 +725,7 @@ public class BBoxDBConnection {
 			future = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}
 
-		if(future == null) {
-			logger.error("We don't have a result future for sequence nummer {}", sequenceNumber);
-			removeFutureAndReleaseSequencenumber(sequenceNumber);
-		} else if(! serverResponseHandler.containsKey(packageType)) {
+		if(! serverResponseHandler.containsKey(packageType)) {
 			logger.error("Unknown response package type: {}", packageType);
 			removeFutureAndReleaseSequencenumber(sequenceNumber);
 
