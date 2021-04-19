@@ -17,23 +17,31 @@
  *******************************************************************************/
 package org.bboxdb.experiments.misc;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.tools.FileLineIndex;
 import org.bboxdb.tools.TupleFileReader;
+import org.bboxdb.tools.converter.tuple.TupleBuilder;
+import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +78,10 @@ public class StreamSampling implements Runnable {
 
 	@Override
 	public void run() {
+		
+		performSamplingBasedPartitioning();
+		
+		// Element based partitioning
 		final List<Integer> sampleSizes = Arrays.asList(
 			100, 250, 500, 750, 
 			1000, 1250, 1500, 1750,
@@ -86,6 +98,64 @@ public class StreamSampling implements Runnable {
 		);
 
 		sampleSizes.forEach(s -> runExperiment(s));
+
+	}
+
+	/**
+	 * Perform a sampling based partitoning
+	 * @param fli
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 */
+	private void performSamplingBasedPartitioning() {
+		
+		try(final FileLineIndex fli = new FileLineIndex(filename)) {
+			// Sampling based partitioning
+			System.out.format("Indexing %s%n", filename);
+			fli.indexFile();
+			System.out.format("Indexing %s done%n", filename);
+			
+			final long numberOfElements = fli.getIndexedLines();
+			final int samples = (int) (numberOfElements * 0.001);
+			System.out.println("Taking samples: " + samples);
+			
+			final Set<Long> takenSamples = new HashSet<>();
+			final List<Hyperrectangle> takenBoxes = new ArrayList<>();
+	
+			final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
+			try(
+					final RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "r");
+				) {
+	
+				while(takenSamples.size() < samples) {
+					final long sampleId = ThreadLocalRandom.current().nextLong(numberOfElements);
+	
+					if(takenSamples.contains(sampleId)) {
+						continue;
+					}
+	
+					// Line 1 is sample 0 in the file
+					final long pos = fli.locateLine(sampleId + 1);
+					randomAccessFile.seek(pos);
+					final String line = randomAccessFile.readLine();
+				    final Tuple tuple = tupleBuilder.buildTuple(line, Long.toString(sampleId));
+	
+				    // E.g. Table header
+				    if(tuple == null) {
+				    	continue;
+				    }
+	
+					final Hyperrectangle boundingBox = tuple.getBoundingBox();
+					takenBoxes.add(boundingBox);
+					takenSamples.add(sampleId);
+				}
+				
+				final Set<Hyperrectangle> activePartitions = partitionSpace(takenBoxes);
+				performPartitoning(activePartitions);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -95,8 +165,25 @@ public class StreamSampling implements Runnable {
 	 * @throws ClassNotFoundException 
 	 */
 	protected void runExperiment(final int numberOfElements) {
-		final Set<Hyperrectangle> activePartitions = partitionSpace(numberOfElements);
-	
+		try {
+			System.out.println("Simulating with sample size: " + numberOfElements);
+			final List<Hyperrectangle> allSamples = getSamplesFromFile(numberOfElements);
+			
+			final Set<Hyperrectangle> activePartitions = partitionSpace(allSamples);
+			performPartitoning(activePartitions);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Perform the experiment with the given partitioning
+	 * @param activePartitions
+	 */
+	private void performPartitoning(final Set<Hyperrectangle> activePartitions) {
+		
 		final Map<Hyperrectangle, AtomicLong> buckets = new HashMap<>();
 		for(final Hyperrectangle bucket : activePartitions) {
 			buckets.put(bucket, new AtomicLong(0));
@@ -141,82 +228,70 @@ public class StreamSampling implements Runnable {
 	 * @param numberOfElements
 	 * @return
 	 */
-	private Set<Hyperrectangle> partitionSpace(final int numberOfElements) {
+	private Set<Hyperrectangle> partitionSpace(final List<Hyperrectangle> allSamples) {
 		final Map<Hyperrectangle, List<Hyperrectangle>> activeRegions = new HashMap<>();
 		final Map<Hyperrectangle, Integer> dimensions = new HashMap<>();
 		
-		try {
-			System.out.println("Simulating with sample size: " + numberOfElements);
-
-			final List<Hyperrectangle> allSamples = getSamplesFromFile(numberOfElements);
-			
+		final int sampleDimension = allSamples.get(0).getDimension();
+		final Hyperrectangle fullSpace = Hyperrectangle.createFullCoveringDimensionBoundingBox(sampleDimension);
 		
-			final int sampleDimension = allSamples.get(0).getDimension();
-			final Hyperrectangle fullSpace = Hyperrectangle.createFullCoveringDimensionBoundingBox(sampleDimension);
+		activeRegions.put(fullSpace, allSamples);
+		dimensions.put(fullSpace, 0);
+
+		while(activeRegions.keySet().size() < partitions) {
 			
-			activeRegions.put(fullSpace, allSamples);
-			dimensions.put(fullSpace, 0);
+			//System.out.format("We have now %s of %s active partitions, executing split %n", 
+			//		activeRegions.size(), partitions);		
+			
+			// Get the region with the highest amount of contained samples
+			final Hyperrectangle regionToSplit = activeRegions.entrySet()
+				.stream()
+				.max((entry1, entry2) -> entry1.getValue().size() > entry2.getValue().size() ? 1 : -1)
+				.get().getKey();
+			
+			
+			final List<Hyperrectangle> samples = activeRegions.get(regionToSplit);
+			Collections.sort(samples);
 
-			while(activeRegions.keySet().size() < partitions) {
-				
-				//System.out.format("We have now %s of %s active partitions, executing split %n", 
-				//		activeRegions.size(), partitions);		
-				
-				// Get the region with the highest amount of contained samples
-				final Hyperrectangle regionToSplit = activeRegions.entrySet()
-					.stream()
-					.max((entry1, entry2) -> entry1.getValue().size() > entry2.getValue().size() ? 1 : -1)
-					.get().getKey();
-				
-				
-				final List<Hyperrectangle> samples = activeRegions.get(regionToSplit);
-				Collections.sort(samples);
+			final int dimension = dimensions.get(regionToSplit);
+			final Hyperrectangle splitHyperrectangle = samples.get(samples.size() / 2);
+			final DoubleInterval splitPoint = splitHyperrectangle.getIntervalForDimension(dimension);
+			final double midPoint = splitPoint.getMidpoint();
+							
+			System.out.println("Splitting region " + regionToSplit + " at " + midPoint);
 
-				final int dimension = dimensions.get(regionToSplit);
-				final Hyperrectangle splitHyperrectangle = samples.get(samples.size() / 2);
-				final DoubleInterval splitPoint = splitHyperrectangle.getIntervalForDimension(dimension);
-				final double midPoint = splitPoint.getMidpoint();
-								
-				System.out.println("Splitting region " + regionToSplit + " at " + midPoint);
+			
+			Hyperrectangle leftRegion;
+			Hyperrectangle rightRegion;
+			try {
+				leftRegion = regionToSplit.splitAndGetLeft(midPoint, dimension, true);
+				rightRegion = regionToSplit.splitAndGetRight(midPoint, dimension, false);
+			} catch (Exception e) {
+				logger.error("Unable to split, ignoring", e);
+				break;
+			}
 
-				
-				Hyperrectangle leftRegion;
-				Hyperrectangle rightRegion;
-				try {
-					leftRegion = regionToSplit.splitAndGetLeft(midPoint, dimension, true);
-					rightRegion = regionToSplit.splitAndGetRight(midPoint, dimension, false);
-				} catch (Exception e) {
-					logger.error("Unable to split, ignoring", e);
-					break;
-				}
+			final List<Hyperrectangle> newRegions = new ArrayList<>();
+			newRegions.add(leftRegion);
+			newRegions.add(rightRegion);
+			
+			final int nextDimension = (dimension + 1) % splitHyperrectangle.getDimension();
+			dimensions.put(leftRegion, nextDimension);
+			dimensions.put(rightRegion, nextDimension);
 
-				final List<Hyperrectangle> newRegions = new ArrayList<>();
-				newRegions.add(leftRegion);
-				newRegions.add(rightRegion);
-				
-				final int nextDimension = (dimension + 1) % splitHyperrectangle.getDimension();
-				dimensions.put(leftRegion, nextDimension);
-				dimensions.put(rightRegion, nextDimension);
-
-				// Redistribute samples
-				newRegions.forEach(d -> activeRegions.put(d, new ArrayList<>()));
-				final List<Hyperrectangle> oldSamples = activeRegions.remove(regionToSplit);
-				
-				for(final Hyperrectangle sample : oldSamples) {
-					for(final Hyperrectangle region : newRegions) {
-						if(region.intersects(sample)) {
-							activeRegions.get(region).add(sample);
-						}
+			// Redistribute samples
+			newRegions.forEach(d -> activeRegions.put(d, new ArrayList<>()));
+			final List<Hyperrectangle> oldSamples = activeRegions.remove(regionToSplit);
+			
+			for(final Hyperrectangle sample : oldSamples) {
+				for(final Hyperrectangle region : newRegions) {
+					if(region.intersects(sample)) {
+						activeRegions.get(region).add(sample);
 					}
 				}
-				
-				activeRegions.remove(regionToSplit);
 			}
 			
-		} catch (ClassNotFoundException e) {
-			logger.error("Got exception during experiment", e);
-		} catch (IOException e) {
-			logger.error("Got exception during experiment", e);
+			activeRegions.remove(regionToSplit);
 		}
 		
 		return activeRegions.keySet();
