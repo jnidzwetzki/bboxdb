@@ -19,29 +19,23 @@ package org.bboxdb.experiments.misc;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.FileLineIndex;
+import org.bboxdb.tools.RandomSamplesReader;
 import org.bboxdb.tools.TupleFileReader;
-import org.bboxdb.tools.converter.tuple.TupleBuilder;
-import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,54 +102,19 @@ public class StreamSampling implements Runnable {
 	 * @throws FileNotFoundException
 	 */
 	private void performSamplingBasedPartitioning() {
+	
 		
-		try(final FileLineIndex fli = new FileLineIndex(filename)) {
-			// Sampling based partitioning
-			System.out.format("Indexing %s%n", filename);
-			fli.indexFile();
-			System.out.format("Indexing %s done%n", filename);
-			
-			final long numberOfElements = fli.getIndexedLines();
-			final int samples = (int) (numberOfElements * 0.001);
-			System.out.println("Taking samples: " + samples);
-			
-			final Set<Long> takenSamples = new HashSet<>();
-			final List<Hyperrectangle> takenBoxes = new ArrayList<>();
-	
-			final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
-			try(
-					final RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "r");
-				) {
-	
-				while(takenSamples.size() < samples) {
-					final long sampleId = ThreadLocalRandom.current().nextLong(numberOfElements);
-	
-					if(takenSamples.contains(sampleId)) {
-						continue;
-					}
-	
-					// Line 1 is sample 0 in the file
-					final long pos = fli.locateLine(sampleId + 1);
-					randomAccessFile.seek(pos);
-					final String line = randomAccessFile.readLine();
-				    final Tuple tuple = tupleBuilder.buildTuple(line, Long.toString(sampleId));
-	
-				    // E.g. Table header
-				    if(tuple == null) {
-				    	continue;
-				    }
-	
-					final Hyperrectangle boundingBox = tuple.getBoundingBox();
-					takenBoxes.add(boundingBox);
-					takenSamples.add(sampleId);
-				}
-				
-				final Set<Hyperrectangle> activePartitions = partitionSpace(takenBoxes);
-				performPartitoning(activePartitions);
-			}
-		} catch(Exception e) {
+		try {
+			final List<Hyperrectangle> takenBoxes = RandomSamplesReader.readSamplesRandom(filename, format, 0.1);
+			System.out.println("Read samples: " + takenBoxes.size());
+			final Set<Hyperrectangle> activePartitions = partitionSpace(takenBoxes);
+			performPartitoning(activePartitions);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 
 	/**
