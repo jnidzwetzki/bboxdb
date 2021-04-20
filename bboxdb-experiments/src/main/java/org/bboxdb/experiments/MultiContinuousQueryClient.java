@@ -39,6 +39,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
 import org.slf4j.Logger;
@@ -72,17 +73,31 @@ public class MultiContinuousQueryClient implements Runnable {
 	private final List<Thread> allThreads = new CopyOnWriteArrayList<>();
 	
 	/**
+	 * The UDF name
+	 */
+	private final Optional<String> udfName;
+
+	/**
+	 * The UDF value
+	 */
+	private final Optional<String> udfValue;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(MultiContinuousQueryClient.class);
-	
+
+
 	public MultiContinuousQueryClient(final String contactPoint, final String clusterName, 
-			final String table, final List<Hyperrectangle> ranges) {
+			final String table, final List<Hyperrectangle> ranges, final Optional<String> udfName, 
+			final Optional<String> udfValue) {
 			
 				this.contactPoint = contactPoint;
 				this.clusterName = clusterName;
 				this.table = table;
 				this.ranges = ranges;
+				this.udfName = udfName;
+				this.udfValue = udfValue;
 	}
 	
 	@Override
@@ -94,11 +109,17 @@ public class MultiContinuousQueryClient implements Runnable {
 			for(final Hyperrectangle queryRectangle : ranges) {
 				System.out.println("Creating query in range: " + queryRectangle);
 				
-				final ContinuousQueryPlan queryPlan = QueryPlanBuilder
+				final QueryPlanBuilder queryPlanBuilder = QueryPlanBuilder
 						.createQueryOnTable(table)
 						.compareWithStaticSpace(queryRectangle)
-						.forAllNewTuplesInSpace(queryRectangle)
-						.build();
+						.forAllNewTuplesInSpace(queryRectangle);
+				
+				if(udfName.isPresent()) {
+					final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(udfName.get(), udfValue.get());
+					queryPlanBuilder.addStreamFilter(udf);
+				}
+				
+				final ContinuousQueryPlan queryPlan = queryPlanBuilder.build();
 				
 				final JoinedTupleListFuture queryFuture = connection.queryContinuous(queryPlan);
 				readResultsInThread(queryFuture);
@@ -183,8 +204,15 @@ public class MultiContinuousQueryClient implements Runnable {
 		final String clusterName = args[3];
 		final String table = args[4];
 		
-		 new ArrayList<>();
-
+		Optional<String> udfName = Optional.empty();
+		Optional<String> udfValue = Optional.empty();
+		
+		if(args.length == 9) {
+			udfName = Optional.of(args[7]);
+			udfValue = Optional.of(args[8]);
+		}
+		
+		
 		try (final Stream<String> lineStream = Files.lines(Paths.get(inputFile.getPath()))) {
 	
 			final List<Hyperrectangle> ranges = lineStream
@@ -193,7 +221,7 @@ public class MultiContinuousQueryClient implements Runnable {
 			 		.collect(Collectors.toList());
 	
 			final MultiContinuousQueryClient runable = new MultiContinuousQueryClient(contactPoint, clusterName, 
-					table, ranges);
+					table, ranges, udfName, udfValue);
 			
 			runable.run();
 
@@ -246,8 +274,9 @@ public class MultiContinuousQueryClient implements Runnable {
 	 * @param args
 	 */
 	private static void performAutogenerate(final String[] args) {
-		if(args.length != 7) {
-			System.err.println("Usage: <Class> autogenerate <ClusterContactPoint> <Clustername> <Table> <Range> <Percentage> <Parallel-Queries>");
+		if(args.length != 7 && args.length != 9) {
+			System.err.println("Usage: <Class> autogenerate <ClusterContactPoint> <Clustername> <Table> <Range> "
+					+ "<Percentage> <Parallel-Queries> {<UDF-Name> <UDF-Value>}");
 			System.exit(-1);
 		}
 		
@@ -257,6 +286,15 @@ public class MultiContinuousQueryClient implements Runnable {
 		final String rangeString = args[4];
 		final String percentageString = args[5];
 		final String parallelQueriesString = args[6];
+		
+		Optional<String> udfName = Optional.empty();
+		Optional<String> udfValue = Optional.empty();
+		
+		if(args.length == 9) {
+			udfName = Optional.of(args[7]);
+			udfValue = Optional.of(args[8]);
+		}
+		
 		
 		final Optional<Hyperrectangle> range = HyperrectangleHelper.parseBBox(rangeString);
 		
@@ -275,7 +313,7 @@ public class MultiContinuousQueryClient implements Runnable {
 		}
 		
 		final MultiContinuousQueryClient runable = new MultiContinuousQueryClient(contactPoint, clusterName, 
-				table, ranges);
+				table, ranges, udfName, udfValue);
 		
 		runable.run();
 	}
