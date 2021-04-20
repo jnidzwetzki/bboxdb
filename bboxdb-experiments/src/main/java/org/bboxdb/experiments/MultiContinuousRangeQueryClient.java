@@ -115,6 +115,7 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 						.forAllNewTuplesInSpace(queryRectangle);
 				
 				if(udfName.isPresent()) {
+					logger.info("Using UDF {} with value {}", udfName.get(), udfValue.get());
 					final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(udfName.get(), udfValue.get());
 					queryPlanBuilder.addStreamFilter(udf);
 				}
