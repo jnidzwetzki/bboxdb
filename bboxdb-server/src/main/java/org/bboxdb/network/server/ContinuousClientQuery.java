@@ -329,9 +329,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 */
 	private boolean doUserDefinedFilterMatch(final Tuple streamTuple,
 			final Map<UserDefinedFilter, byte[]> filters) {
-		
-		boolean matches = true;
-		
+				
 		for(final Entry<UserDefinedFilter, byte[]> entry : filters.entrySet()) {
 			
 			final UserDefinedFilter operator = entry.getKey();
@@ -341,10 +339,11 @@ public class ContinuousClientQuery implements ClientQuery {
 				= operator.filterTuple(streamTuple, value);
 			
 			if(! result) {
-				matches = false;
+				return false;
 			}
 		}
-		return matches;
+		
+		return true;
 	}
 	
 	/**
@@ -356,9 +355,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	 */
 	private boolean doUserDefinedFilterMatch(final Tuple streamTuple, final Tuple storedTuple,
 			final Map<UserDefinedFilter, byte[]> filters) {
-		
-		boolean matches = true;
-		
+				
 		for(final Entry<UserDefinedFilter, byte[]> entry : filters.entrySet()) {
 			
 			final UserDefinedFilter operator = entry.getKey();
@@ -368,12 +365,13 @@ public class ContinuousClientQuery implements ClientQuery {
 				= operator.filterJoinCandidate(streamTuple, storedTuple, value);
 			
 			if(! result) {
-				matches = false;
+				return false;
 			}
 		}
-		return matches;
+		
+		return true;
 	}
-
+	
 	/**
 	 * Get the user defined operators
 	 * @param filters

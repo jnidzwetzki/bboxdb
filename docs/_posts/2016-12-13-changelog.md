@@ -9,6 +9,7 @@ order: 1
 ### Version 0.9.7 - TBA
 - Improvement: Flush pages for continuous query when at least one tuple was send
 - Improvement: Register a continuous query only one time per instance
+- Improvement: Shortcut UDF processing
 - Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 - Bugfix: Don't start response handler for duplicate continuous queries
 
