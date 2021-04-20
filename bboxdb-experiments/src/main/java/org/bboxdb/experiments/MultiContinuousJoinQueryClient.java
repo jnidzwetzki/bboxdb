@@ -30,7 +30,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.compress.archivers.zip.PKWareExtraHeader;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
