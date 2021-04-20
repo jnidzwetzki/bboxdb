@@ -195,8 +195,9 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 	 * @param args
 	 */
 	private static void performReadData(final String[] args) {
+		
 		if(args.length != 5) {
-			System.err.println("Usage: <Class> readfile <File> <ClusterContactPoint> <Clustername> <Table> ");
+			System.err.println("Usage: <Class> readfile <File> <ClusterContactPoint> <Clustername> <Table> {<UDF-Name> <UDF-Value>}");
 			System.exit(-1);
 		}
 		
@@ -208,9 +209,9 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 		Optional<String> udfName = Optional.empty();
 		Optional<String> udfValue = Optional.empty();
 		
-		if(args.length == 9) {
-			udfName = Optional.of(args[7]);
-			udfValue = Optional.of(args[8]);
+		if(args.length == 7) {
+			udfName = Optional.of(args[5]);
+			udfValue = Optional.of(args[6]);
 		}
 		
 		
