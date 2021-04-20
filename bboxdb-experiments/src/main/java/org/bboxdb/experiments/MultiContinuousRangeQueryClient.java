@@ -45,7 +45,7 @@ import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultiContinuousQueryClient implements Runnable {
+public class MultiContinuousRangeQueryClient implements Runnable {
 
 	/**
 	 * The cluster contact point
@@ -85,10 +85,10 @@ public class MultiContinuousQueryClient implements Runnable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(MultiContinuousQueryClient.class);
+	private final static Logger logger = LoggerFactory.getLogger(MultiContinuousRangeQueryClient.class);
 
 
-	public MultiContinuousQueryClient(final String contactPoint, final String clusterName, 
+	public MultiContinuousRangeQueryClient(final String contactPoint, final String clusterName, 
 			final String table, final List<Hyperrectangle> ranges, final Optional<String> udfName, 
 			final Optional<String> udfValue) {
 			
@@ -220,7 +220,7 @@ public class MultiContinuousQueryClient implements Runnable {
 					.fromString(s))
 			 		.collect(Collectors.toList());
 	
-			final MultiContinuousQueryClient runable = new MultiContinuousQueryClient(contactPoint, clusterName, 
+			final MultiContinuousRangeQueryClient runable = new MultiContinuousRangeQueryClient(contactPoint, clusterName, 
 					table, ranges, udfName, udfValue);
 			
 			runable.run();
@@ -312,7 +312,7 @@ public class MultiContinuousQueryClient implements Runnable {
 			ranges.add(queryRectangle);
 		}
 		
-		final MultiContinuousQueryClient runable = new MultiContinuousQueryClient(contactPoint, clusterName, 
+		final MultiContinuousRangeQueryClient runable = new MultiContinuousRangeQueryClient(contactPoint, clusterName, 
 				table, ranges, udfName, udfValue);
 		
 		runable.run();
