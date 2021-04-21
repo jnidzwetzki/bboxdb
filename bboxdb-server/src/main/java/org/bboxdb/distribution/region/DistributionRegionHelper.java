@@ -75,6 +75,19 @@ public class DistributionRegionHelper {
 	 */
 	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE
 		= (s) -> (STATES_WRITE.contains(s));
+		
+	/**
+	 * The states for continuous query operations (stream only operations for joins)
+	 */
+	public final static Collection<DistributionRegionState> STATES_STREAM = Arrays.asList(
+				DistributionRegionState.SPLITTING,
+				DistributionRegionState.MERGING);
+	
+	/**
+	 * Systems for stream operations
+	 */
+	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_STREAM
+		= (s) -> (STATES_STREAM.contains(s));
 
 
 	/**

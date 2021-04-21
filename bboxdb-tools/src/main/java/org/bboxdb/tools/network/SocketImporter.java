@@ -36,7 +36,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
-import org.bboxdb.network.packages.request.InsertOption;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
@@ -84,7 +84,7 @@ public class SocketImporter implements Runnable {
 	/**
 	 * The insert options
 	 */
-	private EnumSet<InsertOption> insertOptions;
+	private EnumSet<DistributionRegionHandlingFlag> insertOptions;
 	
 	/**
 	 * The amount of pending insert futures
@@ -103,7 +103,7 @@ public class SocketImporter implements Runnable {
 
 	public SocketImporter(final int port, final String connectionPoint, final String clustername, 
 			final String table, final TupleBuilder tupleFactory, final QueryEnlargement enlargement, 
-			final EnumSet<InsertOption> insertOptions) {
+			final EnumSet<DistributionRegionHandlingFlag> insertOptions) {
 				this.port = port;
 				this.connectionPoint = connectionPoint;
 				this.clustername = clustername;
@@ -272,10 +272,10 @@ public class SocketImporter implements Runnable {
 		}
 		
 		final boolean writeToDisk = MathUtil.tryParseBooleanOrExit(writeToDiskString);
-		final EnumSet<InsertOption> insertOptions = EnumSet.noneOf(InsertOption.class);;
+		final EnumSet<DistributionRegionHandlingFlag> insertOptions = EnumSet.noneOf(DistributionRegionHandlingFlag.class);;
 		
 		if(! writeToDisk) {
-			insertOptions.add(InsertOption.STREAMING_ONLY);
+			insertOptions.add(DistributionRegionHandlingFlag.STREAMING_ONLY);
 		}
 		
 		logger.info("Use the following insert options {}", insertOptions);

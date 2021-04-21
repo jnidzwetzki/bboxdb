@@ -17,7 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.routing;
 
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Map;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 
@@ -31,9 +32,10 @@ public class RoutingHop {
 	/**
 	 * The distribution regions
 	 */
-	private final List<Long> distributionRegions;
+	private final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions;
+	
 
-	public RoutingHop(final BBoxDBInstance distributedInstance, final List<Long> distributionRegions) {
+	public RoutingHop(final BBoxDBInstance distributedInstance, final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions) {
 		this.distributedInstance = distributedInstance;
 		this.distributionRegions = distributionRegions;
 	}
@@ -79,15 +81,15 @@ public class RoutingHop {
 		return distributedInstance;
 	}
 
-	public List<Long> getDistributionRegions() {
+	public Map<Long, EnumSet<DistributionRegionHandlingFlag>> getDistributionRegions() {
 		return distributionRegions;
 	}
 
 	/** 
 	 * Add a ID to the routing
 	 */
-	public void addRegion(final long regionId) {
-		distributionRegions.add(regionId);
+	public void addRegion(final long regionId, final EnumSet<DistributionRegionHandlingFlag> options) {
+		distributionRegions.put(regionId, options);
 	}
 
 }

@@ -37,8 +37,8 @@ import org.bboxdb.network.client.RoutingHeaderHelper;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.TupleListFuture;
-import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.query.filter.UserDefinedStringFilter;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -77,7 +77,7 @@ public class TestNetworkCommunication {
 	/**
 	 * The insert option - none
 	 */
-	private final EnumSet<InsertOption> INSERT_OPTIONS_NONE = EnumSet.noneOf(InsertOption.class);
+	private final EnumSet<DistributionRegionHandlingFlag> INSERT_OPTIONS_NONE = EnumSet.noneOf(DistributionRegionHandlingFlag.class);
 
 	@BeforeClass
 	public static void init() throws Exception {
@@ -461,10 +461,10 @@ public class TestNetworkCommunication {
 
 		final BBoxDBConnection connection = bboxdbClient.getConnection();
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, tuple1.getBoundingBox(), false, connection.getServerAddress());
+				table, tuple1.getBoundingBox(), false, connection.getServerAddress(), 
+				EnumSet.of(DistributionRegionHandlingFlag.STREAMING_ONLY));
 
-		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1, routingHeader,
-				EnumSet.of(InsertOption.STREAMING_ONLY));
+		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1, routingHeader);
 
 		insertResult1.waitForCompletion();
 		Assert.assertFalse(insertResult1.isFailed());
@@ -639,13 +639,12 @@ public class TestNetworkCommunication {
 		System.out.println("Insert tuple - with dimension 1 into group with dimension 2");
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, Hyperrectangle.FULL_SPACE, false, bboxdbConnection.getServerAddress());
+				table, Hyperrectangle.FULL_SPACE, false, bboxdbConnection.getServerAddress(), INSERT_OPTIONS_NONE);
 
 
 
 		final Tuple tuple = new Tuple("key12", new Hyperrectangle(1.2, 5.0), "abc".getBytes());
-		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader,
-				INSERT_OPTIONS_NONE);
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple, routingHeader);
 
 		// Prevent retries
 		insertResult.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);

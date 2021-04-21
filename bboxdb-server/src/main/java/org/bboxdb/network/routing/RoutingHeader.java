@@ -18,9 +18,13 @@
 package org.bboxdb.network.routing;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +65,11 @@ public class RoutingHeader {
 	 * The separator char for the region
 	 */
 	public final static String SEPARATOR_CHAR_REGION = ",";
+	
+	/**
+	 * The separator char for the flags
+	 */
+	public final static String SEPARATOR_CHAR_FLAGS = ":";
 	
 	/**
 	 * The Logger
@@ -182,20 +191,30 @@ public class RoutingHeader {
 			try {
 				final String[] regionParts = hostPart.split(SEPARATOR_CHAR_REGION);
 				
-				assert (regionParts.length > 1) : "Unable to split into regions: " + hostPart;
-				
+				if(regionParts.length < 2) {
+					logger.error("Unable to determine region from: " + hostPart);
+				}
+								
 				final BBoxDBInstance distributedInstance = new BBoxDBInstance(regionParts[0]);
-				final List<Long> distributionRegions = new ArrayList<>();
+				final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions = new HashMap<>();
 				
 				for(int i = 1; i < regionParts.length; i++) {
-					final long distributionRegion = Long.parseLong(regionParts[i]);
-					distributionRegions.add(distributionRegion);
+					final String region = regionParts[i];
+					
+					final String[] regionAndFlags = region.split(SEPARATOR_CHAR_FLAGS);
+					
+					final long distributionRegion = MathUtil.tryParseLong(regionAndFlags[0], () -> "Unable to parse: " + regionAndFlags[0]);
+					final int flagsAsInt = MathUtil.tryParseInt(regionAndFlags[1], () -> "Unable to parse: " + regionAndFlags[1]);
+					
+					final EnumSet<DistributionRegionHandlingFlag> flags = DistributionRegionHandlingFlag.fromValue(flagsAsInt);
+					
+					distributionRegions.put(distributionRegion, flags);
 				}
 				
 				final RoutingHop routingHop = new RoutingHop(distributedInstance, distributionRegions);
 				routingList.add(routingHop);
 				
-			} catch(IllegalArgumentException e) {
+			} catch(IllegalArgumentException | InputParseException e) {
 				logger.warn("Unable to parse as distributed instance: " + hostPart);
 			} 
 		}
@@ -210,19 +229,20 @@ public class RoutingHeader {
 		final StringBuilder sb = new StringBuilder();
 
 		for(final RoutingHop routingHop : routingList) {
-			final String regionString = routingHop
-					.getDistributionRegions()
-					.stream()
-					.map(i -> Long.toString(i))
-					.collect(Collectors.joining(SEPARATOR_CHAR_REGION));
-
+	
 			if(sb.length() != 0) {
 				sb.append(SEPARATOR_CHAR_HOST);
 			}
 			
 			sb.append(routingHop.getDistributedInstance().getStringValue());
-			sb.append(SEPARATOR_CHAR_REGION);
-			sb.append(regionString);
+			
+			for(Map.Entry<Long, EnumSet<DistributionRegionHandlingFlag>> region : routingHop.getDistributionRegions().entrySet()) {
+				sb.append(SEPARATOR_CHAR_REGION);
+				sb.append(region.getKey());
+				sb.append(SEPARATOR_CHAR_FLAGS);
+				sb.append(DistributionRegionHandlingFlag.toValue(region.getValue()));
+			}
+		
 		}
 
 		return sb.toString();

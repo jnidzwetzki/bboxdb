@@ -44,7 +44,6 @@ import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
-import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.LockTupleRequest;
@@ -57,6 +56,7 @@ import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -163,9 +163,9 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, tuple.getBoundingBox(), false, connection.getServerAddress());
+				table, tuple.getBoundingBox(), false, connection.getServerAddress(), EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 
-		return insertTuple(table, tuple, routingHeader, EnumSet.noneOf(InsertOption.class));
+		return insertTuple(table, tuple, routingHeader);
 	}
 	
 	/* (non-Javadoc)
@@ -173,22 +173,22 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
-			final EnumSet<InsertOption> insertOptions) throws BBoxDBException {
+			final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, tuple.getBoundingBox(), false, connection.getServerAddress());
+				table, tuple.getBoundingBox(), false, connection.getServerAddress(), insertOptions);
 
-		return insertTuple(table, tuple, routingHeader, insertOptions);
+		return insertTuple(table, tuple, routingHeader);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple,
-			final RoutingHeader routingHeader, final EnumSet<InsertOption> insertOptions) {
+			final RoutingHeader routingHeader) {
 
 		final Supplier<List<NetworkOperationFuture>> future = 
-				getInsertTupleFuture(table, tuple, routingHeader, insertOptions);
+				getInsertTupleFuture(table, tuple, routingHeader);
 
 		return new EmptyResultFuture(future);
 	}
@@ -198,7 +198,8 @@ public class BBoxDBClient implements BBoxDB {
 			final boolean deleteOnTimeout) throws BBoxDBException {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress());
+				table, Hyperrectangle.FULL_SPACE, true, connection.getServerAddress(), 
+				EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 
 		final Supplier<List<NetworkOperationFuture>> future =
 				createLockTupleFuture(table, tuple, deleteOnTimeout, routingHeader);
@@ -239,13 +240,13 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public Supplier<List<NetworkOperationFuture>> getInsertTupleFuture(final String table, final Tuple tuple,
-			final RoutingHeader routingHeader, final EnumSet<InsertOption> insertOptions) {
+			final RoutingHeader routingHeader) {
 
 		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
 			final TupleStoreName ssTableName = new TupleStoreName(table);
 			final short sequenceNumber = connection.getNextSequenceNumber();
 
-			return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tuple, insertOptions);
+			return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tuple);
 		};
 
 		return () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
@@ -259,9 +260,9 @@ public class BBoxDBClient implements BBoxDB {
 			final Hyperrectangle boundingBox) {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, boundingBox, true, connection.getServerAddress());
+				table, boundingBox, true, connection.getServerAddress(), EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 
-		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader, EnumSet.noneOf(InsertOption.class));
+		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
 	}
 
 	/* (non-Javadoc)

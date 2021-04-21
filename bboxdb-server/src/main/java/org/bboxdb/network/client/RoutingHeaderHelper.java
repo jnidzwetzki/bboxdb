@@ -19,6 +19,7 @@ package org.bboxdb.network.client;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +49,15 @@ public class RoutingHeaderHelper {
 	 * Get the routing header for the local system
 	 * @param table
 	 * @param serverAddress 
+	 * @param routingOptions 
 	 * @param tuple
 	 * @throws ZookeeperException
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
 	public static RoutingHeader getRoutingHeaderForLocalSystem(final String table, Hyperrectangle boundingBox, 
-			final boolean allowEmptyHop, final InetSocketAddress serverAddress, final boolean write) 
+			final boolean allowEmptyHop, final InetSocketAddress serverAddress, final boolean write, 
+			final EnumSet<DistributionRegionHandlingFlag> routingOptions) 
 			throws ZookeeperException, BBoxDBException, InterruptedException {
 
 		final TupleStoreName ssTableName = new TupleStoreName(table);
@@ -68,7 +72,7 @@ public class RoutingHeaderHelper {
 			boundingBox = Hyperrectangle.FULL_SPACE;
 		}
 		
-		final List<RoutingHop> hops = getLocalHops(boundingBox, distributionRegion, write);
+		final List<RoutingHop> hops = getLocalHops(boundingBox, distributionRegion, write, routingOptions);
 
 		if(hops == null || hops.isEmpty()) {
 			if(! allowEmptyHop) {
@@ -95,19 +99,21 @@ public class RoutingHeaderHelper {
 	/**
 	 * @param boundingBox
 	 * @param distributionRegion
+	 * @param routingOptions 
 	 * @return
 	 * @throws InterruptedException
 	 */
 	private static List<RoutingHop> getLocalHops(Hyperrectangle boundingBox, 
-			final DistributionRegion distributionRegion, final boolean write) throws InterruptedException {
+			final DistributionRegion distributionRegion, final boolean write, 
+			final EnumSet<DistributionRegionHandlingFlag> routingOptions) throws InterruptedException {
 		
 		for(int retry = 0; retry < Const.OPERATION_RETRY; retry++) {
 			final List<RoutingHop> hops;
 			
 			if(write) {
-				hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox);
+				hops = RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox, routingOptions);
 			} else {
-				hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
+				hops = RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox, routingOptions);
 			}
 			
 			if(hops != null && ! hops.isEmpty()) {
@@ -125,13 +131,14 @@ public class RoutingHeaderHelper {
 	 * @param table
 	 * @param boundingBox
 	 * @param allowEmptyHop
+	 * @param routingOptions 
 	 * @return
 	 */
 	public static RoutingHeader getRoutingHeaderForLocalSystemWriteNE(final String table, final Hyperrectangle boundingBox, 
-			final boolean allowEmptyHop, final InetSocketAddress serverAddress) {
+			final boolean allowEmptyHop, final InetSocketAddress serverAddress, final EnumSet<DistributionRegionHandlingFlag> routingOptions) {
 		
 		try {
-			return getRoutingHeaderForLocalSystem(table, boundingBox, allowEmptyHop, serverAddress, true);
+			return getRoutingHeaderForLocalSystem(table, boundingBox, allowEmptyHop, serverAddress, true, routingOptions);
 		} catch (ZookeeperException | BBoxDBException | InterruptedException e) {
 			logger.error("Got exception", e);
 			return null;
@@ -149,7 +156,7 @@ public class RoutingHeaderHelper {
 			final boolean allowEmptyHop, final InetSocketAddress serverAddress) {
 		
 		try {
-			return getRoutingHeaderForLocalSystem(table, boundingBox, allowEmptyHop, serverAddress, false);
+			return getRoutingHeaderForLocalSystem(table, boundingBox, allowEmptyHop, serverAddress, false, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 		} catch (ZookeeperException | BBoxDBException | InterruptedException e) {
 			logger.error("Got exception", e);
 			return null;

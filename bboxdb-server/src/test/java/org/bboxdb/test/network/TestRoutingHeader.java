@@ -22,7 +22,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -36,6 +40,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,9 +67,18 @@ public class TestRoutingHeader {
 	 */
 	@Test(timeout=60000)
 	public void testRoutingHeaderHopParser2() {
-		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123l));
-		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456l));
-		final RoutingHop hop3 = new RoutingHop(new BBoxDBInstance("host3:50500"), Arrays.asList(789l));
+		final Map<Long, EnumSet<DistributionRegionHandlingFlag>> hops1 = new HashMap<>();
+		hops1.put(123l, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), hops1);
+		
+		final Map<Long, EnumSet<DistributionRegionHandlingFlag>> hops2 = new HashMap<>();
+		hops2.put(333l, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
+		hops2.put(456l, EnumSet.of(DistributionRegionHandlingFlag.STREAMING_ONLY));
+		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), hops2);
+		
+		final Map<Long, EnumSet<DistributionRegionHandlingFlag>> hops3 = new HashMap<>();
+		hops3.put(789l, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
+		final RoutingHop hop3 = new RoutingHop(new BBoxDBInstance("host3:50500"), hops3);
 
 		final List<RoutingHop> routingList = new ArrayList<>();
 		routingList.add(hop1);
@@ -75,13 +89,23 @@ public class TestRoutingHeader {
 
 		// Get routing list as string and parse list
 		final String stringRoutingList = routingHeader.getRoutingListAsString();
+		System.out.println(stringRoutingList);
 		routingHeader.setRoutingList(stringRoutingList);
 
 		final List<RoutingHop> parsedRoutingList = routingHeader.getRoutingList();
+		System.out.println(parsedRoutingList);
+		
+		// Check hops
 		Assert.assertEquals(3, parsedRoutingList.size());
 		Assert.assertTrue(parsedRoutingList.contains(hop1));
 		Assert.assertTrue(parsedRoutingList.contains(hop2));
 		Assert.assertTrue(parsedRoutingList.contains(hop3));
+		
+		// Check flags
+		Assert.assertTrue(parsedRoutingList.get(0).getDistributionRegions().get(123l).isEmpty());
+		Assert.assertTrue(parsedRoutingList.get(1).getDistributionRegions().get(333l).isEmpty());
+		Assert.assertTrue(parsedRoutingList.get(1).getDistributionRegions().get(456l).contains(DistributionRegionHandlingFlag.STREAMING_ONLY));
+		Assert.assertTrue(parsedRoutingList.get(2).getDistributionRegions().get(789l).isEmpty());
 	}
 
 	/**
@@ -89,12 +113,12 @@ public class TestRoutingHeader {
 	 */
 	@Test(timeout=60000)
 	public void testRoutingHopParser3() {
-		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0;node2:23,2:0");
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(0).getDistributionRegions().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(1).getDistributionRegions().size());
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(1l));
-		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().contains(2l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().keySet().contains(1l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().keySet().contains(2l));
 	}
 
 	/**
@@ -102,16 +126,38 @@ public class TestRoutingHeader {
 	 */
 	@Test(timeout=60000)
 	public void testRoutingHopParser4() {
-		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1,2,3;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0,2:0,3:0;node2:23,2:0");
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
 		Assert.assertEquals(3, routingHeader.getRoutingList().get(0).getDistributionRegions().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(1).getDistributionRegions().size());
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(1l));
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(2l));
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(3l));
-		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().contains(2l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().keySet().contains(1l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().keySet().contains(2l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().keySet().contains(3l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().keySet().contains(2l));
 	}
 
+	/**
+	 * Test the routing hop parser - with flags
+	 */
+	@Test(timeout=60000)
+	public void testRoutingHopParser5() {
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0,2:0,3:1;node2:23,2:1");
+		Assert.assertEquals(2, routingHeader.getRoutingList().size());
+		Assert.assertEquals(3, routingHeader.getRoutingList().get(0).getDistributionRegions().size());
+		Assert.assertEquals(1, routingHeader.getRoutingList().get(1).getDistributionRegions().size());
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().keySet().contains(1l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().keySet().contains(2l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().keySet().contains(3l));
+		
+		// Check flags
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().get(1l).isEmpty());
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().get(2l).isEmpty());
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().get(3l).contains(DistributionRegionHandlingFlag.STREAMING_ONLY));
+
+		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().keySet().contains(2l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().get(2l).contains(DistributionRegionHandlingFlag.STREAMING_ONLY));
+	}
+	
 	/**
 	 * Test the encoding and the decoding of an unrouted package
 	 * @throws IOException
@@ -135,7 +181,7 @@ public class TestRoutingHeader {
 	 */
 	@Test(timeout=60000)
 	public void testRoutedPackageHeader1() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0;node2:23,2:0");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 
 		final ByteArrayInputStream bis = new ByteArrayInputStream(encodedBytes);
@@ -167,7 +213,7 @@ public class TestRoutingHeader {
 	 */
 	@Test(timeout=60000)
 	public void testRoutedPackageHeader3() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0;node2:23,2:0");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
 		bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -205,7 +251,7 @@ public class TestRoutingHeader {
 	 */
 	@Test(timeout=60000)
 	public void testSetHopValid() {
-		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,2;node2:23,1");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,2:0;node2:23,1:0");
 		routingHeader.setHop((short) 0);
 		routingHeader.setHop((short) 1);
 	}
@@ -215,7 +261,7 @@ public class TestRoutingHeader {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testSetHopInvalid() {
-		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0;node2:23,2:0");
 		routingHeader.setHop((short) 2);
 	}
 
@@ -224,8 +270,14 @@ public class TestRoutingHeader {
 	 */
 	@Test(timeout=60000)
 	public void testDispatchHeader() {
-		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123l));
-		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456l));
+		
+		final Map<Long, EnumSet<DistributionRegionHandlingFlag>> options1 = new HashMap<>();
+		options1.put(123l, EnumSet.noneOf(DistributionRegionHandlingFlag.class));		
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), options1);
+		
+		final Map<Long, EnumSet<DistributionRegionHandlingFlag>> options2 = new HashMap<>();
+		options2.put(456l, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
+		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), options2);
 
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] {hop1, hop2} );
 
@@ -278,33 +330,36 @@ public class TestRoutingHeader {
 		child2.setSystems(system13);
 		region.addChildren(1, child2);
 
+		final Map<Predicate<DistributionRegionState>, EnumSet<DistributionRegionHandlingFlag>> readOptions = new HashMap<>();
+		readOptions.put(DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
+		
 		final List<RoutingHop> read1 = RoutingHopHelper.getHopListForPredicateAndBox(region,
 				Hyperrectangle.FULL_SPACE, system123,
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
+				readOptions);
 		Assert.assertEquals(3, read1.size());
 
 		system3.setState(BBoxDBInstanceState.FAILED);
 
 		final List<RoutingHop> read2 = RoutingHopHelper.getHopListForPredicateAndBox(region,
 				Hyperrectangle.FULL_SPACE, system123,
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
+				readOptions);
 		Assert.assertEquals(2, read2.size());
 
 		final List<RoutingHop> read3 = RoutingHopHelper.getHopListForPredicateAndBox(region,
 				Hyperrectangle.FULL_SPACE, system12,
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
+				readOptions);
 		Assert.assertEquals(2, read3.size());
 
 		final List<RoutingHop> read4 = RoutingHopHelper.getHopListForPredicateAndBox(region,
 				Hyperrectangle.FULL_SPACE, system23,
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
+				readOptions);
 		Assert.assertEquals(1, read4.size());
 
 		system3.setState(BBoxDBInstanceState.READY);
 
 		final List<RoutingHop> read5 = RoutingHopHelper.getHopListForPredicateAndBox(region,
 				Hyperrectangle.FULL_SPACE, system23,
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
+				readOptions);
 		Assert.assertEquals(2, read5.size());
 	}
 }

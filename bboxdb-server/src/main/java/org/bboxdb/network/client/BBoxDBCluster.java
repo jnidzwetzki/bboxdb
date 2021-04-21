@@ -51,11 +51,11 @@ import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
-import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -174,11 +174,11 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 		final Hyperrectangle boundingBox = tuple.getBoundingBox();
-		return executeInsert(table, tuple, boundingBox, EnumSet.noneOf(InsertOption.class));
+		return executeInsert(table, tuple, boundingBox, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 	}
 	
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
-			final EnumSet<InsertOption> insertOptions) throws BBoxDBException {
+			final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException {
 		
 		final Hyperrectangle boundingBox = tuple.getBoundingBox();
 		return executeInsert(table, tuple, boundingBox, insertOptions);
@@ -200,7 +200,7 @@ public class BBoxDBCluster implements BBoxDB {
 		
 		final Hyperrectangle bbox = tuple.getBoundingBox().enlargeByAmount(enlagement);
 		
-		return executeInsert(table, tuple, bbox, EnumSet.noneOf(InsertOption.class));
+		return executeInsert(table, tuple, bbox, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 	}
 	
 	/**
@@ -212,20 +212,20 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @throws BBoxDBException
 	 */
 	private EmptyResultFuture executeInsert(final String table, final Tuple tuple, 
-			final Hyperrectangle boundingBox, final EnumSet<InsertOption> insertOptions) throws BBoxDBException {
+			final Hyperrectangle boundingBox, final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException {
 		
 		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
 			throw new BBoxDBException("Table " + table + " is unknown");
 		}
 		
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.WRITE_TO_NODES, table, boundingBox) {
+				ClusterOperationType.WRITE_TO_NODES, table, boundingBox, insertOptions) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
 
-				return connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader, insertOptions);
+				return connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
 			}
 		};
 
@@ -252,13 +252,13 @@ public class BBoxDBCluster implements BBoxDB {
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.WRITE_TO_NODES, table, Hyperrectangle.FULL_SPACE) {
+				ClusterOperationType.WRITE_TO_NODES, table, Hyperrectangle.FULL_SPACE, EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
 					final RoutingHeader routingHeader) {
 
-				return connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader, EnumSet.noneOf(InsertOption.class));
+				return connection.getBboxDBClient().getInsertTupleFuture(table, tuple, routingHeader);
 			}
 		};
 
@@ -270,7 +270,7 @@ public class BBoxDBCluster implements BBoxDB {
 			final boolean deleteOnTimeout) throws BBoxDBException {
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.WRITE_TO_NODES, table, tuple.getBoundingBox()) {
+				ClusterOperationType.WRITE_TO_NODES, table, tuple.getBoundingBox(), EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -343,7 +343,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
+				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE, EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -368,7 +368,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.READ_FROM_NODES_HA_IF_REPLICATED, table, boundingBox) {
+				ClusterOperationType.READ_FROM_NODES_HA_IF_REPLICATED, table, boundingBox, EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -498,7 +498,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.READ_FROM_NODES, table, boundingBox) {
+				ClusterOperationType.READ_FROM_NODES, table, boundingBox, EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -523,7 +523,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
+				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE, EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -547,7 +547,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE) {
+				ClusterOperationType.READ_FROM_NODES, table, Hyperrectangle.FULL_SPACE, EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,
@@ -578,7 +578,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final String fullname = tableNames.get(0);
 
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
-				ClusterOperationType.READ_FROM_NODES, fullname, boundingBox) {
+				ClusterOperationType.READ_FROM_NODES, fullname, boundingBox, EnumSet.noneOf(DistributionRegionHandlingFlag.class)) {
 
 			@Override
 			protected Supplier<List<NetworkOperationFuture>> buildFuture(final BBoxDBConnection connection,

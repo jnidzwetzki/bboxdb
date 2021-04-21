@@ -19,9 +19,10 @@ package org.bboxdb.network.server.connection.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.bboxdb.commons.RejectedException;
@@ -32,12 +33,12 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.lock.LockManager;
@@ -183,11 +184,10 @@ public class InsertTupleHandler implements RequestHandler {
 		final LockManager lockManager = clientConnectionHandler.getLockManager();
 		final String table = insertTupleRequest.getTable().getFullnameWithoutPrefix();
 		final String key = insertTupleRequest.getTuple().getKey();
-		final EnumSet<InsertOption> insertOptions = insertTupleRequest.getInsertOptions();
 		lockManager.removeLockForConnectionAndKey(clientConnectionHandler, table, key);
 
-		final List<Long> distributionRegions = localHop.getDistributionRegions();
-		processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions, insertOptions);
+		final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions = localHop.getDistributionRegions();
+		processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
 		forwardRoutedPackage(packageSequence, clientConnectionHandler, insertTupleRequest);
 	}
 
@@ -218,8 +218,8 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws BBoxDBException
 	 */
 	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable,
-			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions, 
-			final EnumSet<InsertOption> insertOptions) throws RejectedException {
+			final TupleStoreManagerRegistry storageRegistry, 
+			final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions) throws RejectedException {
 		
 		try {
 			final String fullname = requestTable.getDistributionGroup();
@@ -229,21 +229,24 @@ public class InsertTupleHandler implements RequestHandler {
 			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
 					.getDistributionRegionIdMapper();
 			
-			final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
-						requestTable, distributionRegions);
-
+			
+			final Map<TupleStoreName, EnumSet<DistributionRegionHandlingFlag>> localTables = new HashMap<>();
+			for(final Entry<Long, EnumSet<DistributionRegionHandlingFlag>> entry : distributionRegions.entrySet()) {
+				localTables.put(requestTable.cloneWithDifferntRegionId(entry.getKey()), entry.getValue());
+			}
+			
 			if(localTables.isEmpty()) {
 				throw new BBoxDBException("Got no local tables for routed package");
 			}
 
 			// Are some tables unknown and needs to be created?
 			TupleStoreManagerRegistryHelper.createMissingTables(requestTable, storageRegistry,
-					localTables);
+					localTables.keySet());
 
 			// Insert tuples
-			for(final TupleStoreName tupleStoreName : localTables) {
+			for(final Entry<TupleStoreName, EnumSet<DistributionRegionHandlingFlag>> localTable : localTables.entrySet()) {
 				
-				final long regionid = tupleStoreName.getRegionId().getAsLong();
+				final long regionid = localTable.getKey().getRegionId().getAsLong();
 				
 				final Optional<Hyperrectangle> space 
 					= regionIdMapper.getSpaceForRegionId(regionid);
@@ -253,10 +256,10 @@ public class InsertTupleHandler implements RequestHandler {
 				}
 				
 				final Hyperrectangle tupleBBox = tuple.getBoundingBox();
-				final boolean storeOnDisk = ! insertOptions.contains(InsertOption.STREAMING_ONLY);
+				final boolean storeOnDisk = ! localTable.getValue().contains(DistributionRegionHandlingFlag.STREAMING_ONLY);
 				
 				if(space.get().intersects(tupleBBox)) {
-					final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
+					final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(localTable.getKey());
 					storageManager.put(tuple, storeOnDisk, true);
 				} else { 
 					logger.debug("Not inserting into region {} because {} not insertect {}", regionid, 

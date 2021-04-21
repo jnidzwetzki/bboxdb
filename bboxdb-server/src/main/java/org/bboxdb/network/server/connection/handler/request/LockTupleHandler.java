@@ -20,12 +20,12 @@ package org.bboxdb.network.server.connection.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
-import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.LockTupleRequest;
@@ -34,6 +34,7 @@ import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.lock.LockManager;
@@ -152,20 +153,21 @@ public class LockTupleHandler implements RequestHandler {
 		final String key = request.getKey();
 
 		final TupleStoreName requestTable = new TupleStoreName(table);
-		final DistributionRegionIdMapper regionIdMapper = getRegionIdMapper(requestTable);
 
 		final RoutingHeader routingHeader = request.getRoutingHeader();
 		final RoutingHop localHop = routingHeader.getRoutingHop();
 
 		PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);
 
-		final List<Long> distributionRegions = localHop.getDistributionRegions();
+		final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions = localHop.getDistributionRegions();
 		final List<Tuple> tuplesForKey = new ArrayList<>();
 
-		final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
-				requestTable, distributionRegions);
+		final Map<TupleStoreName, EnumSet<DistributionRegionHandlingFlag>> localTables = new HashMap<>();
+		for(final Entry<Long, EnumSet<DistributionRegionHandlingFlag>> entry : distributionRegions.entrySet()) {
+			localTables.put(requestTable.cloneWithDifferntRegionId(entry.getKey()), entry.getValue());
+		}
 
-		for(final TupleStoreName tupleStoreName : localTables) {
+		for(final TupleStoreName tupleStoreName : localTables.keySet()) {
 
 			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler
 					.getStorageRegistry();
@@ -185,17 +187,4 @@ public class LockTupleHandler implements RequestHandler {
 		return tuplesForKey;
 	}
 
-	/**
-	 * Get the region ID mapper
-	 * @param requestTable
-	 * @return
-	 * @throws BBoxDBException
-	 */
-	private DistributionRegionIdMapper getRegionIdMapper(final TupleStoreName requestTable) throws BBoxDBException {
-		final String fullname = requestTable.getDistributionGroup();
-		final SpacePartitioner spacePartitioner = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(fullname);
-
-		return spacePartitioner.getDistributionRegionIdMapper();
-	}
 }

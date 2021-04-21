@@ -20,10 +20,13 @@ package org.bboxdb.network.routing;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -46,15 +49,22 @@ public class RoutingHopHelper {
 
 	/**
 	 * Get the a list of systems for the bounding box
+	 * @param routingOptions 
 	 * @return
 	 */
 	public static List<RoutingHop> getRoutingHopsForRead(final DistributionRegion rootRegion,
-			final Hyperrectangle boundingBox) {
+			final Hyperrectangle boundingBox, final EnumSet<DistributionRegionHandlingFlag> extraOptions) {
 
 		final List<BBoxDBInstance> instances = MembershipConnectionService.getInstance().getAllInstances();
 
-		return getHopListForPredicateAndBox(rootRegion, boundingBox, instances,
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
+		final Map<Predicate<DistributionRegionState>, EnumSet<DistributionRegionHandlingFlag>> predicateMap = new HashMap<>();
+		
+		final EnumSet<DistributionRegionHandlingFlag> readOptions = EnumSet.noneOf(DistributionRegionHandlingFlag.class);
+		readOptions.addAll(extraOptions);
+
+		predicateMap.put(DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ, readOptions);
+		
+		return getHopListForPredicateAndBox(rootRegion, boundingBox, instances, predicateMap);
 	}
 
 	/**
@@ -62,12 +72,24 @@ public class RoutingHopHelper {
 	 * @return
 	 */
 	public static List<RoutingHop> getRoutingHopsForWrite(final DistributionRegion rootRegion,
-			final Hyperrectangle boundingBox) {
+			final Hyperrectangle boundingBox, final Set<DistributionRegionHandlingFlag> extraOptions) {
 
 		final List<BBoxDBInstance> instances = MembershipConnectionService.getInstance().getAllInstances();
-
-		return getHopListForPredicateAndBox(rootRegion, boundingBox, instances,
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE);
+		
+		final Map<Predicate<DistributionRegionState>, EnumSet<DistributionRegionHandlingFlag>> predicateMap = new HashMap<>();
+		
+		final EnumSet<DistributionRegionHandlingFlag> writeOptions = EnumSet.noneOf(DistributionRegionHandlingFlag.class);
+		writeOptions.addAll(extraOptions);
+		predicateMap.put(DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE, writeOptions);
+		
+		// Ensure the tuple is also send to the in merging and splitting state regions to trigger 
+		// the continuous queries
+		final EnumSet<DistributionRegionHandlingFlag> streamOptions = EnumSet.noneOf(DistributionRegionHandlingFlag.class);
+		streamOptions.addAll(extraOptions);
+		streamOptions.add(DistributionRegionHandlingFlag.STREAMING_ONLY);
+		predicateMap.put(DistributionRegionHelper.PREDICATE_REGIONS_FOR_STREAM, streamOptions);
+		
+		return getHopListForPredicateAndBox(rootRegion, boundingBox, instances, predicateMap);
 	}
 
 	/**
@@ -81,12 +103,16 @@ public class RoutingHopHelper {
 	public static List<RoutingHop> getHopListForPredicateAndBox(
 			final DistributionRegion rootRegion, final Hyperrectangle boundingBox,
 			final List<BBoxDBInstance> knownInstances,
-			final Predicate<DistributionRegionState> statePredicate) {
+			final Map<Predicate<DistributionRegionState>, EnumSet<DistributionRegionHandlingFlag>> statesAndOptions) {
 
-		final List<DistributionRegion> regions = getRegionsForPredicate(rootRegion, boundingBox, 
-				statePredicate);
+		final Map<List<DistributionRegion>, EnumSet<DistributionRegionHandlingFlag>> routingList = new HashMap<>();
+		
+		for(final Map.Entry<Predicate<DistributionRegionState>, EnumSet<DistributionRegionHandlingFlag>> state : statesAndOptions.entrySet()) {
+			final List<DistributionRegion> regions = getRegionsForPredicate(rootRegion, boundingBox, state.getKey());
+			routingList.put(regions, state.getValue());
+		}
 
-		final Map<InetSocketAddress, RoutingHop> hops = mergeHops(regions);
+		final Map<InetSocketAddress, RoutingHop> hops = getHopListForRegion(routingList);
 
 		return removeUnavailableHops(knownInstances, hops);
 	}
@@ -115,15 +141,19 @@ public class RoutingHopHelper {
 	 * @param regions
 	 * @return
 	 */
-	private static Map<InetSocketAddress, RoutingHop> mergeHops(final List<DistributionRegion> regions) {
+	private static Map<InetSocketAddress, RoutingHop> getHopListForRegion(
+			final Map<List<DistributionRegion>, EnumSet<DistributionRegionHandlingFlag>> routingList) {
+		
 		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
 
-		for(final DistributionRegion region : regions) {
-			for(final BBoxDBInstance system : region.getSystems()) {
-
-				hops.computeIfAbsent(system.getInetSocketAddress(), 
-						(i) -> new RoutingHop(system, new ArrayList<Long>()))
-					.addRegion(region.getRegionId());
+		for(final Entry<List<DistributionRegion>, EnumSet<DistributionRegionHandlingFlag>> hop : routingList.entrySet()) {
+			for(final DistributionRegion region : hop.getKey()) {
+				for(final BBoxDBInstance system : region.getSystems()) {
+	
+					hops.computeIfAbsent(system.getInetSocketAddress(), 
+							(i) -> new RoutingHop(system, new HashMap<>()))
+						.addRegion(region.getRegionId(), hop.getValue());
+				}
 			}
 		}
 		

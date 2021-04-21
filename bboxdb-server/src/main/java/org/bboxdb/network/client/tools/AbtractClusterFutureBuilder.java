@@ -19,7 +19,10 @@ package org.bboxdb.network.client.tools;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -35,6 +38,7 @@ import org.bboxdb.network.client.future.network.NetworkOperationFutureMultiImpl;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +53,11 @@ public abstract class AbtractClusterFutureBuilder {
 	 * The bounding box
 	 */
 	private final Hyperrectangle boundingBox;
+	
+	/**
+	 * The routing options
+	 */
+	private EnumSet<DistributionRegionHandlingFlag> routingOption;
 
 	/**
 	 * The membership connection service
@@ -66,9 +75,10 @@ public abstract class AbtractClusterFutureBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(AbtractClusterFutureBuilder.class);
 
 	public AbtractClusterFutureBuilder(final ClusterOperationType clusterOperationType, 
-			final String table, final Hyperrectangle boundingBox) throws BBoxDBException {
+			final String table, final Hyperrectangle boundingBox, final EnumSet<DistributionRegionHandlingFlag> routingOption) throws BBoxDBException {
 		
 		this.clusterOperationType = clusterOperationType;
+		this.routingOption = routingOption;
 		this.distributionRegion = SpacePartitionerHelper.getRootNode(table);
 		this.boundingBox = boundingBox;
 		this.membershipConnectionService = MembershipConnectionService.getInstance();
@@ -115,7 +125,10 @@ public abstract class AbtractClusterFutureBuilder {
 						continue;
 					}
 					
-					final RoutingHop hop = new RoutingHop(instance, Arrays.asList(region.getRegionId()));
+					final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions = new HashMap<>();
+					distributionRegions.put(region.getRegionId(), routingOption);
+					
+					final RoutingHop hop = new RoutingHop(instance, distributionRegions);
 
 					final RoutingHeader routingHeader = new RoutingHeader((short) 0, Arrays.asList(hop));
 
@@ -187,9 +200,9 @@ public abstract class AbtractClusterFutureBuilder {
 	private List<RoutingHop> getHops() {
 		switch(clusterOperationType) {
 			case READ_FROM_NODES:
-				return RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
+				return RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox, routingOption);
 			case WRITE_TO_NODES:
-				return RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox);
+				return RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox, routingOption);
 			default:
 				throw new IllegalArgumentException("Unknown type: " + clusterOperationType);
 		}

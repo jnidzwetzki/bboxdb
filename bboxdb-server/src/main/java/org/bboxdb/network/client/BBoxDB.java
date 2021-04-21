@@ -27,8 +27,8 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
-import org.bboxdb.network.packages.request.InsertOption;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -80,7 +80,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 */
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple,
-			final EnumSet<InsertOption> insertOptions) throws BBoxDBException;
+			final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException;
 	
 	/**
 	 * Lock tuple

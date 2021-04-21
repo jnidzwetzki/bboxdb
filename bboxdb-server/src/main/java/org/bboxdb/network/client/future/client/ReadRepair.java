@@ -26,7 +26,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.RoutingHeaderHelper;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.request.InsertOption;
+import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
@@ -99,7 +99,7 @@ public class ReadRepair {
 
 		for(final Tuple tuple : allTuples) {
 			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
-					tablename, tuple.getBoundingBox(), true, bboxDBConnection.getServerAddress(), true);
+					tablename, tuple.getBoundingBox(), true, bboxDBConnection.getServerAddress(), true, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 
 			// System is not responsible for the tuple
 			if(routingHeader.getHopCount() == 0) {
@@ -113,7 +113,7 @@ public class ReadRepair {
 						bboxDBConnection.getConnectionName());
 
 				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
-				bboxDBClient.insertTuple(tablename, tuple, routingHeader, EnumSet.noneOf(InsertOption.class));
+				bboxDBClient.insertTuple(tablename, tuple, routingHeader);
 			}
 		}
 	}

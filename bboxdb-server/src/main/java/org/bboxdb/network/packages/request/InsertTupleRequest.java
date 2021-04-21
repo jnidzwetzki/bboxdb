@@ -20,9 +20,7 @@ package org.bboxdb.network.packages.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
 
-import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
@@ -46,11 +44,6 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	private final Tuple tuple;
 
 	/**
-	 * The insert options
-	 */
-	private EnumSet<InsertOption> insertOptions;
-
-	/**
 	 * Create package from parameter
 	 * 
 	 * @param table
@@ -60,13 +53,12 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 * @param data
 	 */
 	public InsertTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
-			final TupleStoreName table, final Tuple tuple, final EnumSet<InsertOption> insertOptions) {
+			final TupleStoreName table, final Tuple tuple) {
 		
 		super(sequenceNumber, routingHeader);
 		
 		this.table = table;
 		this.tuple = tuple;
-		this.insertOptions = insertOptions;
 	}
 
 	/**
@@ -88,14 +80,6 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Unable to decode package");
 		}
 		
-		final int insertOptionsInt = encodedPackage.getInt();
-		final EnumSet<InsertOption> insertOptions = EnumSet.noneOf(InsertOption.class);
-		for(final InsertOption insertOption : InsertOption.values()) {
-			if((insertOption.getStatusFlagValue() & insertOptionsInt) == insertOption.getStatusFlagValue()) {
-				insertOptions.add(insertOption);
-			}
-		}
-		
 		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
 
 		if(encodedPackage.remaining() != 0) {
@@ -108,31 +92,22 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 		
 		final Tuple readTuple = tupleAndTable.getTuple();
 		
-		return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, readTuple, insertOptions);
+		return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, readTuple);
 	}
 
 	@Override
 	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
-			
-			int optionsInt = 0;
-		    for(final InsertOption option : insertOptions) {
-		    	optionsInt |= option.getStatusFlagValue();
-		    }
-			
-			final ByteBuffer optionsByte = DataEncoderHelper.intToByteBuffer(optionsInt);
-			
 			final byte[] tupleAsByte = NetworkTupleEncoderDecoder.encode(tuple, table.getFullname());
 			
 			// Body length
-			final long bodyLength = tupleAsByte.length + optionsByte.limit();
+			final long bodyLength = tupleAsByte.length;
 			
 			// Unrouted package
 			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write tuple
-			outputStream.write(optionsByte.array());
 			outputStream.write(tupleAsByte);
 			
 			return headerLength + bodyLength;
@@ -157,18 +132,10 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 		return tuple;
 	}
 	
-	
-	@Override
-	public String toString() {
-		return "InsertTupleRequest [table=" + table + ", tuple=" + tuple 
-				+ ", insertOptions=" + insertOptions + "]";
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((insertOptions == null) ? 0 : insertOptions.hashCode());
 		result = prime * result + ((table == null) ? 0 : table.hashCode());
 		result = prime * result + ((tuple == null) ? 0 : tuple.hashCode());
 		return result;
@@ -183,11 +150,6 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 		if (getClass() != obj.getClass())
 			return false;
 		InsertTupleRequest other = (InsertTupleRequest) obj;
-		if (insertOptions == null) {
-			if (other.insertOptions != null)
-				return false;
-		} else if (!insertOptions.equals(other.insertOptions))
-			return false;
 		if (table == null) {
 			if (other.table != null)
 				return false;
@@ -202,12 +164,13 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	}
 
 	@Override
+	public String toString() {
+		return "InsertTupleRequest [table=" + table + ", tuple=" + tuple + "]";
+	}
+
+	@Override
 	public byte getPackageType() {
 		return NetworkConst.REQUEST_TYPE_INSERT_TUPLE;
-	}
-	
-	public EnumSet<InsertOption> getInsertOptions() {
-		return insertOptions;
 	}
 
 }
