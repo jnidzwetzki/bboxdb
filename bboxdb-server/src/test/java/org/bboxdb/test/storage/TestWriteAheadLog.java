@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.bboxdb.commons.io.FileUtil;
@@ -41,7 +42,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 
 public class TestWriteAheadLog {
 	
@@ -62,8 +62,8 @@ public class TestWriteAheadLog {
 
 	
 	@Before
-	public void before() {
-		tempDir = Files.createTempDir();
+	public void before() throws IOException {
+		tempDir = Files.createTempDirectory("walogtest").toFile();
 	}
 
 	@After
