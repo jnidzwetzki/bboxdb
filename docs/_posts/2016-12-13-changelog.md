@@ -15,6 +15,7 @@ order: 1
 - Bugfix: Data is streamed to splitting and merging regions to ensure correct continuous joins
 - Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 - Bugfix: Don't start response handler for duplicate continuous queries
+- Bugfix: Prevent registration of continuous queries when stream table does not exists (and invalid ZooKeeper state afterward)
 
 ### Version 0.9.6 - 14.04.2021
 - New Feature: Predefined queries in the GUI

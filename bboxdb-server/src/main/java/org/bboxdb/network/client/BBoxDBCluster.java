@@ -41,7 +41,9 @@ import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ContinuousQueryRegisterer;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
@@ -391,9 +393,25 @@ public class BBoxDBCluster implements BBoxDB {
 	public JoinedTupleListFuture queryContinuous(final ContinuousQueryPlan queryPlan)
 			throws BBoxDBException {
 
-		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(queryPlan.getStreamTable());
+		final String streamTable = queryPlan.getStreamTable();
+		
+		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(streamTable);
 
 		final Hyperrectangle queryRange = queryPlan.getQueryRange();
+		
+		try {
+			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+					.getZookeeperClient().getTupleStoreAdapter();
+
+			final boolean tableKnown = tupleStoreAdapter.isTableKnown(new TupleStoreName(streamTable));
+			
+			if(! tableKnown) {
+				throw new BBoxDBException("Unable to register query. Table " + streamTable + " does not exist.");
+			}
+			
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
 		
 		final ContinuousQueryRegisterer queryEnlargementRegisterer = registerQueryEnlargement(queryPlan);	
 		
