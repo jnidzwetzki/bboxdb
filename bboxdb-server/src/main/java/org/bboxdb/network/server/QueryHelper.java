@@ -60,7 +60,7 @@ public class QueryHelper {
 				.getZookeeperClient().getTupleStoreAdapter();
 		
 		if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
-			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unkown");
+			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unknown");
 		}
 		
 		final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreName);
