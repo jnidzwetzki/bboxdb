@@ -29,11 +29,13 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.routing.RoutingHopHelper;
+import org.bboxdb.network.server.QueryHelper;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -128,7 +130,7 @@ public class RangeQueryExecutor {
 					readDataNetwork(region);	
 				}
 			}
-		} catch (StorageManagerException e) {
+		} catch (StorageManagerException | ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}		
 	}
@@ -171,13 +173,14 @@ public class RangeQueryExecutor {
 	 * @param tupleRedistributor
 	 * @param childRegion
 	 * @throws StorageManagerException 
+	 * @throws ZookeeperException 
 	 * @throws TupleStoreManagerRegistry 
 	 */
-	private void readDataLocal(final DistributionRegion region) throws StorageManagerException {
+	private void readDataLocal(final DistributionRegion region) throws StorageManagerException, ZookeeperException {
 
 		final long regionId = region.getRegionId();
 		final TupleStoreName childRegionName = tupleStoreName.cloneWithDifferntRegionId(regionId);
-		final TupleStoreManager tupleStoreManager = registry.getTupleStoreManager(childRegionName);
+		final TupleStoreManager tupleStoreManager = QueryHelper.getTupleStoreManager(registry, childRegionName);
 	
 		try(final TupleStoreAquirer tupleStoreAquirer = new TupleStoreAquirer(tupleStoreManager)) {
 			for(final ReadOnlyTupleStore storage : tupleStoreAquirer.getTupleStores()) {
