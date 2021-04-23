@@ -100,7 +100,10 @@ public class ImportStoredData implements Runnable {
 				}
 				
 				if(currentSecond != currentSecondSlot) {
-					final long avgLinesPerSec = totalProcessedLines / stopwatch.elapsed().getSeconds();
+					// Prevent division by 0
+					final long elapsecSeconds = Math.max(stopwatch.elapsed().getSeconds(), 1);
+					
+					final long avgLinesPerSec = totalProcessedLines / elapsecSeconds;
 					
 					logger.info("Processed {} elements (avg lines per second {})", 
 							processedLines, avgLinesPerSec);
