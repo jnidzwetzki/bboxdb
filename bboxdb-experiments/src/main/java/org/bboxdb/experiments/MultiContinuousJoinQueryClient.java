@@ -33,6 +33,9 @@ import java.util.stream.Stream;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -40,7 +43,9 @@ import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.MultiTuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +117,9 @@ public class MultiContinuousJoinQueryClient implements Runnable {
 		
 		try(final BBoxDB connection = new BBoxDBCluster(contactPoint, clusterName)) {
 			connection.connect();
+
+			isTableKnown(persistentTable);
+			isTableKnown(streamTable);
 			
 			for(final Hyperrectangle queryRectangle : ranges) {
 				System.out.println("Creating query in range: " + queryRectangle);
@@ -142,7 +150,28 @@ public class MultiContinuousJoinQueryClient implements Runnable {
 			logger.error("Got an exception", e);
 		} catch (InterruptedException e) {
 			return;
+		} catch (ZookeeperException e) {
+			logger.error("Got an exception", e);
+		} catch (StorageManagerException e) {
+			logger.error("Got an exception", e);
 		} 
+	}
+
+	/**
+	 * Is the table known
+	 * @param tablename
+	 * @throws ZookeeperException
+	 * @throws StorageManagerException
+	 */
+	private void isTableKnown(String tablename) throws ZookeeperException, StorageManagerException {
+		final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+				.getZookeeperClient().getTupleStoreAdapter();
+		
+		final TupleStoreName tupleStoreName = new TupleStoreName(tablename);
+		
+		if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
+			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unknown");
+		}
 	}
 	
 	/**
@@ -324,6 +353,7 @@ public class MultiContinuousJoinQueryClient implements Runnable {
 			final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
 			ranges.add(queryRectangle);
 		}
+		
 		
 		final MultiContinuousJoinQueryClient runable = new MultiContinuousJoinQueryClient(contactPoint, clusterName, 
 				streamTable, persistentTable, ranges, udfName, udfValue);
