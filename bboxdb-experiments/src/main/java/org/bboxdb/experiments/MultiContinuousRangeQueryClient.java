@@ -154,7 +154,7 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 				}
 				
 				for(final MultiTuple tuple : queryFuture) {
-					tuple.getBoundingBox(); // Consume and ignore the tuple
+					logger.debug("Got tuple {} back", tuple);
 				}
 			} catch (InterruptedException e) {
 				return;

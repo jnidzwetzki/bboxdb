@@ -153,7 +153,9 @@ public class MultiContinuousJoinQueryClient implements Runnable {
 		final Thread thread = new Thread(() -> {
 			
 			try {
+				logger.info("Wait for query ready");
 				queryFuture.waitForCompletion();
+				logger.info("Wait for query ready - DONE");
 				
 				if(queryFuture.isFailed()) {
 					logger.error("Query error {}", queryFuture.getAllMessages());
@@ -161,7 +163,7 @@ public class MultiContinuousJoinQueryClient implements Runnable {
 				}
 				
 				for(final MultiTuple tuple : queryFuture) {
-					tuple.getBoundingBox(); // Consume and ignore the tuple
+					logger.debug("Got tuple {} back", tuple);
 				}
 			} catch (InterruptedException e) {
 				return;
