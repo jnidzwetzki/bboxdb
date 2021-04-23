@@ -23,14 +23,24 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RandomQueryRangeGenerator {
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(RandomQueryRangeGenerator.class);
 	
 	/**
 	 * Determine a random query rectangle
 	 * @return
 	 */
 	public static Hyperrectangle getRandomQueryRange(final Hyperrectangle range, final double percentage) {
+		
+		logger.info("Generating a random hyperrectangle with a coverage of {} percent", percentage);
+		
 		final List<DoubleInterval> bboxIntervals = new ArrayList<>();
 		
 		// Determine query bounding box
