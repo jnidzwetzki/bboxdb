@@ -37,30 +37,37 @@ public class RandomQueryRangeGenerator {
 	 * Determine a random query rectangle
 	 * @return
 	 */
-	public static Hyperrectangle getRandomQueryRange(final Hyperrectangle range, final double percentage) {
+	public static Hyperrectangle getRandomQueryRange(final Hyperrectangle completeSpace, final double percentage) {
 		
-		logger.info("Generating a random hyperrectangle with a coverage of {} percent", percentage);
+		logger.debug("Generating a random hyperrectangle with a coverage of {} percent", percentage);
+		
+		final Hyperrectangle scaledRectangle = completeSpace.scaleVolumeByPercentage(percentage);
 		
 		final List<DoubleInterval> bboxIntervals = new ArrayList<>();
 		
 		// Determine query bounding box
-		for(int dimension = 0; dimension < range.getDimension(); dimension++) {
-			final double dataExtent = range.getExtent(dimension);
-			final double randomDouble = ThreadLocalRandom.current().nextDouble();
-			final double bboxOffset = (randomDouble % 1) * dataExtent;
-			final double coordinateLow = range.getCoordinateLow(dimension);
-			final double coordinateHigh = range.getCoordinateHigh(dimension);
-
-			final double bboxStartPos = coordinateLow + bboxOffset;
+		for(int dimension = 0; dimension < scaledRectangle.getDimension(); dimension++) {
+			final double dataExtentCompleteRange = completeSpace.getExtent(dimension);
 			
-			final double queryExtend = dataExtent * percentage;
-			final double bboxEndPos = Math.min(bboxStartPos + queryExtend, coordinateHigh);
+			final double extendRange = scaledRectangle.getExtent(dimension);
 
-			final DoubleInterval doubleInterval = new DoubleInterval(bboxStartPos, bboxEndPos);
+			// The offset can move the scaled rectangle
+			final double offsetRage = dataExtentCompleteRange - extendRange;
+			
+			final double randomDouble = ThreadLocalRandom.current().nextDouble();
+			final double bboxOffset = Math.abs((randomDouble % 1) * offsetRage);
+						
+			final DoubleInterval doubleInterval = new DoubleInterval(
+					completeSpace.getCoordinateLow(dimension) + bboxOffset, 
+					completeSpace.getCoordinateLow(dimension) + bboxOffset + extendRange);
+						
 			bboxIntervals.add(doubleInterval);
 		}
 		
-		return new Hyperrectangle(bboxIntervals);
+		final Hyperrectangle generatedHyperrectangle = new Hyperrectangle(bboxIntervals);
+		logger.debug("Complete space {} / generated {}", completeSpace, generatedHyperrectangle);
+		
+		return generatedHyperrectangle;
 	}
 
 }
