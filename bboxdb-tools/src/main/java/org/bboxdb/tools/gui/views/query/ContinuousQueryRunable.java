@@ -19,11 +19,9 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.util.List;
-import java.util.Map;
 
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.MultiTuple;
@@ -48,7 +46,7 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryRunable.class);
 
 	public ContinuousQueryRunable(final List<Color> colors, final ContinuousQueryPlan qp, 
-			final BBoxDB connection, final ElementOverlayPainter painter) {
+			final BBoxDBCluster connection, final ElementOverlayPainter painter) {
 		
 		super(qp, connection, painter);
 		this.colors = colors;
@@ -92,9 +90,8 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 			boolean interruptedFlag = Thread.interrupted();
 			
 			try {
-				final Map<BBoxDBClient, List<Short>> cancelData = queryResult.getAllConnections();
-				logger.info("Canceling {}", cancelData);
-				connection.cancelQuery(cancelData);
+				logger.info("Canceling continous query {}", qp.getQueryUUID());
+				connection.cancelContinousQuery(qp.getQueryUUID());
 			} catch (BBoxDBException e) {
 				logger.error("Got exception", e);
 			} catch (InterruptedException e) {

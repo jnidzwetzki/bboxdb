@@ -39,7 +39,7 @@ import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * The client
 	 */
-	private final BBoxDB connection;
+	private final BBoxDBCluster connection;
 
 	/**
 	 * The space partitioner
@@ -93,7 +93,7 @@ public class GuiModel implements DistributionRegionCallback {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
 
-	public GuiModel(final BBoxDB connection) {
+	public GuiModel(final BBoxDBCluster connection) {
 		this.connection = connection;
 		this.distributionGroupZookeeperAdapter = new DistributionGroupAdapter(
 				ZookeeperClientFactory.getZookeeperClient());
@@ -332,7 +332,7 @@ public class GuiModel implements DistributionRegionCallback {
 	 * Get the BBoxDB connection
 	 * @return
 	 */
-	public BBoxDB getConnection() {
+	public BBoxDBCluster getConnection() {
 		return connection;
 	}
 	

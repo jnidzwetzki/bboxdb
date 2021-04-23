@@ -26,13 +26,13 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
-import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.storage.entity.EntityIdentifier;
-import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier.Strategy;
+import org.bboxdb.storage.entity.MultiTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	 * The BBoxDB connection
 	 */
 	
-	protected final BBoxDB connection;
+	protected final BBoxDBCluster connection;
 	
 	/**
 	 * The element overlay painter
@@ -95,7 +95,7 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	private final static Logger logger = LoggerFactory.getLogger(AbstractContinuousQueryRunable.class);
 
 	public AbstractContinuousQueryRunable(final ContinuousQueryPlan qp, 
-			final BBoxDB connection, final ElementOverlayPainter painter) {
+			final BBoxDBCluster connection, final ElementOverlayPainter painter) {
 		
 		this.qp = qp;
 		this.connection = connection;

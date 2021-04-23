@@ -28,7 +28,6 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,7 +171,7 @@ public class ConnectDialog {
 			 * @param distributionGroup
 			 * @param connection
 			 */
-			protected void showMainDialog(final BBoxDB connection) {
+			protected void showMainDialog(final BBoxDBCluster connection) {
 				final GuiModel guiModel = new GuiModel(connection);		
 				final BBoxDBGui bboxDBGUI = new BBoxDBGui(guiModel);
 				guiModel.setBBoxDBGui(bboxDBGUI);

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
@@ -82,6 +83,16 @@ public class BBoxDBCluster implements BBoxDB {
 	 * The membership connection service
 	 */
 	private final MembershipConnectionService membershipConnectionService;
+	
+	/**
+	 * The query continuous plans
+	 */
+	private Map<String, ContinuousQueryPlan> continousQueryPlans = new ConcurrentHashMap<>();
+
+	/**
+	 * The running continuous queries
+	 */
+	private Map<String, JoinedTupleListFuture> continousQueries = new ConcurrentHashMap<>();
 
 	/**
 	 * The Logger
@@ -565,6 +576,26 @@ public class BBoxDBCluster implements BBoxDB {
 		return new JoinedTupleListFuture(builder.getSupplier());
 	}
 
+	/**
+	 * Cancel the given continuous query 
+	 * @param queryUUID
+	 * @throws BBoxDBException
+	 * @throws InterruptedException 
+	 */
+	public boolean cancelContinousQuery(final String queryUUID) throws BBoxDBException, InterruptedException {
+		if(! continousQueryPlans.containsKey(queryUUID)) {
+			return false;
+		}
+		
+		continousQueryPlans.remove(queryUUID);
+		final JoinedTupleListFuture future = continousQueries.remove(queryUUID);
+
+		final Map<BBoxDBClient, List<Short>> cancelData = future.getAllConnections();
+		cancelQuery(cancelData);
+		
+		return false;
+	}
+	
 	/**
 	 * Cancel the given query
 	 */

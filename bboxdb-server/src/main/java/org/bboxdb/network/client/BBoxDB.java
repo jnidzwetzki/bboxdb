@@ -164,7 +164,7 @@ public interface BBoxDB extends Closeable {
 	 * @throws BBoxDBException
 	 */
 	public JoinedTupleListFuture queryContinuous(final ContinuousQueryPlan queryPlan) throws BBoxDBException;
-
+	
 	/**
 	 * Query the given table for all tuples that have a newer version timestamp
 	 * @param table

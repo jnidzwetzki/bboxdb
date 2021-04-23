@@ -35,7 +35,7 @@ import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
@@ -672,7 +672,7 @@ public class QueryWindow {
 					qpb.addJoinFilter(userDefinedFilter);
 				}
 				
-				final BBoxDB connection = guimodel.getConnection();
+				final BBoxDBCluster connection = guimodel.getConnection();
 				final List<Color> colors = Arrays.asList(color1, color2);
 
 				final ContinuousQueryPlan qp = qpb.build();
@@ -686,7 +686,7 @@ public class QueryWindow {
 			 * @param connection
 			 * @param colors
 			 */
-			private void startQueryRunable(final ContinuousQueryPlan qp, final BBoxDB connection,
+			private void startQueryRunable(final ContinuousQueryPlan qp, final BBoxDBCluster connection,
 					final List<Color> colors) {
 				
 				final Runnable runable = new ContinuousQueryRunable(colors, qp, connection, painter);
@@ -718,7 +718,7 @@ public class QueryWindow {
 					qpb.addStreamFilter(userDefinedFilter);
 				}
 				
-				final BBoxDB connection = guimodel.getConnection();
+				final BBoxDBCluster connection = guimodel.getConnection();
 				
 				final ContinuousQueryPlan qp = qpb.build();
 
