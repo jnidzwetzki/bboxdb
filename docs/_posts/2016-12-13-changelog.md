@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.7 - TBA
+- New Feature: Added volume scale method in Hyperrectangle class
 - New Feature: Added service method to cancel continuous queries
 - Improvement: Flush pages for continuous query when at least one tuple was send
 - Improvement: Register a continuous query only one time per instance

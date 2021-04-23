@@ -111,7 +111,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	}
 
 	/**
-	 * Convert a list with double inetervals into an array
+	 * Convert a list with double intervals into an array
 	 * @param values
 	 */
 	private void intervalsToArray(final List<DoubleInterval> values) {
@@ -784,6 +784,35 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		}
 
 		return volume;
+	}
+	
+	/**
+	 * Scale up the volume by the given percentage (e.g, 1.2 for 120%)
+	 * @param percentage
+	 * @return
+	 */
+	public Hyperrectangle scaleVolumeByPercentage(final double percentage) {
+		
+		// Don't scale the full space
+		if(this == FULL_SPACE) {
+			return null;
+		}
+
+		// Don't scale rectangles with a min or max value
+		for(double value : boundingBox) {
+			if(value == DoubleInterval.MIN_VALUE) {
+				return null;
+			}
+			
+			
+			if(value == DoubleInterval.MAX_VALUE) {
+				return null;
+			}
+		}
+		
+		final double factor = Math.pow(percentage, 1.0 / getDimension());
+		
+		return enlargeByFactor(factor);
 	}
 
 	/**

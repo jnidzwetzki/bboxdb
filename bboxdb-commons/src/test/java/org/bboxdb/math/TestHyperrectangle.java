@@ -716,4 +716,32 @@ public class TestHyperrectangle {
 		final Hyperrectangle enlargedBox1 = bb1.enlargeByMeters(50, 60);
 		Assert.assertEquals(enlargedBox1, new Hyperrectangle(239.8460795353730600, 239.8517044646269500, -131.3945211680342300, -131.3911230319657800));
 	}
+	
+	/**
+	 * Test the volume scaling
+	 */
+	@Test(timeout=60000)
+	public void testVolumeScaleByPercentage() {
+		Assert.assertNull(Hyperrectangle.FULL_SPACE.scaleVolumeByPercentage(2.0));
+		Assert.assertNull(Hyperrectangle.createFullCoveringDimensionBoundingBox(2).scaleVolumeByPercentage(2.0));
+		
+		final Hyperrectangle hyperrectangle1 = new Hyperrectangle(0.0, 2.0);
+		final Hyperrectangle hr1Scaled = hyperrectangle1.scaleVolumeByPercentage(0.5);
+		Assert.assertEquals(hyperrectangle1.getVolume() / 2, hr1Scaled.getVolume(), EQUALS_DELTA);
+		
+		final Hyperrectangle hyperrectangle2 = new Hyperrectangle(0.0, 2.0, 0.0, 3.0);
+		final Hyperrectangle hr2Scaled = hyperrectangle2.scaleVolumeByPercentage(0.5);
+		Assert.assertEquals(hyperrectangle2.getVolume() / 2, hr2Scaled.getVolume(), EQUALS_DELTA);
+		
+		final Hyperrectangle hyperrectangle3 = new Hyperrectangle(0.0, 3.0, 0.0, 3.0, -1.0, 5.0);
+		final Hyperrectangle hr3Scaled = hyperrectangle3.scaleVolumeByPercentage(0.5);
+		Assert.assertEquals(hyperrectangle3.getVolume() / 2, hr3Scaled.getVolume(), EQUALS_DELTA);
+	
+		final Hyperrectangle hr3ScaledB = hyperrectangle3.scaleVolumeByPercentage(2.0);
+		Assert.assertEquals(hyperrectangle3.getVolume() * 2, hr3ScaledB.getVolume(), EQUALS_DELTA);
+	
+		final Hyperrectangle hyperrectangle4 = new Hyperrectangle(0.0, 3.0, 0.0, 3.0, -1.0, 5.0, 7.0, 45.2);
+		final Hyperrectangle hr4Scaled = hyperrectangle4.scaleVolumeByPercentage(0.5);
+		Assert.assertEquals(hyperrectangle4.getVolume() / 2, hr4Scaled.getVolume(), EQUALS_DELTA);
+	}
 }
