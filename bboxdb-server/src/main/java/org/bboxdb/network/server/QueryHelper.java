@@ -77,7 +77,7 @@ public class QueryHelper {
 	 * @throws IOException 
 	 */
 	public static boolean handleNonExstingTable(final TupleStoreName requestTable, 
-			final short packageSequence,	final ClientConnectionHandler clientConnectionHandler) 
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
 		
 		

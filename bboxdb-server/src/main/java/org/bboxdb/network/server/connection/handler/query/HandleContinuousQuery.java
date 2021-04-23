@@ -25,6 +25,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ContinuousClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
@@ -61,15 +62,30 @@ public class HandleContinuousQuery implements QueryHandler {
 			final QueryContinuousRequest queryRequest = QueryContinuousRequest.decodeTuple(encodedPackage);
 			
 			final ContinuousQueryPlan queryPlan = queryRequest.getQueryPlan();
-			final String requestTableString = queryPlan.getStreamTable();
-			final TupleStoreName requestTable = new TupleStoreName(requestTableString);
+			final String streamTableString = queryPlan.getStreamTable();
+			final TupleStoreName streamTable = new TupleStoreName(streamTableString);
 			
-			if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
+			// Check stream table
+			if(! QueryHelper.handleNonExstingTable(streamTable, packageSequence, clientConnectionHandler)) {
+				logger.warn("Stream table {} does not exists, cancel query", streamTableString);
 				return;
 			}
 			
-			final String newUUID = queryPlan.getQueryUUID();
+			// Check join table
+			if(queryPlan instanceof ContinuousSpatialJoinQueryPlan) {
+				final ContinuousSpatialJoinQueryPlan joinQueryPlan = (ContinuousSpatialJoinQueryPlan) queryPlan;
+				
+				final String joinTableString = joinQueryPlan.getJoinTable();
+				final TupleStoreName joinTable = new TupleStoreName(joinTableString);
 
+				if(! QueryHelper.handleNonExstingTable(joinTable, packageSequence, clientConnectionHandler)) {
+					logger.warn("Join table {} does not exists, cancel query", joinTableString);
+					return;
+				}
+			}
+			
+			// Ensure query is not already registered
+			final String newUUID = queryPlan.getQueryUUID();
 			final boolean alreadyRegistered = isQueryAlreadyRegistered(activeQueries, newUUID);
 		
 			if(alreadyRegistered) {

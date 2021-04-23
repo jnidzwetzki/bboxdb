@@ -205,6 +205,8 @@ public class ContinuousClientQuery implements ClientQuery {
 				return;
 			}
 			
+			final TupleStoreName joinTableName = new TupleStoreName(qp.getJoinTable());
+
 			final TupleAndBoundingBox transformedStreamTuple 
 				= applyStreamTupleTransformations(streamTransformations, streamTuple);
 			
@@ -229,8 +231,6 @@ public class ContinuousClientQuery implements ClientQuery {
 			final Consumer<Tuple> tupleConsumer = getStoredTupleReader(qp, joinFilters, streamTuple, transformedStreamTuple);
 			
 			try {
-				final TupleStoreName tupleStoreName = new TupleStoreName(qp.getJoinTable());
-				
 				final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 				
 				final ContinuousSpatialJoinFetchMode fetchMode = BBoxDBConfigurationManager.getConfiguration()
@@ -243,7 +243,7 @@ public class ContinuousClientQuery implements ClientQuery {
 					executionPolicy = ExecutionPolicy.ALL;
 				} 
 				
-				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
+				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(joinTableName, 
 						transformedStreamTuple.getBoundingBox(), 
 						tupleConsumer, storageRegistry,
 						executionPolicy);

@@ -12,6 +12,7 @@ order: 1
 - Improvement: Shortcut UDF processing
 - Improvement: In the package routing, each region has the own DistributionRegionHandlingFlag. Generic insert options are removed.
 - Improvement: Switched to ZooKeeper 3.7.0 and added all needed dependencies to pom.xml
+- Improvement: Continuous join queries can only be use existing tables for joins
 - Bugfix: Data is streamed to splitting and merging regions to ensure correct continuous joins
 - Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 - Bugfix: Don't start response handler for duplicate continuous queries
