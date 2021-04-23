@@ -13,10 +13,12 @@ order: 1
 - Improvement: In the package routing, each region has the own DistributionRegionHandlingFlag. Generic insert options are removed.
 - Improvement: Switched to ZooKeeper 3.7.0 and added all needed dependencies to pom.xml
 - Improvement: Continuous join queries can only be use existing tables for joins
+- Improvement: Reworked continuous stream enlargement registration
 - Bugfix: Data is streamed to splitting and merging regions to ensure correct continuous joins
 - Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 - Bugfix: Don't start response handler for duplicate continuous queries
 - Bugfix: Prevent registration of continuous queries when stream table does not exists (and invalid ZooKeeper state afterward)
+- Bugfix: Prevent start of stream importer when stream table does not exists (and invalid ZooKeeper state afterward)
 - Bugfix: Handle non existing / empty tables properly in continuous joins
 
 ### Version 0.9.6 - 14.04.2021

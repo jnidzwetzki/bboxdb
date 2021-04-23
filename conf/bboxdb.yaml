@@ -101,7 +101,7 @@
 clustername: mycluster
 
 # The addresses (hostname:port) of the zookeeper nodes
-zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
+zookeepernodes: ['newton1:50181']
 
 # The IP address of the local node. This IP address 
 # is published in zookeeper and is used for incoming 

@@ -156,7 +156,7 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 	 * @throws ZookeeperException
 	 * @throws StorageManagerException
 	 */
-	private void isTableKnown(String tablename) throws ZookeeperException, StorageManagerException {
+	private void isTableKnown(final String tablename) throws ZookeeperException, StorageManagerException {
 		final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
 				.getZookeeperClient().getTupleStoreAdapter();
 		

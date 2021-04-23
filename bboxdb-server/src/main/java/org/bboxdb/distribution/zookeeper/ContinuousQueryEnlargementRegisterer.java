@@ -19,15 +19,24 @@ package org.bboxdb.distribution.zookeeper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
+import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
+import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContinuousQueryRegisterer implements Watcher {
+public class ContinuousQueryEnlargementRegisterer implements Watcher {
 
 	/**
 	 * The zookeeper client
@@ -79,25 +88,60 @@ public class ContinuousQueryRegisterer implements Watcher {
 	 */
 	private final QueryEnlargement queryEnlagement;
 	
+	/**
+	 * The registered query plans
+	 */
+	private final Map<String, ContinuousQueryPlan> registeredQueryPlans = new ConcurrentHashMap<>();
+	
+	/**
+	 * The instances
+	 */
+	private final static Map<TupleStoreName, ContinuousQueryEnlargementRegisterer> instances = new ConcurrentHashMap<>();
+	
+	/**
+	 * The node name
+	 */
+	private final static String NODE_NAME = "/query-";
 	
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryRegisterer.class);
+	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryEnlargementRegisterer.class);
 
-	
-	public ContinuousQueryRegisterer(final String distributionGroup, final String table) {
-		this(distributionGroup, table, ZookeeperClientFactory.getZookeeperClient());
+
+	/**
+	 * The factory method - returns singletons for the tuple stores
+	 * @param tupleStoreName
+	 * @return
+	 * @throws StorageManagerException 
+	 * @throws ZookeeperException 
+	 */
+	public static ContinuousQueryEnlargementRegisterer getInstanceFor(final TupleStoreName tupleStoreName) 
+			throws StorageManagerException, ZookeeperException {
+		
+		if(instances.containsKey(tupleStoreName)) {
+			return instances.get(tupleStoreName);
+		}
+		
+		final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory.getZookeeperClient().getTupleStoreAdapter();
+				
+		if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
+			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unknown");
+		}
+		
+		final ContinuousQueryEnlargementRegisterer registerer = new ContinuousQueryEnlargementRegisterer(tupleStoreName);
+		instances.put(tupleStoreName, registerer);
+		
+		return registerer;
 	}
 	
-	public ContinuousQueryRegisterer(final String distributionGroup, 
-			final String table, final ZookeeperClient zookeeperClient) {
-		
-		this.zookeeperClient = zookeeperClient;
+	
+	private ContinuousQueryEnlargementRegisterer(final TupleStoreName tupleStoreName) {		
+		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		this.queryEnlagement = new QueryEnlargement();
 		
 		final TupleStoreAdapter tupleStoreAdapter = zookeeperClient.getTupleStoreAdapter();
-		final String tablePath = tupleStoreAdapter.getTablePath(distributionGroup, distributionGroup + "_" + table);
+		final String tablePath = tupleStoreAdapter.getTablePath(tupleStoreName);
 
 		pathEnlargementAbsolute = tablePath + "/queries/absolute-enlargement"; 	
 		pathEnlargementFactor = tablePath + "/queries/factor-enlargement";
@@ -115,47 +159,6 @@ public class ContinuousQueryRegisterer implements Watcher {
 	}
 
 	/**
-	 * Register a continuous query enlargement of the given table
-	 * @param enlagementFactor
-	 * @param distributionGroup
-	 * @param table
-	 * @param enlargement
-	 * 
-	 * @throws ZookeeperException 
-	 */
-	public void updateQueryOnTable(final double absoluteEnlargement, final double enlagementFactor, 
-			final double enlargementMeterLat, final double enlargementMeterLon) throws ZookeeperException {
-		
-		unregisterOldQuery();
-		
-		logger.debug("Register query enlargement (absoluteEnlargement={}, enlagementFactor={}, "
-				+ "enlargementMeterLat={}, enlargementMeterLon={})", 
-				absoluteEnlargement, enlagementFactor, enlargementMeterLat, enlargementMeterLon);
-		
-		final String queryNodeEnlargementAbsolute = pathEnlargementAbsolute + "/query-";
-		final String queryNodeEnlargementFactor = pathEnlargementFactor + "/query-";
-		final String queryNodeEnlargementMeterLat = pathEnlargementMeterLat + "/query-";
-		final String queryNodeEnlargementMeterLon = pathEnlargementMeterLon + "/query-";
-		
-		final byte[] absoluteEnlargementBytes = Double.toString(absoluteEnlargement).getBytes();
-		final byte[] factorEnlargementBytes = Double.toString(enlagementFactor).getBytes();
-		final byte[] enlargementLatBytes = Double.toString(enlargementMeterLat).getBytes();
-		final byte[] enlargementLonBytes = Double.toString(enlargementMeterLon).getBytes();
-
-		final String createdAbsoluteEnlargementPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementAbsolute, absoluteEnlargementBytes);
-		createdEnlargementAbsolutePath = Optional.of(createdAbsoluteEnlargementPath);
-		
-		final String cratedFactorEnlargementPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementFactor, factorEnlargementBytes);
-		createdEnlargementFactorPath = Optional.of(cratedFactorEnlargementPath);
-		
-		final String cratedEnlragementLatPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementMeterLat, enlargementLatBytes);
-		createdEnlargementMeterLatPath = Optional.of(cratedEnlragementLatPath);
-		
-		final String cratedEnlragementLonPath = zookeeperClient.createEphemeralSequencialNode(queryNodeEnlargementMeterLon, enlargementLonBytes);
-		createdEnlargementMeterLonPath = Optional.of(cratedEnlragementLonPath);
-	}
-	
-	/**
 	 * Get the max enlargement factor for a table
 	 * 
 	 * @param distributionGroup
@@ -163,7 +166,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 	 * @return
 	 */
 	public QueryEnlargement getEnlagementForTable() {		
-		updateQueryEnlargement();
+		readMaxEnlargementFromZookeeper();
 		return queryEnlagement;
 	}
 
@@ -203,7 +206,7 @@ public class ContinuousQueryRegisterer implements Watcher {
 	/**
 	 * Update the enlargement data
 	 */
-	private void updateQueryEnlargement() {
+	private void readMaxEnlargementFromZookeeper() {
 		try {
 			final List<String> absoluteEnlargements = zookeeperClient.getChildren(pathEnlargementAbsolute, this);
 			final List<Double> doubleAbsoluteEnlargements = getChildrenValues(pathEnlargementAbsolute, absoluteEnlargements);
@@ -260,36 +263,135 @@ public class ContinuousQueryRegisterer implements Watcher {
 	 */
 	@Override
 	public void process(final WatchedEvent watchedEvent) {
-		updateQueryEnlargement();
+		readMaxEnlargementFromZookeeper();
 	}
 	
 	/**
-	 * Unregister all queries
+	 * Unregister the given query
+	 * @param queryUUID 
+	 * @throws BBoxDBException 
 	 */
-	public void unregisterOldQuery() {
+	public void unregisterOldQuery(final String queryUUID) {
 		try {
-			if(createdEnlargementFactorPath.isPresent()) {
-				zookeeperClient.deleteNodesRecursive(createdEnlargementFactorPath.get());
-				createdEnlargementFactorPath = Optional.empty();
-			}
+			registeredQueryPlans.remove(queryUUID);
+			updateRegistration();
+		} catch (BBoxDBException e) {
+			logger.error("Got Zookeeper exception", e);
+		}
+	}
+	
+	/**
+	 * Unregister all registered queries
+	 * @throws BBoxDBException 
+	 */
+	public void unregisterAllQueries() throws BBoxDBException {
+		registeredQueryPlans.clear();
+		updateRegistration();
+	}
+	
+	
+	/**
+	 * Register the query enlargement
+	 * 
+	 * @param queryPlan
+	 * @return
+	 * @throws BBoxDBException 
+	 */
+	public void registerQueryEnlargement(final ContinuousQueryPlan queryPlan) throws BBoxDBException {
+		registeredQueryPlans.put(queryPlan.getQueryUUID(), queryPlan);
+		updateRegistration();
+	}
+
+
+	/**
+	 * Update the registration in ZooKeeper
+	 * @throws BBoxDBException 
+	 */
+	private void updateRegistration() throws BBoxDBException {
+
+		try {
+			double maxEnlargementAbsolute = 0;
+			double maxEnlargementFactor = 1;
+			double maxEnlargementLatMeter = 0;
+			double maxEnlargementLonMeter = 0;
 			
+			for(final ContinuousQueryPlan queryPlan : registeredQueryPlans.values()) {
+				
+				final double maxEnlargementAbsoluteQuery = queryPlan.getStreamTransformation()
+						.stream()
+						.filter(t -> t instanceof EnlargeBoundingBoxByAmountTransformation)
+						.map(t -> (EnlargeBoundingBoxByAmountTransformation) t)
+						.mapToDouble(t -> t.getAmount())
+						.sum();
+				maxEnlargementAbsolute = Math.max(maxEnlargementAbsolute, maxEnlargementAbsoluteQuery);
+					
+				final double maxEnlargementFactorQuery = queryPlan.getStreamTransformation()
+						.stream()
+						.filter(t -> t instanceof EnlargeBoundingBoxByFactorTransformation)
+						.map(t -> (EnlargeBoundingBoxByFactorTransformation) t)
+						.mapToDouble(t -> t.getFactor())
+						.reduce(1, (a, b) -> a * b);
+				maxEnlargementFactor = Math.max(maxEnlargementFactor, maxEnlargementFactorQuery);
+
+				final double maxEnlargementLatMeterQuery = queryPlan.getStreamTransformation()
+						.stream()
+						.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
+						.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
+						.mapToDouble(t -> t.getMeterLat())
+						.sum();
+				maxEnlargementLatMeter = Math.max(maxEnlargementLatMeter, maxEnlargementLatMeterQuery);
+				
+				final double maxEnlargementLonMeterQuery = queryPlan.getStreamTransformation()
+						.stream()
+						.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
+						.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
+						.mapToDouble(t -> t.getMeterLon())
+						.sum();
+				maxEnlargementLonMeter = Math.max(maxEnlargementLonMeter, maxEnlargementLonMeterQuery);				
+			}
+	
+			logger.info("Register query enlargement (absoluteEnlargement={}, enlagementFactor={}, "
+					+ "enlargementMeterLat={}, enlargementMeterLon={})", 
+					maxEnlargementAbsolute, maxEnlargementFactor, maxEnlargementLatMeter, maxEnlargementLonMeter);
+			
+			final byte[] absoluteEnlargementBytes = Double.toString(maxEnlargementAbsolute).getBytes();
+			final byte[] factorEnlargementBytes = Double.toString(maxEnlargementFactor).getBytes();
+			final byte[] enlargementLatBytes = Double.toString(maxEnlargementLatMeter).getBytes();
+			final byte[] enlargementLonBytes = Double.toString(maxEnlargementLonMeter).getBytes();
+
+			final String createdAbsoluteEnlargementPath = zookeeperClient.createEphemeralSequencialNode(pathEnlargementAbsolute + NODE_NAME, absoluteEnlargementBytes);
 			if(createdEnlargementAbsolutePath.isPresent()) {
 				zookeeperClient.deleteNodesRecursive(createdEnlargementAbsolutePath.get());
 				createdEnlargementAbsolutePath = Optional.empty();
 			}
+			createdEnlargementAbsolutePath = Optional.of(createdAbsoluteEnlargementPath);
 			
+
+			final String cratedFactorEnlargementPath = zookeeperClient.createEphemeralSequencialNode(pathEnlargementFactor + NODE_NAME, factorEnlargementBytes);
+			if(createdEnlargementFactorPath.isPresent()) {
+				zookeeperClient.deleteNodesRecursive(createdEnlargementFactorPath.get());
+				createdEnlargementFactorPath = Optional.empty();
+			}
+			createdEnlargementFactorPath = Optional.of(cratedFactorEnlargementPath);
+			
+			final String cratedEnlragementLatPath = zookeeperClient.createEphemeralSequencialNode(pathEnlargementMeterLat + NODE_NAME, enlargementLatBytes);
 			if(createdEnlargementMeterLatPath.isPresent()) {
 				zookeeperClient.deleteNodesRecursive(createdEnlargementMeterLatPath.get());
 				createdEnlargementMeterLatPath = Optional.empty();
 			}
+			createdEnlargementMeterLatPath = Optional.of(cratedEnlragementLatPath);
 			
+			final String cratedEnlragementLonPath = zookeeperClient.createEphemeralSequencialNode(pathEnlargementMeterLon + NODE_NAME, enlargementLonBytes);
 			if(createdEnlargementMeterLonPath.isPresent()) {
 				zookeeperClient.deleteNodesRecursive(createdEnlargementMeterLonPath.get());
 				createdEnlargementMeterLonPath = Optional.empty();
 			}
+			createdEnlargementMeterLonPath = Optional.of(cratedEnlragementLonPath);
+		
 		} catch (ZookeeperException e) {
-			logger.error("Got an exception while deleting enlargement", e);
+			throw new BBoxDBException(e);
 		}
+		
 	}
 	
 }

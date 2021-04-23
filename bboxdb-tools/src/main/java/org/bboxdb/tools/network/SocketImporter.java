@@ -29,14 +29,16 @@ import java.util.List;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.distribution.zookeeper.ContinuousQueryRegisterer;
+import org.bboxdb.distribution.zookeeper.ContinuousQueryEnlargementRegisterer;
 import org.bboxdb.distribution.zookeeper.QueryEnlargement;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
@@ -235,8 +237,10 @@ public class SocketImporter implements Runnable {
 	 * Main * Main * Main * Main
 	 * @param args
 	 * @throws InputParseException
+	 * @throws ZookeeperException 
+	 * @throws StorageManagerException 
 	 */
-	public static void main(final String[] args) throws InputParseException {
+	public static void main(final String[] args) throws InputParseException, StorageManagerException, ZookeeperException {
 		
 		if(args.length != 7) {
 			System.err.println("Usage: <Class> <Port> <Connection Endpoint> <Clustername> <Table> <Format> <Enlargement> <Write-To-Disk>");
@@ -259,7 +263,7 @@ public class SocketImporter implements Runnable {
 		if("dynamic".equals(enlargement)) {
 			logger.info("Performing dynamic enlargement");
 			final TupleStoreName tupleStoreName = new TupleStoreName(table);
-			final ContinuousQueryRegisterer continuousQueryRegisterer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
+			final ContinuousQueryEnlargementRegisterer continuousQueryRegisterer = ContinuousQueryEnlargementRegisterer.getInstanceFor(tupleStoreName);
 			queryEnlargement = continuousQueryRegisterer.getEnlagementForTable();
 		} else if(NULL_STRING.equals(enlargement)) {
 			logger.info("Performing NULL enlargement");

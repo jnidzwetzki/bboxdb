@@ -40,7 +40,7 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
-import org.bboxdb.distribution.zookeeper.ContinuousQueryRegisterer;
+import org.bboxdb.distribution.zookeeper.ContinuousQueryEnlargementRegisterer;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -54,11 +54,9 @@ import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
 import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
@@ -409,98 +407,55 @@ public class BBoxDBCluster implements BBoxDB {
 				throw new BBoxDBException("Unable to register query. Table " + streamTable + " does not exist.");
 			}
 			
+			final TupleStoreName tupleStoreName = new TupleStoreName(queryPlan.getStreamTable());
+
+			final ContinuousQueryEnlargementRegisterer registerer = ContinuousQueryEnlargementRegisterer.getInstanceFor(tupleStoreName);
+			registerer.registerQueryEnlargement(queryPlan);	
+			
+			final List<DistributionRegion> regions = DistributionRegionHelper
+					.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
+			
+			final Set<BBoxDBInstance> knownSystems = new HashSet<BBoxDBInstance>();
+			
+			final Supplier<List<NetworkOperationFuture>> supplier = () -> {
+
+				final List<NetworkOperationFuture> resultList = new ArrayList<>();
+
+				for(final DistributionRegion regionToQuery : regions) {
+					
+					if(! DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ.test(regionToQuery.getState())) {
+						continue;
+					}
+
+					final BBoxDBInstance firstSystem = regionToQuery.getSystems().get(0);
+					
+					// Register query only one time per system
+					if(knownSystems.contains(firstSystem)) {
+						continue;
+					}
+					
+					knownSystems.add(firstSystem);
+					final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
+
+					final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+					final Supplier<List<NetworkOperationFuture>> future = bboxDBClient.getQueryBoundingBoxContinousFuture(queryPlan);
+					
+					resultList.addAll(future.get());
+				}
+				
+				return resultList;
+			};
+
+			final JoinedTupleListFuture resultFuture = new JoinedTupleListFuture(supplier);
+			resultFuture.addShutdownCallbackConsumer(s -> registerer.unregisterOldQuery(queryPlan.getQueryUUID()));
+			return resultFuture; 
+			
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
+		} catch (StorageManagerException e) {
+			throw new BBoxDBException(e);
 		}
-		
-		final ContinuousQueryRegisterer queryEnlargementRegisterer = registerQueryEnlargement(queryPlan);	
-		
-		final List<DistributionRegion> regions = DistributionRegionHelper
-				.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
-		
-		final Set<BBoxDBInstance> knownSystems = new HashSet<BBoxDBInstance>();
-		
-		final Supplier<List<NetworkOperationFuture>> supplier = () -> {
-
-			final List<NetworkOperationFuture> resultList = new ArrayList<>();
-
-			for(final DistributionRegion regionToQuery : regions) {
-				
-				if(! DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ.test(regionToQuery.getState())) {
-					continue;
-				}
-
-				final BBoxDBInstance firstSystem = regionToQuery.getSystems().get(0);
-				
-				// Register query only one time per system
-				if(knownSystems.contains(firstSystem)) {
-					continue;
-				}
-				
-				knownSystems.add(firstSystem);
-				final BBoxDBConnection connection = membershipConnectionService.getConnectionForInstance(firstSystem);
-
-				final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-				final Supplier<List<NetworkOperationFuture>> future = bboxDBClient.getQueryBoundingBoxContinousFuture(queryPlan);
-				
-				resultList.addAll(future.get());
-			}
-			
-			return resultList;
-		};
-
-		final JoinedTupleListFuture resultFuture = new JoinedTupleListFuture(supplier);
-		resultFuture.addShutdownCallbackConsumer(s -> queryEnlargementRegisterer.unregisterOldQuery());
-		return resultFuture; 
-	}
-
-	/**
-	 * Register the query enlargement
-	 * 
-	 * @param queryPlan
-	 * @return
-	 */
-	private ContinuousQueryRegisterer registerQueryEnlargement(final ContinuousQueryPlan queryPlan) {
-
-		final TupleStoreName tupleStoreName = new TupleStoreName(queryPlan.getStreamTable());
-
-		final ContinuousQueryRegisterer registerer = new ContinuousQueryRegisterer(tupleStoreName.getDistributionGroup(), tupleStoreName.getTablename());
-
-		try {
-			final double maxEnlargementAbsolute = queryPlan.getStreamTransformation()
-					.stream()
-					.filter(t -> t instanceof EnlargeBoundingBoxByAmountTransformation)
-					.map(t -> (EnlargeBoundingBoxByAmountTransformation) t)
-					.mapToDouble(t -> t.getAmount())
-					.sum();
-				
-			final double maxEnlargementFactor = queryPlan.getStreamTransformation()
-					.stream()
-					.filter(t -> t instanceof EnlargeBoundingBoxByFactorTransformation)
-					.map(t -> (EnlargeBoundingBoxByFactorTransformation) t)
-					.mapToDouble(t -> t.getFactor())
-					.reduce(1,  (a, b) -> a*b);
-			
-			final double maxEnlargementLatMeter = queryPlan.getStreamTransformation()
-					.stream()
-					.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
-					.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
-					.mapToDouble(t -> t.getMeterLat())
-					.sum();
-			
-			final double maxEnlargementLonMeter = queryPlan.getStreamTransformation()
-					.stream()
-					.filter(t -> t instanceof EnlargeBoundingBoxByWGS84Transformation)
-					.map(t -> (EnlargeBoundingBoxByWGS84Transformation) t)
-					.mapToDouble(t -> t.getMeterLon())
-					.sum();
-			
-			registerer.updateQueryOnTable(maxEnlargementAbsolute, maxEnlargementFactor, maxEnlargementLatMeter, maxEnlargementLonMeter);			
-		} catch (ZookeeperException e) {
-			logger.error("Unable to register enlargement query details", e);
-		}
-		
-		return registerer;
+	
 	}
 
 	@Override
