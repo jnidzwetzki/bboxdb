@@ -350,7 +350,7 @@ public class ContinuousQueryEnlargementRegisterer implements Watcher {
 				maxEnlargementLonMeter = Math.max(maxEnlargementLonMeter, maxEnlargementLonMeterQuery);				
 			}
 	
-			logger.info("Register query enlargement (absoluteEnlargement={}, enlagementFactor={}, "
+			logger.debug("Register query enlargement (absoluteEnlargement={}, enlagementFactor={}, "
 					+ "enlargementMeterLat={}, enlargementMeterLon={})", 
 					maxEnlargementAbsolute, maxEnlargementFactor, maxEnlargementLatMeter, maxEnlargementLonMeter);
 			
