@@ -28,7 +28,7 @@ public class TestRandomQueryRangeGenerator {
 
 	
 	/**
-	 * Test the rectangles in 2D
+	 * Test the rectangles in 2 dimensions
 	 */
 	@Test(timeout=60000)
 	public void test2Dimension() {
@@ -44,7 +44,7 @@ public class TestRandomQueryRangeGenerator {
 	}
 	
 	/**
-	 * Test the rectangles in 2D
+	 * Test the rectangles in 3 dimensions
 	 */
 	@Test(timeout=60000)
 	public void test3Dimension() {
