@@ -164,13 +164,15 @@ public class TestStorageManager {
 		final Tuple createdTuple1 = new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes());
 		final Tuple createdTuple2 = new Tuple("2", Hyperrectangle.FULL_SPACE, "abc".getBytes());
 		final Tuple createdTuple3 = new Tuple("3", Hyperrectangle.FULL_SPACE, "abc".getBytes());
-
+		
+		final int oldPhase1 = paser.getPhase();
 		storageManager.put(createdTuple1);
-		paser.awaitAdvanceInterruptibly(paser.getPhase(), 10, TimeUnit.SECONDS);
+		paser.awaitAdvanceInterruptibly(oldPhase1, 10, TimeUnit.SECONDS);
 		Assert.assertEquals(1, receivedTuples.size());
 		
+		final int oldPhase2 = paser.getPhase();
 		storageManager.put(createdTuple2);
-		paser.awaitAdvanceInterruptibly(paser.getPhase(), 10, TimeUnit.SECONDS);
+		paser.awaitAdvanceInterruptibly(oldPhase2, 10, TimeUnit.SECONDS);
 		Assert.assertEquals(2, receivedTuples.size());
 
 		final boolean removeResult1 = storageManager.removeInsertCallback(callback);
