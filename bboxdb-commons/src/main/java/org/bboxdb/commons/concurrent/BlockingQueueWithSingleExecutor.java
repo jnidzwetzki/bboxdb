@@ -115,5 +115,12 @@ public class BlockingQueueWithSingleExecutor {
 		pendingRunables.put(RED_PILL);
 	}
 	
+	/**
+	 * Is the executor active
+	 * @return
+	 */
+	public boolean isExecutorActive() {
+		return executor.isAlive();
+	}
 	
 }

@@ -26,7 +26,7 @@ import org.junit.Test;
 public class TestBlockingQueueWithSingleExecutor {
 
 	@Test(timeout = 10_000)
-	public void testQueue() throws InterruptedException {
+	public void testQueue1() throws InterruptedException {
 		final Thread testRunnerThread = Thread.currentThread();
 		final CountDownLatch countDownLatch = new CountDownLatch(25);
 		final BlockingQueueWithSingleExecutor executor = new BlockingQueueWithSingleExecutor(10);
@@ -45,6 +45,20 @@ public class TestBlockingQueueWithSingleExecutor {
 		executor.shutdown();
 		
 		Assert.assertFalse(executor.queue(() -> countDownLatch.countDown()));
+	}
+	
+	@Test(timeout = 10_000)
+	public void testQueue2() throws InterruptedException {
+		final BlockingQueueWithSingleExecutor executor = new BlockingQueueWithSingleExecutor(10);
+		Assert.assertTrue(executor.isExecutorActive());
+		executor.shutdown();
+		
+		// Wait for shutdown
+		while(executor.isExecutorActive()) {
+			Thread.sleep(100);
+		}
+		
+		Assert.assertFalse(executor.isExecutorActive());
 	}
 	
 }
