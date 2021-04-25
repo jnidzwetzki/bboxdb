@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -101,6 +103,11 @@ public class TupleStoreManager implements BBoxDBService {
 	 * The insert callbacks
 	 */
 	protected final List<Consumer<Tuple>> insertCallbacks;
+	
+	/**
+	 * The callback execution thread
+	 */
+	protected final ExecutorService callbackExecutor;
 
 	/**
 	 * The get performance counter
@@ -123,6 +130,10 @@ public class TupleStoreManager implements BBoxDBService {
 		this.nextFreeTableNumber = new AtomicInteger();
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		this.insertCallbacks = new ArrayList<>();
+		
+		// Prevent race conditions between watermarks and callbacks by 
+		// limiting the thread pool to one.
+		this.callbackExecutor = Executors.newFixedThreadPool(1);
 
 		// Close open resources when the failed state is entered
 		this.serviceState = new ServiceState();
@@ -207,6 +218,8 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	protected void closeRessources() {
 		setToReadOnly();
+		
+		callbackExecutor.shutdown();
 		
 		for(final BBoxDBService service : tupleStoreInstances.getSstableFacades()) {
 			try {
@@ -706,7 +719,9 @@ public class TupleStoreManager implements BBoxDBService {
 
 			// Notify callbacks
 			if(runCallbacks) {
-				insertCallbacks.forEach(c -> c.accept(tuple));
+				callbackExecutor.execute(() -> {
+					insertCallbacks.forEach(c -> c.accept(tuple));
+				});
 			}
 			
 		} catch (StorageManagerException e) {
