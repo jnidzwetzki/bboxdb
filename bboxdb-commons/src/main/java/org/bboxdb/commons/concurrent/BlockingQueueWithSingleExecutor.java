@@ -27,7 +27,7 @@ public class BlockingQueueWithSingleExecutor {
 	/**
 	 * The red pill
 	 */
-	private final Runnable RED_PILL_CONSUMER = () -> {};
+	private final Runnable RED_PILL = () -> {};
 	
 	/**
 	 * The pending callbacks
@@ -61,8 +61,13 @@ public class BlockingQueueWithSingleExecutor {
 			@Override
 			protected void runThread() throws Exception {
 				while(! Thread.currentThread().isInterrupted()) {
-					final Runnable runable = pendingRunables.take();
-					runable.run();
+					final Runnable runnable = pendingRunables.take();
+					
+					if(runnable.equals(RED_PILL)) {
+						return;
+					}
+					
+					runnable.run();
 				}
 			}
 			
@@ -107,7 +112,7 @@ public class BlockingQueueWithSingleExecutor {
 	 */
 	public void shutdown() throws InterruptedException {
 		shutdown = true;
-		pendingRunables.put(RED_PILL_CONSUMER);
+		pendingRunables.put(RED_PILL);
 	}
 	
 	
