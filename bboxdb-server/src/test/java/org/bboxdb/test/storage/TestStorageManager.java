@@ -19,7 +19,9 @@ package org.bboxdb.test.storage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
@@ -147,9 +149,15 @@ public class TestStorageManager {
 	}
 
 	@Test(timeout=60000)
-	public void testInsertCallbacks() throws StorageManagerException, RejectedException {
+	public void testInsertCallbacks() throws StorageManagerException, RejectedException, InterruptedException, TimeoutException {
 		final List<Tuple> receivedTuples = new ArrayList<>();
-		final Consumer<Tuple> callback = ((t) -> receivedTuples.add(t));
+		
+		final Phaser paser = new Phaser(1);
+		
+		final Consumer<Tuple> callback = ((t) -> {
+			receivedTuples.add(t);
+			paser.arrive();
+		});
 
 		storageManager.registerInsertCallback(callback);
 
@@ -158,9 +166,11 @@ public class TestStorageManager {
 		final Tuple createdTuple3 = new Tuple("3", Hyperrectangle.FULL_SPACE, "abc".getBytes());
 
 		storageManager.put(createdTuple1);
+		paser.awaitAdvanceInterruptibly(paser.getPhase(), 10, TimeUnit.SECONDS);
 		Assert.assertEquals(1, receivedTuples.size());
-
+		
 		storageManager.put(createdTuple2);
+		paser.awaitAdvanceInterruptibly(paser.getPhase(), 10, TimeUnit.SECONDS);
 		Assert.assertEquals(2, receivedTuples.size());
 
 		final boolean removeResult1 = storageManager.removeInsertCallback(callback);
@@ -169,6 +179,7 @@ public class TestStorageManager {
 		Assert.assertFalse(removeResult2);
 
 		storageManager.put(createdTuple3);
+		Thread.sleep(2000);
 		Assert.assertEquals(2, receivedTuples.size());
 	}
 
