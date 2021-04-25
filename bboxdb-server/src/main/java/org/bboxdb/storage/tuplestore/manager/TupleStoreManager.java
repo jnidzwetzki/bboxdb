@@ -23,13 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.commons.concurrent.BlockingQueueWithSingleExecutor;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.commons.service.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
@@ -104,11 +103,11 @@ public class TupleStoreManager implements BBoxDBService {
 	 * The insert callbacks
 	 */
 	protected final List<Consumer<Tuple>> insertCallbacks;
-	
+
 	/**
 	 * The callback execution thread
 	 */
-	protected final ExecutorService callbackExecutor;
+	protected final BlockingQueueWithSingleExecutor callbackExecutor;
 
 	/**
 	 * The get performance counter
@@ -121,6 +120,9 @@ public class TupleStoreManager implements BBoxDBService {
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreManager.class);
+	
+	
+
 
 	public TupleStoreManager(final DiskStorage storage, final TupleStoreName sstablename,
 			final BBoxDBConfiguration configuration) {
@@ -134,7 +136,7 @@ public class TupleStoreManager implements BBoxDBService {
 		
 		// Prevent race conditions between watermarks and callbacks by 
 		// limiting the thread pool to one.
-		this.callbackExecutor = Executors.newFixedThreadPool(1);
+		this.callbackExecutor = new BlockingQueueWithSingleExecutor(10);
 
 		// Close open resources when the failed state is entered
 		this.serviceState = new ServiceState();
@@ -220,7 +222,11 @@ public class TupleStoreManager implements BBoxDBService {
 	protected void closeRessources() {
 		setToReadOnly();
 		
-		callbackExecutor.shutdown();
+		try {
+			callbackExecutor.shutdown();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 		
 		for(final BBoxDBService service : tupleStoreInstances.getSstableFacades()) {
 			try {
@@ -720,7 +726,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 			// Notify callbacks
 			if(runCallbacks) {
-				callbackExecutor.execute(() -> {
+				callbackExecutor.queue(() -> {
 					insertCallbacks.forEach(c -> c.accept(tuple));
 				});
 			}
@@ -728,6 +734,9 @@ public class TupleStoreManager implements BBoxDBService {
 		} catch (StorageManagerException e) {
 			serviceState.dispatchToFailed(e);
 			throw e;
+		} catch (InterruptedException e) {
+			logger.debug("Got interrupted exception", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 

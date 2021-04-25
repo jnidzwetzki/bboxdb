@@ -18,6 +18,7 @@ order: 1
 - Improvement: Continuous join queries can only be use existing tables for joins
 - Improvement: Reworked continuous stream enlargement registration
 - Improvement: Make RandomQueryRangeGenerator more robust
+- Improvement: Added BlockingQueueWithSingleExecutor as thread executor with a bounded queue 
 - Bugfix: Data is streamed to splitting and merging regions to ensure correct continuous joins
 - Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 - Bugfix: Don't start response handler for duplicate continuous queries
