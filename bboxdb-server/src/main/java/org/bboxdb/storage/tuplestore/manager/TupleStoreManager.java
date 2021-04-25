@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -129,7 +130,7 @@ public class TupleStoreManager implements BBoxDBService {
 		this.tupleStoreName = sstablename;
 		this.nextFreeTableNumber = new AtomicInteger();
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
-		this.insertCallbacks = new ArrayList<>();
+		this.insertCallbacks = new CopyOnWriteArrayList<>();
 		
 		// Prevent race conditions between watermarks and callbacks by 
 		// limiting the thread pool to one.
