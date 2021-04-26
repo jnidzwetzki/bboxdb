@@ -77,7 +77,7 @@ partitions=$(($gigabytes * 4))
 groupname="osmgroup"
 
 # Create at least instances * 4 partitions
-instances=($$BBOXDB_HOME/bin/cli.sh -action show_instances | grep READY | wc -l)
+instances=$($BBOXDB_HOME/bin/cli.sh -action show_instances | grep READY | wc -l)
 min_partitions=$(($instances * 4))
 
 partitions=$(( $partitions < $min_partitions ? $min_partitions : $partitions ))
