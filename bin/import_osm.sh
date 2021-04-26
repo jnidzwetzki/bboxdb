@@ -76,8 +76,13 @@ gigabytes=$(($road_size / $one_gb))
 partitions=$(($gigabytes * 4))
 groupname="osmgroup"
 
-# Create at least 10 partitions
-partitions=$(( $partitions < 20 ? 20 : $partitions ))
+# Create at least instances * 4 partitions
+instances=($$BBOXDB_HOME/bin/cli.sh -action show_instances | grep READY | wc -l)
+min_partitions=$(($instances * 4))
+
+partitions=$(( $partitions < $min_partitions ? $min_partitions : $partitions ))
+
+echo "Discovered $instances instances, creating $partitions partitions"
 
 $BBOXDB_HOME/bin/cli.sh -action delete_dgroup -dgroup $groupname
 $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup $groupname -replicationfactor 1 -dimensions 2 -maxregionsize $one_gb_in_mb 
