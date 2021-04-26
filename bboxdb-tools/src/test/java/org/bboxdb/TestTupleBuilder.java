@@ -109,16 +109,16 @@ public class TestTupleBuilder {
 	
 	// Flight - MSR706
 	private final static String ADS_B_10 = "MSG,1,0,0,1010B,0,2020/01/30,16:37:01.000,2020/01/30,16:37:00.000,MSR706,,,,,,,,,,,";
-	private final static String ADS_B_11 = "MSG,3,0,0,1010B,0,2020/01/30,16:37:01.000,2020/01/30,16:37:00.000,,37000,,,45.076355,12.545340,,,,,,";
+	private final static String ADS_B_11 = "MSG,3,0,0,1010B,0,2020/01/30,16:37:01.000,2020/01/30,16:37:00.000,,37010,,,45.076355,12.545340,,,,,,";
 	private final static String ADS_B_12 = "MSG,4,0,0,1010B,0,2020/01/30,16:37:01.000,2020/01/30,16:37:00.000,,,488.320587,102.897881,,,0,,,,,";
 
 	/**
-	 * Test ADS-B tuple builder
+	 * Test ADS-B tuple builder (2d)
 	 */
 	@Test
 	public void testADSBTupleBuilder1() {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
-				TupleBuilderFactory.Name.ADSB);
+				TupleBuilderFactory.Name.ADSB_2D);
 		
 		final Tuple tuple1 = tupleBuilder.buildTuple(ADS_B_1);
 		final Tuple tuple2 = tupleBuilder.buildTuple(ADS_B_2);
@@ -155,6 +155,7 @@ public class TestTupleBuilder {
 		Assert.assertEquals("6600", geoJson1.getProperties().get("altitude"));
 		Assert.assertEquals("125.706009", geoJson1.getProperties().get("groundSpeed"));
 		Assert.assertEquals("297.992065", geoJson1.getProperties().get("track"));
+		Assert.assertEquals(2, tuple3.getBoundingBox().getDimension());
 		Assert.assertEquals(18.668631, tuple3.getBoundingBox().getCoordinateHigh(1), 0.00001);
 		Assert.assertEquals(-34.003143, tuple3.getBoundingBox().getCoordinateHigh(0), 0.00001);
 
@@ -162,6 +163,7 @@ public class TestTupleBuilder {
 		Assert.assertEquals("37000", geoJson2.getProperties().get("altitude"));
 		Assert.assertEquals("487.345886", geoJson2.getProperties().get("groundSpeed"));
 		Assert.assertEquals("102.924118", geoJson2.getProperties().get("track"));
+		Assert.assertEquals(2, tuple6.getBoundingBox().getDimension());
 		Assert.assertEquals(12.469348, tuple6.getBoundingBox().getCoordinateHigh(1), 0.00001);
 		Assert.assertEquals(45.088634, tuple6.getBoundingBox().getCoordinateHigh(0), 0.00001);
 
@@ -169,13 +171,15 @@ public class TestTupleBuilder {
 		Assert.assertEquals("6500", geoJson3.getProperties().get("altitude"));
 		Assert.assertEquals("126.909416", geoJson3.getProperties().get("groundSpeed"));
 		Assert.assertEquals("300.808899", geoJson3.getProperties().get("track"));
+		Assert.assertEquals(2, tuple9.getBoundingBox().getDimension());
 		Assert.assertEquals(18.665827, tuple9.getBoundingBox().getCoordinateHigh(1), 0.00001);
 		Assert.assertEquals(-34.001831, tuple9.getBoundingBox().getCoordinateHigh(0), 0.00001);
 
 		Assert.assertEquals("MSR706", geoJson4.getProperties().get("callsign"));
-		Assert.assertEquals("37000", geoJson4.getProperties().get("altitude"));
+		Assert.assertEquals("37010", geoJson4.getProperties().get("altitude"));
 		Assert.assertEquals("488.320587", geoJson4.getProperties().get("groundSpeed"));
 		Assert.assertEquals("102.897881", geoJson4.getProperties().get("track"));
+		Assert.assertEquals(2, tuple12.getBoundingBox().getDimension());
 		Assert.assertEquals(12.54534, tuple12.getBoundingBox().getCoordinateHigh(1), 0.00001);
 		Assert.assertEquals(45.076355, tuple12.getBoundingBox().getCoordinateHigh(0), 0.00001);	
 	}
@@ -186,7 +190,7 @@ public class TestTupleBuilder {
 	@Test
 	public void testADSBTupleBuilder2() {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
-				TupleBuilderFactory.Name.ADSB);
+				TupleBuilderFactory.Name.ADSB_2D);
 		
 		final Tuple tuple1 = tupleBuilder.buildTuple(ADS_B_3);
 		final Tuple tuple2 = tupleBuilder.buildTuple(ADS_B_2);
@@ -197,6 +201,61 @@ public class TestTupleBuilder {
 		Assert.assertNull(tuple2);
 		Assert.assertNull(tuple3);
 		Assert.assertNotNull(tuple4);
+	}
+	
+	/**
+	 * Test ADS-B tuple builder
+	 */
+	@Test
+	public void testADSBTupleBuilder3() {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.ADSB_3D);
+		
+		final Tuple tuple1 = tupleBuilder.buildTuple(ADS_B_1);
+		final Tuple tuple2 = tupleBuilder.buildTuple(ADS_B_2);
+		final Tuple tuple3 = tupleBuilder.buildTuple(ADS_B_3);
+		final Tuple tuple4 = tupleBuilder.buildTuple(ADS_B_4);
+		final Tuple tuple5 = tupleBuilder.buildTuple(ADS_B_5);
+		final Tuple tuple6 = tupleBuilder.buildTuple(ADS_B_6);
+		final Tuple tuple7 = tupleBuilder.buildTuple(ADS_B_7);
+		final Tuple tuple8 = tupleBuilder.buildTuple(ADS_B_8);
+		final Tuple tuple9 = tupleBuilder.buildTuple(ADS_B_9);
+		final Tuple tuple10 = tupleBuilder.buildTuple(ADS_B_10);
+		final Tuple tuple11 = tupleBuilder.buildTuple(ADS_B_11);
+		final Tuple tuple12 = tupleBuilder.buildTuple(ADS_B_12);
+		
+		Assert.assertNull(tuple1);
+		Assert.assertNull(tuple2);
+		Assert.assertNotNull(tuple3);
+		Assert.assertNull(tuple4);
+		Assert.assertNull(tuple5);
+		Assert.assertNotNull(tuple6);
+		Assert.assertNull(tuple7);
+		Assert.assertNull(tuple8);
+		Assert.assertNotNull(tuple9);
+		Assert.assertNull(tuple10);
+		Assert.assertNull(tuple11);
+		Assert.assertNotNull(tuple12);
+			
+		Assert.assertEquals(3, tuple3.getBoundingBox().getDimension());
+		Assert.assertEquals(18.668631, tuple3.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(-34.003143, tuple3.getBoundingBox().getCoordinateHigh(0), 0.00001);
+		Assert.assertEquals(6600, tuple3.getBoundingBox().getCoordinateHigh(2), 0.00001);
+
+		Assert.assertEquals(3, tuple6.getBoundingBox().getDimension());
+		Assert.assertEquals(12.469348, tuple6.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(45.088634, tuple6.getBoundingBox().getCoordinateHigh(0), 0.00001);
+		Assert.assertEquals(37000, tuple6.getBoundingBox().getCoordinateHigh(2), 0.00001);
+
+		Assert.assertEquals(3, tuple9.getBoundingBox().getDimension());
+		Assert.assertEquals(18.665827, tuple9.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(-34.001831, tuple9.getBoundingBox().getCoordinateHigh(0), 0.00001);
+		Assert.assertEquals(6500, tuple9.getBoundingBox().getCoordinateHigh(2), 0.00001);
+
+		Assert.assertEquals(3, tuple12.getBoundingBox().getDimension());
+		Assert.assertEquals(12.54534, tuple12.getBoundingBox().getCoordinateHigh(1), 0.00001);
+		Assert.assertEquals(45.076355, tuple12.getBoundingBox().getCoordinateHigh(0), 0.00001);	
+		Assert.assertEquals(37010, tuple12.getBoundingBox().getCoordinateHigh(2), 0.00001);
 	}
 
 	/**

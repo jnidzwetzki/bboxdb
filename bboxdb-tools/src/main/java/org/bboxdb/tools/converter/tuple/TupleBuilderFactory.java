@@ -101,9 +101,14 @@ public class TupleBuilderFactory {
 		public static final String BERLINMOD = "berlinmod";
 
 		/**
-		 * The ADSB tuple builder
+		 * The ADSB tuple builder (2d)
 		 */
-		public static final String ADSB = "adsb";	
+		public static final String ADSB_2D = "adsb";	
+		
+		/**
+		 * The ADSB tuple builder (3d)
+		 */
+		public static final String ADSB_3D = "adsb3d";	
 		
 		/**
 		 * The ADSB tuple builder
@@ -121,7 +126,7 @@ public class TupleBuilderFactory {
 			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
 			Name.ROME_TAXI_RANGE, Name.NARI_DYNAMIC,
 			Name.FOREX_1D, Name.FOREX_2D, Name.BERLINMOD_PLAYER,
-			Name.BERLINMOD, Name.ADSB, Name.AUTRANSPORT);
+			Name.BERLINMOD, Name.ADSB_2D, Name.ADSB_3D, Name.AUTRANSPORT);
 
 	/**
 	 * Return the parser for the tuple format
@@ -159,8 +164,10 @@ public class TupleBuilderFactory {
 				return new BerlinModPlayerTupleBuilder();
 			case Name.BERLINMOD:
 				return new BerlinModTupleBuilder();
-			case Name.ADSB:
-				return new ADSBTupleBuilder();
+			case Name.ADSB_2D:
+				return new ADSBTupleBuilder2D();
+			case Name.ADSB_3D:
+				return new ADSBTupleBuilder3D();
 			case Name.AUTRANSPORT:
 				return new AuTransportGeoJSONTupleBuilder();
 			default:

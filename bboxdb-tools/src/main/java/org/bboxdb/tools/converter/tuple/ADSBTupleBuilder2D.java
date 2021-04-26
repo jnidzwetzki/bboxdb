@@ -32,9 +32,9 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ADSBTupleBuilder extends TupleBuilder {
+public class ADSBTupleBuilder2D extends TupleBuilder {
 	
-	private class Aircraft {
+	class Aircraft {
 		
 		public final String hexIdent;
 		
@@ -94,7 +94,7 @@ public class ADSBTupleBuilder extends TupleBuilder {
 	 */
 	private final SimpleDateFormat dateParser;
 	
-	public ADSBTupleBuilder() {
+	public ADSBTupleBuilder2D() {
 		this.aircrafts = new HashMap<>();
 		this.dateParser = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 		this.dateParser.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -103,7 +103,7 @@ public class ADSBTupleBuilder extends TupleBuilder {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ADSBTupleBuilder.class);
+	private final static Logger logger = LoggerFactory.getLogger(ADSBTupleBuilder2D.class);
 
 	@Override
 	public Tuple buildTuple(final String valueData, final String keyData) {
@@ -129,8 +129,7 @@ public class ADSBTupleBuilder extends TupleBuilder {
 			// Emit new tuple after receiving 'Airborne Position Message'
 			if("4".equals(transmissionType) && aircraft.isComplete()) {
 			
-				final Hyperrectangle boundingBox = new Hyperrectangle(aircraft.latitude, aircraft.latitude, 
-						aircraft.longitude, aircraft.longitude);
+				final Hyperrectangle boundingBox = getHyperrectangleFromAircraft(aircraft);
 				
 				return new Tuple(aircraft.callsign, boundingBox.enlargeByAmount(boxPadding), 
 						aircraft.toGeoJSON().getBytes(), aircraft.lastUpdateTimestamp * 1000);
@@ -141,6 +140,17 @@ public class ADSBTupleBuilder extends TupleBuilder {
 			logger.error("Unabe to parse: " + valueData, e);
 			return null;
 		}
+	}
+
+	/**
+	 * Get the hyperrectangle from the aircraft (2d version)
+	 * @param aircraft
+	 * @return
+	 * @throws InputParseException 
+	 */
+	protected Hyperrectangle getHyperrectangleFromAircraft(final Aircraft aircraft) throws InputParseException {
+		return new Hyperrectangle(aircraft.latitude, aircraft.latitude, 
+				aircraft.longitude, aircraft.longitude);
 	}
 
 	/**

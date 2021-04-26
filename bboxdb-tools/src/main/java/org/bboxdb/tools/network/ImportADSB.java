@@ -81,7 +81,7 @@ public class ImportADSB implements Runnable {
 	        ){
 			bboxdbClient.connect();
 
-			final TupleBuilder builder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.ADSB);
+			final TupleBuilder builder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.ADSB_2D);
 			
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String line = null;
