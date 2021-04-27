@@ -25,7 +25,7 @@ import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.network.client.future.client.helper.ThreadedTupleListFutureIterator;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.util.EntityDuplicateTracker;
+import org.bboxdb.storage.util.TimeBasedEntityDuplicateTracker;
 import org.bboxdb.storage.util.TupleHelper;
 
 public class TupleListFuture extends AbstractListFuture<Tuple> {
@@ -76,7 +76,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		final ReadRepair readRepair = new ReadRepair(tablename, futures);
 		readRepair.performReadRepair(allTuples);
 
-		final EntityDuplicateTracker entityDuplicateTracker = new EntityDuplicateTracker();
+		final TimeBasedEntityDuplicateTracker entityDuplicateTracker = new TimeBasedEntityDuplicateTracker();
 
 		final Iterator<Tuple> iterator = allTuples.iterator();
 		while(iterator.hasNext()) {

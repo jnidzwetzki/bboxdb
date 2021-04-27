@@ -29,7 +29,7 @@ import org.bboxdb.network.client.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.bboxdb.storage.util.CloseableIterator;
-import org.bboxdb.storage.util.EntityDuplicateTracker;
+import org.bboxdb.storage.util.TimeBasedEntityDuplicateTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,7 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 	/**
 	 * The tuple duplicate remover
 	 */
-	protected final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
+	protected final TimeBasedEntityDuplicateTracker tupleDuplicateRemover = new TimeBasedEntityDuplicateTracker();
 
 	/**
 	 * The Logger

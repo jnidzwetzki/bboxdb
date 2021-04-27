@@ -23,7 +23,7 @@ import java.util.List;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.util.EntityDuplicateTracker;
+import org.bboxdb.storage.util.TimeBasedEntityDuplicateTracker;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class TestTupleDuplicateRemover {
 
 	@Test(timeout=60000)
 	public void testTupleDuplicateRemoverDiffKey() {
-		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
+		final TimeBasedEntityDuplicateTracker tupleDuplicateRemover = new TimeBasedEntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
@@ -44,7 +44,7 @@ public class TestTupleDuplicateRemover {
 	
 	@Test(timeout=60000)
 	public void testTupleDuplicateRemoverEqualKeyDiffVesion() {
-		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
+		final TimeBasedEntityDuplicateTracker tupleDuplicateRemover = new TimeBasedEntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
@@ -57,7 +57,7 @@ public class TestTupleDuplicateRemover {
 	
 	@Test(timeout=60000)
 	public void testTupleDuplicateRemoverEqualKeyEqualVesion() {
-		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
+		final TimeBasedEntityDuplicateTracker tupleDuplicateRemover = new TimeBasedEntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
@@ -70,7 +70,7 @@ public class TestTupleDuplicateRemover {
 	
 	@Test(timeout=60000)
 	public void testJoinedTuple() {
-	final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
+	final TimeBasedEntityDuplicateTracker tupleDuplicateRemover = new TimeBasedEntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, "".getBytes(), 1);
 		final Tuple tuple2 = new Tuple("key2", Hyperrectangle.FULL_SPACE, "".getBytes(), 1);

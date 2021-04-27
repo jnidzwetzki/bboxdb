@@ -27,6 +27,7 @@ order: 1
 - Bugfix: Prevent start of stream importer when stream table does not exists (and invalid ZooKeeper state afterward)
 - Bugfix: Handle non existing / empty tables properly in continuous joins
 - Bugfix: Prevent a race condition between the execution and the register/deregister method of continuous queries
+- Bugfix: Prevent a out of memory situation during the handling of old seen elements
 
 ### Version 0.9.6 - 14.04.2021
 - New Feature: Predefined queries in the GUI

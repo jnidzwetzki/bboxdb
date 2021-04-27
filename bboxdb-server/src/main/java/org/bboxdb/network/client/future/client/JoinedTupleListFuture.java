@@ -28,7 +28,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.client.helper.ThreadedJoinedTupleListFutureIterator;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.storage.entity.MultiTuple;
-import org.bboxdb.storage.util.EntityDuplicateTracker;
+import org.bboxdb.storage.util.TimeBasedEntityDuplicateTracker;
 
 public class JoinedTupleListFuture extends AbstractListFuture<MultiTuple>{
 
@@ -44,7 +44,7 @@ public class JoinedTupleListFuture extends AbstractListFuture<MultiTuple>{
 	@Override
 	protected Iterator<MultiTuple> createSimpleIterator() {
 		final List<MultiTuple> allTuples = getListWithAllResults();
-		final EntityDuplicateTracker entityDuplicateTracker = new EntityDuplicateTracker();
+		final TimeBasedEntityDuplicateTracker entityDuplicateTracker = new TimeBasedEntityDuplicateTracker();
 
 		final Iterator<MultiTuple> iterator = allTuples.iterator();
 		while(iterator.hasNext()) {
