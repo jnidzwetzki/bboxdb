@@ -27,10 +27,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -117,7 +117,7 @@ public class OSMDataConverter {
 	/**
 	 * The Blocking queue
 	 */
-	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(1000);
+	protected BlockingQueue<Way> queue = new LinkedBlockingQueue<>(1000);
 	
 	static class Backend {
 		/**

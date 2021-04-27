@@ -22,6 +22,7 @@ order: 1
 - Improvement: Make RandomQueryRangeGenerator more robust
 - Improvement: Added BlockingQueueWithSingleExecutor as thread executor with a bounded queue 
 - Improvement: Number of created partitions in import_osm.sh script now depends on the number of BBoxDB instances
+- Improvement: Replaced ArrayBlockingQueue by LinkedBlockingQueue implementation for better performance
 - Bugfix: Data is streamed to splitting and merging regions to ensure correct continuous joins
 - Bugfix: Prevent NPE when result future is not found in BBoxDB connection
 - Bugfix: Don't start response handler for duplicate continuous queries

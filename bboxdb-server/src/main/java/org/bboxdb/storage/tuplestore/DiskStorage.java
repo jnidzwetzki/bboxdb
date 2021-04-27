@@ -20,8 +20,8 @@ package org.bboxdb.storage.tuplestore;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bboxdb.commons.concurrent.ThreadHelper;
 import org.bboxdb.commons.service.ServiceState;
@@ -103,7 +103,7 @@ public class DiskStorage implements BBoxDBService {
 		this.tupleStoreManagerRegistry = storageRegistry;
 		this.basedir = basedir;
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
-		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
+		this.memtablesToFlush = new LinkedBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 		this.performanceCounterLabel = basedir.toString();
 	}
 
