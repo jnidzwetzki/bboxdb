@@ -20,11 +20,11 @@ package org.bboxdb.storage.memtable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -178,7 +178,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 			spatialIndexBuilder.insert(indexEntry);
 		}
 
-		keyPositions.computeIfAbsent(tuple.getKey(), (e) -> new HashSet<>()).add(freePos);
+		keyPositions.computeIfAbsent(tuple.getKey(), (e) -> ConcurrentHashMap.newKeySet()).add(freePos);
 
 		freePos++;
 		sizeInMemory = sizeInMemory + tuple.getSize();
