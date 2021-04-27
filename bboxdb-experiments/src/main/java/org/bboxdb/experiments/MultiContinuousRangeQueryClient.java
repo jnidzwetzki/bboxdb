@@ -17,24 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.experiments;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
-import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
@@ -45,64 +40,23 @@ import org.bboxdb.network.query.QueryPlanBuilder;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.MultiTuple;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultiContinuousRangeQueryClient implements Runnable {
+public class MultiContinuousRangeQueryClient extends AbstractMultiQueryClient implements Runnable {
 
-	/**
-	 * The cluster contact point
-	 */
-	private final String contactPoint;
-	
-	/**
-	 * The name of the cluster
-	 */
-	private final String clusterName;
-	
-	/**
-	 * The table to query
-	 */
-	private final String table;
-	
-	/**
-	 * The data ranges
-	 */
-	private final List<Hyperrectangle> ranges;
-	
-	/**
-	 * All threads
-	 */
-	private final List<Thread> allThreads = new CopyOnWriteArrayList<>();
-	
-	/**
-	 * The UDF name
-	 */
-	private final Optional<String> udfName;
-
-	/**
-	 * The UDF value
-	 */
-	private final Optional<String> udfValue;
-	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(MultiContinuousRangeQueryClient.class);
+	final static Logger logger = LoggerFactory.getLogger(MultiContinuousRangeQueryClient.class);
 
 
 	public MultiContinuousRangeQueryClient(final String contactPoint, final String clusterName, 
-			final String table, final List<Hyperrectangle> ranges, final Optional<String> udfName, 
+			final String streamTable, final List<Hyperrectangle> ranges, final Optional<String> udfName, 
 			final Optional<String> udfValue) {
 			
-				this.contactPoint = contactPoint;
-				this.clusterName = clusterName;
-				this.table = table;
-				this.ranges = ranges;
-				this.udfName = udfName;
-				this.udfValue = udfValue;
+			super(clusterName, contactPoint, streamTable, ranges, udfName, udfValue);
 	}
 	
 	@Override
@@ -111,13 +65,13 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 		try(final BBoxDB connection = new BBoxDBCluster(contactPoint, clusterName)) {
 			connection.connect();
 			
-			isTableKnown(table);
+			isTableKnown(streamTable);
 			
 			for(final Hyperrectangle queryRectangle : ranges) {
 				System.out.println("Creating query in range: " + queryRectangle);
 				
 				final QueryPlanBuilder queryPlanBuilder = QueryPlanBuilder
-						.createQueryOnTable(table)
+						.createQueryOnTable(streamTable)
 						.compareWithStaticSpace(queryRectangle)
 						.forAllNewTuplesInSpace(queryRectangle);
 				
@@ -135,6 +89,8 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 			
 			logger.info("Successfully registered {} queries", ranges.size());
 			
+			dumpResultCounter();
+			
 			for(final Thread thread : allThreads) {
 				thread.join();
 			}
@@ -150,23 +106,6 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 	}
 	
 
-	/**
-	 * Is the table known
-	 * @param tablename
-	 * @throws ZookeeperException
-	 * @throws StorageManagerException
-	 */
-	private void isTableKnown(final String tablename) throws ZookeeperException, StorageManagerException {
-		final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
-				.getZookeeperClient().getTupleStoreAdapter();
-		
-		final TupleStoreName tupleStoreName = new TupleStoreName(tablename);
-		
-		if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
-			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unknown");
-		}
-	}
-	
 	/**
 	 * 
 	 * @param queryFuture
@@ -184,6 +123,7 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 				
 				for(final MultiTuple tuple : queryFuture) {
 					logger.debug("Got tuple {} back", tuple);
+					receivedResults.incrementAndGet();
 				}
 			} catch (InterruptedException e) {
 				return;
@@ -219,6 +159,56 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 		}
 	}
 
+
+	/**
+	 * Perform the autogenerate action
+	 * @param args
+	 */
+	protected static void performAutogenerate(final String[] args) {
+		if(args.length != 7 && args.length != 9) {
+			System.err.println("Usage: <Class> autogenerate <ClusterContactPoint> <Clustername> <Table> <Range> "
+					+ "<Percentage> <Parallel-Queries> {<UDF-Name> <UDF-Value>}");
+			System.exit(-1);
+		}
+		
+		final String contactPoint = args[1];
+		final String clusterName = args[2];
+		final String table = args[3];
+		final String rangeString = args[4];
+		final String percentageString = args[5];
+		final String parallelQueriesString = args[6];
+		
+		Optional<String> udfName = Optional.empty();
+		Optional<String> udfValue = Optional.empty();
+		
+		if(args.length == 9) {
+			udfName = Optional.of(args[7]);
+			udfValue = Optional.of(args[8]);
+		}
+		
+		
+		final Optional<Hyperrectangle> range = HyperrectangleHelper.parseBBox(rangeString);
+		
+		if(! range.isPresent()) {
+			System.err.println("Unable to parse as bounding box: " + rangeString);
+		}
+		
+		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
+		final double parallelQueries = MathUtil.tryParseDoubleOrExit(parallelQueriesString, () -> "Unable to parse: " + parallelQueriesString);
+		
+		final List<Hyperrectangle> ranges = new ArrayList<>();
+	
+		for(int i = 0; i < parallelQueries; i++) {
+			final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
+			ranges.add(queryRectangle);
+		}
+		
+		final MultiContinuousRangeQueryClient runable = new MultiContinuousRangeQueryClient(contactPoint, clusterName, 
+				table, ranges, udfName, udfValue);
+		
+		runable.run();
+	}
+	
 	/**
 	 * Perform the read data operation
 	 * @param args
@@ -259,93 +249,5 @@ public class MultiContinuousRangeQueryClient implements Runnable {
 		} catch (IOException e) {
 			logger.error("Got exception during write", e);
 		}
-	}
-
-	/**
-	 * Write the queries into a file for later usage
-	 * @param args
-	 */
-	private static void performWriteData(final String[] args) {
-		if(args.length != 5) {
-			System.err.println("Usage: <Class> writefile <File> <Range> <Percentage> <Parallel-Queries>");
-			System.exit(-1);
-		}
-
-		final File outputFile = new File(args[1]);
-		final String rangeString = args[2];
-		final String percentageString = args[3];
-		final String parallelQueriesString = args[4];
-		
-		if(outputFile.exists()) {
-			System.err.println("The specified output file already exists");
-			System.exit(-1);
-		}
-		
-		final Optional<Hyperrectangle> range = HyperrectangleHelper.parseBBox(rangeString);
-		
-		if(! range.isPresent()) {
-			System.err.println("Unable to parse as bounding box: " + rangeString);
-		}
-		
-		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
-		final double parallelQueries = MathUtil.tryParseDoubleOrExit(parallelQueriesString, () -> "Unable to parse: " + parallelQueriesString);
-
-		try(final BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-			for(int i = 0; i < parallelQueries; i++) {
-				final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
-				writer.write(queryRectangle.toCompactString() + "\n");
-			}
-		} catch (IOException e) {
-			logger.error("Got exception during write", e);
-		}
-	}
-
-	/**
-	 * Perform the autogenerate action
-	 * @param args
-	 */
-	private static void performAutogenerate(final String[] args) {
-		if(args.length != 7 && args.length != 9) {
-			System.err.println("Usage: <Class> autogenerate <ClusterContactPoint> <Clustername> <Table> <Range> "
-					+ "<Percentage> <Parallel-Queries> {<UDF-Name> <UDF-Value>}");
-			System.exit(-1);
-		}
-		
-		final String contactPoint = args[1];
-		final String clusterName = args[2];
-		final String table = args[3];
-		final String rangeString = args[4];
-		final String percentageString = args[5];
-		final String parallelQueriesString = args[6];
-		
-		Optional<String> udfName = Optional.empty();
-		Optional<String> udfValue = Optional.empty();
-		
-		if(args.length == 9) {
-			udfName = Optional.of(args[7]);
-			udfValue = Optional.of(args[8]);
-		}
-		
-		
-		final Optional<Hyperrectangle> range = HyperrectangleHelper.parseBBox(rangeString);
-		
-		if(! range.isPresent()) {
-			System.err.println("Unable to parse as bounding box: " + rangeString);
-		}
-		
-		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
-		final double parallelQueries = MathUtil.tryParseDoubleOrExit(parallelQueriesString, () -> "Unable to parse: " + parallelQueriesString);
-		
-		final List<Hyperrectangle> ranges = new ArrayList<>();
-
-		for(int i = 0; i < parallelQueries; i++) {
-			final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
-			ranges.add(queryRectangle);
-		}
-		
-		final MultiContinuousRangeQueryClient runable = new MultiContinuousRangeQueryClient(contactPoint, clusterName, 
-				table, ranges, udfName, udfValue);
-		
-		runable.run();
 	}
 }
