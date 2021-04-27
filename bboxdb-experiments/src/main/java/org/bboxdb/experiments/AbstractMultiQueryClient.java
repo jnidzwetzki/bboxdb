@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -78,7 +78,7 @@ abstract public class AbstractMultiQueryClient {
 	/**
 	 * The number of received results
 	 */
-	protected final AtomicInteger receivedResults = new AtomicInteger(0);
+	protected final AtomicLong receivedResults = new AtomicLong(0);
 	
 	/**
 	 * The Logger
