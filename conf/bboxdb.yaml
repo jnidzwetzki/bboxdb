@@ -135,3 +135,14 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # Default: NONE
 # continuousSpatialJoinFetch: NONE
 
+# The queue size of produced but not already consumed 
+# tuples.
+#
+# Default: 2028
+# continuousClientQueueSize = 2048
+
+# Allow the discarding of tuples when the client
+# queue is full
+#
+# Default: true
+# allowContinuousClientQueueDiscard: true

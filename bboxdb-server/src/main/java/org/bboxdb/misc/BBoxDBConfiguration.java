@@ -88,6 +88,16 @@ public class BBoxDBConfiguration {
 	private int networkConnectionThreads = 25;
 	
 	/**
+	 * The queue size for continuous clients
+	 */
+	private int continuousClientQueueSize = 2048;
+	
+	/**
+	 * Allow the discarding of elements when the continuous client queue is full
+	 */
+	private boolean allowContinuousClientQueueDiscard = true;
+	
+	/**
 	 * The name of the cluster
 	 */
 	private String clustername;
@@ -271,6 +281,22 @@ public class BBoxDBConfiguration {
 	public void setContinuousSpatialJoinFetchModeENUM(final ContinuousSpatialJoinFetchMode continuousSpatialJoinFetchModeENUM) {
 		this.continuousSpatialJoinFetchModeENUM = continuousSpatialJoinFetchModeENUM;
 		this.continuousSpatialJoinFetchMode = continuousSpatialJoinFetchModeENUM.name();
+	}
+
+	public int getContinuousClientQueueSize() {
+		return continuousClientQueueSize;
+	}
+
+	public void setContinuousClientQueueSize(final int continuousClientQueueSize) {
+		this.continuousClientQueueSize = continuousClientQueueSize;
+	}
+
+	public boolean isAllowContinuousClientQueueDiscard() {
+		return allowContinuousClientQueueDiscard;
+	}
+
+	public void setAllowContinuousClientQueueDiscard(final boolean allowContinuousClientQueueDiscard) {
+		this.allowContinuousClientQueueDiscard = allowContinuousClientQueueDiscard;
 	}
 	
 }

@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -36,6 +36,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfiguration.ContinuousSpatialJoinFetchMode;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
@@ -44,8 +45,8 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
-import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
@@ -108,11 +109,6 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * The last query flush time
 	 */
 	private long lastFlushTime = System.currentTimeMillis();
-
-	/**
-	 * The maximal queue capacity
-	 */
-	private final static int MAX_QUEUE_CAPACITY = 1024;
 	
 	/**
 	 * The number of tuples per page
@@ -133,6 +129,11 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * The query plan
 	 */
 	private final ContinuousQueryPlan queryPlan;
+	
+	/**
+	 * Allow the discarding of tuples when the queue is full
+	 */
+	private final boolean allowDiscardTuples;
 
 	/**
 	 * The dead pill for the queue
@@ -160,7 +161,11 @@ public class ContinuousClientQuery implements ClientQuery {
 			
 			this.clientConnectionHandler = clientConnectionHandler;
 			this.querySequence = querySequence;
-			this.tupleQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
+			
+			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+			final int queueSize = configuration.getContinuousClientQueueSize();
+			this.allowDiscardTuples = configuration.isAllowContinuousClientQueueDiscard();
+			this.tupleQueue = new LinkedBlockingQueue<>(queueSize);
 
 			this.totalSendTuples = 0;
 			this.tuplesInPage = 0;
@@ -467,13 +472,26 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	/**
 	 * Queue the tuple for client processing
-	 * @param t
+	 * @param tuple
 	 */
-	private void queueTupleForClientProcessing(final MultiTuple t) {
-		final boolean insertResult = tupleQueue.offer(t);
-
-		if(! insertResult) {
-			logger.error("Unable to add tuple to continuous query, queue is full (seq={})", querySequence);
+	private void queueTupleForClientProcessing(final MultiTuple tuple) {
+		
+		if(allowDiscardTuples) {
+			final boolean insertResult = tupleQueue.offer(tuple);
+	
+			if(! insertResult) {
+				logger.error("Unable to add tuple to continuous query, queue is full (seq={} / size={})", 
+						querySequence, tupleQueue.size());
+			}
+		} else {
+			try {
+				// Try to add and wait if queue is full
+				tupleQueue.put(tuple);
+			} catch (InterruptedException e) {
+				logger.debug("Wait was interrupted", e);
+				Thread.currentThread().interrupt();
+				return;
+			}
 		}
 	}
 

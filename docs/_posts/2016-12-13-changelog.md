@@ -9,6 +9,8 @@ order: 1
 ### Version 0.9.7 - TBA
 - New Feature: Added volume scale method in Hyperrectangle class
 - New Feature: Added service method to cancel continuous queries
+- New Feature: The queue size of unprocessed tuples for continuous queries can now be configured
+- New Feature: The discarding of tuples in continuous queries on full queues can be disabled
 - Improvement: Moved the execution of continuous queries into a separate thread per region
 - Improvement: Flush pages for continuous query when at least one tuple was send
 - Improvement: Register a continuous query only one time per instance
