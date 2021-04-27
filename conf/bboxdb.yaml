@@ -139,7 +139,7 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # tuples.
 #
 # Default: 2028
-# continuousClientQueueSize = 2048
+# continuousClientQueueSize: 2048
 
 # Allow the discarding of tuples when the client
 # queue is full
