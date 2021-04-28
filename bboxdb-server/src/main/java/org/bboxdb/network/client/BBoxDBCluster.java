@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
@@ -426,7 +427,11 @@ public class BBoxDBCluster implements BBoxDB {
 			final List<DistributionRegion> regions = DistributionRegionHelper
 					.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
 			
-			logger.debug("Registering continous query {} on regions {}", queryPlan.getQueryUUID(), regions);
+			if(logger.isDebugEnabled()) {
+				final List<Long> regionToRegister = regions.stream().map(r -> r.getRegionId()).collect(Collectors.toList());
+				logger.debug("Registering continous query {} on regions {} of table {}", 
+						queryPlan.getQueryUUID(), regionToRegister, queryPlan.getStreamTable());
+			}
 			
 			final Set<BBoxDBInstance> knownSystems = new HashSet<BBoxDBInstance>();
 			
