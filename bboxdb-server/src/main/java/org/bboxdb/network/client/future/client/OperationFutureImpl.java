@@ -128,9 +128,14 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 */
 	private void handleNetworkFutureSuccess() {
 		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
-		
-		logger.debug("Handle success, all futures done {}", allDone);
 
+		if(logger.isDebugEnabled()) {
+			final long doneFutures = futures.stream().filter(f -> f.isDone()).count();
+	
+			logger.debug("Handle success, all futures done {} (done={} of={})", allDone, 
+					doneFutures, futures.size());
+		}
+		
 		// If some futures are failed, cancel the successful ones
 		if (isFailed()) {
 			cancelAllFutures();
