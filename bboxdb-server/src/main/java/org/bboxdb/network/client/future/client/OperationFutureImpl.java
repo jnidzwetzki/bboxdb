@@ -258,7 +258,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * org.bboxdb.network.client.future.OperationFuture#getNumberOfResultObjets()
 	 */
 	@Override
-	public int getNumberOfResultObjets() {
+	public int getNumberOfResultObjects() {
 		return futures.size();
 	}
 

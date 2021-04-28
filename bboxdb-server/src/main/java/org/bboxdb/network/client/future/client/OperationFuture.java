@@ -71,7 +71,7 @@ public interface OperationFuture {
 	 * Get the number of result objects
 	 * @return
 	 */
-	public int getNumberOfResultObjets();
+	public int getNumberOfResultObjects();
 
 	/**
 	 * Wait for all futures to complete

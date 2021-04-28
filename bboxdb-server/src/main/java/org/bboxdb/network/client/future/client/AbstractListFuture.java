@@ -44,7 +44,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	protected List<T> getListWithAllResults() {
 		final List<T> allTuples = new ArrayList<>();
 
-		for(int i = 0; i < getNumberOfResultObjets(); i++) {
+		for(int i = 0; i < getNumberOfResultObjects(); i++) {
 			try {
 				final List<T> tupleResult = get(i);
 

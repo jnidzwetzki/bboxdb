@@ -71,7 +71,7 @@ public class BBoxDBClientHelper {
 		
 		final Map<BBoxDBClient, List<Short>> cancelData = new HashMap<>();
 
-		for(int i = 0; i < future.getNumberOfResultObjets(); i++) {
+		for(int i = 0; i < future.getNumberOfResultObjects(); i++) {
 			final short queryId = future.getRequestId(i);
 			logger.info("Canceling query: {}", queryId);
 

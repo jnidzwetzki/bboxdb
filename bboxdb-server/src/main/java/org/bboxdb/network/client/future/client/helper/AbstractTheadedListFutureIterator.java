@@ -91,9 +91,11 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 
 	public AbstractTheadedListFutureIterator(final AbstractListFuture<T> abstractListFuture) {
 		this.abstractListFuture = abstractListFuture;
-		this.futuresToQuery = abstractListFuture.getNumberOfResultObjets();
+		this.futuresToQuery = abstractListFuture.getNumberOfResultObjects();
+		
+		logger.debug("Started new AbstractTheadedListFutureIterator for {} result futures", futuresToQuery);
 
-		for(int i = 0; i < abstractListFuture.getNumberOfResultObjets(); i++) {
+		for(int i = 0; i < abstractListFuture.getNumberOfResultObjects(); i++) {
 			setupProducer(i);
 		}
 	}
@@ -171,8 +173,8 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 
 					 // Query is send to one server, so the number of
 					 // result objects should be 1
-					 if(nextPage.getNumberOfResultObjets() != 1) {
-						 logger.error("Got a non expected number of result objects {}", nextPage.getNumberOfResultObjets());
+					 if(nextPage.getNumberOfResultObjects() != 1) {
+						 logger.error("Got a non expected number of result objects {}", nextPage.getNumberOfResultObjects());
 					 }
 
 					 final List<T> tuples = nextPage.get(0);
