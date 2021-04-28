@@ -485,8 +485,19 @@ public class ContinuousClientQuery implements ClientQuery {
 			}
 		} else {
 			try {
-				// Try to add and wait if queue is full
-				tupleQueue.put(tuple);
+				
+				// Skip queuing when query is not longer active
+				while(queryActive) {
+					// Try to add and wait if queue is full
+					final boolean submitted = tupleQueue.offer(tuple);
+					
+					if(submitted) {
+						break;
+					}
+					
+					Thread.sleep(100);
+				}
+			
 			} catch (InterruptedException e) {
 				logger.debug("Wait was interrupted", e);
 				Thread.currentThread().interrupt();
