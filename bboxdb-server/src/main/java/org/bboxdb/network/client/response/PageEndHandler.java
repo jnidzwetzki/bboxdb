@@ -42,7 +42,7 @@ public class PageEndHandler implements ServerResponseHandler {
 			throws PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Handle page end package");
+			logger.debug("Handle page end package from={}", bBoxDBConnection.getConnectionName());
 		}
 		
 		if(future == null) {

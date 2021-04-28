@@ -44,7 +44,7 @@ public class MultipleTupleStartHandler implements ServerResponseHandler {
 			throws PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Handle multiple tuple start package");
+			logger.debug("Handle multiple tuple start package from={}", bBoxDBConnection.getConnectionName());
 		}
 		
 		if(future == null) {

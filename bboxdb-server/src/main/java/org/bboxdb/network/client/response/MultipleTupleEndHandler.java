@@ -38,7 +38,7 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 			throws PackageEncodeException {
 				
 		if(logger.isDebugEnabled()) {
-			logger.debug("Handle multiple tuple end package");
+			logger.debug("Handle multiple tuple end package from={}", bBoxDBConnection.getConnectionName());
 		}
 				
 		future.setCompleteResult(true);
