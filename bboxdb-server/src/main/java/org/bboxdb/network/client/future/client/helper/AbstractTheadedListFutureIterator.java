@@ -109,7 +109,7 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 	 */
 	public void setupProducer(final int resultId) {
 
-		logger.trace("Start producer for {}", resultId);
+		logger.debug("Starting producer for {}", resultId);
 
 		final Runnable producer = new Runnable() {
 
@@ -132,7 +132,7 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 					Thread.currentThread().interrupt();
 				} finally {
 					addTerminalNE();
-					logger.trace("Producer {} is done", resultId);
+					logger.debug("Producer {} is done", resultId);
 				}
 			}
 
@@ -192,6 +192,9 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			 * @throws InterruptedException
 			 */
 			protected void addTupleListToQueue(final List<T> tupleList) throws InterruptedException {
+				
+				logger.debug("Added {} result tuples to queue", tupleList.size());
+				
 				for(final T element : tupleList) {
 					tupleQueue.put(element);
 				}
