@@ -54,7 +54,7 @@ public class BlockingQueueWithSingleExecutor {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BlockingQueueWithSingleExecutor.class);
 	
-	public BlockingQueueWithSingleExecutor(final int maxQueueSize) {
+	public BlockingQueueWithSingleExecutor(final String name, final int maxQueueSize) {
 		pendingRunables = new LinkedBlockingQueue<>(maxQueueSize);
 		executorRunnable = new ExceptionSafeRunnable() {
 			
@@ -86,6 +86,7 @@ public class BlockingQueueWithSingleExecutor {
 		
 		shutdown = false;
 		executor = new Thread(executorRunnable);
+		executor.setName(name);
 		executor.start();
 	}
 	
@@ -110,8 +111,13 @@ public class BlockingQueueWithSingleExecutor {
 	 * Shutdown the queue
 	 * @throws InterruptedException 
 	 */
-	public void shutdown() throws InterruptedException {
+	public void shutdown(boolean discardPending) throws InterruptedException {
 		shutdown = true;
+		
+		if(discardPending) {
+			pendingRunables.clear();
+		}
+		
 		pendingRunables.put(RED_PILL);
 	}
 	

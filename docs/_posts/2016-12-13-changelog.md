@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.9.8 - TBA
+- Bugfix: Cancel pending insert futures on shutdown 
 
 ### Version 0.9.7 - 28.04.2020
 - New Feature: Added volume scale method in Hyperrectangle class

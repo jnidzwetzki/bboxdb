@@ -29,7 +29,7 @@ public class TestBlockingQueueWithSingleExecutor {
 	public void testQueue1() throws InterruptedException {
 		final Thread testRunnerThread = Thread.currentThread();
 		final CountDownLatch countDownLatch = new CountDownLatch(25);
-		final BlockingQueueWithSingleExecutor executor = new BlockingQueueWithSingleExecutor(10);
+		final BlockingQueueWithSingleExecutor executor = new BlockingQueueWithSingleExecutor("myexecutor", 10);
 		
 		for(int i = 0; i < 25; i++) {
 			Assert.assertTrue(executor.queue(() -> {
@@ -42,16 +42,16 @@ public class TestBlockingQueueWithSingleExecutor {
 		
 		countDownLatch.await();
 		
-		executor.shutdown();
+		executor.shutdown(true);
 		
 		Assert.assertFalse(executor.queue(() -> countDownLatch.countDown()));
 	}
 	
 	@Test(timeout = 10_000)
 	public void testQueue2() throws InterruptedException {
-		final BlockingQueueWithSingleExecutor executor = new BlockingQueueWithSingleExecutor(10);
+		final BlockingQueueWithSingleExecutor executor = new BlockingQueueWithSingleExecutor("myececutor2", 10);
 		Assert.assertTrue(executor.isExecutorActive());
-		executor.shutdown();
+		executor.shutdown(false);
 		
 		// Wait for shutdown
 		while(executor.isExecutorActive()) {
