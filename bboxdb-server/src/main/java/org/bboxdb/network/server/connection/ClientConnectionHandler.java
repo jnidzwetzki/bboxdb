@@ -215,6 +215,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		serviceState.registerCallback((s) -> { if(s.isInStartingState()) { activeConnectionsTotal.inc(); }});
 		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { activeConnectionsTotal.dec(); }});
 		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { LockHelper.handleLockRemove(this); }});
+		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { close(); }});
 
 		serviceState.dipatchToStarting();
 
@@ -389,9 +390,23 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 						clientSocket.getInetAddress(), getConnectionState());
 
 				logger.debug("Socket exception", e);
+				
+				serviceState.dispatchToTerminated();
+			}
+		} catch(Throwable e) {
+			if(serviceState.isInRunningState()) {
+				logger.error("Got exception in connection handler for {}", 
+						clientSocket.getInetAddress(), e);
+				
+				serviceState.dispatchToFailed(e);
 			}
 		}
+	}
 
+	/**
+	 * Close the open resources
+	 */
+	private void close() {
 		getThreadPool().shutdown();
 
 		// Close active query iterators
