@@ -40,7 +40,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	/**
 	 * The overlapping distance
 	 */
-	private final static double MAX_OVERLAPPING_POINT_DISTANCE = 0.0001;
+	private final static double MAX_OVERLAPPING_POINT_DISTANCE_METER = 5;
 	
 	/**
 	 * The Logger
@@ -154,14 +154,52 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 * @return
 	 */
 	protected boolean performIntersectionTest(final OGCGeometry geometry1, final OGCGeometry geometry2) {
-		if(geometry1 instanceof OGCPoint) {
+		if(geometry1 instanceof OGCPoint || geometry2 instanceof OGCPoint) {
 			final double geometryDistrance = geometry1.distance(geometry2);
-			return geometryDistrance < MAX_OVERLAPPING_POINT_DISTANCE;
+
+			final double latitude = getLatitudeFromGeometries(geometry1, geometry2);
+			
+		    //final double lat0 = Math.toRadians(latitudeLow);
+		    final double lat0 = (latitude * (Math.PI) / 180);
+			
+		    final double equator_circumference = 6371000.0;
+		    final double polar_circumference = 6356800.0;
+
+		    final double m_per_deg_long = 360 / polar_circumference;
+		    final double m_per_deg_lat = Math.abs(360 / (Math.cos(lat0) * equator_circumference));
+
+		    final double deg_diff_lat = MAX_OVERLAPPING_POINT_DISTANCE_METER * m_per_deg_lat; 
+		    final double deg_diff_long = MAX_OVERLAPPING_POINT_DISTANCE_METER * m_per_deg_long;
+			
+			return geometryDistrance < Math.max(deg_diff_lat, deg_diff_long);
 		} else {
 		    return geometry1.intersects(geometry2);
 		}
 	}
 	
+	/**
+	 * Get the latitude from the geometries
+	 * @param geometry1
+	 * @param geometry2
+	 * @return
+	 */
+	private double getLatitudeFromGeometries(final OGCGeometry geometry1, final OGCGeometry geometry2) {
+	
+		if(geometry1 instanceof OGCPoint) {
+			final OGCPoint point1 = (OGCPoint) geometry1;
+			return point1.X();
+		} 
+		
+		if(geometry2 instanceof OGCPoint) {
+			final OGCPoint point2 = (OGCPoint) geometry2;
+			return point2.X();
+		}
+		
+		logger.error("One of the provided geometries has to be a point");
+		
+		return 0;
+	}
+
 	/**
 	 * Extract the geometry from the tuple
 	 * @param tuple
@@ -180,11 +218,12 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	}
 
 	/**
-	 * Convert the geojson element to a ESRI geometry
+	 * Convert the GeoJSON element to a ESRI geometry
 	 * @param jsonString
 	 * @return
 	 */
-	private OGCGeometry geoJoinToGeomety(String jsonString) {
+	private OGCGeometry geoJoinToGeomety(final String jsonString) {
+		
 		final OperatorImportFromGeoJson op = (OperatorImportFromGeoJson) OperatorFactoryLocal
 		        .getInstance().getOperator(Operator.Type.ImportFromGeoJson);
 				
