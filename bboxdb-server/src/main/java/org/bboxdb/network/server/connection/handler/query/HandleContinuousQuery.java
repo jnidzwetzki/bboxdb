@@ -24,6 +24,8 @@ import java.util.Map;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
+import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.server.ClientQuery;
@@ -96,7 +98,10 @@ public class HandleContinuousQuery implements QueryHandler {
 						clientConnectionHandler, packageSequence);
 				
 				activeQueries.put(packageSequence, clientQuery);
-				clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
+				
+				// Write an empty page to notify the clients that we are ready
+				clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
+				clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 			}
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
