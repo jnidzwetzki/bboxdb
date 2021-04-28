@@ -111,25 +111,30 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		// Set callbacks
 		futures.forEach(f -> f.setErrorCallback(this));
-		futures.forEach(f -> f.setDoneCallback((c) -> handleNetworkFutureSuccess()));
+		futures.forEach(f -> f.setDoneCallback((c) -> handleNetworkFutureSuccess(c)));
 
 		// Execute
 		futures.forEach(f -> f.execute());
 
 		// Maybe we have a empty future list, so no callback is executed. Let's
 		// check if we are already done
-		handleNetworkFutureSuccess();
+		handleNetworkFutureSuccess(null);
 	}
 
 	/**
 	 * Handle a future success
+	 * @param c 
 	 * 
 	 * @param future
 	 */
-	private void handleNetworkFutureSuccess() {
+	private void handleNetworkFutureSuccess(final NetworkOperationFuture networkOperationFuture) {
 		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
 
 		if(logger.isDebugEnabled()) {
+			if(networkOperationFuture != null) {
+				logger.debug("Got callback from {}", networkOperationFuture.getConnection().getConnectionName());
+			}
+			
 			final long doneFutures = futures.stream().filter(f -> f.isDone()).count();
 	
 			logger.debug("Handle success, all futures done {} (done={} of={})", allDone, 
