@@ -136,7 +136,7 @@ public class TupleStoreManager implements BBoxDBService {
 		
 		// Prevent race conditions between watermarks and callbacks by 
 		// limiting the thread pool to one.
-		this.callbackExecutor = new BlockingQueueWithSingleExecutor("Executor for: " + sstablename, 10);
+		this.callbackExecutor = new BlockingQueueWithSingleExecutor("Executor for: " + sstablename.getFullname(), 10);
 
 		// Close open resources when the failed state is entered
 		this.serviceState = new ServiceState();
