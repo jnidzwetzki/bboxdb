@@ -391,6 +391,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 
 				logger.debug("Socket exception", e);
 				
+				serviceState.dispatchToStopping();
 				serviceState.dispatchToTerminated();
 			}
 		} catch(Throwable e) {
