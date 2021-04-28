@@ -114,7 +114,9 @@ public class MultiContinuousRangeQueryClient extends AbstractMultiQueryClient im
 		final Thread thread = new Thread(() -> {
 			
 			try {
+				logger.info("Wait for tuple completion");
 				queryFuture.waitForCompletion();
+				logger.info("Tuple is complete");
 				
 				if(queryFuture.isFailed()) {
 					logger.error("Query error {}", queryFuture.getAllMessages());
