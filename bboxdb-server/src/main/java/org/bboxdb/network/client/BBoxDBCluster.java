@@ -426,6 +426,8 @@ public class BBoxDBCluster implements BBoxDB {
 			final List<DistributionRegion> regions = DistributionRegionHelper
 					.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
 			
+			logger.debug("Registering continous query {} on regions {}", queryPlan.getQueryUUID(), regions);
+			
 			final Set<BBoxDBInstance> knownSystems = new HashSet<BBoxDBInstance>();
 			
 			final Supplier<List<NetworkOperationFuture>> supplier = () -> {
