@@ -267,8 +267,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 
 	@Override
 	public String toString() {
-		return "TupleStoreName [fullname=" + fullname + ", valid=" + valid + ", group=" + group + ", tablename="
-				+ tablename + ", regionid=" + regionid + "]";
+		return "TupleStoreName " + getFullname();
 	}
 
 	@Override

@@ -535,7 +535,11 @@ public class ContinuousClientQuery implements ClientQuery {
 				final TupleStoreManager tableStorageManager 
 					= QueryHelper.getTupleStoreManager(storageRegistry, tupleStoreName);
 				
-				tableStorageManager.registerInsertCallback(tupleInsertCallback);
+				final boolean registerResult = tableStorageManager.registerInsertCallback(tupleInsertCallback);
+				
+				if(! registerResult) {
+					logger.error("Unable to register query callback on {}", tupleStoreName.getFullname());
+				}
 				
 				storageManager.add(tableStorageManager);
 			}
