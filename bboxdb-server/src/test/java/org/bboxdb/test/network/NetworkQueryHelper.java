@@ -320,6 +320,8 @@ public class NetworkQueryHelper {
 		Assert.assertTrue(iterator.hasNext());
 
 		final MultiTuple foundTuple = iterator.next();
+		
+		System.out.println("Found tuple is " + foundTuple);
 
 		Assert.assertEquals(2, foundTuple.getNumberOfTuples());
 		Assert.assertEquals(table, foundTuple.getTupleStoreName(0));
