@@ -466,6 +466,10 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final JoinedTupleListFuture resultFuture = new JoinedTupleListFuture(supplier);
 			resultFuture.addShutdownCallbackConsumer(s -> registerer.unregisterOldQuery(queryPlan.getQueryUUID()));
+			
+			continousQueries.put(queryPlan.getQueryUUID(), resultFuture);
+			continousQueryPlans.put(queryPlan.getQueryUUID(), queryPlan);
+			
 			return resultFuture; 
 			
 		} catch (ZookeeperException e) {
@@ -590,14 +594,22 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @throws InterruptedException 
 	 */
 	public boolean cancelContinousQuery(final String queryUUID) throws BBoxDBException, InterruptedException {
+		
 		if(! continousQueryPlans.containsKey(queryUUID)) {
+			logger.warn("Unable to cancel continous query {}, query is unkown", queryUUID);
 			return false;
 		}
 		
 		continousQueryPlans.remove(queryUUID);
 		final JoinedTupleListFuture future = continousQueries.remove(queryUUID);
+		
+		if(future == null) {
+			logger.error("Unable to get future for query {}", queryUUID);
+			return false;
+		}
 
 		final Map<BBoxDBClient, List<Short>> cancelData = future.getAllConnections();
+				
 		cancelQuery(cancelData);
 		
 		return false;

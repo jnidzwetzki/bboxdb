@@ -12,6 +12,7 @@ order: 1
 - Bugfix: Ensure callbacks are canceled when the client connection is shutdown
 - Bugfix: Ensure that the server responses to a registration of a continuous query
 - Bugfix: Ensure queries are closed properly on exceptions on the connection
+- Bugfix: Fixed shutdown logic for continuous queries in the BBoxDBCluster class
 
 ### Version 0.9.7 - 28.04.2020
 - New Feature: Added volume scale method in Hyperrectangle class
