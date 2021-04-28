@@ -98,7 +98,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * Is the continuous query active
 	 */
-	private boolean queryActive = true;
+	private volatile boolean queryActive = true;
 
 	/**
 	 * The tuples for the given key
@@ -629,6 +629,8 @@ public class ContinuousClientQuery implements ClientQuery {
 			return;
 		}
 		
+		queryActive = false;
+		
 		logger.info("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
 
 		for(final TupleStoreManager tableTupleStoreManager : storageManager) {
@@ -642,10 +644,14 @@ public class ContinuousClientQuery implements ClientQuery {
 			logger.error("Unable to remove insert callback, storage manager is NULL");
 		}
 
-		queryActive = false;
-		
 		// Cancel next page request
-		tupleQueue.offer(RED_PILL);
+		tupleQueue.clear();
+		try {
+			tupleQueue.put(RED_PILL);
+		} catch (InterruptedException e) {
+			logger.error("Interrupted while submitting red pill to queue", e);
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	@Override

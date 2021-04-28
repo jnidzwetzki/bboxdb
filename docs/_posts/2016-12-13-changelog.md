@@ -9,6 +9,7 @@ order: 1
 ### Version 0.9.8 - TBA
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter
 - Bugfix: Cancel pending insert futures on shutdown 
+- Bugfix: Ensure callbacks are canceled when the client connection is shutdown
 
 ### Version 0.9.7 - 28.04.2020
 - New Feature: Added volume scale method in Hyperrectangle class
