@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 0.9.8 - TBA
+
 ### Version 0.9.7 - 28.04.2020
 - New Feature: Added volume scale method in Hyperrectangle class
 - New Feature: Added service method to cancel continuous queries
