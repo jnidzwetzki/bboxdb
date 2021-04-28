@@ -45,11 +45,13 @@ public class NextPageHandler implements RequestHandler {
 					throws IOException, PackageEncodeException {
 		try {
 			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
-			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());
+			final short querySequence = nextPagePackage.getQuerySequence();
+			
+			logger.debug("Next page for query {} called", querySequence);
 			
 			// Send tuples as result for original query
-			clientConnectionHandler.sendNextResultsForQuery(packageSequence, nextPagePackage.getQuerySequence());
-
+			clientConnectionHandler.sendNextResultsForQuery(packageSequence, querySequence);
+			
 		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
 			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);

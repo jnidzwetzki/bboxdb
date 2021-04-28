@@ -54,10 +54,13 @@ public class CancelRequestHandler implements RequestHandler {
 			
 			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
 			
-			if(activeQueries.containsKey(queryToCancel)) {
-				final ClientQuery clientQuery = activeQueries.remove(queryToCancel);
+			final ClientQuery clientQuery = activeQueries.get(queryToCancel);
+
+			if(clientQuery != null) {
 				clientQuery.close();
-			} 
+			} else {
+				logger.error("Unable to cancel client query {}, it does not exists", queryToCancel);
+			}
 			
 			removeLocks(packageSequence, clientConnectionHandler, queryToCancel);
 			

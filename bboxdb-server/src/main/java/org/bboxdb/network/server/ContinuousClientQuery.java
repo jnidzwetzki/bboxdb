@@ -607,6 +607,7 @@ public class ContinuousClientQuery implements ClientQuery {
 		}
 
 		// All tuples are send
+		logger.info("Sending tuples for query {} is done", packageSequence);
 		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 		clientConnectionHandler.flushPendingCompressionPackages();	
 	}
@@ -639,6 +640,7 @@ public class ContinuousClientQuery implements ClientQuery {
 
 		for(final TupleStoreManager tableTupleStoreManager : storageManager) {
 			final boolean removeResult = tableTupleStoreManager.removeInsertCallback(tupleInsertCallback);
+			
 			if(! removeResult) {
 				logger.error("Unable to remove insert callback, got bad remove callback");
 			}
@@ -650,6 +652,7 @@ public class ContinuousClientQuery implements ClientQuery {
 
 		// Cancel next page request
 		tupleQueue.clear();
+		
 		try {
 			tupleQueue.put(RED_PILL);
 		} catch (InterruptedException e) {
