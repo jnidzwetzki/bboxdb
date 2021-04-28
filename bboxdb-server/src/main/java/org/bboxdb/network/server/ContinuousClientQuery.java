@@ -528,7 +528,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			final List<TupleStoreName> localTables
 				= regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
 			
-			logger.info("Starting new continuous client query (seq={}) on tables", querySequence, localTables);
+			logger.info("Starting new continuous client query (seq={}) on tables={}", querySequence, localTables);
 
 			// Register insert new tuple callback
 			for(final TupleStoreName tupleStoreName : localTables) {
