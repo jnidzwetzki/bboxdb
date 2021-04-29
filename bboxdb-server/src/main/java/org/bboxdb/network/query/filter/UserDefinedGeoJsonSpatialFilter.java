@@ -40,7 +40,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	/**
 	 * The overlapping distance
 	 */
-	private final static double MAX_OVERLAPPING_POINT_DISTANCE_METER = 10;
+	private final static double MAX_OVERLAPPING_POINT_DISTANCE_METER = 5;
 	
 	/**
 	 * The Logger
