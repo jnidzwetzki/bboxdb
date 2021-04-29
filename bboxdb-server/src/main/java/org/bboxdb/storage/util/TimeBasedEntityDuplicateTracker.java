@@ -67,8 +67,10 @@ public class TimeBasedEntityDuplicateTracker {
 			cleanUp();
 		}
 		
-		if(! seenKeysAndVersions.containsKey(entity.getEntityIdentifier())) {
-			seenKeysAndVersions.put(entity.getEntityIdentifier(), System.currentTimeMillis());
+		final EntityIdentifier entityIdentifier = entity.getEntityIdentifier();
+		
+		if(! seenKeysAndVersions.containsKey(entityIdentifier)) {
+			seenKeysAndVersions.put(entityIdentifier, System.currentTimeMillis());
 			return false;
 		}
 		
@@ -79,7 +81,7 @@ public class TimeBasedEntityDuplicateTracker {
 	 * Cleanup the old elements
 	 */
 	protected synchronized void cleanUp() {
-		
+				
 		final Iterator<Entry<EntityIdentifier, Long>> iter = seenKeysAndVersions.entrySet().iterator();
 		long removedElements = 0;
 		
@@ -92,7 +94,7 @@ public class TimeBasedEntityDuplicateTracker {
 			}
 		}
 		
-		logger.debug("Removed {} elements from map", removedElements);
+		logger.debug("Removed {} elements from map, remaining entries {}", removedElements, seenKeysAndVersions.size());
 		
 		lastEviction = System.currentTimeMillis();
 	}
