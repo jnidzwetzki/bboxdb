@@ -17,10 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.storage.util;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.entity.EntityIdentifier;
@@ -33,7 +33,7 @@ public class TimeBasedEntityDuplicateTracker {
 	/**
 	 * The seen keys and versions
 	 */
-	protected Map<EntityIdentifier, Long> seenKeysAndVersions = new ConcurrentHashMap<>();
+	protected Map<EntityIdentifier, Long> seenKeysAndVersions = new HashMap<>();
 
 	/**
 	 * The last eviction call
@@ -43,12 +43,12 @@ public class TimeBasedEntityDuplicateTracker {
 	/**
 	 * The eviction time
 	 */
-	protected final long EVICT_TIME = TimeUnit.MINUTES.toMillis(10);
+	protected final long EVICT_TIME = TimeUnit.MINUTES.toMillis(2);
 	
 	/**
 	 * The eviction wakeup time
 	 */
-	protected final long EVICT_WAKUP_TIME = TimeUnit.MINUTES.toMillis(1);
+	protected final long EVICT_WAKUP_TIME = TimeUnit.SECONDS.toMillis(30);
 
 	/**
 	 * The logger
@@ -60,7 +60,7 @@ public class TimeBasedEntityDuplicateTracker {
 	 * @param entity
 	 * @return true or false
 	 */
-	public boolean isElementAlreadySeen(final PagedTransferableEntity entity) {
+	public synchronized boolean isElementAlreadySeen(final PagedTransferableEntity entity) {
 		
 		if(System.currentTimeMillis() > lastEviction + EVICT_WAKUP_TIME) {
 			logger.debug("Call eviction on the TimeBasedEntityDuplicateTracker");
@@ -78,7 +78,7 @@ public class TimeBasedEntityDuplicateTracker {
 	/**
 	 * Cleanup the old elements
 	 */
-	protected void cleanUp() {
+	protected synchronized void cleanUp() {
 		
 		final Iterator<Entry<EntityIdentifier, Long>> iter = seenKeysAndVersions.entrySet().iterator();
 		long removedElements = 0;
