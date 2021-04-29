@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.9.8 - TBA
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter
+- Improvement: Improved memory usage of the BBoxDB client during long running queries
 - Bugfix: Cancel pending insert futures on shutdown 
 - Bugfix: Ensure callbacks are canceled when the client connection is shutdown
 - Bugfix: Ensure that the server responses to a registration of a continuous query
