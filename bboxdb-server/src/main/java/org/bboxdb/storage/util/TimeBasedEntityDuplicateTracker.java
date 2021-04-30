@@ -116,8 +116,8 @@ public class TimeBasedEntityDuplicateTracker {
 			}
 			
 			mapSizeAfterClean = seenKeysAndVersions.size();
-		} finally {
 			lastEviction = System.currentTimeMillis();
+		} finally {
 			mapLock.unlock();
 		}
 		
