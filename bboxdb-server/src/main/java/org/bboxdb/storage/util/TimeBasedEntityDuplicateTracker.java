@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
@@ -34,6 +35,11 @@ public class TimeBasedEntityDuplicateTracker {
 	 * The seen keys and versions
 	 */
 	protected Map<EntityIdentifier, Long> seenKeysAndVersions = new HashMap<>();
+	
+	/**
+	 * The lock of the map
+	 */
+	protected final ReentrantLock mapLock = new ReentrantLock();
 
 	/**
 	 * The last eviction call
@@ -60,7 +66,7 @@ public class TimeBasedEntityDuplicateTracker {
 	 * @param entity
 	 * @return true or false
 	 */
-	public synchronized boolean isElementAlreadySeen(final PagedTransferableEntity entity) {
+	public boolean isElementAlreadySeen(final PagedTransferableEntity entity) {
 		
 		if(System.currentTimeMillis() > lastEviction + EVICT_WAKUP_TIME) {
 			logger.debug("Call eviction on the TimeBasedEntityDuplicateTracker");
@@ -69,8 +75,16 @@ public class TimeBasedEntityDuplicateTracker {
 		
 		final EntityIdentifier entityIdentifier = entity.getEntityIdentifier();
 		
-		if(! seenKeysAndVersions.containsKey(entityIdentifier)) {
-			seenKeysAndVersions.put(entityIdentifier, System.currentTimeMillis());
+		Long oldValue = null;
+		
+		mapLock.lock();
+		try {
+			oldValue = seenKeysAndVersions.put(entityIdentifier, System.currentTimeMillis());
+		} finally {
+			mapLock.unlock();
+		}
+		
+		if(oldValue == null) {
 			return false;
 		}
 		
@@ -81,21 +95,28 @@ public class TimeBasedEntityDuplicateTracker {
 	 * Cleanup the old elements
 	 */
 	protected synchronized void cleanUp() {
-				
-		final Iterator<Entry<EntityIdentifier, Long>> iter = seenKeysAndVersions.entrySet().iterator();
 		long removedElements = 0;
-		
-		while(iter.hasNext()) {
-			final Entry<EntityIdentifier, Long> entry = iter.next();
+		long mapSizeAfterClean = 0;
+
+		mapLock.lock();
+		try {
+			final Iterator<Entry<EntityIdentifier, Long>> iter = seenKeysAndVersions.entrySet().iterator();
 			
-			if(System.currentTimeMillis() > entry.getValue() + EVICT_TIME) {
-				iter.remove();
-				removedElements++;
+			while(iter.hasNext()) {
+				final Entry<EntityIdentifier, Long> entry = iter.next();
+				
+				if(System.currentTimeMillis() > entry.getValue() + EVICT_TIME) {
+					iter.remove();
+					removedElements++;
+				}
 			}
+			
+			mapSizeAfterClean = seenKeysAndVersions.size();
+		} finally {
+			lastEviction = System.currentTimeMillis();
+			mapLock.unlock();
 		}
 		
-		logger.debug("Removed {} elements from map, remaining entries {}", removedElements, seenKeysAndVersions.size());
-		
-		lastEviction = System.currentTimeMillis();
+		logger.debug("Removed {} elements from map, remaining entries {}", removedElements, mapSizeAfterClean);
 	}
 }
