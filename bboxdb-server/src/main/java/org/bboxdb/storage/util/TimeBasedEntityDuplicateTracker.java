@@ -68,10 +68,8 @@ public class TimeBasedEntityDuplicateTracker {
 	 */
 	public boolean isElementAlreadySeen(final PagedTransferableEntity entity) {
 		
-		if(System.currentTimeMillis() > lastEviction + EVICT_WAKUP_TIME) {
-			logger.debug("Call eviction on the TimeBasedEntityDuplicateTracker");
-			cleanUp();
-		}
+		// Cleanup old elements if needed
+		cleanUpIfNeeded();
 		
 		final EntityIdentifier entityIdentifier = entity.getEntityIdentifier();
 		
@@ -94,12 +92,18 @@ public class TimeBasedEntityDuplicateTracker {
 	/**
 	 * Cleanup the old elements
 	 */
-	protected synchronized void cleanUp() {
+	protected void cleanUpIfNeeded() {
 		long removedElements = 0;
 		long mapSizeAfterClean = 0;
 
 		mapLock.lock();
 		try {
+			if(System.currentTimeMillis() <= lastEviction + EVICT_WAKUP_TIME) {
+				return;
+			}
+			
+			logger.debug("Call eviction on the TimeBasedEntityDuplicateTracker");
+
 			final Iterator<Entry<EntityIdentifier, Long>> iter = seenKeysAndVersions.entrySet().iterator();
 			
 			while(iter.hasNext()) {
