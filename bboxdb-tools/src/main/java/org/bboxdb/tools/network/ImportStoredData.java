@@ -105,8 +105,8 @@ public class ImportStoredData implements Runnable {
 					
 					final long avgLinesPerSec = totalProcessedLines / elapsecSeconds;
 					
-					logger.info("Processed {} elements (avg lines per second {})", 
-							processedLines, avgLinesPerSec);
+					logger.info("Processed {} elements (avg lines per second {} / total lines {})", 
+							processedLines, avgLinesPerSec, totalProcessedLines);
 					
 					currentSecondSlot = currentSecond;
 					processedLines = 0;
