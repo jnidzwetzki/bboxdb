@@ -327,9 +327,9 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		}
 		
 		final double latitudeLow = getCoordinateLow(0);
-		final double lonitudeLow = getCoordinateLow(1);
+		final double longitudeLow = getCoordinateLow(1);
 		final double latitudeHigh = getCoordinateHigh(0);
-		final double lonitudeHigh = getCoordinateHigh(1);
+		final double longitudeHigh = getCoordinateHigh(1);
 		
 	    //final double lat0 = Math.toRadians(latitudeLow);
 	    final double lat0=(latitudeLow * (Math.PI) / 180);
@@ -347,8 +347,8 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 		return new Hyperrectangle(
 				latitudeLow - (deg_diff_lat / 2.0), 
 				latitudeHigh + (deg_diff_lat / 2.0), 
-				lonitudeLow - (deg_diff_long / 2.0), 
-				lonitudeHigh + (deg_diff_long / 2.0));
+				longitudeLow - (deg_diff_long / 2.0), 
+				longitudeHigh + (deg_diff_long / 2.0));
 	}
 	
 	/**

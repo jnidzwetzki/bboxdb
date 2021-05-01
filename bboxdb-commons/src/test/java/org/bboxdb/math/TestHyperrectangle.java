@@ -710,11 +710,13 @@ public class TestHyperrectangle {
 	public void testEnlargeByMeters() {
 		final Hyperrectangle bb0 = new Hyperrectangle(176.451691, 176.451691, 24.48522, 24.48522);
 		final Hyperrectangle enlargedBox0 = bb0.enlargeByMeters(50, 60);
-		Assert.assertEquals(enlargedBox0, new Hyperrectangle(176.4502756356295700, 176.4531063643704600, 24.4835210319657720, 24.4869189680342300));
+		final Hyperrectangle expexted0 = new Hyperrectangle(176.4502756356295700, 176.4531063643704600, 24.4835210319657720, 24.4869189680342300);
+		Assert.assertEquals(expexted0, enlargedBox0);
 
-		final Hyperrectangle bb1 = new Hyperrectangle(239.848892, 239.848892, -131.3928222, -131.392822);
-		final Hyperrectangle enlargedBox1 = bb1.enlargeByMeters(50, 60);
-		Assert.assertEquals(enlargedBox1, new Hyperrectangle(239.8460795353730600, 239.8517044646269500, -131.3945211680342300, -131.3911230319657800));
+		final Hyperrectangle bb1 = new Hyperrectangle(13.4111173, 13.4111173, 52.5219814, 52.5219814);
+		final Hyperrectangle enlargedBox1 = bb1.enlargeByMeters(100, 100);
+		final Hyperrectangle expected1 = new Hyperrectangle(13.4082127945806970, 13.4140218054193050, 52.5191497866096200, 52.5248130133903860);
+		Assert.assertEquals(expected1, enlargedBox1);
 	}
 	
 	/**
