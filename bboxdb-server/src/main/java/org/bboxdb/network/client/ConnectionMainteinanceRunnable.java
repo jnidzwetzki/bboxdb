@@ -94,7 +94,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 
 		while(! connection.getConnectionState().isInTerminatedState()) {
 			try {					
-				performDataFlushIfNeeded();
+				performDataFlush();
 				performKeepAliveIfNeeded();
 				Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
 			} catch (InterruptedException e) {
@@ -107,7 +107,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	/**
 	 * Write all waiting for compression packages
 	 */
-	private void performDataFlushIfNeeded() {
+	private void performDataFlush() {
 		final long writenPackages = connection.flushPendingCompressionPackages();
 		
 		if(writenPackages > 0) {
@@ -123,6 +123,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 		// Send keep alive only on open connections
 		if(connection.getConnectionState().isInRunningState()) {
 			final EmptyResultFuture resultFuture = sendKeepAlivePackage();
+			performDataFlush();
 			waitForResult(resultFuture);
 		}
 	}
