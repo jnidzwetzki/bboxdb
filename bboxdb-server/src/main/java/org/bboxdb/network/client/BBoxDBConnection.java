@@ -32,7 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.CloseableHelper;
@@ -133,7 +135,7 @@ public class BBoxDBConnection {
 	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
 	 * prevent two in flight requests with the same id.
 	 */
-	public final static short MAX_IN_FLIGHT_CALLS = 1000;
+	public final static short MAX_IN_FLIGHT_CALLS = 2048;
 
 	/**
 	 * The number of in flight requests
@@ -154,7 +156,7 @@ public class BBoxDBConnection {
 	/**
 	 * The pending packages for compression
 	 */
-	private final List<NetworkRequestPackage> pendingCompressionPackages;
+	private final BlockingQueue<NetworkRequestPackage> pendingCompressionPackages;
 
 	/**
 	 * The Server response handler
@@ -208,7 +210,7 @@ public class BBoxDBConnection {
 		this.serverResponseHandler = new HashMap<>();
 
 		// Concurrent access with synchronized
-		this.pendingCompressionPackages = new ArrayList<>();
+		this.pendingCompressionPackages = new LinkedBlockingQueue<>(maxInFlightCalls);
 
 		// Concurrent access with synchronized
 		this.pendingCalls = new HashMap<>();
@@ -593,15 +595,15 @@ public class BBoxDBConnection {
 	private void writePackageWithCompression(final NetworkRequestPackage requestPackage,
 			final NetworkOperationFuture future) {
 
-		boolean queueFull = false;
+		boolean queueBecomesFull = false;
 
 		synchronized (pendingCompressionPackages) {
 			pendingCompressionPackages.add(requestPackage);
-			queueFull = pendingCompressionPackages.size() >= Const.MAX_UNCOMPRESSED_QUEUE_SIZE;
+			queueBecomesFull = pendingCompressionPackages.size() > Const.MAX_UNCOMPRESSED_QUEUE_SIZE * 0.8;
 		}
 
-		if(queueFull || requestPackage.needsImmediateFlush()) {
-			flushPendingCompressionPackages();
+		if(queueBecomesFull || requestPackage.needsImmediateFlush()) {
+			mainteinanceHandler.triggerConnectionFlush();
 		}
 	}
 
@@ -619,8 +621,7 @@ public class BBoxDBConnection {
 				return 0;
 			}
 
-			packagesToWrite.addAll(pendingCompressionPackages);
-			pendingCompressionPackages.clear();
+			pendingCompressionPackages.drainTo(packagesToWrite);
 		}
 
 		if(logger.isDebugEnabled()) {

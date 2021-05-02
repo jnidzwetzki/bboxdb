@@ -70,6 +70,11 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	private final BBoxDBClient bboxDBClient;
 	
 	/**
+	 * The flush monitor
+	 */
+	private final Object FLUSH_MONITOR = new Object();
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReader.class);
@@ -96,7 +101,10 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 			try {					
 				performDataFlush();
 				performKeepAliveIfNeeded();
-				Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
+				
+				synchronized (FLUSH_MONITOR) {
+					FLUSH_MONITOR.wait(NetworkConst.MAX_COMPRESSION_DELAY_MS);
+				}
 			} catch (InterruptedException e) {
 				// Handle InterruptedException directly
 				return;
@@ -241,5 +249,14 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	 */
 	public void updateLastDataSendTimestamp() {
 		lastDataSendTimestamp = System.currentTimeMillis();
+	}
+	
+	/** 
+	 * Trigger the connection flush
+	 */
+	public void triggerConnectionFlush() {
+		synchronized (FLUSH_MONITOR) {
+			FLUSH_MONITOR.notifyAll();
+		}
 	}
 }
