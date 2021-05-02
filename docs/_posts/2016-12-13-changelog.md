@@ -10,6 +10,7 @@ order: 1
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter
 - Improvement: Improved memory usage of the BBoxDB client during long running queries
 - Improvement: Speed up element duplicate detection
+- Improvement: Reduced number of needed threads per connection
 - Bugfix: Cancel pending insert futures on shutdown 
 - Bugfix: Ensure callbacks are canceled when the client connection is shutdown
 - Bugfix: Ensure that the server responses to a registration of a continuous query

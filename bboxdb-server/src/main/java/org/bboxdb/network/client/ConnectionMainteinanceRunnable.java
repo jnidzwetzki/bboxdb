@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	
 	/**
-	 * The timestamp when the last data was send (useful for sending keep alive packages)
+	 * The timestamp when the last data was send
 	 */
 	private long lastDataSendTimestamp = 0;
 	
@@ -93,20 +94,36 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 
 		while(! connection.getConnectionState().isInTerminatedState()) {
 			try {					
-				if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
-					
-					// Send keep alive only on open connections
-					if(connection.getConnectionState().isInRunningState()) {
-						final EmptyResultFuture resultFuture = sendKeepAlivePackage();
-						waitForResult(resultFuture);
-					}
-				}
-			
-				Thread.sleep(keepAliveTime / 2);
+				performDataFlushIfNeeded();
+				performKeepAliveIfNeeded();
+				Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
 			} catch (InterruptedException e) {
 				// Handle InterruptedException directly
 				return;
 			}
+		}
+	}
+
+	/**
+	 * Write all waiting for compression packages
+	 */
+	private void performDataFlushIfNeeded() {
+		final long writenPackages = connection.flushPendingCompressionPackages();
+		
+		if(writenPackages > 0) {
+			updateLastDataSendTimestamp();
+		}
+	}
+
+	private void performKeepAliveIfNeeded() throws InterruptedException {
+		if(lastDataSendTimestamp + keepAliveTime > System.currentTimeMillis()) {
+			return;
+		}
+		
+		// Send keep alive only on open connections
+		if(connection.getConnectionState().isInRunningState()) {
+			final EmptyResultFuture resultFuture = sendKeepAlivePackage();
+			waitForResult(resultFuture);
 		}
 	}
 	

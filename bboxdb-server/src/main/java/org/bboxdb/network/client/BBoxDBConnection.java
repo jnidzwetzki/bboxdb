@@ -120,16 +120,6 @@ public class BBoxDBConnection {
 	private Thread mainteinanceThread;
 
 	/**
-	 * The maintenance handler instance
-	 */
-	private ConnectionFlushRunnable flushHandler;
-
-	/**
-	 * The maintenance thread
-	 */
-	private Thread flushThread;
-
-	/**
 	 * The default timeout
 	 */
 	public static final long DEFAULT_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(30);
@@ -354,11 +344,6 @@ public class BBoxDBConnection {
 
 		connectionState.dispatchToRunning();
 		logger.debug("Handshaking with {} done", getConnectionName());
-
-		flushHandler = new ConnectionFlushRunnable(this);
-		flushThread = new Thread(flushHandler);
-		flushThread.setName("Flush thread for: " + getConnectionName());
-		flushThread.start();
 
 		mainteinanceHandler = new ConnectionMainteinanceRunnable(this);
 		mainteinanceThread = new Thread(mainteinanceHandler);
@@ -622,15 +607,16 @@ public class BBoxDBConnection {
 
 	/**
 	 * Write all pending compression packages to server, called by the maintenance thread
+	 * @return 
 	 *
 	 */
-	public void flushPendingCompressionPackages() {
+	public long flushPendingCompressionPackages() {
 
 		final List<NetworkRequestPackage> packagesToWrite = new ArrayList<>();
 
 		synchronized (pendingCompressionPackages) {
 			if(pendingCompressionPackages.isEmpty()) {
-				return;
+				return 0;
 			}
 
 			packagesToWrite.addAll(pendingCompressionPackages);
@@ -641,6 +627,8 @@ public class BBoxDBConnection {
 			logger.debug("Chunk size is: {}", packagesToWrite.size());
 		}
 
+		final long writtenPackges = packagesToWrite.size();
+		
 		final NetworkRequestPackage compressionEnvelopeRequest
 			= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
 
@@ -650,6 +638,8 @@ public class BBoxDBConnection {
 			logger.error("Got an exception while write pending compression packages to server", e);
 			terminateConnection();
 		}
+		
+		return writtenPackges;
 	}
 
 	/**
