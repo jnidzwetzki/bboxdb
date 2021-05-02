@@ -187,7 +187,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		
 		final double distance = GeometryEngine.geodesicDistanceOnWGS84(esriPoint, nearestPoint);
 				
-		return distance < MAX_OVERLAPPING_POINT_DISTANCE_METER;
+		return distance <= MAX_OVERLAPPING_POINT_DISTANCE_METER;
 	}
 
 	/**
