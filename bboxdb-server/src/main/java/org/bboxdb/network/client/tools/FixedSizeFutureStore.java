@@ -20,9 +20,9 @@ package org.bboxdb.network.client.tools;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -82,7 +82,7 @@ public class FixedSizeFutureStore {
 		this.failedFutureCallbacks = new ArrayList<>();
 		this.statisticsWriter = null;
 		this.futureCounter = new AtomicLong();
-		this.pendingFutureMap = new ConcurrentHashMap<>();
+		this.pendingFutureMap = new HashMap<>();
 		this.stopwatch = Stopwatch.createStarted();
 		
 		if(logFailedFutures) {
@@ -110,7 +110,10 @@ public class FixedSizeFutureStore {
 		}
 		
 		final long futureId = futureCounter.getAndIncrement();
-		pendingFutureMap.put(futureToAdd, futureId);
+		
+		synchronized (pendingFutureMap) {
+			pendingFutureMap.put(futureToAdd, futureId);
+		}
 		
 		checkAndCleanupRunningFuture();
 		
@@ -121,10 +124,12 @@ public class FixedSizeFutureStore {
 	 * Check and cleanup running futures
 	 */
 	private void checkAndCleanupRunningFuture() {
-		if (pendingFutureMap.size() <= maxPendingFutures) {
-			return;
+		synchronized (pendingFutureMap) {
+			if (pendingFutureMap.size() <= maxPendingFutures) {
+				return;
+			}
 		}
-
+	
 		// Reduce futures
 		while (isCleanupNeeded()) {
 
@@ -148,21 +153,23 @@ public class FixedSizeFutureStore {
 	@VisibleForTesting
 	public void removeCompleteFutures() {
 
-		// Get done futures
-		final List<OperationFuture> doneFutures = pendingFutureMap.keySet().stream()
-			.filter(f -> f.isDone())
-			.collect(Collectors.toList());
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Removed {} futures", doneFutures.size());
+		synchronized (pendingFutureMap) {
+			// Get done futures
+			final List<OperationFuture> doneFutures = pendingFutureMap.keySet().stream()
+				.filter(f -> f.isDone())
+				.collect(Collectors.toList());
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Removed {} futures", doneFutures.size());
+			}
+			
+			// Handle failed futures
+			doneFutures.stream()
+					.filter(f -> f.isFailed())
+					.forEach(f -> handleFailedFuture(f));
+	
+			writeStatisticsAndRemoveFuturesFromMap(doneFutures);
 		}
-		
-		// Handle failed futures
-		doneFutures.stream()
-				.filter(f -> f.isFailed())
-				.forEach(f -> handleFailedFuture(f));
-
-		writeStatisticsAndRemoveFuturesFromMap(doneFutures);
 	}
 
 	/**
@@ -171,23 +178,26 @@ public class FixedSizeFutureStore {
 	 */
 	private void writeStatisticsAndRemoveFuturesFromMap(final List<OperationFuture> doneFutures) {
 
-		for(final OperationFuture future : doneFutures) {
-			final Long futureNumberLong = pendingFutureMap.remove(future);
-			
-			final long futureNumber = futureNumberLong != null ? futureNumberLong : -1;
-			
-			final long completionTime = future.getCompletionTime(TimeUnit.MILLISECONDS);
-			final int executions = future.getNeededExecutions();
+		synchronized (pendingFutureMap) {
 
-			if(statisticsWriter != null) {
-				final String outputValue = String.format("%d\t%d\t%d\t%d%n", 
-						stopwatch.elapsed(TimeUnit.MICROSECONDS), 
-						futureNumber, completionTime, executions);
-
-				try {
-					statisticsWriter.write(outputValue);
-				} catch (IOException e) {
-					logger.error("Got IO exception while writing statistics", e);
+			for(final OperationFuture future : doneFutures) {
+				final Long futureNumberLong = pendingFutureMap.remove(future);
+				
+				final long futureNumber = futureNumberLong != null ? futureNumberLong : -1;
+				
+				final long completionTime = future.getCompletionTime(TimeUnit.MILLISECONDS);
+				final int executions = future.getNeededExecutions();
+	
+				if(statisticsWriter != null) {
+					final String outputValue = String.format("%d\t%d\t%d\t%d%n", 
+							stopwatch.elapsed(TimeUnit.MICROSECONDS), 
+							futureNumber, completionTime, executions);
+	
+					try {
+						statisticsWriter.write(outputValue);
+					} catch (IOException e) {
+						logger.error("Got IO exception while writing statistics", e);
+					}
 				}
 			}
 		}
@@ -207,7 +217,9 @@ public class FixedSizeFutureStore {
 	 * @return
 	 */
 	private boolean isCleanupNeeded() {
-		return pendingFutureMap.size() > maxPendingFutures * 0.8;
+		synchronized (pendingFutureMap) {
+			return pendingFutureMap.size() > maxPendingFutures * 0.8;
+		}
 	}
 
 	/**
@@ -223,7 +235,9 @@ public class FixedSizeFutureStore {
 	 * @return
 	 */
 	public long getPendingFutureCount() {
-		return pendingFutureMap.size();
+		synchronized (pendingFutureMap) {
+			return pendingFutureMap.size();
+		}
 	}
 
 	/**
@@ -240,13 +254,15 @@ public class FixedSizeFutureStore {
 	 */
 	public void waitForCompletion() throws InterruptedException {
 
-		while(! pendingFutureMap.isEmpty()) {
-
-			for(final OperationFuture future : pendingFutureMap.keySet()) {
-				future.waitForCompletion();
+		synchronized (pendingFutureMap) {
+			while(! pendingFutureMap.isEmpty()) {
+	
+				for(final OperationFuture future : pendingFutureMap.keySet()) {
+					future.waitForCompletion();
+				}
+	
+				removeCompleteFutures();
 			}
-
-			removeCompleteFutures();
 		}
 	}
 
