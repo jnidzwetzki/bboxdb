@@ -48,8 +48,18 @@ public class TestGeoJSONUDF {
 	@Test(timeout = 60_000)
 	public void testIntersect1() {
 		final UserDefinedGeoJsonSpatialFilter filter = new UserDefinedGeoJsonSpatialFilter();
+		Assert.assertTrue(filter.filterJoinCandidate(POINT_TUPLE_1, POINT_TUPLE_1, "".getBytes()));
+		Assert.assertTrue(filter.filterJoinCandidate(POINT_TUPLE_2, POINT_TUPLE_2, "".getBytes()));
+		Assert.assertTrue(filter.filterJoinCandidate(POINT_TUPLE_3, POINT_TUPLE_3, "".getBytes()));
+		Assert.assertTrue(filter.filterJoinCandidate(LINE_STRING_TUPLE_1, LINE_STRING_TUPLE_1, "".getBytes()));
+
 		Assert.assertFalse(filter.filterJoinCandidate(POINT_TUPLE_1, LINE_STRING_TUPLE_1, "".getBytes()));
+		Assert.assertFalse(filter.filterJoinCandidate(LINE_STRING_TUPLE_1, POINT_TUPLE_1, "".getBytes()));
+		
 		Assert.assertTrue(filter.filterJoinCandidate(POINT_TUPLE_2, LINE_STRING_TUPLE_1, "".getBytes()));
+		Assert.assertTrue(filter.filterJoinCandidate(LINE_STRING_TUPLE_1, POINT_TUPLE_2, "".getBytes()));
+		
 		Assert.assertTrue(filter.filterJoinCandidate(POINT_TUPLE_3, LINE_STRING_TUPLE_1, "".getBytes()));
+		Assert.assertTrue(filter.filterJoinCandidate(LINE_STRING_TUPLE_1, POINT_TUPLE_3, "".getBytes()));
 	}
 }
