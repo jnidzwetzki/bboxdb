@@ -22,10 +22,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapOGCStructure;
 import com.esri.core.geometry.Operator;
 import com.esri.core.geometry.OperatorFactoryLocal;
 import com.esri.core.geometry.OperatorImportFromGeoJson;
+import com.esri.core.geometry.Point;
+import com.esri.core.geometry.Proximity2DResult;
 import com.esri.core.geometry.WktImportFlags;
 import com.esri.core.geometry.ogc.OGCGeometry;
 import com.esri.core.geometry.ogc.OGCPoint;
@@ -124,7 +127,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	}
 
 	/**
-	 * Contains the given json a proper element in the map?
+	 * Contains the given JSON a proper element in the map?
 	 * @param json
 	 * @param key
 	 * @param value
@@ -154,27 +157,19 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 * @return
 	 */
 	protected boolean performIntersectionTest(final OGCGeometry geometry1, final OGCGeometry geometry2) {
-		if(geometry1 instanceof OGCPoint || geometry2 instanceof OGCPoint) {
-			final double geometryDistrance = geometry1.distance(geometry2);
-
-			final double latitude = getLatitudeFromGeometries(geometry1, geometry2);
-			
-		    //final double lat0 = Math.toRadians(latitudeLow);
-		    final double lat0 = (latitude * (Math.PI) / 180);
-			
-		    final double equator_circumference = 6371000.0;
-		    final double polar_circumference = 6356800.0;
-
-		    final double m_per_deg_long = 360 / polar_circumference;
-		    final double m_per_deg_lat = Math.abs(360 / (Math.cos(lat0) * equator_circumference));
-
-		    final double deg_diff_lat = MAX_OVERLAPPING_POINT_DISTANCE_METER * m_per_deg_lat; 
-		    final double deg_diff_long = MAX_OVERLAPPING_POINT_DISTANCE_METER * m_per_deg_long;
-			
-			return geometryDistrance < Math.max(deg_diff_lat, deg_diff_long);
-		} else {
-		    return geometry1.intersects(geometry2);
+		
+		if(geometry1 instanceof OGCPoint) {
+			final OGCPoint point = (OGCPoint) geometry1;
+			return isPointNearby(point, geometry2);
 		}
+		
+		if(geometry2 instanceof OGCPoint) {
+			final OGCPoint point = (OGCPoint) geometry2;
+			return isPointNearby(point, geometry1);
+		}
+		
+		
+		return geometry1.intersects(geometry2);
 	}
 	
 	/**
@@ -183,21 +178,16 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	 * @param geometry2
 	 * @return
 	 */
-	private double getLatitudeFromGeometries(final OGCGeometry geometry1, final OGCGeometry geometry2) {
-	
-		if(geometry1 instanceof OGCPoint) {
-			final OGCPoint point1 = (OGCPoint) geometry1;
-			return point1.X();
-		} 
+	private boolean isPointNearby(final OGCPoint point, final OGCGeometry geometry) {
+		final Point esriPoint = (Point) point.getEsriGeometry();
 		
-		if(geometry2 instanceof OGCPoint) {
-			final OGCPoint point2 = (OGCPoint) geometry2;
-			return point2.X();
-		}
+		final Proximity2DResult nearestCoordinate =
+				GeometryEngine.getNearestCoordinate(geometry.getEsriGeometry(), esriPoint, true);
+		final Point nearestPoint = nearestCoordinate.getCoordinate();
 		
-		logger.error("One of the provided geometries has to be a point");
-		
-		return 0;
+		final double distance = GeometryEngine.geodesicDistanceOnWGS84(esriPoint, nearestPoint);
+				
+		return distance < MAX_OVERLAPPING_POINT_DISTANCE_METER;
 	}
 
 	/**
