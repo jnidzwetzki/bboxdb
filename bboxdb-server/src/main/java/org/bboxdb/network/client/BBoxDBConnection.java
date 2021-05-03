@@ -597,23 +597,21 @@ public class BBoxDBConnection {
 
 		boolean queueBecomesFull = false;
 
-		synchronized (pendingCompressionPackages) {
-			final int queueSize = pendingCompressionPackages.size();
-			
-			if(queueSize == Const.MAX_UNCOMPRESSED_QUEUE_SIZE) {
-				logger.debug("Queue becomes full (pending packages {}", queueSize);
-			}
-			
-			try {
-				pendingCompressionPackages.put(requestPackage);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return;
-			}
-			
-			queueBecomesFull = queueSize + 1 > Const.MAX_UNCOMPRESSED_QUEUE_SIZE * 0.8;
+		final int queueSize = pendingCompressionPackages.size();
+		
+		if(queueSize == Const.MAX_UNCOMPRESSED_QUEUE_SIZE) {
+			logger.debug("Queue becomes full (pending packages {}", queueSize);
 		}
-
+		
+		try {
+			pendingCompressionPackages.put(requestPackage);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+		
+		queueBecomesFull = queueSize + 1 > Const.MAX_UNCOMPRESSED_QUEUE_SIZE * 0.8;
+	
 		if(queueBecomesFull || requestPackage.needsImmediateFlush()) {
 			mainteinanceHandler.triggerConnectionFlush();
 		}
@@ -628,14 +626,12 @@ public class BBoxDBConnection {
 
 		final List<NetworkRequestPackage> packagesToWrite = new ArrayList<>();
 
-		synchronized (pendingCompressionPackages) {
-			if(pendingCompressionPackages.isEmpty()) {
-				return 0;
-			}
-
-			pendingCompressionPackages.drainTo(packagesToWrite);
+		if(pendingCompressionPackages.isEmpty()) {
+			return 0;
 		}
 
+		pendingCompressionPackages.drainTo(packagesToWrite);
+	
 		if(logger.isDebugEnabled()) {
 			logger.debug("Chunk size is: {}", packagesToWrite.size());
 		}
