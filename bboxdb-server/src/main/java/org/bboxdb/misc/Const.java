@@ -81,7 +81,7 @@ public class Const {
 	/**
 	 * Max tuples in uncompressed queue
 	 */
-	public final static int MAX_UNCOMPRESSED_QUEUE_SIZE = 200;
+	public final static int MAX_UNCOMPRESSED_QUEUE_SIZE = 512;
 
 	/**
 	 * Log memory statistics periodically

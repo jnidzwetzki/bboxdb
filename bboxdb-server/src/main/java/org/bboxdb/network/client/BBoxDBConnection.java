@@ -210,7 +210,7 @@ public class BBoxDBConnection {
 		this.serverResponseHandler = new HashMap<>();
 
 		// Concurrent access with synchronized
-		this.pendingCompressionPackages = new LinkedBlockingQueue<>(maxInFlightCalls);
+		this.pendingCompressionPackages = new LinkedBlockingQueue<>(Const.MAX_UNCOMPRESSED_QUEUE_SIZE);
 
 		// Concurrent access with synchronized
 		this.pendingCalls = new HashMap<>();
@@ -598,8 +598,14 @@ public class BBoxDBConnection {
 		boolean queueBecomesFull = false;
 
 		synchronized (pendingCompressionPackages) {
+			final int queueSize = pendingCompressionPackages.size();
+			
+			if(queueSize == Const.MAX_UNCOMPRESSED_QUEUE_SIZE) {
+				logger.debug("Queue becomes full (pending packages {}", queueSize);
+			}
+			
 			pendingCompressionPackages.add(requestPackage);
-			queueBecomesFull = pendingCompressionPackages.size() > Const.MAX_UNCOMPRESSED_QUEUE_SIZE * 0.8;
+			queueBecomesFull = queueSize + 1 > Const.MAX_UNCOMPRESSED_QUEUE_SIZE * 0.8;
 		}
 
 		if(queueBecomesFull || requestPackage.needsImmediateFlush()) {
