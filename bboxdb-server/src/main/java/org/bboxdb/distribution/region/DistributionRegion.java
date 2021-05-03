@@ -145,16 +145,28 @@ public class DistributionRegion {
 	public List<DistributionRegion> getThisAndChildRegions(final Predicate<DistributionRegion> predicate) {
 		final List<DistributionRegion> result = new ArrayList<>();
 
+		getThisAndChildRegions(predicate, result);
+		
+		return result;
+	}
+	
+	/**
+	 * Get this and all children matching the predicate
+	 * @param predicate
+	 * @return
+	 */
+	public void getThisAndChildRegions(final Predicate<DistributionRegion> predicate,
+			final List<DistributionRegion> result) {	
+		
 		if(predicate.test(this)) {
 			result.add(this);
 		}
 
 		final Collection<DistributionRegion> directChildren = children.values();
+		
 		for(final DistributionRegion children : directChildren) {
-			result.addAll(children.getThisAndChildRegions(predicate));
+			children.getThisAndChildRegions(predicate, result);
 		}
-
-		return result;
 	}
 
 	/**
