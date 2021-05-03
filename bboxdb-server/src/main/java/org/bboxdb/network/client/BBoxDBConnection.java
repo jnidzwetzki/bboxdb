@@ -604,7 +604,13 @@ public class BBoxDBConnection {
 				logger.debug("Queue becomes full (pending packages {}", queueSize);
 			}
 			
-			pendingCompressionPackages.add(requestPackage);
+			try {
+				pendingCompressionPackages.put(requestPackage);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+			
 			queueBecomesFull = queueSize + 1 > Const.MAX_UNCOMPRESSED_QUEUE_SIZE * 0.8;
 		}
 
