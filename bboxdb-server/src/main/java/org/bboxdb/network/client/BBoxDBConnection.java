@@ -633,7 +633,7 @@ public class BBoxDBConnection {
 		pendingCompressionPackages.drainTo(packagesToWrite);
 	
 		if(logger.isDebugEnabled()) {
-			logger.debug("Chunk size is: {}", packagesToWrite.size());
+			logger.debug("Writing packages to server, batch size is: {}", packagesToWrite.size());
 		}
 
 		final long writtenPackges = packagesToWrite.size();
