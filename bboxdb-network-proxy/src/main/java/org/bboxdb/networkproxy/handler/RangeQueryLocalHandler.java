@@ -22,7 +22,7 @@ import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

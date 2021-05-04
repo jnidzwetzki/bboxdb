@@ -32,7 +32,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureMultiImpl;
 import org.bboxdb.network.routing.RoutingHeader;

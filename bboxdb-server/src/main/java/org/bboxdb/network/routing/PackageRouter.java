@@ -28,7 +28,7 @@ import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;

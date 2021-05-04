@@ -20,7 +20,7 @@ package org.bboxdb.network.client.future.network;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureErrorCallback;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 

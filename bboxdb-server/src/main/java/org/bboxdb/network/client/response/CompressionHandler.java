@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.client.BBoxDBConnection;
-import org.bboxdb.network.client.ServerResponseReader;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
+import org.bboxdb.network.client.connection.ServerResponseReader;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;

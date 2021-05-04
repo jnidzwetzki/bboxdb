@@ -30,7 +30,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;

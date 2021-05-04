@@ -31,6 +31,8 @@ import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
+import org.bboxdb.network.client.connection.RoutingHeaderHelper;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;

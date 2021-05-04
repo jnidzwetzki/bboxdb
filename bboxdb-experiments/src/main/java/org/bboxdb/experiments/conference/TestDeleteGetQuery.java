@@ -33,7 +33,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;

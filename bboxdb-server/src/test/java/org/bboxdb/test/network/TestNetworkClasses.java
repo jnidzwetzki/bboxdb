@@ -34,7 +34,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
-import org.bboxdb.network.client.SequenceNumberGenerator;
+import org.bboxdb.network.client.connection.SequenceNumberGenerator;
 import org.bboxdb.network.packages.NetworkPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelRequest;

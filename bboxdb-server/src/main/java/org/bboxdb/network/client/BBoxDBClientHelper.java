@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.slf4j.Logger;

@@ -19,7 +19,7 @@ package org.bboxdb.test.network;
 
 import java.util.HashMap;
 
-import org.bboxdb.network.client.SequenceNumberGenerator;
+import org.bboxdb.network.client.connection.SequenceNumberGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 

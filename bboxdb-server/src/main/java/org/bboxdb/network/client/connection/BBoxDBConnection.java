@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.client;
+package org.bboxdb.network.client.connection;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -46,6 +46,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.client.HelloFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;

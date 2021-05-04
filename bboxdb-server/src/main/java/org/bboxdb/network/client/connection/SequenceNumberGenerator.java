@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client;
+package org.bboxdb.network.client.connection;
 
 import java.util.HashSet;
 import java.util.Set;

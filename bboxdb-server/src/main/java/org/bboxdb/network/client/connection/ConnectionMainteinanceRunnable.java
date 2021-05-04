@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client;
+package org.bboxdb.network.client.connection;
 
 import java.util.List;
 import java.util.Random;
@@ -25,6 +25,7 @@ import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.NetworkConst;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;

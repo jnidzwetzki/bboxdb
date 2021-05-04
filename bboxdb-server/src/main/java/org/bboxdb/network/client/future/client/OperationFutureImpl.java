@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.slf4j.Logger;

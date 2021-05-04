@@ -29,7 +29,7 @@ import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

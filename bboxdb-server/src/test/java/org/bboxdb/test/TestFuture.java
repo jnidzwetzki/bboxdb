@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.OperationFutureImpl;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;

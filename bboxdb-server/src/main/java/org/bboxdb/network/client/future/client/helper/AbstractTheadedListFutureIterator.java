@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.bboxdb.storage.util.CloseableIterator;

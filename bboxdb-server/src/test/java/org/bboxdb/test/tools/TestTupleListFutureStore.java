@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.tools.TupleListFutureStore;

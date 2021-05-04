@@ -20,7 +20,7 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.storage.entity.PagedTransferableEntity;

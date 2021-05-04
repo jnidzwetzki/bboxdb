@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.network;
 
-import org.bboxdb.network.client.BBoxDBConnection;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
