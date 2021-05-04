@@ -207,7 +207,9 @@ public class BBoxDBConnection {
 
 		this.bboxDBClient = new BBoxDBClient(this);
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
+		
 		this.connectionState = new ServiceState();
+		connectionState.registerCallback((c) -> { if(c.isInFailedState() ) { killPendingCalls(); } });
 
 		// Default: Enable gzip compression
 		this.clientCapabilities.setGZipCompression();
@@ -254,7 +256,6 @@ public class BBoxDBConnection {
 
 		try {
 			connectionState.dipatchToStarting();
-			connectionState.registerCallback((c) -> { if(c.isInFailedState() ) { killPendingCalls(); } });
 
 			final Retryer<Socket> socketRetryer = new Retryer<>(10, 200, TimeUnit.MILLISECONDS, () -> {
 				return new Socket(serverAddress.getAddress(), serverAddress.getPort());
