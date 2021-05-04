@@ -105,7 +105,7 @@ public class BBoxDBConnection {
 	/**
 	 * The server response reader
 	 */
-	private ServerResponseReader serverResponseReader;
+	private ServerResponseReaderRunnable serverResponseReader;
 
 	/**
 	 * The server response reader thread
@@ -173,6 +173,11 @@ public class BBoxDBConnection {
 	 * The BBoxDBClient;
 	 */
 	private final BBoxDBClient bboxDBClient;
+	
+	/**
+	 * The timestampstamp of the last data transfer
+	 */
+	private volatile long lastDataTransferTimestamp;
 
 	/**
 	 * The Logger
@@ -274,7 +279,7 @@ public class BBoxDBConnection {
 			}
 
 			// Start up the response reader
-			serverResponseReader = new ServerResponseReader(this);
+			serverResponseReader = new ServerResponseReaderRunnable(this);
 			serverResponseReaderThread = new Thread(serverResponseReader);
 			serverResponseReaderThread.setName("Server response reader for " + getConnectionName());
 			serverResponseReaderThread.start();
@@ -636,7 +641,7 @@ public class BBoxDBConnection {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Writing packages to server, batch size is: {}", packagesToWrite.size());
 		}
-
+		
 		final long writtenPackges = packagesToWrite.size();
 		
 		final NetworkRequestPackage compressionEnvelopeRequest
@@ -665,11 +670,8 @@ public class BBoxDBConnection {
 			requestPackage.writeToOutputStream(outputStream);
 			outputStream.flush();
 		}
-
-		// Could be null during handshake
-		if(mainteinanceHandler != null) {
-			mainteinanceHandler.updateLastDataSendTimestamp();
-		}
+	
+		updateDataTransferTimestamp();
 	}
 
 	/**
@@ -806,7 +808,7 @@ public class BBoxDBConnection {
 	 * Get the server response reader
 	 * @return
 	 */
-	public ServerResponseReader getServerResponseReader() {
+	public ServerResponseReaderRunnable getServerResponseReader() {
 		return serverResponseReader;
 	}
 
@@ -833,5 +835,20 @@ public class BBoxDBConnection {
 	 */
 	public BufferedInputStream getInputStream() {
 		return inputStream;
+	}
+	
+	/**
+	 * The last data transfer timestamp
+	 * @return
+	 */
+	public long getLastDataTransferTimestamp() {
+		return lastDataTransferTimestamp;
+	}
+	
+	/**
+	 * Update the last data transfer timestamp
+	 */
+	public void updateDataTransferTimestamp() {
+		lastDataTransferTimestamp = System.currentTimeMillis();
 	}
 }

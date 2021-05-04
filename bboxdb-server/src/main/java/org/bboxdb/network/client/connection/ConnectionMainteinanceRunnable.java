@@ -40,11 +40,6 @@ import org.slf4j.LoggerFactory;
 public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	
 	/**
-	 * The timestamp when the last data was send
-	 */
-	private long lastDataSendTimestamp = 0;
-	
-	/**
 	 * If no data was send for keepAliveTime, a keep alive package is send to the 
 	 * server to keep the tcp connection open
 	 */
@@ -78,7 +73,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReader.class);
+	private final static Logger logger = LoggerFactory.getLogger(ConnectionMainteinanceRunnable.class);
 	
 	public ConnectionMainteinanceRunnable(final BBoxDBConnection bBoxDBConnection) {
 		this.connection = bBoxDBConnection;
@@ -117,15 +112,11 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	 * Write all waiting for compression packages
 	 */
 	private void performDataFlush() {
-		final long writenPackages = connection.flushPendingCompressionPackages();
-		
-		if(writenPackages > 0) {
-			updateLastDataSendTimestamp();
-		}
+		connection.flushPendingCompressionPackages();
 	}
 
 	private void performKeepAliveIfNeeded() throws InterruptedException {
-		if(lastDataSendTimestamp + keepAliveTime > System.currentTimeMillis()) {
+		if(connection.getLastDataTransferTimestamp() + keepAliveTime > System.currentTimeMillis()) {
 			return;
 		}
 		
@@ -237,21 +228,6 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 		}
 	}
 
-	/**
-	 * The the timestamp when the last data was send to the server
-	 * @return
-	 */
-	public long getLastDataSendTimestamp() {
-		return lastDataSendTimestamp;
-	}
-	
-	/**
-	 * Update the last data send timestamp
-	 */
-	public void updateLastDataSendTimestamp() {
-		lastDataSendTimestamp = System.currentTimeMillis();
-	}
-	
 	/** 
 	 * Trigger the connection flush
 	 */

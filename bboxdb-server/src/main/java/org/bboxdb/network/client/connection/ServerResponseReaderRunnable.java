@@ -32,7 +32,7 @@ import com.google.common.io.ByteStreams;
  * Read the server response packages
  *
  */
-public class ServerResponseReader extends ExceptionSafeRunnable {
+public class ServerResponseReaderRunnable extends ExceptionSafeRunnable {
 	
 	/**
 	 * The BBOXDB Client
@@ -42,9 +42,9 @@ public class ServerResponseReader extends ExceptionSafeRunnable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReader.class);
+	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReaderRunnable.class);
 	
-	public ServerResponseReader(final BBoxDBConnection bboxDBConnection) {
+	public ServerResponseReaderRunnable(final BBoxDBConnection bboxDBConnection) {
 		this.bboxDBConnection = bboxDBConnection;
 	}
 	
@@ -94,6 +94,7 @@ public class ServerResponseReader extends ExceptionSafeRunnable {
 		while(bboxDBConnection.isConnected()) {
 			try {
 				processNextResponsePackage(bboxDBConnection.getInputStream());
+				bboxDBConnection.updateDataTransferTimestamp();
 			} catch(Exception e) {
 				
 				bboxDBConnection.closeSocket();
