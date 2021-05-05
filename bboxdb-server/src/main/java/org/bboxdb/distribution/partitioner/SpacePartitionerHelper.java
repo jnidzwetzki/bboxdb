@@ -107,6 +107,8 @@ public class SpacePartitionerHelper {
 		final Set<BBoxDBInstance> allocationSystems = new HashSet<>();
 		final Set<BBoxDBInstance> blacklistedSystems = new HashSet<>();
 		blacklistedSystems.addAll(blacklist);
+		
+		logger.debug("Starting new allocation: replication={}, global blacklist={}", replicationFactor, blacklist);
 				
 		for(short i = 0; i < replicationFactor; i++) {
 			final BBoxDBInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, blacklistedSystems);
