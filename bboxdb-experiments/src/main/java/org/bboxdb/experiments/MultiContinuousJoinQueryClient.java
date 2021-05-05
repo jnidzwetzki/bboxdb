@@ -50,6 +50,11 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 	 * The persistent table to query
 	 */
 	private final String persistentTable;
+	
+	/**
+	 * The enlargement meters
+	 */
+	private double enlargementMeters;
 		
 	/**
 	 * The Logger
@@ -59,11 +64,12 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 
 	public MultiContinuousJoinQueryClient(final String contactPoint, final String clusterName, 
 			final String streamTable, final String persistentTable, final List<Hyperrectangle> ranges, 
-			final Optional<String> udfName, 
+			double enlargementMeters, final Optional<String> udfName, 
 			final Optional<String> udfValue) {
 		
 		super(clusterName, contactPoint, streamTable, ranges, udfName, udfValue);
 		this.persistentTable = persistentTable;
+		this.enlargementMeters = enlargementMeters;
 	}
 	
 	@Override
@@ -76,12 +82,12 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 			isTableKnown(streamTable);
 			
 			for(final Hyperrectangle queryRectangle : ranges) {
-				System.out.println("Creating query in range: " + queryRectangle);
+				System.out.println("Creating query in range: " + queryRectangle + " with enlargement: " + enlargementMeters);
 				
 				final QueryPlanBuilder queryPlanBuilder = QueryPlanBuilder
 						.createQueryOnTable(streamTable)
 						.spatialJoinWithTable(persistentTable)
-	//					.enlargeStreamTupleBoundBoxByFactor(2)
+						.enlargeStreamTupleBoundBoxByWGS84Meter(enlargementMeters, enlargementMeters)
 						.forAllNewTuplesInSpace(queryRectangle);
 				
 				if(udfName.isPresent()) {
@@ -174,7 +180,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 	 * @param args
 	 */
 	private static void performReadData(final String[] args) {
-		if(args.length != 6) {
+		if(args.length < 7) {
 			System.err.println("Usage: <Class> readfile <File> <ClusterContactPoint> <Clustername> <Stream-Table> <Persistent-Table>");
 			System.exit(-1);
 		}
@@ -184,17 +190,18 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 		final String clusterName = args[3];
 		final String streamTable = args[4];
 		final String persistetTable = args[5];
+		final String enlargementMetersString = args[6];
 
-		
 		Optional<String> udfName = Optional.empty();
 		Optional<String> udfValue = Optional.empty();
 		
-		if(args.length == 8) {
-			udfName = Optional.of(args[6]);
-			udfValue = Optional.of(args[7]);
+		if(args.length == 9) {
+			udfName = Optional.of(args[7]);
+			udfValue = Optional.of(args[8]);
 		}
 		
-		
+		final double enlargementMeters = MathUtil.tryParseDoubleOrExit(enlargementMetersString, () -> "Unable to parse: " + enlargementMetersString);
+
 		try (final Stream<String> lineStream = Files.lines(Paths.get(inputFile.getPath()))) {
 	
 			final List<Hyperrectangle> ranges = lineStream
@@ -203,7 +210,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 			 		.collect(Collectors.toList());
 	
 			final MultiContinuousJoinQueryClient runable = new MultiContinuousJoinQueryClient(contactPoint, clusterName, 
-					streamTable, persistetTable, ranges, udfName, udfValue);
+					streamTable, persistetTable, ranges, enlargementMeters, udfName, udfValue);
 			
 			runable.run();
 
@@ -219,7 +226,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 	private static void performAutogenerate(final String[] args) {
 		if(args.length != 8 && args.length != 10) {
 			System.err.println("Usage: <Class> autogenerate <ClusterContactPoint> <Clustername> <Stream-Table> <Presistent-Table> <Range> "
-					+ "<Percentage> <Parallel-Queries> {<UDF-Name> <UDF-Value>}");
+					+ "<Percentage> <Parallel-Queries> <Enlargement-Meters> {<UDF-Name> <UDF-Value>}");
 			System.exit(-1);
 		}
 		
@@ -230,13 +237,14 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 		final String rangeString = args[5];
 		final String percentageString = args[6];
 		final String parallelQueriesString = args[7];
+		final String enlargementMetersString = args[8];
 		
 		Optional<String> udfName = Optional.empty();
 		Optional<String> udfValue = Optional.empty();
 		
-		if(args.length == 10) {
-			udfName = Optional.of(args[8]);
-			udfValue = Optional.of(args[9]);
+		if(args.length == 11) {
+			udfName = Optional.of(args[9]);
+			udfValue = Optional.of(args[10]);
 		}
 		
 		
@@ -248,6 +256,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 		
 		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
 		final double parallelQueries = MathUtil.tryParseDoubleOrExit(parallelQueriesString, () -> "Unable to parse: " + parallelQueriesString);
+		final double enlargementMeters = MathUtil.tryParseDoubleOrExit(enlargementMetersString, () -> "Unable to parse: " + enlargementMetersString);
 		
 		final List<Hyperrectangle> ranges = new ArrayList<>();
 
@@ -258,7 +267,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 		
 		
 		final MultiContinuousJoinQueryClient runable = new MultiContinuousJoinQueryClient(contactPoint, clusterName, 
-				streamTable, persistentTable, ranges, udfName, udfValue);
+				streamTable, persistentTable, ranges, enlargementMeters, udfName, udfValue);
 		
 		runable.run();
 	}
