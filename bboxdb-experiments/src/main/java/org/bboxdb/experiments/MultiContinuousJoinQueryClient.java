@@ -224,7 +224,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 	 * @param args
 	 */
 	private static void performAutogenerate(final String[] args) {
-		if(args.length != 8 && args.length != 10) {
+		if(args.length != 9 && args.length != 11) {
 			System.err.println("Usage: <Class> autogenerate <ClusterContactPoint> <Clustername> <Stream-Table> <Presistent-Table> <Range> "
 					+ "<Percentage> <Parallel-Queries> <Enlargement-Meters> {<UDF-Name> <UDF-Value>}");
 			System.exit(-1);
