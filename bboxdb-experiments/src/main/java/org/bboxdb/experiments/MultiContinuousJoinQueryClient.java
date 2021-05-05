@@ -81,6 +81,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 				final QueryPlanBuilder queryPlanBuilder = QueryPlanBuilder
 						.createQueryOnTable(streamTable)
 						.spatialJoinWithTable(persistentTable)
+	//					.enlargeStreamTupleBoundBoxByFactor(2)
 						.forAllNewTuplesInSpace(queryRectangle);
 				
 				if(udfName.isPresent()) {
