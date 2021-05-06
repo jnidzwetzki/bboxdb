@@ -19,6 +19,7 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -43,6 +44,8 @@ import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreAquirer;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RangeQueryExecutor {
 	
@@ -76,6 +79,11 @@ public class RangeQueryExecutor {
 	 * The storage reference
 	 */
 	private final TupleStoreManagerRegistry registry;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(RangeQueryExecutor.class);
 
 	public RangeQueryExecutor(final TupleStoreName tupleStoreName, 
 			final Hyperrectangle range, final Consumer<Tuple> consumer,
@@ -232,6 +240,10 @@ public class RangeQueryExecutor {
 		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox, "", "".getBytes());
 
 		result.waitForCompletion();
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Remote range query took {} ms", result.getCompletionTime(TimeUnit.MILLISECONDS));
+		}
 
 		if(result.isFailed()) {
 			throw new StorageManagerException("Exception while fetching tuples: " 
