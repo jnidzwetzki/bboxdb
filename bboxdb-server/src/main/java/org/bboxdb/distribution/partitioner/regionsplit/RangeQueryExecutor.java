@@ -81,9 +81,20 @@ public class RangeQueryExecutor {
 	private final TupleStoreManagerRegistry registry;
 	
 	/**
+	 * The performed reads on local data sources
+	 */
+	private int localReads = 0;
+
+	/**
+	 * The preformed reads on network data sources
+	 */
+	private int networkReads = 0;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(RangeQueryExecutor.class);
+
 
 	public RangeQueryExecutor(final TupleStoreName tupleStoreName, 
 			final Hyperrectangle range, final Consumer<Tuple> consumer,
@@ -112,6 +123,11 @@ public class RangeQueryExecutor {
 		for(final DistributionRegion region : regions) {
 			perfomReadOnRegion(region);
 		}
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Completed range query with {} local reads and {} network reads on {} regions", 
+				localReads, networkReads, regions.size());
+		}
 	}
 
 	/**
@@ -132,12 +148,15 @@ public class RangeQueryExecutor {
 			if(region.getSystems().contains(localInstance)) {
 				if(performLocalRead()) {
 					readDataLocal(region);
+					localReads++;
 				}
 			} else {
 				if(performNetworkRead()) {
 					readDataNetwork(region);	
+					networkReads++;
 				}
 			}
+			
 		} catch (StorageManagerException | ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}		
