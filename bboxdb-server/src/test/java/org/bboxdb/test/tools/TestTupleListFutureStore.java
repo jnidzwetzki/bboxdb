@@ -31,9 +31,9 @@ import org.bboxdb.network.client.tools.TupleListFutureStore;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
+import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class TestTupleListFutureStore {
 
@@ -58,7 +58,7 @@ public class TestTupleListFutureStore {
 	public void testRejectedExeption() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 		tupleListFutureStore.shutdown();
-		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
+		final BBoxDBConnection connection = BBoxDBTestHelper.MOCKED_CONNECTION;
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 		final NetworkOperationFutureImpl networkOperationFuture = new NetworkOperationFutureImpl(connection, supplier);
 
@@ -131,7 +131,7 @@ class TestTupleListFuture extends TupleListFuture {
 	 * @return
 	 */
 	private static NetworkOperationFutureImpl getFuture() {
-		final BBoxDBConnection connection = Mockito.mock(BBoxDBConnection.class);
+		final BBoxDBConnection connection = BBoxDBTestHelper.MOCKED_CONNECTION;
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 		final NetworkOperationFutureImpl networkOperationFuture = new NetworkOperationFutureImpl(connection, supplier);
 		return networkOperationFuture;

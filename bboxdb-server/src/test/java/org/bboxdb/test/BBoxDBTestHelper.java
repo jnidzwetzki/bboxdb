@@ -20,6 +20,7 @@ package org.bboxdb.test;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
@@ -31,10 +32,25 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;
+import org.mockito.Mockito;
 
 public class BBoxDBTestHelper {
+	
+	/**
+	 * The mocked connection
+	 */
+	public final static BBoxDBConnection MOCKED_CONNECTION = Mockito.mock(BBoxDBConnection.class);
+	
+	static {
+		final ServiceState state = new ServiceState();
+		state.dipatchToStarting();
+		state.dispatchToRunning();
+		Mockito.when(MOCKED_CONNECTION.isConnected()).thenReturn(true);
+		Mockito.when(MOCKED_CONNECTION.getConnectionState()).thenReturn(state);
+	}
 	
 	/**
 	 * Register some fake instance in zookeeper

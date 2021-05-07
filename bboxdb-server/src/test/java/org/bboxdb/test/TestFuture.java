@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.bboxdb.commons.service.ServiceState;
-import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.OperationFutureImpl;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
@@ -30,27 +28,13 @@ import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class TestFuture {
 
 	/**
-	 * The mocked connection
-	 */
-	private final static BBoxDBConnection MOCKED_CONNECTION = Mockito.mock(BBoxDBConnection.class);
-	
-	/**
 	 * Get the retries for the test
 	 */
-	private final static int RETRIES_IN_TEST = 5;
-
-	static {
-		final ServiceState state = new ServiceState();
-		state.dipatchToStarting();
-		state.dispatchToRunning();
-		Mockito.when(MOCKED_CONNECTION.isConnected()).thenReturn(true);
-		Mockito.when(MOCKED_CONNECTION.getConnectionState()).thenReturn(state);
-	}
+	private final static int RETRIES_IN_TEST = 5;	
 	
 	@Test(timeout=60000)
 	public void testNoRetry1() throws InterruptedException {
@@ -163,7 +147,7 @@ public class TestFuture {
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 
 		final NetworkOperationFutureImpl resultFuture = 
-				new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
+				new NetworkOperationFutureImpl(BBoxDBTestHelper.MOCKED_CONNECTION, supplier) {
 			
 			public void execute() {
 				super.execute();
@@ -186,7 +170,7 @@ public class TestFuture {
 		final Supplier<NetworkRequestPackage> supplier = () -> (null);
 
 		final NetworkOperationFutureImpl resultFuture = 
-				new NetworkOperationFutureImpl(MOCKED_CONNECTION, supplier) {
+				new NetworkOperationFutureImpl(BBoxDBTestHelper.MOCKED_CONNECTION, supplier) {
 			
 			public void execute() {
 				super.execute();
