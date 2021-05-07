@@ -363,7 +363,8 @@ public class BBoxDBConnection {
 	public void disconnect() {
 
 		if(! connectionState.isInRunningState()) {
-			logger.error("Unable to disconnect, connection is in state {}", connectionState);
+			logger.debug("Skipping disconnect call for {}, connection is in state {}", 
+					getConnectionName(), connectionState);
 			return;
 		}
 
