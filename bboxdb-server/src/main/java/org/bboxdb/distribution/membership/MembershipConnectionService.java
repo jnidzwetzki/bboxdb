@@ -38,13 +38,13 @@ public class MembershipConnectionService implements BBoxDBService {
 	
 	public enum ConnectionStrategy {
 		DIRECT,
-		LAZZY;
+		LAZY;
 	}
 	
 	/**
 	 * The create connection strategy
 	 */
-	public ConnectionStrategy connectionStrategy = ConnectionStrategy.LAZZY;
+	public ConnectionStrategy connectionStrategy = ConnectionStrategy.LAZY;
 	
 	/**
 	 * The server connections
