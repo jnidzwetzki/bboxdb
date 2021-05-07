@@ -12,6 +12,7 @@ order: 1
 - Improvement: Speed up element duplicate detection
 - Improvement: Reduced number of needed threads per connection
 - Improvement: Improved the network connection throughput
+- Improvement: In client mode, the connection to the BBoxDB nodes are created lazy
 - Bugfix: Cancel pending insert futures on shutdown 
 - Bugfix: Ensure callbacks are canceled when the client connection is shutdown
 - Bugfix: Ensure that the server responses to a registration of a continuous query

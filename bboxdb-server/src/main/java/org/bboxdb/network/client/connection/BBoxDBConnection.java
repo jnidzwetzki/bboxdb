@@ -184,7 +184,6 @@ public class BBoxDBConnection {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBConnection.class);
 
-
 	@VisibleForTesting
 	public BBoxDBConnection() {
 		this(new InetSocketAddress("localhost", 1234));
@@ -242,17 +241,19 @@ public class BBoxDBConnection {
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_TUPLE_LOCK_SUCCESS, new LockedTupleHandler());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.BBoxDB#connect()
+	/**
+	 * Open the network connection to the server. Will be called by the connection
+	 * maintenance thread as soon the the first package is received for the server
+	 * @return
 	 */
-	public boolean connect() {
+	public boolean openNetworkConnection() {
 
 		if(clientSocket != null || ! connectionState.isInNewState()) {
 			logger.warn("Connect() called on an active connection, ignoring (state: {})", connectionState);
 			return true;
 		}
 
-		logger.debug("Connecting to server: {}", getConnectionName());
+		logger.debug("Preparing conection to server: {}", getConnectionName());
 
 		try {
 			connectionState.dipatchToStarting();
@@ -275,10 +276,6 @@ public class BBoxDBConnection {
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
 
-			synchronized (pendingCalls) {
-				pendingCalls.clear();
-			}
-
 			// Start up the response reader
 			serverResponseReader = new ServerResponseReaderRunnable(this);
 			serverResponseReaderThread = new Thread(serverResponseReader);
@@ -292,7 +289,7 @@ public class BBoxDBConnection {
 			connectionState.dispatchToFailed(e);
 			return false;
 		}
-
+		
 		return true;
 	}
 
@@ -667,6 +664,17 @@ public class BBoxDBConnection {
 	private void writePackageToSocket(final NetworkRequestPackage requestPackage)
 			throws PackageEncodeException, IOException {
 
+		synchronized (connectionState) {
+			if(connectionState.isInNewState()) {
+				logger.info("Outgoing packages detected, opening connection {}", getConnectionName());
+				boolean connectresult = openNetworkConnection();
+				
+				if(! connectresult) {
+					throw new IOException("Unable to stablish connection");
+				}
+			}
+		}
+		
 		synchronized (outputStream) {
 			requestPackage.writeToOutputStream(outputStream);
 			outputStream.flush();
@@ -723,7 +731,7 @@ public class BBoxDBConnection {
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
 		NetworkOperationFuture future = null;
-
+		
 		synchronized (pendingCalls) {
 			future = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}

@@ -48,7 +48,7 @@ public class MultipleTupleStartHandler implements ServerResponseHandler {
 		}
 		
 		if(future == null) {
-			logger.error("We don't have a result future for sequence nummer {}");
+			logger.error("We don't have a result future for this request");
 			return true;
 		}
 		

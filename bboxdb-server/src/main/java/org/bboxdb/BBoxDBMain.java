@@ -28,6 +28,7 @@ import org.bboxdb.distribution.TupleStoreFlushZookeeperAdapter;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.membership.MembershipConnectionService.ConnectionStrategy;
 import org.bboxdb.distribution.statistics.StatisticsUpdateService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -114,7 +115,11 @@ public class BBoxDBMain {
 			final TupleStoreManagerRegistry storageRegistry) {
 
 		final MembershipConnectionService membershipService = MembershipConnectionService.getInstance();
-
+		
+		// In the server mode, connection to all other nodes should be directly established 
+		// (e.g., for gossip messages)
+		membershipService.setConnectionStrategy(ConnectionStrategy.DIRECT);
+		
 		// Prevent network connections to ourself
 		final BBoxDBInstance localhost = ZookeeperClientFactory.getLocalInstanceName();
 		membershipService.addSystemToBlacklist(localhost);

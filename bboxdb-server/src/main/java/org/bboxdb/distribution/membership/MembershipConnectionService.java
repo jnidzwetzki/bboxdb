@@ -35,7 +35,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MembershipConnectionService implements BBoxDBService {
-
+	
+	public enum ConnectionStrategy {
+		DIRECT,
+		LAZZY;
+	}
+	
+	/**
+	 * The create connection strategy
+	 */
+	public ConnectionStrategy connectionStrategy = ConnectionStrategy.LAZZY;
+	
 	/**
 	 * The server connections
 	 */
@@ -220,24 +230,27 @@ public class MembershipConnectionService implements BBoxDBService {
 			return;
 		}
 
-		logger.info("Opening connection to instance: {}", instanceName);
-
 		final BBoxDBConnection connection = new BBoxDBConnection(distributedInstance.getInetSocketAddress());
 		final BBoxDBClient client = connection.getBboxDBClient();
 
 		client.setPagingEnabled(pagingEnabled);
 		client.setTuplesPerPage(tuplesPerPage);
 		client.setTupleStoreManagerRegistry(tupleStoreManagerRegistry);
-
-		final boolean result = connection.connect();
-
-		if(! result) {
-			logger.info("Unable to open connection to: {}", instanceName);
-		} else {
-			logger.info("Connection successfully established: {}", instanceName);
-			serverConnections.put(distributedInstance.getInetSocketAddress(), connection);
-			knownInstances.put(distributedInstance.getInetSocketAddress(), distributedInstance);
+		
+		if(connectionStrategy == ConnectionStrategy.DIRECT) {
+			final boolean connectResult = connection.openNetworkConnection();
+			
+			if(! connectResult) {
+				logger.error("Unable to create connection to {}", instanceName);
+				return;
+			} else {
+				logger.info("Opened a connection to {}", instanceName);
+			}
 		}
+		
+		logger.info("Connection successfully registered: {}", instanceName);
+		serverConnections.put(distributedInstance.getInetSocketAddress(), connection);
+		knownInstances.put(distributedInstance.getInetSocketAddress(), distributedInstance);
 	}
 
 	/**
@@ -341,4 +354,21 @@ public class MembershipConnectionService implements BBoxDBService {
 	public void setTupleStoreManagerRegistry(TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
 	}
+
+	/**
+	 * Get the current connection strategy
+	 * @return
+	 */
+	public ConnectionStrategy getConnectionStrategy() {
+		return connectionStrategy;
+	}
+
+	/**
+	 * Set the connection strategy
+	 * @param connectionStrategy
+	 */
+	public void setConnectionStrategy(final ConnectionStrategy connectionStrategy) {
+		this.connectionStrategy = connectionStrategy;
+	}
+	
 }

@@ -378,7 +378,7 @@ public class TestNetworkCommunication {
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
 		final BBoxDBConnection bboxDBClient = new BBoxDBConnection(new InetSocketAddress("127.0.0.1", port));
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInNewState());
-		bboxDBClient.connect();
+		bboxDBClient.openNetworkConnection();
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		bboxDBClient.disconnect();
 		Assert.assertTrue(bboxDBClient.getConnectionState().isInTerminatedState());
@@ -1071,7 +1071,7 @@ public class TestNetworkCommunication {
 		}
 
 		Assert.assertFalse(bboxDBClient.isConnected());
-		boolean result = bboxDBClient.connect();
+		boolean result = bboxDBClient.openNetworkConnection();
 		Assert.assertTrue(result);
 		Assert.assertTrue(bboxDBClient.isConnected());
 

@@ -151,7 +151,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 
 		final NetworkRequestPackage nextPackage = packageSupplier.get();
 		
-		if(! connection.isConnected()) {
+		if(connection.getConnectionState().isInFinishedState()) {
 			final short packageId = (nextPackage != null) ? nextPackage.getSequenceNumber() : -1;
 			final String packageClass = (nextPackage != null) ? nextPackage.getClass().toString() : "undefined";
 			
@@ -171,7 +171,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 		if(lastTransmittedPackage != null) {
 			this.requestId = lastTransmittedPackage.getSequenceNumber();
 		}
-
+		
 		connection.registerPackageCallback(lastTransmittedPackage, this);
 		connection.sendPackageToServer(lastTransmittedPackage, this);
 	}

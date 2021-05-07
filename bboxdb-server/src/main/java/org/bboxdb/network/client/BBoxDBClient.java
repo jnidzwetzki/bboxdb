@@ -745,7 +745,7 @@ public class BBoxDBClient implements BBoxDB {
 
 	@Override
 	public boolean connect() {
-		return connection.connect();
+		return true;
 	}
 
 	@Override
