@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 0.9.9 - TBA
+
 ### Version 0.9.8 - 10.05.2021
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter
 - Improvement: Improved memory usage of the BBoxDB client during long running queries
