@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.9.8 - TBA
+### Version 0.9.8 - 10.05.2021
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter
 - Improvement: Improved memory usage of the BBoxDB client during long running queries
 - Improvement: Speed up element duplicate detection
@@ -20,7 +20,7 @@ order: 1
 - Bugfix: Fixed shutdown logic for continuous queries in the BBoxDBCluster class
 - Bugfix: Fixed server logic for canceling queries
 
-### Version 0.9.7 - 28.04.2020
+### Version 0.9.7 - 28.04.2021
 - New Feature: Added volume scale method in Hyperrectangle class
 - New Feature: Added service method to cancel continuous queries
 - New Feature: The queue size of unprocessed tuples for continuous queries can now be configured
