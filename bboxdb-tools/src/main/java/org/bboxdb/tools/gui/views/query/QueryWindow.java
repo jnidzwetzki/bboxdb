@@ -129,6 +129,16 @@ public class QueryWindow {
 			Color.BLUE, Color.YELLOW, Color.ORANGE, Color.PINK};
 	
 	/**
+	 * True / False names
+	 */
+	private final static String[] BOOL_NAMES = new String[] {"Enabled", "Disabled"};
+	
+	/**
+	 * True / False values
+	 */
+	private final static Boolean[] BOOL_VALUES = new Boolean[] {true, false};
+	
+	/**
 	 * The predefined query values
 	 */
 	private final static String[] PREDEFINED_QUERIES = new String[] {QUERY_PREDEFINED_NONE, 
@@ -172,7 +182,7 @@ public class QueryWindow {
 
 		final FormLayout layout = new FormLayout(
 			    "right:pref, 3dlu, 120dlu, 10dlu, right:pref, 3dlu, 100dlu", 			// columns
-			    "p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 9dlu, p");	// rows
+			    "p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 9dlu, p");	// rows
 		
 		final PanelBuilder builder = new PanelBuilder(layout);
 		builder.setDefaultDialogBorder();
@@ -210,12 +220,22 @@ public class QueryWindow {
 		table2ColorField.setEnabled(false);
 		builder.add(table2ColorField, cc.xy (3, 11));
 	
-		builder.addSeparator("Predefined Queries", cc.xyw(1,  13, 3));
-		builder.addLabel("Query", cc.xy (1,  15));
+		builder.addLabel("Receive Watermarks", cc.xy (1,  13));
+		final JComboBox<String> receiveWatermarksField = new JComboBox<>(BOOL_NAMES);
+		receiveWatermarksField.setEnabled(false);
+		builder.add(receiveWatermarksField, cc.xy (3, 13));
+	
+		builder.addLabel("Receive Invalidations", cc.xy (1,  15));
+		final JComboBox<String> receiveInvalidationsField = new JComboBox<>(BOOL_NAMES);
+		receiveInvalidationsField.setEnabled(false);
+		builder.add(receiveInvalidationsField, cc.xy (3, 15));
+	
+		builder.addSeparator("Predefined Queries", cc.xyw(1,  17, 3));
+		builder.addLabel("Query", cc.xy (1,  19));
 		final JComboBox<String> predefinedQueriesBox = new JComboBox<>(PREDEFINED_QUERIES);
 		predefinedQueriesBox.setSelectedItem(PREDEFINED_QUERIES[0]);
 		predefinedQueriesBox.setEnabled(true);
-		builder.add(predefinedQueriesBox, cc.xy (3, 15));
+		builder.add(predefinedQueriesBox, cc.xy (3, 19));
 		
 		builder.addSeparator("Parameter", cc.xyw(5,  1, 3));
 		
@@ -256,7 +276,8 @@ public class QueryWindow {
 		
 		final Action executeAction = getExecuteAction(queryTypeBox, 
 				table1Field, table1ColorField, table2Field, table2ColorField, 
-				longBegin, longEnd, latBegin, latEnd, udfNameField, udfValueField);
+				longBegin, longEnd, latBegin, latEnd, udfNameField, udfValueField, 
+				receiveWatermarksField, receiveInvalidationsField);
 		
 		final JButton executeButton = new JButton(executeAction);
 		executeButton.setText("Execute");
@@ -264,10 +285,11 @@ public class QueryWindow {
 		
 		addActionListener(queryTypeBox, predefinedQueriesBox, 
 				table1Field,  table1ColorField, table2Field, 
-				table2ColorField, executeButton, udfNameField, udfValueField);
+				table2ColorField, executeButton, udfNameField, udfValueField,
+				receiveWatermarksField, receiveInvalidationsField);
 
-		builder.add(closeButton, cc.xy(5, 17));
-		builder.add(executeButton, cc.xy(7, 17));
+		builder.add(closeButton, cc.xy(5, 21));
+		builder.add(executeButton, cc.xy(7, 21));
 		
 		return builder;
 	}
@@ -282,10 +304,10 @@ public class QueryWindow {
 	private void addActionListener(final JComboBox<String> queryTypeBox, final JComboBox<String> predefinedQueriesBox,
 			final JComboBox<String> table1Field, final JComboBox<String> table1ColorField, 
 			final JComboBox<String> table2Field, final JComboBox<String> table2ColorField, 
-			final JButton executeButton, final JTextField udfNameField, final JTextField udfValueField) {
+			final JButton executeButton, final JTextField udfNameField, final JTextField udfValueField,
+			final JComboBox<String> receiveWatermarksField, final JComboBox<String> receiveInvalidationsField) {
 		
 		
-
 		// The predefined queries
 		predefinedQueriesBox.addActionListener(l -> {
 
@@ -308,6 +330,8 @@ public class QueryWindow {
 				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
+				receiveWatermarksField.setEnabled(false);
+				receiveInvalidationsField.setEnabled(false);
 				break;
 			case QUERY_PREDEFINED_STATIC_ROAD_VALUE:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
@@ -320,6 +344,8 @@ public class QueryWindow {
 				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
+				receiveWatermarksField.setEnabled(false);
+				receiveInvalidationsField.setEnabled(false);
 				break;
 			case QUERY_PREDEFINED_STATIC_FOREST:
 				udfNameField.setText("");
@@ -332,6 +358,8 @@ public class QueryWindow {
 				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
+				receiveWatermarksField.setEnabled(false);
+				receiveInvalidationsField.setEnabled(false);
 				break;
 			case QUERY_PREDEFINED_AIRCRAFT:
 				udfNameField.setText("");
@@ -343,6 +371,8 @@ public class QueryWindow {
 				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			case QUERY_PREDEFINED_BUS: 
 				udfNameField.setText("");
@@ -355,6 +385,8 @@ public class QueryWindow {
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
 				table2ColorField.setSelectedItem("Blue");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			case QUERY_PREDEFINED_BUS_ROAD:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
@@ -368,6 +400,8 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				table2ColorField.setSelectedItem("Blue");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			case QUERY_PREDEFINED_BUS_ELIZABETH:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
@@ -381,6 +415,8 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				table2ColorField.setSelectedItem("Blue");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			case QUERY_PREDEFINED_BUS_BRIDGE:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
@@ -394,6 +430,8 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				table2ColorField.setSelectedItem("Blue");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			case QUERY_PREDEFINED_BUS_FOREST_BBOX:
 				udfNameField.setText("");
@@ -407,6 +445,8 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				table2ColorField.setSelectedItem("Green");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			case QUERY_PREDEFINED_BUS_FOREST_RELAXTED:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
@@ -420,6 +460,8 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				table2ColorField.setSelectedItem("Green");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			case QUERY_PREDEFINED_BUS_FOREST_STRICT:
 				udfNameField.setText(UserDefinedGeoJsonSpatialFilterStrict.class.getCanonicalName());
@@ -433,6 +475,8 @@ public class QueryWindow {
 				table2Field.setEnabled(true);
 				table2ColorField.setEnabled(true);
 				table2ColorField.setSelectedItem("Green");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 			default:
 				logger.error("Unknown selection: " + selectedPredefinedQuery);
@@ -453,6 +497,17 @@ public class QueryWindow {
 			switch (selectedQuery) {
 			
 			case QUERY_RANGE:
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(false);
+				table2ColorField.setEnabled(false);
+				executeButton.setEnabled(true);
+				udfNameField.setText("");
+				udfValueField.setText("");
+				receiveWatermarksField.setEnabled(false);
+				receiveInvalidationsField.setEnabled(false);
+				break;
+				
 			case QUERY_RANGE_CONTINUOUS:
 				table1Field.setEnabled(true);
 				table1ColorField.setEnabled(true);
@@ -461,6 +516,8 @@ public class QueryWindow {
 				executeButton.setEnabled(true);
 				udfNameField.setText("");
 				udfValueField.setText("");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 				
 			case QUERY_JOIN:
@@ -471,6 +528,8 @@ public class QueryWindow {
 				executeButton.setEnabled(true);
 				udfNameField.setText("");
 				udfValueField.setText("");
+				receiveWatermarksField.setEnabled(false);
+				receiveInvalidationsField.setEnabled(false);
 				break;
 				
 			case QUERY_JOIN_CONTINUOUS:
@@ -481,6 +540,8 @@ public class QueryWindow {
 				executeButton.setEnabled(true);
 				udfNameField.setText("");
 				udfValueField.setText("");
+				receiveWatermarksField.setEnabled(true);
+				receiveInvalidationsField.setEnabled(true);
 				break;
 
 			default:
@@ -511,7 +572,8 @@ public class QueryWindow {
 			final JComboBox<String> table1Field, final JComboBox<String> color1Box, 
 			final JComboBox<String> table2Field, final JComboBox<String> color2Box, 
 			final JTextField longBegin, final JTextField longEnd, final JTextField latBegin, 
-			final JTextField latEnd, final JTextField filterField, final JTextField valueField) {
+			final JTextField latEnd, final JTextField filterField, final JTextField valueField, 
+			final JComboBox<String> receiveWatermarksField, final JComboBox<String> receiveInvalidationsField) {
 		
 		final AbstractAction ececuteAction = new AbstractAction() {
 			
@@ -540,7 +602,10 @@ public class QueryWindow {
 									
 					final Color color1 = COLOR_VALUES[color1Box.getSelectedIndex()];
 					final Color color2 = COLOR_VALUES[color2Box.getSelectedIndex()];
-
+					
+					final boolean receiveWatermarks = BOOL_VALUES[receiveWatermarksField.getSelectedIndex()];
+					final boolean receiveInvalidations = BOOL_VALUES[receiveInvalidationsField.getSelectedIndex()];
+					
 					switch (queryType) {
 					case QUERY_RANGE:
 						executeRangeQuery(resultBox, table1, color1, filter, value);
@@ -551,11 +616,13 @@ public class QueryWindow {
 						break;
 				
 					case QUERY_RANGE_CONTINUOUS:
-						executeRangeQueryContinuous(resultBox, table1, color1, filter, value);
+						executeRangeQueryContinuous(resultBox, table1, color1, filter, value, 
+								receiveWatermarks, receiveInvalidations);
 						break;
 						
 					case QUERY_JOIN_CONTINUOUS:
-						executeJoinQueryContinuous(resultBox, table1, table2, color1, color2, filter, value);
+						executeJoinQueryContinuous(resultBox, table1, table2, color1, color2, 
+								filter, value, receiveWatermarks, receiveInvalidations);
 						break;
 
 					default:
@@ -655,10 +722,13 @@ public class QueryWindow {
 			 * @param customFilter 
 			 * @param table 
 			 * @param bbox 
+			 * @param receiveInvalidations 
+			 * @param receiveWatermarks 
 			 */
 			private void executeJoinQueryContinuous(final Hyperrectangle bbox, final String table1, 
 					final String table2, final Color color1, final Color color2, 
-					final String customFilter, final String customValue) {
+					final String customFilter, final String customValue,
+					final boolean receiveWatermarks, final boolean receiveInvalidations) {
 							
 				QueryPlanBuilder qpb = QueryPlanBuilder
 						.createQueryOnTable(table1)
@@ -670,6 +740,14 @@ public class QueryWindow {
 						= new UserDefinedFilterDefinition(customFilter, customValue);
 					
 					qpb.addJoinFilter(userDefinedFilter);
+				}
+				
+				if(receiveWatermarks) {
+					qpb.receiveWatermarks();
+				}
+				
+				if(receiveInvalidations) {
+					qpb.receiveInvalidations();
 				}
 				
 				final BBoxDBCluster connection = guimodel.getConnection();
@@ -702,9 +780,12 @@ public class QueryWindow {
 			 * @param customFilter 
 			 * @param table 
 			 * @param bbox 
+			 * @param receiveInvalidations 
+			 * @param receiveWatermarks 
 			 */
 			private void executeRangeQueryContinuous(final Hyperrectangle bbox, final String table, 
-					final Color color, final String customFilter, final String customValue) {
+					final Color color, final String customFilter, final String customValue, 
+					final boolean receiveWatermarks, final boolean receiveInvalidations) {
 							
 				final QueryPlanBuilder qpb = QueryPlanBuilder
 						.createQueryOnTable(table)
@@ -716,6 +797,14 @@ public class QueryWindow {
 						= new UserDefinedFilterDefinition(customFilter, customValue);
 					
 					qpb.addStreamFilter(userDefinedFilter);
+				}
+				
+				if(receiveWatermarks) {
+					qpb.receiveWatermarks();
+				}
+				
+				if(receiveInvalidations) {
+					qpb.receiveInvalidations();
 				}
 				
 				final BBoxDBCluster connection = guimodel.getConnection();
