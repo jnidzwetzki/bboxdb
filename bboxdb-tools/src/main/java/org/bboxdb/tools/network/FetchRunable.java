@@ -112,6 +112,8 @@ public class FetchRunable extends ExceptionSafeRunnable {
 				final List<GeoJsonPolygon> polygonList = parseElements(message);
 				final int inserts = insertData(polygonList);
 				logger.info("Inserted {} {} (read {})", inserts, entityName, polygonList.size());
+			
+				consumer.accept(null);
 			} catch (Exception e) {
 				logger.error("Got exception", e);
 			}

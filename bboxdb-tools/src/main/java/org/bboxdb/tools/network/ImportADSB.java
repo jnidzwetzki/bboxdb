@@ -27,6 +27,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.WatermarkTuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
@@ -85,6 +86,7 @@ public class ImportADSB implements Runnable {
 			
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String line = null;
+			String lastKey = null;
 			long readTuples = 0;
 			
 			while((line = reader.readLine()) != null) {
@@ -95,6 +97,16 @@ public class ImportADSB implements Runnable {
 				
 				try {
 					final Tuple tuple = builder.buildTuple(line);
+					
+					// Start restarts, add watermark
+					if(lastKey != null && tuple.getKey().compareTo(tuple.getKey()) < 0) {
+						final WatermarkTuple watermarkTuple = new WatermarkTuple();
+						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, watermarkTuple);
+						pendingFutures.put(insertFuture);
+					}
+					
+					lastKey = tuple.getKey();
+
 					if(tuple != null) {
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, tuple);
 						pendingFutures.put(insertFuture);

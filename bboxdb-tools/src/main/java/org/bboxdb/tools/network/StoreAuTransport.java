@@ -97,6 +97,11 @@ public class StoreAuTransport implements Runnable {
 				openStreams.add(bos);
 				final Consumer<GeoJsonPolygon> consumer = (polygon) -> {
 					try {
+						
+						if(polygon == null) {
+							return;
+						}
+						
 						bos.write(polygon.toGeoJson().getBytes());
 						bos.write("\n".getBytes());
 						bos.flush();

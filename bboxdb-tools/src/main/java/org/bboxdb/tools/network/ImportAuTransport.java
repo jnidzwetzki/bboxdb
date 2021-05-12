@@ -31,6 +31,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.WatermarkTuple;
 import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,14 +118,19 @@ public class ImportAuTransport implements Runnable {
 				}
 				
 				final String table = distributionGroup + "_" + entity;
+				final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
 				
 				final Consumer<GeoJsonPolygon> consumer = (polygon) -> {
-					final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
 					
-					final String key = getKeyForPolygon(polygon);
+					Tuple tuple = null;
 					
-					final Tuple tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);
-
+					if(polygon == null) {
+						tuple = new WatermarkTuple();
+					} else {
+						final String key = getKeyForPolygon(polygon);
+						tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);
+					}
+					
 					try {
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 						pendingFutures.put(insertFuture);
