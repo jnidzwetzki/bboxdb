@@ -36,6 +36,8 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.entity.WatermarkTuple;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.junit.AfterClass;
@@ -185,6 +187,13 @@ public class TestStorageManager {
 		Assert.assertEquals(2, receivedTuples.size());
 	}
 
+	@Test(timeout=60000)
+	public void testWatermarkTuple() throws Exception {
+		final Tuple createdTuple = new WatermarkTuple();
+		storageManager.put(createdTuple);
+		Assert.assertTrue(storageManager.get(SSTableConst.WATERMARK_KEY).isEmpty());
+	}
+	
 	@Test(timeout=60000)
 	public void testTupleDelete() throws Exception {
 		final Tuple createdTuple = new Tuple("1", Hyperrectangle.FULL_SPACE, "abc".getBytes());

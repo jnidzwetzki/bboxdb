@@ -58,6 +58,7 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.entity.WatermarkTuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
@@ -207,6 +208,16 @@ public class ContinuousClientQuery implements ClientQuery {
 		return (streamTuple) -> {
 			
 			if(streamTuple instanceof DeletedTuple) {
+				return;
+			}
+			
+			if(streamTuple instanceof WatermarkTuple) {
+				
+				if(queryPlan.isReceiveWatermarks()) {
+					final MultiTuple multiTuple = new MultiTuple(streamTuple, requestTable.getFullname());
+					queueTupleForClientProcessing(multiTuple);
+				}
+				
 				return;
 			}
 			
@@ -415,6 +426,16 @@ public class ContinuousClientQuery implements ClientQuery {
 		return (streamTuple) -> {
 			
 			if(streamTuple instanceof DeletedTuple) {
+				return;
+			}
+			
+			if(streamTuple instanceof WatermarkTuple) {
+				
+				if(queryPlan.isReceiveWatermarks()) {
+					final MultiTuple joinedTuple = new MultiTuple(streamTuple, requestTable.getFullname());
+					queueTupleForClientProcessing(joinedTuple);
+				}
+				
 				return;
 			}
 			

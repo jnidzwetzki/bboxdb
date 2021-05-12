@@ -26,6 +26,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
+import org.bboxdb.storage.entity.WatermarkTuple;
 import org.bboxdb.storage.util.TupleHelper;
 
 public class NetworkTupleEncoderDecoder {
@@ -61,6 +62,8 @@ public class NetworkTupleEncoderDecoder {
 		Tuple tuple = null;
 		if(TupleHelper.isDeletedTuple(boxBytes, dataBytes)) {
 			tuple = new DeletedTuple(key, timestamp);
+		} else if(TupleHelper.isWatermarkTuple(boxBytes, dataBytes)) { 
+			tuple = new WatermarkTuple();
 		} else {
 			tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
 		}

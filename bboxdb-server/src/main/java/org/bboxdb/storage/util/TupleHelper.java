@@ -239,6 +239,22 @@ public class TupleHelper {
 		
 		return false;
 	}
+	
+	/**
+	 * Is this a watermark tuple?
+	 * @param boxBytes
+	 * @param dataBytes
+	 * @return
+	 */
+	public static boolean isWatermarkTuple(final byte[] boxBytes, final byte[] dataBytes) {
+		if(Arrays.equals(dataBytes, SSTableConst.WATERMARK_MARKER)) {
+			if(Arrays.equals(boxBytes, SSTableConst.WATERMARK_MARKER)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Is deleted tuple
