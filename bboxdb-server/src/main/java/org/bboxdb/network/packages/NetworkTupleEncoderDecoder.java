@@ -63,7 +63,7 @@ public class NetworkTupleEncoderDecoder {
 		if(TupleHelper.isDeletedTuple(boxBytes, dataBytes)) {
 			tuple = new DeletedTuple(key, timestamp);
 		} else if(TupleHelper.isWatermarkTuple(boxBytes, dataBytes)) { 
-			tuple = new WatermarkTuple();
+			tuple = new WatermarkTuple(key, timestamp);
 		} else {
 			tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
 		}

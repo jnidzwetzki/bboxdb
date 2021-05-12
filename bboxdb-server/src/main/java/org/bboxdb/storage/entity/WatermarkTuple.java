@@ -27,8 +27,8 @@ public class WatermarkTuple extends Tuple {
 				SSTableConst.WATERMARK_MARKER);
 	}
 	
-	public WatermarkTuple(final String keyPrefix, final long versionTimestamp) {
-		super(SSTableConst.WATERMARK_KEY + "_" + keyPrefix, Hyperrectangle.FULL_SPACE, 
+	public WatermarkTuple(final String key, final long versionTimestamp) {
+		super(key, Hyperrectangle.FULL_SPACE, 
 				SSTableConst.WATERMARK_MARKER, versionTimestamp);
 	}
 	

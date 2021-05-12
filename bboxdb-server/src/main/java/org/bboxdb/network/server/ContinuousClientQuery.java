@@ -60,6 +60,7 @@ import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.WatermarkTuple;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
@@ -482,7 +483,8 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @return
 	 */
 	private MultiTuple getWatermarkTupleForLocalInstance(final Tuple streamTuple) {
-		final WatermarkTuple watermarkTuple = new WatermarkTuple(LOCAL_INSTANCE_NAME, streamTuple.getVersionTimestamp());
+		final String key = SSTableConst.WATERMARK_KEY + "_" + LOCAL_INSTANCE_NAME;
+		final WatermarkTuple watermarkTuple = new WatermarkTuple(key, streamTuple.getVersionTimestamp());
 		return new MultiTuple(watermarkTuple, requestTable.getFullname());
 	}
 
