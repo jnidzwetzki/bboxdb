@@ -23,7 +23,13 @@ import org.bboxdb.storage.sstable.SSTableConst;
 public class WatermarkTuple extends Tuple {
 
 	public WatermarkTuple() {
-		super(SSTableConst.WATERMARK_KEY, Hyperrectangle.FULL_SPACE, SSTableConst.WATERMARK_MARKER);
+		super(SSTableConst.WATERMARK_KEY, Hyperrectangle.FULL_SPACE, 
+				SSTableConst.WATERMARK_MARKER);
+	}
+	
+	public WatermarkTuple(final String keyPrefix, final long versionTimestamp) {
+		super(SSTableConst.WATERMARK_KEY + "_" + keyPrefix, Hyperrectangle.FULL_SPACE, 
+				SSTableConst.WATERMARK_MARKER, versionTimestamp);
 	}
 	
 	public WatermarkTuple(final long versionTimestamp) {

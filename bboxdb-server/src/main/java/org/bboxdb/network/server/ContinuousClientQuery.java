@@ -35,6 +35,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfiguration.ContinuousSpatialJoinFetchMode;
@@ -147,6 +148,11 @@ public class ContinuousClientQuery implements ClientQuery {
 	private final static MultiTuple KEEP_ALIVE_PILL = new MultiTuple(new ArrayList<>(), new ArrayList<>());
 	
 	/**
+	 * The local instance name
+	 */
+	private final static String LOCAL_INSTANCE_NAME = ZookeeperClientFactory.getLocalInstanceName().getStringValue().replace(":", "_");
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousClientQuery.class);
@@ -214,7 +220,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			if(streamTuple instanceof WatermarkTuple) {
 				
 				if(queryPlan.isReceiveWatermarks()) {
-					final MultiTuple multiTuple = new MultiTuple(streamTuple, requestTable.getFullname());
+					final MultiTuple multiTuple = getWatermarkTupleForLocalInstance(streamTuple);
 					queueTupleForClientProcessing(multiTuple);
 				}
 				
@@ -432,7 +438,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			if(streamTuple instanceof WatermarkTuple) {
 				
 				if(queryPlan.isReceiveWatermarks()) {
-					final MultiTuple joinedTuple = new MultiTuple(streamTuple, requestTable.getFullname());
+					final MultiTuple joinedTuple = getWatermarkTupleForLocalInstance(streamTuple);
 					queueTupleForClientProcessing(joinedTuple);
 				}
 				
@@ -468,6 +474,16 @@ public class ContinuousClientQuery implements ClientQuery {
 			}
 
 		};
+	}
+
+	/**
+	 * Get the watermark tuple for the current instance
+	 * @param streamTuple
+	 * @return
+	 */
+	private MultiTuple getWatermarkTupleForLocalInstance(final Tuple streamTuple) {
+		final WatermarkTuple watermarkTuple = new WatermarkTuple(LOCAL_INSTANCE_NAME, streamTuple.getVersionTimestamp());
+		return new MultiTuple(watermarkTuple, requestTable.getFullname());
 	}
 
 	/**
