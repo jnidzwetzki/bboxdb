@@ -41,9 +41,12 @@ public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
 			final Hyperrectangle queryRectangle,
 			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative, 
-			final List<UserDefinedFilterDefinition> streamFilters) {
+			final List<UserDefinedFilterDefinition> streamFilters,
+			final boolean receiveWatermarks, final boolean receiveInvalidations) {
 		
-			super(queryUUID, streamTable, streamTransformation, queryRectangle, streamFilters);
+			super(queryUUID, streamTable, streamTransformation, queryRectangle, streamFilters, 
+					receiveWatermarks, receiveInvalidations);
+			
 			this.compareRectangle = Objects.requireNonNull(compareRectangle);
 			this.reportPositive = reportPositiveNegative;
 	}
@@ -94,7 +97,9 @@ public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
 	@Override
 	public String toString() {
 		return "ContinuousRangeQueryPlan [compareRectangle=" + compareRectangle + ", reportPositive=" + reportPositive
-				+ "]";
+				+ ", toString()=" + super.toString() + "]";
 	}
+
+	
 
 }

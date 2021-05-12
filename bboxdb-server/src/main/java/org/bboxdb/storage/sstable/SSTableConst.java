@@ -107,6 +107,17 @@ public class SSTableConst {
 	public final static byte[] DELETED_MARKER = "DEL".getBytes();
 	
 	/**
+	 * Key for watermark tuples
+	 */
+	public final static String WATERMARK_KEY = "WATERMARK";
+	
+	
+	/**
+	 * Marker for watermark tuples
+	 */
+	public final static byte[] WATERMARK_MARKER = WATERMARK_KEY.getBytes();
+	
+	/**
 	 * Execution interval for the compact thread (30 seconds)
 	 */
 	// Changed for demo

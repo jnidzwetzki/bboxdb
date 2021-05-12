@@ -81,6 +81,16 @@ public class QueryPlanBuilder {
 	 * Report positive or negative matches
 	 */
 	private boolean reportPositiveMatches;
+	
+	/**
+	 * This query should receive watermarks
+	 */
+	private boolean receiveWatermarks;
+	
+	/**
+	 * This query should receive invalidations
+	 */
+	private boolean receiveInvalidations;
 
 	public QueryPlanBuilder(final String tablename) {
 		this.queryUUID = UUID.randomUUID().toString();
@@ -90,6 +100,8 @@ public class QueryPlanBuilder {
 		this.streamFilters = new ArrayList<>();
 		this.joinFilters = new ArrayList<>();
 		this.reportPositiveMatches = true;
+		this.receiveInvalidations = false;
+		this.receiveWatermarks = false;
 		this.queryRegion = Hyperrectangle.FULL_SPACE;
 	}
 
@@ -135,7 +147,6 @@ public class QueryPlanBuilder {
 	
 	/**
 	 * Report only positive matches
-	 * @param reportPositiveMatches
 	 * @return
 	 */
 	public QueryPlanBuilder reportPositiveMatches() {
@@ -145,11 +156,46 @@ public class QueryPlanBuilder {
 	
 	/**
 	 * Report only negative matches
-	 * @param reportPositiveMatches
 	 * @return
 	 */
 	public QueryPlanBuilder reportNegativeMatches() {
 		this.reportPositiveMatches = false;
+		return this;
+	}
+	
+	/**
+	 * Receive watermarks (if available)
+	 * @return
+	 */
+	public QueryPlanBuilder receiveWatermarks() {
+		this.receiveWatermarks = true;
+		return this;
+	}
+	
+	/**
+	 * Don't receive watermarks
+	 * @return
+	 */
+	public QueryPlanBuilder dontReceiveWatermarks() {
+		this.receiveWatermarks = false;
+		return this;
+	}
+	
+	/**
+	 * Receive invalidations
+	 * @return
+	 */
+	public QueryPlanBuilder receiveInvalidations() {
+		this.receiveInvalidations = true;
+		return this;
+	}
+	
+	/**
+	 * Don't receive invalidations
+	 * @return
+	 */
+	public QueryPlanBuilder dontReceiveInvalidations() {
+		this.receiveInvalidations = false;
 		return this;
 	}
 	
@@ -260,7 +306,8 @@ public class QueryPlanBuilder {
 		
 		if(regionConst != null) {
 			return new ContinuousRangeQueryPlan(queryUUID, streamTable, streamTupleTransformation, 
-					queryRegion, regionConst, reportPositiveMatches, streamFilters);
+					queryRegion, regionConst, reportPositiveMatches, streamFilters, 
+					receiveWatermarks, receiveInvalidations);
 		}
 		
 		if(joinTable != null) {
@@ -269,8 +316,9 @@ public class QueryPlanBuilder {
 				throw new IllegalArgumentException("Unable to create continous join queries with negative matches");
 			}
 			
-			return new ContinuousSpatialJoinQueryPlan(queryUUID, streamTable, joinTable, streamTupleTransformation, 
-					queryRegion, storedTupleTransformation, streamFilters, joinFilters);
+			return new ContinuousSpatialJoinQueryPlan(queryUUID, streamTable, joinTable, 
+					streamTupleTransformation, queryRegion, storedTupleTransformation,
+					streamFilters, joinFilters, receiveWatermarks, receiveInvalidations);
 		}
 		
 		throw new IllegalArgumentException("Join table or const region need to be set");

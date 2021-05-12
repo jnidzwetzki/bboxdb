@@ -562,7 +562,7 @@ public class TestNetworkClasses {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
-				table, new ArrayList<>(), boundingBox, boundingBox, true, new ArrayList<>());
+				table, new ArrayList<>(), boundingBox, boundingBox, true, new ArrayList<>(), false, false);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final QueryContinuousRequest queryRequest = new QueryContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, constQueryPlan);

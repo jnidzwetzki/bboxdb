@@ -49,18 +49,31 @@ public abstract class ContinuousQueryPlan {
 	/**
 	 * The query range
 	 */
-	private Hyperrectangle queryRange;
+	private final Hyperrectangle queryRange;
+	
+	/**
+	 * This query should receive watermarks
+	 */
+	private final boolean receiveWatermarks;
+	
+	/**
+	 * This query should receive invalidations
+	 */
+	private final boolean receiveInvalidations;
 
 	public ContinuousQueryPlan(final String queryUUID, final String streamTable, 
 			final List<TupleTransformation> streamTransformation, 
 			final Hyperrectangle queryRange, 
-			final List<UserDefinedFilterDefinition> streamFilters) {
+			final List<UserDefinedFilterDefinition> streamFilters,
+			final boolean receiveWatermarks, final boolean receiveInvalidations) {
 		
 		this.queryUUID = queryUUID;
 		this.streamTable = Objects.requireNonNull(streamTable);
 		this.streamTransformation = Objects.requireNonNull(streamTransformation);
 		this.queryRange = Objects.requireNonNull(queryRange);
 		this.streamFilters = Objects.requireNonNull(streamFilters);
+		this.receiveWatermarks = receiveWatermarks;
+		this.receiveInvalidations = receiveInvalidations;
 	}
 	
 	public String getQueryUUID() {
@@ -82,11 +95,20 @@ public abstract class ContinuousQueryPlan {
 	public List<UserDefinedFilterDefinition> getStreamFilters() {
 		return streamFilters;
 	}
+	
+	public boolean isReceiveInvalidations() {
+		return receiveInvalidations;
+	}
+	
+	public boolean isReceiveWatermarks() {
+		return receiveWatermarks;
+	}
 
 	@Override
 	public String toString() {
 		return "ContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation=" + streamTransformation
-				+ ", streamFilters=" + streamFilters + ", queryUUID=" + queryUUID + ", queryRange=" + queryRange + "]";
+				+ ", streamFilters=" + streamFilters + ", queryUUID=" + queryUUID + ", queryRange=" + queryRange
+				+ ", receiveWatermarks=" + receiveWatermarks + ", receiveInvalidations=" + receiveInvalidations + "]";
 	}
 
 	@Override
@@ -95,6 +117,8 @@ public abstract class ContinuousQueryPlan {
 		int result = 1;
 		result = prime * result + ((queryRange == null) ? 0 : queryRange.hashCode());
 		result = prime * result + ((queryUUID == null) ? 0 : queryUUID.hashCode());
+		result = prime * result + (receiveInvalidations ? 1231 : 1237);
+		result = prime * result + (receiveWatermarks ? 1231 : 1237);
 		result = prime * result + ((streamFilters == null) ? 0 : streamFilters.hashCode());
 		result = prime * result + ((streamTable == null) ? 0 : streamTable.hashCode());
 		result = prime * result + ((streamTransformation == null) ? 0 : streamTransformation.hashCode());
@@ -120,6 +144,10 @@ public abstract class ContinuousQueryPlan {
 				return false;
 		} else if (!queryUUID.equals(other.queryUUID))
 			return false;
+		if (receiveInvalidations != other.receiveInvalidations)
+			return false;
+		if (receiveWatermarks != other.receiveWatermarks)
+			return false;
 		if (streamFilters == null) {
 			if (other.streamFilters != null)
 				return false;
@@ -137,5 +165,5 @@ public abstract class ContinuousQueryPlan {
 			return false;
 		return true;
 	}
-
+	
 }

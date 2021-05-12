@@ -61,7 +61,10 @@ public class ContinuousQueryPlanSerializer {
 	private static final String STREAM_FILTER_KEY = "stream-filter";
 	private static final String JOIN_FILTER_KEY = "join-filter";
 	
-	private static final String REPORT_KEY = "report-positive";
+	private static final String REPORT_POSITIVE_KEY = "report-positive";
+	private static final String REPORT_WATERMARKS_KEY = "report-watermarks";
+	private static final String REPORT_INVALIDATIONS_KEY = "report-invalidations";
+
 	private static final String STREAM_TABLE_KEY = "stream-table";
 	private static final String JOIN_TABLE_KEY = "join-table";
 	private static final String QUERY_RANGE_KEY = "query-range";
@@ -112,7 +115,7 @@ public class ContinuousQueryPlanSerializer {
 			
 			final ContinuousRangeQueryPlan constQueryPlan = (ContinuousRangeQueryPlan) queryPlan;
 			json.put(COMPARE_RECTANGLE_KEY, constQueryPlan.getCompareRectangle().toCompactString());
-			json.put(REPORT_KEY, constQueryPlan.isReportPositive());
+			json.put(REPORT_POSITIVE_KEY, constQueryPlan.isReportPositive());
 		} else if(queryPlan instanceof ContinuousSpatialJoinQueryPlan) {
 			json.put(QUERY_TYPE_KEY, QUERY_TYPE_JOIN_VALUE);
 
@@ -133,7 +136,9 @@ public class ContinuousQueryPlanSerializer {
 		
 		json.put(QUERY_RANGE_KEY, queryPlan.getQueryRange().toCompactString());
 		json.put(STREAM_TABLE_KEY, queryPlan.getStreamTable());
-		
+		json.put(REPORT_WATERMARKS_KEY, queryPlan.isReceiveWatermarks());
+		json.put(REPORT_INVALIDATIONS_KEY, queryPlan.isReceiveInvalidations());
+
 		final List<UserDefinedFilterDefinition> streamFilters = queryPlan.getStreamFilters();
 		final JSONArray streamFilterJSON = writeFilterToJSON(streamFilters);
 		json.put(STREAM_FILTER_KEY, streamFilterJSON);
@@ -232,14 +237,19 @@ public class ContinuousQueryPlanSerializer {
 			
 			final List<UserDefinedFilterDefinition> streamFilters = decodeFilters(json, STREAM_FILTER_KEY);
 
+			final boolean receiveWatermarks = json.getBoolean(REPORT_WATERMARKS_KEY);
+			final boolean receiveInvalidations = json.getBoolean(REPORT_INVALIDATIONS_KEY);
+			
 			switch(queryType) {
 			case QUERY_TYPE_RANGE_VALUE:
-				final boolean reportPositiveNegative = json.getBoolean(REPORT_KEY);
+				final boolean reportPositiveNegative = json.getBoolean(REPORT_POSITIVE_KEY);
 
 				final Hyperrectangle compareRectangle = Hyperrectangle.fromString(json.getString(COMPARE_RECTANGLE_KEY));
 				
 				final ContinuousRangeQueryPlan constQuery = new ContinuousRangeQueryPlan(queryUUID, streamTable, 
-						streamTransformation, queryRectangle, compareRectangle, reportPositiveNegative, streamFilters);
+						streamTransformation, queryRectangle, compareRectangle, 
+						reportPositiveNegative, streamFilters, 
+						receiveWatermarks, receiveInvalidations);
 				
 				return constQuery;
 			case QUERY_TYPE_JOIN_VALUE:				
@@ -252,7 +262,8 @@ public class ContinuousQueryPlanSerializer {
 				
 				final ContinuousSpatialJoinQueryPlan tableQuery = new ContinuousSpatialJoinQueryPlan(queryUUID, streamTable, 
 						joinTable, streamTransformation, queryRectangle, 
-						tableTransformation, streamFilters, joinFilters);
+						tableTransformation, streamFilters, joinFilters, 
+						receiveWatermarks, receiveInvalidations);
 		
 				return tableQuery;
 			default:
