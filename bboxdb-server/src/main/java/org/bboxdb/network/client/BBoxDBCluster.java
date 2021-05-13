@@ -89,7 +89,7 @@ public class BBoxDBCluster implements BBoxDB {
 	/**
 	 * The query continuous plans
 	 */
-	private Map<String, ContinuousQueryPlan> continousQueryPlans = new ConcurrentHashMap<>();
+	private Map<String, ContinuousQueryState> continousQueryStates = new ConcurrentHashMap<>();
 
 	/**
 	 * The running continuous queries
@@ -405,11 +405,11 @@ public class BBoxDBCluster implements BBoxDB {
 			throws BBoxDBException {
 
 		final String streamTable = queryPlan.getStreamTable();
-		
 		final DistributionRegion distributionRegion = SpacePartitionerHelper.getRootNode(streamTable);
-
 		final Hyperrectangle queryRange = queryPlan.getQueryRange();
-		
+		final String queryUUID = queryPlan.getQueryUUID();
+		final ContinuousQueryState queryState = new ContinuousQueryState(queryPlan);
+
 		try {
 			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
 					.getZookeeperClient().getTupleStoreAdapter();
@@ -428,10 +428,11 @@ public class BBoxDBCluster implements BBoxDB {
 			final List<DistributionRegion> regions = DistributionRegionHelper
 					.getDistributionRegionsForBoundingBox(distributionRegion, queryRange);
 			
+			
 			if(logger.isDebugEnabled()) {
 				final List<Long> regionToRegister = regions.stream().map(r -> r.getRegionId()).collect(Collectors.toList());
 				logger.debug("Registering continous query {} on regions {} of table {}", 
-						queryPlan.getQueryUUID(), regionToRegister, queryPlan.getStreamTable());
+						queryUUID, regionToRegister, queryPlan.getStreamTable());
 			}
 			
 			final Set<BBoxDBInstance> knownSystems = new HashSet<BBoxDBInstance>();
@@ -445,6 +446,8 @@ public class BBoxDBCluster implements BBoxDB {
 					if(! DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ.test(regionToQuery.getState())) {
 						continue;
 					}
+					
+					queryState.getRegisteredRegions().add(regionToQuery.getRegionId());
 
 					final BBoxDBInstance firstSystem = regionToQuery.getSystems().get(0);
 					
@@ -465,12 +468,13 @@ public class BBoxDBCluster implements BBoxDB {
 				return resultList;
 			};
 
+			
 			final JoinedTupleListFuture resultFuture = new JoinedTupleListFuture(supplier);
-			resultFuture.addShutdownCallbackConsumer(s -> registerer.unregisterOldQuery(queryPlan.getQueryUUID()));
+			resultFuture.addShutdownCallbackConsumer(s -> registerer.unregisterOldQuery(queryUUID));
 			
-			continousQueries.put(queryPlan.getQueryUUID(), resultFuture);
-			continousQueryPlans.put(queryPlan.getQueryUUID(), queryPlan);
-			
+			continousQueries.put(queryUUID, resultFuture);
+			continousQueryStates.put(queryUUID, queryState);
+
 			return resultFuture; 
 			
 		} catch (ZookeeperException e) {
@@ -478,7 +482,6 @@ public class BBoxDBCluster implements BBoxDB {
 		} catch (StorageManagerException e) {
 			throw new BBoxDBException(e);
 		}
-	
 	}
 
 	@Override
@@ -596,12 +599,12 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	public boolean cancelContinousQuery(final String queryUUID) throws BBoxDBException, InterruptedException {
 		
-		if(! continousQueryPlans.containsKey(queryUUID)) {
+		if(! continousQueryStates.containsKey(queryUUID)) {
 			logger.warn("Unable to cancel continous query {}, query is unkown", queryUUID);
 			return false;
 		}
 		
-		continousQueryPlans.remove(queryUUID);
+		continousQueryStates.remove(queryUUID);
 		final JoinedTupleListFuture future = continousQueries.remove(queryUUID);
 		
 		if(future == null) {
@@ -614,6 +617,15 @@ public class BBoxDBCluster implements BBoxDB {
 		cancelQuery(cancelData);
 		
 		return false;
+	}
+	
+	/**
+	 * Get the continuous query state
+	 * @param queryUUID
+	 * @return
+	 */
+	public ContinuousQueryState getContinousQuery(final String queryUUID) {
+		return continousQueryStates.get(queryUUID);
 	}
 	
 	/**
