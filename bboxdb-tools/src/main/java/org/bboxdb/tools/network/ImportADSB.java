@@ -20,6 +20,7 @@ package org.bboxdb.tools.network;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
@@ -87,6 +88,7 @@ public class ImportADSB implements Runnable {
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String line = null;
 			String lastKey = null;
+			final AtomicLong lastTimestmap = new AtomicLong();
 			long readTuples = 0;
 			
 			while((line = reader.readLine()) != null) {
@@ -100,12 +102,13 @@ public class ImportADSB implements Runnable {
 					
 					// Start restarts, add watermark
 					if(lastKey != null && tuple.getKey().compareTo(tuple.getKey()) < 0) {
-						final WatermarkTuple watermarkTuple = new WatermarkTuple();
+						final WatermarkTuple watermarkTuple = new WatermarkTuple(lastTimestmap.get());
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, watermarkTuple);
 						pendingFutures.put(insertFuture);
 					}
 					
 					lastKey = tuple.getKey();
+					lastTimestmap.set(tuple.getVersionTimestamp());
 
 					if(tuple != null) {
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, tuple);

@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.MathUtil;
@@ -119,16 +120,18 @@ public class ImportAuTransport implements Runnable {
 				
 				final String table = distributionGroup + "_" + entity;
 				final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
+				final AtomicLong lastTimestamp = new AtomicLong();
 				
 				final Consumer<GeoJsonPolygon> consumer = (polygon) -> {
 					
 					Tuple tuple = null;
 					
 					if(polygon == null) {
-						tuple = new WatermarkTuple();
+						tuple = new WatermarkTuple(lastTimestamp.get());
 					} else {
 						final String key = getKeyForPolygon(polygon);
 						tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);
+						lastTimestamp.set(tuple.getVersionTimestamp());
 					}
 					
 					try {
