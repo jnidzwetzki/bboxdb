@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.ObjectSerializer;
@@ -156,7 +156,7 @@ public class TestStorageManager {
 		
 		final Phaser paser = new Phaser(1);
 		
-		final Consumer<Tuple> callback = ((t) -> {
+		final BiConsumer<TupleStoreName, Tuple> callback = ((s, t) -> {
 			receivedTuples.add(t);
 			paser.arrive();
 		});

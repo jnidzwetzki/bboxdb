@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.RejectedException;
@@ -103,7 +103,7 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * The insert callbacks
 	 */
-	protected final List<Consumer<Tuple>> insertCallbacks;
+	protected final List<BiConsumer<TupleStoreName, Tuple>> insertCallbacks;
 
 	/**
 	 * The callback execution thread
@@ -730,7 +730,7 @@ public class TupleStoreManager implements BBoxDBService {
 			// Notify callbacks
 			if(runCallbacks) {
 				callbackExecutor.queue(() -> {
-					insertCallbacks.forEach(c -> c.accept(tuple));
+					insertCallbacks.forEach(c -> c.accept(tupleStoreName, tuple));
 				});
 			}
 			
@@ -897,7 +897,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Register a new insert callback
 	 * @param callback
 	 */
-	public boolean registerInsertCallback(final Consumer<Tuple> callback) {
+	public boolean registerInsertCallback(final BiConsumer<TupleStoreName, Tuple> callback) {
 		return insertCallbacks.add(callback);
 	}
 
@@ -905,7 +905,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Remove a insert callback
 	 * @return
 	 */
-	public boolean removeInsertCallback(final Consumer<Tuple> callback) {
+	public boolean removeInsertCallback(final BiConsumer<TupleStoreName, Tuple> callback) {
 		return insertCallbacks.remove(callback);
 	}
 

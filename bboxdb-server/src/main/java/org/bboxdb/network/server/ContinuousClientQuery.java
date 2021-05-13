@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -35,7 +36,6 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfiguration.ContinuousSpatialJoinFetchMode;
@@ -121,7 +121,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The tuple insert callback
 	 */
-	private final Consumer<Tuple> tupleInsertCallback;
+	private final BiConsumer<TupleStoreName, Tuple> tupleInsertCallback;
 
 	/**
 	 * The tuple store manager
@@ -147,11 +147,6 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * Keep alive pill
 	 */
 	private final static MultiTuple KEEP_ALIVE_PILL = new MultiTuple(new ArrayList<>(), new ArrayList<>());
-	
-	/**
-	 * The local instance name
-	 */
-	private final static String LOCAL_INSTANCE_NAME = ZookeeperClientFactory.getLocalInstanceName().getStringValue().replace(":", "_");
 	
 	/**
 	 * The Logger
@@ -206,13 +201,13 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForSpatialJoinQuery(final ContinuousSpatialJoinQueryPlan qp) {
+	private BiConsumer<TupleStoreName, Tuple> getCallbackForSpatialJoinQuery(final ContinuousSpatialJoinQueryPlan qp) {
 		
 		final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
 		final Map<UserDefinedFilter, byte[]> streamFilters = getUserDefinedFilter(qp.getStreamFilters());
 		final Map<UserDefinedFilter, byte[]> joinFilters = getUserDefinedFilter(qp.getAfterJoinFilter());
 				
-		return (streamTuple) -> {
+		return (tupleStoreName, streamTuple) -> {
 			
 			if(streamTuple instanceof DeletedTuple) {
 				return;
@@ -221,7 +216,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			if(streamTuple instanceof WatermarkTuple) {
 				
 				if(queryPlan.isReceiveWatermarks()) {
-					final MultiTuple multiTuple = getWatermarkTupleForLocalInstance(streamTuple);
+					final MultiTuple multiTuple = getWatermarkTupleForLocalInstance(tupleStoreName, streamTuple);
 					queueTupleForClientProcessing(multiTuple);
 				}
 				
@@ -424,13 +419,13 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param qp 
 	 * @return
 	 */
-	private Consumer<Tuple> getCallbackForRangeQuery(final ContinuousRangeQueryPlan qp) {
+	private BiConsumer<TupleStoreName, Tuple> getCallbackForRangeQuery(final ContinuousRangeQueryPlan qp) {
 		
 		final ContinuousRangeQueryPlan rangeQueryPlan = (ContinuousRangeQueryPlan) queryPlan;
 		
 		final Map<UserDefinedFilter, byte[]> streamFilters = getUserDefinedFilter(qp.getStreamFilters());
 		
-		return (streamTuple) -> {
+		return (tupleStoreName, streamTuple) -> {
 			
 			if(streamTuple instanceof DeletedTuple) {
 				return;
@@ -439,7 +434,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			if(streamTuple instanceof WatermarkTuple) {
 				
 				if(queryPlan.isReceiveWatermarks()) {
-					final MultiTuple joinedTuple = getWatermarkTupleForLocalInstance(streamTuple);
+					final MultiTuple joinedTuple = getWatermarkTupleForLocalInstance(tupleStoreName, streamTuple);
 					queueTupleForClientProcessing(joinedTuple);
 				}
 				
@@ -482,8 +477,9 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * @param streamTuple
 	 * @return
 	 */
-	private MultiTuple getWatermarkTupleForLocalInstance(final Tuple streamTuple) {
-		final String key = SSTableConst.WATERMARK_KEY + "_" + LOCAL_INSTANCE_NAME;
+	private MultiTuple getWatermarkTupleForLocalInstance(final TupleStoreName tupleStorename, 
+			final Tuple streamTuple) {
+		final String key = SSTableConst.WATERMARK_KEY + "_" + tupleStorename.getFullname();
 		final WatermarkTuple watermarkTuple = new WatermarkTuple(key, streamTuple.getVersionTimestamp());
 		return new MultiTuple(watermarkTuple, requestTable.getFullname());
 	}
