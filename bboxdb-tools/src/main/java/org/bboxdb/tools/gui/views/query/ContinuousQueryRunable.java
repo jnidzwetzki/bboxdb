@@ -18,13 +18,20 @@
 package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.ContinuousQueryState;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.MultiTuple;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.entity.WatermarkTuple;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +48,11 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 	private JoinedTupleListFuture queryResult;
 	
 	/**
+	 * The seen watermarks
+	 */
+	private final Set<Long> seenWatermarks;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryRunable.class);
@@ -50,6 +62,7 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 		
 		super(qp, connection, painter);
 		this.colors = colors;
+		this.seenWatermarks = new HashSet<>();
 	}
 	
 	@Override
@@ -74,12 +87,43 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 			if(Thread.currentThread().isInterrupted()) {
 				return;
 			}
-					
-			updateTupleOnGui(joinedTuple, colors);
-			removeStaleTupleIfNeeded();
+			
+			final Tuple firstTuple = joinedTuple.getTuple(0);
+			
+			if(firstTuple instanceof WatermarkTuple) {
+				handleWatermark(firstTuple);
+			} else {
+				updateTupleOnGui(joinedTuple, colors);
+				
+				// Update stale tuples only if we don't receive watermarks
+				// otherwise, the stale tuples are removed when all watermarks are present
+				if(! qp.isReceiveWatermarks()) {
+					removeStaleTupleIfNeeded();
+				}
+			}
 		}
 	}
 	
+	/**
+	 * Handle the watermark tuple
+	 * @param firstTuple
+	 */
+	private void handleWatermark(final Tuple firstTuple) {
+		final String tupleStoreString = firstTuple.getKey().replace(SSTableConst.WATERMARK_KEY + "_", "");
+		final TupleStoreName tupleStore = new TupleStoreName(tupleStoreString);
+		final long regionId = tupleStore.getRegionId().getAsLong();
+		seenWatermarks.add(regionId);
+		
+		final ContinuousQueryState queryState = connection.getContinousQueryState(qp.getQueryUUID());
+		
+		// All watermarks are present
+		if(seenWatermarks.size() == queryState.getRegisteredRegions().size()) {
+			logger.debug("Watermark complete: {}", seenWatermarks);
+			seenWatermarks.clear();
+			removeStaleTupleIfNeeded();
+		}
+	}
+
 	@Override
 	protected void endHook() { 
 		

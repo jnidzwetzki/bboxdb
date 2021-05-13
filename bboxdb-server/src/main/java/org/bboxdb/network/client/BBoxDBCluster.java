@@ -624,7 +624,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @param queryUUID
 	 * @return
 	 */
-	public ContinuousQueryState getContinousQuery(final String queryUUID) {
+	public ContinuousQueryState getContinousQueryState(final String queryUUID) {
 		return continousQueryStates.get(queryUUID);
 	}
 	
