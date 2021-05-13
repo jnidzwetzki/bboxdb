@@ -57,14 +57,13 @@ public class NetworkTupleEncoderDecoder {
 		final byte[] dataBytes = new byte[dataLength];
 		encodedPackage.get(dataBytes, 0, dataBytes.length);
 		
-		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boxBytes);
-		
 		Tuple tuple = null;
 		if(TupleHelper.isDeletedTuple(boxBytes, dataBytes)) {
 			tuple = new DeletedTuple(key, timestamp);
 		} else if(TupleHelper.isWatermarkTuple(boxBytes, dataBytes)) { 
 			tuple = new WatermarkTuple(key, timestamp);
 		} else {
+			final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boxBytes);
 			tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
 		}
 		
