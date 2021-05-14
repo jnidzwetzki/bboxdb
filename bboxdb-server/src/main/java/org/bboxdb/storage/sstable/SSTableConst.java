@@ -111,11 +111,15 @@ public class SSTableConst {
 	 */
 	public final static String WATERMARK_KEY = "WATERMARK";
 	
-	
 	/**
 	 * Marker for watermark tuples
 	 */
 	public final static byte[] WATERMARK_MARKER = WATERMARK_KEY.getBytes();
+	
+	/**
+	 * Marker for invalidation tuples
+	 */
+	public final static byte[] INVALIDATED_MARKER = "INVALID".getBytes();
 	
 	/**
 	 * Execution interval for the compact thread (30 seconds)

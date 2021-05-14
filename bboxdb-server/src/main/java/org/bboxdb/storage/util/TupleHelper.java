@@ -255,6 +255,22 @@ public class TupleHelper {
 		
 		return false;
 	}
+	
+	/**
+	 * Is this a invalidation tuple?
+	 * @param boxBytes
+	 * @param dataBytes
+	 * @return
+	 */
+	public static boolean isInvalidationTuple(final byte[] boxBytes, final byte[] dataBytes) {
+		if(Arrays.equals(dataBytes, SSTableConst.INVALIDATED_MARKER)) {
+			if(Arrays.equals(boxBytes, SSTableConst.INVALIDATED_MARKER)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Is deleted tuple
