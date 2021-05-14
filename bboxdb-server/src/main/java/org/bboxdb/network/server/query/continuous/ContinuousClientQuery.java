@@ -19,26 +19,18 @@ package org.bboxdb.network.server.query.continuous;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
-import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
-import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
-import org.bboxdb.misc.BBoxDBConfiguration.ContinuousSpatialJoinFetchMode;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -49,20 +41,13 @@ import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
-import org.bboxdb.network.query.entity.TupleAndBoundingBox;
-import org.bboxdb.network.query.filter.UserDefinedFilter;
-import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
-import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ClientQuery;
 import org.bboxdb.network.server.query.QueryHelper;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.WatermarkTuple;
-import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
@@ -84,11 +69,6 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * The package sequence of the query
 	 */
 	private final short querySequence;
-
-	/**
-	 * The request table
-	 */
-	private final TupleStoreName requestTable;
 
 	/**
 	 * The total amount of send tuples
@@ -162,7 +142,6 @@ public class ContinuousClientQuery implements ClientQuery {
 
 			this.queryPlan = queryPlan;
 			this.boundingBox = queryPlan.getQueryRange();
-			this.requestTable = new TupleStoreName(queryPlan.getStreamTable());
 			
 			this.clientConnectionHandler = clientConnectionHandler;
 			this.querySequence = querySequence;
@@ -179,10 +158,10 @@ public class ContinuousClientQuery implements ClientQuery {
 			// Add each tuple to our tuple queue
 			if(queryPlan instanceof ContinuousRangeQueryPlan) {
 				final ContinuousRangeQueryPlan qp = (ContinuousRangeQueryPlan) queryPlan;
-				this.tupleInsertCallback = getCallbackForRangeQuery(qp);
+				this.tupleInsertCallback = new ContinuousRangeQuery(this, qp);
 			} else if(queryPlan instanceof ContinuousSpatialJoinQueryPlan) {
 				final ContinuousSpatialJoinQueryPlan qp = (ContinuousSpatialJoinQueryPlan) queryPlan;
-				this.tupleInsertCallback = getCallbackForSpatialJoinQuery(qp);
+				this.tupleInsertCallback = new ContinuousSpatialJoinQuery(this, qp);
 			} else { 
 				this.tupleInsertCallback = null;
 				logger.error("Unknown query type: " + queryPlan);
@@ -199,351 +178,6 @@ public class ContinuousClientQuery implements ClientQuery {
 	}
 
 	/**
-	 * Get the callback for a spatial join query
-	 * @param qp 
-	 * @return
-	 */
-	private BiConsumer<TupleStoreName, Tuple> getCallbackForSpatialJoinQuery(final ContinuousSpatialJoinQueryPlan qp) {
-		
-		final List<TupleTransformation> streamTransformations = qp.getStreamTransformation(); 
-		final Map<UserDefinedFilter, byte[]> streamFilters = getUserDefinedFilter(qp.getStreamFilters());
-		final Map<UserDefinedFilter, byte[]> joinFilters = getUserDefinedFilter(qp.getAfterJoinFilter());
-				
-		return (tupleStoreName, streamTuple) -> {
-			
-			if(streamTuple instanceof DeletedTuple) {
-				return;
-			}
-			
-			if(streamTuple instanceof WatermarkTuple) {
-				
-				if(queryPlan.isReceiveWatermarks()) {
-					final MultiTuple multiTuple = getWatermarkTupleForLocalInstance(tupleStoreName, streamTuple);
-					queueTupleForClientProcessing(multiTuple);
-				}
-				
-				return;
-			}
-			
-			final TupleStoreName joinTableName = new TupleStoreName(qp.getJoinTable());
-
-			final TupleAndBoundingBox transformedStreamTuple 
-				= applyStreamTupleTransformations(streamTransformations, streamTuple);
-			
-			// Tuple was removed during transformation
-			if(transformedStreamTuple == null) {
-				return;
-			}
-			
-			// Ignore stream elements outside of our query box
-			if(! transformedStreamTuple.getBoundingBox().intersects(qp.getQueryRange())) {
-				return;
-			}
-			
-			// Perform stream UDFs
-			final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, streamFilters);
-			
-			if(! udfMatches) {
-				return;
-			}
-			
-			// Callback for the stored tuple
-			final Consumer<Tuple> tupleConsumer = getStoredTupleReader(qp, joinFilters, streamTuple, transformedStreamTuple);
-			
-			try {
-				final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
-				
-				final ContinuousSpatialJoinFetchMode fetchMode = BBoxDBConfigurationManager.getConfiguration()
-						.getContinuousSpatialJoinFetchModeENUM();
-				
-				// Handle non local data during spatial join
-				ExecutionPolicy executionPolicy = ExecutionPolicy.LOCAL_ONLY;
-				
-				if(fetchMode == ContinuousSpatialJoinFetchMode.FETCH) {
-					executionPolicy = ExecutionPolicy.ALL;
-				} 
-				
-				final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(joinTableName, 
-						transformedStreamTuple.getBoundingBox(), 
-						tupleConsumer, storageRegistry,
-						executionPolicy);
-				
-				rangeQueryExecutor.performDataRead();
-			} catch (BBoxDBException e) {
-				logger.error("Got an exeeption while quering tuples", e);
-				queryActive = false;
-				return;
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				queryActive = false;
-				return;
-			}	
-		};
-	}
-
-	/**
-	 * The callback handler for the range query of a continuous spatial join
-	 * @param qp
-	 * @param filters
-	 * @param streamTuple
-	 * @param transformedStreamTuple
-	 * @return
-	 */
-	private Consumer<Tuple> getStoredTupleReader(final ContinuousSpatialJoinQueryPlan qp,
-			final Map<UserDefinedFilter, byte[]> filters, final Tuple streamTuple,
-			final TupleAndBoundingBox transformedStreamTuple) {
-		
-		return (storedTuple) -> {
-			final List<TupleTransformation> tableTransformations 
-				= qp.getTableTransformation(); 
-			
-			final TupleAndBoundingBox transformedStoredTuple 
-				= applyStreamTupleTransformations(tableTransformations, storedTuple);
-			
-			if(transformedStoredTuple == null) {
-				logger.error("Transformed tuple is null, please check filter");
-				return;
-			}
-			
-			final boolean intersection = transformedStreamTuple.getBoundingBox()
-					.intersects(transformedStoredTuple.getBoundingBox());
-			
-			// Is the tuple important for the query?
-			if(intersection) {
-			
-				// Perform expensive UDF
-				final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, 
-						storedTuple, filters);
-
-				if(udfMatches == true) {
-					final MultiTuple joinedTuple = buildJoinedTuple(qp, streamTuple, storedTuple);
-					queueTupleForClientProcessing(joinedTuple);
-				}
-				
-			}
-		};
-	}
-
-	/**
-	 * Build a joined tuple 
-	 * @param qp
-	 * @param streamTuple
-	 * @param storedTuple
-	 * @return
-	 */
-	private MultiTuple buildJoinedTuple(final ContinuousSpatialJoinQueryPlan qp, 
-			final Tuple streamTuple, final Tuple storedTuple) {
-		
-		return new MultiTuple(
-				Arrays.asList(streamTuple, storedTuple), 
-				Arrays.asList(qp.getStreamTable(), qp.getJoinTable()));
-	}
-
-	
-	/**
-	 * Perform the user defined filters on the given stream and stored tuple
-	 * @param streamTuple
-	 * @param storedTuple
-	 * @param filters
-	 * @return
-	 */
-	private boolean doUserDefinedFilterMatch(final Tuple streamTuple,
-			final Map<UserDefinedFilter, byte[]> filters) {
-				
-		for(final Entry<UserDefinedFilter, byte[]> entry : filters.entrySet()) {
-			
-			final UserDefinedFilter operator = entry.getKey();
-			final byte[] value = entry.getValue();
-			
-			final boolean result 
-				= operator.filterTuple(streamTuple, value);
-			
-			if(! result) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Perform the user defined filters on the given stream and stored tuple
-	 * @param streamTuple
-	 * @param storedTuple
-	 * @param filters
-	 * @return
-	 */
-	private boolean doUserDefinedFilterMatch(final Tuple streamTuple, final Tuple storedTuple,
-			final Map<UserDefinedFilter, byte[]> filters) {
-				
-		for(final Entry<UserDefinedFilter, byte[]> entry : filters.entrySet()) {
-			
-			final UserDefinedFilter operator = entry.getKey();
-			final byte[] value = entry.getValue();
-			
-			final boolean result 
-				= operator.filterJoinCandidate(streamTuple, storedTuple, value);
-			
-			if(! result) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Get the user defined operators
-	 * @param filters
-	 * @return 
-	 */
-	private Map<UserDefinedFilter, byte[]> getUserDefinedFilter(
-			final List<UserDefinedFilterDefinition> filters) {
-		
-		final Map<UserDefinedFilter, byte[]> operators = new HashMap<>();
-		
-		for(final UserDefinedFilterDefinition filter : filters) {
-			try {
-				final Class<?> filterClass = Class.forName(filter.getUserDefinedFilterClass());
-				final UserDefinedFilter operator = 
-						(UserDefinedFilter) filterClass.newInstance();
-				operators.put(operator, filter.getUserDefinedFilterValue().getBytes());
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-				throw new IllegalArgumentException("Unable to find user defined filter class", e);
-			}
-		}
-		
-		return operators;
-	}
-
-	/**
-	 * Get the consumer for the range query
-	 * @param qp 
-	 * @return
-	 */
-	private BiConsumer<TupleStoreName, Tuple> getCallbackForRangeQuery(final ContinuousRangeQueryPlan qp) {
-		
-		final ContinuousRangeQueryPlan rangeQueryPlan = (ContinuousRangeQueryPlan) queryPlan;
-		
-		final Map<UserDefinedFilter, byte[]> streamFilters = getUserDefinedFilter(qp.getStreamFilters());
-		
-		return (tupleStoreName, streamTuple) -> {
-			
-			if(streamTuple instanceof DeletedTuple) {
-				return;
-			}
-			
-			if(streamTuple instanceof WatermarkTuple) {
-				
-				if(queryPlan.isReceiveWatermarks()) {
-					final MultiTuple joinedTuple = getWatermarkTupleForLocalInstance(tupleStoreName, streamTuple);
-					queueTupleForClientProcessing(joinedTuple);
-				}
-				
-				return;
-			}
-			
-			final List<TupleTransformation> transformations = rangeQueryPlan.getStreamTransformation(); 
-			final TupleAndBoundingBox tuple = applyStreamTupleTransformations(transformations, streamTuple);
-			
-			// Tuple was removed during transformation
-			if(tuple == null) {
-				return;
-			}
-			
-			// Perform stream UDFs
-			final boolean udfMatches = doUserDefinedFilterMatch(streamTuple, streamFilters);
-			
-			if(! udfMatches) {
-				return;
-			}
-			
-			// Is the tuple important for the query?
-			if(tuple.getBoundingBox().intersects(rangeQueryPlan.getCompareRectangle())) {
-				if(rangeQueryPlan.isReportPositive()) {
-					final MultiTuple joinedTuple = new MultiTuple(streamTuple, requestTable.getFullname());
-					queueTupleForClientProcessing(joinedTuple);
-				}
-			} else {
-				if(! rangeQueryPlan.isReportPositive()) {
-					final MultiTuple joinedTuple = new MultiTuple(streamTuple, requestTable.getFullname());
-					queueTupleForClientProcessing(joinedTuple);
-				}
-			}
-
-		};
-	}
-
-	/**
-	 * Get the watermark tuple for the current instance
-	 * @param streamTuple
-	 * @return
-	 */
-	private MultiTuple getWatermarkTupleForLocalInstance(final TupleStoreName tupleStorename, 
-			final Tuple streamTuple) {
-		final String key = SSTableConst.WATERMARK_KEY + "_" + tupleStorename.getFullname();
-		final WatermarkTuple watermarkTuple = new WatermarkTuple(key, streamTuple.getVersionTimestamp());
-		return new MultiTuple(watermarkTuple, requestTable.getFullname());
-	}
-
-	/**
-	 * Apply the stream transformations
-	 * @param constQueryPlan
-	 * @param inputTuple
-	 * @return
-	 */
-	private TupleAndBoundingBox applyStreamTupleTransformations(final List<TupleTransformation> transformations,
-			final Tuple inputTuple) {
-				
-		TupleAndBoundingBox tuple = new TupleAndBoundingBox(inputTuple, inputTuple.getBoundingBox());
-		for(final TupleTransformation transformation : transformations) {
-			tuple = transformation.apply(tuple);
-			
-			if(tuple == null) {
-				break;
-			}
-		}
-		
-		return tuple;
-	}
-
-	/**
-	 * Queue the tuple for client processing
-	 * @param tuple
-	 */
-	private void queueTupleForClientProcessing(final MultiTuple tuple) {
-		
-		if(allowDiscardTuples) {
-			final boolean insertResult = tupleQueue.offer(tuple);
-	
-			if(! insertResult) {
-				logger.error("Unable to add tuple to continuous query, queue is full (seq={} / size={})", 
-						querySequence, tupleQueue.size());
-			}
-		} else {
-			try {
-				
-				// Skip queuing when query is not longer active
-				while(queryActive) {
-					// Try to add and wait if queue is full
-					final boolean submitted = tupleQueue.offer(tuple);
-					
-					if(submitted) {
-						break;
-					}
-					
-					Thread.sleep(100);
-				}
-			
-			} catch (InterruptedException e) {
-				logger.debug("Wait was interrupted", e);
-				Thread.currentThread().interrupt();
-				return;
-			}
-		}
-	}
-
-	/**
 	 * Init the query
 	 * @param tupleStoreManagerRegistry
 	 * @throws BBoxDBException
@@ -554,6 +188,8 @@ public class ContinuousClientQuery implements ClientQuery {
 			
 			final TupleStoreManagerRegistry storageRegistry
 				= clientConnectionHandler.getStorageRegistry();
+			
+			final TupleStoreName requestTable = new TupleStoreName(queryPlan.getStreamTable());
 
 			final String fullname = requestTable.getDistributionGroup();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
@@ -586,6 +222,42 @@ public class ContinuousClientQuery implements ClientQuery {
 		} catch (StorageManagerException | ZookeeperException e) {
 			logger.error("Got an exception during query init", e);
 			close();
+		}
+	}
+
+	/**
+	 * Queue the tuple for client processing
+	 * @param tuple
+	 */
+	public void queueTupleForClientProcessing(final MultiTuple tuple) {
+		
+		if(allowDiscardTuples) {
+			final boolean insertResult = tupleQueue.offer(tuple);
+	
+			if(! insertResult) {
+				logger.error("Unable to add tuple to continuous query, queue is full (seq={} / size={})", 
+						querySequence, tupleQueue.size());
+			}
+		} else {
+			try {
+				
+				// Skip queuing when query is not longer active
+				while(queryActive) {
+					// Try to add and wait if queue is full
+					final boolean submitted = tupleQueue.offer(tuple);
+					
+					if(submitted) {
+						break;
+					}
+					
+					Thread.sleep(100);
+				}
+			
+			} catch (InterruptedException e) {
+				logger.debug("Wait was interrupted", e);
+				Thread.currentThread().interrupt();
+				return;
+			}
 		}
 	}
 
@@ -709,5 +381,20 @@ public class ContinuousClientQuery implements ClientQuery {
 	 */
 	public ContinuousQueryPlan getQueryPlan() {
 		return queryPlan;
+	}
+	
+	/**
+	 * Get the client connection handler
+	 * @return
+	 */
+	public ClientConnectionHandler getClientConnectionHandler() {
+		return clientConnectionHandler;
+	}
+	
+	/**
+	 * Cancel the query
+	 */
+	public void cancelQuery() {
+		queryActive = false;
 	}
 }
