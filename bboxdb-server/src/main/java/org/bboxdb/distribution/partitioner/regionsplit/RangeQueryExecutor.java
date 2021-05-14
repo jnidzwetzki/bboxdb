@@ -36,7 +36,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.routing.RoutingHopHelper;
-import org.bboxdb.network.server.QueryHelper;
+import org.bboxdb.network.server.query.QueryHelper;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;

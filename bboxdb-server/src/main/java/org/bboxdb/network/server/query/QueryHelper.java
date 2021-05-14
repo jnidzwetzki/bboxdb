@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.server;
+package org.bboxdb.network.server.query;
 
 import java.io.IOException;
 

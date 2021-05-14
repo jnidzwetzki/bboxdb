@@ -23,8 +23,8 @@ import java.nio.ByteBuffer;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
+import org.bboxdb.network.server.query.ErrorMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -22,7 +22,7 @@ import java.util.Map;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.service.ServiceState;
 import org.bboxdb.network.NetworkConst;
-import org.bboxdb.network.server.ClientQuery;
+import org.bboxdb.network.server.query.ClientQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

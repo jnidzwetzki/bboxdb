@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *******************************************************************************/
-package org.bboxdb.network.server;
+package org.bboxdb.network.server.query.continuous;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,6 +54,8 @@ import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
+import org.bboxdb.network.server.query.ClientQuery;
+import org.bboxdb.network.server.query.QueryHelper;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.MultiTuple;

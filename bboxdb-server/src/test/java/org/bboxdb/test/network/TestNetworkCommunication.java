@@ -40,7 +40,7 @@ import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.filter.UserDefinedStringFilter;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.network.server.query.ErrorMessages;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
