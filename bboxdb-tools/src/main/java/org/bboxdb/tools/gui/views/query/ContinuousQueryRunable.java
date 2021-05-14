@@ -27,6 +27,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.ContinuousQueryState;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -92,6 +93,8 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 			
 			if(firstTuple instanceof WatermarkTuple) {
 				handleWatermark(firstTuple);
+			} else if (firstTuple instanceof InvalidationTuple) {
+				removeTupleFromView(joinedTuple);
 			} else {
 				updateTupleOnGui(joinedTuple, colors);
 				

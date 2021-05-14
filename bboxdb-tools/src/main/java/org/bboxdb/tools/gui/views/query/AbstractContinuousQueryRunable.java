@@ -67,22 +67,22 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	/**
 	 * The update dates
 	 */
-	private final Map<EntityIdentifier, Long> updateDates = new HashMap<>();
+	protected final Map<EntityIdentifier, Long> updateDates = new HashMap<>();
 	
 	/**
 	 * The tuple versions
 	 */
-	private final Map<EntityIdentifier, Long> tupleVersions = new HashMap<>();
+	protected final Map<EntityIdentifier, Long> tupleVersions = new HashMap<>();
 	
 	/**
 	 * The painted elements
 	 */
-	private final Map<EntityIdentifier, OverlayElementGroup> paintedElements = new HashMap<>();
+	protected final Map<EntityIdentifier, OverlayElementGroup> paintedElements = new HashMap<>();
 	
 	/**
 	 * The duplicate handling strategy
 	 */
-	private Strategy strategy;
+	protected Strategy strategy;
 	
 	/**
 	 * Stale time
@@ -143,6 +143,21 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 		}
 		
 		lastStaleCheck = currentTime;
+	}
+
+	/**
+	 * Remove the given tuple from the view
+	 * @param joinedTuple
+	 */
+	protected void removeTupleFromView(final MultiTuple joinedTuple) {
+		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, strategy);
+				
+		final OverlayElementGroup oldElement = paintedElements.get(key);
+		
+		paintedElements.remove(key);
+		tupleVersions.remove(key);
+		updateDates.remove(key);
+		painter.removeElementToDraw(oldElement);
 	}
 
 	/**
