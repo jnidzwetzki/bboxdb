@@ -151,6 +151,8 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	 */
 	protected void removeTupleFromView(final MultiTuple joinedTuple) {
 		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, strategy);
+		
+		logger.debug("Removing old tuple {} from view", key);
 				
 		final OverlayElementGroup oldElement = paintedElements.remove(key);
 		
