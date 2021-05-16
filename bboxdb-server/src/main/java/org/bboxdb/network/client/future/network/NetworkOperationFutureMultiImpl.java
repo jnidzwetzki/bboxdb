@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.network;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -270,6 +272,17 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	 */
 	public int getTotalRetries() {
 		return futures.get(0).getTotalRetries();
+	}
+
+	@Override
+	public Set<Long> getAffectedRegionIDs() {
+		final Set<Long> regions = new HashSet<>();
+		
+		for(final NetworkOperationFuture future : futures) {
+			regions.addAll(future.getAffectedRegionIDs());
+		}
+		
+		return regions;
 	}
 
 }

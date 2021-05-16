@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.network;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -142,5 +143,11 @@ public interface NetworkOperationFuture {
 	 * @return
 	 */
 	public int getTotalRetries();
+	
+	/**
+	 * Get the affected region ids
+	 * @return
+	 */
+	public Set<Long> getAffectedRegionIDs();
 
 }

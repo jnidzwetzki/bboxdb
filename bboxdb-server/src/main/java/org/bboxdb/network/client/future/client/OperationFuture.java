@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.client;
 
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -103,5 +104,11 @@ public interface OperationFuture {
 	 * @return
 	 */
 	public int getNeededExecutions();
+	
+	/**
+	 * Get the affected regions by the operation
+	 * @return
+	 */
+	public Set<Long> getAffectedRegionIDs();
 
 }

@@ -550,25 +550,15 @@ public class BBoxDBConnection {
 	private boolean testPackageSend(final NetworkRequestPackage requestPackage,
 			final NetworkOperationFuture future) {
 
-		try {
-			// Check if package needs to be send
-			final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
+		// Check if package needs to be send
+		final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
 
-			if(routingHeader.isRoutedPackage()) {
-				if(routingHeader.getHopCount() == 0) {
-					future.setMessage("No distribution regions in next hop, not sending to server");
-					future.fireCompleteEvent();
-					return false;
-				}
+		if(routingHeader.isRoutedPackage()) {
+			if(routingHeader.getHopCount() == 0) {
+				future.setMessage("No distribution regions in next hop, not sending to server");
+				future.fireCompleteEvent();
+				return false;
 			}
-
-		} catch (PackageEncodeException e) {
-			final String message = "Got a exception during package encoding";
-			logger.error(message);
-			future.setMessage(message);
-			future.setFailedState();
-			future.fireCompleteEvent();
-			return false;
 		}
 
 		return true;

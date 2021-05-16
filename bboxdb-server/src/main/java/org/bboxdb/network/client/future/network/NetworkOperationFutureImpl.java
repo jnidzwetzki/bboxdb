@@ -17,15 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.network;
 
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureErrorCallback;
 import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.routing.RoutingHop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -375,6 +379,15 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 */
 	public void setTotalRetries(int totalRetries) {
 		this.totalRetries = totalRetries;
+	}
+
+	@Override
+	public Set<Long> getAffectedRegionIDs() {
+		final List<RoutingHop> routingList = lastTransmittedPackage.getRoutingHeader().getRoutingList();
+		
+		return routingList.stream()
+				.flatMap(r -> r.getDistributionRegions().keySet().stream())
+				.collect(Collectors.toSet());
 	}
 
 }

@@ -78,7 +78,7 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	 * @return
 	 * @throws PackageEncodeException
 	 */
-	public RoutingHeader getRoutingHeader() throws PackageEncodeException {
+	public RoutingHeader getRoutingHeader() {
 		return routingHeader;
 	}
 

@@ -18,7 +18,9 @@
 package org.bboxdb.network.client.future.client;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -470,5 +472,16 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	@Override
 	public int getNeededExecutions() {
 		return globalRetryCounter + 1;
+	}
+
+	@Override
+	public Set<Long> getAffectedRegionIDs() {
+		final Set<Long> regions = new HashSet<>();
+		
+		for(final NetworkOperationFuture future : futures) {
+			regions.addAll(future.getAffectedRegionIDs());
+		}
+		
+		return regions;
 	}
 }
