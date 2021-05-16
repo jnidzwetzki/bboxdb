@@ -146,7 +146,7 @@ public class InvalidationHelper {
 
 		final BBoxDBClient bboxdbClient = bboxDbConnection.getBboxDBClient();
 		final InvalidationTuple tuple = new InvalidationTuple(key);
-		final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(key, tuple, routingHeader);
+		final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple, routingHeader);
 
 		fixedSizeFutureStore.put(insertFuture);
 	}
