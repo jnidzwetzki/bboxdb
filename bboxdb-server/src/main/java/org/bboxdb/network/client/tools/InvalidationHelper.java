@@ -119,7 +119,7 @@ public class InvalidationHelper {
 			return;
 		}
 				
-		logger.info("Change for key {} detected old {} / new {}", 
+		logger.debug("Change for key {} detected old {} / new {}", 
 				key, oldRegions, newRegions);
 
 		// Create diff
@@ -137,7 +137,7 @@ public class InvalidationHelper {
 		final Map<InetSocketAddress, RoutingHop> hops = RoutingHopHelper.getHopListForRegion(routings);
 		final List<RoutingHop> routingList = new ArrayList<>(hops.values());
 
-		logger.info("Routing list for invalidation is {}", routingList);
+		logger.debug("Routing list for invalidation is {}", routingList);
 		
 		final RoutingHeader routingHeader = new RoutingHeader((short) 0, routingList);
 
