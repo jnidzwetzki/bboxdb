@@ -57,7 +57,7 @@ public abstract class AbtractClusterFutureBuilder {
 	/**
 	 * The routing options
 	 */
-	private EnumSet<DistributionRegionHandlingFlag> routingOption;
+	private EnumSet<DistributionRegionHandlingFlag> routingOptions;
 
 	/**
 	 * The membership connection service
@@ -75,10 +75,10 @@ public abstract class AbtractClusterFutureBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(AbtractClusterFutureBuilder.class);
 
 	public AbtractClusterFutureBuilder(final ClusterOperationType clusterOperationType, 
-			final String table, final Hyperrectangle boundingBox, final EnumSet<DistributionRegionHandlingFlag> routingOption) throws BBoxDBException {
+			final String table, final Hyperrectangle boundingBox, final EnumSet<DistributionRegionHandlingFlag> routingOptions) throws BBoxDBException {
 		
 		this.clusterOperationType = clusterOperationType;
-		this.routingOption = routingOption;
+		this.routingOptions = routingOptions;
 		this.distributionRegion = SpacePartitionerHelper.getRootNode(table);
 		this.boundingBox = boundingBox;
 		this.membershipConnectionService = MembershipConnectionService.getInstance();
@@ -126,7 +126,7 @@ public abstract class AbtractClusterFutureBuilder {
 					}
 					
 					final Map<Long, EnumSet<DistributionRegionHandlingFlag>> distributionRegions = new HashMap<>();
-					distributionRegions.put(region.getRegionId(), routingOption);
+					distributionRegions.put(region.getRegionId(), routingOptions);
 					
 					final RoutingHop hop = new RoutingHop(instance, distributionRegions);
 
@@ -200,9 +200,9 @@ public abstract class AbtractClusterFutureBuilder {
 	private List<RoutingHop> getHops() {
 		switch(clusterOperationType) {
 			case READ_FROM_NODES:
-				return RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox, routingOption);
+				return RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox, routingOptions);
 			case WRITE_TO_NODES:
-				return RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox, routingOption);
+				return RoutingHopHelper.getRoutingHopsForWrite(distributionRegion, boundingBox, routingOptions);
 			default:
 				throw new IllegalArgumentException("Unknown type: " + clusterOperationType);
 		}
