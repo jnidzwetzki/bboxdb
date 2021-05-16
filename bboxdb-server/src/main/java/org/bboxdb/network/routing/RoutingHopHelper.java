@@ -141,7 +141,7 @@ public class RoutingHopHelper {
 	 * @param regions
 	 * @return
 	 */
-	private static Map<InetSocketAddress, RoutingHop> getHopListForRegion(
+	public static Map<InetSocketAddress, RoutingHop> getHopListForRegion(
 			final Map<List<DistributionRegion>, EnumSet<DistributionRegionHandlingFlag>> routingList) {
 		
 		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
@@ -166,7 +166,7 @@ public class RoutingHopHelper {
 	 * @param hops
 	 * @return
 	 */
-	private static List<RoutingHop> removeUnavailableHops(final List<BBoxDBInstance> knownInstances,
+	public static List<RoutingHop> removeUnavailableHops(final List<BBoxDBInstance> knownInstances,
 			final Map<InetSocketAddress, RoutingHop> hops) {
 
 		// No instances are known, this is this the case when a direct connection without

@@ -46,6 +46,11 @@ public class FixedSizeFutureStore {
 	 * The failed future callback
 	 */
 	private final List<Consumer<OperationFuture>> failedFutureCallbacks;
+	
+	/**
+	 * The success future callback
+	 */
+	private final List<Consumer<OperationFuture>> successFutureCallbacks;
 
 	/**
 	 * The future counter
@@ -80,6 +85,7 @@ public class FixedSizeFutureStore {
 	public FixedSizeFutureStore(final long maxPendingFutures, final boolean logFailedFutures) {
 		this.maxPendingFutures = maxPendingFutures;
 		this.failedFutureCallbacks = new ArrayList<>();
+		this.successFutureCallbacks = new ArrayList<>();
 		this.statisticsWriter = null;
 		this.futureCounter = new AtomicLong();
 		this.pendingFutureMap = new HashMap<>();
@@ -167,6 +173,12 @@ public class FixedSizeFutureStore {
 			doneFutures.stream()
 					.filter(f -> f.isFailed())
 					.forEach(f -> handleFailedFuture(f));
+			
+			// Handle suucess futures
+			doneFutures.stream()
+					.filter(f -> !f.isFailed())
+					.forEach(f -> handleSuccessFuture(f));
+	
 	
 			writeStatisticsAndRemoveFuturesFromMap(doneFutures);
 		}
@@ -211,6 +223,14 @@ public class FixedSizeFutureStore {
 	private void handleFailedFuture(final OperationFuture future) {
 		failedFutureCallbacks.forEach(c -> c.accept(future));
 	}
+	
+	/**
+	 * Handle a success future
+	 * @param future
+	 */
+	private void handleSuccessFuture(final OperationFuture future) {
+		successFutureCallbacks.forEach(c -> c.accept(future));
+	}
 
 	/**
 	 * Is the future cleanup needed?
@@ -245,6 +265,13 @@ public class FixedSizeFutureStore {
 	 */
 	public void addFailedFutureCallback(final Consumer<OperationFuture> callback) {
 		failedFutureCallbacks.add(callback);
+	}
+	
+	/**
+	 * Add a new success future callback
+	 */
+	public void addSuccessFutureCallback(final Consumer<OperationFuture> callback) {
+		successFutureCallbacks.add(callback);
 	}
 
 	/**

@@ -27,10 +27,9 @@ import java.util.function.Consumer;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
+import org.bboxdb.network.client.tools.InvalidationHelper;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.WatermarkTuple;
 import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
@@ -104,10 +103,10 @@ public class ImportAuTransport implements Runnable {
 	@Override
 	public void run() {
 		try (
-	    		final BBoxDB bboxdbClient = new BBoxDBCluster(connectionPoint, clustername);
+	    		final BBoxDBCluster bboxdbClient = new BBoxDBCluster(connectionPoint, clustername);
 	        ){
 			bboxdbClient.connect();
-
+			
 			for(final String entity: entities) {
 				logger.info("Starting fetch thread for {}", entity);
 				
@@ -122,6 +121,8 @@ public class ImportAuTransport implements Runnable {
 				final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
 				final AtomicLong lastTimestamp = new AtomicLong();
 				
+				final InvalidationHelper invalidationHelper = new InvalidationHelper(bboxdbClient, table, pendingFutures);
+				
 				final Consumer<GeoJsonPolygon> consumer = (polygon) -> {
 					
 					Tuple tuple = null;
@@ -135,8 +136,10 @@ public class ImportAuTransport implements Runnable {
 					}
 					
 					try {
-						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
-						pendingFutures.put(insertFuture);
+						invalidationHelper.putTuple(tuple);
+						
+						// final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
+						// pendingFutures.put(insertFuture);
 					} catch (BBoxDBException e) {
 						logger.error("Got error while inserting tuple", e);
 					}

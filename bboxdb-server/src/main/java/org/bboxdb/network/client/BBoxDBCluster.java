@@ -194,6 +194,7 @@ public class BBoxDBCluster implements BBoxDB {
 			final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException {
 		
 		final Hyperrectangle boundingBox = tuple.getBoundingBox();
+		
 		return executeInsert(table, tuple, boundingBox, insertOptions);
 	}
 
