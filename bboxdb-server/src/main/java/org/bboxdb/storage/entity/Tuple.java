@@ -235,4 +235,11 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 		return new TupleEntityIdentifier(key, versionTimestamp);
 	}
 	
+	/**
+	 * Should this tuple type persistent to disk?
+	 * @return
+	 */
+	public boolean isPersistentTuple() {
+		return true;
+	}
 }

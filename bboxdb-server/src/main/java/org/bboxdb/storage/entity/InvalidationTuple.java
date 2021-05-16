@@ -44,4 +44,9 @@ public class InvalidationTuple extends Tuple {
 	public byte[] getBoundingBoxBytes() {
 		return SSTableConst.INVALIDATED_MARKER;
 	}
+	
+	@Override
+	public boolean isPersistentTuple() {
+		return false;
+	}
 }

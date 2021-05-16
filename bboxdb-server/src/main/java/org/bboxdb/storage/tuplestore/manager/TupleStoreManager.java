@@ -47,7 +47,6 @@ import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.WatermarkTuple;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
@@ -714,10 +713,8 @@ public class TupleStoreManager implements BBoxDBService {
 		}
 
 		try {
-			// Ensure that only one memtable is newly created
-			final boolean isWatermarkTuple = tuple instanceof WatermarkTuple;
-			
-			if(storeOnDisk && ! isWatermarkTuple) {
+			// Ensure that only one memtable is newly created			
+			if(storeOnDisk && tuple.isPersistentTuple()) {
 				synchronized (this) {
 					if(getMemtable().isFull()) {
 						initNewMemtable();

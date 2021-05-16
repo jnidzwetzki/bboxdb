@@ -51,4 +51,9 @@ public class WatermarkTuple extends Tuple {
 	public byte[] getBoundingBoxBytes() {
 		return SSTableConst.WATERMARK_MARKER;
 	}
+	
+	@Override
+	public boolean isPersistentTuple() {
+		return false;
+	}
 }
