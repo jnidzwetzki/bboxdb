@@ -105,8 +105,13 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 		
 		if(qp instanceof ContinuousSpatialJoinQueryPlan) {
 			final ContinuousSpatialJoinQueryPlan queryPlan = (ContinuousSpatialJoinQueryPlan) qp;
+			
 			if(! queryPlan.getAfterJoinFilter().isEmpty()) {
 				strategy = Strategy.FIRST_KEY_AND_TABLE;
+			}
+			
+			if( queryPlan.isReceiveInvalidations()) {
+				strategy = Strategy.KEY_AND_TABLE;
 			}
 		}
 		
@@ -152,7 +157,7 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	protected void removeTupleFromView(final MultiTuple joinedTuple) {
 		final EntityIdentifier key = new JoinedTupleIdentifier(joinedTuple, strategy);
 		
-		logger.debug("Removing old tuple {} from view", key);
+		logger.info("---> Removing old tuple {} from view", key);
 				
 		final OverlayElementGroup oldElement = paintedElements.remove(key);
 		
