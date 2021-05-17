@@ -21,6 +21,7 @@ import java.util.function.BiConsumer;
 
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.DeletedTuple;
+import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -65,7 +66,24 @@ public abstract class AbstractContinuousQuery<T extends ContinuousQueryPlan> imp
 			return false;
 		}
 		
+		// Stream tuple is not longer contained in current region
+		if(streamTuple instanceof InvalidationTuple) {
+			
+			if(! queryPlan.isReceiveInvalidations()) {
+				return false;
+			}
+			
+			handleInvalidationTuple(streamTuple);
+					
+			return false;
+		}
+		
 		return true;
 	}
 
+	/**
+	 * Handle the global invalidation tuple
+	 * @param tuple
+	 */
+	protected abstract void handleInvalidationTuple(final Tuple tuple);
 }

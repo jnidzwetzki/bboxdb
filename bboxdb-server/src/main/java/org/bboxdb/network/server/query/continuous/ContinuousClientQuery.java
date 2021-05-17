@@ -119,6 +119,11 @@ public class ContinuousClientQuery implements ClientQuery {
 	 * Allow the discarding of tuples when the queue is full
 	 */
 	private final boolean allowDiscardTuples;
+	
+	/**
+	 * The query state
+	 */
+	private final ContinuousQueryExecutionState continuousQueryState = new ContinuousQueryExecutionState();
 
 	/**
 	 * The dead pill for the queue
@@ -396,5 +401,13 @@ public class ContinuousClientQuery implements ClientQuery {
 	 */
 	public void cancelQuery() {
 		queryActive = false;
+	}
+	
+	/**
+	 * Get the continuous query state
+	 * @return
+	 */
+	public ContinuousQueryExecutionState getContinuousQueryState() {
+		return continuousQueryState;
 	}
 }

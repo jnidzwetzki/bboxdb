@@ -40,6 +40,7 @@ public class ContinuousQueryState {
 	
 	public ContinuousQueryState(final ContinuousQueryPlan queryPlan, 
 			final Set<Long> registeredRegions) {
+		
 		this.queryPlan = queryPlan;
 		this.registeredRegions = registeredRegions;
 	}

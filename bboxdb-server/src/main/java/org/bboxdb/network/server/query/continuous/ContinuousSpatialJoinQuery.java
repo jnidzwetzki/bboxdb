@@ -20,8 +20,10 @@ package org.bboxdb.network.server.query.continuous;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
 import org.bboxdb.misc.BBoxDBConfiguration.ContinuousSpatialJoinFetchMode;
@@ -31,6 +33,7 @@ import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.transformation.TupleTransformation;
+import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -82,11 +85,13 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 		
 		// Tuple was removed during transformation
 		if(transformedStreamTuple == null) {
+			handleNonMatch(streamTuple);
 			return;
 		}
 		
 		// Ignore stream elements outside of our query box
 		if(! transformedStreamTuple.getBoundingBox().intersects(queryPlan.getQueryRange())) {
+			handleNonMatch(streamTuple);
 			return;
 		}
 		
@@ -95,6 +100,7 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 				streamTuple, streamFilters);
 		
 		if(! udfMatches) {
+			handleNonMatch(streamTuple);
 			return;
 		}
 		
@@ -121,6 +127,8 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 					executionPolicy);
 			
 			rangeQueryExecutor.performDataRead();
+			
+			handleJoinMatchFinal(streamTuple);
 		} catch (BBoxDBException e) {
 			logger.error("Got an exeeption while quering tuples", e);
 			continuousClientQuery.cancelQuery();
@@ -145,6 +153,7 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 			final TupleAndBoundingBox transformedStreamTuple) {
 		
 		return (storedTuple) -> {
+			
 			final List<TupleTransformation> tableTransformations 
 				= qp.getTableTransformation(); 
 			
@@ -172,11 +181,83 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 							Arrays.asList(streamTuple, storedTuple), 
 							Arrays.asList(qp.getStreamTable(), qp.getJoinTable()));
 					
+					handleJoinMatch(streamTuple, storedTuple);
 					continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
 				}
 				
 			}
 		};
+	}
+
+	/**
+	 * Handle the non match of the stream tuple
+	 * @param streamTuple
+	 */
+	protected void handleNonMatch(final Tuple streamTuple) {
+		if(! queryPlan.isReceiveInvalidations()) {
+			return;
+		}
+		
+		generateInvalidationTuplesForStreamKey(streamTuple);
+	}
+	
+	/**
+	 * Handle the non match of the stream tuple
+	 * @param streamTuple
+	 */
+	protected void handleJoinMatch(final Tuple streamTuple, final Tuple joinPartner) {
+		if(! queryPlan.isReceiveInvalidations()) {
+			return;
+		}
+		
+		final ContinuousQueryExecutionState continuousQueryState = continuousClientQuery.getContinuousQueryState();
+
+		continuousQueryState.addJoinCandidateForCurrentKey(joinPartner.getKey());
+	}
+
+	/**
+	 * Handle the non match of the stream tuple
+	 * @param streamTuple
+	 */
+	protected void handleJoinMatchFinal(final Tuple streamTuple) {
+		if(! queryPlan.isReceiveInvalidations()) {
+			return;
+		}
+		
+		generateInvalidationTuplesForStreamKey(streamTuple);
+	}
+	
+	@Override
+	protected void handleInvalidationTuple(final Tuple streamTuple) {		
+		continuousClientQuery.getContinuousQueryState().clearJoinPartnerState();
+		generateInvalidationTuplesForStreamKey(streamTuple);
+	}
+
+	/**
+	 * Generate the invalidation tuples for the current stream key
+	 * @param streamTuple
+	 * @param continuousQueryState
+	 * @param streamKey
+	 */
+	private void generateInvalidationTuplesForStreamKey(final Tuple streamTuple) {
+		
+		final ContinuousQueryExecutionState continuousQueryState = continuousClientQuery.getContinuousQueryState();
+		final String streamKey = streamTuple.getKey();
+		
+		final List<String> tables = Arrays.asList(queryPlan.getStreamTable(), queryPlan.getJoinTable());
+		
+		// Invalidate join query results
+		final Set<String> joinPartners = continuousQueryState.clearStateAndGetMissingJoinpartners(streamKey);
+		
+		for(final String joinPartner : joinPartners) {
+			final long versionTimestamp = streamTuple.getVersionTimestamp();
+			final InvalidationTuple tuple = new InvalidationTuple(streamKey, versionTimestamp);
+			
+			final Tuple joinPartnerTuple = new Tuple(joinPartner, Hyperrectangle.FULL_SPACE, "".getBytes());
+			
+			final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple, joinPartnerTuple), tables);
+			continuousClientQuery.queueTupleForClientProcessing(joinedTuple);	
+		}
 	}
 
 }

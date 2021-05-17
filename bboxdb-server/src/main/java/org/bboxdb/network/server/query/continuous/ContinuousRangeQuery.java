@@ -24,9 +24,12 @@ import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.transformation.TupleTransformation;
+import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRangeQueryPlan> {
 
@@ -34,13 +37,24 @@ public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRang
 	 * The stream filters
 	 */
 	private final Map<UserDefinedFilter, byte[]> streamFilters;
-		
+
+	/**
+	 * The state of the query
+	 */
+	private final ContinuousQueryExecutionState continuousQueryState;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(ContinuousRangeQuery.class);
+	
 	public ContinuousRangeQuery(final ContinuousClientQuery continuousClientQuery, 
 			final ContinuousRangeQueryPlan queryPlan) {
 		
 		super(continuousClientQuery, queryPlan);
 		
 		this.streamFilters = ContinuousQueryHelper.getUserDefinedFilter(queryPlan.getStreamFilters());
+		continuousQueryState = continuousClientQuery.getContinuousQueryState();
 	}
 
 	@Override
@@ -58,6 +72,7 @@ public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRang
 		
 		// Tuple was removed during transformation
 		if(tuple == null) {
+			handleNonMatch(streamTuple);
 			return;
 		}
 		
@@ -66,6 +81,7 @@ public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRang
 				streamTuple, streamFilters);
 		
 		if(! udfMatches) {
+			handleNonMatch(streamTuple);
 			return;
 		}
 		
@@ -73,14 +89,77 @@ public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRang
 		if(tuple.getBoundingBox().intersects(queryPlan.getCompareRectangle())) {
 			if(queryPlan.isReportPositive()) {
 				final MultiTuple joinedTuple = new MultiTuple(streamTuple, queryPlan.getStreamTable());
+				handleMatch(streamTuple);
 				continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
+			} else {
+				handleNonMatch(streamTuple);
 			}
 		} else {
 			if(! queryPlan.isReportPositive()) {
 				final MultiTuple joinedTuple = new MultiTuple(streamTuple, queryPlan.getStreamTable());
+				handleMatch(streamTuple);
 				continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
+			} else {
+				handleNonMatch(streamTuple);
 			}
 		}
+	}
+	
+	/**
+	 * Handle the non match of the stream tuple
+	 * @param streamTuple
+	 */
+	protected void handleNonMatch(final Tuple streamTuple) {
+		if(! queryPlan.isReceiveInvalidations()) {
+			return;
+		}
+		
+		final String streamKey = streamTuple.getKey();
+		
+		if(continuousQueryState.wasStreamKeyContainedInLastQuery(streamKey)) {
+			logger.debug("Key {} was contained in last execution, sending invalidation tuple", streamKey);
+			generateInvalidationTuple(streamTuple, continuousQueryState, streamKey);
+		}
+	}
+	
+	/**
+	 * Handle the match of the stream tuple
+	 * @param streamTuple
+	 */
+	protected void handleMatch(final Tuple streamTuple) {
+		if(! queryPlan.isReceiveInvalidations()) {
+			return;
+		}
+		
+		continuousQueryState.addStreamKeyToState(streamTuple.getKey());
+	}
+
+	@Override
+	protected void handleInvalidationTuple(final Tuple streamTuple) {
+		final ContinuousQueryExecutionState continuousQueryState = continuousClientQuery.getContinuousQueryState();
+		final String streamKey = streamTuple.getKey();
+		
+		// Invalidate range query results
+		if(continuousQueryState.wasStreamKeyContainedInLastQuery(streamKey)) {
+			generateInvalidationTuple(streamTuple, continuousQueryState, streamKey);
+		}
+	}
+
+	/**
+	 * Generate an invalidation tuple for the stream key
+	 * @param streamTuple
+	 * @param continuousQueryState
+	 * @param streamKey
+	 */
+	private void generateInvalidationTuple(final Tuple streamTuple,
+			final ContinuousQueryExecutionState continuousQueryState, final String streamKey) {
+		
+		continuousQueryState.removeStreamKeyFromState(streamKey);
+		
+		final long versionTimestamp = streamTuple.getVersionTimestamp();
+		final InvalidationTuple tuple = new InvalidationTuple(streamKey, versionTimestamp);
+		final MultiTuple joinedTuple = new MultiTuple(tuple, queryPlan.getStreamTable());
+		continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
 	}
 
 }

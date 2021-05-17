@@ -8,7 +8,8 @@ order: 1
 
 ### Version 0.9.9 - TBA
 - New Feature: Watermarks for continuous queries
-- New Feature: Invalidations for continuous queries
+- New Feature: Implemented Invalidations for continuous queries
+- Improvement: Improved memory consumption of continuous queries
 
 ### Version 0.9.8 - 10.05.2021
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter
