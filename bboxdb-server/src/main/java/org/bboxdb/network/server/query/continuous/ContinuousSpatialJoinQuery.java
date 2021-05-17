@@ -20,7 +20,6 @@ package org.bboxdb.network.server.query.continuous;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor;
@@ -32,27 +31,15 @@ import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.transformation.TupleTransformation;
-import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.WatermarkTuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContinuousSpatialJoinQuery implements BiConsumer<TupleStoreName, Tuple> {
+public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<ContinuousSpatialJoinQueryPlan> {
 	
-	/**
-	 * The associated client query
-	 */
-	private final ContinuousClientQuery continuousClientQuery;
-	
-	/**
-	 * The query plan of the query
-	 */
-	private final ContinuousSpatialJoinQueryPlan queryPlan;
-
 	/**
 	 * The stream filters
 	 */
@@ -68,30 +55,21 @@ public class ContinuousSpatialJoinQuery implements BiConsumer<TupleStoreName, Tu
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousSpatialJoinQuery.class);
 
-	
-		
 	public ContinuousSpatialJoinQuery(final ContinuousClientQuery continuousClientQuery, 
 			final ContinuousSpatialJoinQueryPlan queryPlan) {
 		
-		this.continuousClientQuery = continuousClientQuery;
-		this.queryPlan = queryPlan;
+		super(continuousClientQuery, queryPlan);
+		
 		this.streamFilters = ContinuousQueryHelper.getUserDefinedFilter(queryPlan.getStreamFilters());
 		this.joinFilters = ContinuousQueryHelper.getUserDefinedFilter(queryPlan.getAfterJoinFilter());
 	}
 	
 	@Override
 	public void accept(final TupleStoreName tupleStoreName, final Tuple streamTuple) {
-		if(streamTuple instanceof DeletedTuple) {
-			return;
-		}
 		
-		if(streamTuple instanceof WatermarkTuple) {
-			
-			if(queryPlan.isReceiveWatermarks()) {
-				final MultiTuple multiTuple = ContinuousQueryHelper.getWatermarkTupleForLocalInstance(tupleStoreName, streamTuple);
-				continuousClientQuery.queueTupleForClientProcessing(multiTuple);
-			}
-			
+		final boolean processFurtherActions = processSpecialTuples(tupleStoreName, streamTuple);
+		
+		if(! processFurtherActions) {
 			return;
 		}
 		

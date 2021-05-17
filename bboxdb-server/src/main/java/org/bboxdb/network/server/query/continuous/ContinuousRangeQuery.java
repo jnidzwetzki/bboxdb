@@ -19,29 +19,16 @@ package org.bboxdb.network.server.query.continuous;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 import org.bboxdb.network.query.ContinuousRangeQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.transformation.TupleTransformation;
-import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.WatermarkTuple;
 
-public class ContinuousRangeQuery implements BiConsumer<TupleStoreName, Tuple> {
-
-	/**
-	 * The associated client query
-	 */
-	private final ContinuousClientQuery continuousClientQuery;
-	
-	/**
-	 * The query plan of the query
-	 */
-	private final ContinuousRangeQueryPlan queryPlan;
+public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRangeQueryPlan> {
 
 	/**
 	 * The stream filters
@@ -50,24 +37,18 @@ public class ContinuousRangeQuery implements BiConsumer<TupleStoreName, Tuple> {
 		
 	public ContinuousRangeQuery(final ContinuousClientQuery continuousClientQuery, 
 			final ContinuousRangeQueryPlan queryPlan) {
-		this.continuousClientQuery = continuousClientQuery;
-		this.queryPlan = queryPlan;
+		
+		super(continuousClientQuery, queryPlan);
+		
 		this.streamFilters = ContinuousQueryHelper.getUserDefinedFilter(queryPlan.getStreamFilters());
 	}
 
 	@Override
 	public void accept(final TupleStoreName tupleStoreName, final Tuple streamTuple) {
-		if(streamTuple instanceof DeletedTuple) {
-			return;
-		}
 		
-		if(streamTuple instanceof WatermarkTuple) {
-			
-			if(queryPlan.isReceiveWatermarks()) {
-				final MultiTuple joinedTuple = ContinuousQueryHelper.getWatermarkTupleForLocalInstance(tupleStoreName, streamTuple);
-				continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
-			}
-			
+		final boolean processFurtherActions = processSpecialTuples(tupleStoreName, streamTuple);
+		
+		if(! processFurtherActions) {
 			return;
 		}
 		
