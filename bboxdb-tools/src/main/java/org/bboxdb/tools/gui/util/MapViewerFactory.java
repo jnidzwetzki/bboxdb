@@ -33,10 +33,20 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MapViewerFactory {
 	
+	/**
+	 * The cache dir
+	 */
 	private static Path cacheDir;
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(MapViewerFactory.class);
 	
 	static {
 		final String tempdir = System.getProperty("java.io.tmpdir");
@@ -48,11 +58,15 @@ public class MapViewerFactory {
 		final boolean createSuccess = file.mkdirs();
 		
 		if(! createSuccess) {
-			System.err.println("Unable to create directory: " + cacheDir);
+			logger.debug("Using existing cache dir");
+		}
+		
+		if(! file.canWrite()) {
+			logger.error("Unable to write to cache dir: " + file);
 			System.exit(-1);
 		}
 
-		System.out.println("Caching maps to: " + cacheDir);
+		logger.info("Caching maps to: " + cacheDir);
 	}
 
 	public static JXMapViewer createMapViewer() {
