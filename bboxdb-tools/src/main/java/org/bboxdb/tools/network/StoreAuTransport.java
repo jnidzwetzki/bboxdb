@@ -104,7 +104,7 @@ public class StoreAuTransport implements Runnable {
 						}
 						
 						bos.write(polygon.toGeoJson().getBytes(Const.DEFAULT_CHARSET));
-						bos.write("\n".getBytes());
+						bos.write("\n".getBytes(Const.DEFAULT_CHARSET));
 						bos.flush();
 					} catch (IOException e) {
 						logger.error("Got error while inserting tuple");

@@ -247,6 +247,11 @@ public class TestBaselineApproach implements AutoCloseable {
 			    final String text2 = row2.getString(1);
 
 			    final Tuple tuple2 = tupleBuilder2.buildTuple(text2, Long.toString(id2));
+			    
+			    if(tuple2 == null) {
+			    	System.err.println("Tuple for text is null:" + text2);
+			    	continue;
+			    }
 
 			    if(tuple1.getBoundingBox().intersects(tuple2.getBoundingBox().enlargeByAmount(padding))) {
 			    	resultRecords++;
