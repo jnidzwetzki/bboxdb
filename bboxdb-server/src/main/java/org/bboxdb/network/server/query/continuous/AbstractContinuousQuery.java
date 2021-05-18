@@ -59,7 +59,7 @@ public abstract class AbstractContinuousQuery<T extends ContinuousQueryPlan> imp
 		if(streamTuple instanceof WatermarkTuple) {
 			
 			if(queryPlan.isReceiveWatermarks()) {
-				final MultiTuple joinedTuple = ContinuousQueryHelper.getWatermarkTupleForLocalInstance(tupleStoreName, streamTuple);
+				final MultiTuple joinedTuple = ContinuousQueryHelper.getWatermarkTuple(tupleStoreName, streamTuple);
 				continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
 			}
 			

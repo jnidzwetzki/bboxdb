@@ -40,7 +40,7 @@ public class ContinuousQueryHelper {
 	 * @param streamTuple
 	 * @return
 	 */
-	public static MultiTuple getWatermarkTupleForLocalInstance(final TupleStoreName tupleStorename, 
+	public static MultiTuple getWatermarkTuple(final TupleStoreName tupleStorename, 
 			final Tuple streamTuple) {
 		
 		final String key = SSTableConst.WATERMARK_KEY + "_" + tupleStorename.getFullname();
