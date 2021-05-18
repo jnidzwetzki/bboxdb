@@ -69,6 +69,11 @@ public class FilterJSONDataByBBox implements Runnable {
 	private void handleline(final String line) {
 		final Tuple tuple = tupleBuilder.buildTuple(line);
 
+		if(tuple == null) {
+			System.err.println("Tuple is null: " + line);
+			return;
+		}
+		
 		if(boundingBox.intersects(tuple.getBoundingBox())) {
  			System.out.println(line);
 		}

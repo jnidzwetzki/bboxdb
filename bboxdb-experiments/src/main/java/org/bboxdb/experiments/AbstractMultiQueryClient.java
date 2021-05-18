@@ -19,8 +19,8 @@ package org.bboxdb.experiments;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -32,6 +32,7 @@ import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
@@ -144,7 +145,7 @@ abstract public class AbstractMultiQueryClient {
 		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
 		final double parallelQueries = MathUtil.tryParseDoubleOrExit(parallelQueriesString, () -> "Unable to parse: " + parallelQueriesString);
 	
-		try(final BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+		try(final BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath(), Const.DEFAULT_CHARSET)) {
 			for(int i = 0; i < parallelQueries; i++) {
 				final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
 				writer.write(queryRectangle.toCompactString() + "\n");

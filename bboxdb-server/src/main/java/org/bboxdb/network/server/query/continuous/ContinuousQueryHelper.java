@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
@@ -85,7 +86,7 @@ public class ContinuousQueryHelper {
 				final Class<?> filterClass = Class.forName(filter.getUserDefinedFilterClass());
 				final UserDefinedFilter operator = 
 						(UserDefinedFilter) filterClass.newInstance();
-				operators.put(operator, filter.getUserDefinedFilterValue().getBytes());
+				operators.put(operator, filter.getUserDefinedFilterValue().getBytes(Const.DEFAULT_CHARSET));
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				throw new IllegalArgumentException("Unable to find user defined filter class", e);
 			}

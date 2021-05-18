@@ -139,7 +139,7 @@ public class TupleStringSerializer {
 		
 		// Write tuple names
 		for(final String tupleStoreName : joinedTuple.getTupleStoreNames()) {
-			final byte[] nameBytes = tupleStoreName.getBytes();
+			final byte[] nameBytes = tupleStoreName.getBytes(Const.DEFAULT_CHARSET);
 			final int nameLength = nameBytes.length;
 			bos.write(DataEncoderHelper.intToByteBuffer(nameLength).array());
 			bos.write(nameBytes);

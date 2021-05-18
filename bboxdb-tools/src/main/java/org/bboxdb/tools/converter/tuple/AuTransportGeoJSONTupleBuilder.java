@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.Tuple;
 
 public class AuTransportGeoJSONTupleBuilder extends TupleBuilder {
@@ -44,7 +45,7 @@ public class AuTransportGeoJSONTupleBuilder extends TupleBuilder {
 		// Longitude / Latitude switch
 		polygon.invertPolygonCoordinates();
 		
-		final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+		final byte[] tupleBytes = polygon.toGeoJson().getBytes(Const.DEFAULT_CHARSET);
 
 		if(polygon.getBoundingBox().getDimension() == 0) {
 			return null;

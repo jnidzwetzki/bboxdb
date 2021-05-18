@@ -11,6 +11,7 @@ order: 1
 - New Feature: Implemented Invalidations for continuous queries
 - Improvement: Improved memory consumption of continuous queries
 - Improvement: Removed bugs detected by coverity scan
+- Improvement: Introduced default charset for read/write operations
 
 ### Version 0.9.8 - 10.05.2021
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter

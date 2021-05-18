@@ -20,14 +20,15 @@ package org.bboxdb.tools.network;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,9 +65,9 @@ public class ImportStoredData implements Runnable {
 	@Override
 	public void run() {
 		
-		try (
-				final BufferedReader reader = new BufferedReader(new FileReader(file));
-				final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		try (				
+				final BufferedReader reader = Files.newBufferedReader(file.toPath(), Const.DEFAULT_CHARSET);
+				final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Const.DEFAULT_CHARSET));
 		) {
 			String line = null;
 			long currentSecondSlot = getTimeSlot();

@@ -28,13 +28,14 @@ import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ADSBTupleBuilder2D extends TupleBuilder {
 	
-	class Aircraft {
+	static class Aircraft {
 		
 		public final String hexIdent;
 		
@@ -132,7 +133,8 @@ public class ADSBTupleBuilder2D extends TupleBuilder {
 				final Hyperrectangle boundingBox = getHyperrectangleFromAircraft(aircraft);
 				
 				return new Tuple(aircraft.callsign, boundingBox.enlargeByAmount(boxPadding), 
-						aircraft.toGeoJSON().getBytes(), aircraft.lastUpdateTimestamp * 1000);
+						aircraft.toGeoJSON().getBytes(Const.DEFAULT_CHARSET), 
+						aircraft.lastUpdateTimestamp * 1000);
 			} 
 			
 			return null;

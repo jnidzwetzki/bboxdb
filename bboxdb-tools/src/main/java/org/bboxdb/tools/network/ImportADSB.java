@@ -23,6 +23,7 @@ import java.net.Socket;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
@@ -84,8 +85,8 @@ public class ImportADSB implements Runnable {
 			bboxdbClient.connect();
 
 			final TupleBuilder builder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.ADSB_2D);
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), Const.DEFAULT_CHARSET));
 			
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String line = null;
 			String lastKey = null;
 			final AtomicLong lastTimestmap = new AtomicLong();
@@ -100,17 +101,17 @@ public class ImportADSB implements Runnable {
 				try {
 					final Tuple tuple = builder.buildTuple(line);
 					
-					// Start restarts, add watermark
-					if(lastKey != null && tuple.getKey().compareTo(tuple.getKey()) < 0) {
-						final WatermarkTuple watermarkTuple = new WatermarkTuple(lastTimestmap.get());
-						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, watermarkTuple);
-						pendingFutures.put(insertFuture);
-					}
-					
-					lastKey = tuple.getKey();
-					lastTimestmap.set(tuple.getVersionTimestamp());
-
 					if(tuple != null) {
+						// Start restarts, add watermark
+						if(lastKey != null && tuple.getKey().compareTo(tuple.getKey()) < 0) {
+							final WatermarkTuple watermarkTuple = new WatermarkTuple(lastTimestmap.get());
+							final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, watermarkTuple);
+							pendingFutures.put(insertFuture);
+						}
+						
+						lastKey = tuple.getKey();
+						lastTimestmap.set(tuple.getVersionTimestamp());
+
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, tuple);
 						pendingFutures.put(insertFuture);
 						readTuples++;

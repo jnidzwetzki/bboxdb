@@ -132,6 +132,12 @@ public class ImportAuTransport implements Runnable {
 					} else {
 						final String key = getKeyForPolygon(polygon);
 						tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);
+						
+						if(tuple == null) {
+							System.err.println("Unable to build tuple for: " + tuple);
+							return;
+						}
+						
 						lastTimestamp.set(tuple.getVersionTimestamp());
 					}
 					

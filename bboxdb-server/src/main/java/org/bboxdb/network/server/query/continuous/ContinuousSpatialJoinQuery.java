@@ -29,6 +29,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.Execut
 import org.bboxdb.misc.BBoxDBConfiguration.ContinuousSpatialJoinFetchMode;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
@@ -253,7 +254,7 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 			final long versionTimestamp = streamTuple.getVersionTimestamp();
 			final InvalidationTuple tuple = new InvalidationTuple(streamKey, versionTimestamp);
 			
-			final Tuple joinPartnerTuple = new Tuple(joinPartner, Hyperrectangle.FULL_SPACE, "".getBytes());
+			final Tuple joinPartnerTuple = new Tuple(joinPartner, Hyperrectangle.FULL_SPACE, "".getBytes(Const.DEFAULT_CHARSET));
 			
 			final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple, joinPartnerTuple), tables);
 			continuousClientQuery.queueTupleForClientProcessing(joinedTuple);	

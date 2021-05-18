@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.GeoJsonPolygon;
+import org.bboxdb.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,7 @@ public class StoreAuTransport implements Runnable {
 							return;
 						}
 						
-						bos.write(polygon.toGeoJson().getBytes());
+						bos.write(polygon.toGeoJson().getBytes(Const.DEFAULT_CHARSET));
 						bos.write("\n".getBytes());
 						bos.flush();
 					} catch (IOException e) {

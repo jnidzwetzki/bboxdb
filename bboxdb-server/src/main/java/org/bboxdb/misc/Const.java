@@ -18,6 +18,8 @@
 package org.bboxdb.misc;
 
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 public class Const {
@@ -87,5 +89,10 @@ public class Const {
 	 * Log memory statistics periodically
 	 */
 	public final static boolean LOG_MEMORY_STATISTICS = false;
+	
+	/**
+	 * The default charset for encodings
+	 */
+	public final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8; 
 
 }

@@ -88,7 +88,7 @@ public class SequenceNumberGenerator {
 	 * Get the amount of used numbers
 	 * @return 
 	 */
-	public int getUsedNumbers() {
+	public synchronized int getUsedNumbers() {
 		return usedNumbers.size();
 	}
 }

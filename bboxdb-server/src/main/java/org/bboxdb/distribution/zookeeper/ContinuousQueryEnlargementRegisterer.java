@@ -27,6 +27,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
 import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
@@ -354,10 +355,10 @@ public class ContinuousQueryEnlargementRegisterer implements Watcher {
 					+ "enlargementMeterLat={}, enlargementMeterLon={})", 
 					maxEnlargementAbsolute, maxEnlargementFactor, maxEnlargementLatMeter, maxEnlargementLonMeter);
 			
-			final byte[] absoluteEnlargementBytes = Double.toString(maxEnlargementAbsolute).getBytes();
-			final byte[] factorEnlargementBytes = Double.toString(maxEnlargementFactor).getBytes();
-			final byte[] enlargementLatBytes = Double.toString(maxEnlargementLatMeter).getBytes();
-			final byte[] enlargementLonBytes = Double.toString(maxEnlargementLonMeter).getBytes();
+			final byte[] absoluteEnlargementBytes = Double.toString(maxEnlargementAbsolute).getBytes(Const.DEFAULT_CHARSET);
+			final byte[] factorEnlargementBytes = Double.toString(maxEnlargementFactor).getBytes(Const.DEFAULT_CHARSET);
+			final byte[] enlargementLatBytes = Double.toString(maxEnlargementLatMeter).getBytes(Const.DEFAULT_CHARSET);
+			final byte[] enlargementLonBytes = Double.toString(maxEnlargementLonMeter).getBytes(Const.DEFAULT_CHARSET);
 
 			final String createdAbsoluteEnlargementPath = zookeeperClient.createEphemeralSequencialNode(pathEnlargementAbsolute + NODE_NAME, absoluteEnlargementBytes);
 			if(createdEnlargementAbsolutePath.isPresent()) {

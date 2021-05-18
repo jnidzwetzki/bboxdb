@@ -43,6 +43,11 @@ public class RandomQueryRangeGenerator {
 		
 		final Hyperrectangle scaledRectangle = completeSpace.scaleVolumeByPercentage(percentage);
 		
+		if(scaledRectangle == null) {
+			logger.error("Unable to scale {}", completeSpace);
+			return completeSpace;
+		}
+		
 		final List<DoubleInterval> bboxIntervals = new ArrayList<>();
 		
 		// Determine query bounding box

@@ -44,7 +44,13 @@ public class MapViewerFactory {
 
 		cacheDir = Paths.get(tempdir, "jxmapviewer2cache_" + username);
 		final File file = cacheDir.toFile();
-		file.mkdirs();
+		
+		final boolean createSuccess = file.mkdirs();
+		
+		if(! createSuccess) {
+			System.err.println("Unable to create directory: " + cacheDir);
+			System.exit(-1);
+		}
 
 		System.out.println("Caching maps to: " + cacheDir);
 	}

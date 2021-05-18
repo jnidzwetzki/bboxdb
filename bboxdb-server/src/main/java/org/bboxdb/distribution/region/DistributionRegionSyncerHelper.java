@@ -81,7 +81,14 @@ public class DistributionRegionSyncerHelper {
 		
 		syncer.registerCallback(callback);
 
-		if(syncer.getRootNode().getThisAndChildRegions().contains(region)) {
+		final DistributionRegion rootNode = syncer.getRootNode();
+		
+		if(rootNode == null) {
+			logger.error("Unable to get root node");
+			return;
+		}
+		
+		if(rootNode.getThisAndChildRegions().contains(region)) {
 			latch.await();
 		}
 		

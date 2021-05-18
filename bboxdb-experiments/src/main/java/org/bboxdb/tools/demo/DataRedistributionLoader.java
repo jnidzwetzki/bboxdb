@@ -250,7 +250,7 @@ public class DataRedistributionLoader implements Runnable {
 				}
 
 				if(lineNumber.get() % 5000 == 0) {
-					System.out.format("Loaded %d elements\n", lineNumber.get());
+					System.out.format("Loaded %d elements%n", lineNumber.get());
 				}
 			});
 		} catch (IOException e) {
