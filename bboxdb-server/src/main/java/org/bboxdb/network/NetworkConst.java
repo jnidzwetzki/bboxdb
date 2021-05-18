@@ -95,6 +95,11 @@ public class NetworkConst {
 	public static final short REQUEST_TYPE_CANCEL_QUERY = 0x13;
 	
 	/**
+	 * Request the continuous query state
+	 */
+	public static final short REQUEST_CONTINUOUS_QUERY_STATE = 0x14;
+	
+	/**
 	 * Query type key
 	 */
 	public static final byte REQUEST_QUERY_KEY = 0x01;
@@ -184,6 +189,11 @@ public class NetworkConst {
 	 */
 	public static final short RESPONSE_TYPE_COMPRESSION = 0x10;
 
+	/**
+	 * Reponse of the continuous query state
+	 */
+	public static final short RESPONSE_CONTINUOUS_QUERY_STATE = 0x11;
+	
 	
 	/**
 	 * The gzip compression type
