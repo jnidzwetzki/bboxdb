@@ -39,6 +39,7 @@ import org.bboxdb.network.packages.NetworkPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packages.request.ContinuousQueryStateRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
@@ -1266,6 +1267,28 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(keepAlivePackage.getTablename(), decodedPackage.getTablename());
 		Assert.assertEquals(keepAlivePackage.getTuples().size(), decodedPackage.getTuples().size());
+	}
+	
+	/**
+	 * The the encoding and decoding of the state request
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void encodeAndDecodeContinuousQueryStateRequest() throws IOException, PackageEncodeException {
+		final TupleStoreName tupleStoreName = new TupleStoreName("dgroup_table_12");
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final ContinuousQueryStateRequest request = new ContinuousQueryStateRequest(sequenceNumber, tupleStoreName);
+		
+		byte[] encodedVersion = networkPackageToByte(request);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final ContinuousQueryStateRequest decodedPackage = ContinuousQueryStateRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(request.getTable(), decodedPackage.getTable());
+		
 	}
 }
 	
