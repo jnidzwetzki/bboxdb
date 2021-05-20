@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.query.entity.TupleAndBoundingBox;
+import org.bboxdb.network.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;

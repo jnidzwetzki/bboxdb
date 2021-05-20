@@ -24,7 +24,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +38,7 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.connection.SequenceNumberGenerator;
+import org.bboxdb.network.entity.ContinuousQueryServerState;
 import org.bboxdb.network.packages.NetworkPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelRequest;
@@ -58,6 +62,7 @@ import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
+import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.packages.response.JoinedTupleResponse;
 import org.bboxdb.network.packages.response.ListTablesResponse;
@@ -1289,6 +1294,138 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(request.getTable(), decodedPackage.getTable());
 		
+	}
+	
+	/**
+	 * The the encoding and decoding of the ContinuousQueryStateResponse
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void testContinuousQueryStateResponse0() throws IOException, PackageEncodeException {
+		
+		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final ContinuousQueryStateResponse continuousQueryStateResponse 
+			= new ContinuousQueryStateResponse(sequenceNumber, continuousQueryServerState);
+	
+		byte[] encodedVersion = networkPackageToByte(continuousQueryStateResponse);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final ContinuousQueryStateResponse decodedPackage = ContinuousQueryStateResponse.decodePackage(bb);
+	
+		final ContinuousQueryServerState continuousQueryServerState2 = decodedPackage.getContinuousQueryServerState();
+
+		Assert.assertEquals(continuousQueryServerState, continuousQueryServerState2);
+	}
+	
+	/**
+	 * The the encoding and decoding of the ContinuousQueryStateResponse
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void testContinuousQueryStateResponse1() throws IOException, PackageEncodeException {
+		
+		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
+		
+		final Map<String, Set<String>> joinPartners = new HashMap<>();
+		joinPartners.put("abc", new HashSet<>());
+		
+		final Set<String> elements = new HashSet<>();
+		elements.add("456");
+		elements.add("3453d");
+		joinPartners.put("def", elements);
+		continuousQueryServerState.addJoinQueryState(UUID.randomUUID().toString(), joinPartners);
+		
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final ContinuousQueryStateResponse continuousQueryStateResponse 
+			= new ContinuousQueryStateResponse(sequenceNumber, continuousQueryServerState);
+	
+		byte[] encodedVersion = networkPackageToByte(continuousQueryStateResponse);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final ContinuousQueryStateResponse decodedPackage = ContinuousQueryStateResponse.decodePackage(bb);
+	
+		final ContinuousQueryServerState continuousQueryServerState2 = decodedPackage.getContinuousQueryServerState();
+
+		Assert.assertEquals(continuousQueryServerState, continuousQueryServerState2);
+	}
+	
+	/**
+	 * The the encoding and decoding of the ContinuousQueryStateResponse
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void testContinuousQueryStateResponse2() throws IOException, PackageEncodeException {
+		
+		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
+		
+		final Set<String> rangeElements = new HashSet<>();
+		rangeElements.add("fgfdg");
+		rangeElements.add("345gfdgfgdfg3d");
+
+		continuousQueryServerState.addRangeQueryState(UUID.randomUUID().toString(), rangeElements);
+		
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final ContinuousQueryStateResponse continuousQueryStateResponse 
+			= new ContinuousQueryStateResponse(sequenceNumber, continuousQueryServerState);
+	
+		byte[] encodedVersion = networkPackageToByte(continuousQueryStateResponse);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final ContinuousQueryStateResponse decodedPackage = ContinuousQueryStateResponse.decodePackage(bb);
+	
+		final ContinuousQueryServerState continuousQueryServerState2 = decodedPackage.getContinuousQueryServerState();
+
+		Assert.assertEquals(continuousQueryServerState, continuousQueryServerState2);
+	}
+	
+	/**
+	 * The the encoding and decoding of the ContinuousQueryStateResponse
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void testContinuousQueryStateResponse3() throws IOException, PackageEncodeException {
+		
+		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
+		
+		final Map<String, Set<String>> joinPartners = new HashMap<>();
+		joinPartners.put("abc", new HashSet<>());
+		final Set<String> elements = new HashSet<>();
+		elements.add("456");
+		elements.add("3453d");
+		joinPartners.put("def", elements);
+		continuousQueryServerState.addJoinQueryState(UUID.randomUUID().toString(), joinPartners);
+		
+		final Set<String> rangeElements = new HashSet<>();
+		rangeElements.add("fgfdg");
+		rangeElements.add("345gfdgfgdfg3d");
+
+		continuousQueryServerState.addRangeQueryState(UUID.randomUUID().toString(), rangeElements);
+		
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final ContinuousQueryStateResponse continuousQueryStateResponse 
+			= new ContinuousQueryStateResponse(sequenceNumber, continuousQueryServerState);
+	
+		byte[] encodedVersion = networkPackageToByte(continuousQueryStateResponse);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final ContinuousQueryStateResponse decodedPackage = ContinuousQueryStateResponse.decodePackage(bb);
+	
+		final ContinuousQueryServerState continuousQueryServerState2 = decodedPackage.getContinuousQueryServerState();
+
+		Assert.assertEquals(continuousQueryServerState, continuousQueryServerState2);
 	}
 }
 	

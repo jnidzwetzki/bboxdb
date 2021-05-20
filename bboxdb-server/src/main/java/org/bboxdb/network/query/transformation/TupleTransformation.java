@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.query.transformation;
 
-import org.bboxdb.network.query.entity.TupleAndBoundingBox;
+import org.bboxdb.network.entity.TupleAndBoundingBox;
 
 public interface TupleTransformation {
 

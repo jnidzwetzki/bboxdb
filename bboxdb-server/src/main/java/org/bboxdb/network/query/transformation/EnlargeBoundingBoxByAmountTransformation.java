@@ -20,7 +20,7 @@ package org.bboxdb.network.query.transformation;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.query.entity.TupleAndBoundingBox;
+import org.bboxdb.network.entity.TupleAndBoundingBox;
 
 public class EnlargeBoundingBoxByAmountTransformation implements TupleTransformation {
 	

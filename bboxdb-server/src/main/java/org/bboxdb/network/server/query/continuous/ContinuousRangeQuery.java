@@ -20,8 +20,8 @@ package org.bboxdb.network.server.query.continuous;
 import java.util.List;
 import java.util.Map;
 
+import org.bboxdb.network.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.ContinuousRangeQueryPlan;
-import org.bboxdb.network.query.entity.TupleAndBoundingBox;
 import org.bboxdb.network.query.filter.UserDefinedFilter;
 import org.bboxdb.network.query.transformation.TupleTransformation;
 import org.bboxdb.storage.entity.InvalidationTuple;
