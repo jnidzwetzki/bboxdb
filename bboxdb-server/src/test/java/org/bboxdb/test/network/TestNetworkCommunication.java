@@ -34,9 +34,12 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.connection.RoutingHeaderHelper;
+import org.bboxdb.network.client.future.client.ContinuousQueryServerStateFuture;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.TupleListFuture;
+import org.bboxdb.network.entity.ContinuousQueryServerState;
+import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
 import org.bboxdb.network.query.filter.UserDefinedStringFilter;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -1292,6 +1295,34 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(resultList.get(0) instanceof DeletedTuple);
 
 		disconnect(bboxDBClient2);
+	}
+	
+	/**
+	 * Test continuous query state
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	@Test(timeout=60000)
+	public void testGetContinuousQueryState0() throws InterruptedException, BBoxDBException {
+		final BBoxDBClient bboxDBClient1 = connectToServer().getBboxDBClient();
+
+		final String table = DISTRIBUTION_GROUP + "_mytable2";
+
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient1.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable1.waitForCompletion();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+
+		final ContinuousQueryServerStateFuture stateFuture = bboxDBClient1.getContinuousQueryState(new TupleStoreName(table));
+		stateFuture.waitForCompletion();
+		Assert.assertFalse(stateFuture.isFailed());
+
+		final ContinuousQueryStateResponse resultStateResponse = stateFuture.get(0);
+		Assert.assertNotNull(resultStateResponse);
+		
+		final ContinuousQueryServerState resultState = resultStateResponse.getContinuousQueryServerState();
+		Assert.assertNotNull(resultState);
+		Assert.assertTrue(resultState.getGlobalActiveRangeQueryElements().isEmpty());
+		Assert.assertTrue(resultState.getGlobalActiveJoinElements().isEmpty());
 	}
 
 	/**

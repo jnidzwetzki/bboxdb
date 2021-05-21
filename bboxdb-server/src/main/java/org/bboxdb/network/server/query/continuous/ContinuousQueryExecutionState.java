@@ -105,4 +105,19 @@ public class ContinuousQueryExecutionState {
 	public void clearJoinPartnerState() {
 		joinPartnersForCurrentKey.clear();
 	}
+	
+	/**
+	 * Get the contained joined keys
+	 * @return
+	 */
+	public Map<String, Set<String>> getContainedJoinedKeys() {
+		return containedJoinedKeys;
+	}
+	/**
+	 * Get the contained range query keys
+	 * @return
+	 */
+	public Set<String> getContainedTupleKeys() {
+		return containedTupleKeys;
+	}
 }

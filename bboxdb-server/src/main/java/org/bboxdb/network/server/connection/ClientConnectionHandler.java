@@ -58,6 +58,7 @@ import org.bboxdb.network.server.connection.handler.query.HandleVersionTimeQuery
 import org.bboxdb.network.server.connection.handler.query.QueryHandler;
 import org.bboxdb.network.server.connection.handler.request.CancelRequestHandler;
 import org.bboxdb.network.server.connection.handler.request.CompressionHandler;
+import org.bboxdb.network.server.connection.handler.request.ContinuousQueryStateHandler;
 import org.bboxdb.network.server.connection.handler.request.CreateDistributionGroupHandler;
 import org.bboxdb.network.server.connection.handler.request.CreateTableHandler;
 import org.bboxdb.network.server.connection.handler.request.DeleteDistributionGroupHandler;
@@ -166,6 +167,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	private final LockManager lockManager;
 
 	/**
+	 * The client connection registry
+	 */
+	private ClientConnectionRegistry clientConnectionRegistry;
+
+	/**
 	 * The read bytes counter
 	 */
 	private final static Gauge readBytesCounter = Gauge.build()
@@ -198,8 +204,10 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
+
 	public ClientConnectionHandler(final TupleStoreManagerRegistry storageRegistry,
-			final Socket clientSocket, final LockManager lockManager) {
+			final Socket clientSocket, final LockManager lockManager, 
+			final ClientConnectionRegistry clientConnectionRegistry) {
 
 		// Client socket
 		this.clientSocket = clientSocket;
@@ -209,6 +217,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 
 		// The lock manager
 		this.lockManager = lockManager;
+		this.clientConnectionRegistry = clientConnectionRegistry;
 
 		// Connection state set to starting until handshake is ready
 		this.serviceState = new ServiceState();
@@ -218,7 +227,8 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { close(); }});
 
 		serviceState.dipatchToStarting();
-
+		clientConnectionRegistry.registerClientConnection(this);
+		
 		try {
 			this.outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
 			this.inputStream = new BufferedInputStream(clientSocket.getInputStream());
@@ -408,6 +418,8 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Close the open resources
 	 */
 	private void close() {
+		clientConnectionRegistry.deregisterClientConnection(this);
+		
 		getThreadPool().shutdown();
 
 		// Close active query iterators
@@ -598,6 +610,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_NEXT_PAGE, new NextPageHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_CANCEL_QUERY, new CancelRequestHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_LOCK_TUPLE, new LockTupleHandler());
+		requestHandlers.put(NetworkConst.REQUEST_CONTINUOUS_QUERY_STATE, new ContinuousQueryStateHandler());
 	}
 
 	/**
@@ -760,5 +773,13 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 				handler.accept(this);
 			}
 		});
+	}
+	
+	/**
+	 * Get the client connection registry
+	 * @return
+	 */
+	public ClientConnectionRegistry getClientConnectionRegistry() {
+		return clientConnectionRegistry;
 	}
 }

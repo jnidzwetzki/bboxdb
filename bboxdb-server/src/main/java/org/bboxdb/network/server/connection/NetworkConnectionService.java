@@ -68,6 +68,11 @@ public class NetworkConnectionService implements BBoxDBService {
 	private final LockManager lockManager;
 	
 	/**
+	 * The client connection registry
+	 */
+	private final ClientConnectionRegistry clientConnectionRegistry;
+	
+	/**
 	 * The Logger
 	 */
 	final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
@@ -76,6 +81,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		this.storageRegistry = storageRegistry;
 		this.state = new ServiceState();
 		this.lockManager = new LockManager();
+		this.clientConnectionRegistry = new ClientConnectionRegistry();
 	}
 	
 	/**
@@ -99,7 +105,7 @@ public class NetworkConnectionService implements BBoxDBService {
 			}
 						
 			serverSocketDispatcher = new ConnectionDispatcherRunable(port, threadPool, 
-					storageRegistry, lockManager);
+					storageRegistry, lockManager, clientConnectionRegistry);
 			
 			serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 			serverSocketDispatchThread.start();

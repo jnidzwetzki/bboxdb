@@ -33,6 +33,7 @@ import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.connection.RoutingHeaderHelper;
+import org.bboxdb.network.client.future.client.ContinuousQueryServerStateFuture;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
@@ -42,6 +43,7 @@ import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.request.CancelRequest;
+import org.bboxdb.network.packages.request.ContinuousQueryStateRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
@@ -705,6 +707,21 @@ public class BBoxDBClient implements BBoxDB {
 		BBoxDBClientHelper.cancelQuery(cancelData);
 	}
 
+	/**
+	 * Get the continuous query state
+	 */
+	public ContinuousQueryServerStateFuture getContinuousQueryState(final TupleStoreName tupleStore) {
+		
+		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+			final short nextSequenceNumber = connection.getNextSequenceNumber();
+			return new ContinuousQueryStateRequest(nextSequenceNumber, tupleStore);
+		};
+
+		final Supplier<List<NetworkOperationFuture>> supplier = () -> Arrays.asList(new NetworkOperationFutureImpl(connection, packageSupplier));
+
+		return new ContinuousQueryServerStateFuture(supplier);
+	}
+	
 	@Override
 	public String toString() {
 		return "BBoxDBClient [connection=" + connection + "]";

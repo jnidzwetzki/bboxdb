@@ -61,6 +61,11 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 	private final LockManager lockManager;
 
 	/**
+	 * The client connection registry
+	 */
+	private final ClientConnectionRegistry clientConnectionRegistry;
+	
+	/**
 	 * Is a shutdown pending?
 	 */
 	private volatile boolean shutdownPending;
@@ -72,12 +77,14 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 
 
 	public ConnectionDispatcherRunable(final int port, final ExecutorService threadPool,
-			final TupleStoreManagerRegistry storageRegistry, final LockManager lockManager) {
+			final TupleStoreManagerRegistry storageRegistry, final LockManager lockManager, 
+			final ClientConnectionRegistry clientConnectionRegistry) {
 
 		this.port = port;
 		this.threadPool = threadPool;
 		this.storageRegistry = storageRegistry;
 		this.lockManager = lockManager;
+		this.clientConnectionRegistry = clientConnectionRegistry;
 		this.shutdownPending = false;
 	}
 
@@ -152,7 +159,7 @@ public class ConnectionDispatcherRunable extends ExceptionSafeRunnable {
 		logger.debug("Got new connection from: {}", clientSocket.getInetAddress());
 
 		final ClientConnectionHandler task = new ClientConnectionHandler(storageRegistry,
-				clientSocket, lockManager);
+				clientSocket, lockManager, clientConnectionRegistry);
 
 		threadPool.submit(task);
 	}

@@ -8,7 +8,8 @@ order: 1
 
 ### Version 0.9.9 - TBA
 - New Feature: Watermarks for continuous queries
-- New Feature: Implemented Invalidations for continuous queries
+- New Feature: Implemented invalidations for continuous queries
+- New Feature: Implemented state transfer for continuous queries
 - Improvement: Improved memory consumption of continuous queries
 - Improvement: Removed bugs detected by coverity scan
 - Improvement: Introduced default charset for read/write operations
