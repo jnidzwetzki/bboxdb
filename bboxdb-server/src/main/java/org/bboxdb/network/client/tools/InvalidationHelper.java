@@ -30,6 +30,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -122,15 +123,23 @@ public class InvalidationHelper {
 		logger.debug("Change for key {} detected old {} / new {}", 
 				key, oldRegions, newRegions);
 
-		// Create diff
+		// Create region diff
 		oldRegions.removeAll(newRegions);
 
 		final Predicate<DistributionRegion> predicate = (d) -> {
-			return oldRegions.contains(d.getRegionId());
+			// Ensure invalidation is only send to active regions
+			return oldRegions.contains(d.getRegionId()) 
+					&& DistributionRegionHelper.STATES_READ.contains(d.getState());
 		};
 		
 		final List<DistributionRegion> regionsForInvalidation = distributionRegion.getThisAndChildRegions(predicate);
 
+		// Old region might be not longer active
+		if(regionsForInvalidation.isEmpty()) {
+			logger.debug("Skipping creating of invalidation package. No active regions are found.");
+			return;
+		}
+		
 		final Map<List<DistributionRegion>, EnumSet<DistributionRegionHandlingFlag>> routings = new HashMap<>();
 		routings.put(regionsForInvalidation, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 		
