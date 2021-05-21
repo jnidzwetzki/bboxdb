@@ -240,7 +240,7 @@ public class BBoxDBConnection {
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_PAGE_END, new PageEndHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_JOINED_TUPLE, new JoinedTupleHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_TUPLE_LOCK_SUCCESS, new LockedTupleHandler());
-		serverResponseHandler.put(NetworkConst.REQUEST_CONTINUOUS_QUERY_STATE, new ContinuousQueryStateHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_CONTINUOUS_QUERY_STATE, new ContinuousQueryStateHandler());
 
 	}
 
