@@ -18,7 +18,6 @@
 package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
