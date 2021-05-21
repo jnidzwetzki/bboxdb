@@ -52,7 +52,7 @@ public class ContinuousQueryStateHandler implements ServerResponseHandler {
 		}
 		
 		if(future != null) {
-			future.setOperationResult(Arrays.asList(result.getContinuousQueryServerState()));
+			future.setOperationResult(result.getContinuousQueryServerState());
 			future.fireCompleteEvent();
 		}
 		
