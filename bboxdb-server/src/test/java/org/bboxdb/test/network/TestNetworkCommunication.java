@@ -39,7 +39,6 @@ import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.entity.ContinuousQueryServerState;
-import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
 import org.bboxdb.network.query.filter.UserDefinedStringFilter;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -1316,10 +1315,7 @@ public class TestNetworkCommunication {
 		stateFuture.waitForCompletion();
 		Assert.assertFalse(stateFuture.isFailed());
 
-		final ContinuousQueryStateResponse resultStateResponse = stateFuture.get(0);
-		Assert.assertNotNull(resultStateResponse);
-		
-		final ContinuousQueryServerState resultState = resultStateResponse.getContinuousQueryServerState();
+		final ContinuousQueryServerState resultState = stateFuture.get(0);
 		Assert.assertNotNull(resultState);
 		Assert.assertTrue(resultState.getGlobalActiveRangeQueryElements().isEmpty());
 		Assert.assertTrue(resultState.getGlobalActiveJoinElements().isEmpty());

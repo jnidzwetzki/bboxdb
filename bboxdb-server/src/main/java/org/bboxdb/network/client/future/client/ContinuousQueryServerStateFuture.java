@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
+import org.bboxdb.network.entity.ContinuousQueryServerState;
 
-public class ContinuousQueryServerStateFuture extends OperationFutureImpl<ContinuousQueryStateResponse> {
+public class ContinuousQueryServerStateFuture extends OperationFutureImpl<ContinuousQueryServerState> {
 
 	public ContinuousQueryServerStateFuture(final Supplier<List<NetworkOperationFuture>> futures) {
 		super(futures);
