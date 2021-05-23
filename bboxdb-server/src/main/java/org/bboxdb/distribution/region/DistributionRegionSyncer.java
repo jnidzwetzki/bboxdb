@@ -57,6 +57,7 @@ public class DistributionRegionSyncer implements Watcher {
 	 * The root node of the K-D-Tree
 	 */
 	private DistributionRegion rootNode;
+	
 	/**
 	 * The region mapper
 	 */
@@ -65,17 +66,17 @@ public class DistributionRegionSyncer implements Watcher {
 	/**
 	 * The distribution group name
 	 */
-	private String distributionGroupName;
+	private final String distributionGroupName;
 
 	/**
 	 * The distribution group adapter
 	 */
-	private DistributionRegionAdapter distributionRegionAdapter;
+	private final DistributionRegionAdapter distributionRegionAdapter;
 
 	/**
 	 * The distribution group adapter
 	 */
-	private DistributionGroupAdapter distributionGroupAdapter;
+	private final DistributionGroupAdapter distributionGroupAdapter;
 
 	/**
 	 * The callbacks
