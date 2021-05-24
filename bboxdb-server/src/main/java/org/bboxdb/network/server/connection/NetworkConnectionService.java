@@ -221,7 +221,7 @@ public class NetworkConnectionService implements BBoxDBService {
 
 
 	/**
-	 * Perform the state sync of the continous queries
+	 * Perform the state sync of the continuous queries
 	 * @param knownTables
 	 * @param queryMap
 	 * @param systemsToRequst
