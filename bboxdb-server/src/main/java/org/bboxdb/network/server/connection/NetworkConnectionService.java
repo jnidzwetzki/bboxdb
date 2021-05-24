@@ -19,6 +19,7 @@ package org.bboxdb.network.server.connection;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -47,6 +48,8 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public class NetworkConnectionService implements BBoxDBService {
 	
@@ -267,17 +270,31 @@ public class NetworkConnectionService implements BBoxDBService {
 	 * @param region
 	 * @return
 	 */
-	private Set<BBoxDBInstance> getSystemsToConnectForStateSync(final DistributionRegion region) {
+	@VisibleForTesting
+	public Set<BBoxDBInstance> getSystemsToConnectForStateSync(final DistributionRegion region) {
 		final Set<BBoxDBInstance> systemsToRequst = new HashSet<>();
 		
 		if(region.isLeafRegion()) {
 			// Split
 			if(region.getParent() != null) {
-				systemsToRequst.add(region.getParent().getSystems().get(0));
+				final List<BBoxDBInstance> systems = region.getParent().getSystems();
+				if(systems.isEmpty()) {
+					logger.error("Unable to get instances for {} ", region.getParent());
+				} else {				
+					systemsToRequst.add(systems.get(0));
+				}
 			}
 		} else {
 			// Merge
-			region.getAllChildren().forEach(r -> systemsToRequst.add(r.getSystems().get(0)));
+			final List<DistributionRegion> childRegions = region.getAllChildren();
+			for(final DistributionRegion child : childRegions) {
+				final List<BBoxDBInstance> systems = child.getSystems();
+				if(systems.isEmpty()) {
+					logger.error("Unable to get instances for {} ", child);
+				} else {				
+					systemsToRequst.add(systems.get(0));
+				}
+			}			
 		}
 		return systemsToRequst;
 	}
