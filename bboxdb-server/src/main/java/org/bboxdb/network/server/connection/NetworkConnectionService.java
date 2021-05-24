@@ -17,14 +17,33 @@
  *******************************************************************************/
 package org.bboxdb.network.server.connection;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.bboxdb.commons.service.ServiceState;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
+import org.bboxdb.distribution.region.DistributionRegionEvent;
+import org.bboxdb.distribution.region.GlobalDistributionRegionEventBus;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.connection.BBoxDBConnection;
+import org.bboxdb.network.client.future.client.ContinuousQueryServerStateFuture;
+import org.bboxdb.network.entity.ContinuousQueryServerState;
+import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.server.connection.lock.LockManager;
+import org.bboxdb.network.server.query.ClientQuery;
+import org.bboxdb.network.server.query.continuous.ContinuousClientQuery;
+import org.bboxdb.network.server.query.continuous.ContinuousQueryExecutionState;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +91,8 @@ public class NetworkConnectionService implements BBoxDBService {
 	 */
 	private final ClientConnectionRegistry clientConnectionRegistry;
 	
+	private final DistributionRegionCallback callback = (e, r) -> handleCallback(e, r);
+	
 	/**
 	 * The Logger
 	 */
@@ -83,7 +104,8 @@ public class NetworkConnectionService implements BBoxDBService {
 		this.lockManager = new LockManager();
 		this.clientConnectionRegistry = new ClientConnectionRegistry();
 	}
-	
+
+
 	/**
 	 * Start the network connection handler
 	 */
@@ -110,6 +132,8 @@ public class NetworkConnectionService implements BBoxDBService {
 			serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 			serverSocketDispatchThread.start();
 			serverSocketDispatchThread.setName("Connection dispatcher thread");
+			
+			GlobalDistributionRegionEventBus.getInstance().registerCallback(callback);
 						
 			state.dispatchToRunning();
 		} catch(Exception e) {
@@ -144,7 +168,116 @@ public class NetworkConnectionService implements BBoxDBService {
 			threadPool = null;
 		}
 		
+		GlobalDistributionRegionEventBus.getInstance().removeCallback(callback);
+
 		state.dispatchToTerminated();
+	}
+	
+	/**
+	 * Handle the region callbacks (e.g., transfer the continuous query state)
+	 * @param event
+	 * @param region
+	 */
+	private void handleCallback(final DistributionRegionEvent event, final DistributionRegion region) {
+		if(event != DistributionRegionEvent.LOCAL_MAPPING_ADDED) {
+			return;
+		}
+		
+		try {
+			final Set<String> knownTables = new HashSet<>();
+			
+			// Query UUID -> State
+			final Map<String, ContinuousQueryExecutionState> queryMap = new HashMap<>();
+			final Set<ClientConnectionHandler> allConnections = clientConnectionRegistry.getAllActiveConnections();
+			
+			for(final ClientConnectionHandler connection : allConnections) {
+				final Map<Short, ClientQuery> activeQueries = connection.getActiveQueries();
+				
+				for(final ClientQuery clientQuery : activeQueries.values()) {
+					if(! (clientQuery instanceof ContinuousClientQuery)) {
+						continue;
+					}
+					
+					final ContinuousClientQuery continuousQuery = (ContinuousClientQuery) clientQuery;
+					final ContinuousQueryPlan queryPlan = continuousQuery.getQueryPlan();
+					
+					final String streamTable = queryPlan.getStreamTable();
+					final TupleStoreName tupleStoreName = new TupleStoreName(streamTable);
+					if(tupleStoreName.getDistributionGroup().equals(region.getDistributionGroupName())) {
+						queryMap.put(queryPlan.getQueryUUID(), continuousQuery.getContinuousQueryState());
+						knownTables.add(queryPlan.getStreamTable());
+					}
+				}
+			}
+			
+			final Set<BBoxDBInstance> systemsToRequst = getSystemsToConnectForStateSync(region);
+			performStateSync(knownTables, queryMap, systemsToRequst);
+		} catch (InterruptedException e) {
+			logger.debug("Got interrupted exception", e);
+			Thread.currentThread().interrupt();
+		}
+		
+	}
+
+
+	/**
+	 * Perform the state sync of the continous queries
+	 * @param knownTables
+	 * @param queryMap
+	 * @param systemsToRequst
+	 * @throws InterruptedException
+	 */
+	private void performStateSync(final Set<String> knownTables,
+			final Map<String, ContinuousQueryExecutionState> queryMap, final Set<BBoxDBInstance> systemsToRequst)
+			throws InterruptedException {
+		
+		for(final String table : knownTables) {
+			for(final BBoxDBInstance instance : systemsToRequst) {
+				final BBoxDBConnection connection = MembershipConnectionService.getInstance().getConnectionForInstance(instance);
+				final BBoxDBClient client = connection.getBboxDBClient();
+				final TupleStoreName tupleStore = new TupleStoreName(table);
+				final ContinuousQueryServerStateFuture resultFuture = client.getContinuousQueryState(tupleStore);
+				
+				resultFuture.waitForCompletion();
+				
+				if(resultFuture.isFailed()) {
+					logger.error("The result future is failed", resultFuture.getAllMessages());
+					continue;
+				}
+				
+				final ContinuousQueryServerState resultState = resultFuture.get(0);
+				
+				final Map<String, Set<String>> rangeQueryState = resultState.getGlobalActiveRangeQueryElements();
+				final Map<String, Map<String, Set<String>>> joinQueryState = resultState.getGlobalActiveJoinElements();
+				
+				for(final String queryUUID : resultState.getAllQueryIDs()) {
+					final ContinuousQueryExecutionState localState = queryMap.get(queryUUID);
+					final Set<String> rangeQueryStateForUUID = rangeQueryState.get(queryUUID);
+					final Map<String, Set<String>> joinQueryStateForUUID = joinQueryState.get(queryUUID);
+					
+					localState.merge(rangeQueryStateForUUID, joinQueryStateForUUID);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Determine which systems needs to be connected for the state sync
+	 * of the continuous queries
+	 * @param region
+	 * @return
+	 */
+	private Set<BBoxDBInstance> getSystemsToConnectForStateSync(final DistributionRegion region) {
+		final Set<BBoxDBInstance> systemsToRequst = new HashSet<>();
+		
+		if(region.isLeafRegion()) {
+			// Split
+			systemsToRequst.add(region.getParent().getSystems().get(0));
+		} else {
+			// Merge
+			region.getAllChildren().forEach(r -> systemsToRequst.add(r.getSystems().get(0)));
+		}
+		return systemsToRequst;
 	}
 	
 	@Override

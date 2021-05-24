@@ -120,4 +120,13 @@ public class ContinuousQueryExecutionState {
 	public Set<String> getContainedTupleKeys() {
 		return containedTupleKeys;
 	}
+
+	/**
+	 * Merge the given state into the local one
+	 * @param resultState
+	 */
+	public void merge(final Set<String> rangeQueryState, final Map<String, Set<String>> joinQueryState) {
+		containedTupleKeys.addAll(rangeQueryState);
+		containedJoinedKeys.putAll(joinQueryState);
+	}
 }

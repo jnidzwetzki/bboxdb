@@ -76,6 +76,18 @@ public class ContinuousQueryServerState {
 		return globalActiveRangeQueryElements;
 	}
 
+	/**
+	 * Get the UUIDs of all queries
+	 * @return 
+	 */
+	public Set<String> getAllQueryIDs() {
+		final Set<String> uuids = new HashSet<>();
+		uuids.addAll(globalActiveRangeQueryElements.keySet());
+		uuids.addAll(globalActiveJoinElements.keySet());
+		
+		return uuids;
+	}
+	
 	@Override
 	public String toString() {
 		return "ContinuousQueryServerState [globalActiveRangeQueryElements=" + globalActiveRangeQueryElements

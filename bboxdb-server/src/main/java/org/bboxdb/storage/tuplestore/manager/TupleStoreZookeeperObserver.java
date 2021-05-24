@@ -246,11 +246,7 @@ public class TupleStoreZookeeperObserver {
 			} else if(eventEntity.getState() == DistributionRegionState.SPLIT) {
 				logger.info("The region {} has split, deleted local data", callbackEntity);
 				registry.deleteDataOfDistributionRegion(groupName, eventEntity.getRegionId());
-			} else if(eventEntity.getState() == DistributionRegionState.CREATING) {
-				
-			} else if(eventEntity.getState() == DistributionRegionState.MERGING) {
-				
-			}
+			} 
 			
 			storeAdapter.getAllTables(groupName, w -> handleTableDelete(w));
 

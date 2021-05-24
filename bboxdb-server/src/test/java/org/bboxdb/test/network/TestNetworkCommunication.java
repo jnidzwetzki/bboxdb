@@ -1319,6 +1319,7 @@ public class TestNetworkCommunication {
 		Assert.assertNotNull(resultState);
 		Assert.assertTrue(resultState.getGlobalActiveRangeQueryElements().isEmpty());
 		Assert.assertTrue(resultState.getGlobalActiveJoinElements().isEmpty());
+		Assert.assertTrue(resultState.getAllQueryIDs().isEmpty());
 	}
 
 	/**
