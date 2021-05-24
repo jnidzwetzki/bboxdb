@@ -20,5 +20,6 @@ package org.bboxdb.distribution.region;
 public enum DistributionRegionEvent {
 	ADDED,
 	CHANGED,
-	REMOVED;
+	REMOVED,
+	LOCAL_MAPPING_ADDED;	
 }

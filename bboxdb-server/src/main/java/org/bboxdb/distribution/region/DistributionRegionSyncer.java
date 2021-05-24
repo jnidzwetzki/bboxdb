@@ -401,9 +401,11 @@ public class DistributionRegionSyncer implements Watcher {
 			}
 
 			if(DistributionRegionHelper.STATES_WRITE.contains(region.getState())) {
+				
 				// Add the mapping to the nameprefix mapper
 				if(! allExistingMappings.contains(regionId)) {
 					distributionRegionMapper.addMapping(regionId, region.getConveringBox());
+					GlobalDistributionRegionEventBus.getInstance().runCallback(region, DistributionRegionEvent.LOCAL_MAPPING_ADDED);
 				}
 
 				allExistingMappings.remove(regionId);
