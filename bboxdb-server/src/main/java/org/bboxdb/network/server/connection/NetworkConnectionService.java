@@ -272,7 +272,9 @@ public class NetworkConnectionService implements BBoxDBService {
 		
 		if(region.isLeafRegion()) {
 			// Split
-			systemsToRequst.add(region.getParent().getSystems().get(0));
+			if(region.getParent() != null) {
+				systemsToRequst.add(region.getParent().getSystems().get(0));
+			}
 		} else {
 			// Merge
 			region.getAllChildren().forEach(r -> systemsToRequst.add(r.getSystems().get(0)));
