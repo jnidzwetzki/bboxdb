@@ -128,6 +128,7 @@ public class SplitFile implements Runnable {
 		if(linesInBatch.get() >= linesPerBatch) {
 			final int curBatchValue = currentBatch.incrementAndGet();
 			currentBatch.set(curBatchValue % numberOfFiles);
+			linesInBatch.set(0);
 		}
 	}
 
