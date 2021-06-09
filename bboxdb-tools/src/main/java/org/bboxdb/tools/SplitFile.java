@@ -79,7 +79,7 @@ public class SplitFile implements Runnable {
 	private void openFiles() {
 		for(int fileNo = 0; fileNo < numberOfFiles; fileNo++) {
 			
-			final File file = new File(outputDir + File.pathSeparator + Integer.toString(fileNo));
+			final File file = new File(outputDir + File.separator + Integer.toString(fileNo));
 			
 			try {
 				final BufferedWriter writer = new BufferedWriter(new FileWriter(file));
@@ -138,7 +138,7 @@ public class SplitFile implements Runnable {
 	public static void main(final String[] args) {
 		
 		if(args.length != 4) {
-			System.err.println("Usage: <Program> <Filename> <OutputDir> <Lines per Batch> <Files>");
+			System.err.println("Usage: <Programm> <Filename> <OutputDir> <Lines per Batch> <Files>");
 			System.exit(-1);
 		}
 		
@@ -159,6 +159,8 @@ public class SplitFile implements Runnable {
 			System.err.println("Output dir already exists, please remove: " + outputdirFile);
 			System.exit(-2);
 		}
+		
+		outputdirFile.mkdirs();
 		
 		final int linesPerBatch = MathUtil.tryParseIntOrExit(linesPerBatchString, () -> "Unable to parse as int: " + linesPerBatchString);
 		final int numberOfFiles = MathUtil.tryParseIntOrExit(numberOfFilesString, () -> "Unable to parse as int: " + numberOfFilesString);
