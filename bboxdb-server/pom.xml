@@ -62,7 +62,7 @@
 		<dependency>
 		    <groupId>org.eclipse.jetty</groupId>
 		    <artifactId>jetty-servlet</artifactId>
-		    <version>9.4.41.v20210516</version>
+		    <version>9.4.42.v20210604</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.xerial.snappy</groupId>
