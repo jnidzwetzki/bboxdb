@@ -119,7 +119,7 @@ $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_trains
 Afterward, you can start the import of the data stream into BBoxDB. 
 
 ```
-$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.ImportAuTransport "<Your-API-Key>" lightrail:buses:metro:nswtrains:ferries:trains <cluster-contact-point> <your-cluster-name> osmgroup 2
+$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.CaptureAUTransportStream "<Your-API-Key>" lightrail:buses:metro:nswtrains:ferries:trains <cluster-contact-point> <your-cluster-name> osmgroup 2
 ```
 
 __Note__: The `2` at the end of the command means that the data source is pulled every 2 seconds, and the data is imported into BBoxDB.

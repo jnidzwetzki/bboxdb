@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
-public class ImportStoredData implements Runnable {
+public class CaptureStoredData implements Runnable {
 	
 	/**
 	 * The file to read
@@ -54,9 +54,9 @@ public class ImportStoredData implements Runnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ImportStoredData.class);
+	private final static Logger logger = LoggerFactory.getLogger(CaptureStoredData.class);
 	
-	public ImportStoredData(final File file, final Socket socket, final int linesPerSecond) {
+	public CaptureStoredData(final File file, final Socket socket, final int linesPerSecond) {
 		this.file = file;
 		this.socket = socket;
 		this.linesPerSecond = linesPerSecond;
@@ -158,7 +158,7 @@ public class ImportStoredData implements Runnable {
 		
 		final Socket socket = new Socket(networkSocketString[0], port);
 		
-		final ImportStoredData analyzeAuData = new ImportStoredData(file, socket, linesPerSecond);
+		final CaptureStoredData analyzeAuData = new CaptureStoredData(file, socket, linesPerSecond);
 		analyzeAuData.run();
 	}
 }

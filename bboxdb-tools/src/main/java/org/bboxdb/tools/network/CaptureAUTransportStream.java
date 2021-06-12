@@ -36,7 +36,7 @@ import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImportAuTransport implements Runnable {
+public class CaptureAUTransportStream implements Runnable {
 
 	/**
 	 * The amount of pending insert futures
@@ -86,9 +86,9 @@ public class ImportAuTransport implements Runnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ImportAuTransport.class);
+	private final static Logger logger = LoggerFactory.getLogger(CaptureAUTransportStream.class);
 	
-	public ImportAuTransport(final String authKey, final String[] entities, final String connectionPoint, 
+	public CaptureAUTransportStream(final String authKey, final String[] entities, final String connectionPoint, 
 			final String clustername, final String distributionGroup, final int delay) {
 				this.authKey = authKey;
 				this.entities = entities;
@@ -212,7 +212,7 @@ public class ImportAuTransport implements Runnable {
 		final int delay = MathUtil.tryParseIntOrExit(args[5], () -> "Unable to parse delay value: " 
 				+ args[5]);
 				
-		final ImportAuTransport main = new ImportAuTransport(authKey, entities, connectionPoint, 
+		final CaptureAUTransportStream main = new CaptureAUTransportStream(authKey, entities, connectionPoint, 
 				clustername, distributionGroup, delay);
 		main.run();
 	}
