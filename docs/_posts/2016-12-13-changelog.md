@@ -14,6 +14,7 @@ order: 1
 - Improvement: Removed bugs detected by coverity scan
 - Improvement: Introduced default charset for read/write operations
 - Improvement: Improved redraw handling in GUI
+- Improvement: Added error message in GUI when ZooKeeper connection fails
 
 ### Version 0.9.8 - 10.05.2021
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter

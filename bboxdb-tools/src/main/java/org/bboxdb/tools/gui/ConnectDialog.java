@@ -25,6 +25,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -154,7 +155,12 @@ public class ConnectDialog {
 				final boolean connectResult = connection.connect();
 				
 				if(! connectResult) {
-					logger.error("Unable to connect to BBoxDB cluster");
+					final String errorMessage = "Unable to connect to BBoxDB cluster";
+					logger.error(errorMessage);
+					
+				    JOptionPane.showMessageDialog(new JFrame(), errorMessage, "Unable to connect",
+				    		JOptionPane.ERROR_MESSAGE);
+					
 					System.exit(-1);
 				}
 				
