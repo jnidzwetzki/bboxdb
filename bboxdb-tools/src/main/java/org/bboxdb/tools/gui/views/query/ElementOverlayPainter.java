@@ -131,6 +131,17 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 
 		return true;
 	}
+	
+	/**
+	 * Repaint all data
+	 */
+	public void repaintAll() {
+		if(EventQueue.isDispatchThread()) {
+			mapViewer.repaint();
+		} else {
+			SwingUtilities.invokeLater(() -> mapViewer.repaint());
+		}
+	}
 
 	@Override
 	public void paint(final Graphics2D g, final JXMapViewer map, final int width, final int height) {		
@@ -279,12 +290,16 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * Add an element to draw
 	 * @param element
+	 * @param refreshGUI 
 	 */
-	public void addElementToDraw(final OverlayElementGroup element) {
+	public void addElementToDraw(final OverlayElementGroup element, final boolean refreshGUI) {
 		tupleToDraw.add(element);
 		repaintElement(element, true);
 		setDirty();
-		mapViewer.repaint();
+		
+		if(refreshGUI) {
+			mapViewer.repaint();
+		}
 	}
 	
 	/**
@@ -317,11 +332,15 @@ public class ElementOverlayPainter implements Painter<JXMapViewer> {
 	/**
 	 * Remove an element to draw
 	 * @param element
+	 * @param refreshGUI 
 	 */
-	public void removeElementToDraw(final OverlayElementGroup element) {
+	public void removeElementToDraw(final OverlayElementGroup element, final boolean refreshGUI) {
 		tupleToDraw.remove(element);
 		setDirty();
-		repaintElement(element, false);
+		
+		if(refreshGUI) {
+			repaintElement(element, false);
+		}
 	}
 
 	/**

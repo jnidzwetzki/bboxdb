@@ -13,6 +13,7 @@ order: 1
 - Improvement: Improved memory consumption of continuous queries
 - Improvement: Removed bugs detected by coverity scan
 - Improvement: Introduced default charset for read/write operations
+- Improvement: Improved redraw handling in GUI
 
 ### Version 0.9.8 - 10.05.2021
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter

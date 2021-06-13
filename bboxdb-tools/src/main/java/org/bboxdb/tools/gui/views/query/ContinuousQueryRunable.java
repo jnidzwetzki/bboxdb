@@ -19,8 +19,11 @@ package org.bboxdb.tools.gui.views.query;
 
 import java.awt.Color;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.TransferQueue;
 
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -54,6 +57,11 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 	private final Set<Long> seenWatermarks;
 	
 	/**
+	 * The waiting queue if watermarks are active
+	 */
+	private final TransferQueue<MultiTuple> watermarkQueue;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryRunable.class);
@@ -64,6 +72,7 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 		super(qp, connection, painter);
 		this.colors = colors;
 		this.seenWatermarks = new HashSet<>();
+		this.watermarkQueue = new LinkedTransferQueue<>();
 	}
 	
 	@Override
@@ -93,15 +102,25 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 			
 			if(firstTuple instanceof WatermarkTuple) {
 				handleWatermark(firstTuple);
-			} else if (firstTuple instanceof InvalidationTuple) {
-				removeTupleFromView(joinedTuple);
 			} else {
-				updateTupleOnGui(joinedTuple, colors);
-				
 				// Update stale tuples only if we don't receive watermarks
 				// otherwise, the stale tuples are removed when all watermarks are present
 				if(! qp.isReceiveWatermarks()) {
-					removeStaleTupleIfNeeded();
+					
+					if (firstTuple instanceof InvalidationTuple) {
+						removeTupleFromView(joinedTuple);
+					} else {
+						updateTupleOnGui(joinedTuple, colors, true);
+						removeStaleTupleIfNeeded();
+					}
+					
+				} else {
+					// When watermarks active, queue elements
+					final boolean queueResult = watermarkQueue.offer(joinedTuple);
+					
+					if(! queueResult) {
+						logger.warn("Unable to queue tuple {}", joinedTuple);
+					}
 				}
 			}
 		}
@@ -111,20 +130,49 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 	 * Handle the watermark tuple
 	 * @param firstTuple
 	 */
-	private void handleWatermark(final Tuple firstTuple) {
-		final String tupleStoreString = firstTuple.getKey().replace(SSTableConst.WATERMARK_KEY + "_", "");
+	private void handleWatermark(final Tuple tuple) {
+		
+		logger.info("Handle watermark {}", tuple);
+		
+		final String tupleStoreString = tuple.getKey().replace(SSTableConst.WATERMARK_KEY + "_", "");
 		final TupleStoreName tupleStore = new TupleStoreName(tupleStoreString);
 		final long regionId = tupleStore.getRegionId().getAsLong();
 		seenWatermarks.add(regionId);
 		
-		final ContinuousQueryState queryState = connection.getContinousQueryState(qp.getQueryUUID());
+		final String queryUUID = qp.getQueryUUID();
+		final ContinuousQueryState queryState = connection.getContinousQueryState(queryUUID);
 		
 		// All watermarks are present
 		if(seenWatermarks.size() == queryState.getRegisteredRegions().size()) {
-			logger.debug("Watermark complete: {}", seenWatermarks);
-			seenWatermarks.clear();
-			removeStaleTupleIfNeeded();
+			handleWatermarkDone();
 		}
+	}
+
+	/**
+	 * Handle the completion of the watermark
+	 */
+	private void handleWatermarkDone() {
+		logger.debug("Watermark complete: {}", seenWatermarks);
+		
+		// Paint pending elements
+		final List<MultiTuple> queue = new LinkedList<>();
+		watermarkQueue.drainTo(queue);
+		logger.info("Processing {} waiting elements", queue.size());
+		
+		for(final MultiTuple multiTuple : queue) {
+			
+			final Tuple firstTuple = multiTuple.getTuple(0);
+
+			if (firstTuple instanceof InvalidationTuple) {
+				removeTupleFromView(multiTuple);
+			} else {
+				updateTupleOnGui(multiTuple, colors, false);
+			}
+		}
+		
+		seenWatermarks.clear();
+		removeStaleTupleIfNeeded();
+		painter.repaintAll();
 	}
 
 	@Override

@@ -142,7 +142,7 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 				
 				if(oldElement != null) {
 					logger.info("Removed one stale element");
-					painter.removeElementToDraw(oldElement);
+					painter.removeElementToDraw(oldElement, true);
 				}
 			}
 		}
@@ -166,7 +166,7 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 		updateDates.remove(key);
 		
 		if(oldElement != null) {
-			painter.removeElementToDraw(oldElement);
+			painter.removeElementToDraw(oldElement, true);
 		}
 	}
 
@@ -176,8 +176,10 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 	 * @param updateDates 
 	 * @param tupleVersions 
 	 * @param joinedTuple
+	 * @param refreshGUI 
 	 */
-	protected void updateTupleOnGui(final MultiTuple joinedTuple, final List<Color> colors) {
+	protected void updateTupleOnGui(final MultiTuple joinedTuple, final List<Color> colors, 
+			final boolean refreshGUI) {
 		
 		final OverlayElementGroup overlayElementGroup = OverlayElementBuilder.createOverlayElementGroup(
 				joinedTuple, colors);
@@ -197,14 +199,14 @@ public abstract class AbstractContinuousQueryRunable extends ExceptionSafeRunnab
 				}
 			}
 			
-			painter.removeElementToDraw(oldElement);
+			painter.removeElementToDraw(oldElement, refreshGUI);
 		} 
 		
 		paintedElements.put(key, overlayElementGroup);
 		tupleVersions.put(key, joinedTuple.getVersionTimestamp());
 		updateDates.put(key, System.currentTimeMillis());
 	
-		painter.addElementToDraw(overlayElementGroup);
+		painter.addElementToDraw(overlayElementGroup, refreshGUI);
 	}
 
 }
