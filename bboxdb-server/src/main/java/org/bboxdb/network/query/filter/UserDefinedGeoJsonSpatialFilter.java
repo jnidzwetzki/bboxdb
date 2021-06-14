@@ -110,6 +110,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 			
 			if(customParts.length != 2) {
 				logger.error("Unable to split {} into two parts", customDataString);
+				return false;
 			}
 			
 			final String key = customParts[0];

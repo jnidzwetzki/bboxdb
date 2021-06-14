@@ -79,7 +79,8 @@ public class QueryWindow {
 	private static final String QUERY_PREDEFINED_BUS_FOREST_RELAXTED = "Buses joined with Forest (relaxed)";
 	private static final String QUERY_PREDEFINED_BUS_FOREST_STRICT = "Buses joined with Forest (strict)";
 	private static final String QUERY_PREDEFINED_STATIC_ROAD_VALUE = "Road with value";
-	
+	private static final String QUERY_PREDEFINED_STATIC_ROAD_FOREST_JOIN = "Road joined with Forest";
+
 	
 	/**
 	 * The main frame
@@ -146,7 +147,7 @@ public class QueryWindow {
 			QUERY_PREDEFINED_AIRCRAFT, QUERY_PREDEFINED_BUS, QUERY_PREDEFINED_BUS_ROAD, 
 			QUERY_PREDEFINED_BUS_ELIZABETH, QUERY_PREDEFINED_BUS_BRIDGE, QUERY_PREDEFINED_BUS_FOREST_BBOX,
 			QUERY_PREDEFINED_BUS_FOREST_RELAXTED, QUERY_PREDEFINED_BUS_FOREST_STRICT,
-			QUERY_PREDEFINED_STATIC_ROAD_VALUE};
+			QUERY_PREDEFINED_STATIC_ROAD_VALUE, QUERY_PREDEFINED_STATIC_ROAD_FOREST_JOIN};
 	
 	/**
 	 * The created background threads
@@ -344,6 +345,22 @@ public class QueryWindow {
 				table1ColorField.setEnabled(true);
 				table2Field.setEnabled(false);
 				table2ColorField.setEnabled(false);
+				receiveWatermarksField.setEnabled(false);
+				receiveInvalidationsField.setEnabled(false);
+				break;
+			case QUERY_PREDEFINED_STATIC_ROAD_FOREST_JOIN:
+				udfNameField.setText(UserDefinedGeoJsonSpatialFilter.class.getCanonicalName());
+				udfValueField.setText("");
+				table1Field.setSelectedItem("osmgroup_roads");
+				table2Field.setSelectedItem("osmgroup_forests");
+				table1ColorField.setSelectedItem("Blue");
+				table2ColorField.setSelectedItem("Green");
+				queryTypeBox.setSelectedItem(QUERY_JOIN);
+				executeButton.setEnabled(true);
+				table1Field.setEnabled(true);
+				table1ColorField.setEnabled(true);
+				table2Field.setEnabled(true);
+				table2ColorField.setEnabled(true);
 				receiveWatermarksField.setEnabled(false);
 				receiveInvalidationsField.setEnabled(false);
 				break;
@@ -648,10 +665,16 @@ public class QueryWindow {
 					final String customFilter, final String customValue) {
 				
 				try {
-					final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilter, customFilter);
-
+					
+					final List<UserDefinedFilterDefinition> udfs = new ArrayList<>();
+					
+					if(customFilter.length() > 1) {
+						final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilter, customValue);
+						udfs.add(udf);
+					}
+					
 					final JoinedTupleListFuture result = guimodel.getConnection().queryJoin(
-							Arrays.asList(table1, table2), bbox, Arrays.asList(udf));
+							Arrays.asList(table1, table2), bbox, udfs);
 					
 					result.waitForCompletion();
 					if(result.isFailed()) {
@@ -689,11 +712,17 @@ public class QueryWindow {
 			private void executeRangeQuery(final Hyperrectangle bbox, final String table, 
 					final Color color, final String customFilter, final String customValue) {
 				
-				try {					
-					final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilter, customFilter);
+				try {
+					
+					final List<UserDefinedFilterDefinition> udfs = new ArrayList<>();
+					
+					if(customFilter.length() > 1) {
+						final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilter, customValue);
+						udfs.add(udf);
+					}
 					
 					final TupleListFuture result = guimodel.getConnection().queryRectangle(
-							table, bbox, Arrays.asList(udf));
+							table, bbox, udfs);
 					
 					result.waitForCompletion();
 					
