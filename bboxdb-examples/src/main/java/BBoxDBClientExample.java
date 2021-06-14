@@ -15,6 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -141,7 +142,7 @@ public class BBoxDBClientExample {
 
 		// Query by bounding box
 		final TupleListFuture resultFuture2 = bboxdbClient.queryRectangle(
-				mytable, new Hyperrectangle(-0.5d, 1d, -0.5d, 1d), "", "".getBytes());
+				mytable, new Hyperrectangle(-0.5d, 1d, -0.5d, 1d), new ArrayList<>());
 		
 		// Again, we got a future object, the search is performed asynchronous
 		resultFuture2.waitForCompletion();

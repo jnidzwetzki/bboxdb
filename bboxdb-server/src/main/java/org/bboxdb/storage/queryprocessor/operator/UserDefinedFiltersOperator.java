@@ -19,14 +19,15 @@ package org.bboxdb.storage.queryprocessor.operator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
-import org.bboxdb.network.query.filter.UserDefinedFilter;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateJoinedTupleFilterIterator;
-import org.bboxdb.storage.queryprocessor.predicate.UserDefinedFilterPredicate;
+import org.bboxdb.storage.queryprocessor.predicate.UserDefinedFiltersPredicate;
 
-public class UserDefinedFilterOperator implements Operator {
+public class UserDefinedFiltersOperator implements Operator {
 
 	/**
 	 * The operator
@@ -36,24 +37,16 @@ public class UserDefinedFilterOperator implements Operator {
 	/**
 	 * The user defined filter operator
 	 */
-	private final UserDefinedFilter filterOperator;
+	private final List<UserDefinedFilterDefinition> udfs;
 
-	/**
-	 * The user defined filter data
-	 */
-	private byte[] userDefinedFilterData;
-
-	public UserDefinedFilterOperator(final UserDefinedFilter filterOperator,
-			final byte[] userDefinedFilterData, final Operator parentOperator) {
-
-		this.filterOperator = filterOperator;
-		this.userDefinedFilterData = userDefinedFilterData;
+	public UserDefinedFiltersOperator(final List<UserDefinedFilterDefinition> udfs, final Operator parentOperator) {
+		this.udfs = udfs;
 		this.parentOperator = parentOperator;
 	}
 
 	@Override
 	public Iterator<MultiTuple> iterator() {
-		final Predicate predicate = new UserDefinedFilterPredicate(filterOperator, userDefinedFilterData);
+		final Predicate predicate = new UserDefinedFiltersPredicate(udfs);
 		return new PredicateJoinedTupleFilterIterator(parentOperator.iterator(), predicate);
 	}
 

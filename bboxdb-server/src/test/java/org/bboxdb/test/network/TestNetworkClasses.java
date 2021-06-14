@@ -70,6 +70,7 @@ import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.packages.response.TupleLockedResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.query.ContinuousRangeQueryPlan;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -522,22 +523,24 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * Test decode bounding box query
+	 * Test decode bounding box query - with UDFs
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeBoundingBoxQuery() throws IOException, PackageEncodeException {
+	public void testDecodeBoundingBoxQuery1() throws IOException, PackageEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final String customFilterName = "org.bboxdb.myfilter";
-		final byte[] customFilterValue = "myvalue1".getBytes();
+		final String customFilterValue = "myvalue1";
+		final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterName, customFilterValue);
+		final List<UserDefinedFilterDefinition> udfs = Arrays.asList(udf);
 		
 		final QueryHyperrectangleRequest queryRequest = new QueryHyperrectangleRequest(
 				sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, 
-				customFilterName, customFilterValue, false, (short) 10);
+				udfs, false, (short) 10);
 		
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
@@ -552,9 +555,43 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
-		Assert.assertEquals(customFilterName, decodedPackage.getUserDefinedFilterName());
-		Assert.assertArrayEquals(customFilterValue, decodedPackage.getUserDefinedFilterValue());	
 		
+		Assert.assertEquals(1, decodedPackage.getUdfs().size());
+		Assert.assertEquals(udf, decodedPackage.getUdfs().get(0));
+		
+		Assert.assertTrue(queryRequest.toString().length() > 10);
+	}
+	
+	/**
+	 * Test decode bounding box query - without UDFs
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void testDecodeBoundingBoxQuery2() throws IOException, PackageEncodeException {
+		final String table = "table1";
+		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		final QueryHyperrectangleRequest queryRequest = new QueryHyperrectangleRequest(
+				sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, 
+				new ArrayList<>(), false, (short) 10);
+		
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryHyperrectangleRequest decodedPackage = QueryHyperrectangleRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
+		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+		
+		Assert.assertTrue(decodedPackage.getUdfs().isEmpty());
 		Assert.assertTrue(queryRequest.toString().length() > 10);
 	}
 	
@@ -679,12 +716,12 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * Test decode bounding box query
+	 * Test decode bounding box query - with UDFs
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeJoinQuery() throws IOException, PackageEncodeException {
+	public void testDecodeJoinQuery0() throws IOException, PackageEncodeException {
 		final List<TupleStoreName> tables = Arrays.asList(new TupleStoreName("3dgroup_table1"),
 				new TupleStoreName("3dgroup_table2"), new TupleStoreName("3dgroup_table3"));
 		
@@ -692,10 +729,13 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final String customFilterName = "org.bboxdb.myfilter";
-		final byte[] customFilterValue = "myvalue1".getBytes();
+		final String customFilterValue = "myvalue1";
+		final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterName, customFilterValue);
+		final List<UserDefinedFilterDefinition> udfs = Arrays.asList(udf);
+	
 
 		final QueryJoinRequest queryRequest = new QueryJoinRequest(sequenceNumber, ROUTING_HEADER_ROUTED, 
-				tables, boundingBox, customFilterName, customFilterValue, false, (short) 10);
+				tables, boundingBox, udfs, false, (short) 10);
 		
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
@@ -710,11 +750,47 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_JOIN, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
-		Assert.assertEquals(customFilterName, decodedPackage.getUserDefinedFilterName());
-		Assert.assertArrayEquals(customFilterValue, decodedPackage.getUserDefinedFilterValue());	
+		
+		Assert.assertEquals(1, decodedPackage.getUdfs().size());
+		Assert.assertEquals(udf, decodedPackage.getUdfs().get(0));
 		
 		Assert.assertTrue(queryRequest.toString().length() > 10);
 	}
+	
+	/**
+	 * Test decode bounding box query - without UDFs
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test(timeout=60000)
+	public void testDecodeJoinQuery1() throws IOException, PackageEncodeException {
+		final List<TupleStoreName> tables = Arrays.asList(new TupleStoreName("3dgroup_table1"),
+				new TupleStoreName("3dgroup_table2"), new TupleStoreName("3dgroup_table3"));
+		
+		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+	
+		final QueryJoinRequest queryRequest = new QueryJoinRequest(sequenceNumber, ROUTING_HEADER_ROUTED, 
+				tables, boundingBox, new ArrayList<>(), false, (short) 10);
+		
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryJoinRequest decodedPackage = QueryJoinRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
+		Assert.assertEquals(tables, decodedPackage.getTables());
+		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_JOIN, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+		
+		Assert.assertTrue(decodedPackage.getUdfs().isEmpty());
+		Assert.assertTrue(queryRequest.toString().length() > 10);
+	}
+	
 	
 	/**
 	 * The the encoding and decoding of disconnect package

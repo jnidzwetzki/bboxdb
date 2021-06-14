@@ -28,6 +28,7 @@ import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
@@ -150,12 +151,11 @@ public interface BBoxDB extends Closeable {
 	 * Execute a hyperrectangle query on the given table
 	 * @param table - The table to query
 	 * @param boundingBox - The bounding box to query
-	 * @param filtername - The custom filter to apply
-	 * @param customValue - The custom value for the filter 
+	 * @param udfs - The UDFs
 	 * @return
 	 */
 	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox, 
-			final String filterName, final byte[] customValue) throws BBoxDBException;
+			final List<UserDefinedFilterDefinition> udfs) throws BBoxDBException;
 
 	/**
 	 * Execute a continuous query with the given query plan
@@ -194,10 +194,11 @@ public interface BBoxDB extends Closeable {
 	 * Execute a join
 	 * @param tableNames
 	 * @param boundingBox
+	 * @param udfs - The UDFs
 	 * @return
 	 */
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
-			final String filterName, final byte[] customValue) throws BBoxDBException;
+			final List<UserDefinedFilterDefinition> udfs) throws BBoxDBException;
 
 	/**
 	 * Cancel a given query

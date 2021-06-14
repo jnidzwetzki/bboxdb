@@ -648,8 +648,10 @@ public class QueryWindow {
 					final String customFilter, final String customValue) {
 				
 				try {
+					final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilter, customFilter);
+
 					final JoinedTupleListFuture result = guimodel.getConnection().queryJoin(
-							Arrays.asList(table1, table2), bbox, customFilter, customValue.getBytes());
+							Arrays.asList(table1, table2), bbox, Arrays.asList(udf));
 					
 					result.waitForCompletion();
 					if(result.isFailed()) {
@@ -688,8 +690,10 @@ public class QueryWindow {
 					final Color color, final String customFilter, final String customValue) {
 				
 				try {					
+					final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilter, customFilter);
+					
 					final TupleListFuture result = guimodel.getConnection().queryRectangle(
-							table, bbox, customFilter, customValue.getBytes());
+							table, bbox, Arrays.asList(udf));
 					
 					result.waitForCompletion();
 					

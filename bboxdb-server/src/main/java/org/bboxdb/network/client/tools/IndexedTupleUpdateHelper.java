@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.tools;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -196,7 +197,7 @@ public class IndexedTupleUpdateHelper {
 			throws InterruptedException, BBoxDBException {
 
 		final Hyperrectangle boundingBox = getBoundingBoxForKey(key);
-		final TupleListFuture resultFuture = cluster.queryRectangle(indexTableName, boundingBox, "", "".getBytes());
+		final TupleListFuture resultFuture = cluster.queryRectangle(indexTableName, boundingBox, new ArrayList<>());
 		resultFuture.waitForCompletion();
 
 		if(resultFuture.isFailed()) {

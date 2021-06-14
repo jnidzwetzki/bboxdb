@@ -20,6 +20,7 @@ package org.bboxdb.networkproxy.handler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -69,7 +70,7 @@ public abstract class AbstractJoinHandler implements ProxyCommandHandler {
 		try {
 			final BBoxDB client = getConnection(bboxdbClient);
 			final JoinedTupleListFuture tupleResult = client.queryJoin(Arrays.asList(table1, table2), bbox, 
-					"", "".getBytes());
+					new ArrayList<>());
 			tupleResult.waitForCompletion();
 
 			for(final MultiTuple tuple : tupleResult) {

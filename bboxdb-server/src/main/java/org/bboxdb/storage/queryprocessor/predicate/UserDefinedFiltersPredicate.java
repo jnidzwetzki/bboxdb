@@ -17,36 +17,56 @@
  *******************************************************************************/
 package org.bboxdb.storage.queryprocessor.predicate;
 
-import org.bboxdb.network.query.filter.UserDefinedFilter;
-import org.bboxdb.storage.entity.Tuple;
+import java.util.List;
 
-public class UserDefinedFilterPredicate implements Predicate {
+import org.bboxdb.network.query.filter.UserDefinedFilter;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
+import org.bboxdb.storage.entity.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class UserDefinedFiltersPredicate implements Predicate {
 
 	/**
 	 * The user defined filter
 	 */
-	private UserDefinedFilter userDefinedFilter;
-
+	private final List<UserDefinedFilterDefinition> udfs;
+	
 	/**
-	 * The custom filter date
+	 * The Logger
 	 */
-	private byte[] customFilterData;
+	private final static Logger logger = LoggerFactory.getLogger(UserDefinedFiltersPredicate.class);
 
-	public UserDefinedFilterPredicate(final UserDefinedFilter userDefinedFilter,
-			final byte[] customFilterData) {
 
-		this.userDefinedFilter = userDefinedFilter;
-		this.customFilterData = customFilterData;
+	public UserDefinedFiltersPredicate(final List<UserDefinedFilterDefinition> udfs) {
+		this.udfs = udfs;
 	}
 
 	@Override
 	public boolean matches(final Tuple tuple) {
-		return userDefinedFilter.filterTuple(tuple, customFilterData);
+		
+		try {
+			for(final UserDefinedFilterDefinition udf : udfs) {
+				final Class<?> userDefinedFilterClass = Class.forName(udf.getUserDefinedFilterClass());
+				final UserDefinedFilter userDefinedFilter = (UserDefinedFilter) userDefinedFilterClass.newInstance();
+				final boolean matches = userDefinedFilter.filterTuple(tuple, udf.getUserDefinedFilterValue().getBytes());
+			
+				if(! matches) {
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Got exception while performing UDF", e);
+			return false;
+		}
+		
+		
+		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "UserDefinedFilterPredicate [userDefinedFilter=" + userDefinedFilter + "]";
+		return "UserDefinedFilterPredicate [userDefinedFilter=" + udfs + "]";
 	}
 
 }

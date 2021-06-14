@@ -15,6 +15,7 @@ order: 1
 - Improvement: Introduced default charset for read/write operations
 - Improvement: Improved redraw handling in GUI
 - Improvement: Added error message in GUI when ZooKeeper connection fails
+- Improvement: Allow multiple UDF in spatial join queries and range queries
 
 ### Version 0.9.8 - 10.05.2021
 - Improvement: Improved distance calculation in UserDefinedGeoJsonSpatialFilter

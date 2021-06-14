@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.packages.request;
+package org.bboxdb.network.packages.request.helper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

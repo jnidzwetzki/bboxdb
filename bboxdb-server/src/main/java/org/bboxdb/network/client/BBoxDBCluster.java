@@ -57,6 +57,7 @@ import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
 import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.StorageManagerException;
@@ -375,7 +376,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public TupleListFuture queryRectangle(final String table, final Hyperrectangle boundingBox,
-			final String filterName, final byte[] customValue) throws BBoxDBException {
+			final List<UserDefinedFilterDefinition> udfs) throws BBoxDBException {
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for bounding box {} in table {}", boundingBox, table);
@@ -389,7 +390,7 @@ public class BBoxDBCluster implements BBoxDB {
 					final RoutingHeader routingHeader) {
 
 				return connection.getBboxDBClient().getQueryBoundingBoxFuture(table, boundingBox,
-						routingHeader, filterName, customValue);
+						routingHeader, udfs);
 			}
 		};
 
@@ -565,7 +566,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	@Override
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
-			final String filterName, final byte[] customValue) throws BBoxDBException {
+			final List<UserDefinedFilterDefinition> udfs) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryJoin called, but connection list is empty");
@@ -585,7 +586,7 @@ public class BBoxDBCluster implements BBoxDB {
 					final RoutingHeader routingHeader) {
 
 				return connection.getBboxDBClient().getJoinFuture(tableNames, boundingBox, routingHeader, 
-						filterName, customValue);
+						udfs);
 			}
 		};
 

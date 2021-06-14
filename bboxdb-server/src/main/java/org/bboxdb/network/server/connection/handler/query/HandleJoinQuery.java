@@ -25,6 +25,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.bboxdb.network.server.query.QueryHelper;
@@ -63,8 +64,7 @@ public class HandleJoinQuery implements QueryHandler {
 			final QueryJoinRequest queryRequest = QueryJoinRequest.decodeTuple(encodedPackage);
 			final List<TupleStoreName> requestTables = queryRequest.getTables();
 			final Hyperrectangle boundingBox = queryRequest.getBoundingBox();
-			final String userDefinedFilterName = queryRequest.getUserDefinedFilterName();
-			final byte[] userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
+			final List<UserDefinedFilterDefinition> udfs = queryRequest.getUdfs();
 			
 			for(final TupleStoreName requestTable : requestTables) {
 				if(! QueryHelper.handleNonExstingTable(requestTable, packageSequence, clientConnectionHandler)) {
@@ -81,15 +81,14 @@ public class HandleJoinQuery implements QueryHandler {
 						throw new IllegalArgumentException("This operator tree needs more than one storage manager");
 					}
 					
-					if(! userDefinedFilterName.equals("") && storageManager.size() != 2) {
+					if(! udfs.isEmpty() && storageManager.size() != 2) {
 						throw new IllegalArgumentException("Unable to use user defined filter on muti-join");
 					}
 					
 					if(storageManager.size() == 2) {
 						final Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
 						final SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1), boundingBox);
-						return new IndexedSpatialJoinOperator(operator1, indexReader, 
-								userDefinedFilterName, userDefinedFilterValue);			
+						return new IndexedSpatialJoinOperator(operator1, indexReader, udfs);			
 					}
 					
 					Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);

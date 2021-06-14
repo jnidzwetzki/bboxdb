@@ -62,6 +62,7 @@ import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.network.query.ContinuousQueryPlan;
 import org.bboxdb.network.query.QueryPlanBuilder;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.MultiTuple;
@@ -418,8 +419,10 @@ public class CLI implements Runnable, AutoCloseable {
 			final String customFilterValue = CLIHelper.getParameterOrDefault(line, 
 					CLIParameter.CUSTOM_FILTER_VALUE, "");
 			
+			final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterClass, customFilterValue);
+			
 			final TupleListFuture resultFuture = bboxDbConnection.queryRectangle(table, boundingBox, 
-					customFilterClass, customFilterValue.getBytes());
+					Arrays.asList(udf));
 			
 			executeQueryFuture(resultFuture);
 		} catch (BBoxDBException e) {
@@ -595,8 +598,10 @@ public class CLI implements Runnable, AutoCloseable {
 		final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
 		final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
 								
+		final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterClass, customFilterValue);
+
 		final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
-				customFilterClass, customFilterValue.getBytes());
+				Arrays.asList(udf));
 
 		if(resultFuture == null) {
 			System.err.println("Unable to get query");

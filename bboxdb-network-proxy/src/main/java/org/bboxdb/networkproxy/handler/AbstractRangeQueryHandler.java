@@ -20,6 +20,7 @@ package org.bboxdb.networkproxy.handler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.BBoxDB;
@@ -49,7 +50,7 @@ public abstract class AbstractRangeQueryHandler implements ProxyCommandHandler {
 
 		try {
 			final BBoxDB connection = getConnection(bboxdbClient);
-			final TupleListFuture tupleResult = connection.queryRectangle(table, bbox, "", "".getBytes());
+			final TupleListFuture tupleResult = connection.queryRectangle(table, bbox, new ArrayList<>());
 			ProxyHelper.writeTupleResult(socketOutputStream, tupleResult);
 		} catch(InterruptedException e) {
 			logger.debug("Got interrupted exception while handling bboxdb call");

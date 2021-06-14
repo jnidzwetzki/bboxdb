@@ -17,10 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.storage.queryprocessor.operator.join;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.bboxdb.commons.CloseableHelper;
-import org.bboxdb.network.query.filter.UserDefinedFilter;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
@@ -38,29 +40,22 @@ public class IndexedSpatialJoinOperator implements Operator {
 	private final SpatialIndexReadOperator indexReader;
 
 	/**
-	 * The user defined filter clapss
+	 * The user defined filter classes
 	 */
-	private final String userDefinedFilterClass;
-
-	/**
-	 * The user defined filter value
-	 */
-	private final byte[] userDefinedFilterValue;
+	private final List<UserDefinedFilterDefinition> udfs;
 	
 	public IndexedSpatialJoinOperator(final Operator tupleStreamOperator, 
 			final SpatialIndexReadOperator indexReader) {
 		
-		this(tupleStreamOperator, indexReader, "", "".getBytes());
+		this(tupleStreamOperator, indexReader, new ArrayList<>());
 	}
 
 	public IndexedSpatialJoinOperator(final Operator tupleStreamOperator, 
-			final SpatialIndexReadOperator indexReader, final String userDefinedFilterClass,
-			final byte[] userDefinedFilterValue) {
+			final SpatialIndexReadOperator indexReader, final List<UserDefinedFilterDefinition> udfs) {
 
 		this.tupleStreamOperator = tupleStreamOperator;
 		this.indexReader = indexReader;
-		this.userDefinedFilterClass = userDefinedFilterClass;
-		this.userDefinedFilterValue = userDefinedFilterValue;
+		this.udfs = udfs;
 	}
 
 	/**
@@ -78,16 +73,12 @@ public class IndexedSpatialJoinOperator implements Operator {
 	public Iterator<MultiTuple> iterator() {
 		final Iterator<MultiTuple> iterator = tupleStreamOperator.iterator();
 
-		if(userDefinedFilterClass.equals("")) {
+		if(udfs.isEmpty()) {
 			return new SpatialIterator(iterator, indexReader);
 		}
 		
 		try {
-			final Class<?> filterClass = Class.forName(userDefinedFilterClass);
-			final UserDefinedFilter userDefinedFilter = (UserDefinedFilter) filterClass.newInstance();
-			
-			return new FilterSpatialOperator(iterator, indexReader, 
-					userDefinedFilter, userDefinedFilterValue);
+			return new FilterSpatialOperator(iterator, indexReader, udfs);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Unable to load user defined filter", e);
 		} 

@@ -31,6 +31,8 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packages.request.helper.RequestEncoderHelper;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreName;
 
@@ -57,18 +59,14 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	private final short tuplesPerPage;
 	
 	/**
-	 * The custom filter name
+	 * The UDFs
 	 */
-	private String userDefinedFilterName;
-
-	/**
-	 * The custom filter value
-	 */
-	private byte[] userDefinedFilterValue;
+	final List<UserDefinedFilterDefinition> udfs;
 
 	public QueryJoinRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final List<TupleStoreName> tables, final Hyperrectangle box, final String userDefinedFilterName, 
-			final byte[] userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
+			final List<TupleStoreName> tables, final Hyperrectangle box, 
+			final List<UserDefinedFilterDefinition> udfs, final boolean pagingEnabled, 
+			final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -76,8 +74,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
 		this.tuplesPerPage = tuplesPerPage;
-		this.userDefinedFilterName = userDefinedFilterName;
-		this.userDefinedFilterValue = userDefinedFilterValue;
+		this.udfs = udfs;
 	}
 
 	@Override
@@ -86,7 +83,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		try {			
 			final byte[] bboxBytes = box.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(20);
+			final ByteBuffer bb = ByteBuffer.allocate(12);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
@@ -102,11 +99,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			bb.putInt(tables.size());
 			bb.putInt(bboxBytes.length);
 			
-			final byte[] customFilterBytes = userDefinedFilterName.getBytes();
-			final byte[] customValueBytes = userDefinedFilterValue;
-			
-			bb.putInt((int) customFilterBytes.length);
-			bb.putInt((int) customValueBytes.length);
+			final byte[] udfsBytes = RequestEncoderHelper.encodeUDFs(udfs);
 			
 			final ByteArrayOutputStream bStream = new ByteArrayOutputStream();
 			
@@ -119,14 +112,13 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			final byte[] tablesArray = bStream.toByteArray();
 
 			final long bodyLength = bb.capacity() + tablesArray.length + bboxBytes.length 
-					+ customFilterBytes.length + customValueBytes.length;
+					+ udfsBytes.length;
 			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(bboxBytes);
-			outputStream.write(customFilterBytes);
-			outputStream.write(customValueBytes);
+			outputStream.write(udfsBytes);
 			outputStream.write(tablesArray);
 			
 			return headerLength + bodyLength;
@@ -166,20 +158,13 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	    final short tuplesPerPage = encodedPackage.getShort();	    
 		final int numberOfTables = encodedPackage.getInt();
 	    final int bboxLength = encodedPackage.getInt();
-	    final int customFilterLength = encodedPackage.getInt();
-	    final int customValueLength = encodedPackage.getInt();
-	    
+	   
 		final byte[] bboxBytes = new byte[bboxLength];
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
 		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
-		
-		final byte[] customFilterNameBytes = new byte[customFilterLength];
-		encodedPackage.get(customFilterNameBytes, 0, customFilterNameBytes.length);
-		final String customFilterName = new String(customFilterNameBytes);
-		
-		final byte[] customFilterValueBytes = new byte[customValueLength];
-		encodedPackage.get(customFilterValueBytes, 0, customFilterValueBytes.length);
-				
+	
+		final List<UserDefinedFilterDefinition> udfs = RequestEncoderHelper.decodeUDFs(encodedPackage);
+	
 		final List<TupleStoreName> tableNames = new ArrayList<>();
 		
 		for(int i = 0; i < numberOfTables; i++) {
@@ -197,7 +182,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
 		return new QueryJoinRequest(sequenceNumber, routingHeader, tableNames, boundingBox, 
-				customFilterName, customFilterValueBytes, pagingEnabled, tuplesPerPage);
+				udfs, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -227,18 +212,14 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
-	public String getUserDefinedFilterName() {
-		return userDefinedFilterName;
-	}
-	
-	public byte[] getUserDefinedFilterValue() {
-		return userDefinedFilterValue;
+	public List<UserDefinedFilterDefinition> getUdfs() {
+		return udfs;
 	}
 
 	@Override
 	public String toString() {
 		return "QueryJoinRequest [tables=" + tables + ", box=" + box + ", pagingEnabled=" + pagingEnabled
-				+ ", tuplesPerPage=" + tuplesPerPage + ", userDefinedFilterName=" + userDefinedFilterName + "]";
+				+ ", tuplesPerPage=" + tuplesPerPage + ", udfs=" + udfs + "]";
 	}
-	
+
 }

@@ -26,7 +26,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.query.filter.UserDefinedFilter;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.bboxdb.network.server.query.QueryHelper;
@@ -35,7 +35,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
 import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
-import org.bboxdb.storage.queryprocessor.operator.UserDefinedFilterOperator;
+import org.bboxdb.storage.queryprocessor.operator.UserDefinedFiltersOperator;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +69,8 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 				return;
 			}
 
-			final String userdefinedFilterName = queryRequest.getUserDefinedFilterName();
-			final byte[] userDefinedFilterValue = queryRequest.getUserDefinedFilterValue();
-
+			final List<UserDefinedFilterDefinition> udfs = queryRequest.getUdfs();
+			
 			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
 
 				@Override
@@ -86,14 +85,9 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 							storageManager.get(0), boundingBox);
 
 					// Add the user defined filter operator
-					if(! userdefinedFilterName.equals("")) {
+					if(! udfs.isEmpty()) {
 						try {
-							final Class<?> customFilterClass = Class.forName(userdefinedFilterName);
-							final UserDefinedFilter userDefinedFilter
-								= (UserDefinedFilter) customFilterClass.newInstance();
-
-							return new UserDefinedFilterOperator(userDefinedFilter,
-									userDefinedFilterValue, indexReadOperator);
+							return new UserDefinedFiltersOperator(udfs, indexReadOperator);
 						} catch (Exception e) {
 							throw new IllegalArgumentException("Unable to load user defined filter", e);
 						}

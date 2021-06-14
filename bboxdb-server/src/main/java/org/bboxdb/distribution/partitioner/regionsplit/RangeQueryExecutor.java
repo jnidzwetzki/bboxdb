@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,6 @@ import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.TupleListFuture;
@@ -257,7 +257,7 @@ public class RangeQueryExecutor {
 		final Hyperrectangle bbox = region.getConveringBox();
 		final String fullname = tupleStoreName.getFullname();
 		final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
-		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox, "", "".getBytes(Const.DEFAULT_CHARSET));
+		final TupleListFuture result = bboxDBClient.queryRectangle(fullname, bbox, new ArrayList<>());
 
 		result.waitForCompletion();
 		

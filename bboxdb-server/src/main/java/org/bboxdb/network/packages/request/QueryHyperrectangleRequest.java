@@ -20,6 +20,7 @@ package org.bboxdb.network.packages.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
@@ -27,6 +28,8 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packages.request.helper.RequestEncoderHelper;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreName;
 
@@ -55,16 +58,11 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The custom filter name
 	 */
-	private String userDefinedFilterName;
-
-	/**
-	 * The custom filter value
-	 */
-	private byte[] userDefinedFilterValue;
+	final List<UserDefinedFilterDefinition> udfs;
 
 	public QueryHyperrectangleRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final String table,  final Hyperrectangle box, final String userdefinedFilterName, 
-			final byte[] userDefinedFilterValue, final boolean pagingEnabled, final short tuplesPerPage) {
+			final String table,  final Hyperrectangle box, final List<UserDefinedFilterDefinition> udfs, 
+			final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(sequenceNumber, routingHeader);
 		
@@ -72,8 +70,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
 		this.tuplesPerPage = tuplesPerPage;
-		this.userDefinedFilterName = userdefinedFilterName;
-		this.userDefinedFilterValue = userDefinedFilterValue;
+		this.udfs = udfs;
 	}
 
 	@Override
@@ -83,7 +80,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] bboxBytes = box.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(20);
+			final ByteBuffer bb = ByteBuffer.allocate(12);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
@@ -96,18 +93,15 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 			
 			bb.putShort(tuplesPerPage);
 			
-			final byte[] customFilterBytes = userDefinedFilterName.getBytes();
-			final byte[] customValueBytes = userDefinedFilterValue;
+			final byte[] udfsBytes = RequestEncoderHelper.encodeUDFs(udfs);
 			
 			bb.putShort((short) tableBytes.length);
 			bb.put(NetworkConst.UNUSED_BYTE);
 			bb.put(NetworkConst.UNUSED_BYTE);
 			bb.putInt((int) bboxBytes.length);
-			bb.putInt((int) customFilterBytes.length);
-			bb.putInt((int) customValueBytes.length);
-			
+
 			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length 
-					+ customFilterBytes.length + customValueBytes.length;
+					+ udfsBytes.length;
 			
 			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
@@ -115,8 +109,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);
 			outputStream.write(bboxBytes);
-			outputStream.write(customFilterBytes);
-			outputStream.write(customValueBytes);
+			outputStream.write(udfsBytes);
 			
 			return headerLength + bodyLength;
 		} catch (IOException e) {
@@ -164,8 +157,6 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 	    encodedPackage.get();
 		
 	    final int bboxLength = encodedPackage.getInt();
-	    final int customFilterLength = encodedPackage.getInt();
-	    final int customValueLength = encodedPackage.getInt();
 
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
@@ -175,12 +166,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
 		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
 		
-		final byte[] customFilterNameBytes = new byte[customFilterLength];
-		encodedPackage.get(customFilterNameBytes, 0, customFilterNameBytes.length);
-		final String customFilterName = new String(customFilterNameBytes);
-		
-		final byte[] customFilterValueBytes = new byte[customValueLength];
-		encodedPackage.get(customFilterValueBytes, 0, customFilterValueBytes.length);
+		final List<UserDefinedFilterDefinition> udfs = RequestEncoderHelper.decodeUDFs(encodedPackage);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " 
@@ -190,7 +176,7 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
 		return new QueryHyperrectangleRequest(sequenceNumber, routingHeader, table, boundingBox, 
-				customFilterName, customFilterValueBytes, pagingEnabled, tuplesPerPage);
+				udfs, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -219,19 +205,14 @@ public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {
 		return pagingEnabled;
 	}
 
-	public String getUserDefinedFilterName() {
-		return userDefinedFilterName;
-	}
-	
-	public byte[] getUserDefinedFilterValue() {
-		return userDefinedFilterValue;
+	public List<UserDefinedFilterDefinition> getUdfs() {
+		return udfs;
 	}
 
 	@Override
 	public String toString() {
 		return "QueryHyperrectangleRequest [table=" + table + ", box=" + box + ", pagingEnabled=" + pagingEnabled
-				+ ", tuplesPerPage=" + tuplesPerPage + ", userDefinedFilterName=" + userDefinedFilterName
-				+ ", userDefinedFilterValue=" + userDefinedFilterValue + "]";
+				+ ", tuplesPerPage=" + tuplesPerPage + ", udfs=" + udfs + "]";
 	}
 
 }

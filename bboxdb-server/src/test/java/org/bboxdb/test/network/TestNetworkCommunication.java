@@ -18,6 +18,8 @@
 package org.bboxdb.test.network;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +41,7 @@ import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.entity.ContinuousQueryServerState;
+import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.query.filter.UserDefinedStringFilter;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -517,7 +520,7 @@ public class TestNetworkCommunication {
 
 		// Read all tuple
 		final TupleListFuture getResult3 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
-				"", "".getBytes());
+				new ArrayList<>());
 		getResult3.waitForCompletion();
 		final List<Tuple> resultList3 = Lists.newArrayList(getResult3.iterator());
 		Assert.assertEquals(2, resultList3.size());
@@ -542,13 +545,13 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultCreateTable.isFailed());
 
 		// Insert first tuple
-		final byte[] value1 = "abc".getBytes();
-		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(-10d, -9d, -10d, -9d), value1);
+		final String value1 = "abc";
+		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(-10d, -9d, -10d, -9d), value1.getBytes());
 		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
 
 		// Insert second tuple
-		final byte[] value2 = "def".getBytes();
-		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(-10d, -9d, -10d, -9d), value2);
+		final String value2 = "def";
+		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(-10d, -9d, -10d, -9d), value2.getBytes());
 		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
 
 		insertResult1.waitForCompletion();
@@ -561,7 +564,7 @@ public class TestNetworkCommunication {
 
 		// Read all tuple
 		final TupleListFuture getResult3 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
-				"", "".getBytes());
+				new ArrayList<>());
 		getResult3.waitForCompletion();
 		final List<Tuple> resultList3 = Lists.newArrayList(getResult3.iterator());
 		Assert.assertEquals(2, resultList3.size());
@@ -569,8 +572,9 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(resultList3.contains(tuple2));
 
 		// Read tuple1
+		final UserDefinedFilterDefinition udf1 = new UserDefinedFilterDefinition(UserDefinedStringFilter.class.getName(), value1);
 		final TupleListFuture getResult1 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
-				UserDefinedStringFilter.class.getName(), value1);
+				Arrays.asList(udf1));
 
 		getResult1.waitForCompletion();
 		final List<Tuple> resultList1 = Lists.newArrayList(getResult1.iterator());
@@ -578,8 +582,9 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(resultList1.contains(tuple1));
 
 		// Read tuple2
+		final UserDefinedFilterDefinition udf2 = new UserDefinedFilterDefinition(UserDefinedStringFilter.class.getName(), value2);
 		final TupleListFuture getResult2 = bboxdbClient.queryRectangle(table, Hyperrectangle.FULL_SPACE,
-				UserDefinedStringFilter.class.getName(), value2);
+				Arrays.asList(udf2));
 
 		getResult2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(getResult2.iterator());
@@ -715,7 +720,7 @@ public class TestNetworkCommunication {
 
 		System.out.println("== Waiting for queryBoundingBox");
 		final Hyperrectangle boundingBox = new Hyperrectangle(-1d, 2d, -1d, 2d);
-		final TupleListFuture result1 = bboxDBClient.queryRectangle(table, boundingBox, "", "".getBytes());
+		final TupleListFuture result1 = bboxDBClient.queryRectangle(table, boundingBox, new ArrayList<>());
 		result1.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
 		result1.waitForCompletion();
 		Assert.assertEquals(1,  result1.getNeededExecutions());
@@ -894,7 +899,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(false);
 		bboxDBClient.setTuplesPerPage((short) 0);
 		final TupleListFuture future = bboxDBClient.queryRectangle(table,
-				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "".getBytes());
+				new Hyperrectangle(-10d, 10d, -10d, 10d), new ArrayList<>());
 		future.waitForCompletion();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		Assert.assertEquals(5, resultList.size());
@@ -904,7 +909,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 10);
 		final TupleListFuture future2 = bboxDBClient.queryRectangle(table,
-				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "".getBytes());
+				new Hyperrectangle(-10d, 10d, -10d, 10d), new ArrayList<>());
 		future2.waitForCompletion();
 		final List<Tuple> resultList2 = Lists.newArrayList(future2.iterator());
 		Assert.assertEquals(5, resultList2.size());
@@ -914,7 +919,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 5);
 		final TupleListFuture future3 = bboxDBClient.queryRectangle(table,
-				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "".getBytes());
+				new Hyperrectangle(-10d, 10d, -10d, 10d), new ArrayList<>());
 		future3.waitForCompletion();
 		final List<Tuple> resultList3 = Lists.newArrayList(future3.iterator());
 		Assert.assertEquals(5, resultList3.size());
@@ -924,7 +929,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 2);
 		final TupleListFuture future4 = bboxDBClient.queryRectangle(table,
-				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "".getBytes());
+				new Hyperrectangle(-10d, 10d, -10d, 10d), new ArrayList<>());
 		System.out.println("Client is waiting on: " + future4);
 		future4.waitForCompletion();
 		final List<Tuple> resultList4 = Lists.newArrayList(future4.iterator());
@@ -935,7 +940,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 1);
 		final TupleListFuture future5 = bboxDBClient.queryRectangle(table,
-				new Hyperrectangle(-10d, 10d, -10d, 10d), "", "".getBytes());
+				new Hyperrectangle(-10d, 10d, -10d, 10d), new ArrayList<>());
 		future5.waitForCompletion();
 		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());
 		Assert.assertEquals(5, resultList5.size());
