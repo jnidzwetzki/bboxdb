@@ -419,10 +419,14 @@ public class CLI implements Runnable, AutoCloseable {
 			final String customFilterValue = CLIHelper.getParameterOrDefault(line, 
 					CLIParameter.CUSTOM_FILTER_VALUE, "");
 			
-			final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterClass, customFilterValue);
+			final List<UserDefinedFilterDefinition> udfs = new ArrayList<>();
+			if(customFilterClass.length() > 1) {
+				final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterClass, customFilterValue);
+				udfs.add(udf);
+			}
 			
 			final TupleListFuture resultFuture = bboxDbConnection.queryRectangle(table, boundingBox, 
-					Arrays.asList(udf));
+					udfs);
 			
 			executeQueryFuture(resultFuture);
 		} catch (BBoxDBException e) {
@@ -598,10 +602,14 @@ public class CLI implements Runnable, AutoCloseable {
 		final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
 		final String customFilterValue = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_VALUE, "");
 								
-		final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterClass, customFilterValue);
-
+		final List<UserDefinedFilterDefinition> udfs = new ArrayList<>();
+		if(customFilterClass.length() > 1) {
+			final UserDefinedFilterDefinition udf = new UserDefinedFilterDefinition(customFilterClass, customFilterValue);
+			udfs.add(udf);
+		}
+		
 		final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
-				Arrays.asList(udf));
+				udfs);
 
 		if(resultFuture == null) {
 			System.err.println("Unable to get query");
