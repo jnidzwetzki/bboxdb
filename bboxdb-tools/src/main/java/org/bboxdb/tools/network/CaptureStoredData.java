@@ -118,6 +118,7 @@ public class CaptureStoredData implements Runnable {
 			
 			logger.info("Total processed elements {} in {} ms", 
 					totalProcessedLines, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+			logger.info("Finished at: {}", System.currentTimeMillis());
 		} catch (Exception e) {
 			logger.error("Got error", e);
 		} 
