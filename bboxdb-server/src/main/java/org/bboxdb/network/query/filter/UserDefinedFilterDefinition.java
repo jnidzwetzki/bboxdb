@@ -1,5 +1,8 @@
 package org.bboxdb.network.query.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UserDefinedFilterDefinition {
 	
 	/**
@@ -11,9 +14,18 @@ public class UserDefinedFilterDefinition {
 	 * The user defined filter value
 	 */
 	private final String userDefinedFilterValue;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(UserDefinedFilterDefinition.class);
 
 	public UserDefinedFilterDefinition(final String userDefinedFilterClass, 
 			final String userDefinedFilterValue) {
+		
+		if(userDefinedFilterClass.length() < 3) {
+			logger.error("This is not a valid filter class: {}", userDefinedFilterClass);
+		}
 		
 		this.userDefinedFilterClass = userDefinedFilterClass;
 		this.userDefinedFilterValue = userDefinedFilterValue;

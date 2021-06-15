@@ -16,6 +16,7 @@ order: 1
 - Improvement: Improved redraw handling in GUI
 - Improvement: Added error message in GUI when ZooKeeper connection fails
 - Improvement: Allow multiple UDF in spatial join queries and range queries
+- Improvement: Write error log message when a UserDefinedFilterDefinition with an invalid classname is created
 - Bugfix: Added missing roads joined with forests query to predefined queries in the GUI
 
 ### Version 0.9.8 - 10.05.2021
