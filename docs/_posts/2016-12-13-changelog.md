@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.9.9 - TBA
+### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries
 - New Feature: Implemented invalidations for continuous queries
 - New Feature: Implemented state transfer for continuous queries
