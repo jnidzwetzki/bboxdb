@@ -29,27 +29,30 @@ public class TestContinuousQueryExecutionState {
 	public void testStreamState() {
 		final ContinuousQueryExecutionState state = new ContinuousQueryExecutionState();
 	
-		Assert.assertFalse(state.wasStreamKeyContainedInLastQuery("abc"));
+		Assert.assertFalse(state.wasStreamKeyContainedInLastRangeQuery("abc"));
 		state.addStreamKeyToState("abc");
-		Assert.assertTrue(state.wasStreamKeyContainedInLastQuery("abc"));
+		Assert.assertTrue(state.wasStreamKeyContainedInLastRangeQuery("abc"));
 
-		Assert.assertTrue(state.removeStreamKeyFromState("abc"));
-		Assert.assertFalse(state.removeStreamKeyFromState("abc"));
-		Assert.assertFalse(state.wasStreamKeyContainedInLastQuery("abc"));
+		Assert.assertTrue(state.removeStreamKeyFromRangeState("abc"));
+		Assert.assertFalse(state.removeStreamKeyFromRangeState("abc"));
+		Assert.assertFalse(state.wasStreamKeyContainedInLastRangeQuery("abc"));
 	}
 	
 	@Test(timeout = 60_000)
 	public void testJoinState() {
 		final ContinuousQueryExecutionState state = new ContinuousQueryExecutionState();
 	
+		Assert.assertFalse(state.wasStreamKeyContainedInLastJoinQuery("stream"));
+		
 		state.clearJoinPartnerState();
 		state.addJoinCandidateForCurrentKey("abc");
 		state.addJoinCandidateForCurrentKey("def");
 		
-		final Set<String> missingPartners1 = state.clearStateAndGetMissingJoinpartners("stream");
+		final Set<String> missingPartners1 = state.commitStateAndGetMissingJoinpartners("stream");
 		Assert.assertTrue(missingPartners1.isEmpty());
-		
-		final Set<String> missingPartners2 = state.clearStateAndGetMissingJoinpartners("stream");
+		Assert.assertTrue(state.wasStreamKeyContainedInLastJoinQuery("stream"));
+
+		final Set<String> missingPartners2 = state.commitStateAndGetMissingJoinpartners("stream");
 		Assert.assertEquals(2, missingPartners2.size());
 		Assert.assertTrue(missingPartners2.contains("abc"));
 		Assert.assertTrue(missingPartners2.contains("def"));
@@ -57,12 +60,19 @@ public class TestContinuousQueryExecutionState {
 		state.clearJoinPartnerState();
 		state.addJoinCandidateForCurrentKey("abc");
 		state.addJoinCandidateForCurrentKey("def");
-		final Set<String> missingPartners3 = state.clearStateAndGetMissingJoinpartners("stream");
+		final Set<String> missingPartners3 = state.commitStateAndGetMissingJoinpartners("stream");
 		Assert.assertTrue(missingPartners3.isEmpty());
 		
 		state.addJoinCandidateForCurrentKey("def");
-		final Set<String> missingPartners4 = state.clearStateAndGetMissingJoinpartners("stream");
+		final Set<String> missingPartners4 = state.commitStateAndGetMissingJoinpartners("stream");
 		Assert.assertEquals(1, missingPartners4.size());
 		Assert.assertTrue(missingPartners4.contains("abc"));
+		
+		// Clear
+		state.removeStreamKeyFromJoinState("stream");
+		Assert.assertFalse(state.wasStreamKeyContainedInLastJoinQuery("stream"));
+		final Set<String> missingPartners5 = state.commitStateAndGetMissingJoinpartners("stream");
+		Assert.assertTrue(missingPartners5.isEmpty());
+
 	}
 }

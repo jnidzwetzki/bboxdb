@@ -27,7 +27,7 @@ public class ContinuousQueryExecutionState {
 	/**
 	 * The stream tuple that are matched in the last query execution
 	 */
-	protected final Set<String> containedTupleKeys;
+	protected final Set<String> containedStreamKeys;
 	
 	/**
 	 * The stream tuples and their join partners that are used in the last execution
@@ -40,18 +40,18 @@ public class ContinuousQueryExecutionState {
 	protected final Set<String> joinPartnersForCurrentKey;
 	
 	public ContinuousQueryExecutionState() {
-		this.containedTupleKeys = new HashSet<>();
+		this.containedStreamKeys = new HashSet<>();
 		this.containedJoinedKeys = new HashMap<>();
 		this.joinPartnersForCurrentKey = new HashSet<>();
 	}
 	
 	/**
-	 * Was the stream key contained in the last query
+	 * Was the stream key contained in the last range query
 	 * @param key
 	 * @return
 	 */
-	public boolean wasStreamKeyContainedInLastQuery(final String key) {
-		return containedTupleKeys.contains(key);
+	public boolean wasStreamKeyContainedInLastRangeQuery(final String key) {
+		return containedStreamKeys.contains(key);
 	}
 	
 	/**
@@ -59,8 +59,8 @@ public class ContinuousQueryExecutionState {
 	 * @param key
 	 * @return
 	 */
-	public boolean removeStreamKeyFromState(final String key) {
-		return containedTupleKeys.remove(key);
+	public boolean removeStreamKeyFromRangeState(final String key) {
+		return containedStreamKeys.remove(key);
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class ContinuousQueryExecutionState {
 	 * @param key
 	 */
 	public void addStreamKeyToState(final String key) {
-		containedTupleKeys.add(key);
+		containedStreamKeys.add(key);
 	}
 	
 	/**
@@ -84,7 +84,7 @@ public class ContinuousQueryExecutionState {
 	 * @param streamKey
 	 * @return 
 	 */
-	public Set<String> clearStateAndGetMissingJoinpartners(final String streamKey) {
+	public Set<String> commitStateAndGetMissingJoinpartners(final String streamKey) {
 		
 		final Set<String> oldJoinPartners = containedJoinedKeys.getOrDefault(streamKey, new HashSet<>());
 		
@@ -113,12 +113,31 @@ public class ContinuousQueryExecutionState {
 	public Map<String, Set<String>> getContainedJoinedKeys() {
 		return containedJoinedKeys;
 	}
+	
+	/**
+	 * Remove the stream key from join state
+	 * @param streamKey
+	 * @return 
+	 */
+	public Set<String> removeStreamKeyFromJoinState(final String streamKey) {
+		return containedJoinedKeys.remove(streamKey);
+	}
+	
+	/**
+	 * Was the stream key contained in the last join query
+	 * @param key
+	 * @return
+	 */
+	public boolean wasStreamKeyContainedInLastJoinQuery(final String key) {
+		return containedJoinedKeys.containsKey(key);
+	}
+	
 	/**
 	 * Get the contained range query keys
 	 * @return
 	 */
 	public Set<String> getContainedTupleKeys() {
-		return containedTupleKeys;
+		return containedStreamKeys;
 	}
 
 	/**
@@ -126,7 +145,7 @@ public class ContinuousQueryExecutionState {
 	 * @param resultState
 	 */
 	public void merge(final Set<String> rangeQueryState, final Map<String, Set<String>> joinQueryState) {
-		containedTupleKeys.addAll(rangeQueryState);
+		containedStreamKeys.addAll(rangeQueryState);
 		containedJoinedKeys.putAll(joinQueryState);
 	}
 }

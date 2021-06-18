@@ -116,7 +116,7 @@ public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRang
 		
 		final String streamKey = streamTuple.getKey();
 		
-		if(continuousQueryState.wasStreamKeyContainedInLastQuery(streamKey)) {
+		if(continuousQueryState.wasStreamKeyContainedInLastRangeQuery(streamKey)) {
 			logger.debug("Key {} was contained in last execution, sending invalidation tuple", streamKey);
 			generateInvalidationTuple(streamTuple, continuousQueryState, streamKey);
 		}
@@ -140,8 +140,9 @@ public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRang
 		final String streamKey = streamTuple.getKey();
 		
 		// Invalidate range query results
-		if(continuousQueryState.wasStreamKeyContainedInLastQuery(streamKey)) {
+		if(continuousQueryState.wasStreamKeyContainedInLastRangeQuery(streamKey)) {
 			generateInvalidationTuple(streamTuple, continuousQueryState, streamKey);
+			continuousQueryState.removeStreamKeyFromRangeState(streamKey);
 		}
 	}
 
@@ -154,7 +155,7 @@ public class ContinuousRangeQuery extends AbstractContinuousQuery<ContinuousRang
 	private void generateInvalidationTuple(final Tuple streamTuple,
 			final ContinuousQueryExecutionState continuousQueryState, final String streamKey) {
 		
-		continuousQueryState.removeStreamKeyFromState(streamKey);
+		continuousQueryState.removeStreamKeyFromRangeState(streamKey);
 		
 		final long versionTimestamp = streamTuple.getVersionTimestamp();
 		final InvalidationTuple tuple = new InvalidationTuple(streamKey, versionTimestamp);

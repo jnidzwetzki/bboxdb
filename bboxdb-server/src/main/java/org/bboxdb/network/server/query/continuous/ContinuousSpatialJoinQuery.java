@@ -229,9 +229,16 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 	}
 	
 	@Override
-	protected void handleInvalidationTuple(final Tuple streamTuple) {		
+	protected void handleInvalidationTuple(final Tuple streamTuple) {	
+		final ContinuousQueryExecutionState continuousQueryState = continuousClientQuery.getContinuousQueryState();
+		final String streamKey = streamTuple.getKey();
+
 		continuousClientQuery.getContinuousQueryState().clearJoinPartnerState();
-		generateInvalidationTuplesForStreamKey(streamTuple);
+		
+		if(continuousQueryState.wasStreamKeyContainedInLastJoinQuery(streamKey)) {
+			generateInvalidationTuplesForStreamKey(streamTuple);
+			continuousQueryState.removeStreamKeyFromJoinState(streamKey);
+		}
 	}
 
 	/**
@@ -248,7 +255,7 @@ public class ContinuousSpatialJoinQuery extends AbstractContinuousQuery<Continuo
 		final List<String> tables = Arrays.asList(queryPlan.getStreamTable(), queryPlan.getJoinTable());
 		
 		// Invalidate join query results
-		final Set<String> joinPartners = continuousQueryState.clearStateAndGetMissingJoinpartners(streamKey);
+		final Set<String> joinPartners = continuousQueryState.commitStateAndGetMissingJoinpartners(streamKey);
 		
 		for(final String joinPartner : joinPartners) {
 			final long versionTimestamp = streamTuple.getVersionTimestamp();
