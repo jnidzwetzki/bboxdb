@@ -34,14 +34,14 @@ import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
 
-public class JoinedTupleResponse extends NetworkResponsePackage {
+public class MultiTupleResponse extends NetworkResponsePackage {
 	
 	/**
 	 * The joined tuple
 	 */
 	private final MultiTuple joinedTuple;
 
-	public JoinedTupleResponse(final short sequenceNumber, final MultiTuple joinedTuple) {
+	public MultiTupleResponse(final short sequenceNumber, final MultiTuple joinedTuple) {
 		super(sequenceNumber);
 		this.joinedTuple = joinedTuple;
 	}
@@ -85,7 +85,7 @@ public class JoinedTupleResponse extends NetworkResponsePackage {
 	 * @return
 	 * @throws PackageEncodeException 
 	 */
-	public static JoinedTupleResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {		
+	public static MultiTupleResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_JOINED_TUPLE);
@@ -94,10 +94,10 @@ public class JoinedTupleResponse extends NetworkResponsePackage {
 			throw new PackageEncodeException("Unable to decode package");
 		}
 		
-		final List<String> tupleStoreNames = new ArrayList<>();
-		final List<Tuple> tuples = new ArrayList<>();
-		
 		final int numberOfTuples = encodedPackage.getInt();
+		
+		final List<String> tupleStoreNames = new ArrayList<>();
+		final List<Tuple> tuples = new ArrayList<>(numberOfTuples);
 		
 		for(int i = 0; i < numberOfTuples; i++) {
 			final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
@@ -111,7 +111,7 @@ public class JoinedTupleResponse extends NetworkResponsePackage {
 			throw new PackageEncodeException("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
-		return new JoinedTupleResponse(requestId, joinedTuple);
+		return new MultiTupleResponse(requestId, joinedTuple);
 	}
 
 	public MultiTuple getJoinedTuple() {

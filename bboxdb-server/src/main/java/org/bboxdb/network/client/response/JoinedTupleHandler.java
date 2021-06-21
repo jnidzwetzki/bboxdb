@@ -24,7 +24,7 @@ import java.util.List;
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.JoinedTupleResponse;
+import org.bboxdb.network.packages.response.MultiTupleResponse;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class JoinedTupleHandler implements ServerResponseHandler {
 			logger.debug("Handle joined tuple package");
 		}
 		
-		final JoinedTupleResponse singleTupleResponse = JoinedTupleResponse.decodePackage(encodedPackage);
+		final MultiTupleResponse singleTupleResponse = MultiTupleResponse.decodePackage(encodedPackage);
 		
 		// Tuple is part of a multi tuple result
 		final Object currentResultObject = future.get(false);

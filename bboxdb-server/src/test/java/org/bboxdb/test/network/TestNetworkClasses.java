@@ -64,7 +64,7 @@ import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
 import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
-import org.bboxdb.network.packages.response.JoinedTupleResponse;
+import org.bboxdb.network.packages.response.MultiTupleResponse;
 import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.packages.response.TupleLockedResponse;
@@ -257,13 +257,13 @@ public class TestNetworkClasses {
 		
 		final MultiTuple joinedTuple = new MultiTuple(tupleList, tableNames);
 		
-		final JoinedTupleResponse joinedResponse = new JoinedTupleResponse(sequenceNumber, joinedTuple);
+		final MultiTupleResponse joinedResponse = new MultiTupleResponse(sequenceNumber, joinedTuple);
 
 		byte[] encodedVersion = networkPackageToByte(joinedResponse);
 		Assert.assertNotNull(encodedVersion);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final JoinedTupleResponse decodedPackage = JoinedTupleResponse.decodePackage(bb);
+		final MultiTupleResponse decodedPackage = MultiTupleResponse.decodePackage(bb);
 		
 		final MultiTuple decodedJoinedTuple = decodedPackage.getJoinedTuple();
 		Assert.assertEquals(3, decodedJoinedTuple.getNumberOfTuples());

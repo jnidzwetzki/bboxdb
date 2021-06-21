@@ -43,7 +43,7 @@ import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
 import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.JoinedTupleResponse;
+import org.bboxdb.network.packages.response.MultiTupleResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -500,7 +500,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			final boolean forceJoinedTupleResult) throws IOException, PackageEncodeException {
 
 		if(joinedTuple.getNumberOfTuples() > 1 || forceJoinedTupleResult) {
-			final JoinedTupleResponse responsePackage = new JoinedTupleResponse(
+			final MultiTupleResponse responsePackage = new MultiTupleResponse(
 					packageSequence, joinedTuple);
 
 			writeResultPackage(responsePackage);
