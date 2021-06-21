@@ -324,12 +324,11 @@ public class NetworkQueryHelper {
 		System.out.println("=== Wait for query result");
 		queryFuture.waitForCompletion();
 
-		final List<MultiTuple> resultList = Lists.newArrayList(queryFuture.iterator());
-		System.out.println("Result is " + resultList);
-
-		Assert.assertEquals(1, resultList.size());
-
-		final MultiTuple foundTuple = resultList.get(0);
+		final Iterator<MultiTuple> iterator = queryFuture.iterator();
+		Assert.assertTrue(iterator.hasNext());
+		final MultiTuple foundTuple = iterator.next();
+				
+		System.out.println("Result is " + foundTuple);
 
 		Assert.assertEquals(2, foundTuple.getNumberOfTuples());
 		Assert.assertEquals(table2, foundTuple.getTupleStoreName(0));
