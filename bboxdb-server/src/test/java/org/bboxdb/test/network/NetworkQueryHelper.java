@@ -285,21 +285,27 @@ public class NetworkQueryHelper {
 
 		System.out.println("=== Running testBoundingBoxQueryContinous 2");
 
-		final String table = distributionGroup + "_relation9992";
+		final String table1 = distributionGroup + "_relation9992";
+		final String table2 = distributionGroup + "_relation9993";
 
-		// Create table
-		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
-		resultCreateTable.waitForCompletion();
-		Assert.assertFalse(resultCreateTable.isFailed());
+		// Create table1
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table1, new TupleStoreConfiguration());
+		resultCreateTable1.waitForCompletion();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		// Create table2
+		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table2, new TupleStoreConfiguration());
+		resultCreateTable2.waitForCompletion();
+		Assert.assertFalse(resultCreateTable2.isFailed());
 
 		final ContinuousQueryPlan constQueryPlan = QueryPlanBuilder
-				.createQueryOnTable(table)
+				.createQueryOnTable(table2)
 				.forAllNewTuplesInSpace(new Hyperrectangle(-1d, 2d, -1d, 2d))
-				.spatialJoinWithTable(table)
+				.spatialJoinWithTable(table1)
 				.build();
 
 		final Tuple storedTuple = new Tuple("abc", new Hyperrectangle(0.5d, 1d, 0.5d, 1d), "".getBytes());
-		final EmptyResultFuture storeResult = bboxDBClient.insertTuple(table, storedTuple);
+		final EmptyResultFuture storeResult = bboxDBClient.insertTuple(table1, storedTuple);
 		storeResult.waitForCompletion();
 		Assert.assertFalse(storeResult.isFailed());
 		Assert.assertTrue(storeResult.isDone());
@@ -308,24 +314,26 @@ public class NetworkQueryHelper {
 		final JoinedTupleListFuture queryFuture = bboxDBClient.queryContinuous(constQueryPlan);
 
 		final Tuple tuple = new Tuple("1", new Hyperrectangle(0d, 1d, 0d, 1d), "".getBytes());
-		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table2, tuple);
 		insertResult.waitForCompletion();
+		Assert.assertFalse(insertResult.isFailed());
+		Assert.assertTrue(insertResult.isDone());
 		System.out.println("=== Insert second tuple done");
 
 		// Wait for page full
 		System.out.println("=== Wait for query result");
 		queryFuture.waitForCompletion();
 
-		final Iterator<MultiTuple> iterator = queryFuture.iterator();
-		Assert.assertTrue(iterator.hasNext());
+		final List<MultiTuple> resultList = Lists.newArrayList(queryFuture.iterator());
+		System.out.println("Result is " + resultList);
 
-		final MultiTuple foundTuple = iterator.next();
-		
-		System.out.println("Found tuple is " + foundTuple);
+		Assert.assertEquals(1, resultList.size());
+
+		final MultiTuple foundTuple = resultList.get(0);
 
 		Assert.assertEquals(2, foundTuple.getNumberOfTuples());
-		Assert.assertEquals(table, foundTuple.getTupleStoreName(0));
-		Assert.assertEquals(table, foundTuple.getTupleStoreName(1));
+		Assert.assertEquals(table2, foundTuple.getTupleStoreName(0));
+		Assert.assertEquals(table1, foundTuple.getTupleStoreName(1));
 		Assert.assertEquals(tuple, foundTuple.getTuple(0));
 		Assert.assertEquals(storedTuple, foundTuple.getTuple(1));
 

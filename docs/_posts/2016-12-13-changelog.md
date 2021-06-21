@@ -7,7 +7,7 @@ order: 1
 ---
 
 ### Version 1.0.0 (release candidate 1) - TBA
-
+- Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries
