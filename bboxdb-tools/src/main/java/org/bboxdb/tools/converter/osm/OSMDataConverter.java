@@ -52,7 +52,8 @@ import org.bboxdb.tools.converter.osm.filter.multipoint.WoodEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.singlepoint.OSMTreeEntityFilter;
 import org.bboxdb.tools.converter.osm.store.OSMBDBNodeStore;
-import org.bboxdb.tools.converter.osm.store.OSMJDBCNodeStore;
+import org.bboxdb.tools.converter.osm.store.OSMJDBCDerbyNodeStore;
+import org.bboxdb.tools.converter.osm.store.OSMJDBCH2NodeStore;
 import org.bboxdb.tools.converter.osm.store.OSMNodeStore;
 import org.bboxdb.tools.converter.osm.store.OSMSSTableNodeStore;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
@@ -132,15 +133,20 @@ public class OSMDataConverter {
 		private static final String BDB = "bdb";
 	
 		/**
-		 * The name of the JDBC backend
+		 * The name of the JDBC H2 backend
 		 */
-		private static final String JDBC = "jdbc";
+		private static final String JDBC_H2 = "jdbc_h2";
+		
+		/**
+		 * The name of the JDBC derby backend
+		 */
+		private static final String JDBC_DERBY = "jdbc_DERBY";
 		
 		/**
 		 * All known backends
 		 */
 		private static final List<String> ALL_BACKENDS 
-			= Arrays.asList(JDBC, BDB, SSTABLE);
+			= Arrays.asList(JDBC_H2, JDBC_DERBY, BDB, SSTABLE);
 	}
 	
 	static class Parameter {
@@ -198,8 +204,10 @@ public class OSMDataConverter {
 		 
 		if(Backend.BDB.equals(backend)) {
 			this.osmNodeStore = new OSMBDBNodeStore(workfolders, inputFile.length());
-		} else if(Backend.JDBC.equals(backend)) {
-			this.osmNodeStore = new OSMJDBCNodeStore(workfolders, inputFile.length());
+		} else if(Backend.JDBC_H2.equals(backend)) {
+			this.osmNodeStore = new OSMJDBCH2NodeStore(workfolders, inputFile.length());
+		} else if(Backend.JDBC_DERBY.equals(backend)) {
+			this.osmNodeStore = new OSMJDBCDerbyNodeStore(workfolders, inputFile.length());
 		} else if(Backend.SSTABLE.equals(backend)) {
 			this.osmNodeStore = new OSMSSTableNodeStore(workfolders, inputFile.length());
 		} else {

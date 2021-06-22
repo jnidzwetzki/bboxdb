@@ -32,7 +32,7 @@ import java.util.List;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
-public class OSMJDBCNodeStore implements OSMNodeStore {
+public class OSMJDBCDerbyNodeStore implements OSMNodeStore {
 	
     /**
      * The H2 DB file flags
@@ -59,7 +59,7 @@ public class OSMJDBCNodeStore implements OSMNodeStore {
      */
     protected int instances;
 
-	public OSMJDBCNodeStore(final List<String> baseDir, final long inputLength) {
+	public OSMJDBCDerbyNodeStore(final List<String> baseDir, final long inputLength) {
 		
 		// 5 instances per GB
 		instances = (int) ((inputLength / (Math.pow(1024, 3)) * 5));
