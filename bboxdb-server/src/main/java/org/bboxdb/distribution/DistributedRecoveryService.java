@@ -168,7 +168,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 			final long localVersion = metaData.getVersion();
 			
 			if(remoteVersion != localVersion) {
-				logger.error("Local version {} of dgroup {} does not match remtote version {}", localVersion, distributionGroupName, remoteVersion);
+				logger.error("Local version {} of dgroup {} does not match remote version {}", localVersion, distributionGroupName, remoteVersion);
 				System.exit(-1);
 			}
 			
@@ -187,8 +187,14 @@ public class DistributedRecoveryService implements BBoxDBService {
 		
 		for(final OutdatedDistributionRegion outdatedDistributionRegion : outdatedRegions) {
 			
+			final BBoxDBInstance newestInstance = outdatedDistributionRegion.getNewestInstance();
+			
 			final BBoxDBConnection connection = MembershipConnectionService.getInstance()
-					.getConnectionForInstance(outdatedDistributionRegion.getNewestInstance());
+					.getConnectionForInstance(newestInstance);
+			
+			if(connection == null) {
+				logger.error("Unable to get connection for {}", newestInstance.getInetSocketAddress());
+			}
 			
 			final long regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
 			
@@ -197,7 +203,8 @@ public class DistributedRecoveryService implements BBoxDBService {
 			
 			for(final TupleStoreName ssTableName : allTables) {
 				try {
-					runRecoveryForTable(ssTableName, outdatedDistributionRegion, connection.getBboxDBClient());
+					final BBoxDBClient bboxDBClient = connection.getBboxDBClient();
+					runRecoveryForTable(ssTableName, outdatedDistributionRegion, bboxDBClient);
 				} catch (RejectedException | StorageManagerException | ExecutionException e) {
 					logger.error("Got an exception while performing recovery for table: " + ssTableName.getFullname());
 				} catch (InterruptedException e) {
