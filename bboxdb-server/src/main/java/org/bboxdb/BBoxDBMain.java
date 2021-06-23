@@ -149,6 +149,11 @@ public class BBoxDBMain {
 			System.exit(-1);
 		}
 
+		// Ensure connections are available during system startup
+		// (e.g., needed for recovery)
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
+		
 		// Init all services
 		for(final BBoxDBService service : services) {
 			try {
@@ -161,9 +166,6 @@ public class BBoxDBMain {
 			}
 		}
 
-		// Read membership
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
 	}
 
 	/**

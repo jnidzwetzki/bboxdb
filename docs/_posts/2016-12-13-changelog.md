@@ -11,6 +11,7 @@ order: 1
 - Improvement: Log the status of the detected memory mapper
 - Improvement: Log used java version at system start
 - Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
+- Bugfix: Ensure connections are available during system init
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries
