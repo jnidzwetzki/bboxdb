@@ -98,6 +98,22 @@ export BBOXDB_HOME=/opt/bboxdb
 echo 'export BBOXDB_HOME=/opt/bboxdb' >> .bashrc
 ```
 
+## Setup SSH keys
+
+Between all nodes of the cluster, a passphrase-less SSH connection should be possible for the current user. This can be accomplished by creating a SSH key by calling:
+
+```bash
+ssh-keygen -t rsa
+```
+
+Afterward, the SSH key can be distributed. This can be done by calling the following command:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_rsa.pub @nodename
+```
+
+This command should be executed for each node of the used cluster and `nodename` should be replaced by the FQDN by the node. 
+
 ## Downloading and compiling the software
 ```bash
 git clone https://github.com/jnidzwetzki/bboxdb
