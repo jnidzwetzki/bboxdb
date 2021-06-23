@@ -9,6 +9,7 @@ order: 1
 ### Version 1.0.0 (release candidate 1) - TBA
 - Improvement: The H2 and Derby backend in the OSM data converter are exposed
 - Improvement: Log the status of the detected memory mapper
+- Improvement: Log used java version at system start
 - Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
 
 ### Version 0.9.9 - 18.06.2021

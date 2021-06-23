@@ -127,7 +127,10 @@ bboxdb_start() {
 
     cd $BBOXDB_HOME/misc
 
+	echo "=============================="  >> $logdir/bboxdb.out.log 2>&1
+    echo "`java -version`" >> $logdir/bboxdb.out.log 2>&1
     echo "`ulimit -a`" >> $logdir/bboxdb.out.log 2>&1
+    echo "=============================="  >> $logdir/bboxdb.out.log 2>&1
     
     if [ ! -z "$BBOXDB_FOREGROUND" ]; then
        # Start BBoxDB server in foreground (e.g., needed for docker)
