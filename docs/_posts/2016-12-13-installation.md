@@ -145,7 +145,7 @@ node6
 ```
 
 ### Ports and JVM parameter
-The file `$BBOXDB_HOME/bin/bboxdb-env.sh` contains the configuration options for the BBoxDB service and the JVM parameter. You should open the file and adjust the settings to your preferences. 
+The file `$BBOXDB_HOME/conf/bboxdb-env.sh` contains the configuration options for the BBoxDB service and the JVM parameter. You should open the file and adjust the settings to your preferences. 
 
 __Notice:__ At least, the parameter `jmx_password` should be customized. Otherwise, unauthorized attackers could connect to the JMX interface of the JVM and perform operations like a shutdown of the BBoxDB.
 
