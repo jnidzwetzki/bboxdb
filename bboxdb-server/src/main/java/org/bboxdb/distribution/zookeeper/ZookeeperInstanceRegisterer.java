@@ -86,7 +86,7 @@ public class ZookeeperInstanceRegisterer implements BBoxDBService {
 
 	@Override
 	public String getServicename() {
-		return "Instance registerer for: " + instance;
+		return "Instance registerer for: " + instance.getIp() + ":" + instance.getPort();
 	}
 }
 
