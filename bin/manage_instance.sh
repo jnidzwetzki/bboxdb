@@ -128,7 +128,7 @@ bboxdb_start() {
     cd $BBOXDB_HOME/misc
 
 	echo "=============================="  >> $logdir/bboxdb.out.log 2>&1
-    echo "`java -version`" >> $logdir/bboxdb.out.log 2>&1
+    echo "`java -version 2>&1`" >> $logdir/bboxdb.out.log 2>&1
     echo "`ulimit -a`" >> $logdir/bboxdb.out.log 2>&1
     echo "=============================="  >> $logdir/bboxdb.out.log 2>&1
     
