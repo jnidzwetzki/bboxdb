@@ -81,8 +81,6 @@ make-jpkg jdk-$version-linux-x64.tar.gz
 dpkg -i oracle-java8-jdk_$version_amd64.deb
 ```
 
-_Notice:_ You could also use OpenJDK, but we are recommending the Oracle JVM. BBoxDB uses memory mapped files, features such as cleaning allocated memory is not available in all JVMs. Also, we recommend using a 64-bit operating system. Due to the memory mapped files, BBoxDB needs a huge virtual address space. 32-bit systems can address up to 4 GB memory, which makes it hard to handle big datasets.
-
 _Notice:_ BBoxDB should run on every Linux distribution, but at the moment the software is only tested on Debian and Ubuntu Linux.
 
 ## Clock synchronization

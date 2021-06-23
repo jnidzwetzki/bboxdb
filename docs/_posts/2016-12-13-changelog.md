@@ -12,6 +12,7 @@ order: 1
 - Improvement: Log used java version at system start
 - Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
 - Bugfix: Ensure connections are available during system init
+- Bigfix: Removed outdated OpenJDK comments from documentation
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries
