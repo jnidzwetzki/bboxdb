@@ -74,7 +74,10 @@ public class UnsafeMemoryHelper {
 			
 			if(! result) {
 				memoryUnmapperNotAvailable();
+			} else {
+				logger.info("Optimized memory handling is available");
 			}
+			
 		} catch (Exception e) {
 			logger.warn("Unable to detect memory cleaner, direct cleaning of memory mapped io does not work");
 			memoryUnmapperNotAvailable();
