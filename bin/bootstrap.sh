@@ -23,7 +23,7 @@
 #########################################
 
 # Include functions
-. $BBOXDB_HOME/bin/bboxdb-env.sh
+. $BBOXDB_HOME/conf/bboxdb-env.sh
 . $BBOXDB_HOME/bin/functions.sh
 
 # Change working dir
