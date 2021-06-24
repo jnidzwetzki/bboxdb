@@ -1115,7 +1115,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param line
 	 */
 	private void actionShowInstances(final CommandLine line) {
-		System.out.println("Show all discovered BBoxDB instances");
+		System.out.println("Showing all discovered BBoxDB instances:");
 
 		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
 		final List<BBoxDBInstance> allInstances = distributedInstanceManager.getInstances();
