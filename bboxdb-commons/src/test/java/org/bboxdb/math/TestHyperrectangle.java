@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -606,9 +607,33 @@ public class TestHyperrectangle {
 	/**
 	 * Test the from and to string method
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@Test(timeout=60000)
 	public void testFromToString2() {
+		
+		final Hyperrectangle boundingBox1 = new Hyperrectangle(0d, 1d);
+		final Hyperrectangle boundingBox2 = new Hyperrectangle(-5d, 5d, -6d, 8d);
+	
+		Assert.assertEquals(boundingBox1, Hyperrectangle.fromString("[[0,1]]"));
+		Assert.assertEquals(boundingBox2, Hyperrectangle.fromString("[[-5,5]:[-6,8]]"));
+	}
+	
+	/**
+	 * Test the from and to string method
+	 */
+	@Test(expected=IllegalArgumentException.class, timeout=60_000)
+	public void testFromToString3() {
 		Hyperrectangle.fromString("sdsfsd");
+	}
+	
+	/**
+	 * Test the from and to string method
+	 */
+	@Test(timeout=60_000)
+	public void testHyperrectangleHelper() {
+		final Hyperrectangle boundingBox1 = new Hyperrectangle(-5d, 5d, -6d, 8d);
+
+		Assert.assertFalse(HyperrectangleHelper.parseBBox("sdsfsd").isPresent());
+		Assert.assertEquals(boundingBox1, HyperrectangleHelper.parseBBox("[[-5,5]:[-6,8]]").get());
 	}
 
 	/**

@@ -27,23 +27,12 @@ public class HyperrectangleHelper {
 	 * @return
 	 */
 	public static Optional<Hyperrectangle> parseBBox(final String bbox) {
-		final String[] bboxStringParts = bbox.split(":|,");
 
-		if(bboxStringParts.length % 2 != 0) {
+		try {
+			return Optional.of(Hyperrectangle.fromString(bbox));
+		} catch (IllegalArgumentException e) {
+			System.err.println("Invalid argument: " + bbox);
 			return Optional.empty();
 		}
-
-		final double[] bboxDoubleValues = new double[bboxStringParts.length];
-		for(int i = 0; i < bboxStringParts.length; i++) {
-			try {
-				bboxDoubleValues[i] = Double.parseDouble(bboxStringParts[i]);
-			} catch (NumberFormatException e) {
-				System.err.println("Invalid number: " + bboxStringParts[i]);
-				return Optional.empty();
-			}
-		}
-
-		return Optional.of(new Hyperrectangle(bboxDoubleValues));
 	}
-
 }

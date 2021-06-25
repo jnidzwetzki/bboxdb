@@ -78,7 +78,7 @@ Query done
 The tuple is loaded from BBoxDB and printed on the console. The Key, the Bounding Box and the GeoJSON data (the value) of the tuple are printed. The area around the Alexanderplatz can be roughly expressed by a square with the following coordinates: 13.410, 52.520 for the lower left corner and 13.415, 52.525 for the upper right corner. The following command can be used, to fetch all trees, which lie inside of the square:
 
 ```bash
-$BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_germanytree -bbox 52.520,52.525:13.410,13.415
+$BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_germanytree -bbox [[52.520,52.525]:[13.410,13.415]]
 
 [...]
 Key 37587, BoundingBox=[52.4558036:52.4558036,13.4450991:13.4450991], value={"geometry":{"coordinates":[52.4558036,13.4450991],"type":"Point"},"id":3451433771,"type":"Feature","properties":{"natural":"tree","leaf_cycle":"deciduous","leaf_type":"broadleaved"}}, version timestamp=1493788236276020
@@ -134,11 +134,11 @@ $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_data -duplicates 
 Now five versions for the key are inserted with the values _value1_, _value2_, _value3_, _value4_ and _value5_:
 
 ```bash
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value3
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value4
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value5
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox [[1,2]:[1,2]] -value value1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox [[1,2]:[1,2]] -value value2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox [[1,2]:[1,2]] -value value3
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox [[1,2]:[1,2]] -value value4
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox [[1,2]:[1,2]] -value value5
 ```
 
 The key query returns the three most recent versions for the key:
@@ -172,7 +172,7 @@ Query done
 BBoxDB supports continuous bounding box queries. As soon as the query is executed, all tuples that are inserted within the bounding box are captured by this query. To demonstrate this, the continuous bounding box query is started on one console:
 
 ```bash
-console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox 0,5:0,5
+console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox [[0,5]:[0,5]]
 Connecting to BBoxDB cluster... [Established]
 Executing continuous bounding box query...
 ```
@@ -181,19 +181,19 @@ On another console, a new tuple is inserted in the query bounding box:
 
 ```bash
 # Tuple (bbox completely contained in query)
-console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value1
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox [[1,2]:[1,2]] -value value1
 
 # Tuple (bbox not contained in query)
-console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key2 -bbox 10,15:10,15 -value value2
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key2 -bbox [[10,15]:[10,15]] -value value2
 
 # Tuple (bbox partially contained in query)
-console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key3 -bbox 2,10:2,10 -value value3
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key3 -bbox [[2,10]:[2,10]] -value value3
 ```
 
 As soon as the three tuples are inserted, the query reports two tuples:
 
 ```bash
-console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox 0,5:0,5
+console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox [[0,5]:[0,5]]
 Connecting to BBoxDB cluster... [Established]
 Executing continuous bounding box query...
 Key key1, BoundingBox=[[1.0,2.0]:[1.0,2.0]], value=value1, version timestamp=1510325620579000
@@ -210,14 +210,14 @@ $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table1
 $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table2
 
 # Tuples of table1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_a -bbox 1,8:1,2 -value value_a
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_b -bbox 4,6:0,5 -value value_b
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_c -bbox 8,10:8,10 -value value_c
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_a -bbox [[1,8]:[1,2]] -value value_a
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_b -bbox [[4,6]:[0,5]] -value value_b
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_c -bbox [8,10]:[8,10]] -value value_c
 
 # Tuples of table2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_1 -bbox 1,3:5,6 -value value_1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_2 -bbox 4.5,5.5:1.5,4.5 -value value_2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_3 -bbox 7.5,10:1.5,2.5 -value value_3
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_1 -bbox [[1,3]:[5,6]] -value value_1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_2 -bbox [[4.5,5.5]:[1.5,4.5]] -value value_2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_3 -bbox [[7.5,10]:[1.5,2.5]] -value value_3
 ```
 
 After the data is inserted, we have a data distribution like shown in the following figure:
@@ -229,7 +229,7 @@ The tuple _Tuple A_ intersects with _Tuple 2_ and with _Tuple 3_; tuple _Tuple 2
 __Notice__: Please note that the grid in the image is used only to show where the tuples are located in space. The grid does not indicate how the space is divided into distribution regions; this is done by the space partitioner dynamically.
 
 ```bash
-$ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0,10:0,8
+$ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox [[0,10]:[0,8]]
 
 Executing join query...
 ===============

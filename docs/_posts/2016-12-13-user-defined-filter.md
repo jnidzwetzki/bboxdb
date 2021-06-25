@@ -49,12 +49,12 @@ The filter is defined in the class `org.bboxdb.network.query.filter.UserDefinedS
 The following CLI call searches for all tuples that have a bounding box that intersects the space 1:4:1:4 and a value that contains the string `red`.
 
 ```bash
-$ $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_table1 -bbox 1:4:1:4 -filter org.bboxdb.network.query.filter.UserDefinedStringFilter -filtervalue red
+$ $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_table1 -bbox [[1,4]:[1,4]] -filter org.bboxdb.network.query.filter.UserDefinedStringFilter -filtervalue red
 ```
 
 The following CLI command executes a join on the tables `mydgroup_table1` and `mydgroup_table2`. All tuples that have intersecting bounding boxes in the area `0:10:0:8` are passed to the user defined filter. The tuples that pass our user defined filter are returned to the client.
 
 ```bash
- $ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0:10:0:8 -filter org.bboxdb.network.query.filter.UserDefinedStringFilter -filtervalue red
+ $ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox [[0,10]:[0,8]] -filter org.bboxdb.network.query.filter.UserDefinedStringFilter -filtervalue red
  ```
  

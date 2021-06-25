@@ -11,6 +11,7 @@ order: 1
 - Improvement: Log the status of the detected memory mapper
 - Improvement: Log used java version at system start
 - Improvement: Moved configuration file $BBOXDB_HOME/bin/bboxdb-env.sh to conf folder
+- Improvement: Unified format of bounding box CLI arguments
 - Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
 - Bugfix: Ensure connections are available during system init
 - Bigfix: Removed outdated OpenJDK comments from documentation

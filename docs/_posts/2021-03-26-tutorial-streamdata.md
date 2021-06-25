@@ -126,10 +126,10 @@ __Note__: The `2` at the end of the command means that the data source is pulled
 
 ## Perform Queries on the Data Stream
 
-On the CLI, you can perform the following continuous query to see all data of the data stream. The provided bounding box for the range query `-35:-30:150:152` covers the area of Australia.
+On the CLI, you can perform the following continuous query to see all data of the data stream. The provided bounding box for the range query `[[-35,-30]:[150,152]]` covers the area of Australia.
 
 ```
-$BBOXDB_HOME/bin/cli.sh -action query_continuous -table osmgroup_buses -bbox -35:-30:150:152
+$BBOXDB_HOME/bin/cli.sh -action query_continuous -table osmgroup_buses -bbox [[-35,-30]:[150,152]]
 ```
 
 For more queries, please use the GUI of BBoxDB. You can start the GUI by executing:

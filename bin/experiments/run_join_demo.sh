@@ -44,7 +44,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 # The query range
-query_range="52.4,52.6:13.3,13.6"
+query_range="[[52.4,52.6]:[13.3,13.6]]"
 
 echo "===== Range query on road ====="
 wait_if_needed $2
