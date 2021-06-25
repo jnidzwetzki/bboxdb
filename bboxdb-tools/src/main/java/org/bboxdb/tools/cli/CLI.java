@@ -520,7 +520,11 @@ public class CLI implements Runnable, AutoCloseable {
 			resultTuples++;
 		}
 
-		System.out.format("Query done - got %d tuples back%n", resultTuples);
+		if(resultTuples == 1) {
+			System.out.format("Query done - got 1 result tuple%n");
+		} else {
+			System.out.format("Query done - got %d result tuples%n", resultTuples);
+		}
 	}
 
 	/**
