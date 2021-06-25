@@ -68,7 +68,7 @@ if [[ $1 != "nopopulate" ]]; then
    # Tuples of table1
    $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_a -bbox [[1,8]:[1,2]] -value value_a
    $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_b -bbox [[4,6]:[0,5]] -value value_b
-   $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_c -bbox [[8,10]]:[8,10]] -value value_c
+   $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_c -bbox [[8,10]:[8,10]] -value value_c
 
    # Tuples of table2
    $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_1 -bbox [[1,3]:[5,6]] -value value_1
