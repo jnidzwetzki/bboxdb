@@ -520,6 +520,14 @@ public class CLI implements Runnable, AutoCloseable {
 			resultTuples++;
 		}
 
+		printQueryDoneMessage(resultTuples);
+	}
+
+	/**
+	 * Print the query done message
+	 * @param resultTuples
+	 */
+	private void printQueryDoneMessage(long resultTuples) {
 		if(resultTuples == 1) {
 			System.out.format("Query done - got 1 result tuple%n");
 		} else {
@@ -676,7 +684,7 @@ public class CLI implements Runnable, AutoCloseable {
 				resultTuples++;
 			}
 
-			System.out.format("Query done - got %d tuples back%n", resultTuples);
+			printQueryDoneMessage(resultTuples);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);
