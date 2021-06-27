@@ -134,7 +134,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 				}
 			
 				if(skipCompact(tupleStoreName)) {
-					logger.info("Skipping compact run, because region is not active {}", tupleStoreName);
+					logger.debug("Skipping compact run, because region is not active {}", tupleStoreName);
 					continue;
 				}
 			
@@ -360,18 +360,21 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 	 * @throws BBoxDBException
 	 */
 	private void testForUnderflow(final SpacePartitioner spacePartitioner, 
-			final DistributionRegion oneSourceNode) throws BBoxDBException {
+			final DistributionRegion sourceRegion) throws BBoxDBException {
 				
-		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(oneSourceNode);
+		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(sourceRegion);
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
+		
+		logger.info("Testing for underflow {}", sourceRegion.getIdentifier());
 		
 		for(final List<DistributionRegion> sourceRegions : candidates) {
 			
 			final boolean mergingNotSupported = sourceRegions
 					.stream()
 					.anyMatch(r -> ! RegionMergeHelper.isMergingSupported(r));
-		
+					
 			if(mergingNotSupported) {
+				logger.info("Unable to merge {}, unsupported action", sourceRegion.getIdentifier());
 				continue;
 			}
 			
