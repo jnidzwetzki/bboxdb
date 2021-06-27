@@ -400,7 +400,9 @@ public class DistributionRegionSyncer implements Watcher {
 				continue;
 			}
 
-			if(DistributionRegionHelper.STATES_WRITE.contains(region.getState())) {
+			final DistributionRegionState state = region.getState();
+			
+			if(DistributionRegionHelper.STATES_WRITE.contains(state) || DistributionRegionHelper.STATES_STREAM.contains(state)) {
 				
 				// Add the mapping to the nameprefix mapper
 				if(! allExistingMappings.contains(regionId)) {

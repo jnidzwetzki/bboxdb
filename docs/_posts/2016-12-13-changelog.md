@@ -18,6 +18,7 @@ order: 1
 - Bugfix: Removed outdated OpenJDK comments from documentation
 - Bugfix: Get only the completion time from done or failed futures in OperationFutureImpl
 - Bugfix: Fixed merge prohibited check for child regions in region merge
+- Bugfix: Keep local region mapping until re-partitioning is done (handling of stream only tuples)
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries
