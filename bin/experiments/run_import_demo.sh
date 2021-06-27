@@ -1,7 +1,7 @@
 #!/bin/bash
 #*******************************************************************************
 #
-#    Copyright (C) 2015-2018 the BBoxDB project
+#    Copyright (C) 2015-2021 the BBoxDB project
 #  
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-datafiles=$(find /export/homes/nidzwetzki/osm-germany -name 'TREE' | xargs echo | tr ' ' ':')
+#datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'TREE' | xargs echo | tr ' ' ':')
+datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'WOOD' | xargs echo | tr ' ' ':')
 
 # Testfiles
 #datafiles="/export/homes/nidzwetzki/osm-germany/nordrhein-westfalen/osm/TREE:/export/homes/nidzwetzki/osm-germany/berlin/osm/TREE:/export/homes/nidzwetzki/osm-germany/hamburg/osm/TREE:/export/homes/nidzwetzki/osm-germany/hessen/osm/TREE"
