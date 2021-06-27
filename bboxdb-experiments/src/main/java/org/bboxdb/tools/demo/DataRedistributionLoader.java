@@ -195,7 +195,7 @@ public class DataRedistributionLoader implements Runnable {
 
 			// Create new distribution group
 			System.out.println("Create new distribution group, underflow " + underflowSize 
-					+ " MB " + " overflow " + overflowSize + " MB");
+					+ " MB, overflow " + overflowSize + " MB");
 			
 			final DistributionGroupConfiguration dgroupConfig
 				= DistributionGroupConfigurationBuilder
@@ -366,7 +366,7 @@ public class DataRedistributionLoader implements Runnable {
 				() -> "Unable to parse: " + args[1]);
 		
 		final int underflowSize = MathUtil.tryParseIntOrExit(underflowStringSize, () -> "Unable to parse: " + underflowStringSize);
-		final int overflowSize = MathUtil.tryParseIntOrExit(underflowStringSize, () -> "Unable to parse: " + overflowStringSize);
+		final int overflowSize = MathUtil.tryParseIntOrExit(overflowStringSize, () -> "Unable to parse: " + overflowStringSize);
 
 		final DataRedistributionLoader dataRedistributionLoader = new DataRedistributionLoader(args[0],
 				numberOfFilesToLoad, bboxDBCluster, underflowSize, overflowSize);
