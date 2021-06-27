@@ -31,7 +31,7 @@ fi
 source $BBOXDB_HOME/bin/bootstrap.sh
 
 #datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'TREE' | xargs echo | tr ' ' ':')
-datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'WOOD' | xargs echo | tr ' ' ':')
+datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'ROAD' | xargs echo | tr ' ' ':')
 
 # Testfiles
 #datafiles="/export/homes/nidzwetzki/osm-germany/nordrhein-westfalen/osm/TREE:/export/homes/nidzwetzki/osm-germany/berlin/osm/TREE:/export/homes/nidzwetzki/osm-germany/hamburg/osm/TREE:/export/homes/nidzwetzki/osm-germany/hessen/osm/TREE"

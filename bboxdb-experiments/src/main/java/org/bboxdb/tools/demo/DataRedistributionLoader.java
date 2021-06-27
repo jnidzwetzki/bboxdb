@@ -186,8 +186,8 @@ public class DataRedistributionLoader implements Runnable {
 				= DistributionGroupConfigurationBuilder
 					.create(2)
 					.withReplicationFactor((short) 1)
-					.withMaximumRegionSizeInMB(16)
-					.withMinimumRegionSizeInMB(4)
+					.withMaximumRegionSizeInMB(256)
+					.withMinimumRegionSizeInMB(64)
 					.build();
 
 			final EmptyResultFuture dgroupCreateResult = bboxDBCluster.createDistributionGroup(DGROUP, dgroupConfig);
