@@ -81,8 +81,8 @@ public class FixedSizeFutureStore {
 	 * The failed futures log callback
 	 */
     private final Consumer<OperationFuture> FAILED_FUTURE_LOG_CALLBACK = (f) -> logger.error(
-    		"Failed future detected (executions {} / time {} ms): {} / {}", 
-    		f.getNeededExecutions(), f.getCompletionTime(TimeUnit.MILLISECONDS), f, f.getAllMessages());
+    		"Failed future detected (executions {} / time {} ms): {} / {} / {}", 
+    		f.getNeededExecutions(), f.getCompletionTime(TimeUnit.MILLISECONDS), f, f.getAllMessages(), f.getErrorLog());
 
 	public FixedSizeFutureStore(final long maxPendingFutures, final boolean logFailedFutures) {
 		this.maxPendingFutures = maxPendingFutures;

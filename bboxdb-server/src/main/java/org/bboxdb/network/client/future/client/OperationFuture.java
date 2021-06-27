@@ -110,5 +110,11 @@ public interface OperationFuture {
 	 * @return
 	 */
 	public Set<Long> getAffectedRegionIDs();
+	
+	/**
+	 * Get the error log of the future (containing all retries)
+	 * @return
+	 */
+	public String getErrorLog();
 
 }

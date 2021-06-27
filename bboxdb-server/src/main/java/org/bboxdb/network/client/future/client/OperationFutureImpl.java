@@ -86,6 +86,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	protected final List<Consumer<OperationFuture>> shutdownCallbacks = new ArrayList<>();
 	
 	/**
+	 * The error history of the future
+	 */
+	private final StringBuilder errorHistory = new StringBuilder();
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(OperationFutureImpl.class);
@@ -427,6 +432,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		};
 
 		final int delay = (int) (100 * future.getExecutions());
+		
+		errorHistory.append("================================\n");
+		errorHistory.append("Schedule in " + delay);
+		errorHistory.append(future.getMessageWithConnectionName());
+		
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 				
 		logger.debug("Reschedule event for type [delay={}, type={}] in handleOneFutureRetry", delay, future.getClass().toString());
@@ -461,7 +471,13 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 			execute();
 		};
 
+
 		final int delay = (int) (100 * globalRetryCounter);
+		
+		errorHistory.append("================================\n");
+		errorHistory.append("Schedule in " + delay);
+		errorHistory.append(future.getMessageWithConnectionName());
+		
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 
 		logger.debug("Reschedule event for type [delay={}, type={}] in handleAllFutureRetry", delay, future.getClass().toString());
@@ -488,5 +504,10 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 		
 		return regions;
+	}
+
+	@Override
+	public String getErrorLog() {
+		return errorHistory.toString();
 	}
 }
