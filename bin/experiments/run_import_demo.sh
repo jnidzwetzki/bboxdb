@@ -36,4 +36,4 @@ datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'ROAD' | xargs
 # Testfiles
 #datafiles="/export/homes/nidzwetzki/osm-germany/nordrhein-westfalen/osm/TREE:/export/homes/nidzwetzki/osm-germany/berlin/osm/TREE:/export/homes/nidzwetzki/osm-germany/hamburg/osm/TREE:/export/homes/nidzwetzki/osm-germany/hessen/osm/TREE"
 
-$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 5 newton1:50181 mycluster
+$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 5 newton1:50181 mycluster 64 256

@@ -100,17 +100,30 @@ public class DataRedistributionLoader implements Runnable {
 	 * The random
 	 */
 	private final Random random;
+	
+	/**
+	 * The underflow size in MB
+	 */
+	private final int underflowSize;
+
+	/**
+	 * The overflow size in MB
+	 */
+	private final int overflowSize;
 
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DataRedistributionLoader.class);
 
+
 	public DataRedistributionLoader(final String files, final int numberOfFilesToLoad,
-			final BBoxDBCluster bboxDBCluster) {
+			final BBoxDBCluster bboxDBCluster, final int underflowSize, final int overflowSize) {
 
 		this.numberOfFilesToLoad = numberOfFilesToLoad;
 		this.bboxDBCluster = bboxDBCluster;
+		this.underflowSize = underflowSize;
+		this.overflowSize = overflowSize;
 		this.loadedFiles = new HashSet<>();
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 		this.files = files.split(":");
@@ -181,13 +194,15 @@ public class DataRedistributionLoader implements Runnable {
 			}
 
 			// Create new distribution group
-			System.out.println("Create new distribution group");
+			System.out.println("Create new distribution group, underflow " + underflowSize 
+					+ " MB " + " overflow " + overflowSize + " MB");
+			
 			final DistributionGroupConfiguration dgroupConfig
 				= DistributionGroupConfigurationBuilder
 					.create(2)
 					.withReplicationFactor((short) 1)
-					.withMaximumRegionSizeInMB(256)
-					.withMinimumRegionSizeInMB(64)
+					.withMaximumRegionSizeInMB(overflowSize)
+					.withMinimumRegionSizeInMB(underflowSize)
 					.build();
 
 			final EmptyResultFuture dgroupCreateResult = bboxDBCluster.createDistributionGroup(DGROUP, dgroupConfig);
@@ -328,15 +343,17 @@ public class DataRedistributionLoader implements Runnable {
 	 */
 	public static void main(final String[] args) {
 
-		if(args.length != 4) {
-			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <Number of files to load> "
+		if(args.length != 6) {
+			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <Number of files to load> <Underflow Size> <Overflow Size>"
 					+ "<ZookeeperEndpoint> <Clustername>");
 			System.exit(-1);
 		}
 
 		final String zookeeperEndpoint = args[2];
 		final String clustername = args[3];
-
+		final String underflowStringSize = args[4];
+		final String overflowStringSize = args[5];
+		
 		final BBoxDBCluster bboxDBCluster = new BBoxDBCluster(zookeeperEndpoint, clustername);
 		bboxDBCluster.connect();
 
@@ -347,9 +364,12 @@ public class DataRedistributionLoader implements Runnable {
 
 		final int numberOfFilesToLoad = MathUtil.tryParseIntOrExit(args[1],
 				() -> "Unable to parse: " + args[1]);
+		
+		final int underflowSize = MathUtil.tryParseIntOrExit(underflowStringSize, () -> "Unable to parse: " + underflowStringSize);
+		final int overflowSize = MathUtil.tryParseIntOrExit(underflowStringSize, () -> "Unable to parse: " + overflowStringSize);
 
 		final DataRedistributionLoader dataRedistributionLoader = new DataRedistributionLoader(args[0],
-				numberOfFilesToLoad, bboxDBCluster);
+				numberOfFilesToLoad, bboxDBCluster, underflowSize, overflowSize);
 
 		dataRedistributionLoader.run();
 	}
