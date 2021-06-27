@@ -428,6 +428,8 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		final int delay = (int) (100 * future.getExecutions());
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
+				
+		logger.debug("Reschedule event for type [delay={}, type={}] in handleOneFutureRetry", delay, future.getClass().toString());
 
 		return true;
 	}
@@ -462,7 +464,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		final int delay = (int) (100 * globalRetryCounter);
 		scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 
-		logger.debug("Reschedule event for type [delay={}, type={}]", delay, future.getClass().toString());
+		logger.debug("Reschedule event for type [delay={}, type={}] in handleAllFutureRetry", delay, future.getClass().toString());
 
 		return true;
 	}
