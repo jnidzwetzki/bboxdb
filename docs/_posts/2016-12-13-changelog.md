@@ -14,7 +14,8 @@ order: 1
 - Improvement: Unified format of bounding box CLI arguments
 - Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
 - Bugfix: Ensure connections are available during system init
-- Bigfix: Removed outdated OpenJDK comments from documentation
+- Bugfix: Removed outdated OpenJDK comments from documentation
+- Bugfix: Get only the completion time from done or failed futures in OperationFutureImpl
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries

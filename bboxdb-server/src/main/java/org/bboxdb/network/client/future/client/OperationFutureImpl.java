@@ -312,7 +312,10 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 	@Override
 	public long getCompletionTime(final TimeUnit timeUnit) {
-		return futures.stream().mapToLong(f -> f.getCompletionTime(timeUnit)).sum();
+		return futures.stream()
+				.filter(f -> (f.isDone() || f.isFailed()))
+				.mapToLong(f -> f.getCompletionTime(timeUnit))
+				.sum();
 	}
 
 	/**

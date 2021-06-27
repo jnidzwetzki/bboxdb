@@ -299,8 +299,8 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 */
 	@Override
 	public long getCompletionTime(final TimeUnit timeUnit) {
-		if (! isDone()) {
-			throw new IllegalArgumentException("The future is not done. Unable to calculate completion time");
+		if (! (isDone() || isFailed()) ) {
+			throw new IllegalArgumentException("The future is not done or failed. Unable to calculate completion time");
 		}
 
 		return stopwatch.elapsed(timeUnit);
