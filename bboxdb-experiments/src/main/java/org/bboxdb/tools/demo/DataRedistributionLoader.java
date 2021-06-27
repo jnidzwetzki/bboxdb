@@ -286,14 +286,18 @@ public class DataRedistributionLoader implements Runnable {
 	 * Remove the given file
 	 * @param fileid
 	 * @throws InterruptedException
+	 * @throws IOException 
 	 */
-	private void deleteFile(final int fileid) throws InterruptedException {
+	private void deleteFile(final int fileid) throws InterruptedException, IOException {
 		final String filename = files[fileid];
 
 		if(! loadedFiles.contains(filename)) {
 			System.err.println("File " + filename + " is not loaded");
 			return;
 		}
+		
+		System.out.print("Please press enter to delete file: " + filename);
+		System.in.read();
 
 		System.out.println("Removing content from: " + filename);
 
