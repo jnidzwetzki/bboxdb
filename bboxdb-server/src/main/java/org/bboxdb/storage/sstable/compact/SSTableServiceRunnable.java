@@ -362,19 +362,26 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 	private void testForUnderflow(final SpacePartitioner spacePartitioner, 
 			final DistributionRegion sourceRegion) throws BBoxDBException {
 				
+		logger.info("Testing for underflow {}", sourceRegion.getIdentifier());
+		
+		final boolean mergingOfSourceSupported = RegionMergeHelper.isMergingSupported(sourceRegion);
+		
+		if(!mergingOfSourceSupported) {
+			logger.info("Merging of source region {} is not supported", sourceRegion.getIdentifier());
+			return;
+		}
+		
 		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(sourceRegion);
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
 		
-		logger.info("Testing for underflow {}", sourceRegion.getIdentifier());
-		
 		for(final List<DistributionRegion> sourceRegions : candidates) {
 			
-			final boolean mergingNotSupported = sourceRegions
+			final boolean mergingProhibited = sourceRegions
 					.stream()
-					.anyMatch(r -> ! RegionMergeHelper.isMergingSupported(r));
+					.anyMatch(r -> ! RegionMergeHelper.isMergingByZookeeperAllowed(r));
 					
-			if(mergingNotSupported) {
-				logger.info("Unable to merge {}, unsupported action", sourceRegion.getIdentifier());
+			if(mergingProhibited) {
+				logger.info("Unable to merge {}, prohibited action on childs", sourceRegion.getIdentifier());
 				continue;
 			}
 			
