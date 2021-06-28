@@ -848,7 +848,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final List<Hyperrectangle> allSamples = RandomSamplesReader.readSamplesRandom(
 					filename, format, 0.1);
 			
-			System.out.println("We have read the following amount of bounding boxes: " + allSamples.size());
+			System.out.println("Read samples: " + allSamples.size());
 		
 			final SpacePartitioner partitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
