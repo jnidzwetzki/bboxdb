@@ -69,6 +69,24 @@ public class RegionMergeHelper {
 	public static boolean isRegionUnderflow(final List<DistributionRegion> sources, 
 			final BBoxDBInstance localInstanceName) throws BBoxDBException {
 		
+		try {
+			final String fullname = sources.get(0).getDistributionGroupName();
+			final long minSize = getConfiguredRegionMinSizeInMB(fullname);
+			return isRegionUnderflow(sources, localInstanceName, minSize);
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+			throw new BBoxDBException(e);
+		} 
+	}
+	
+	/**
+	 * Needs the region a merge?
+	 * @param region
+	 * @return
+	 * @throws BBoxDBException 
+	 */
+	public static boolean isRegionUnderflow(final List<DistributionRegion> sources, 
+			final BBoxDBInstance localInstanceName, final long underflowSizeInMB) throws BBoxDBException {
+		
 		assert(! sources.isEmpty()) : "Sources can not be empty";
 
 		final List<String> sourceIds = getRegionIdsFromRegionList(sources);
@@ -99,19 +117,12 @@ public class RegionMergeHelper {
 			return false;
 		}
 		
-		try {
-			final String fullname = sources.get(0).getDistributionGroupName();
-			final long minSize = getConfiguredRegionMinSizeInMB(fullname);
-			
-			final double childDoubleSize = childRegionSize.getAsDouble();
-			
-			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
-				sourceIds, childDoubleSize, minSize);
-			
-			return (childDoubleSize < minSize);
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
-			throw new BBoxDBException(e);
-		} 
+		final double childDoubleSize = childRegionSize.getAsDouble();
+		
+		logger.info("Testing for region {} underflow curent size is {} / min is {}", 
+			sourceIds, childDoubleSize, underflowSizeInMB);
+		
+		return (childDoubleSize < underflowSizeInMB);
 	}
 
 	/**
