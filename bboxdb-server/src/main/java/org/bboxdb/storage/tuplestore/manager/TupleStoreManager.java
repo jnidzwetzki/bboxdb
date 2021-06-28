@@ -108,7 +108,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * The callback execution thread
 	 */
 	protected final BlockingQueueWithSingleExecutor callbackExecutor;
-
+	
 	/**
 	 * The get performance counter
 	 */
@@ -708,13 +708,14 @@ public class TupleStoreManager implements BBoxDBService {
 					+ " state: " + serviceState);
 		}
 
-		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
-			throw new RejectedException("Storage manager is in read only state: " + tupleStoreName);
-		}
-
 		try {
 			// Ensure that only one memtable is newly created			
 			if(storeOnDisk && tuple.isPersistentTuple()) {
+				
+				if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
+					throw new RejectedException("Storage manager is in read only state: " + tupleStoreName);
+				}
+				
 				synchronized (this) {
 					if(getMemtable().isFull()) {
 						initNewMemtable();

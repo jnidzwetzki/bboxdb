@@ -24,10 +24,8 @@ import java.util.List;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
@@ -181,27 +179,15 @@ public class RegionSplitter {
 			final List<TupleStoreName> localTables = TupleStoreUtil
 					.getAllTablesForDistributionGroupAndRegionId(registry, distributionGroupName, regionId);
 	
-			// Remove the local mapping, no new data is written to the region
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache
-					.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
-			
-			final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();
-			
-			// We have set the region to splitting, wait until we see this status change 
-			// from Zookeeper and the space partitioner removed this region as active
-			mapper.waitUntilMappingDisappears(regionId);
-			
 			// Redistribute data
 			for(final TupleStoreName ssTableName : localTables) {
 				// Reject new writes and flush to disk
-				stopFlushToDisk(ssTableName);
+				setToReadOnly(ssTableName);
+				
+				// Distribute data
 				distributeData(ssTableName, source, destination);	
 			}
 
-		} catch (InterruptedException e) {
-			logger.warn("Thread was interrupted");
-			Thread.currentThread().interrupt();
-			return;
 		} catch (Exception e) {
 			logger.error("Got exception when redistribute local data", e);
 			return;
@@ -233,14 +219,13 @@ public class RegionSplitter {
 	}
 
 	/**
-	 * Stop the to disk flushing
+	 * Set storage manager to read only
 	 * @param ssTableName
 	 * @throws StorageManagerException
 	 */
-	private void stopFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
+	private void setToReadOnly(final TupleStoreName ssTableName) throws StorageManagerException {
 		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
 		
-		// Stop flush thread, so new data remains in memory
 		ssTableManager.setToReadOnly();
 	}
 
