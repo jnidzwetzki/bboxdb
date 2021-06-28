@@ -168,7 +168,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 		
 		final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 
-		final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
+		final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 				distributionRegion, regionId);
 				
 		final long totalSize = TupleStoreUtil.getSizeOfDistributionGroupAndRegionId(storageRegistry, 
@@ -182,7 +182,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 		logger.debug("Updating region statistics: {} / {}. Size in MB: {} / Tuples: {}", 
 				distributionGroup, regionId, totalSizeInMb, totalTuples);
 										
-		regionAdapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
+		regionAdapter.updateRegionStatistics(region, ZookeeperClientFactory.getLocalInstanceName(), 
 				totalSizeInMb, totalTuples);
 	}
 }

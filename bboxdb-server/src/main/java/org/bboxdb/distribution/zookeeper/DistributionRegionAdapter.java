@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
@@ -233,8 +234,9 @@ public class DistributionRegionAdapter {
 	 * Get the path for the distribution region state
 	 * @param region
 	 * @return
+	 * @throws ZookeeperException 
 	 */
-	private String getZookeeperPathForDistributionRegionState(final DistributionRegion region) {
+	private String getZookeeperPathForDistributionRegionState(final DistributionRegion region) throws ZookeeperException {
 		
 		return getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_REGION_STATE;
@@ -309,8 +311,10 @@ public class DistributionRegionAdapter {
 	 * Get the zookeeper path for a distribution region
 	 * @param distributionRegion
 	 * @return
+	 * @throws ZookeeperException 
+	 * @throws  
 	 */
-	public String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
+	public String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) throws ZookeeperException {
 		
 		final StringBuilder sb = new StringBuilder();
 		
@@ -318,7 +322,13 @@ public class DistributionRegionAdapter {
 		
 		if(tmpRegion != null) {
 			while(! tmpRegion.isRootElement()) {
-				sb.insert(0, "/" + ZookeeperNodeNames.NAME_CHILDREN + tmpRegion.getChildNumberOfParent());	
+				final Optional<Long> childNumberOfParent = tmpRegion.getChildNumberOfParent();
+				
+				if(! childNumberOfParent.isPresent()) {
+					throw new ZookeeperException("The region is not connected to any parent");
+				}
+				
+				sb.insert(0, "/" + ZookeeperNodeNames.NAME_CHILDREN + childNumberOfParent.get());	
 				tmpRegion = tmpRegion.getParent();
 			}
 		}
@@ -600,8 +610,9 @@ public class DistributionRegionAdapter {
 	 * Get the merge path
 	 * @param region
 	 * @return
+	 * @throws ZookeeperException 
 	 */
-	private String getMergePath(final DistributionRegion region) {
+	private String getMergePath(final DistributionRegion region) throws ZookeeperException {
 		final String path = getZookeeperPathForDistributionRegion(region);
 		return path + "/" + ZookeeperNodeNames.NAME_MERGING_SUPPORTED;
 	}
@@ -628,9 +639,9 @@ public class DistributionRegionAdapter {
 	 * @throws ZookeeperException
 	 */
 	public boolean isMergingSupported(final DistributionRegion region) throws BBoxDBException {
-		final String pathMerge = getMergePath(region);
 		
 		try {
+			final String pathMerge = getMergePath(region);
 			final String value = zookeeperClient.readPathAndReturnString(pathMerge);
 			return Boolean.parseBoolean(value);
 		} catch (ZookeeperNotFoundException e) {

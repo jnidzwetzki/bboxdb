@@ -13,6 +13,7 @@ order: 1
 - Improvement: Moved configuration file $BBOXDB_HOME/bin/bboxdb-env.sh to conf folder
 - Improvement: Unified format of bounding box CLI arguments
 - Improvement: Added an error log to futures for better debugging
+- Improvement: Replaced RuntimeException when region parent is not found by optional and proper handling
 - Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
 - Bugfix: Ensure connections are available during system init
 - Bugfix: Removed outdated OpenJDK comments from documentation

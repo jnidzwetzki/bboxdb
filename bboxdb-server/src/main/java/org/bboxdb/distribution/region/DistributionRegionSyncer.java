@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -163,8 +164,14 @@ public class DistributionRegionSyncer implements Watcher {
 	 */
 	private void removeChild(final DistributionRegion region) {
 		final DistributionRegion parentRegion = region.getParent();
-		final long regionNumber = region.getChildNumberOfParent();
-		region.removeChildren(regionNumber);
+		final Optional<Long> regionNumber = region.getChildNumberOfParent();
+		
+		if(! regionNumber.isPresent()) {
+			logger.warn("Region {} seems to be already disconnected", region.getIdentifier());
+			return;
+		}
+		
+		region.removeChildren(regionNumber.get());
 		notifyCallbacks(DistributionRegionEvent.REMOVED, region);
 		notifyCallbacks(DistributionRegionEvent.CHANGED, parentRegion);
 	}

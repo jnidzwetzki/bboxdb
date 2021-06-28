@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -332,19 +333,18 @@ public class DistributionRegion {
 	 * Get the child number
 	 * @return
 	 */
-	public long getChildNumberOfParent() {
+	public Optional<Long> getChildNumberOfParent() {
 
 		// This is the root element
 		if(isRootElement()) {
-			return 0;
+			return Optional.of(0L);
 		}
 
 		return getParent().children.entrySet()
 			.stream()
 			.filter(e -> e.getValue() == this)
 			.map(e -> e.getKey())
-			.findAny()
-			.orElseThrow(() -> new RuntimeException("Unable to find child number for: " + this));
+			.findAny();
 	}
 
 	/**
