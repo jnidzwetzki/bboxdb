@@ -239,11 +239,11 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	
 	@Override
 	public String toString() {
-		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + ", "
+		return "BBoxDBInstance [ip=" + ip + ", port=" + port + ", version=" + version + ", "
 				+ "cpuCores=" + cpuCores + ", memory=" + FileSizeHelper.readableFileSize(memory)
-				+ ", state=" + state + ", storages=" + getNumberOfStorages() + ", freeSpace()=" 
+				+ ", state=" + state + ", storages=" + getNumberOfStorages() + ", freeSpace=" 
 				+ FileSizeHelper.readableFileSize(getFreeSpace()) 
-				+ ", totalSpace()=" + FileSizeHelper.readableFileSize(getTotalSpace()) + "]";
+				+ ", totalSpace=" + FileSizeHelper.readableFileSize(getTotalSpace()) + "]";
 	}
 
 	/**
