@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -87,19 +87,14 @@ public class DataRedistributionLoader implements Runnable {
 	private final static String TABLE = DGROUP + "_osmtable";
 
 	/**
-	 * The amount of max loaded files
-	 */
-	private final static int MAX_LOADED_FILES = 5;
-
-	/**
 	 * The number of files to load
 	 */
 	private final int numberOfFilesToLoad;
 
 	/**
-	 * The random
+	 * The number of max parallel loaded files
 	 */
-	private final Random random;
+	private final int numberOfMaxLoadedFiles;
 	
 	/**
 	 * The underflow size in MB
@@ -118,9 +113,11 @@ public class DataRedistributionLoader implements Runnable {
 
 
 	public DataRedistributionLoader(final String files, final int numberOfFilesToLoad,
-			final BBoxDBCluster bboxDBCluster, final int underflowSize, final int overflowSize) {
+			final int numberOfMaxLoadedFiles, final int underflowSize, 
+			final int overflowSize, final BBoxDBCluster bboxDBCluster) {
 
 		this.numberOfFilesToLoad = numberOfFilesToLoad;
+		this.numberOfMaxLoadedFiles = numberOfMaxLoadedFiles;
 		this.bboxDBCluster = bboxDBCluster;
 		this.underflowSize = underflowSize;
 		this.overflowSize = overflowSize;
@@ -128,7 +125,6 @@ public class DataRedistributionLoader implements Runnable {
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 		this.files = files.split(":");
 		this.tupleBuilder = new GeoJSONTupleBuilder();
-		this.random = new Random();
 	}
 
 	/**
@@ -148,11 +144,11 @@ public class DataRedistributionLoader implements Runnable {
 
 			while(loadedFiles.size() < numberOfFilesToLoad) {
 
-				while(loadedFiles.size() > MAX_LOADED_FILES) {
-					deleteFile(random.nextInt(files.length));
+				while(loadedFiles.size() > numberOfMaxLoadedFiles) {
+					deleteFile(ThreadLocalRandom.current().nextInt(files.length));
 				}
 
-				final boolean loaded = loadFile(random.nextInt(files.length));
+				final boolean loaded = loadFile(ThreadLocalRandom.current().nextInt(files.length));
 
 				if(loaded) {
 					System.out.print("Please press enter to load next file: ");
@@ -347,16 +343,19 @@ public class DataRedistributionLoader implements Runnable {
 	 */
 	public static void main(final String[] args) {
 
-		if(args.length != 6) {
-			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <Number of files to load> <Underflow Size> <Overflow Size>"
-					+ "<ZookeeperEndpoint> <Clustername>");
+		if(args.length != 7) {
+			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <Number of files to load> <Max loaded files>"
+					+ "<Underflow Size> <Overflow Size> <ZookeeperEndpoint> <Clustername>");
 			System.exit(-1);
 		}
 
-		final String zookeeperEndpoint = args[2];
-		final String clustername = args[3];
-		final String underflowStringSize = args[4];
-		final String overflowStringSize = args[5];
+		final String files = args[0];
+		final String numberOfFilesToLoadString = args[1];
+		final String numberOfMaxLoaddedFilesString = args[2];
+		final String underflowStringSize = args[3];
+		final String overflowStringSize = args[4];
+		final String zookeeperEndpoint = args[5];
+		final String clustername = args[6];
 		
 		final BBoxDBCluster bboxDBCluster = new BBoxDBCluster(zookeeperEndpoint, clustername);
 		bboxDBCluster.connect();
@@ -366,14 +365,17 @@ public class DataRedistributionLoader implements Runnable {
 			System.exit(-1);
 		}
 
-		final int numberOfFilesToLoad = MathUtil.tryParseIntOrExit(args[1],
-				() -> "Unable to parse: " + args[1]);
+		final int numberOfFilesToLoad = MathUtil.tryParseIntOrExit(numberOfFilesToLoadString,
+				() -> "Unable to parse: " + numberOfFilesToLoadString);
+		
+		final int numberOfMaxLoadedFiles = MathUtil.tryParseIntOrExit(numberOfMaxLoaddedFilesString,
+				() -> "Unable to parse: " + numberOfMaxLoaddedFilesString);
 		
 		final int underflowSize = MathUtil.tryParseIntOrExit(underflowStringSize, () -> "Unable to parse: " + underflowStringSize);
 		final int overflowSize = MathUtil.tryParseIntOrExit(overflowStringSize, () -> "Unable to parse: " + overflowStringSize);
 
-		final DataRedistributionLoader dataRedistributionLoader = new DataRedistributionLoader(args[0],
-				numberOfFilesToLoad, bboxDBCluster, underflowSize, overflowSize);
+		final DataRedistributionLoader dataRedistributionLoader = new DataRedistributionLoader(files,
+				numberOfFilesToLoad, numberOfMaxLoadedFiles, underflowSize, overflowSize, bboxDBCluster);
 
 		dataRedistributionLoader.run();
 	}
