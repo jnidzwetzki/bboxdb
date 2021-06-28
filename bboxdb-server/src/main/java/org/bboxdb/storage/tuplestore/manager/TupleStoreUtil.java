@@ -61,8 +61,9 @@ public class TupleStoreUtil {
 		
 		long totalSize = 0;
 		
-		for(TupleStoreName ssTableName : tables) {
-			totalSize = totalSize + registry.getTupleStoreManager(ssTableName).getSize();
+		for(final TupleStoreName ssTableName : tables) {
+			final TupleStoreManager tupleStoreManager = registry.getTupleStoreManager(ssTableName);
+			totalSize = totalSize + tupleStoreManager.getSize();
 		}
 		
 		return totalSize;
@@ -84,8 +85,9 @@ public class TupleStoreUtil {
 		
 		long tuples = 0;
 		
-		for(TupleStoreName ssTableName : tables) {
-			tuples = tuples + registry.getTupleStoreManager(ssTableName).getNumberOfTuples();
+		for(final TupleStoreName ssTableName : tables) {
+			final TupleStoreManager tupleStoreManager = registry.getTupleStoreManager(ssTableName);
+			tuples = tuples + tupleStoreManager.getNumberOfTuples();
 		}
 		
 		return tuples;
