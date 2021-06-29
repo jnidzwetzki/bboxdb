@@ -50,6 +50,7 @@ import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -499,7 +500,7 @@ public class QueryWindow {
 			default:
 				logger.error("Unknown selection: " + selectedPredefinedQuery);
 			}
-			
+	
 		});
 		
 		// The normal queries
@@ -674,10 +675,14 @@ public class QueryWindow {
 						udfs.add(udf);
 					}
 					
+					final Stopwatch stopwatch = Stopwatch.createStarted();
+
 					final JoinedTupleListFuture result = guimodel.getConnection().querySpatialJoin(
 							Arrays.asList(table1, table2), bbox, udfs);
 					
 					result.waitForCompletion();
+					stopwatch.stop();
+					
 					if(result.isFailed()) {
 						logger.error("Got an error" + result.getAllMessages());
 						return;
@@ -693,8 +698,9 @@ public class QueryWindow {
 						elements.add(group);
 					}
 					
-					logger.info("Got {} tuples back in {} ms", 
-							elements.size(), result.getCompletionTime(TimeUnit.MILLISECONDS));
+					logger.info("Got {} tuples back in {} / {} ms", 
+							elements.size(), result.getCompletionTime(TimeUnit.MILLISECONDS), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+					
 					
 					painter.addElementToDrawBulk(elements);
 					
@@ -725,10 +731,13 @@ public class QueryWindow {
 						udfs.add(udf);
 					}
 					
+					final Stopwatch stopwatch = Stopwatch.createStarted();
+					
 					final TupleListFuture result = guimodel.getConnection().queryRectangle(
 							table, bbox, udfs);
 					
 					result.waitForCompletion();
+					stopwatch.stop();
 					
 					if(result.isFailed()) {
 						logger.error("Got an error" + result.getAllMessages());
@@ -742,8 +751,8 @@ public class QueryWindow {
 						elements.add(overlayElement);
 					}
 					
-					logger.info("Got {} tuples back in {} ms", 
-							elements.size(), result.getCompletionTime(TimeUnit.MILLISECONDS));
+					logger.info("Got {} tuples back in {} / {} ms", 
+							elements.size(), result.getCompletionTime(TimeUnit.MILLISECONDS), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 					
 					painter.addElementToDrawBulk(elements);
 					
