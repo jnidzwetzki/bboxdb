@@ -305,16 +305,20 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Set the mode to read only
 	 */
 	public void setToReadOnly() {
-		// Set the flush mode to read only
-		tupleStoreInstances.setReadOnly();
+		if(tupleStoreInstances.getState() != TupleStoreManagerState.READ_ONLY) {
+			// Set the flush mode to read only
+			tupleStoreInstances.setReadOnly();
+		}
 	}
 
 	/**
 	 * Set the mode to read only
 	 */
 	public void setToReadWrite() {
-		// Set the flush mode to read write
-		tupleStoreInstances.setReadWrite();
+		if(tupleStoreInstances.getState() != TupleStoreManagerState.READ_WRITE) {
+			// Set the flush mode to read write
+			tupleStoreInstances.setReadWrite();
+		}
 	}
 
 	/**

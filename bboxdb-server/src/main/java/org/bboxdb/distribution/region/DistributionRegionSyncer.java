@@ -208,7 +208,7 @@ public class DistributionRegionSyncer implements Watcher {
 
 			final long localVersion = versions.getOrDefault(region, 0l);
 
-			// Update might be alreay read before the watcher was processed
+			// Update might be already read before the watcher was processed
 			if(localVersion > remoteVersion) {
 				logger.debug("Local version {} for {} is newer than remote version {}",
 						localVersion, nodePath, remoteVersion);
@@ -226,7 +226,7 @@ public class DistributionRegionSyncer implements Watcher {
 			updateNode(nodePath, region);
 			versions.put(region, remoteVersion);
 			notifyCallbacks(DistributionRegionEvent.CHANGED, region);
-			updateLocalMappings();
+			updateLocalState();
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.error("Got exception while handling zookeeper callback");
 		} catch (InterruptedException e) {
@@ -267,15 +267,12 @@ public class DistributionRegionSyncer implements Watcher {
 				final DistributionRegionState newState
 					= distributionRegionAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
 
-				final boolean writeAccessEnabled
-					= DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE.test(newState);
-
 				if(oldState != newState) {
 					logger.debug("Replacing state {} to {} on node {}", oldState, newState, region.getIdentifier());
 				}
 
-				// Ensure parent region write access  is still enabled before we update the children
-				if(writeAccessEnabled) {
+				// Ensure parent region write access is enabled before we update the children
+				if(isWriteState(newState)) {
 					region.setState(newState);
 				}
 
@@ -381,7 +378,7 @@ public class DistributionRegionSyncer implements Watcher {
 	 * @param region
 	 * @param systems
 	 */
-	private void updateLocalMappings() {
+	private void updateLocalState() {
 
 		if(rootNode == null || distributionGroupName == null) {
 			logger.debug("Root node is {}, distributionGroupNameIs {}", rootNode, distributionGroupName);
@@ -409,20 +406,29 @@ public class DistributionRegionSyncer implements Watcher {
 
 			final DistributionRegionState state = region.getState();
 			
-			if(DistributionRegionHelper.STATES_WRITE.contains(state) || DistributionRegionHelper.STATES_STREAM.contains(state)) {
-				
+			if(isWriteState(state)) {
 				// Add the mapping to the nameprefix mapper
 				if(! allExistingMappings.contains(regionId)) {
 					distributionRegionMapper.addMapping(regionId, region.getConveringBox());
 					GlobalDistributionRegionEventBus.getInstance().runCallback(region, DistributionRegionEvent.LOCAL_MAPPING_ADDED);
+				} else {
+					allExistingMappings.remove(regionId);
 				}
-
-				allExistingMappings.remove(regionId);
 			}
 		}
 
 		// Remove all active but not seen mappings
 		allExistingMappings.forEach(m -> distributionRegionMapper.removeMapping(m));
+	}
+
+	/**
+	 * Is the state a write state
+	 * @param state
+	 * @return
+	 */
+	private boolean isWriteState(final DistributionRegionState state) {
+		return DistributionRegionHelper.STATES_WRITE.contains(state) 
+				|| DistributionRegionHelper.STATES_STREAM.contains(state);
 	}
 
 	/**

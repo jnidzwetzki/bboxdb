@@ -44,6 +44,48 @@ public class TupleStoreUtil {
 			.collect(Collectors.toList());
 	}
 	
+	/**
+	 * Set all tables in the region to read only state
+	 * @param registry
+	 * @param distributionGroupName
+	 * @param regionId
+	 * @throws StorageManagerException 
+	 */
+	public static void setAllTablesToReadOnly(final TupleStoreManagerRegistry registry, 
+			final String distributionGroupName, 
+			final long regionId) throws StorageManagerException {
+		
+		final List<TupleStoreName> localTables 
+			= getAllTablesForDistributionGroupAndRegionId(registry, distributionGroupName, regionId);
+		
+		for(final TupleStoreName ssTableName : localTables) {
+			final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);			
+			ssTableManager.setToReadOnly();
+		}
+		
+	}
+	
+	/**
+	 * Set all tables in the region to read write state
+	 * @param registry
+	 * @param distributionGroupName
+	 * @param regionId
+	 * @throws StorageManagerException 
+	 */
+	public static void setAllTablesToReadWrite(final TupleStoreManagerRegistry registry, 
+			final String distributionGroupName, 
+			final long regionId) throws StorageManagerException {
+		
+		final List<TupleStoreName> localTables 
+		= getAllTablesForDistributionGroupAndRegionId(registry, distributionGroupName, regionId);
+	
+		for(final TupleStoreName ssTableName : localTables) {
+			final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);			
+			ssTableManager.setToReadWrite();
+		}
+		
+	}
+	
 
 	/**
 	 * Get the size of all sstables in the distribution group and region id

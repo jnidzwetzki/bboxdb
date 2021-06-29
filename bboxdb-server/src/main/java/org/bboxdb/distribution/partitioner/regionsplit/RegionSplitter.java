@@ -176,15 +176,14 @@ public class RegionSplitter {
 						
 			final String distributionGroupName = source.getDistributionGroupName();
 			
+			// Reject new writes and flush to disk
+			TupleStoreUtil.setAllTablesToReadOnly(registry, distributionGroupName, regionId);
+			
 			final List<TupleStoreName> localTables = TupleStoreUtil
 					.getAllTablesForDistributionGroupAndRegionId(registry, distributionGroupName, regionId);
 	
 			// Redistribute data
 			for(final TupleStoreName ssTableName : localTables) {
-				// Reject new writes and flush to disk
-				setToReadOnly(ssTableName);
-				
-				// Distribute data
 				distributeData(ssTableName, source, destination);	
 			}
 
@@ -216,17 +215,6 @@ public class RegionSplitter {
 		spreadTupleStores(ssTableManager, tupleRedistributor);			
 		
 		logger.info("Redistributing table {} is DONE", ssTableName.getFullname());
-	}
-
-	/**
-	 * Set storage manager to read only
-	 * @param ssTableName
-	 * @throws StorageManagerException
-	 */
-	private void setToReadOnly(final TupleStoreName ssTableName) throws StorageManagerException {
-		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
-		
-		ssTableManager.setToReadOnly();
 	}
 
 	/**
