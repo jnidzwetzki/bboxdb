@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
+import org.bboxdb.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier;
 import org.bboxdb.storage.entity.JoinedTupleIdentifier.Strategy;

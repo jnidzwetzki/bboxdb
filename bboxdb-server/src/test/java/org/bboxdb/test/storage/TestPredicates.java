@@ -23,12 +23,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.query.queryprocessor.predicate.AndPredicate;
+import org.bboxdb.query.queryprocessor.predicate.IntersectsBoundingBoxPredicate;
+import org.bboxdb.query.queryprocessor.predicate.NewerAsVersionTimePredicate;
+import org.bboxdb.query.queryprocessor.predicate.Predicate;
+import org.bboxdb.query.queryprocessor.predicate.PredicateTupleFilterIterator;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
-import org.bboxdb.storage.queryprocessor.predicate.IntersectsBoundingBoxPredicate;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
-import org.bboxdb.storage.queryprocessor.predicate.PredicateTupleFilterIterator;
 import org.junit.Assert;
 import org.junit.Test;
 

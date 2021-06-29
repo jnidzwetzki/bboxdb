@@ -23,16 +23,16 @@ import java.util.UUID;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.query.ContinuousRangeQueryPlan;
-import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
-import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
-import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
-import org.bboxdb.network.query.transformation.BoundingBoxFilterTransformation;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByAmountTransformation;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByFactorTransformation;
-import org.bboxdb.network.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
-import org.bboxdb.network.query.transformation.KeyFilterTransformation;
+import org.bboxdb.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousQueryPlanSerializer;
+import org.bboxdb.query.ContinuousRangeQueryPlan;
+import org.bboxdb.query.ContinuousSpatialJoinQueryPlan;
+import org.bboxdb.query.filter.UserDefinedFilterDefinition;
+import org.bboxdb.query.transformation.BoundingBoxFilterTransformation;
+import org.bboxdb.query.transformation.EnlargeBoundingBoxByAmountTransformation;
+import org.bboxdb.query.transformation.EnlargeBoundingBoxByFactorTransformation;
+import org.bboxdb.query.transformation.EnlargeBoundingBoxByWGS84Transformation;
+import org.bboxdb.query.transformation.KeyFilterTransformation;
 import org.junit.Assert;
 import org.junit.Test;
 

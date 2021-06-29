@@ -18,7 +18,7 @@
 package org.bboxdb.test.query;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.query.filter.UserDefinedGeoJsonSpatialFilter;
+import org.bboxdb.query.filter.UserDefinedGeoJsonSpatialFilter;
 import org.bboxdb.storage.entity.Tuple;
 import org.junit.Assert;
 import org.junit.Test;

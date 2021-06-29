@@ -18,10 +18,10 @@
 package org.bboxdb.test.query;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.query.ContinuousRangeQueryPlan;
-import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousSpatialJoinQueryPlan;
-import org.bboxdb.network.query.QueryPlanBuilder;
+import org.bboxdb.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousRangeQueryPlan;
+import org.bboxdb.query.ContinuousSpatialJoinQueryPlan;
+import org.bboxdb.query.QueryPlanBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 

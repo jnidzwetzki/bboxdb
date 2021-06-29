@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
+import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 
 public class RequestEncoderHelper {
 

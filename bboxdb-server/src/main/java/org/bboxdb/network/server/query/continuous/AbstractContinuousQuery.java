@@ -19,7 +19,7 @@ package org.bboxdb.network.server.query.continuous;
 
 import java.util.function.BiConsumer;
 
-import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;

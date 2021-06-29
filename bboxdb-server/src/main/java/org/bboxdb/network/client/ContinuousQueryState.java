@@ -20,7 +20,7 @@ package org.bboxdb.network.client;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousQueryPlan;
 
 public class ContinuousQueryState {
 	

@@ -29,7 +29,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
-import org.bboxdb.network.query.ContinuousRangeQueryPlan;
+import org.bboxdb.query.ContinuousRangeQueryPlan;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;

@@ -27,9 +27,9 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.query.ContinuousQueryPlan;
-import org.bboxdb.network.query.ContinuousQueryPlanSerializer;
 import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousQueryPlanSerializer;
 
 public class QueryContinuousRequest extends NetworkQueryRequestPackage {
 

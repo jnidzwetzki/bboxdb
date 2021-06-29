@@ -29,8 +29,8 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.helper.RequestEncoderHelper;
-import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.storage.entity.TupleStoreName;
 
 public class QueryHyperrectangleRequest extends NetworkQueryRequestPackage {

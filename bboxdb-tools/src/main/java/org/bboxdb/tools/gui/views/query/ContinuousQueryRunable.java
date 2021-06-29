@@ -29,7 +29,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.ContinuousQueryState;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
-import org.bboxdb.network.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousQueryPlan;
 import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;

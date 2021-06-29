@@ -24,9 +24,9 @@ import java.util.Map.Entry;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.entity.TupleAndBoundingBox;
-import org.bboxdb.network.query.filter.UserDefinedFilter;
-import org.bboxdb.network.query.filter.UserDefinedFilterDefinition;
-import org.bboxdb.network.query.transformation.TupleTransformation;
+import org.bboxdb.query.filter.UserDefinedFilter;
+import org.bboxdb.query.filter.UserDefinedFilterDefinition;
+import org.bboxdb.query.transformation.TupleTransformation;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
