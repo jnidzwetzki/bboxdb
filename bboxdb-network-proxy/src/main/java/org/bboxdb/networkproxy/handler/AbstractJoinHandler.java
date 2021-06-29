@@ -69,7 +69,7 @@ public abstract class AbstractJoinHandler implements ProxyCommandHandler {
 		
 		try {
 			final BBoxDB client = getConnection(bboxdbClient);
-			final JoinedTupleListFuture tupleResult = client.queryJoin(Arrays.asList(table1, table2), bbox, 
+			final JoinedTupleListFuture tupleResult = client.querySpatialJoin(Arrays.asList(table1, table2), bbox, 
 					new ArrayList<>());
 			tupleResult.waitForCompletion();
 

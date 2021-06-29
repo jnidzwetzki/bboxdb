@@ -197,7 +197,7 @@ public interface BBoxDB extends Closeable {
 	 * @param udfs - The UDFs
 	 * @return
 	 */
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
+	public JoinedTupleListFuture querySpatialJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
 			final List<UserDefinedFilterDefinition> udfs) throws BBoxDBException;
 
 	/**

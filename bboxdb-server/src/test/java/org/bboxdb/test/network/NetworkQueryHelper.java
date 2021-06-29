@@ -450,7 +450,7 @@ public class NetworkQueryHelper {
 		Assert.assertTrue(insertResult3.isDone());
 
 		// Execute the join
-		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2),
+		final JoinedTupleListFuture joinResult = bboxDBClient.querySpatialJoin(Arrays.asList(table1, table2),
 				new Hyperrectangle(0.0, 10.0, 0.0, 10.0), new ArrayList<>());
 		joinResult.waitForCompletion();
 		final List<MultiTuple> resultList = Lists.newArrayList(joinResult.iterator());

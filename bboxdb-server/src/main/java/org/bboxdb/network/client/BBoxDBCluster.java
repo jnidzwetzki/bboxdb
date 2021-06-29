@@ -565,7 +565,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
 	 */
 	@Override
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
+	public JoinedTupleListFuture querySpatialJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
 			final List<UserDefinedFilterDefinition> udfs) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {

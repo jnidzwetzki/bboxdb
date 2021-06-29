@@ -674,7 +674,7 @@ public class QueryWindow {
 						udfs.add(udf);
 					}
 					
-					final JoinedTupleListFuture result = guimodel.getConnection().queryJoin(
+					final JoinedTupleListFuture result = guimodel.getConnection().querySpatialJoin(
 							Arrays.asList(table1, table2), bbox, udfs);
 					
 					result.waitForCompletion();

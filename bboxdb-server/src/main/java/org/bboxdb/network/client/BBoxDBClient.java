@@ -572,7 +572,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
 	 */
 	@Override
-	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
+	public JoinedTupleListFuture querySpatialJoin(final List<String> tableNames, final Hyperrectangle boundingBox,
 			final List<UserDefinedFilterDefinition> udfs) {
 		
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(

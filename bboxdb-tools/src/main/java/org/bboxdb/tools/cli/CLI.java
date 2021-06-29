@@ -620,7 +620,7 @@ public class CLI implements Runnable, AutoCloseable {
 			udfs.add(udf);
 		}
 		
-		final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox,
+		final JoinedTupleListFuture resultFuture = bboxDbConnection.querySpatialJoin(tableList, boundingBox,
 				udfs);
 
 		if(resultFuture == null) {
