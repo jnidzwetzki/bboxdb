@@ -1,5 +1,6 @@
 package org.bboxdb.query.filter;
 
+import org.bboxdb.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,12 @@ public class UserDefinedFilterDefinition {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(UserDefinedFilterDefinition.class);
 
+	public UserDefinedFilterDefinition(final String userDefinedFilterClass, 
+			final byte[] userDefinedFilterValue) {
+	
+		this(userDefinedFilterClass, new String(userDefinedFilterValue, Const.DEFAULT_CHARSET));
+	}
+	
 	public UserDefinedFilterDefinition(final String userDefinedFilterClass, 
 			final String userDefinedFilterValue) {
 		
