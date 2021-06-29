@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -692,6 +693,9 @@ public class QueryWindow {
 						elements.add(group);
 					}
 					
+					logger.info("Got {} tuples back in {} ms", 
+							elements.size(), result.getCompletionTime(TimeUnit.MILLISECONDS));
+					
 					painter.addElementToDrawBulk(elements);
 					
 				} catch (BBoxDBException e) {
@@ -738,7 +742,9 @@ public class QueryWindow {
 						elements.add(overlayElement);
 					}
 					
-					logger.info("Got {} tuples back", elements.size());
+					logger.info("Got {} tuples back in {} ms", 
+							elements.size(), result.getCompletionTime(TimeUnit.MILLISECONDS));
+					
 					painter.addElementToDrawBulk(elements);
 					
 				} catch (BBoxDBException e) {
