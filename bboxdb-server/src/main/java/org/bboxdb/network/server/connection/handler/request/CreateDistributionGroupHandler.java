@@ -22,10 +22,10 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;

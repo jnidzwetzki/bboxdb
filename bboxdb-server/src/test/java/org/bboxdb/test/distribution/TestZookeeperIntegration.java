@@ -26,6 +26,7 @@ import java.util.OptionalDouble;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.membership.ZookeeperInstancePathHelper;
@@ -34,7 +35,6 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.StatisticsHelper;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;

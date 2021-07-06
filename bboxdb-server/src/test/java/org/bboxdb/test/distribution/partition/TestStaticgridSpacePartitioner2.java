@@ -19,8 +19,8 @@ package org.bboxdb.test.distribution.partition;
 
 import java.util.HashSet;
 
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;

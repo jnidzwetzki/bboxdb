@@ -20,11 +20,11 @@ package org.bboxdb.test.distribution.placement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.distribution.allocator.RandomResourceAllocator;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocator;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
-import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,8 +34,8 @@ public class TestRandomRessourcePlacement {
 	 * Get the placement strategy for the test
 	 * @return
 	 */
-	public ResourcePlacementStrategy getPlacementStrategy() {
-		return new RandomResourcePlacementStrategy();
+	public ResourceAllocator getPlacementStrategy() {
+		return new RandomResourceAllocator();
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class TestRandomRessourcePlacement {
 	 */
 	@Test(expected=ResourceAllocationException.class)
 	public void testPlacement0() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		resourcePlacementStrategy.getInstancesForNewRessource(systems);
 	}
@@ -55,7 +55,7 @@ public class TestRandomRessourcePlacement {
 	 */
 	@Test(expected=ResourceAllocationException.class)
 	public void testPlacement1() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));
 		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.READY));
@@ -71,7 +71,7 @@ public class TestRandomRessourcePlacement {
 	 */
 	@Test(timeout=60000)
 	public void testPlacement2() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));
 
@@ -87,7 +87,7 @@ public class TestRandomRessourcePlacement {
 	 */
 	@Test(expected=ResourceAllocationException.class)
 	public void testNonReadySystems1() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
 		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.FAILED));
@@ -103,7 +103,7 @@ public class TestRandomRessourcePlacement {
 	 */
 	@Test(expected=ResourceAllocationException.class)
 	public void testNonReadySystems2() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
 		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.FAILED));
@@ -119,7 +119,7 @@ public class TestRandomRessourcePlacement {
 	 */
 	@Test(timeout=60000)
 	public void testNonReadySystems3() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
 		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.FAILED));

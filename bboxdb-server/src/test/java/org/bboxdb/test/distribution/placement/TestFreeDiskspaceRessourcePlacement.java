@@ -20,11 +20,11 @@ package org.bboxdb.test.distribution.placement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.distribution.allocator.MaxFreeDiskspaceAllocator;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocator;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
-import org.bboxdb.distribution.placement.MaxFreeDiskspacePlacementStrategy;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,8 +35,8 @@ public class TestFreeDiskspaceRessourcePlacement extends TestRandomRessourcePlac
 	 * @return
 	 */
 	@Override
-	public ResourcePlacementStrategy getPlacementStrategy() {
-		return new MaxFreeDiskspacePlacementStrategy();
+	public ResourceAllocator getPlacementStrategy() {
+		return new MaxFreeDiskspaceAllocator();
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class TestFreeDiskspaceRessourcePlacement extends TestRandomRessourcePlac
 	 */
 	@Test(timeout=60000)
 	public void testUtilPlacement() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<>();
 		
 		final BBoxDBInstance instance1 = new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY);

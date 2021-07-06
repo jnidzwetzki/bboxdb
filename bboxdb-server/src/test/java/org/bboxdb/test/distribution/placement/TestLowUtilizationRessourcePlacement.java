@@ -20,11 +20,11 @@ package org.bboxdb.test.distribution.placement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.distribution.allocator.MinRegionsResourceAllocator;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocator;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
-import org.bboxdb.distribution.placement.MinRegionsResourcePlacementStrategy;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,9 +43,9 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 	 * @return
 	 */
 	@Override
-	public ResourcePlacementStrategy getPlacementStrategy() {
+	public ResourceAllocator getPlacementStrategy() {
 		
-		return new MinRegionsResourcePlacementStrategy() {
+		return new MinRegionsResourceAllocator() {
 			@Override
 			protected Multiset<BBoxDBInstance> calculateSystemUsage() {
 				return utilization;
@@ -59,7 +59,7 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 	 */
 	@Test(timeout=60000)
 	public void testUtilPlacement() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<>();
 		
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));

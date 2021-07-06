@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;

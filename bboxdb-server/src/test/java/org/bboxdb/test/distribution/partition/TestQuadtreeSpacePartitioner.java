@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;

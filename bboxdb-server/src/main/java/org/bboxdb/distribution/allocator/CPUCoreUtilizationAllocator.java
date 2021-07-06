@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
 import java.util.function.Predicate;
 
@@ -25,14 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multiset;
 
-public class CoreUtilizationPlacementStrategy extends AbstractUtilizationPlacementStrategy {
+public class CPUCoreUtilizationAllocator extends AbstractUtilizationAllocator {
 	
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(CoreUtilizationPlacementStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(CPUCoreUtilizationAllocator.class);
 	
-	public CoreUtilizationPlacementStrategy() {
+	public CPUCoreUtilizationAllocator() {
 
 	}
 	

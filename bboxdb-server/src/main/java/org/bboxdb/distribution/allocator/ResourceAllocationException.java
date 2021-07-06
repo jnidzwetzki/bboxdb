@@ -15,25 +15,30 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.test.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
-import org.bboxdb.distribution.allocator.DummyResourceAllocator;
-import org.bboxdb.distribution.allocator.ResourceAllocationException;
-import org.bboxdb.distribution.allocator.ResourceAllocator;
-import org.junit.Assert;
-import org.junit.Test;
+public class ResourceAllocationException extends Exception {
 
-public class TestDummyResourcePlacementStrategy {
+	private static final long serialVersionUID = 7306928862288145302L;
 
-	/**
-	 * Test the placement
-	 * @throws ResourceAllocationException 
-	 */
-	@Test(timeout=60000)
-	public void testPlacement() throws ResourceAllocationException {
-		final ResourceAllocator strategy = new DummyResourceAllocator();
-		
-		Assert.assertEquals(DummyResourceAllocator.DUMMY_INSTANCE, 
-				strategy.getInstancesForNewRessource(null));
+	public ResourceAllocationException() {
+
 	}
+
+	public ResourceAllocationException(final String message) {
+		super(message);
+	}
+
+	public ResourceAllocationException(final Throwable cause) {
+		super(cause);
+	}
+
+	public ResourceAllocationException(final String message, final Throwable cause) {
+		super(message, cause);
+	}
+
+	public ResourceAllocationException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+
 }

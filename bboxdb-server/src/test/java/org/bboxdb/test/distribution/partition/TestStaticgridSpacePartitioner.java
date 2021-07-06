@@ -20,9 +20,9 @@ package org.bboxdb.test.distribution.partition;
 import java.util.HashSet;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;

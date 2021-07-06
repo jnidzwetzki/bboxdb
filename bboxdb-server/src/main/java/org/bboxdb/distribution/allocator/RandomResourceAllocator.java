@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 
-public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
+public class RandomResourceAllocator extends AbstractResourceAllocator {
 
 	@Override
 	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 

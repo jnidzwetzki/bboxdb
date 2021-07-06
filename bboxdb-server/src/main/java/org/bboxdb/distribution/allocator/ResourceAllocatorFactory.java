@@ -15,23 +15,23 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResourcePlacementStrategyFactory {
+public class ResourceAllocatorFactory {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ResourcePlacementStrategyFactory.class);
+	private final static Logger logger = LoggerFactory.getLogger(ResourceAllocatorFactory.class);
 
 	/**
 	 * Get an instance of the configured factory
 	 * @return
 	 */
-	public static ResourcePlacementStrategy getInstance(final String placementStrategy) {
+	public static ResourceAllocator getInstance(final String placementStrategy) {
 		
 		if("none".equals(placementStrategy)) {
 			return null;
@@ -47,11 +47,11 @@ public class ResourcePlacementStrategyFactory {
 			
 			final Object factoryObject = classObject.newInstance();
 			
-			if(! (factoryObject instanceof ResourcePlacementStrategy)) {
+			if(! (factoryObject instanceof ResourceAllocator)) {
 				throw new ClassNotFoundException(placementStrategy + " is not a instance of ReplicationStrategy");
 			}
 			
-			return (ResourcePlacementStrategy) factoryObject;			
+			return (ResourceAllocator) factoryObject;			
 		} catch (Exception e) {
 			logger.warn("Unable to instance class: " + placementStrategy, e);
 			throw new RuntimeException(e);

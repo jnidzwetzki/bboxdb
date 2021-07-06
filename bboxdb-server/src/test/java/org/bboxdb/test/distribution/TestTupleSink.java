@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.LocalTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.NetworkTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;

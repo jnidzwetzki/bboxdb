@@ -33,13 +33,13 @@ import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.distribution.allocator.RandomResourceAllocator;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocator;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
-import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ContinuousQueryEnlargementRegisterer;
@@ -80,7 +80,7 @@ public class BBoxDBCluster implements BBoxDB {
 	/**
 	 * The resource placement strategy
 	 */
-	private final ResourcePlacementStrategy resourcePlacementStrategy;
+	private final ResourceAllocator resourcePlacementStrategy;
 
 	/**
 	 * The membership connection service
@@ -109,7 +109,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	public BBoxDBCluster(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
-		this.resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		this.resourcePlacementStrategy = new RandomResourceAllocator();
 		this.membershipConnectionService = MembershipConnectionService.getInstance();
 	}
 	
@@ -120,7 +120,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	public BBoxDBCluster(final Collection<String> zookeeperNodes, final String clustername) {
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
-		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		resourcePlacementStrategy = new RandomResourceAllocator();
 		membershipConnectionService = MembershipConnectionService.getInstance();
 	}
 

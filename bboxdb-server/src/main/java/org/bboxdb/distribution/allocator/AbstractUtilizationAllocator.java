@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
 
-public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlacementStrategy {
+public abstract class AbstractUtilizationAllocator extends AbstractResourceAllocator {
 	
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(AbstractUtilizationPlacementStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(AbstractUtilizationAllocator.class);
 	
-	public AbstractUtilizationPlacementStrategy() {
+	public AbstractUtilizationAllocator() {
 
 	}
 	

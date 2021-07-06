@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
 import java.util.function.Predicate;
 
@@ -25,13 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multiset;
 
-public class MinRegionsResourcePlacementStrategy extends AbstractUtilizationPlacementStrategy {
+public class MinRegionsResourceAllocator extends AbstractUtilizationAllocator {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(MinRegionsResourcePlacementStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(MinRegionsResourceAllocator.class);
 	
-	public MinRegionsResourcePlacementStrategy() {
+	public MinRegionsResourceAllocator() {
 
 	}
 	

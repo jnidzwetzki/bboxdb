@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoundRobinResourcePlacementStrategy extends ResourcePlacementStrategy {
+public class RoundRobinResourceAllocator extends AbstractResourceAllocator {
 
 	/**
 	 * The last assigned instance
@@ -35,9 +35,9 @@ public class RoundRobinResourcePlacementStrategy extends ResourcePlacementStrate
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(RoundRobinResourcePlacementStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(RoundRobinResourceAllocator.class);
 	
-	public RoundRobinResourcePlacementStrategy() {
+	public RoundRobinResourceAllocator() {
 		lastInstance = null;
 	}
 	

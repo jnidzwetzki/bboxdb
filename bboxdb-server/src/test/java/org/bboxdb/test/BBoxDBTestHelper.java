@@ -21,12 +21,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.bboxdb.commons.service.ServiceState;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;

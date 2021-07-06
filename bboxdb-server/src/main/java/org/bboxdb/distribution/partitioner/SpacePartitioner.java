@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;

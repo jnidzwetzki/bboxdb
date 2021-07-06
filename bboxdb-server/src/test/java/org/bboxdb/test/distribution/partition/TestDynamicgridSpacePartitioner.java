@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;

@@ -21,12 +21,12 @@ import java.util.Collection;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.SimpleSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;

@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocator;
+import org.bboxdb.distribution.allocator.ResourceAllocatorFactory;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -95,8 +95,8 @@ public class SpacePartitionerHelper {
 		
 		final String placementStrategy = config.getPlacementStrategy();
 		
-		final ResourcePlacementStrategy resourcePlacementStrategy 
-			= ResourcePlacementStrategyFactory.getInstance(placementStrategy);
+		final ResourceAllocator resourcePlacementStrategy 
+			= ResourceAllocatorFactory.getInstance(placementStrategy);
 
 		if(resourcePlacementStrategy == null) {
 			throw new ResourceAllocationException("Unable to instanciate the ressource "

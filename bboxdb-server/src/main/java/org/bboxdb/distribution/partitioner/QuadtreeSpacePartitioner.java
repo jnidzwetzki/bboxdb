@@ -24,7 +24,7 @@ import java.util.List;
 import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.DoubleInterval;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;

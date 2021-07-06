@@ -15,30 +15,23 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
-public class ResourceAllocationException extends Exception {
+import java.util.Collection;
+import java.util.List;
 
-	private static final long serialVersionUID = 7306928862288145302L;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 
-	public ResourceAllocationException() {
+public interface ResourceAllocator {
 
-	}
-
-	public ResourceAllocationException(final String message) {
-		super(message);
-	}
-
-	public ResourceAllocationException(final Throwable cause) {
-		super(cause);
-	}
-
-	public ResourceAllocationException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
-	public ResourceAllocationException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
+	/**
+	 * Get a set with distributed instances. These instances will be responsible for 
+	 * a new resource. The systems from the blacklist are excluded.
+	 * 
+	 * @return
+	 * @throws ResourceAllocationException 
+	 */
+	public abstract BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
+			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException;
 
 }

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.placement;
+package org.bboxdb.distribution.allocator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,36 +25,39 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MaxFreeDiskspacePlacementStrategy extends ResourcePlacementStrategy {
+import com.google.common.annotations.VisibleForTesting;
 
+public class DummyResourceAllocator implements ResourceAllocator {
+
+	/**
+	 * The system
+	 */
+	public final static BBoxDBInstance DUMMY_INSTANCE = new BBoxDBInstance("10.10.10.10:50050");
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(MaxFreeDiskspacePlacementStrategy.class);
+	private final static Logger logger = LoggerFactory.getLogger(DummyResourceAllocator.class);
 	
-	public MaxFreeDiskspacePlacementStrategy() {
-	}
 	
+
 	@Override
+	@VisibleForTesting
 	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
 			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException {
 		
-		if(systems.isEmpty()) {
-			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
+		if(systems == null) {
+			return DUMMY_INSTANCE;
 		}
 		
-		final List<BBoxDBInstance> availableInstances = new ArrayList<>(systems);
-		availableInstances.removeAll(blacklist);
-		removeAllNonReadySystems(availableInstances);
+		final ArrayList<BBoxDBInstance> availableSystems = new ArrayList<>(systems);
+		availableSystems.removeAll(blacklist);
 		
-		if(availableInstances.isEmpty()) {
-			throw new ResourceAllocationException("Unable to choose a system, all systems are blacklisted. Blacklisted: " + blacklist + " / All: " + systems);
+		if(! availableSystems.isEmpty()) {
+			return availableSystems.get(0);
 		}
 		
-		// Get system with max free space
-		return availableInstances
-				.stream()
-				.reduce((a, b) -> (a.getFreeSpace() > b.getFreeSpace() ? a : b))
-				.get();
+		logger.debug("Executing new dummy allocation to {}", DUMMY_INSTANCE.getStringValue());
+		
+		return DUMMY_INSTANCE;
 	}
 }

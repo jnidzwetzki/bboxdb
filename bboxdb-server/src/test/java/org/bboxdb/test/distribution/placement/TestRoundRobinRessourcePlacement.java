@@ -20,11 +20,11 @@ package org.bboxdb.test.distribution.placement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.distribution.allocator.ResourceAllocationException;
+import org.bboxdb.distribution.allocator.ResourceAllocator;
+import org.bboxdb.distribution.allocator.RoundRobinResourceAllocator;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
-import org.bboxdb.distribution.placement.RoundRobinResourcePlacementStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,8 +35,8 @@ public class TestRoundRobinRessourcePlacement extends TestRandomRessourcePlaceme
 	 * @return
 	 */
 	@Override
-	public ResourcePlacementStrategy getPlacementStrategy() {
-		return new RoundRobinResourcePlacementStrategy();
+	public ResourceAllocator getPlacementStrategy() {
+		return new RoundRobinResourceAllocator();
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class TestRoundRobinRessourcePlacement extends TestRandomRessourcePlaceme
 	 */
 	@Test(timeout=60000)
 	public void testRoundRobinPlacement1() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));
 		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.READY));
@@ -65,7 +65,7 @@ public class TestRoundRobinRessourcePlacement extends TestRandomRessourcePlaceme
 	 */
 	@Test(timeout=60000)
 	public void testRoundRobinPlacement2() throws ResourceAllocationException {
-		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
+		final ResourceAllocator resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));
 		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.READY));
