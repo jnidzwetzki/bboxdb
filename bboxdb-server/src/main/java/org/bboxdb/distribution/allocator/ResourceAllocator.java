@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.allocator;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -33,5 +34,20 @@ public interface ResourceAllocator {
 	 */
 	public abstract BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
 			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException;
+	
+	
+	/**
+	 * Get a set with distributed instances. These instances will be responsible for 
+	 * a new resource.
+	 * 
+	 * @return
+	 * @throws ResourceAllocationException 
+	 */
+	public default BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems) 
+			throws ResourceAllocationException {
+		
+		final HashSet<BBoxDBInstance> emptyBlacklist = new HashSet<BBoxDBInstance>();
+		return getInstancesForNewRessource(systems, emptyBlacklist);
+	}
 
 }
