@@ -22,6 +22,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
+import org.bboxdb.distribution.allocator.CPUCoreUtilizationAllocator;
+import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+
 public class Const {
 
 	/**
@@ -53,7 +56,7 @@ public class Const {
 	/**
 	 * The default placement strategy
 	 */
-	public final static String DEFAULT_PLACEMENT_STRATEGY = "org.bboxdb.distribution.placement.RandomResourcePlacementStrategy";
+	public final static String DEFAULT_PLACEMENT_STRATEGY = CPUCoreUtilizationAllocator.class.getName();
 
 	/**
 	 * The default placement configuration
@@ -63,7 +66,7 @@ public class Const {
 	/**
 	 * The default space partitioner
 	 */
-	public final static String DEFAULT_SPACE_PARTITIONER = "org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner";
+	public final static String DEFAULT_SPACE_PARTITIONER = KDtreeSpacePartitioner.class.getName();
 
 	/**
 	 * The default space partitioner configuration

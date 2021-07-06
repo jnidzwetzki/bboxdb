@@ -16,6 +16,7 @@ order: 1
 - Improvement: Replaced RuntimeException when region parent is not found by optional and proper handling
 - Improvement: Added IsotoneStringMapper for mapping strings to double
 - Improvement: Provide simpler ResourceAllocator interface 
+- Improvement: Replaced string class names in Const by real class references
 - Bugfix: Fixed race condition in testInsertAndBoundingBoxContinousQuery2 unit test
 - Bugfix: Ensure connections are available during system init
 - Bugfix: Removed outdated OpenJDK comments from documentation
