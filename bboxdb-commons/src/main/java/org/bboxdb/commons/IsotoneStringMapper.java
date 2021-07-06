@@ -60,7 +60,7 @@ public class IsotoneStringMapper {
 		
 		final String mapString = element.substring(0, Math.min(prefixLength, element.length()));
 		
-		final String prefixedMapString = Strings.padEnd(mapString, prefixLength, '0');
+		final String prefixedMapString = Strings.padEnd(mapString, prefixLength, '\u0000');
 		
 		double result = 0;
 				
