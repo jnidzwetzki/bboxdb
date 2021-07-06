@@ -228,8 +228,8 @@ public class TestQuadtreeSpacePartitioner {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner", completeSpace.toCompactString())
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withSpacePartitioner(QuadtreeSpacePartitioner.class.getName(), completeSpace.toCompactString())
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);

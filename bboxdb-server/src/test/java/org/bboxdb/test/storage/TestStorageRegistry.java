@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -69,7 +70,7 @@ public class TestStorageRegistry {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		adapter.createDistributionGroup(RELATION_NAME.getDistributionGroup(), configuration);

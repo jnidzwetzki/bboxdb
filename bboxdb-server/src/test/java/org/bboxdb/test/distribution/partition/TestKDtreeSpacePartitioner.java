@@ -127,7 +127,7 @@ public class TestKDtreeSpacePartitioner {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(dimension)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
