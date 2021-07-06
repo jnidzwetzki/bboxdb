@@ -20,6 +20,7 @@ package org.bboxdb.test.distribution.partition;
 import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -65,8 +66,8 @@ public class TestHelper {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner", config)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withSpacePartitioner(DynamicgridSpacePartitioner.class.getName(), config)
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		// Add fake instances for testing

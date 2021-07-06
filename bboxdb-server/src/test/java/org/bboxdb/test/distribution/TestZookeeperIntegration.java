@@ -26,6 +26,7 @@ import java.util.OptionalDouble;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
@@ -111,7 +112,7 @@ public class TestZookeeperIntegration {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 
 		// Add fake instances for testing
@@ -708,11 +709,11 @@ public class TestZookeeperIntegration {
 		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(45);
 		configuration.setMaximumRegionSizeInMB(342);
 		configuration.setMinimumRegionSizeInMB(53454);
-		configuration.setPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy");
+		configuration.setPlacementStrategy(DummyResourceAllocator.class.getName());
 		configuration.setPlacementStrategyConfig("def");
 		configuration.setReplicationFactor((short) 1);
 		configuration.setSpacePartitioner(Const.DEFAULT_SPACE_PARTITIONER);
-		configuration.setSpacePartitionerConfig("xyz");
+		configuration.setSpacePartitionerConfig("xyz");	
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);

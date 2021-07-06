@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.bboxdb.commons.math.DoubleInterval;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
@@ -74,7 +75,7 @@ public class TestKDtreeSpacePartitioner {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		BBoxDBTestHelper.recreateDistributionGroup(distributionGroupZookeeperAdapter, TEST_GROUP, configuration, 2);

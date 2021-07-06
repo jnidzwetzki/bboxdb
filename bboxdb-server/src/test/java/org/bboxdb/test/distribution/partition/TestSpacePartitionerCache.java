@@ -18,6 +18,7 @@
 package org.bboxdb.test.distribution.partition;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -54,7 +55,7 @@ public class TestSpacePartitionerCache {
 		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);

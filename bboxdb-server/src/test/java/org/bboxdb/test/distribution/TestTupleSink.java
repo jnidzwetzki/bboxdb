@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -80,7 +81,7 @@ public class TestTupleSink {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 0)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);

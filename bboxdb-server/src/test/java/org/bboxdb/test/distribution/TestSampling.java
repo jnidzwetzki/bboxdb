@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
@@ -82,7 +83,7 @@ public class TestSampling {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 0)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		storageRegistry.deleteAllTablesInDistributionGroup(TEST_GROUP);

@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner;
@@ -70,8 +71,8 @@ public class TestDynamicgridSpacePartitioner {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.DynamicgridSpacePartitioner", config)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withSpacePartitioner(DynamicgridSpacePartitioner.class.getName(), config)
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 
 		// Add fake instances for testing

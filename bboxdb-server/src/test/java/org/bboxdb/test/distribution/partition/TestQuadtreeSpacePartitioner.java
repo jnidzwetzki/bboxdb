@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -69,8 +70,8 @@ public class TestQuadtreeSpacePartitioner {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
-				.withSpacePartitioner("org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner", "")
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withSpacePartitioner(QuadtreeSpacePartitioner.class.getName(), "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		BBoxDBTestHelper.recreateDistributionGroup(distributionGroupZookeeperAdapter, TEST_GROUP, configuration, 2);

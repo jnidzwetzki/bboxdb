@@ -19,6 +19,7 @@ package org.bboxdb.test.distribution.partition;
 
 import java.util.HashSet;
 
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -55,7 +56,7 @@ public class TestStaticgridSpacePartitioner2 {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withSpacePartitioner("org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner", config)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);

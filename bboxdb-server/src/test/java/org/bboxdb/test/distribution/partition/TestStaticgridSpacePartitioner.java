@@ -20,6 +20,7 @@ package org.bboxdb.test.distribution.partition;
 import java.util.HashSet;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner;
@@ -66,7 +67,7 @@ public class TestStaticgridSpacePartitioner {
 				.create(2)
 				.withReplicationFactor((short) 1)
 				.withSpacePartitioner("org.bboxdb.distribution.partitioner.StaticgridSpacePartitioner", config)
-				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
 		// Add fake instances for testing
