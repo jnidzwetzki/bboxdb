@@ -57,7 +57,7 @@
 		<dependency>
 		    <groupId>org.eclipse.jetty</groupId>
 		    <artifactId>jetty-security</artifactId>
-		    <version>9.4.42.v20210604</version>
+		    <version>9.4.43.v20210629</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.jetty</groupId>
