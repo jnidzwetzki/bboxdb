@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multiset;
 
-public class StorageUtilizationAllocator extends AbstractUtilizationAllocator {
+public class StorageLocationsUtilizationAllocator extends AbstractUtilizationAllocator {
+	
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(StorageUtilizationAllocator.class);
+	protected final static Logger logger = LoggerFactory.getLogger(StorageLocationsUtilizationAllocator.class);
 	
-	public StorageUtilizationAllocator() {
+	public StorageLocationsUtilizationAllocator() {
 
 	}
 	

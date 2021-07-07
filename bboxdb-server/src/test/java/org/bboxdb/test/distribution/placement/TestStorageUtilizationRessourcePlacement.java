@@ -23,7 +23,7 @@ import java.util.List;
 import org.bboxdb.distribution.allocator.AbstractUtilizationAllocator;
 import org.bboxdb.distribution.allocator.ResourceAllocationException;
 import org.bboxdb.distribution.allocator.ResourceAllocator;
-import org.bboxdb.distribution.allocator.StorageUtilizationAllocator;
+import org.bboxdb.distribution.allocator.StorageLocationsUtilizationAllocator;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.junit.Assert;
@@ -46,7 +46,7 @@ public class TestStorageUtilizationRessourcePlacement extends TestRandomRessourc
 	@Override
 	public AbstractUtilizationAllocator getPlacementStrategy() {
 		
-		return new StorageUtilizationAllocator() {
+		return new StorageLocationsUtilizationAllocator() {
 			@Override
 			protected Multiset<BBoxDBInstance> calculateSystemUsage() {
 				return utilization;
