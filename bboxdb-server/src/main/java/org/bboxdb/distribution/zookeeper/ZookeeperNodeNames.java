@@ -62,7 +62,7 @@ public class ZookeeperNodeNames {
 	/**
 	 * Name of the systems node
 	 */
-	public final static String NAME_SYSTEMS = "systems";
+	public final static String NAME_SYSTEMS = "nodes";
 	
 	/**
 	 * Name of the systems node
