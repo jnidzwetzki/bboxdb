@@ -1,6 +1,8 @@
 <img src="docs/logo/logo.png" width="400"> <br>
 
-<a href="https://scan.coverity.com/projects/jnidzwetzki-bboxdb">
+<a href="https://travis-ci.com/github/jnidzwetzki/bboxdb">
+  <img alt="Travis-CI.com Buld Status" src="https://travis-ci.com/jnidzwetzki/bboxdb.svg?branch=master">
+</a><a href="https://scan.coverity.com/projects/jnidzwetzki-bboxdb">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/11479/badge.svg"/>
 </a> <a href="https://codecov.io/gh/jnidzwetzki/bboxdb">
