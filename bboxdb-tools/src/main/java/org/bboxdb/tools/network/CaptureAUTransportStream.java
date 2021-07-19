@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import org.bboxdb.commons.MathUtil;
@@ -119,7 +118,6 @@ public class CaptureAUTransportStream implements Runnable {
 				
 				final String table = distributionGroup + "_" + entity;
 				final GeoJSONTupleBuilder tupleBuilder = new GeoJSONTupleBuilder();
-				final AtomicLong lastTimestamp = new AtomicLong();
 				
 				final InvalidationHelper invalidationHelper = new InvalidationHelper(bboxdbClient, table, pendingFutures);
 				
@@ -128,7 +126,7 @@ public class CaptureAUTransportStream implements Runnable {
 					Tuple tuple = null;
 					
 					if(polygon == null) {
-						tuple = new WatermarkTuple(lastTimestamp.get());
+						tuple = new WatermarkTuple(System.currentTimeMillis());
 					} else {
 						final String key = getKeyForPolygon(polygon);
 						tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);
@@ -137,8 +135,6 @@ public class CaptureAUTransportStream implements Runnable {
 							System.err.println("Unable to build tuple for: " + tuple);
 							return;
 						}
-						
-						lastTimestamp.set(tuple.getVersionTimestamp());
 					}
 					
 					try {
