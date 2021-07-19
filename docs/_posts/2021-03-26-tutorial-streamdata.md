@@ -313,7 +313,7 @@ $BBOXDB_HOME/bin/cli.sh -action create_table -table osmgroup_adsb
 After BBoxDB is prepared, the import of the ADS-B data stream can be performed by executing the following command. The command fetches the data stream and converts the ADS-B data in the SBS format into GeoJSON elements, which can be processed later by the GUI of BBoxDB.
 
 ```
-$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.ImportADSB <cluster-contact-point> <your-cluster-name> osmgroup_adsb
+$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.network.CaptureADSB <cluster-contact-point> <your-cluster-name> osmgroup_adsb
 ```
 
 ## Perform Queries on The GUI

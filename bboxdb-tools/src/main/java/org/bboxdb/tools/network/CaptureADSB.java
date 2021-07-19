@@ -35,7 +35,7 @@ import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImportADSB implements Runnable {
+public class CaptureADSB implements Runnable {
 
 	/**
 	 * The amount of pending insert futures
@@ -65,9 +65,9 @@ public class ImportADSB implements Runnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ImportADSB.class);
+	private final static Logger logger = LoggerFactory.getLogger(CaptureADSB.class);
 	
-	public ImportADSB(final String connectionPoint, final String clustername, final String tablename) {
+	public CaptureADSB(final String connectionPoint, final String clustername, final String tablename) {
 		this.connectionPoint = connectionPoint;
 		this.clustername = clustername;
 		this.tablename = tablename;
@@ -159,7 +159,7 @@ public class ImportADSB implements Runnable {
 		final String clustername = args[1];
 		final String tablename = args[2];
 				
-		final ImportADSB main = new ImportADSB(connectionPoint, clustername, tablename);
+		final CaptureADSB main = new CaptureADSB(connectionPoint, clustername, tablename);
 		main.run();
 	}
 }

@@ -161,7 +161,7 @@ public class TestRWPerformance implements Runnable {
 					.stream()
 					.collect(Collectors.joining(",", "[", "]"));
 			
-			System.err.println("Known adapter: " + adapterList);
+			System.err.println("Known adapter: " + adapterList);        
 			System.exit(-1);
 		}
 		
@@ -176,6 +176,13 @@ public class TestRWPerformance implements Runnable {
 
 		final TestRWPerformance testSplit = new TestRWPerformance(adapter, dir);
 		testSplit.run();
+	}
+	
+	public int[] test() {
+		int repating = 0;
+		int missing = 0;
+		
+		return new int[] {repating, missing};
 	}
 
 }
