@@ -62,9 +62,14 @@ public class DataRedistributionLoader implements Runnable {
 	private final FixedSizeFutureStore pendingFutures;
 
 	/**
-	 * The loaded files
+	 * The currently loaded files
 	 */
 	private final Set<String> loadedFiles;
+	
+	/**
+	 * The already processed files
+	 */
+	private final Set<String> processedFiles;
 
 	/**
 	 * The GEOJSON tuple builder
@@ -122,6 +127,7 @@ public class DataRedistributionLoader implements Runnable {
 		this.underflowSize = underflowSize;
 		this.overflowSize = overflowSize;
 		this.loadedFiles = new HashSet<>();
+		this.processedFiles = new HashSet<>();
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 		this.files = files.split(":");
 		this.tupleBuilder = new GeoJSONTupleBuilder();
@@ -241,6 +247,10 @@ public class DataRedistributionLoader implements Runnable {
 			System.err.println("File " + filename + " is already loaded");
 			return false;
 		}
+		
+		if(processedFiles.contains(filename)) {
+			return false;
+		}
 
 		System.out.println("Loading content from: " + filename);
 		final AtomicInteger lineNumber = new AtomicInteger(0);
@@ -272,6 +282,7 @@ public class DataRedistributionLoader implements Runnable {
 		pendingFutures.waitForCompletion();
 
 		loadedFiles.add(filename);
+		processedFiles.add(filename);
 
 		System.out.println("Loaded content from: " + filename);
 
