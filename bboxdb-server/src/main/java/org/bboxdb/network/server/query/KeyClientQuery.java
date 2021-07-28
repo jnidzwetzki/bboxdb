@@ -148,6 +148,9 @@ public class KeyClientQuery implements ClientQuery {
 		} catch (BBoxDBException | StorageManagerException e) {
 			logger.error("Got an exception while fetching tuples for key " + key, e);
 			tuplesForKey.clear();
+		} catch (InterruptedException e) {
+			logger.error("Got an exception while fetching tuples for key " + key, e);
+			tuplesForKey.clear();
 		}
 	}
 

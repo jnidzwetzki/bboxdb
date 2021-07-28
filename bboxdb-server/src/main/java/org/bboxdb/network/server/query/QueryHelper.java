@@ -19,11 +19,6 @@ package org.bboxdb.network.server.query;
 
 import java.io.IOException;
 
-import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
-import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -36,6 +31,7 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,29 +68,16 @@ public class QueryHelper {
 			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unknown");
 		}
 		
-		final String distributionGroup = tupleStoreName.getDistributionGroup();
-		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
-
-		final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
-
-		final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
-				distributionRegion, tupleStoreName.getRegionId().getAsLong());
-		
-		if(region == null) {
-			throw new StorageManagerException("Unable to get distribution region for " + tupleStoreName);
-		}
-		
-		final DistributionRegionState regionState = region.getState();
-		
-		if(! DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE.test(regionState)) {
-			logger.error("Unable to create tuple store {} wrong region state {}", tupleStoreName, regionState);
-			throw new StorageManagerException("Wrong state to create region " + tupleStoreName + " / " + regionState);
+		if(! TupleStoreManagerRegistryHelper.isDistributionRegionWritable(tupleStoreName)) {
+			logger.error("Unable to create tuple store {} wrong region state", tupleStoreName);
+			throw new StorageManagerException("Wrong state to create region " + tupleStoreName);
 		}
 		
 		final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreName);
 		
 		return storageRegistry.createTableIfNotExist(tupleStoreName, config);
 	}
+
 
 	/**
 	 * Handle a non existing table
