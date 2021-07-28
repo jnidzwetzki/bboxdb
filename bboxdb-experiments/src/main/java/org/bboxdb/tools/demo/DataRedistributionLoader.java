@@ -150,15 +150,14 @@ public class DataRedistributionLoader implements Runnable {
 			final BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
 			pendingFutures.writeStatistics(bw);
 
-			while(loadedFiles.size() < numberOfFilesToLoad) {
-
-				while(loadedFiles.size() > numberOfMaxLoadedFiles) {
-					
+			for(int i = 0; i < numberOfFilesToLoad; i++) {
+				
+				while(loadedFiles.size() >= numberOfMaxLoadedFiles) {
 					final int filesToDelete = ThreadLocalRandom.current().nextInt(loadedFiles.size() - 1);
 					
 					System.out.println("Deleting " + filesToDelete + " files");
 					
-					for(int i = 0; i < filesToDelete; i++) {
+					for(int j = 0; j < filesToDelete; i++) {
 						final int fileIdToDelete = ThreadLocalRandom.current().nextInt(loadedFiles.size());
 						final String fileToDelete = loadedFiles.get(fileIdToDelete);
 						deleteFile(fileToDelete);
@@ -168,7 +167,8 @@ public class DataRedistributionLoader implements Runnable {
 				final boolean loaded = loadFile(ThreadLocalRandom.current().nextInt(files.length));
 
 				if(loaded) {
-					System.out.print("Please press enter to load next file: ");
+					System.out.print("Please press enter to load next file (loaded " 
+							+ loadedFiles.size() + " / processed " + processedFiles.size() + ")");
 					System.in.read();
 				}
 			}
