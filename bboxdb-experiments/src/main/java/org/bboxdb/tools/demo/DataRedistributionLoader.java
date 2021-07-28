@@ -157,20 +157,14 @@ public class DataRedistributionLoader implements Runnable {
 					
 					System.out.println("Deleting " + filesToDelete + " files");
 					
-					for(int j = 0; j <= filesToDelete; j++) {
+					for(int j = 0; j < filesToDelete; j++) {
 						final int fileIdToDelete = ThreadLocalRandom.current().nextInt(loadedFiles.size());
 						final String fileToDelete = loadedFiles.get(fileIdToDelete);
 						deleteFile(fileToDelete);
 					}
 				}
 
-				final boolean loaded = loadFile(ThreadLocalRandom.current().nextInt(files.length));
-
-				if(loaded) {
-					System.out.print("Please press enter to load next file (loaded " 
-							+ loadedFiles.size() + " / processed " + processedFiles.size() + ")");
-					System.in.read();
-				}
+				loadFile(ThreadLocalRandom.current().nextInt(files.length));
 			}
 
 			System.out.print("Please press enter to delete data: ");
@@ -251,8 +245,9 @@ public class DataRedistributionLoader implements Runnable {
 	 * @param id
 	 * @return
 	 * @throws InterruptedException
+	 * @throws IOException 
 	 */
-	private boolean loadFile(final int fileid) throws InterruptedException {
+	private boolean loadFile(final int fileid) throws InterruptedException, IOException {
 		final String filename = files[fileid];
 
 		if(loadedFiles.contains(filename)) {
@@ -264,6 +259,10 @@ public class DataRedistributionLoader implements Runnable {
 			return false;
 		}
 
+		System.out.print("Please press enter to load next file (loaded " 
+				+ loadedFiles.size() + " / processed " + processedFiles.size() + ")");
+		System.in.read();
+	
 		System.out.println("===> Loading content from: " + filename);
 		final AtomicInteger lineNumber = new AtomicInteger(0);
 		final String prefix = Integer.toString(fileid) + "_";
