@@ -64,6 +64,9 @@ public class OSMView implements View {
 		
 		final JButton showWorldButton = MapViewerFactory.getShowWorldButton(mapViewer);
 		buttonPanel.add(showWorldButton);
+		
+		final JButton showGermanyButton = MapViewerFactory.getShowGermanyButton(mapViewer);
+		buttonPanel.add(showGermanyButton);
 		 
 		final JButton showHagenButton = MapViewerFactory.getShowHagenButton(mapViewer);
 		buttonPanel.add(showHagenButton);

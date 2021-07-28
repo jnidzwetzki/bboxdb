@@ -136,6 +136,16 @@ public class MapViewerFactory {
 	}
 	
 	/**
+	 * Show Germany in the viewer
+	 * @param mapViewer
+	 */
+	public static void showGermany(final JXMapViewer mapViewer) {
+		final GeoPosition hagen = new GeoPosition(51.904815, 10.265166);
+		mapViewer.setZoom(14);
+		mapViewer.setAddressLocation(hagen);
+	}
+	
+	/**
 	 * Get the show world button
 	 * @return
 	 */
@@ -213,6 +223,19 @@ public class MapViewerFactory {
 		}
 		); 
 		return showHagenButton;
+	}
+	
+	/**
+	 * Get the show germany button
+	 * @return
+	 */
+	public static JButton getShowGermanyButton(final JXMapViewer mapViewer) {
+		final JButton showGermanyButton = new JButton("Show Germany");
+		showGermanyButton.addActionListener((l) -> {
+			showGermany(mapViewer);
+		}
+		); 
+		return showGermanyButton;
 	}
 	
 	/**
