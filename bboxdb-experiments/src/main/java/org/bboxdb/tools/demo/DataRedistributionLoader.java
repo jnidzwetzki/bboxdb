@@ -264,7 +264,7 @@ public class DataRedistributionLoader implements Runnable {
 			return false;
 		}
 
-		System.out.println("Loading content from: " + filename);
+		System.out.println("===> Loading content from: " + filename);
 		final AtomicInteger lineNumber = new AtomicInteger(0);
 		final String prefix = Integer.toString(fileid) + "_";
 
@@ -317,7 +317,7 @@ public class DataRedistributionLoader implements Runnable {
 		System.out.print("Please press enter to delete file: " + filename);
 		System.in.read();
 
-		System.out.println("Removing content from: " + filename);
+		System.out.println("===> Removing content from: " + filename);
 
 		final AtomicInteger lineNumber = new AtomicInteger(0);
 		final String prefix = filename.hashCode() + "_";
