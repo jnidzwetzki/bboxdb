@@ -23,10 +23,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -128,7 +128,7 @@ public class DataRedistributionLoader implements Runnable {
 		this.bboxDBCluster = bboxDBCluster;
 		this.underflowSize = underflowSize;
 		this.overflowSize = overflowSize;
-		this.loadedFiles = new ArrayList<>();
+		this.loadedFiles = new CopyOnWriteArrayList<>();
 		this.processedFiles = new HashSet<>();
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 		this.files = files.split(":");
@@ -233,6 +233,10 @@ public class DataRedistributionLoader implements Runnable {
 				System.err.println(tableCreateResult.getAllMessages());
 				System.exit(-1);
 			}
+			
+			System.out.println("Files to process " + numberOfFilesToLoad);
+			System.out.println("Max loaded files " + numberOfMaxLoadedFiles);
+			
 		} catch (Exception e) {
 			System.err.println("Got an exception while prepating BBoxDB");
 			e.printStackTrace();
