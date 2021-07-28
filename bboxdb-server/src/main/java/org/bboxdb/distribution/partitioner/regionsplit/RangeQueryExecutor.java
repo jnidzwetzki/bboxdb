@@ -202,9 +202,12 @@ public class RangeQueryExecutor {
 	 * @param childRegion
 	 * @throws StorageManagerException 
 	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
 	 * @throws TupleStoreManagerRegistry 
 	 */
-	private void readDataLocal(final DistributionRegion region) throws StorageManagerException, ZookeeperException {
+	private void readDataLocal(final DistributionRegion region) 
+			throws StorageManagerException, ZookeeperException, BBoxDBException, InterruptedException {
 
 		final long regionId = region.getRegionId();
 		final TupleStoreName childRegionName = tupleStoreName.cloneWithDifferntRegionId(regionId);

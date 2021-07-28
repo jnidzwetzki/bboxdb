@@ -19,9 +19,15 @@ package org.bboxdb.network.server.query;
 
 import java.io.IOException;
 
+import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
@@ -48,9 +54,12 @@ public class QueryHelper {
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws StorageManagerException
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
 	 */
 	public static TupleStoreManager getTupleStoreManager(TupleStoreManagerRegistry storageRegistry, 
-			final TupleStoreName tupleStoreName) throws ZookeeperException, StorageManagerException {
+			final TupleStoreName tupleStoreName) throws ZookeeperException, 
+			StorageManagerException, BBoxDBException, InterruptedException {
 		
 		if(storageRegistry.isStorageManagerKnown(tupleStoreName)) {
 			return storageRegistry.getTupleStoreManager(tupleStoreName);
@@ -61,6 +70,25 @@ public class QueryHelper {
 		
 		if(! tupleStoreAdapter.isTableKnown(tupleStoreName)) {
 			throw new StorageManagerException("Table: " + tupleStoreName.getFullname() + " is unknown");
+		}
+		
+		final String distributionGroup = tupleStoreName.getDistributionGroup();
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+
+		final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
+
+		final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
+				distributionRegion, tupleStoreName.getRegionId().getAsLong());
+		
+		if(region == null) {
+			throw new StorageManagerException("Unable to get distribution region for " + tupleStoreName);
+		}
+		
+		final DistributionRegionState regionState = region.getState();
+		
+		if(! DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE.test(regionState)) {
+			logger.error("Unable to create tuple store {} wrong region state {}", tupleStoreName, regionState);
+			throw new StorageManagerException("Wrong state to create region " + tupleStoreName + " / " + regionState);
 		}
 		
 		final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreName);

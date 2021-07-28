@@ -227,6 +227,9 @@ public class ContinuousClientQuery implements ClientQuery {
 		} catch (StorageManagerException | ZookeeperException e) {
 			logger.error("Got an exception during query init", e);
 			close();
+		} catch (InterruptedException e) {
+			logger.error("Got an interrupted exception during query init", e);
+			close();
 		}
 	}
 

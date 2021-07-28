@@ -266,8 +266,10 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 			activeOperator = operatorTreeBuilder.buildOperatorTree(storageManagers);
 			activeOperatorIterator = activeOperator.iterator();
 			return true;
-		} catch (StorageManagerException | ZookeeperException e) {
+		} catch (BBoxDBException | StorageManagerException | ZookeeperException e) {
 			logger.warn("Got exception while fetching tuples", e);
+		} catch (InterruptedException e) {
+			logger.warn("Got interrupted exception while fetching tuples", e);
 		}
 
 		return false;
