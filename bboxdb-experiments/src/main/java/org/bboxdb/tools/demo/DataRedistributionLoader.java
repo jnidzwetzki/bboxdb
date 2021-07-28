@@ -23,7 +23,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -64,7 +66,7 @@ public class DataRedistributionLoader implements Runnable {
 	/**
 	 * The currently loaded files
 	 */
-	private final Set<String> loadedFiles;
+	private final List<String> loadedFiles;
 	
 	/**
 	 * The already processed files
@@ -126,7 +128,7 @@ public class DataRedistributionLoader implements Runnable {
 		this.bboxDBCluster = bboxDBCluster;
 		this.underflowSize = underflowSize;
 		this.overflowSize = overflowSize;
-		this.loadedFiles = new HashSet<>();
+		this.loadedFiles = new ArrayList<>();
 		this.processedFiles = new HashSet<>();
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
 		this.files = files.split(":");
@@ -151,7 +153,16 @@ public class DataRedistributionLoader implements Runnable {
 			while(loadedFiles.size() < numberOfFilesToLoad) {
 
 				while(loadedFiles.size() > numberOfMaxLoadedFiles) {
-					deleteFile(ThreadLocalRandom.current().nextInt(files.length));
+					
+					final int filesToDelete = ThreadLocalRandom.current().nextInt(loadedFiles.size() - 1);
+					
+					System.out.println("Deleting " + filesToDelete + " files");
+					
+					for(int i = 0; i < filesToDelete; i++) {
+						final int fileIdToDelete = ThreadLocalRandom.current().nextInt(loadedFiles.size());
+						final String fileToDelete = loadedFiles.get(fileIdToDelete);
+						deleteFile(fileToDelete);
+					}
 				}
 
 				final boolean loaded = loadFile(ThreadLocalRandom.current().nextInt(files.length));
@@ -166,9 +177,10 @@ public class DataRedistributionLoader implements Runnable {
 			System.in.read();
 
 			// Delete all files before exit
-			for(int fileId = 0; fileId < files.length; fileId++) {
-				deleteFile(fileId);
+			for(final String filename: loadedFiles) {
+				deleteFile(filename);
 			}
+			loadedFiles.clear();
 
 			System.out.println("Demo done");
 			bboxDBCluster.close();
@@ -295,8 +307,7 @@ public class DataRedistributionLoader implements Runnable {
 	 * @throws InterruptedException
 	 * @throws IOException 
 	 */
-	private void deleteFile(final int fileid) throws InterruptedException, IOException {
-		final String filename = files[fileid];
+	private void deleteFile(final String filename) throws InterruptedException, IOException {
 
 		if(! loadedFiles.contains(filename)) {
 			System.err.println("File " + filename + " is not loaded");
@@ -309,7 +320,7 @@ public class DataRedistributionLoader implements Runnable {
 		System.out.println("Removing content from: " + filename);
 
 		final AtomicInteger lineNumber = new AtomicInteger(0);
-		final String prefix = Integer.toString(fileid) + "_";
+		final String prefix = filename.hashCode() + "_";
 
 		try(final Stream<String> lines = Files.lines(Paths.get(filename))) {
 			lines.forEach(l -> {
@@ -391,3 +402,5 @@ public class DataRedistributionLoader implements Runnable {
 		dataRedistributionLoader.run();
 	}
 }
+
+	
