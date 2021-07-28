@@ -157,7 +157,7 @@ public class DataRedistributionLoader implements Runnable {
 					
 					System.out.println("Deleting " + filesToDelete + " files");
 					
-					for(int j = 0; j < filesToDelete; i++) {
+					for(int j = 0; j <= filesToDelete; j++) {
 						final int fileIdToDelete = ThreadLocalRandom.current().nextInt(loadedFiles.size());
 						final String fileToDelete = loadedFiles.get(fileIdToDelete);
 						deleteFile(fileToDelete);
