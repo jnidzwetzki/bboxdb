@@ -30,10 +30,15 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-#datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'TREE' | xargs echo | tr ' ' ':')
-datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'ROAD' | xargs echo | tr ' ' ':')
 
 # Testfiles
 #datafiles="/export/homes/nidzwetzki/osm-germany/nordrhein-westfalen/osm/TREE:/export/homes/nidzwetzki/osm-germany/berlin/osm/TREE:/export/homes/nidzwetzki/osm-germany/hamburg/osm/TREE:/export/homes/nidzwetzki/osm-germany/hessen/osm/TREE"
 
-$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 5 16 64 256 newton1:50181 mycluster
+#datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'ROAD' | xargs echo | tr ' ' ':')
+#$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 768 1024 newton1:50181 mycluster
+
+datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'TREE' | xargs echo | tr ' ' ':')
+$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 32 64 newton1:50181 mycluster
+#$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 16 32 newton1:50181 mycluster true
+
+
