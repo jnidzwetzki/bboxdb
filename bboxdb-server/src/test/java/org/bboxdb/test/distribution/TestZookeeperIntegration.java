@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
 
+import org.apache.zookeeper.data.Stat;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.allocator.DummyResourceAllocator;
@@ -151,9 +152,9 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperNotFoundException
 	 */
 	@Test(timeout=60000)
-	public void testAndReplaceValue() throws ZookeeperException, ZookeeperNotFoundException {
+	public void testAndReplaceValue1() throws ZookeeperException, ZookeeperNotFoundException {
 		
-		System.out.println("====> Executing testAndReplaceValue()");
+		System.out.println("====> Executing testAndReplaceValue1()");
 		
 		final String path = "/testnode";
 		zookeeperClient.createPersistentNode(path, "value1".getBytes());
@@ -171,6 +172,27 @@ public class TestZookeeperIntegration {
 
 		zookeeperClient.deleteNodesRecursive(path);
 		Assert.assertFalse(zookeeperClient.exists(path));
+	}
+	
+	@Test(timeout=60000)
+	public void testAndReplaceValue2() throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String path = "/testnode";
+		zookeeperClient.createPersistentNode(path, "value1".getBytes());
+		
+		Assert.assertTrue(zookeeperClient.exists(path));
+
+		final Stat stat = new Stat();
+		final String zookeeperValue = zookeeperClient.getData(path, stat);
+		Assert.assertEquals("value1", zookeeperValue);
+		
+		// REplace version
+		final boolean result1 = zookeeperClient.setData(path, "abc");
+		Assert.assertTrue(result1);
+		
+		// Try to replace outdated version
+		final boolean result2 = zookeeperClient.setData(path, "def", stat.getVersion());
+		Assert.assertFalse(result2);
 	}
 
 	/**

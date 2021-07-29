@@ -233,7 +233,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public boolean setData(final String path, final String value, final int version) throws ZookeeperException {
 
 		try {
-			zookeeper.setData(path, value.getBytes(), -1);
+			zookeeper.setData(path, value.getBytes(), version);
 
 			return true;
 		} catch (KeeperException e) {
