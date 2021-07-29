@@ -112,6 +112,11 @@ public class DataRedistributionLoader implements Runnable {
 	 * The overflow size in MB
 	 */
 	private final int overflowSize;
+	
+	/**
+	 * The nowait flag
+	 */
+	private final boolean nowait;
 
 	/**
 	 * The Logger
@@ -119,15 +124,18 @@ public class DataRedistributionLoader implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(DataRedistributionLoader.class);
 
 
+
 	public DataRedistributionLoader(final String files, final int numberOfFilesToLoad,
 			final int numberOfMaxLoadedFiles, final int underflowSize, 
-			final int overflowSize, final BBoxDBCluster bboxDBCluster) {
+			final int overflowSize, final BBoxDBCluster bboxDBCluster, final boolean nowait) {
 
 		this.numberOfFilesToLoad = numberOfFilesToLoad;
 		this.numberOfMaxLoadedFiles = numberOfMaxLoadedFiles;
 		this.bboxDBCluster = bboxDBCluster;
 		this.underflowSize = underflowSize;
 		this.overflowSize = overflowSize;
+		this.nowait = nowait;
+		
 		this.loadedFiles = new CopyOnWriteArrayList<>();
 		this.processedFiles = new HashSet<>();
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES, true);
@@ -171,8 +179,10 @@ public class DataRedistributionLoader implements Runnable {
 				}
 			}
 
-			System.out.print("Please press enter to delete data: ");
-			System.in.read();
+			if(! nowait) {
+				System.out.print("Please press enter to delete data: ");
+				System.in.read();
+			}
 
 			// Delete all files before exit
 			for(final String filename: loadedFiles) {
@@ -269,7 +279,10 @@ public class DataRedistributionLoader implements Runnable {
 
 		System.out.print("Please press enter to load next file (loaded " 
 				+ loadedFiles.size() + " / processed " + processedFiles.size() + ")");
-		System.in.read();
+		
+		if(! nowait) {
+			System.in.read();
+		}
 	
 		System.out.println("===> Loading content from: " + filename);
 		final AtomicInteger lineNumber = new AtomicInteger(0);
@@ -321,9 +334,11 @@ public class DataRedistributionLoader implements Runnable {
 			return;
 		}
 		
-		System.out.print("Please press enter to delete file: " + filename);
-		System.in.read();
-
+		if(! nowait) {
+			System.out.print("Please press enter to delete file: " + filename);
+			System.in.read();
+		}
+		
 		System.out.println("===> Removing content from: " + filename);
 
 		final AtomicInteger lineNumber = new AtomicInteger(0);
@@ -372,7 +387,7 @@ public class DataRedistributionLoader implements Runnable {
 	 */
 	public static void main(final String[] args) {
 
-		if(args.length != 7) {
+		if(args.length < 7) {
 			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <Number of files to load> <Max loaded files>"
 					+ "<Underflow Size> <Overflow Size> <ZookeeperEndpoint> <Clustername>");
 			System.exit(-1);
@@ -385,6 +400,7 @@ public class DataRedistributionLoader implements Runnable {
 		final String overflowStringSize = args[4];
 		final String zookeeperEndpoint = args[5];
 		final String clustername = args[6];
+		final boolean nowait = args.length == 8;
 		
 		final BBoxDBCluster bboxDBCluster = new BBoxDBCluster(zookeeperEndpoint, clustername);
 		bboxDBCluster.connect();
@@ -404,10 +420,11 @@ public class DataRedistributionLoader implements Runnable {
 		final int overflowSize = MathUtil.tryParseIntOrExit(overflowStringSize, () -> "Unable to parse: " + overflowStringSize);
 
 		final DataRedistributionLoader dataRedistributionLoader = new DataRedistributionLoader(files,
-				numberOfFilesToLoad, numberOfMaxLoadedFiles, underflowSize, overflowSize, bboxDBCluster);
+				numberOfFilesToLoad, numberOfMaxLoadedFiles, underflowSize, overflowSize, bboxDBCluster, nowait);
 
 		dataRedistributionLoader.run();
 	}
 }
 
+	
 	
