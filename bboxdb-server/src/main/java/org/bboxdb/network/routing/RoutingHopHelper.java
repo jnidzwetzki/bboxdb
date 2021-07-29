@@ -108,7 +108,14 @@ public class RoutingHopHelper {
 		final Map<List<DistributionRegion>, EnumSet<DistributionRegionHandlingFlag>> routingList = new HashMap<>();
 		
 		for(final Map.Entry<Predicate<DistributionRegionState>, EnumSet<DistributionRegionHandlingFlag>> state : statesAndOptions.entrySet()) {
-			final List<DistributionRegion> regions = getRegionsForPredicate(rootRegion, boundingBox, state.getKey());
+			final Predicate<DistributionRegionState> predicate = state.getKey();
+			
+			final List<DistributionRegion> regions = getRegionsForPredicate(rootRegion, boundingBox, predicate);
+			
+			if(predicate.equals(DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE)) {
+				logger.warn("Got empty list for write predicate: " + boundingBox);
+			}
+			
 			routingList.put(regions, state.getValue());
 		}
 
