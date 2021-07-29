@@ -31,10 +31,10 @@ import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.network.server.query.QueryHelper;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +157,9 @@ public class RegionMerger {
 			
 			final TupleStoreName tableName = new TupleStoreName(tableNameString);
 			final TupleStoreName localName = tableName.cloneWithDifferntRegionId(destination.getRegionId());
-			startFlushToDisk(localName);
+			
+			// Create table and init tuple store manager
+			QueryHelper.getTupleStoreManager(registry, localName);
 
 			final TupleRedistributor tupleRedistributor = new TupleRedistributor(registry, localName);
 			tupleRedistributor.registerRegion(destination);
@@ -206,14 +208,4 @@ public class RegionMerger {
 		}
 	}
 
-	/**
-	 * Start the to disk flushing
-	 * @param ssTableName
-	 * @throws StorageManagerException
-	 */
-	private void startFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
-		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);		
-		ssTableManager.init();
-		ssTableManager.setToReadWrite();
-	}
 }
