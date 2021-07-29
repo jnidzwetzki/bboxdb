@@ -140,7 +140,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 			
 				final List<SSTableFacade> facades = getAllTupleStores(tupleStoreManager);
 				final MergeTask mergeTask = mergeStrategy.getMergeTask(facades);
-				executeCompactTask(mergeTask, tupleStoreManager);
+				executeCompactTask(tupleStoreName.getFullname(), mergeTask, tupleStoreManager);
 				testForRegionOverflow(tupleStoreManager);
 				
 			} catch (StorageManagerException | BBoxDBException e) {
@@ -229,6 +229,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 
 	/**
 	 * Merge multiple facades into a new one
+	 * @param fullname 
 	 * @param sstableManager 
 	 *
 	 * @throws StorageManagerException
@@ -236,8 +237,9 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
 	 */
-	private void executeCompactTask(final MergeTask mergeTask, final TupleStoreManager sstableManager) 
-			throws StorageManagerException, BBoxDBException, InterruptedException {
+	private void executeCompactTask(final String fullname, final MergeTask mergeTask, 
+			final TupleStoreManager sstableManager) throws StorageManagerException, 
+			BBoxDBException, InterruptedException {
 		
 		if(mergeTask.getTaskType() == MergeTaskType.UNKNOWN) {
 			return;
@@ -256,6 +258,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 		
 		// Log the compact call
 		final boolean majorCompaction = mergeTask.getTaskType() == MergeTaskType.MAJOR;
+		
 		if(logger.isInfoEnabled()) {
 			writeMergeLog(facades, majorCompaction);
 		}
@@ -268,8 +271,8 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 
 		final float mergeFactor = (float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples();
 		
-		logger.info("Compactation done. Read {} tuples, wrote {} tuples. Factor {}", 
-				ssTableCompactor.getReadTuples(), ssTableCompactor.getWrittenTuples(), 
+		logger.info("Compactation of {} done. Read {} tuples, wrote {} tuples. Factor {}", 
+				fullname, ssTableCompactor.getReadTuples(), ssTableCompactor.getWrittenTuples(), 
 				mergeFactor);
 		
 		registerNewFacadeAndDeleteOldInstances(sstableManager, facades, newTables);		
@@ -404,12 +407,13 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 	public void forceMajorCompact(final TupleStoreManager sstableManager)
 			throws StorageManagerException, BBoxDBException, InterruptedException {
 		
-		logger.info("Force major compact for {}", sstableManager.getTupleStoreName().getFullname());
+		final String fullname = sstableManager.getTupleStoreName().getFullname();
+		logger.info("Force major compact for {}", fullname);
 		
 		final MergeTask mergeTask = new MergeTask();
 		mergeTask.setTaskType(MergeTaskType.MAJOR);
 		mergeTask.setCompactTables(getAllTupleStores(sstableManager));
-		executeCompactTask(mergeTask, sstableManager);
+		executeCompactTask(fullname, mergeTask, sstableManager);
 	}
 
 	/**
