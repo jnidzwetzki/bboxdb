@@ -136,8 +136,10 @@ public class RegionMerger {
 		final String distributionGroupName = destination.getDistributionGroupName();
 
 		final List<TupleStoreName> localTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
-				(registry, distributionGroupName, destination.getRegionId());
+				(registry, distributionGroupName, source.get(0).getRegionId());
 
+		logger.info("Tables to merge: " + localTables);
+		
 		// Add the local mapping, new data is written to the region
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache
 				.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
@@ -163,7 +165,7 @@ public class RegionMerger {
 			}
 
 			logger.info("Final statistics for merge ({}): {}", 
-					tupleStoreName,tupleRedistributor.getStatistics());
+					tupleStoreName, tupleRedistributor.getStatistics());
 		}
 	}
 

@@ -25,6 +25,7 @@ order: 1
 - Bugfix: Keep local region mapping until re-partitioning is done (handling of stream only tuples)
 - Bugfix: Changed Zookeeper Nodes path
 - Bugfix: Prevent creation of tables in wrong distribution region state
+- Bugfix: Fixed a problem where not all data is collected during merge
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries
