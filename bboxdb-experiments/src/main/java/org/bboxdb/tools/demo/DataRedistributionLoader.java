@@ -285,9 +285,10 @@ public class DataRedistributionLoader implements Runnable {
 			System.in.read();
 		}
 	
-		System.out.println("===> Loading content from: " + filename);
 		final AtomicInteger lineNumber = new AtomicInteger(0);
 		final String prefix = filename.hashCode() + "_";
+		System.out.println("===> Loading content from: " + filename + " prefix is: " + prefix);
+
 
 		try(final Stream<String> lines = Files.lines(Paths.get(filename))) {
 			lines.forEach(l -> {
@@ -340,10 +341,10 @@ public class DataRedistributionLoader implements Runnable {
 			System.in.read();
 		}
 		
-		System.out.println("===> Removing content from: " + filename);
-
 		final AtomicInteger lineNumber = new AtomicInteger(0);
 		final String prefix = filename.hashCode() + "_";
+		System.out.println("===> Removing content from: " + filename + " prefix is: " + prefix);
+
 
 		try(final Stream<String> lines = Files.lines(Paths.get(filename))) {
 			lines.forEach(l -> {
