@@ -138,7 +138,7 @@ public class RegionMerger {
 		final List<TupleStoreName> localTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
 				(registry, distributionGroupName, source.get(0).getRegionId());
 
-		logger.info("Tables to merge: " + localTables);
+		logger.info("Tables to merge ({}): {}", destination.getIdentifier(), localTables);
 		
 		// Add the local mapping, new data is written to the region
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache
