@@ -172,7 +172,9 @@ public class DataRedistributionLoader implements Runnable {
 					}
 				}
 
-				boolean loaded = loadFile(ThreadLocalRandom.current().nextInt(files.length));
+				final int nextFileId = ThreadLocalRandom.current().nextInt(files.length);
+				final String filename = files[nextFileId];
+				boolean loaded = loadFile(filename);
 				
 				if(loaded) {
 					i++;
@@ -265,8 +267,7 @@ public class DataRedistributionLoader implements Runnable {
 	 * @throws InterruptedException
 	 * @throws IOException 
 	 */
-	private boolean loadFile(final int fileid) throws InterruptedException, IOException {
-		final String filename = files[fileid];
+	private boolean loadFile(final String filename) throws InterruptedException, IOException {
 
 		if(loadedFiles.contains(filename)) {
 			System.err.println("File " + filename + " is already loaded");
@@ -286,7 +287,7 @@ public class DataRedistributionLoader implements Runnable {
 	
 		System.out.println("===> Loading content from: " + filename);
 		final AtomicInteger lineNumber = new AtomicInteger(0);
-		final String prefix = Integer.toString(fileid) + "_";
+		final String prefix = filename.hashCode() + "_";
 
 		try(final Stream<String> lines = Files.lines(Paths.get(filename))) {
 			lines.forEach(l -> {
