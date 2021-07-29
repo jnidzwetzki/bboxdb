@@ -28,6 +28,7 @@ order: 1
 - Bugfix: Fixed a problem where not all data is collected during merge
 - Bugfix: Perform a size check of the distribution regions after major compact to prevent split of small regions
 - Bugfix: Fixed a bug in the versioned Zookeeper replacement
+- Bugfix: Recalculate the size of a distribution region after compact and before it is split, to prevent split-merge cycles
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries

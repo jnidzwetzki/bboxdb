@@ -58,12 +58,25 @@ public class RegionSplitHelper {
 			return false;
 		}
 		
+		return isRegionOverflow(region, sizeOfRegionInMB.getAsDouble()); 
+	}
+
+	/**
+	 * Needs the region with the given size a split?
+	 * @param region
+	 * @return
+	 * @throws BBoxDBException 
+	 */
+	public static boolean isRegionOverflow(final DistributionRegion region, final double sizeOfRegionInMB)
+			throws BBoxDBException {
+		
 		try {			
 			final long maxSize = getConfiguredRegionMaxSize(region);
-			return (sizeOfRegionInMB.getAsDouble() > maxSize);
+			
+			return (sizeOfRegionInMB > maxSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
-		} 
+		}
 	}
 	
 	/**

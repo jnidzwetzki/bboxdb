@@ -46,6 +46,7 @@ import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -334,12 +335,21 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 			final DistributionRegion regionToSplit) throws Exception {
 		
 		final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+		final String regionIdentifier = regionToSplit.getIdentifier();
+
 		final RegionSplitter regionSplitter = new RegionSplitter(tupleStoreManagerRegistry);
 
 		forceMajorCompact(sstableManager);
 		
-		if(! RegionSplitHelper.isRegionOverflow(regionToSplit)) {
-			logger.info("Split not needed after major compact");
+		final long totalSize = TupleStoreUtil.getSizeOfDistributionGroupAndRegionId(tupleStoreManagerRegistry, 
+				regionToSplit.getDistributionGroupName(), regionToSplit.getRegionId());
+		
+		final long totalSizeInMb = totalSize / (1024 * 1024);
+		
+		logger.info("Total size of {} after forced compact {} MB", regionIdentifier, totalSizeInMb);
+		
+		if(! RegionSplitHelper.isRegionOverflow(regionToSplit, totalSizeInMb)) {
+			logger.info("Split for {} not needed after major compact", regionIdentifier);
 			return;
 		}
 		
