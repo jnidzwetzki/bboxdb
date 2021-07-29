@@ -19,6 +19,7 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -135,10 +136,17 @@ public class RegionMerger {
 
 		final String distributionGroupName = destination.getDistributionGroupName();
 
-		final List<TupleStoreName> localTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
+		final List<TupleStoreName> remoteTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
 				(registry, distributionGroupName, source.get(0).getRegionId());
 
-		logger.info("Tables to merge ({}): {}", destination.getIdentifier(), localTables);
+		
+		final List<TupleStoreName> globalNames = remoteTables
+				.stream()
+				.map(r -> r.getFullnameWithoutPrefix())
+				.map(r -> new TupleStoreName(r))
+				.collect(Collectors.toList());
+		
+		logger.info("Tables to merge ({}): {}", destination.getIdentifier(), globalNames);
 		
 		// Add the local mapping, new data is written to the region
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache
@@ -151,7 +159,7 @@ public class RegionMerger {
 		mapper.waitUntilMappingAppears(destination.getRegionId());
 
 		// Redistribute data
-		for(final TupleStoreName tupleStoreName : localTables) {
+		for(final TupleStoreName tupleStoreName : globalNames) {
 			logger.info("Merging data of tuple store {}", tupleStoreName);
 			startFlushToDisk(tupleStoreName);
 
