@@ -112,7 +112,7 @@ public class RoutingHopHelper {
 			
 			final List<DistributionRegion> regions = getRegionsForPredicate(rootRegion, boundingBox, predicate);
 			
-			if(predicate.equals(DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE)) {
+			if(predicate.equals(DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE) && regions.isEmpty()) {
 				logger.warn("Got empty list for write predicate: " + boundingBox);
 			}
 			
