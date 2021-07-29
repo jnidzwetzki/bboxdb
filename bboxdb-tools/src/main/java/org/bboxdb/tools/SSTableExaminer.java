@@ -154,10 +154,10 @@ public class SSTableExaminer implements Runnable {
 			} catch (BufferUnderflowException e) {
 				// Loop until the buffer is empty
 				break;
-			}
-			
-			System.out.println("Read " + keys + " tuples during scan");
+			}			
 		}
+		
+		System.out.println("Read " + keys + " tuples during scan");
 	}
 	
 	/**
