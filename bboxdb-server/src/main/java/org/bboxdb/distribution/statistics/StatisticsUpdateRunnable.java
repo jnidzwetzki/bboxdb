@@ -160,7 +160,7 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 	 * @throws StorageManagerException 
 	 * @throws InterruptedException 
 	 */
-	private void updateRegionStatistics(final String distributionGroup, final long regionId) 
+	public void updateRegionStatistics(final String distributionGroup, final long regionId) 
 			throws BBoxDBException, ZookeeperException, StorageManagerException, InterruptedException {
 		
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()

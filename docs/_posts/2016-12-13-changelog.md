@@ -26,6 +26,7 @@ order: 1
 - Bugfix: Changed Zookeeper Nodes path
 - Bugfix: Prevent creation of tables in wrong distribution region state
 - Bugfix: Fixed a problem where not all data is collected during merge
+- Bugfix: Perform a size check of the distribution regions after major compact to prevent split of small regions
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries

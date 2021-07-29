@@ -338,6 +338,11 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 
 		forceMajorCompact(sstableManager);
 		
+		if(! RegionSplitHelper.isRegionOverflow(regionToSplit)) {
+			logger.info("Split not needed after major compact");
+			return;
+		}
+		
 		regionSplitter.splitRegion(regionToSplit, spacePartitioner, tupleStoreManagerRegistry);
 	}
 

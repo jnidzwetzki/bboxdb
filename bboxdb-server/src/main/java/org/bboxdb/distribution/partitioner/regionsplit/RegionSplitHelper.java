@@ -72,7 +72,7 @@ public class RegionSplitHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	private static long getConfiguredRegionMaxSize(final DistributionRegion region) 
+	public static long getConfiguredRegionMaxSize(final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String fullname = region.getDistributionGroupName();
