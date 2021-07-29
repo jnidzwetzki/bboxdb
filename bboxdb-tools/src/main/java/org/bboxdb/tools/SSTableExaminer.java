@@ -141,6 +141,8 @@ public class SSTableExaminer implements Runnable {
 		
 		System.out.println("Step 1: Looping over SSTable and searching for key: " + examineKey);
 		
+		int keys = 0;
+		
 		while(true) {
 			try {
 				final Tuple tuple = TupleHelper.decodeTuple(ssTableReader.getMemory());
@@ -148,10 +150,13 @@ public class SSTableExaminer implements Runnable {
 					System.out.println(tuple);
 				}
 				
+				keys++;
 			} catch (BufferUnderflowException e) {
 				// Loop until the buffer is empty
 				break;
 			}
+			
+			System.out.println("Read " + keys + " tuples during scan");
 		}
 	}
 	
@@ -168,6 +173,7 @@ public class SSTableExaminer implements Runnable {
 		
 		if(args.length != 4) {
 			logger.error("Usage: SSTableExaminer <Base directory> <Tablename> <Tablenumber> <Key>");
+			logger.error("Use '*' as wildcard key");
 			System.exit(-1);
 		}
 		
