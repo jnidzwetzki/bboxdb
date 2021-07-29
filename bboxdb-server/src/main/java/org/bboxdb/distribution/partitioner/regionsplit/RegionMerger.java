@@ -19,8 +19,8 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RangeQueryExecutor.ExecutionPolicy;
@@ -28,6 +28,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistribu
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
@@ -35,7 +36,6 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,18 +136,6 @@ public class RegionMerger {
 
 		final String distributionGroupName = destination.getDistributionGroupName();
 
-		final List<TupleStoreName> remoteTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
-				(registry, distributionGroupName, source.get(0).getRegionId());
-
-		
-		final List<TupleStoreName> globalNames = remoteTables
-				.stream()
-				.map(r -> r.getFullnameWithoutPrefix())
-				.map(r -> new TupleStoreName(r))
-				.collect(Collectors.toList());
-		
-		logger.info("Tables to merge ({}): {}", destination.getIdentifier(), globalNames);
-		
 		// Add the local mapping, new data is written to the region
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache
 				.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
@@ -157,23 +145,28 @@ public class RegionMerger {
 		// We have set the region to active, wait until we see this status change 
 		// from Zookeeper and the space partitioner add this region as active
 		mapper.waitUntilMappingAppears(destination.getRegionId());
+		
+		final TupleStoreAdapter adapter = new TupleStoreAdapter(ZookeeperClientFactory.getZookeeperClient());
+		final List<String> allTables = adapter.getAllTables(distributionGroupName);				
+
+		logger.info("Tables to merge ({}): {}", destination.getIdentifier(), allTables);
 
 		// Redistribute data
-		for(final TupleStoreName tupleStoreName : globalNames) {
-			logger.info("Merging data of tuple store {}", tupleStoreName);
-			startFlushToDisk(tupleStoreName);
+		for(final String tableName : allTables) {
+			logger.info("Merging data of tuple store {}", tableName);
+			
+			final TupleStoreName localName = new TupleStoreName(distributionGroupName, tableName, destination.getRegionId());
+			startFlushToDisk(localName);
 
-			final TupleRedistributor tupleRedistributor 
-				= new TupleRedistributor(registry, tupleStoreName);
-
+			final TupleRedistributor tupleRedistributor = new TupleRedistributor(registry, localName);
 			tupleRedistributor.registerRegion(destination);
 
 			for(final DistributionRegion childRegion : source) {
-				mergeDataFromChildRegion(destination, tupleStoreName, tupleRedistributor, childRegion);					
+				mergeDataFromChildRegion(destination.getConveringBox(), localName, tupleRedistributor, childRegion);					
 			}
 
 			logger.info("Final statistics for merge ({}): {}", 
-					tupleStoreName, tupleRedistributor.getStatistics());
+					localName, tupleRedistributor.getStatistics());
 		}
 	}
 
@@ -186,8 +179,8 @@ public class RegionMerger {
 	 * @param childRegion
 	 * @throws StorageManagerException
 	 */
-	private void mergeDataFromChildRegion(final DistributionRegion region, 
-			final TupleStoreName tupleStoreName,	final TupleRedistributor tupleRedistributor, 
+	private void mergeDataFromChildRegion(final Hyperrectangle queryBox, 
+			final TupleStoreName tupleStoreName, final TupleRedistributor tupleRedistributor, 
 			final DistributionRegion childRegion) throws StorageManagerException {
 
 		try {
@@ -200,7 +193,7 @@ public class RegionMerger {
 			};
 			
 			final RangeQueryExecutor rangeQueryExecutor = new RangeQueryExecutor(tupleStoreName, 
-					region.getConveringBox(), tupleConsumer, registry, ExecutionPolicy.ALL);
+					queryBox, tupleConsumer, registry, ExecutionPolicy.ALL);
 
 			rangeQueryExecutor.performDataRead();
 			
