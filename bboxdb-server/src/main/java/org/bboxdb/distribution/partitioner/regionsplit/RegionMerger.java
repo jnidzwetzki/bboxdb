@@ -152,10 +152,11 @@ public class RegionMerger {
 		logger.info("Tables to merge ({}): {}", destination.getIdentifier(), allTables);
 
 		// Redistribute data
-		for(final String tableName : allTables) {
-			logger.info("Merging data of tuple store {}", tableName);
+		for(final String tableNameString : allTables) {
+			logger.info("Merging data of tuple store {}", tableNameString);
 			
-			final TupleStoreName localName = new TupleStoreName(distributionGroupName, tableName, destination.getRegionId());
+			final TupleStoreName tableName = new TupleStoreName(tableNameString);
+			final TupleStoreName localName = tableName.cloneWithDifferntRegionId(destination.getRegionId());
 			startFlushToDisk(localName);
 
 			final TupleRedistributor tupleRedistributor = new TupleRedistributor(registry, localName);
