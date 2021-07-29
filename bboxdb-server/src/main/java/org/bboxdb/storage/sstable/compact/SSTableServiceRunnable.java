@@ -260,7 +260,7 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 		final boolean majorCompaction = mergeTask.getTaskType() == MergeTaskType.MAJOR;
 		
 		if(logger.isInfoEnabled()) {
-			writeMergeLog(facades, majorCompaction);
+			writeMergeLog(fullname, facades, majorCompaction);
 		}
 		
 		// Run the compact process
@@ -500,10 +500,12 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 
 	/**
 	 * Write info about the merge run into log
+	 * @param fullname 
 	 * @param facades
 	 * @param tablenumber
 	 */
-	private void writeMergeLog(final List<SSTableFacade> facades, final boolean majorCompaction) {
+	private void writeMergeLog(final String fullname, final List<SSTableFacade> facades, 
+			final boolean majorCompaction) {
 		
 		final String formatedFacades = facades
 				.stream()
@@ -511,6 +513,6 @@ public class SSTableServiceRunnable extends ExceptionSafeRunnable {
 				.mapToObj(Integer::toString)
 				.collect(Collectors.joining(",", "[", "]"));
 		
-		logger.info("Merging (major: {}) {}", majorCompaction, formatedFacades);
+		logger.info("Merging (table: {} / major: {}) {}", fullname, majorCompaction, formatedFacades);
 	}
 }

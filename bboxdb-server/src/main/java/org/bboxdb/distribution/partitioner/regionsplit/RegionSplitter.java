@@ -206,7 +206,9 @@ public class RegionSplitter {
 			final List<DistributionRegion> destination) 
 			throws BBoxDBException, StorageManagerException {
 		
-		logger.info("Redistributing table {}", ssTableName.getFullname());
+		final String fullname = ssTableName.getFullname();
+		
+		logger.info("Redistributing table {}", fullname);
 		
 		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
 		
@@ -214,7 +216,7 @@ public class RegionSplitter {
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(source, destination, ssTableName);
 		spreadTupleStores(ssTableManager, tupleRedistributor);			
 		
-		logger.info("Redistributing table {} is DONE", ssTableName.getFullname());
+		logger.info("Redistributing table {} is DONE", fullname);
 	}
 
 	/**
@@ -257,9 +259,11 @@ public class RegionSplitter {
 			
 			for(int i = 0; i < totalSotrages; i++) {
 				final ReadOnlyTupleStore storage = aquiredStorages.get(i);
+				
 				logger.info("Spread tuple storage {} number {} of {}", 
 						storage.getInternalName(), i, totalSotrages - 1);
-						spreadStorage(tupleRedistributor, storage);
+				
+				spreadStorage(tupleRedistributor, storage);
 			}
 
 			logger.info("Final statistics for spread ({}): {}", 
