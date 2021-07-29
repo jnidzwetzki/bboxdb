@@ -203,6 +203,11 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 				}
 
 				// Send next tuple
+				if(activeOperatorIterator == null) {
+					logger.error("Iterator is null in query {}, terminating query", querySequence);
+					break;
+				}
+				
 				final MultiTuple tuple = activeOperatorIterator.next();
 
 				clientConnectionHandler.writeResultTuple(packageSequence, tuple, false);
