@@ -23,7 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.bboxdb.commons.MathUtil;
@@ -63,6 +66,11 @@ public class DetermineDistributionStateSize implements Runnable {
 	 * The time the lastWatermark is generated
 	 */
 	private long lastWatermarkGenerated;
+	
+	/**
+	 * The debug flag
+	 */
+	protected boolean DEBUG = false;
 
 	/**
 	 * The distribution state
@@ -159,6 +167,18 @@ public class DetermineDistributionStateSize implements Runnable {
 		
 		if(invalidateAfterGenerations == 0) {
 			return;
+		}
+		
+		if(DEBUG) {
+			final List<Entry<String, Long>> elementsToRemove = distributionState
+					.entrySet()
+					.stream()
+					.filter(e -> (watermarkGeneration - invalidateAfterGenerations <= e.getValue()))
+					.collect(Collectors.toList());
+			
+			
+			System.out.println("Current generation is: " + watermarkGeneration);
+			System.out.println("Removing: " + elementsToRemove);
 		}
 		
 		distributionState
