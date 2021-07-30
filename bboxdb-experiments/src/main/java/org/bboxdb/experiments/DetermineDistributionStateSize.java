@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -102,7 +103,9 @@ public class DetermineDistributionStateSize implements Runnable {
 		System.out.println("## State after lines: " + stateAfterLines);
 		System.out.println("#########################");
 		
-		for(int invalidateAfterGenerations = 0; invalidateAfterGenerations < 10; invalidateAfterGenerations++) {
+		final List<Integer> invalidations = Arrays.asList(new Integer[] {0, 1, 5, 10, 15, 20, 25, 50, 100});
+		
+		for(final Integer invalidateAfterGenerations : invalidations) {
 			
 			distributionState.clear();
 			lastWatermarkGenerated = 0;
