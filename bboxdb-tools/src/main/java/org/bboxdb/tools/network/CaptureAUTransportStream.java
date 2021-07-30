@@ -127,6 +127,7 @@ public class CaptureAUTransportStream implements Runnable {
 					
 					if(polygon == null) {
 						tuple = new WatermarkTuple(System.currentTimeMillis());
+						invalidationHelper.updateWatermarkGeneration();
 					} else {
 						final String key = getKeyForPolygon(polygon);
 						tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);

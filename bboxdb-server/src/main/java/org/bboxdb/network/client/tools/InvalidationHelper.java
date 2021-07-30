@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
@@ -67,6 +69,11 @@ public class InvalidationHelper {
 	 * The affected regions
 	 */
 	private final Map<String, Set<Long>> affectedRegions;
+	
+	/**
+	 * The watermark generation tracker
+	 */
+	private final Map<String, Long> watermarkActive;
 
 	/**
 	 * The distribution region
@@ -77,6 +84,16 @@ public class InvalidationHelper {
 	 * The future store
 	 */
 	private FixedSizeFutureStore fixedSizeFutureStore;
+	
+	/**
+	 * The current watermark generation
+	 */
+	protected long watermarkGeneration = 0;
+	
+	/**
+	 * The idle removal after n watermarks
+	 */
+	protected long idleAfterWatermarkGenerations = 0;
 	
 	/**
 	 * The Logger
@@ -92,6 +109,7 @@ public class InvalidationHelper {
 		this.fixedSizeFutureStore = fixedSizeFutureStore;
 		this.keys = new HashMap<>();
 		this.affectedRegions = new HashMap<>();
+		this.watermarkActive = new HashMap<>();
 		this.distributionRegion = SpacePartitionerHelper.getRootNode(table);
 
 		fixedSizeFutureStore.addSuccessFutureCallback(o -> handleFutureSuccess(o));
@@ -111,6 +129,7 @@ public class InvalidationHelper {
 		
 		final Set<Long> newRegions = operationFuture.getAffectedRegionIDs();
 		affectedRegions.put(key, newRegions);
+		watermarkActive.put(key, watermarkGeneration);
 		
 		if(oldRegions == null) {
 			return;
@@ -168,7 +187,40 @@ public class InvalidationHelper {
 	public void putTuple(final Tuple tuple) throws BBoxDBException {
 		final EmptyResultFuture resultFuture = bboxdbCluster.insertTuple(table, tuple);
 		keys.put(resultFuture, tuple.getKey());
+		watermarkActive.put(tuple.getKey(), watermarkGeneration);
 		fixedSizeFutureStore.put(resultFuture);
 	}
+	
+	/**
+	 * Update the watermark generation and remove
+	 * idle entries
+	 */
+	public void updateWatermarkGeneration() {
+		
+		if(idleAfterWatermarkGenerations > 0) {
+	        final List<Entry<String, Long>> elementsToRemove = watermarkActive
+	                .entrySet()
+	                .stream()
+	                .filter(e -> (e.getValue() <= watermarkGeneration - idleAfterWatermarkGenerations))
+	                .collect(Collectors.toList());
+			
+	        logger.debug("Perform invalidation of {} idle entries", elementsToRemove.size());
+			
+			for(final Entry<String, Long> entry : elementsToRemove) {
+				affectedRegions.remove(entry.getKey());
+			}
+		}
+		
+		watermarkGeneration++;
+	}
 
+	public long getIdleAfterWatermarkGenerations() {
+		return idleAfterWatermarkGenerations;
+	}
+
+	public void setIdleAfterWatermarkGenerations(long idleAfterWatermarkGenerations) {
+		this.idleAfterWatermarkGenerations = idleAfterWatermarkGenerations;
+	}
+
+	
 }
