@@ -121,8 +121,8 @@ public class DetermineDistributionStateSize implements Runnable {
 						distributionState.put(tuple.getKey(), watermarkGeneration);
 						
 						if(watermarkCreated) {
-							watermarkGeneration++;
 							cleanupDistributionStructure(watermarkGeneration, invalidateAfterGenerations);
+							watermarkGeneration++;
 						}
 						
 						lastTuple = tuple;
