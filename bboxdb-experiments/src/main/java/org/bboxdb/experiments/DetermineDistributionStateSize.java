@@ -32,8 +32,8 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.FileLineIndex;
 import org.bboxdb.tools.converter.tuple.ADSBTupleBuilder2D;
 import org.bboxdb.tools.converter.tuple.ADSBTupleBuilder3D;
+import org.bboxdb.tools.converter.tuple.AuTransportGeoJSONTupleBuilder;
 import org.bboxdb.tools.converter.tuple.BerlinModTupleBuilder;
-import org.bboxdb.tools.converter.tuple.GeoJSONTupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 
@@ -204,7 +204,7 @@ public class DetermineDistributionStateSize implements Runnable {
 			return false;
 		}
 		
-		if(tupleBuilder instanceof GeoJSONTupleBuilder) {
+		if(tupleBuilder instanceof AuTransportGeoJSONTupleBuilder) {
 
 			final GeoJsonPolygon polygonNew = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));			
 			final String newTimestampString = polygonNew.getProperties().getOrDefault("TimestampParsed", "-1");
