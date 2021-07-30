@@ -178,7 +178,10 @@ public class DetermineDistributionStateSize implements Runnable {
 		
 
 		if(tupleBuilder instanceof ADSBTupleBuilder2D || tupleBuilder instanceof ADSBTupleBuilder3D) {
-			return (tuple.getKey().compareTo(lastTuple.getKey()) < 0);
+			final GeoJsonPolygon polygonOld = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));			
+			final GeoJsonPolygon polygonNew = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));			
+
+			return (polygonOld.getId() > polygonNew.getId());
 		}
 		
 		if(tupleBuilder instanceof BerlinModTupleBuilder) {
