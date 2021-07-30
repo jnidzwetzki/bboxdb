@@ -233,7 +233,7 @@ public class DetermineDistributionStateSize implements Runnable {
 	 * @throws IOException 
 	 */
 	private long determineLinesInInput() {
-		final String filename = inputFile.getName();
+		final String filename = inputFile.getAbsolutePath();
 		
 		try(FileLineIndex fli = new FileLineIndex(filename)) {
 			System.out.format("Indexing %s%n", filename);
