@@ -196,7 +196,7 @@ public class DetermineDistributionStateSize implements Runnable {
 				return false;
 			}
 			
-			if(lastWatermarkGenerated + 60 < newTimestamp) {
+			if(lastWatermarkGenerated + 60_000 < newTimestamp) {
 				lastWatermarkGenerated = newTimestamp;
 				return true;
 			}
