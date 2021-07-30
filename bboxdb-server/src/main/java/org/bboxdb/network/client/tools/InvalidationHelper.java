@@ -207,7 +207,9 @@ public class InvalidationHelper {
 	        logger.debug("Perform invalidation of {} idle entries", elementsToRemove.size());
 			
 			for(final Entry<String, Long> entry : elementsToRemove) {
-				affectedRegions.remove(entry.getKey());
+				final String key = entry.getKey();
+				affectedRegions.remove(key);
+				watermarkActive.remove(key);
 			}
 		}
 		

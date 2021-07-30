@@ -38,10 +38,16 @@ public abstract class AbstractContinuousQuery<T extends ContinuousQueryPlan> imp
 	 * The query plan of the query
 	 */
 	protected final T queryPlan;
+	
+	/**
+	 * The current watermark generation
+	 */
+	protected long watermarkGeneration;
 
 	public AbstractContinuousQuery(final ContinuousClientQuery continuousClientQuery, final T queryPlan) {
 		this.continuousClientQuery = continuousClientQuery;
 		this.queryPlan = queryPlan;
+		this.watermarkGeneration = 0;
 	}
 	
 	/**
@@ -61,6 +67,16 @@ public abstract class AbstractContinuousQuery<T extends ContinuousQueryPlan> imp
 			if(queryPlan.isReceiveWatermarks()) {
 				final MultiTuple joinedTuple = ContinuousQueryHelper.getWatermarkTuple(tupleStoreName, streamTuple);
 				continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
+			}
+			
+			// Perform a removal of idle state entries
+			final long invalidationGenerations = queryPlan.getInvalidateStateAfterWatermarks();
+			
+			if(invalidationGenerations > 0) {
+				final ContinuousQueryExecutionState state = continuousClientQuery.getContinuousQueryState();
+				state.invalidateIdleEntries(watermarkGeneration, invalidationGenerations);
+				watermarkGeneration++;
+				state.setCurrentWatermarkGeneration(watermarkGeneration);
 			}
 			
 			return false;

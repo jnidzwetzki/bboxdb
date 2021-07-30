@@ -42,10 +42,11 @@ public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
 			final Hyperrectangle compareRectangle,
 			final boolean reportPositiveNegative, 
 			final List<UserDefinedFilterDefinition> streamFilters,
-			final boolean receiveWatermarks, final boolean receiveInvalidations) {
+			final boolean receiveWatermarks, final boolean receiveInvalidations, 
+			final long invalidateStateAfterWatermarks) {
 		
 			super(queryUUID, streamTable, streamTransformation, queryRectangle, streamFilters, 
-					receiveWatermarks, receiveInvalidations);
+					receiveWatermarks, receiveInvalidations, invalidateStateAfterWatermarks);
 			
 			this.compareRectangle = Objects.requireNonNull(compareRectangle);
 			this.reportPositive = reportPositiveNegative;

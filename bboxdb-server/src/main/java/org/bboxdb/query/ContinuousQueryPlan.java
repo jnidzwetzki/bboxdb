@@ -61,11 +61,17 @@ public abstract class ContinuousQueryPlan {
 	 */
 	private final boolean receiveInvalidations;
 
+	/**
+	 * Invalidate the query state after n watermarks
+	 */
+	private long invalidateStateAfterWatermarks;
+
 	public ContinuousQueryPlan(final String queryUUID, final String streamTable, 
 			final List<TupleTransformation> streamTransformation, 
 			final Hyperrectangle queryRange, 
 			final List<UserDefinedFilterDefinition> streamFilters,
-			final boolean receiveWatermarks, final boolean receiveInvalidations) {
+			final boolean receiveWatermarks, final boolean receiveInvalidations,
+			final long invalidateStateAfterWatermarks) {
 		
 		this.queryUUID = queryUUID;
 		this.streamTable = Objects.requireNonNull(streamTable);
@@ -74,6 +80,7 @@ public abstract class ContinuousQueryPlan {
 		this.streamFilters = Objects.requireNonNull(streamFilters);
 		this.receiveWatermarks = receiveWatermarks;
 		this.receiveInvalidations = receiveInvalidations;
+		this.invalidateStateAfterWatermarks = invalidateStateAfterWatermarks;
 	}
 	
 	public String getQueryUUID() {
@@ -104,17 +111,23 @@ public abstract class ContinuousQueryPlan {
 		return receiveWatermarks;
 	}
 
+	public long getInvalidateStateAfterWatermarks() {
+		return invalidateStateAfterWatermarks;
+	}
+
 	@Override
 	public String toString() {
 		return "ContinuousQueryPlan [streamTable=" + streamTable + ", streamTransformation=" + streamTransformation
 				+ ", streamFilters=" + streamFilters + ", queryUUID=" + queryUUID + ", queryRange=" + queryRange
-				+ ", receiveWatermarks=" + receiveWatermarks + ", receiveInvalidations=" + receiveInvalidations + "]";
+				+ ", receiveWatermarks=" + receiveWatermarks + ", receiveInvalidations=" + receiveInvalidations
+				+ ", invalidateStateAfterWatermarks=" + invalidateStateAfterWatermarks + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (int) (invalidateStateAfterWatermarks ^ (invalidateStateAfterWatermarks >>> 32));
 		result = prime * result + ((queryRange == null) ? 0 : queryRange.hashCode());
 		result = prime * result + ((queryUUID == null) ? 0 : queryUUID.hashCode());
 		result = prime * result + (receiveInvalidations ? 1231 : 1237);
@@ -134,6 +147,8 @@ public abstract class ContinuousQueryPlan {
 		if (getClass() != obj.getClass())
 			return false;
 		ContinuousQueryPlan other = (ContinuousQueryPlan) obj;
+		if (invalidateStateAfterWatermarks != other.invalidateStateAfterWatermarks)
+			return false;
 		if (queryRange == null) {
 			if (other.queryRange != null)
 				return false;
@@ -165,5 +180,7 @@ public abstract class ContinuousQueryPlan {
 			return false;
 		return true;
 	}
+	
+	
 	
 }

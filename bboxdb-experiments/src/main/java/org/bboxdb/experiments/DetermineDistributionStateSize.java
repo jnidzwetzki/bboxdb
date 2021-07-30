@@ -288,7 +288,7 @@ public class DetermineDistributionStateSize implements Runnable {
 			// Size of entry
 			size = size + entry.getKey().getBytes().length; 	
 			
-			// Size of two 64 bit values 
+			// Size of two 64 bit long values 
 			// I.e., the distribution region and the watermark counter
 			size = size + (2 * 8);
 		}

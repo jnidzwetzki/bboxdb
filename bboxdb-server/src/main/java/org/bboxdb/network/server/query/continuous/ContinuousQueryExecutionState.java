@@ -19,8 +19,14 @@ package org.bboxdb.network.server.query.continuous;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContinuousQueryExecutionState {
 
@@ -39,10 +45,28 @@ public class ContinuousQueryExecutionState {
 	 */
 	protected final Set<String> joinPartnersForCurrentKey;
 	
+	/**
+	 * The watermark idle state
+	 */
+	protected final Map<String, Long> watermarkIdleState;
+	
+	/**
+	 * The current watermark generation
+	 */
+	private long currentWatermarkGeneration;
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryExecutionState.class);
+	
+	
 	public ContinuousQueryExecutionState() {
 		this.containedStreamKeys = new HashSet<>();
 		this.containedJoinedKeys = new HashMap<>();
 		this.joinPartnersForCurrentKey = new HashSet<>();
+		this.watermarkIdleState = new HashMap<>();
+		this.currentWatermarkGeneration = 0;
 	}
 	
 	/**
@@ -60,6 +84,7 @@ public class ContinuousQueryExecutionState {
 	 * @return
 	 */
 	public boolean removeStreamKeyFromRangeState(final String key) {
+		watermarkIdleState.remove(key);
 		return containedStreamKeys.remove(key);
 	}
 	
@@ -68,6 +93,7 @@ public class ContinuousQueryExecutionState {
 	 * @param key
 	 */
 	public void addStreamKeyToState(final String key) {
+		watermarkIdleState.put(key, currentWatermarkGeneration);
 		containedStreamKeys.add(key);
 	}
 	
@@ -76,6 +102,7 @@ public class ContinuousQueryExecutionState {
 	 * @param key
 	 */
 	public void addJoinCandidateForCurrentKey(final String key) {
+		watermarkIdleState.put(key, currentWatermarkGeneration);
 		joinPartnersForCurrentKey.add(key);
 	}
 	
@@ -147,5 +174,52 @@ public class ContinuousQueryExecutionState {
 	public void merge(final Set<String> rangeQueryState, final Map<String, Set<String>> joinQueryState) {
 		containedStreamKeys.addAll(rangeQueryState);
 		containedJoinedKeys.putAll(joinQueryState);
+	}
+
+	/**
+	 * Invalidate entries based on the watermark generation
+	 * 
+	 * @param watermarkGeneration
+	 * @param invalidationGenerations
+	 */
+	public void invalidateIdleEntries(final long watermarkGeneration, final long invalidationGenerations) {
+		logger.debug("Invalidating old entries current watermark generation {} / old generations {}", 
+				watermarkGeneration, invalidationGenerations);
+		
+		if(invalidationGenerations == 0) {
+			return;
+		}
+		
+        final List<Entry<String, Long>> elementsToRemove = watermarkIdleState
+                .entrySet()
+                .stream()
+                .filter(e -> (e.getValue() <= watermarkGeneration - invalidationGenerations))
+                .collect(Collectors.toList());
+		
+        logger.debug("Removing {} idle entries from state");
+		
+		for(final Entry<String, Long> entry : elementsToRemove) {
+			final String key = entry.getKey();
+			watermarkIdleState.remove(key);
+			containedStreamKeys.remove(key);
+			containedJoinedKeys.remove(key);
+		}
+		
+	}
+	
+	/**
+	 * Get the current watermark generation
+	 * @return
+	 */
+	public long getCurrentWatermarkGeneration() {
+		return currentWatermarkGeneration;
+	}
+	
+	/**
+	 * Set the current watermark generation
+	 * @param currentWatermarkGeneration
+	 */
+	public void setCurrentWatermarkGeneration(final long currentWatermarkGeneration) {
+		this.currentWatermarkGeneration = currentWatermarkGeneration;
 	}
 }

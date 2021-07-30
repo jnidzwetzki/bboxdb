@@ -75,4 +75,27 @@ public class TestContinuousQueryExecutionState {
 		Assert.assertTrue(missingPartners5.isEmpty());
 
 	}
+
+	@Test(timeout = 60_000)
+	public void testInvalidation() {
+		final ContinuousQueryExecutionState state = new ContinuousQueryExecutionState();
+		
+		state.setCurrentWatermarkGeneration(1);
+		state.addStreamKeyToState("abc");
+
+		Assert.assertTrue(state.wasStreamKeyContainedInLastRangeQuery("abc"));
+		state.invalidateIdleEntries(2, 0);
+		Assert.assertTrue(state.wasStreamKeyContainedInLastRangeQuery("abc"));
+
+		state.invalidateIdleEntries(2, 1);
+		Assert.assertFalse(state.wasStreamKeyContainedInLastRangeQuery("abc"));
+
+		state.setCurrentWatermarkGeneration(2);
+		state.addStreamKeyToState("abc");
+		state.invalidateIdleEntries(3, 2);
+		Assert.assertTrue(state.wasStreamKeyContainedInLastRangeQuery("abc"));
+		
+		state.invalidateIdleEntries(4, 2);
+		Assert.assertFalse(state.wasStreamKeyContainedInLastRangeQuery("abc"));
+	}
 }

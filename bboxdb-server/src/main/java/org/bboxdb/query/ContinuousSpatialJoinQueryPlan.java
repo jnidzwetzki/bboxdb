@@ -49,10 +49,11 @@ public class ContinuousSpatialJoinQueryPlan extends ContinuousQueryPlan {
 			final List<TupleTransformation> tableTransformation,
 			final List<UserDefinedFilterDefinition> streamFilters,
 			final List<UserDefinedFilterDefinition> afterJoinFilter,
-			final boolean receiveWatermarks, final boolean receiveInvalidations) {
+			final boolean receiveWatermarks, final boolean receiveInvalidations, 
+			final long invalidateStateAfterWatermarks) {
 		
 			super(queryUUID, streamTable, streamTransformation, queryRectangle, streamFilters,
-					receiveWatermarks, receiveInvalidations);
+					receiveWatermarks, receiveInvalidations, invalidateStateAfterWatermarks);
 			
 			this.afterJoinFilter = Objects.requireNonNull(afterJoinFilter);
 			this.tableTransformation = Objects.requireNonNull(tableTransformation);

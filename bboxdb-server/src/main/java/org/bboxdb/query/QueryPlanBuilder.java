@@ -91,6 +91,11 @@ public class QueryPlanBuilder {
 	 * This query should receive invalidations
 	 */
 	private boolean receiveInvalidations;
+	
+	/**
+	 * Invalidate state after n watermarks 
+	 */
+	private long invalidateStateAfterWatermarks;
 
 	public QueryPlanBuilder(final String tablename) {
 		this.queryUUID = UUID.randomUUID().toString();
@@ -102,6 +107,7 @@ public class QueryPlanBuilder {
 		this.reportPositiveMatches = true;
 		this.receiveInvalidations = false;
 		this.receiveWatermarks = false;
+		this.invalidateStateAfterWatermarks = 0;
 		this.queryRegion = Hyperrectangle.FULL_SPACE;
 	}
 
@@ -291,6 +297,14 @@ public class QueryPlanBuilder {
 	}
 	
 	/**
+	 * Invalidate the state of the query after n watermarks
+	 */
+	public QueryPlanBuilder invalidateStateAfterWartermarks(final long watermarks) {
+		this.invalidateStateAfterWatermarks = watermarks;
+		return this;
+	}
+	
+	/**
 	 * Build the query plan
 	 * 
 	 * Query region is per default the complete space
@@ -307,7 +321,7 @@ public class QueryPlanBuilder {
 		if(regionConst != null) {
 			return new ContinuousRangeQueryPlan(queryUUID, streamTable, streamTupleTransformation, 
 					queryRegion, regionConst, reportPositiveMatches, streamFilters, 
-					receiveWatermarks, receiveInvalidations);
+					receiveWatermarks, receiveInvalidations, invalidateStateAfterWatermarks);
 		}
 		
 		if(joinTable != null) {
@@ -318,7 +332,8 @@ public class QueryPlanBuilder {
 			
 			return new ContinuousSpatialJoinQueryPlan(queryUUID, streamTable, joinTable, 
 					streamTupleTransformation, queryRegion, storedTupleTransformation,
-					streamFilters, joinFilters, receiveWatermarks, receiveInvalidations);
+					streamFilters, joinFilters, receiveWatermarks, receiveInvalidations,
+					invalidateStateAfterWatermarks);
 		}
 		
 		throw new IllegalArgumentException("Join table or const region need to be set");

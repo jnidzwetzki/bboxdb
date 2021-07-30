@@ -64,6 +64,7 @@ public class ContinuousQueryPlanSerializer {
 	private static final String REPORT_POSITIVE_KEY = "report-positive";
 	private static final String REPORT_WATERMARKS_KEY = "report-watermarks";
 	private static final String REPORT_INVALIDATIONS_KEY = "report-invalidations";
+	private static final String INVALIDATE_STATE_AFTER = "invalidate-state-after";
 
 	private static final String STREAM_TABLE_KEY = "stream-table";
 	private static final String JOIN_TABLE_KEY = "join-table";
@@ -138,6 +139,7 @@ public class ContinuousQueryPlanSerializer {
 		json.put(STREAM_TABLE_KEY, queryPlan.getStreamTable());
 		json.put(REPORT_WATERMARKS_KEY, queryPlan.isReceiveWatermarks());
 		json.put(REPORT_INVALIDATIONS_KEY, queryPlan.isReceiveInvalidations());
+		json.put(INVALIDATE_STATE_AFTER, queryPlan.getInvalidateStateAfterWatermarks());
 
 		final List<UserDefinedFilterDefinition> streamFilters = queryPlan.getStreamFilters();
 		final JSONArray streamFilterJSON = writeFilterToJSON(streamFilters);
@@ -239,6 +241,7 @@ public class ContinuousQueryPlanSerializer {
 
 			final boolean receiveWatermarks = json.getBoolean(REPORT_WATERMARKS_KEY);
 			final boolean receiveInvalidations = json.getBoolean(REPORT_INVALIDATIONS_KEY);
+			final long invalidateStateAfterWatermarks = json.getLong(INVALIDATE_STATE_AFTER);
 			
 			switch(queryType) {
 			case QUERY_TYPE_RANGE_VALUE:
@@ -249,7 +252,7 @@ public class ContinuousQueryPlanSerializer {
 				final ContinuousRangeQueryPlan constQuery = new ContinuousRangeQueryPlan(queryUUID, streamTable, 
 						streamTransformation, queryRectangle, compareRectangle, 
 						reportPositiveNegative, streamFilters, 
-						receiveWatermarks, receiveInvalidations);
+						receiveWatermarks, receiveInvalidations, invalidateStateAfterWatermarks);
 				
 				return constQuery;
 			case QUERY_TYPE_JOIN_VALUE:				
@@ -263,7 +266,7 @@ public class ContinuousQueryPlanSerializer {
 				final ContinuousSpatialJoinQueryPlan tableQuery = new ContinuousSpatialJoinQueryPlan(queryUUID, streamTable, 
 						joinTable, streamTransformation, queryRectangle, 
 						tableTransformation, streamFilters, joinFilters, 
-						receiveWatermarks, receiveInvalidations);
+						receiveWatermarks, receiveInvalidations, invalidateStateAfterWatermarks);
 		
 				return tableQuery;
 			default:

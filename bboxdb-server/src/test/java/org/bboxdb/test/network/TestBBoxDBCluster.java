@@ -221,7 +221,7 @@ public class TestBBoxDBCluster {
 		// Execute query
 		final Hyperrectangle bbox = new Hyperrectangle(-1d, 2d, -1d, 2d);
 		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
-				table, new ArrayList<>(), bbox, bbox, true, new ArrayList<>(), false, false);
+				table, new ArrayList<>(), bbox, bbox, true, new ArrayList<>(), false, false, 0);
 		
 		final JoinedTupleListFuture future = bboxDBClient.queryContinuous(constQueryPlan);
 

@@ -70,6 +70,7 @@ public class TestQueryPlanBuilder {
 			.filterStreamTupleByBoundingBox(new Hyperrectangle(3d, 5d))
 			.enlargeStreamTupleBoundBoxByValue(4)
 			.enlargeStreamTupleBoundBoxByFactor(2)
+			.invalidateStateAfterWartermarks(50)
 			.build();
 		
 		Assert.assertEquals("table", queryPlan.getStreamTable());
@@ -78,6 +79,7 @@ public class TestQueryPlanBuilder {
 		
 		final ContinuousRangeQueryPlan cqp = (ContinuousRangeQueryPlan) queryPlan;
 		Assert.assertEquals(new Hyperrectangle(2d, 4d), cqp.getCompareRectangle());
+		Assert.assertEquals(50, cqp.getInvalidateStateAfterWatermarks());
 	}
 	
 	@Test(timeout=60_000, expected=IllegalArgumentException.class)
