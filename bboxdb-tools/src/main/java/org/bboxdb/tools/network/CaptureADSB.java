@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
@@ -86,9 +87,9 @@ public class CaptureADSB implements Runnable {
 
 			final TupleBuilder builder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.ADSB_2D);
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), Const.DEFAULT_CHARSET));
-			
+
 			String line = null;
-			String lastKey = null;
+			long lastId = 0;
 			final AtomicLong lastTimestmap = new AtomicLong();
 			long readTuples = 0;
 			
@@ -102,14 +103,17 @@ public class CaptureADSB implements Runnable {
 					final Tuple tuple = builder.buildTuple(line);
 					
 					if(tuple != null) {
-						// Start restarts, add watermark
-						if(lastKey != null && tuple.getKey().compareTo(tuple.getKey()) < 0) {
+
+						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));
+
+						// ID restarts, add watermark
+						if(lastId != 0 && lastId > polygon.getId()) {
 							final WatermarkTuple watermarkTuple = new WatermarkTuple(lastTimestmap.get());
 							final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, watermarkTuple);
 							pendingFutures.put(insertFuture);
 						}
-						
-						lastKey = tuple.getKey();
+
+						lastId = polygon.getId();
 						lastTimestmap.set(tuple.getVersionTimestamp());
 
 						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, tuple);

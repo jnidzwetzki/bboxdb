@@ -7,7 +7,7 @@ order: 1
 ---
 
 ### Version 1.0.0 (release candidate 2) - TBA
-
+- Bugfix: Fixed watermark calculation for the ADS-B datastream
 
 ### Version 1.0.0 (release candidate 1) - 30.07.2021
 - Improvement: The H2 and Derby backend in the OSM data converter are exposed
