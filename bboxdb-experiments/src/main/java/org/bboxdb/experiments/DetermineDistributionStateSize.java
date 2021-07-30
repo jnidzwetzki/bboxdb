@@ -23,10 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,12 +80,24 @@ public class DetermineDistributionStateSize implements Runnable {
 	 */
 	private final Map<String, Long> distributionState;
 	
+	/**
+	 * Already seen elements, used to calculate the error
+	 */
+	private final Set<String> alreadySeenKeys;
+	
+	/**
+	 * The keys that were seen but not in state
+	 */
+	private long seenButNotInState;
+	
 	public DetermineDistributionStateSize(final File inputFile, final TupleBuilder tupleFactory) {
 		this.inputFile = inputFile;
 		this.tupleBuilder = tupleFactory;
 		this.distributionState = new HashMap<>();
+		this.alreadySeenKeys = new HashSet<>();
 		this.lineNumber = 0;
 		this.lastWatermarkGenerated = 0;
+		this.seenButNotInState = 0;
 		this.fileLine = null;
 	}
 
@@ -108,8 +122,10 @@ public class DetermineDistributionStateSize implements Runnable {
 		for(final Integer invalidateAfterGenerations : invalidations) {
 			
 			distributionState.clear();
+			alreadySeenKeys.clear();
 			lastWatermarkGenerated = 0;
-
+			seenButNotInState = 0;
+			
 			System.out.println("#########################");
 			System.out.println("## Invaliate after: " + invalidateAfterGenerations);
 			System.out.println("## % input \t entries \t size in byte");
@@ -129,7 +145,16 @@ public class DetermineDistributionStateSize implements Runnable {
 						
 						final boolean watermarkCreated = isWatermarkCreated(lastTuple, tuple);
 				
-						distributionState.put(tuple.getKey(), watermarkGeneration);
+						final String tupleKey = tuple.getKey();
+						if(! distributionState.containsKey(tupleKey)) {
+							if(alreadySeenKeys.contains(tupleKey)) {
+								seenButNotInState++;
+							} else {
+								alreadySeenKeys.add(tupleKey);
+							}
+						}
+						
+						distributionState.put(tupleKey, watermarkGeneration);
 						
 						if(watermarkCreated) {
 							cleanupDistributionStructure(watermarkGeneration, invalidateAfterGenerations);
@@ -151,6 +176,7 @@ public class DetermineDistributionStateSize implements Runnable {
 					lineNumber++;
 				}
 				
+				System.out.println("Already seen but not in state: " + seenButNotInState);
 				System.out.println("#########################\n\n");
 
 			} catch (IOException e) {
