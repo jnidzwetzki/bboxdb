@@ -96,6 +96,8 @@ public class DetermineDistributionStateSize implements Runnable {
 		
 		for(int invalidateAfterGenerations = 0; invalidateAfterGenerations < 10; invalidateAfterGenerations++) {
 			
+			distributionState.clear();
+			
 			System.out.println("#########################");
 			System.out.println("## Invaliate after: " + invalidateAfterGenerations);
 			System.out.println("## % input \t entries \t size in byte");
@@ -178,7 +180,7 @@ public class DetermineDistributionStateSize implements Runnable {
 		
 
 		if(tupleBuilder instanceof ADSBTupleBuilder2D || tupleBuilder instanceof ADSBTupleBuilder3D) {
-			final GeoJsonPolygon polygonOld = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));			
+			final GeoJsonPolygon polygonOld = GeoJsonPolygon.fromGeoJson(new String(lastTuple.getDataBytes()));			
 			final GeoJsonPolygon polygonNew = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));			
 
 			return (polygonOld.getId() > polygonNew.getId());
