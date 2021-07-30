@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 1.0.0 (release candidate 1) - TBA
+### Version 1.0.0 (release candidate 1) - 30.07.2021
 - Improvement: The H2 and Derby backend in the OSM data converter are exposed
 - Improvement: Log the status of the detected memory mapper
 - Improvement: Log used java version at system start
@@ -29,6 +29,7 @@ order: 1
 - Bugfix: Perform a size check of the distribution regions after major compact to prevent split of small regions
 - Bugfix: Fixed a bug in the versioned Zookeeper replacement
 - Bugfix: Recalculate the size of a distribution region after compact and before it is split, to prevent split-merge cycles
+- Bugfix: Prevent NPE when query iterator is canceled
 
 ### Version 0.9.9 - 18.06.2021
 - New Feature: Watermarks for continuous queries
