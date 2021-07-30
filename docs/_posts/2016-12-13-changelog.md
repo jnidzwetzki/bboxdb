@@ -6,6 +6,9 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 1.0.0 (release candidate 2) - TBA
+
+
 ### Version 1.0.0 (release candidate 1) - 30.07.2021
 - Improvement: The H2 and Derby backend in the OSM data converter are exposed
 - Improvement: Log the status of the detected memory mapper
