@@ -120,8 +120,8 @@ public class DetermineDistributionStateSize implements Runnable {
 						
 						lastTuple = tuple;
 						
-						if(lineNumber % (linesInInput / 20) == 0) {
-							final long percent = (lineNumber / linesInInput) * 100;
+						if(lineNumber % (linesInInput / 20.0) == 0) {
+							final double percent = (lineNumber / linesInInput) * 100.0;
 							final long stateSize = detemrineStateSize();
 							System.out.println(percent + "\t" + distributionState.size() + "\t" + stateSize);
 						}
