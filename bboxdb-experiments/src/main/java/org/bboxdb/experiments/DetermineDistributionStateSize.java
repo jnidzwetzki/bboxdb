@@ -169,21 +169,20 @@ public class DetermineDistributionStateSize implements Runnable {
 			return;
 		}
 		
+        final List<Entry<String, Long>> elementsToRemove = distributionState
+                .entrySet()
+                .stream()
+                .filter(e -> (e.getValue() <= watermarkGeneration - invalidateAfterGenerations))
+                .collect(Collectors.toList());
+		
 		if(DEBUG) {
-			final List<Entry<String, Long>> elementsToRemove = distributionState
-					.entrySet()
-					.stream()
-					.filter(e -> (watermarkGeneration - invalidateAfterGenerations <= e.getValue()))
-					.collect(Collectors.toList());
-			
-			
 			System.out.println("Current generation is: " + watermarkGeneration);
 			System.out.println("Removing: " + elementsToRemove);
 		}
 		
-		distributionState
-			.entrySet()
-			.removeIf(e -> watermarkGeneration - invalidateAfterGenerations <= e.getValue());
+		for(final Entry<String, Long> entry : elementsToRemove) {
+			distributionState.remove(entry.getKey());
+		}
 	}
 
 
