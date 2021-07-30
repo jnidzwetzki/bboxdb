@@ -127,8 +127,11 @@ public class DetermineDistributionStateSize implements Runnable {
 					
 					if(lineNumber % (stateAfterLines) == 0) {
 						final double percent = ((double) lineNumber / (double) linesInInput) * 100.0;
-						final long stateSize = detemrineStateSize();
-						System.out.println(percent + "\t" + distributionState.size() + "\t" + stateSize);
+						
+						final double roundPercent = MathUtil.round(percent, 0);
+						
+						final long stateSize = determineStateSize();
+						System.out.println(roundPercent + "\t" + distributionState.size() + "\t" + stateSize);
 					}
 					
 					lineNumber++;
@@ -224,7 +227,7 @@ public class DetermineDistributionStateSize implements Runnable {
 	 * Determine the size of the distribution state
 	 * @return
 	 */
-	private long detemrineStateSize() {
+	private long determineStateSize() {
 		long size = 0;
 		
 		for(Map.Entry<String, Long> entry : distributionState.entrySet()) {
