@@ -94,13 +94,14 @@ public class DetermineDistributionStateSize implements Runnable {
 			
 			System.out.println("#########################");
 			System.out.println("## Invaliate after: " + invalidateAfterGenerations);
+			System.out.println("## % input \t entries \t size in byte");
 			
 			try(final Stream<String> fileStream = Files.lines(Paths.get(inputFile.getAbsolutePath()))) {
 				
 				lineNumber = 1;
 				Tuple lastTuple = null;
 				
-				int watermarkGeneration = 0;
+				long watermarkGeneration = 0;
 				
 				for (final Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
 					fileLine = iterator.next();
@@ -109,6 +110,8 @@ public class DetermineDistributionStateSize implements Runnable {
 					if(tuple != null) {
 						
 						final boolean watermarkCreated = isWatermarkCreated(lastTuple, tuple);
+				
+						distributionState.put(tuple.getKey(), watermarkGeneration);
 						
 						if(watermarkCreated) {
 							watermarkGeneration++;
@@ -142,13 +145,15 @@ public class DetermineDistributionStateSize implements Runnable {
 	 * @param watermarkGeneration
 	 * @param invalidateAfterGenerations
 	 */
-	private void cleanupDistributionStructure(final int watermarkGeneration, final int invalidateAfterGenerations) {
+	private void cleanupDistributionStructure(final long watermarkGeneration, final long invalidateAfterGenerations) {
 		
 		if(invalidateAfterGenerations == 0) {
 			return;
 		}
 		
-		distributionState.entrySet().removeIf(e -> watermarkGeneration - invalidateAfterGenerations <= e.getValue());
+		distributionState
+			.entrySet()
+			.removeIf(e -> watermarkGeneration - invalidateAfterGenerations <= e.getValue());
 	}
 
 
