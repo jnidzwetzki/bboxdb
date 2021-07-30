@@ -97,7 +97,8 @@ public class DetermineDistributionStateSize implements Runnable {
 		for(int invalidateAfterGenerations = 0; invalidateAfterGenerations < 10; invalidateAfterGenerations++) {
 			
 			distributionState.clear();
-			
+			lastWatermarkGenerated = 0;
+
 			System.out.println("#########################");
 			System.out.println("## Invaliate after: " + invalidateAfterGenerations);
 			System.out.println("## % input \t entries \t size in byte");
