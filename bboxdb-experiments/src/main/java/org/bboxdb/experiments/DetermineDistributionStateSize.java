@@ -235,8 +235,11 @@ public class DetermineDistributionStateSize implements Runnable {
 	private long determineStateSize() {
 		long size = 0;
 		
-		for(Map.Entry<String, Long> entry : distributionState.entrySet()) {
-			size = size + entry.getKey().getBytes().length;
+		for(final Map.Entry<String, Long> entry : distributionState.entrySet()) {
+			// Size of entry
+			size = size + entry.getKey().getBytes().length; 	
+			
+			// Size of 64 bit pointer
 			size = size + 8;
 		}
 		
