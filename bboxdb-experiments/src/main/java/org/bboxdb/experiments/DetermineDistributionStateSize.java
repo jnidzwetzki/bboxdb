@@ -117,7 +117,7 @@ public class DetermineDistributionStateSize implements Runnable {
 		System.out.println("## State after lines: " + stateAfterLines);
 		System.out.println("#########################");
 		
-		final List<Integer> invalidations = Arrays.asList(new Integer[] {0, 1, 5, 10, 15, 20, 25, 50, 100, 250, 500, 750, 1000});
+		final List<Integer> invalidations = Arrays.asList(new Integer[] {0, 1, 5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000});
 		
 		for(final Integer invalidateAfterGenerations : invalidations) {
 			
