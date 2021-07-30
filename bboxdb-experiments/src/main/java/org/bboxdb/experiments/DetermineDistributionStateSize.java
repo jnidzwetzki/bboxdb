@@ -88,6 +88,10 @@ public class DetermineDistributionStateSize implements Runnable {
 		final long linesInInput = determineLinesInInput();
 		
 		System.out.println("## Lines in input: " + linesInInput);
+		
+		final long stateAfterLines = linesInInput / 20;
+		
+		System.out.println("## State after lines: " + stateAfterLines);
 		System.out.println("#########################");
 		
 		for(int invalidateAfterGenerations = 0; invalidateAfterGenerations < 10; invalidateAfterGenerations++) {
@@ -120,7 +124,7 @@ public class DetermineDistributionStateSize implements Runnable {
 						
 						lastTuple = tuple;
 						
-						if(lineNumber % (linesInInput / 20.0) == 0) {
+						if(lineNumber % (stateAfterLines) == 0) {
 							final double percent = (lineNumber / linesInInput) * 100.0;
 							final long stateSize = detemrineStateSize();
 							System.out.println(percent + "\t" + distributionState.size() + "\t" + stateSize);
