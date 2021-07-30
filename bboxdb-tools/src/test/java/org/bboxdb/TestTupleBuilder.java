@@ -602,11 +602,10 @@ public class TestTupleBuilder {
 
 		final Hyperrectangle exptectedBox = new Hyperrectangle(52.4981d, 52.4981d, 13.327d, 13.327d);
 				
-		Assert.assertEquals(1180342834000L, tuple.getVersionTimestamp());
+		Assert.assertEquals(1180224000000L, tuple.getVersionTimestamp());
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
 
-	
 	/**
 	 * Test the tuple file builder - Process non existing file
 	 * @throws IOException

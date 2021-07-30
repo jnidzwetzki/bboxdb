@@ -83,7 +83,7 @@ public class BerlinModTupleBuilder extends TupleBuilder {
 		}
 		
 		try {
-			String dateString = values[3];
+			String dateString = values[2];
 			
 			// Fix incomplete dates (e.g., 2007-05-28 10:00)
 			final int timeElements = dateString.split(":").length;
