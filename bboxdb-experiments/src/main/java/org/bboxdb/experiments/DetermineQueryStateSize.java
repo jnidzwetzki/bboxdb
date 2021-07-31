@@ -58,6 +58,11 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 	 * The keys that were seen but not in state
 	 */
 	private long seenButNotInState;
+	
+	/**
+	 * Processed elements
+	 */
+	private long processedElements;
 
 	/**
 	 * The queries
@@ -106,6 +111,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 		super(inputFile, tupleFactory);
 		this.lineNumber = 0;
 		this.seenButNotInState = 0;
+		this.processedElements = 0;
 		this.fileLine = null;
 		
 		this.queries = new ArrayList<>();
@@ -169,6 +175,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 								
 								query.getAlreadySeenKeys().add(tupleKey);
 								query.getQueryState().put(tupleKey, watermarkGeneration);
+								processedElements++;
 							} else {
 								query.getAlreadySeenKeys().remove(tupleKey);
 								query.getQueryState().remove(tupleKey);
@@ -198,9 +205,10 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 					lineNumber++;
 				}
 				
-				final double errorPercentage = (((double) seenButNotInState / (double) linesInInput) * 100.0);
+				final double errorPercentage = (((double) seenButNotInState / (double) processedElements) * 100.0);
 				
-				System.out.println("Already seen but not in state: " + seenButNotInState + " / " + MathUtil.round(errorPercentage, 4) + " %");
+				System.out.println("Already seen but not in state: " + seenButNotInState + " / processed " 
+							+ processedElements + " / " + MathUtil.round(errorPercentage, 4) + " %");
 				System.out.println("#########################\n\n");
 
 			} catch (IOException e) {
