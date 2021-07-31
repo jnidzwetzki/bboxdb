@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 1.0.0 (release candidate 2) - TBA
+- New Feature: Emit IdleQueryStateRemovedTuple when idle query state entries are removed
 - Improvement: Implemented watermark generation based invalidation
 - Bugfix: Fixed watermark calculation for the ADS-B datastream
 

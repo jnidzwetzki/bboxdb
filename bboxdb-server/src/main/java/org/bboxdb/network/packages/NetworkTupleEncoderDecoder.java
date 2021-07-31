@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DeletedTuple;
+import org.bboxdb.storage.entity.IdleQueryStateRemovedTuple;
 import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
@@ -65,6 +66,8 @@ public class NetworkTupleEncoderDecoder {
 			tuple = new WatermarkTuple(key, timestamp);
 		} else if(TupleHelper.isInvalidationTuple(boxBytes, dataBytes)) { 
 			tuple = new InvalidationTuple(key, timestamp);
+		} else if(TupleHelper.isIdleStateRemovedTuple(boxBytes, dataBytes)) {
+			tuple = new IdleQueryStateRemovedTuple(key, timestamp);
 		} else {
 			final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boxBytes);
 			tuple = new Tuple(key, boundingBox, dataBytes, timestamp);

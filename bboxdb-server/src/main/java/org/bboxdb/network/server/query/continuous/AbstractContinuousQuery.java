@@ -17,10 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.network.server.query.continuous;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.misc.Const;
 import org.bboxdb.query.ContinuousQueryPlan;
+import org.bboxdb.query.ContinuousSpatialJoinQueryPlan;
 import org.bboxdb.storage.entity.DeletedTuple;
+import org.bboxdb.storage.entity.IdleQueryStateRemovedTuple;
 import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
@@ -74,7 +83,13 @@ public abstract class AbstractContinuousQuery<T extends ContinuousQueryPlan> imp
 			
 			if(invalidationGenerations > 0) {
 				final ContinuousQueryExecutionState state = continuousClientQuery.getContinuousQueryState();
-				state.invalidateIdleEntries(watermarkGeneration, invalidationGenerations);
+				final Optional<IdleQueryStateResult> idleElementsOptional 
+					= state.invalidateIdleEntries(watermarkGeneration, invalidationGenerations);
+				
+				if(idleElementsOptional.isPresent()) {
+					generateQueryStateRemovalTuples(idleElementsOptional.get());
+				}
+				
 				watermarkGeneration++;
 				state.setCurrentWatermarkGeneration(watermarkGeneration);
 			}
@@ -95,6 +110,43 @@ public abstract class AbstractContinuousQuery<T extends ContinuousQueryPlan> imp
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Generate IdleQueryStateRemovedTuple for all removed elements from the state
+	 * @param idleElements
+	 */
+	protected void generateQueryStateRemovalTuples(final IdleQueryStateResult idleElements) {
+		
+		// Range query state
+		for(final String key : idleElements.getRemovedStreamKeys()) {
+			final Tuple tuple = new IdleQueryStateRemovedTuple(key);
+			final MultiTuple joinedTuple = new MultiTuple(tuple, queryPlan.getStreamTable());
+			continuousClientQuery.queueTupleForClientProcessing(joinedTuple);
+		}
+		
+		if(queryPlan instanceof ContinuousSpatialJoinQueryPlan) {
+			
+			final ContinuousSpatialJoinQueryPlan continuousSpatialJoinQueryPlan = (ContinuousSpatialJoinQueryPlan) queryPlan;
+			
+			// Join query state
+			for(final Map.Entry<String, Set<String>> entry : idleElements.getRemovedJoinPartners().entrySet()) {
+				
+				final List<String> tables = Arrays.asList(queryPlan.getStreamTable(), continuousSpatialJoinQueryPlan.getJoinTable());
+							
+				for(final String joinPartner : entry.getValue()) {
+					final Tuple tuple = new IdleQueryStateRemovedTuple(entry.getKey());
+					final Tuple joinPartnerTuple = new Tuple(joinPartner, Hyperrectangle.FULL_SPACE, "".getBytes(Const.DEFAULT_CHARSET));
+					
+					final MultiTuple joinedTuple = new MultiTuple(Arrays.asList(tuple, joinPartnerTuple), tables);
+					continuousClientQuery.queueTupleForClientProcessing(joinedTuple);	
+				}
+				
+			}
+		}
+		
+
+		
 	}
 
 	/**

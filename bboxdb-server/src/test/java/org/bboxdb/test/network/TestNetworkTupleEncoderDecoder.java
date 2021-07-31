@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
 import org.bboxdb.storage.entity.DeletedTuple;
+import org.bboxdb.storage.entity.IdleQueryStateRemovedTuple;
 import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
@@ -65,6 +66,15 @@ public class TestNetworkTupleEncoderDecoder {
 		testEncoding(tuple1);
 		
 		final Tuple tuple2 = new InvalidationTuple("abc", System.currentTimeMillis());
+		testEncoding(tuple2);
+	}
+	
+	@Test(timeout = 60_000)
+	public void testIdleStateRemovedTupleEncodeDecode() throws IOException {
+		final Tuple tuple1 = new IdleQueryStateRemovedTuple("abc");
+		testEncoding(tuple1);
+		
+		final Tuple tuple2 = new IdleQueryStateRemovedTuple("abc", System.currentTimeMillis());
 		testEncoding(tuple2);
 	}
 	

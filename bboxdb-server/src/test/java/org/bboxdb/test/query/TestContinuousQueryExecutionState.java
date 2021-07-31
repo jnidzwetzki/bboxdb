@@ -17,9 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.test.query;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.bboxdb.network.server.query.continuous.ContinuousQueryExecutionState;
+import org.bboxdb.network.server.query.continuous.IdleQueryStateResult;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -84,18 +86,25 @@ public class TestContinuousQueryExecutionState {
 		state.addStreamKeyToState("abc");
 
 		Assert.assertTrue(state.wasStreamKeyContainedInLastRangeQuery("abc"));
-		state.invalidateIdleEntries(2, 0);
+		final Optional<IdleQueryStateResult> result1 = state.invalidateIdleEntries(2, 0);
+		Assert.assertFalse(result1.isPresent());
 		Assert.assertTrue(state.wasStreamKeyContainedInLastRangeQuery("abc"));
 
-		state.invalidateIdleEntries(2, 1);
+		final Optional<IdleQueryStateResult> result2 = state.invalidateIdleEntries(2, 1);
+		Assert.assertTrue(result2.isPresent());
 		Assert.assertFalse(state.wasStreamKeyContainedInLastRangeQuery("abc"));
+		Assert.assertTrue(result2.get().getRemovedStreamKeys().contains("abc"));
 
 		state.setCurrentWatermarkGeneration(2);
 		state.addStreamKeyToState("abc");
-		state.invalidateIdleEntries(3, 2);
+		final Optional<IdleQueryStateResult> result3 = state.invalidateIdleEntries(3, 2);
+		Assert.assertTrue(result3.isPresent());
+		Assert.assertTrue(result3.get().getRemovedStreamKeys().isEmpty());
 		Assert.assertTrue(state.wasStreamKeyContainedInLastRangeQuery("abc"));
 		
-		state.invalidateIdleEntries(4, 2);
+		final Optional<IdleQueryStateResult> result4 = state.invalidateIdleEntries(4, 2);
+		Assert.assertTrue(result4.isPresent());
 		Assert.assertFalse(state.wasStreamKeyContainedInLastRangeQuery("abc"));
+		Assert.assertTrue(result4.get().getRemovedStreamKeys().contains("abc"));
 	}
 }

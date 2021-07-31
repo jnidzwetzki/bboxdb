@@ -122,6 +122,11 @@ public class SSTableConst {
 	public final static byte[] INVALIDATED_MARKER = "INVALID".getBytes();
 	
 	/**
+	 * Marker for invalidation tuples
+	 */
+	public final static byte[] IDLE_STATE_REMOVED_MARKER = "IDLE_STATE_REMOVED".getBytes();
+	
+	/**
 	 * Execution interval for the compact thread (30 seconds)
 	 */
 	// Changed for demo

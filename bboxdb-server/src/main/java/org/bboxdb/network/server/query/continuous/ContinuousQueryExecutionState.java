@@ -21,8 +21,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -59,7 +60,6 @@ public class ContinuousQueryExecutionState {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ContinuousQueryExecutionState.class);
-	
 	
 	public ContinuousQueryExecutionState() {
 		this.containedStreamKeys = new HashSet<>();
@@ -181,13 +181,14 @@ public class ContinuousQueryExecutionState {
 	 * 
 	 * @param watermarkGeneration
 	 * @param invalidationGenerations
+	 * @return 
 	 */
-	public void invalidateIdleEntries(final long watermarkGeneration, final long invalidationGenerations) {
+	public Optional<IdleQueryStateResult> invalidateIdleEntries(final long watermarkGeneration, final long invalidationGenerations) {
 		logger.debug("Invalidating old entries current watermark generation {} / old generations {}", 
 				watermarkGeneration, invalidationGenerations);
 		
 		if(invalidationGenerations == 0) {
-			return;
+			return Optional.empty();
 		}
 		
         final List<Entry<String, Long>> elementsToRemove = watermarkIdleState
@@ -198,12 +199,23 @@ public class ContinuousQueryExecutionState {
 		
         logger.debug("Removing {} idle entries from state");
 		
+        final Set<String> removedStreamKeys = new HashSet<>();
+        final Map<String, Set<String>> removedJoinPartners = new HashMap<>();
+        
 		for(final Entry<String, Long> entry : elementsToRemove) {
 			final String key = entry.getKey();
 			watermarkIdleState.remove(key);
 			containedStreamKeys.remove(key);
-			containedJoinedKeys.remove(key);
+			
+			final Set<String> removedJoinPartnersForKey = containedJoinedKeys.remove(key);
+			
+			removedStreamKeys.add(key);
+			removedJoinPartners.put(key, removedJoinPartnersForKey);
 		}
+		
+        final IdleQueryStateResult idleQueryStateResult = new IdleQueryStateResult(removedStreamKeys, removedJoinPartners);
+
+        return Optional.of(idleQueryStateResult);
 		
 	}
 	

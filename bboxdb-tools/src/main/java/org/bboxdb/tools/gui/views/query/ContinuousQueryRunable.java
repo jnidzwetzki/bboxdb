@@ -30,6 +30,7 @@ import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.ContinuousQueryState;
 import org.bboxdb.network.client.future.client.JoinedTupleListFuture;
 import org.bboxdb.query.ContinuousQueryPlan;
+import org.bboxdb.storage.entity.IdleQueryStateRemovedTuple;
 import org.bboxdb.storage.entity.InvalidationTuple;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
@@ -107,7 +108,7 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 				// otherwise, the stale tuples are removed when all watermarks are present
 				if(! qp.isReceiveWatermarks()) {
 					
-					if (firstTuple instanceof InvalidationTuple) {
+					if (firstTuple instanceof InvalidationTuple || firstTuple instanceof IdleQueryStateRemovedTuple) {
 						removeTupleFromView(joinedTuple);
 					} else {
 						updateTupleOnGui(joinedTuple, colors, true);

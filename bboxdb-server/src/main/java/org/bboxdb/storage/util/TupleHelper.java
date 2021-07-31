@@ -271,6 +271,22 @@ public class TupleHelper {
 		
 		return false;
 	}
+	
+	/**
+	 * Is this a invalidation tuple?
+	 * @param boxBytes
+	 * @param dataBytes
+	 * @return
+	 */
+	public static boolean isIdleStateRemovedTuple(final byte[] boxBytes, final byte[] dataBytes) {
+		if(Arrays.equals(dataBytes, SSTableConst.IDLE_STATE_REMOVED_MARKER)) {
+			if(Arrays.equals(boxBytes, SSTableConst.IDLE_STATE_REMOVED_MARKER)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Is deleted tuple
