@@ -200,7 +200,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 				
 				final double errorPercentage = (((double) seenButNotInState / (double) linesInInput) * 100.0);
 				
-				System.out.println("Already seen but not in state: " + seenButNotInState + " / " + errorPercentage + " %");
+				System.out.println("Already seen but not in state: " + seenButNotInState + " / " + MathUtil.round(errorPercentage, 4) + " %");
 				System.out.println("#########################\n\n");
 
 			} catch (IOException e) {
