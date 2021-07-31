@@ -48,6 +48,11 @@ public class RandomQueryRangeGenerator {
 			return completeSpace;
 		}
 		
+		if(percentage <= 0 || percentage > 1) {
+			logger.error("Unable to generate random space. Percentage has to be in interval (0, 1] (provided {})", percentage);
+			return completeSpace;
+		}
+		
 		final List<DoubleInterval> bboxIntervals = new ArrayList<>();
 		
 		// Determine query bounding box
