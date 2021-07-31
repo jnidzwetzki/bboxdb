@@ -146,6 +146,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 			queries.forEach(q -> q.getAlreadySeenKeys().clear());
 			lastWatermarkGenerated = 0;
 			seenButNotInState = 0;
+			processedElements = 0;
 			
 			System.out.println("#########################");
 			System.out.println("## Invaliate after: " + invalidateAfterGenerations);
