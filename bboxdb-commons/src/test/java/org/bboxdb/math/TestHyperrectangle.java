@@ -752,6 +752,10 @@ public class TestHyperrectangle {
 		Assert.assertNull(Hyperrectangle.FULL_SPACE.scaleVolumeByPercentage(2.0));
 		Assert.assertNull(Hyperrectangle.createFullCoveringDimensionBoundingBox(2).scaleVolumeByPercentage(2.0));
 		
+		final Hyperrectangle hyperrectangle0 = new Hyperrectangle(0.0, 2.0);
+		final Hyperrectangle hr0Scaled = hyperrectangle0.scaleVolumeByPercentage(1.0);
+		Assert.assertEquals(hyperrectangle0, hr0Scaled);
+		
 		final Hyperrectangle hyperrectangle1 = new Hyperrectangle(0.0, 2.0);
 		final Hyperrectangle hr1Scaled = hyperrectangle1.scaleVolumeByPercentage(0.5);
 		Assert.assertEquals(hyperrectangle1.getVolume() / 2, hr1Scaled.getVolume(), EQUALS_DELTA);
