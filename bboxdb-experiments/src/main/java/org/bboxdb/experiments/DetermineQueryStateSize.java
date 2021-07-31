@@ -269,7 +269,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 	 * @return
 	 */
 	private long determineStateEntries() {
-		return queries.stream().mapToInt(q -> q.getQueryState().size()).count();
+		return queries.stream().mapToInt(q -> q.getQueryState().size()).sum();
 	}
 	
 
