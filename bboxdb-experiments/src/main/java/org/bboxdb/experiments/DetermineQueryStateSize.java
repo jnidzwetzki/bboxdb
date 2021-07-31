@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,16 +29,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
+import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
 
-public class DetermineDistributionStateSize extends AbstractStateSize implements Runnable {
+public class DetermineQueryStateSize extends AbstractStateSize implements Runnable {
 
 	/** 
 	 * The amount of processed lines
@@ -50,30 +55,68 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 	private String fileLine;
 	
 	/**
-	 * The distribution state
-	 */
-	private final Map<String, Long> distributionState;
-	
-	/**
-	 * Already seen elements, used to calculate the error
-	 */
-	private final Set<String> alreadySeenKeys;
-	
-	/**
 	 * The keys that were seen but not in state
 	 */
 	private long seenButNotInState;
+
+	/**
+	 * The queries
+	 */
+	private final List<Query> queries;
 	
-	public DetermineDistributionStateSize(final File inputFile, final TupleBuilder tupleFactory) {
+	class Query {
+		
+		/**
+		 * The query rectangle
+		 */
+		private final Hyperrectangle queryRectangle;
+		
+		/**
+		 * The distribution state
+		 */
+		private final Map<String, Long> queryState;
+		
+		/**
+		 * Already seen elements, used to calculate the error
+		 */
+		private final Set<String> alreadySeenKeys;
+
+		public Query(final Hyperrectangle queryRectangle) {
+			this.queryRectangle = queryRectangle;
+			this.queryState = new HashMap<>();
+			this.alreadySeenKeys = new HashSet<>();
+		}
+		
+		public Hyperrectangle getQueryRectangle() {
+			return queryRectangle;
+		}
+		
+		public Map<String, Long> getQueryState() {
+			return queryState;
+		}
+		
+		public Set<String> getAlreadySeenKeys() {
+			return alreadySeenKeys;
+		}
+	}
+	
+	public DetermineQueryStateSize(final File inputFile, final TupleBuilder tupleFactory, 
+			final List<Hyperrectangle> ranges) {
+		
 		super(inputFile, tupleFactory);
-		this.distributionState = new HashMap<>();
-		this.alreadySeenKeys = new HashSet<>();
 		this.lineNumber = 0;
 		this.seenButNotInState = 0;
 		this.fileLine = null;
+		
+		this.queries = new ArrayList<>();
+		
+		for(final Hyperrectangle range : ranges) {
+			queries.add(new Query(range));
+		}
+		
 	}
 
-
+	
 	@Override
 	public void run() {
 		
@@ -93,8 +136,8 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 		
 		for(final Integer invalidateAfterGenerations : invalidations) {
 			
-			distributionState.clear();
-			alreadySeenKeys.clear();
+			queries.forEach(q -> q.getQueryState().clear());
+			queries.forEach(q -> q.getAlreadySeenKeys().clear());
 			lastWatermarkGenerated = 0;
 			seenButNotInState = 0;
 			
@@ -115,19 +158,26 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 					
 					if(tuple != null) {
 						
-						final boolean watermarkCreated = isWatermarkCreated(lastTuple, tuple);
-				
-						final String tupleKey = tuple.getKey();
-						if(! distributionState.containsKey(tupleKey)) {
-							if(alreadySeenKeys.contains(tupleKey)) {
-								seenButNotInState++;
+						for(final Query query : queries) {
+							final String tupleKey = tuple.getKey();
+						
+							if(query.getQueryRectangle().intersects(tuple.getBoundingBox())) {
+								
+								if(query.getAlreadySeenKeys().contains(tupleKey) && ! query.getQueryState().containsKey(tupleKey)) {
+									seenButNotInState++;
+								}
+								
+								query.getAlreadySeenKeys().add(tupleKey);
+								query.getQueryState().put(tupleKey, watermarkGeneration);
 							} else {
-								alreadySeenKeys.add(tupleKey);
+								query.getAlreadySeenKeys().remove(tupleKey);
+								query.getQueryState().remove(tupleKey);
 							}
 						}
 						
-						distributionState.put(tupleKey, watermarkGeneration);
 						
+						final boolean watermarkCreated = isWatermarkCreated(lastTuple, tuple);
+
 						if(watermarkCreated) {
 							cleanupDistributionStructure(watermarkGeneration, invalidateAfterGenerations);
 							watermarkGeneration++;
@@ -142,13 +192,15 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 						final double roundPercent = MathUtil.round(percent, 0);
 						
 						final long stateSize = determineStateSize();
-						System.out.println(roundPercent + "\t" + distributionState.size() + "\t" + stateSize);
+						System.out.println(roundPercent + "\t" + determineStateEntries() + "\t" + stateSize);
 					}
 					
 					lineNumber++;
 				}
 				
-				System.out.println("Already seen but not in state: " + seenButNotInState);
+				final double errorPercentage = (((double) seenButNotInState / (double) linesInInput) * 100.0);
+				
+				System.out.println("Already seen but not in state: " + seenButNotInState + " / " + errorPercentage + " %");
 				System.out.println("#########################\n\n");
 
 			} catch (IOException e) {
@@ -170,19 +222,22 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 			return;
 		}
 		
-        final List<Entry<String, Long>> elementsToRemove = distributionState
-                .entrySet()
-                .stream()
-                .filter(e -> (e.getValue() <= watermarkGeneration - invalidateAfterGenerations))
-                .collect(Collectors.toList());
+		for(final Query query : queries) {
 		
-		if(DEBUG) {
-			System.out.println("Current generation is: " + watermarkGeneration);
-			System.out.println("Removing: " + elementsToRemove);
-		}
-		
-		for(final Entry<String, Long> entry : elementsToRemove) {
-			distributionState.remove(entry.getKey());
+	        final List<Entry<String, Long>> elementsToRemove = query.getQueryState()
+	                .entrySet()
+	                .stream()
+	                .filter(e -> (e.getValue() <= watermarkGeneration - invalidateAfterGenerations))
+	                .collect(Collectors.toList());
+			
+			if(DEBUG) {
+				System.out.println("Current generation is: " + watermarkGeneration);
+				System.out.println("Removing: " + elementsToRemove);
+			}
+			
+			for(final Entry<String, Long> entry : elementsToRemove) {
+				query.getQueryState().remove(entry.getKey());
+			}
 		}
 	}
 
@@ -194,31 +249,45 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 	private long determineStateSize() {
 		long size = 0;
 		
-		for(final Map.Entry<String, Long> entry : distributionState.entrySet()) {
-			// Size of entry
-			size = size + entry.getKey().getBytes().length; 	
-			
-			// Size of two 64 bit long values 
-			// I.e., the distribution region and the watermark counter
-			size = size + (2 * 8);
+		for(final Query query : queries) {
+			for(final Map.Entry<String, Long> entry : query.getQueryState().entrySet()) {
+				
+				// Size of entry
+				size = size + entry.getKey().getBytes().length; 	
+				
+				// Size of one 64 bit long value
+				// I.e., the watermark counter
+				size = size + (1 * 8);
+			}
 		}
-		
+
 		return size;
 	}
 
+	/**
+	 * Determine the state entries
+	 * @return
+	 */
+	private long determineStateEntries() {
+		return queries.stream().mapToInt(q -> q.getQueryState().size()).count();
+	}
+	
 
 	/***
 	 * Main * Main * Main * Main * Main
 	 */
 	public static void main(final String[] args) {
 		
-		if(args.length != 2) {
-			System.err.println("Usage: <Class> <Filename> <Format>");
+		if(args.length != 5) {
+			System.err.println("Usage: <Class> <Filename> <Format> <Query Rectangle> <Coverage> <Queries>");
 			System.exit(1);
 		}
 		
 		final String filename = args[0];
 		final String format = args[1];
+		final String rangeString = args[2];
+		final String percentageString = args[3];
+		final String parallelQueriesString = args[4];
 		
 		// Check file
 		final File inputFile = new File(filename);
@@ -229,7 +298,23 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 		
 		final TupleBuilder tupleFactory = TupleBuilderFactory.getBuilderForFormat(format);
 		
-		final DetermineDistributionStateSize determineDistributionStateSize = new DetermineDistributionStateSize(inputFile, tupleFactory);
+		final Optional<Hyperrectangle> range = HyperrectangleHelper.parseBBox(rangeString);
+		
+		if(! range.isPresent()) {
+			System.err.println("Unable to parse as bounding box: " + rangeString);
+		}
+		
+		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
+		final double parallelQueries = MathUtil.tryParseDoubleOrExit(parallelQueriesString, () -> "Unable to parse: " + parallelQueriesString);
+		
+		final List<Hyperrectangle> ranges = new ArrayList<>();
+	
+		for(int i = 0; i < parallelQueries; i++) {
+			final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
+			ranges.add(queryRectangle);
+		}
+		
+		final DetermineQueryStateSize determineDistributionStateSize = new DetermineQueryStateSize(inputFile, tupleFactory, ranges);
 		determineDistributionStateSize.run();
 	}
 
