@@ -37,7 +37,7 @@ You can now enter one of the BBoxDB containers and work with the CLI of BBoxDB. 
 
 ```bash
 $ docker exec -it docker_bboxdb5_1 bash
-bash-4.4# /bboxdb/bin/cli.sh -action show_instances -host zk1:2181
+bash-4.4# /bboxdb/bin/cli.sh -action show_instances -zookeeperhost zk1:2181
 Connecting to BBoxDB cluster... [Established]
 Show all discovered BBoxDB instances
 
