@@ -13,8 +13,7 @@ To set up the sample cluster, please enter the following commands. Please note t
 
 ```bash
 $ wget https://github.com/jnidzwetzki/bboxdb/blob/master/misc/docker/docker-compose.yml
-$ cd bboxdb
-$ docker-compose -d -f docker-compose.yml up
+$ docker-compose -f docker-compose.yml up -d
 ```
 
 After the command is completed, you should have 8 containers running:

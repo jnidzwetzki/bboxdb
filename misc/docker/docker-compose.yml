@@ -1,13 +1,13 @@
 ###
-# Start with: docker-compose -f misc/docker/stack.yml up -d
+# Start with: docker-compose -f misc/docker/docker-compose.yml up -d
 ###
 
 ###
-# Stop with: docker-compose -f misc/docker/stack.yml down
+# Stop with: docker-compose -f misc/docker/docker-compose.yml down
 ###
 
 ###
-# Delete with: docker-compose -f misc/docker/stack.yml rm
+# Delete with: docker-compose -f misc/docker/docker-compose.yml rm
 ###
 
 version: '3.1'
@@ -21,7 +21,7 @@ services:
       - 2181:2181
     environment:
       ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=0.0.0.0:2888:3888 server.2=zk2:2888:3888 server.3=zk3:2888:3888
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=zk3:2888:3888;2181
 
   zk2:
     image: zookeeper
@@ -31,7 +31,7 @@ services:
       - 2182:2181
     environment:
       ZOO_MY_ID: 2
-      ZOO_SERVERS: server.1=zk1:2888:3888 server.2=0.0.0.0:2888:3888 server.3=zk3:2888:3888
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=zk3:2888:3888;2181
 
   zk3:
     image: zookeeper
@@ -41,7 +41,7 @@ services:
       - 2183:2181
     environment:
       ZOO_MY_ID: 3
-      ZOO_SERVERS: server.1=zk1:2888:3888 server.2=zk2:2888:3888 server.3=0.0.0.0:2888:3888
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=zk3:2888:3888;2181
 
   bboxdb1:
     image: jnidzwetzki/bboxdb:latest

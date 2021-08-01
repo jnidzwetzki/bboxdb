@@ -11,6 +11,8 @@ order: 1
 - Improvement: Implemented watermark generation based invalidation
 - Improvement: Added warn message when an invalid percentage is specified for the creation of random bboxes
 - Bugfix: Fixed watermark calculation for the ADS-B datastream
+- Bugfix: Fixed Docker compose based installation with ZooKeeper >= 3.6
+- Bugfix: Updated outdated Docker compose commands in documentation
 
 ### Version 1.0.0 (release candidate 1) - 30.07.2021
 - Improvement: The H2 and Derby backend in the OSM data converter are exposed
