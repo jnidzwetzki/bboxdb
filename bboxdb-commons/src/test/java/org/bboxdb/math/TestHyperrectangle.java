@@ -774,5 +774,9 @@ public class TestHyperrectangle {
 		final Hyperrectangle hyperrectangle4 = new Hyperrectangle(0.0, 3.0, 0.0, 3.0, -1.0, 5.0, 7.0, 45.2);
 		final Hyperrectangle hr4Scaled = hyperrectangle4.scaleVolumeByPercentage(0.5);
 		Assert.assertEquals(hyperrectangle4.getVolume() / 2, hr4Scaled.getVolume(), EQUALS_DELTA);
+		
+		final Hyperrectangle hyperrectangle5 = new Hyperrectangle(-90.0, 90.0, -180.0, 180.0);
+		final Hyperrectangle hr5Scaled = hyperrectangle5.scaleVolumeByPercentage(0.1);
+		Assert.assertEquals(hyperrectangle5.getVolume() / 10, hr5Scaled.getVolume(), EQUALS_DELTA);
 	}
 }
