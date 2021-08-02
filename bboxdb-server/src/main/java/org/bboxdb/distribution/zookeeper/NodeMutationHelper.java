@@ -50,15 +50,22 @@ public class NodeMutationHelper {
 			// ignore not found
 		}
 		
-		final long version = System.currentTimeMillis();
-		
-		if(version <= oldVersion) {
+		long newVersion = System.currentTimeMillis();
+				
+		if(newVersion < oldVersion) {
 			logger.error("Unable to update node mutation to {}, remote value is newer {}", 
-					version, oldVersion);
+					newVersion, oldVersion);
 			throw new ZookeeperException("Version problem for " + path);
 		}
 		
-		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(version);
+		// Ensure a new version is used, even if
+		// the update call is performed multiple
+		// times during one millisecond
+		if(newVersion == oldVersion) {
+			newVersion++;
+		}
+		
+		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(newVersion);
 		
 		final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
 		
@@ -66,7 +73,7 @@ public class NodeMutationHelper {
 		
 		zookeeperClient.replacePersistentNode(nodePath, versionBytes.array());
 		
-		return version;
+		return newVersion;
 	}
 	
 	/**
