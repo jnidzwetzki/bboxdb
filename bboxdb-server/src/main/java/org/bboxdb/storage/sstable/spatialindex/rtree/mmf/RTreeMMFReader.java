@@ -114,8 +114,11 @@ public class RTreeMMFReader extends AbstractRTreeReader {
 				directoryNode.initFromByteBuffer(memory, maxNodeSize);
 				
 				if(directoryNode.getBoundingBox().intersects(boundingBox)) {
+					
+					// Add child nodes to read queue
 					readTasks.addAll(directoryNode.getChildNodes());
 					
+					// Add entries of node to result
 					final List<SpatialIndexEntry> foundEntries = 
 						directoryNode.getIndexEntries()
 						.stream()
