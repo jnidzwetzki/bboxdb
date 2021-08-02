@@ -142,6 +142,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 		final long stateAfterLines = linesInInput / 20;
 		
 		System.out.println("## State after lines: " + stateAfterLines);
+		queries.forEach(q -> System.out.println("# Query rect: " + q.getQueryRectangle()));
 		System.out.println("#########################");
 		
 		final List<Integer> invalidations = Arrays.asList(new Integer[] {0, 1, 5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 250, 500, 750, 1000});
