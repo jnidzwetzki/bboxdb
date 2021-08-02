@@ -69,6 +69,11 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 	 */
 	private final List<Query> queries;
 	
+	/**
+	 * Last state dumped
+	 */
+	protected boolean lastStateDumped;
+	
 	class Query {
 		
 		/**
@@ -113,6 +118,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 		this.seenButNotInState = 0;
 		this.processedElements = 0;
 		this.fileLine = null;
+		this.lastStateDumped = false;
 		
 		this.queries = new ArrayList<>();
 		
@@ -147,6 +153,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 			lastWatermarkGenerated = 0;
 			seenButNotInState = 0;
 			processedElements = 0;
+			lastStateDumped = false;
 			
 			System.out.println("#########################");
 			System.out.println("## Invaliate after: " + invalidateAfterGenerations);
@@ -195,29 +202,47 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 					}
 					
 					if(lineNumber % (stateAfterLines) == 0) {
-						final double percent = ((double) lineNumber / (double) linesInInput) * 100.0;
+						final double roundPercent = dumpStatistics(linesInInput);
 						
-						final double roundPercent = MathUtil.round(percent, 0);
-						
-						final long stateSize = determineStateSize();
-						System.out.println(roundPercent + "\t" + determineStateEntries() + "\t" + stateSize);
+						if(roundPercent == 100) {
+							lastStateDumped = true;
+						}
 					}
 					
 					lineNumber++;
 				}
+
+				if(! lastStateDumped) {
+					dumpStatistics(linesInInput);
+				}
 				
 				final double errorPercentage = (((double) seenButNotInState / (double) processedElements) * 100.0);
 				
-				System.out.println("Already seen but not in state: " + seenButNotInState + " / processed " 
+				System.out.println("# Already seen but not in state: " + seenButNotInState + " / processed " 
 							+ processedElements + " / " + MathUtil.round(errorPercentage, 4) + " %");
 				System.out.println("#########################\n\n");
-
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
 		}
 		
+	}
+
+	/**
+	 * Dump the statistics
+	 * @param linesInInput
+	 * @return
+	 */
+	private double dumpStatistics(final long linesInInput) {
+		final double percent = ((double) lineNumber / (double) linesInInput) * 100.0;
+		
+		final double roundPercent = MathUtil.round(percent, 0);
+		
+		final long stateSize = determineStateSize();
+		System.out.println(roundPercent + "\t" + determineStateEntries() + "\t" + stateSize);
+		return roundPercent;
 	}
 
 	/**

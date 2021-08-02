@@ -64,6 +64,11 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 	 */
 	private long seenButNotInState;
 	
+	/**
+	 * Last state dumped
+	 */
+	protected boolean lastStateDumped;
+	
 	public DetermineDistributionStateSize(final File inputFile, final TupleBuilder tupleFactory) {
 		super(inputFile, tupleFactory);
 		this.distributionState = new HashMap<>();
@@ -71,6 +76,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 		this.lineNumber = 0;
 		this.seenButNotInState = 0;
 		this.fileLine = null;
+		this.lastStateDumped = false;
 	}
 
 
@@ -97,6 +103,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 			alreadySeenKeys.clear();
 			lastWatermarkGenerated = 0;
 			seenButNotInState = 0;
+			lastStateDumped = false;
 			
 			System.out.println("#########################");
 			System.out.println("## Invaliate after: " + invalidateAfterGenerations);
@@ -137,18 +144,21 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 					}
 					
 					if(lineNumber % (stateAfterLines) == 0) {
-						final double percent = ((double) lineNumber / (double) linesInInput) * 100.0;
+						final double roundPercent = dumpStatistics(linesInInput);
 						
-						final double roundPercent = MathUtil.round(percent, 0);
-						
-						final long stateSize = determineStateSize();
-						System.out.println(roundPercent + "\t" + distributionState.size() + "\t" + stateSize);
+						if(roundPercent == 100) {
+							lastStateDumped = true;
+						}
 					}
 					
 					lineNumber++;
 				}
 				
-				System.out.println("Already seen but not in state: " + seenButNotInState);
+				if(! lastStateDumped) {
+					dumpStatistics(linesInInput);
+				}
+				
+				System.out.println("# Already seen but not in state: " + seenButNotInState);
 				System.out.println("#########################\n\n");
 
 			} catch (IOException e) {
@@ -157,6 +167,21 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 			}
 		}
 		
+	}
+
+	/**
+	 * Dump the statistics
+	 * @param linesInInput
+	 * @return
+	 */
+	private double dumpStatistics(final long linesInInput) {
+		final double percent = ((double) lineNumber / (double) linesInInput) * 100.0;
+		
+		final double roundPercent = MathUtil.round(percent, 0);
+		
+		final long stateSize = determineStateSize();
+		System.out.println(roundPercent + "\t" + distributionState.size() + "\t" + stateSize);
+		return roundPercent;
 	}
 
 	/**
