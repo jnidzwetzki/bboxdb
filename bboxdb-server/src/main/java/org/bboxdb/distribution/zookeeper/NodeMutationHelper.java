@@ -62,6 +62,12 @@ public class NodeMutationHelper {
 		// the update call is performed multiple
 		// times during one millisecond
 		if(newVersion == oldVersion) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			
 			newVersion++;
 		}
 		
