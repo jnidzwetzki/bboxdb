@@ -116,6 +116,11 @@ public class OSMDataConverter {
 	 */
 	protected final int CONSUMER_THREADS = 5;
 	
+	/** 
+	 * The red pill way
+	 */
+	protected final Way RED_PILL_WAY = new Way(null);
+	
 	/**
 	 * The Blocking queue
 	 */
@@ -277,8 +282,16 @@ public class OSMDataConverter {
 			
 			System.out.println("Processing of input file is complete");
 			
+			// Shutdown consumer threads
+			for(int i = 0; i < CONSUMER_THREADS; i++) {
+				queue.put(RED_PILL_WAY);
+			}
+			
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
+		} catch (InterruptedException e) {
+			logger.error("Got interrupted exception", e);
+			Thread.currentThread().interrupt();
 		} finally {
 			shutdown();
 		}
@@ -289,11 +302,12 @@ public class OSMDataConverter {
 	 */
 	protected void shutdown() {
 		
-		threadPool.shutdownNow();
+		threadPool.shutdown();
 		
 		try {
 			threadPool.awaitTermination(120, TimeUnit.SECONDS);
-		} catch (InterruptedException e1) {
+		} catch (InterruptedException e) {
+			logger.error("Unable to shutdown thread pool", e);
 			Thread.currentThread().interrupt();
 			return;
 		}
@@ -315,6 +329,7 @@ public class OSMDataConverter {
 	
 	
 	class Consumer extends ExceptionSafeRunnable {
+		
 		/**
 		 * The consumer thread
 		 */
@@ -324,28 +339,18 @@ public class OSMDataConverter {
 			while(! Thread.currentThread().isInterrupted() ) {
 				try {
 					final Way way = queue.take();
+					
+					if(RED_PILL_WAY.equals(way)) {
+						break;
+					}
+					
 					handleWay(way);
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
+					logger.error("Got interrupted exception in comsumer, "
+							+ "however queue size is still {}", queue.size());
 				}		
 			}
-			
-			// Thread is about to die, but first,
-	        // handle the pending jobs
-			// 
-			// Please note: The call below (Thread.interrupted())
-			// clears the interrupt flag intentionally to finish the
-			// tasks
-			if(Thread.interrupted()) {
-				Way way = null;
-				while((way = queue.poll()) != null) {
-					handleWay(way);
-				}
-				
-				Thread.currentThread().interrupt();
-			}
-	
-			
 		}
 	}
 	
