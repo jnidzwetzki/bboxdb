@@ -274,6 +274,9 @@ public class OSMDataConverter {
 			}
 			
 			reader.run();
+			
+			System.out.println("Processing of input file is complete");
+			
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
 		} finally {
