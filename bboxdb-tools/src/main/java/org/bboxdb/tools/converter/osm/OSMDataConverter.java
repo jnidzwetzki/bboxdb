@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,9 @@ import org.bboxdb.tools.converter.osm.store.OSMSSTableNodeStore;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.bboxdb.tools.converter.osm.util.SerializerHelper;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
+import org.openstreetmap.osmosis.core.domain.v0_6.CommonEntityData;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
+import org.openstreetmap.osmosis.core.domain.v0_6.OsmUser;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
@@ -119,7 +122,7 @@ public class OSMDataConverter {
 	/** 
 	 * The red pill way
 	 */
-	protected final Way RED_PILL_WAY = new Way(null);
+	protected final Way RED_PILL_WAY = new Way(new CommonEntityData(-1, -1, new Date(), new OsmUser(1, ""), -1));
 	
 	/**
 	 * The Blocking queue
