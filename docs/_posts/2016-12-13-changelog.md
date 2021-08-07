@@ -14,6 +14,7 @@ order: 1
 - Bugfix: Fixed Docker compose based installation with ZooKeeper >= 3.6
 - Bugfix: Updated outdated Docker compose commands in documentation
 - Bugfix: Allow multiple ZooKeeper node mutation complete calls during one millisecond
+- Bugfix: Made interrupt handling in OSMConverter compatible with BerkeleyDB 18.x
 
 ### Version 1.0.0 (release candidate 1) - 30.07.2021
 - Improvement: The H2 and Derby backend in the OSM data converter are exposed

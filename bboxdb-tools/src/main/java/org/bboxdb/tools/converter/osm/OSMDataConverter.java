@@ -327,12 +327,21 @@ public class OSMDataConverter {
 				}		
 			}
 			
-			// Thread is getting ready to die, but first,
+			// Thread is about to die, but first,
 	        // handle the pending jobs
-			Way way = null;
-			while((way = queue.poll()) != null) {
-				handleWay(way);
+			// 
+			// Please note: The call below (Thread.interrupted())
+			// clears the interrupt flag intentionally to finish the
+			// tasks
+			if(Thread.interrupted()) {
+				Way way = null;
+				while((way = queue.poll()) != null) {
+					handleWay(way);
+				}
+				
+				Thread.currentThread().interrupt();
 			}
+	
 			
 		}
 	}
