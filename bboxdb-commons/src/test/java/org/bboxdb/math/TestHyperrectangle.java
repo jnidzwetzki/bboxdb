@@ -818,5 +818,17 @@ public class TestHyperrectangle {
 		Assert.assertFalse(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle2));
 		Assert.assertFalse(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle3));
 		Assert.assertFalse(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle4));
+		
+		Assert.assertTrue(Hyperrectangle.FULL_SPACE.coversAtLeastOneDimensionComplete(hyperrectangle1));
+		Assert.assertTrue(Hyperrectangle.FULL_SPACE.coversAtLeastOneDimensionComplete(hyperrectangle2));
+		Assert.assertTrue(Hyperrectangle.FULL_SPACE.coversAtLeastOneDimensionComplete(hyperrectangle3));
+		Assert.assertTrue(Hyperrectangle.FULL_SPACE.coversAtLeastOneDimensionComplete(hyperrectangle4));
+		Assert.assertTrue(Hyperrectangle.FULL_SPACE.coversAtLeastOneDimensionComplete(hyperrectangle5));
+		
+		Assert.assertTrue(hyperrectangle1.coversAtLeastOneDimensionComplete(Hyperrectangle.FULL_SPACE));
+		Assert.assertTrue(hyperrectangle2.coversAtLeastOneDimensionComplete(Hyperrectangle.FULL_SPACE));
+		Assert.assertTrue(hyperrectangle3.coversAtLeastOneDimensionComplete(Hyperrectangle.FULL_SPACE));
+		Assert.assertTrue(hyperrectangle4.coversAtLeastOneDimensionComplete(Hyperrectangle.FULL_SPACE));
+		Assert.assertTrue(hyperrectangle5.coversAtLeastOneDimensionComplete(Hyperrectangle.FULL_SPACE));
 	}
 }

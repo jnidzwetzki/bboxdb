@@ -868,10 +868,16 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 	 */
 	public boolean coversAtLeastOneDimensionComplete(final Hyperrectangle hyperrectangle) {
 		
-		if(hyperrectangle.getDimension() != getDimension()) {
-			throw new IllegalArgumentException("The dimensions of the hyperrectangles needs to be equal");
+		if(this == FULL_SPACE || hyperrectangle == FULL_SPACE) {
+			return true;
 		}
 		
+		if(hyperrectangle.getDimension() != getDimension()) {
+			throw new IllegalArgumentException("The dimensions of the hyperrectangles needs to be equal: " 
+					+ hyperrectangle.getDimension() + " / " + getDimension());
+		}
+		
+
 		for(int d = 0; d < getDimension(); d++) {
 			final DoubleInterval doubleInterval1 = getIntervalForDimension(d);
 			final DoubleInterval doubleInterval2 = hyperrectangle.getIntervalForDimension(d);
