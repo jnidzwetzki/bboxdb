@@ -86,9 +86,13 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 			customGeomety = geoJoinToGeomety(customString);
 		}
 
-		final OGCGeometry geometry = extractGeometry(geoJsonObject);
-
-        return geometry.intersects(customGeomety);
+		// If a custom geometry is available
+		if(customGeomety != null) {
+			final OGCGeometry geometry = extractGeometry(geoJsonObject);			
+	        return geometry.intersects(customGeomety);
+		}
+		
+		return true;
 	}
 	
 	/**
