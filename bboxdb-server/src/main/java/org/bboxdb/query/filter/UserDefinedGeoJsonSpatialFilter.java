@@ -98,7 +98,7 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		// If a custom geometry is available
 		if(customGeomety != null) {
 			
-			if(customGeometyBBox.coversAtLeastOneDimensionComplete(tuple.getBoundingBox())) {
+			if(customGeometyBBox.isCovering(tuple.getBoundingBox())) {
 				return true;
 			}
 			
