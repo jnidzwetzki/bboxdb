@@ -97,14 +97,13 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 
 		// If a custom geometry is available
 		if(customGeomety != null) {
-			final OGCGeometry geometry = extractGeometry(geoJsonObject);
-			final GeoJsonPolygon geoJsonPolygon = GeoJsonPolygon.fromGeoJson(geoJsonString);
-			final Hyperrectangle bbox = geoJsonPolygon.getBoundingBox();
 			
-			if(customGeometyBBox.coversAtLeastOneDimensionComplete(bbox)) {
+			if(customGeometyBBox.coversAtLeastOneDimensionComplete(tuple.getBoundingBox())) {
 				return true;
 			}
 			
+			final OGCGeometry geometry = extractGeometry(geoJsonObject);
+
 	        return geometry.intersects(customGeomety);
 		}
 		
