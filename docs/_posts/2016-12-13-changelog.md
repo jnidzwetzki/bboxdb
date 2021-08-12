@@ -17,6 +17,7 @@ order: 1
 - Bugfix: Allow multiple ZooKeeper node mutation complete calls during one millisecond
 - Bugfix: Made interrupt handling in OSMConverter compatible with BerkeleyDB 18.x
 - Bugfix: Prevent NPE in UserDefinedGeoJsonSpatialFilter when no custom geometry is provided
+- Bugfix: Fixed decoding of direct encoded GeoJSON geometries
 
 ### Version 1.0.0 (release candidate 1) - 30.07.2021
 - Improvement: The H2 and Derby backend in the OSM data converter are exposed

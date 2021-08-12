@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.tools;
 
+import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.query.filter.UserDefinedGeoJsonSpatialFilter;
 import org.bboxdb.storage.entity.Tuple;
@@ -33,7 +34,9 @@ public class TestESRIGeometryUserDefinedFilter {
 			"    ]\n" + 
 			"}";
 	
-	final Tuple tuple1 = new Tuple("1", Hyperrectangle.FULL_SPACE, GEO_JSON1.getBytes());
+	final GeoJsonPolygon polygon1 = GeoJsonPolygon.fromGeoJson(GEO_JSON1);
+	
+	final Tuple tuple1 = new Tuple("1", polygon1.getBoundingBox(), GEO_JSON1.getBytes());
 	
 	final String GEO_JSON2 = "{\n" + 
 			"    \"type\": \"Polygon\", \n" + 
@@ -42,7 +45,9 @@ public class TestESRIGeometryUserDefinedFilter {
 			"    ]\n" + 
 			"}";
 	
-	final Tuple tuple2 = new Tuple("2", Hyperrectangle.FULL_SPACE, GEO_JSON2.getBytes());
+	final GeoJsonPolygon polygon2 = GeoJsonPolygon.fromGeoJson(GEO_JSON2);
+
+	final Tuple tuple2 = new Tuple("2", polygon2.getBoundingBox(), GEO_JSON2.getBytes());
 
 	
 	final String GEO_JSON3 = "{\n" + 
@@ -52,7 +57,9 @@ public class TestESRIGeometryUserDefinedFilter {
 			"    ]\n" + 
 			"}";
 	
-	final Tuple tuple3 = new Tuple("3", Hyperrectangle.FULL_SPACE, GEO_JSON3.getBytes());
+	final GeoJsonPolygon polygon3 = GeoJsonPolygon.fromGeoJson(GEO_JSON3);
+
+	final Tuple tuple3 = new Tuple("3", polygon3.getBoundingBox(), GEO_JSON3.getBytes());
 	
 	final String GEO_JSON4 = "{\"geometry\":{\"coordinates\":"
 			+ "[[[52.433929400000004,13.4176815],[52.4338558,13.4175515],"

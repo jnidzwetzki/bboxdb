@@ -267,15 +267,32 @@ public class GeoJsonPolygon implements Serializable {
 	public static GeoJsonPolygon fromGeoJson(final String jsonData) {
 		final JSONTokener tokener = new JSONTokener(jsonData);
 		final JSONObject jsonObject = new JSONObject(tokener);
-		final Long objectId = jsonObject.getLong(JSON_ID);
+		final Long objectId = jsonObject.optLong(JSON_ID, -1);
 
 		final GeoJsonPolygon polygon = new GeoJsonPolygon(objectId);
 
 		// Geometry
-		final JSONObject geometry = jsonObject.getJSONObject(JSON_GEOMETRY);
-		final JSONArray coordinates = geometry.getJSONArray(JSON_COORDINATES);
-		final String type = geometry.getString(JSON_TYPE);
+		JSONArray coordinates = null;
+		String type = null;
+
+		final JSONObject geometry = jsonObject.optJSONObject(JSON_GEOMETRY);
 		
+		if(geometry != null) {
+			coordinates = geometry.getJSONArray(JSON_COORDINATES);
+			type = geometry.getString(JSON_TYPE);
+			
+			// Properties
+			final JSONObject properties = jsonObject.getJSONObject(JSON_PROPERTIES);
+			for(final String key : properties.keySet()) {
+				final String value = properties.getString(key);
+				polygon.addProperty(key, value);
+			}
+			
+		} else {
+			coordinates = jsonObject.getJSONArray(JSON_COORDINATES);
+			type = jsonObject.getString(JSON_TYPE);
+		}
+				
 		if(JSON_TYPE_POINT.equals(type)) {
 			final double coordiante0 = coordinates.getDouble(0);
 			final double coordiante1 = coordinates.getDouble(1);
@@ -298,13 +315,6 @@ public class GeoJsonPolygon implements Serializable {
 			}
 		} else {
 			throw new IllegalArgumentException("Unable to handle geometry of type: " + type);
-		}
-
-		// Properties
-		final JSONObject properties = jsonObject.getJSONObject(JSON_PROPERTIES);
-		for(final String key : properties.keySet()) {
-			final String value = properties.getString(key);
-			polygon.addProperty(key, value);
 		}
 
 		return polygon;
