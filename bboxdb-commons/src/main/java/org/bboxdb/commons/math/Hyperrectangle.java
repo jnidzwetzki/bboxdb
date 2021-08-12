@@ -860,4 +860,28 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 	}
 
+	/**
+	 * Does the hyperrectangle covers at least one dimension of the
+	 * argument completely?
+	 * @param bbox
+	 * @return
+	 */
+	public boolean coversAtLeastOneDimensionComplete(final Hyperrectangle hyperrectangle) {
+		
+		if(hyperrectangle.getDimension() != getDimension()) {
+			throw new IllegalArgumentException("The dimensions of the hyperrectangles needs to be equal");
+		}
+		
+		for(int d = 0; d < getDimension(); d++) {
+			final DoubleInterval doubleInterval1 = getIntervalForDimension(d);
+			final DoubleInterval doubleInterval2 = hyperrectangle.getIntervalForDimension(d);
+			
+			if(doubleInterval1.isCovering(doubleInterval2)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 }

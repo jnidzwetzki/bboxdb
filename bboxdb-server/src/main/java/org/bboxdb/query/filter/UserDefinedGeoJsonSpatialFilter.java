@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.query.filter;
 
+import org.bboxdb.commons.math.GeoJsonPolygon;
+import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -36,9 +38,14 @@ import com.esri.core.geometry.ogc.OGCPoint;
 public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 
 	/**
-	 * The cached geometry
+	 * The cached user provided geometry
 	 */
 	private OGCGeometry customGeomety = null;
+	
+	/**
+	 * The cached user provided geometry bounding box
+	 */
+	private Hyperrectangle customGeometyBBox = null;
 	
 	/**
 	 * The overlapping distance
@@ -84,11 +91,20 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 		// Cache the custom geometry between method calls
 		if(customGeomety == null) {
 			customGeomety = geoJoinToGeomety(customString);
+			final GeoJsonPolygon geoJsonPolygon = GeoJsonPolygon.fromGeoJson(customString);
+			customGeometyBBox = geoJsonPolygon.getBoundingBox();
 		}
 
 		// If a custom geometry is available
 		if(customGeomety != null) {
-			final OGCGeometry geometry = extractGeometry(geoJsonObject);			
+			final OGCGeometry geometry = extractGeometry(geoJsonObject);
+			final GeoJsonPolygon geoJsonPolygon = GeoJsonPolygon.fromGeoJson(geoJsonString);
+			final Hyperrectangle bbox = geoJsonPolygon.getBoundingBox();
+			
+			if(customGeometyBBox.coversAtLeastOneDimensionComplete(bbox)) {
+				return true;
+			}
+			
 	        return geometry.intersects(customGeomety);
 		}
 		

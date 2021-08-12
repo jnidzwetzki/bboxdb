@@ -779,4 +779,44 @@ public class TestHyperrectangle {
 		final Hyperrectangle hr5Scaled = hyperrectangle5.scaleVolumeByPercentage(0.1);
 		Assert.assertEquals(hyperrectangle5.getVolume() / 10, hr5Scaled.getVolume(), EQUALS_DELTA);
 	}
+	
+	/**
+	 * Test the covering
+	 */
+	@Test(timeout=60000, expected = IllegalArgumentException.class)
+	public void testCoversAtLeastOneDimensionComplete0() {
+		
+		final Hyperrectangle hyperrectangle1 = new Hyperrectangle(-90.0, 90.0, -180.0, 180.0);
+		final Hyperrectangle hyperrectangle2 = new Hyperrectangle(-90.0, 90.0);
+
+		hyperrectangle1.coversAtLeastOneDimensionComplete(hyperrectangle2);
+	}
+	
+	/**
+	 * Test the covering
+	 */
+	@Test(timeout=60000)
+	public void testCoversAtLeastOneDimensionComplete1() {
+		
+		final Hyperrectangle hyperrectangle1 = new Hyperrectangle(-90.0, 90.0, -180.0, 180.0);
+		final Hyperrectangle hyperrectangle2 = new Hyperrectangle(0.0, 0.0, -180.0, 180.0);
+		final Hyperrectangle hyperrectangle3 = new Hyperrectangle(-90.0, 90.0, 0.0, 0.0);
+		final Hyperrectangle hyperrectangle4 = new Hyperrectangle(0.0, 10.0, 0.0, 0.0);
+		final Hyperrectangle hyperrectangle5 = new Hyperrectangle(1000.0, 2000.0, 1000.0, 2000.0);
+
+		Assert.assertTrue(hyperrectangle1.coversAtLeastOneDimensionComplete(hyperrectangle1));
+		Assert.assertTrue(hyperrectangle2.coversAtLeastOneDimensionComplete(hyperrectangle2));
+		Assert.assertTrue(hyperrectangle3.coversAtLeastOneDimensionComplete(hyperrectangle3));
+		Assert.assertTrue(hyperrectangle4.coversAtLeastOneDimensionComplete(hyperrectangle4));
+		Assert.assertTrue(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle5));
+
+		Assert.assertTrue(hyperrectangle1.coversAtLeastOneDimensionComplete(hyperrectangle2));
+		Assert.assertTrue(hyperrectangle1.coversAtLeastOneDimensionComplete(hyperrectangle3));
+		Assert.assertTrue(hyperrectangle1.coversAtLeastOneDimensionComplete(hyperrectangle4));
+
+		Assert.assertFalse(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle1));
+		Assert.assertFalse(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle2));
+		Assert.assertFalse(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle3));
+		Assert.assertFalse(hyperrectangle5.coversAtLeastOneDimensionComplete(hyperrectangle4));
+	}
 }
