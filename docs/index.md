@@ -23,10 +23,10 @@ Welcome to the documentation of BBoxDB. BBoxDB is a distributed NoSQL database w
 In contrast to traditional key-value stores, BBoxDB is optimized to handle multi-dimensional data. Stored data is placed into an n-dimensional space. The space is partitioned and assigned to the nodes of a cluster. SSTables (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. The system can be accessed, using a [network protocol](/bboxdb/dev/network.html). Some special features like continuous queries or a history for tuples are also supported.
 
 
-## Multi-dimensional data in traditional key-value-stores
+## Multi-dimensional data in regular key-value-stores
 Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is hard and often impossible; this is especially true when the data has an extent (e.g., regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient.
 
-## What is the difference to traditional key-value-stores?
+## What is the difference between BBoxDB and regular key-value-stores?
 
 [NoSQL databases](https://en.wikipedia.org/wiki/NoSQL) and especially [key-value stores](https://en.wikipedia.org/wiki/Key-value_database) are very popular these days. They have a simple data model and can be easily implemented as a distributed system to handle big data. Techniques like _hash-_ or _range-partitioning_ are used to spread the data across a cluster of nodes. Each node stores only a small part of the whole dataset. 
 
