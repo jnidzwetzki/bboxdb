@@ -10,13 +10,13 @@ title: "Documentation of the BBoxDB"
 Welcome to the documentation of BBoxDB. BBoxDB is a distributed NoSQL database which is optimized for the handling of multi-dimensional big data. In addition to stored data, also multi-dimensional data streams (e.g., data streams of position data) are supported by the software. Operations such as (continuous) range queries or (continuous) spatial joins are supported.
 
 <p>
-<a href="/images/bboxdb_adsb.jpg"><img src="/images/bboxdb_adsb.jpg" width="400"></a>
+<a href="images/bboxdb_adsb.jpg"><img src="images/bboxdb_adsb.jpg" width="400"></a>
 <br>
 <small>A continuous range query on a ADS-B datastream (aircraft position data)</small>
 </p>
 
 <p>
-<a href="/images/bboxdb_gui4.jpg"><img src="/images/bboxdb_gui4.jpg" width="400"></a>
+<a href="images/bboxdb_gui4.jpg"><img src="images/bboxdb_gui4.jpg" width="400"></a>
 <br>
 <small>A spatial join between roads and forests on OpenStreetMap data</small>
 </p>
