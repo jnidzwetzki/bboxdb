@@ -31,7 +31,7 @@ BBoxDB is a highly available distributed storage manager designed to handle mult
 * ✅ Multi-dimensional shards are created dynamically on the actual distribution of the data (automatically scale-up/scale-down).
 * ✅ Data of multiple tables is stored co-partitioned, and spatial-joins can be executed efficiently without data shuffling between nodes.
 * ✅ Data are re-distributed in the background without any service interruption.
-* ✅ Continuous queries with bounding box query predicates are supported.
+* ✅ Multi-dimensional data streams can be processed and continuous queries (range queries and spatial joins) are supported.
 * ✅ User-defined filters for query processing on custom data types. 
 
 ## Documentation
