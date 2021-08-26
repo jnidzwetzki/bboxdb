@@ -299,7 +299,7 @@ public class CLI implements Runnable, AutoCloseable {
 		if(line.hasOption(CLIParameter.VERSIONS)) {
 			final String versionString = line.getOptionValue(CLIParameter.VERSIONS);
 			final int versions = MathUtil.tryParseIntOrExit(versionString,
-					() -> "Unable to parse the region size: " + versionString);
+					() -> "Unable to parse the version: " + versionString);
 			ssTableConfigurationBuilder.withVersions(versions);
 		}
 
