@@ -408,7 +408,7 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 
 		try {			
-			System.out.println("Executing range query...");
+			System.out.println("Executing the range query...");
 			final String table = line.getOptionValue(CLIParameter.TABLE);
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			
@@ -450,7 +450,7 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 
 		try {
-			System.out.println("Executing range and time query...");
+			System.out.println("Executing the range and time query...");
 			final String table = line.getOptionValue(CLIParameter.TABLE);
 			final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 			final long timestamp = getTimestampFromArgs();
@@ -479,7 +479,7 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 
 		try {			
-			System.out.println("Executing time query...");
+			System.out.println("Executing the time query...");
 			final String table = line.getOptionValue(CLIParameter.TABLE);
 			final long timestamp = getTimestampFromArgs();
 			final TupleListFuture resultFuture = bboxDbConnection.queryVersionTime(table, timestamp);
@@ -608,7 +608,7 @@ public class CLI implements Runnable, AutoCloseable {
 	private JoinedTupleListFuture executeJoin(final List<String> tableList, 
 			final Hyperrectangle boundingBox) throws BBoxDBException, InterruptedException {
 		
-		System.out.println("Executing join query...");
+		System.out.println("Executing the spatial join query...");
 		
 		// Custom filter parameter
 		final String customFilterClass = CLIHelper.getParameterOrDefault(line, CLIParameter.CUSTOM_FILTER_CLASS, "");
