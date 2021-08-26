@@ -80,7 +80,7 @@ public class DiskStorage implements BBoxDBService {
 	 */
 	private final static Gauge unflushedMemtablesTotal = Gauge.build()
 			.name("bboxdb_unflushed_memtables_total")
-			.help("Total unflushed memtables")
+			.help("Number of unflushed memtables")
 			.labelNames("storage").register();
 	
 	/**
@@ -88,7 +88,7 @@ public class DiskStorage implements BBoxDBService {
 	 */
 	private final static Gauge unflushedMemtablesBytes = Gauge.build()
 			.name("bboxdb_unflushed_memtables_bytes")
-			.help("Unflushed memtable bytes")
+			.help("Number of unflushed memtable bytes")
 			.labelNames("storage").register();
 	
 	/**
