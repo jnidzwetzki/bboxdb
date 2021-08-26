@@ -221,10 +221,10 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 	 */
 	public String getFormatedString() {
 		if(TupleHelper.isDeletedTuple(this)) {
-			return String.format("Key %s, DELETED, version timestamp=%d%n", 
+			return String.format("Key=%s, DELETED, version timestamp=%d%n", 
 					getKey(), getVersionTimestamp());
 		} else {
-			return String.format("Key %s, Hyperrectangle=%s, value=%s, version timestamp=%d%n",
+			return String.format("Key=%s, Hyperrectangle=%s, value=%s, version timestamp=%d%n",
 					getKey(), getBoundingBox().toCompactString(), 
 					new String(getDataBytes()), getVersionTimestamp());
 		}
