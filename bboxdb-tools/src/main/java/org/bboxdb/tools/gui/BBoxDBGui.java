@@ -331,7 +331,7 @@ public class BBoxDBGui {
 			updateMainPanel();
 		});
 		
-		final JMenuItem viewKDTreeOsm = new JMenuItem("Open Street Map view");
+		final JMenuItem viewKDTreeOsm = new JMenuItem("OpenStreetMap view");
 		view.add(viewKDTreeOsm);
 		viewKDTreeOsm.addActionListener((e) -> {
 			viewMode = ViewMode.OSM_MODE;
