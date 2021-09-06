@@ -243,7 +243,11 @@ public class OverlayElement {
 		}
 		
 		for(Map.Entry<String, String> property : getPolygon().getProperties().entrySet()) {
-			sb.append("<b>" + property.getKey() + ":</b> " +  property.getValue() + "<br>");
+			final String tooltipProperty = property.getKey();
+			final String tooltipPropertyUpper = tooltipProperty.substring(0, 1).toUpperCase() 
+					+ tooltipProperty.substring(1);
+			
+			sb.append("<b>" + tooltipPropertyUpper + ":</b> " +  property.getValue() + "<br>");
 		}
 		
 		return sb.toString();
