@@ -60,12 +60,12 @@ public class ADSBTupleBuilder2D extends TupleBuilder {
 			final int id = Integer.parseInt(hexIdent, 16);
 			final GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(id);
 			geoJsonPolygon.addPoint(latitude, longitude);
-			geoJsonPolygon.addProperty("callsign", callsign);
-			geoJsonPolygon.addProperty("altitude", altitude);
-			geoJsonPolygon.addProperty("groundSpeed", groundSpeed);
-			geoJsonPolygon.addProperty("track", track);
-			geoJsonPolygon.addProperty("verticalRate", verticalRate);
-			geoJsonPolygon.addProperty("lastUpdateTimestamp", Long.toString(lastUpdateTimestamp));
+			geoJsonPolygon.addProperty("Callsign", callsign);
+			geoJsonPolygon.addProperty("Altitude", altitude);
+			geoJsonPolygon.addProperty("GroundSpeed", groundSpeed);
+			geoJsonPolygon.addProperty("Track", track);
+			geoJsonPolygon.addProperty("VerticalRate", verticalRate);
+			geoJsonPolygon.addProperty("LastUpdateTimestamp", Long.toString(lastUpdateTimestamp));
 
 			return geoJsonPolygon.toGeoJson();
 		}
