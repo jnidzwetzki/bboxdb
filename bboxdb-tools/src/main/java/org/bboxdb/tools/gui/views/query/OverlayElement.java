@@ -357,7 +357,7 @@ public class OverlayElement {
 		
 		if(properties.containsKey("TripID")) {
 			return properties.get("TripID");
-		} else if(properties.containsKey("callsign")) {
+		} else if(properties.containsKey("Callsign")) {
 			return properties.get("Callsign") + "(" + properties.get("Altitude") + " f)";
 		} else {
 			return Long.toString(polygon.getId());
