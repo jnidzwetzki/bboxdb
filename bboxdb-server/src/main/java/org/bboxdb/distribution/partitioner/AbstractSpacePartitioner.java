@@ -186,14 +186,14 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner {
 			logger.debug("Merging region: {}", destination.getIdentifier());
 			
 			distributionRegionZookeeperAdapter.setStateForDistributionRegion(destination, 
-					DistributionRegionState.REDISTRIBUTION_ACTIVE);
+					DistributionRegionState.MERGING_PARENT);
 			
 			for(final DistributionRegion childRegion : source) {
 				final String zookeeperPathChild = distributionRegionZookeeperAdapter
 						.getZookeeperPathForDistributionRegion(childRegion);
 				
 				distributionRegionZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
-					DistributionRegionState.MERGING);
+					DistributionRegionState.MERGING_CHILDREN);
 			}			
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);

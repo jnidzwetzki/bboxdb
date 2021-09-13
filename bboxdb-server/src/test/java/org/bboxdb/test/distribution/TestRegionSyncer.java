@@ -188,22 +188,22 @@ public class TestRegionSyncer {
 				
 		final CountDownLatch latch = new CountDownLatch(1);
 		final DistributionRegionCallback callback = (e, r) -> { 
-			if(r == root.getChildNumber(1) && r.getState() == DistributionRegionState.MERGING) { 
+			if(r == root.getChildNumber(1) && r.getState() == DistributionRegionState.MERGING_CHILDREN) { 
 				latch.countDown();
 			}
 		};
 		
 		distributionRegionSyncer.registerCallback(callback);
 		
-		distributionRegionAdapter.setStateForDistributionRegion(root.getChildNumber(0), DistributionRegionState.MERGING);
-		distributionRegionAdapter.setStateForDistributionRegion(root.getChildNumber(1), DistributionRegionState.MERGING);
+		distributionRegionAdapter.setStateForDistributionRegion(root.getChildNumber(0), DistributionRegionState.MERGING_CHILDREN);
+		distributionRegionAdapter.setStateForDistributionRegion(root.getChildNumber(1), DistributionRegionState.MERGING_CHILDREN);
 
 		latch.await();
 		distributionRegionSyncer.unregisterCallback(callback);
 		
 		Assert.assertEquals(2, root.getDirectChildren().size());
-		Assert.assertEquals(DistributionRegionState.MERGING, root.getChildNumber(0).getState());
-		Assert.assertEquals(DistributionRegionState.MERGING, root.getChildNumber(1).getState());
+		Assert.assertEquals(DistributionRegionState.MERGING_CHILDREN, root.getChildNumber(0).getState());
+		Assert.assertEquals(DistributionRegionState.MERGING_CHILDREN, root.getChildNumber(1).getState());
 		
 		// Reread state from zookeeper
 		System.out.println("== clear in memory data");
@@ -211,8 +211,8 @@ public class TestRegionSyncer {
 		final DistributionRegion root2 = distributionRegionSyncer.getRootNode();
 
 		Assert.assertEquals(2, root2.getDirectChildren().size());
-		Assert.assertEquals(DistributionRegionState.MERGING, root2.getChildNumber(0).getState());
-		Assert.assertEquals(DistributionRegionState.MERGING, root2.getChildNumber(1).getState());
+		Assert.assertEquals(DistributionRegionState.MERGING_CHILDREN, root2.getChildNumber(0).getState());
+		Assert.assertEquals(DistributionRegionState.MERGING_CHILDREN, root2.getChildNumber(1).getState());
 	}
 	
 	@Test(timeout=10000)

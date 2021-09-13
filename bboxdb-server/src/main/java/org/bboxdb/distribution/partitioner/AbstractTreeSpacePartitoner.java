@@ -217,7 +217,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		}
 		
 		final boolean unreadyChild = region.getDirectChildren().stream()
-			.anyMatch(r -> r.getState() != DistributionRegionState.REDISTRIBUTION_ACTIVE);
+			.anyMatch(r -> r.getState() != DistributionRegionState.MERGING_PARENT);
 		
 		return ! unreadyChild;
 	}
@@ -248,7 +248,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 
 			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, 
-					DistributionRegionState.REDISTRIBUTION_ACTIVE);
+					DistributionRegionState.MERGING_PARENT);
 		}
 	}
 	

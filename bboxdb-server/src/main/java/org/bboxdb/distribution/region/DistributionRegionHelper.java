@@ -54,8 +54,8 @@ public class DistributionRegionHelper {
 			DistributionRegionState.ACTIVE,
 			DistributionRegionState.ACTIVE_FULL,
 			DistributionRegionState.SPLITTING,
-			DistributionRegionState.REDISTRIBUTION_ACTIVE,
-			DistributionRegionState.MERGING);
+			DistributionRegionState.MERGING_PARENT,
+			DistributionRegionState.MERGING_CHILDREN);
 
 	/**
 	 * System for read operations
@@ -69,7 +69,7 @@ public class DistributionRegionHelper {
 	public final static Collection<DistributionRegionState> STATES_WRITE = Arrays.asList(
 				DistributionRegionState.ACTIVE,
 				DistributionRegionState.ACTIVE_FULL,
-				DistributionRegionState.REDISTRIBUTION_ACTIVE);
+				DistributionRegionState.MERGING_PARENT);
 	/**
 	 * Systems for write operations
 	 */
@@ -81,7 +81,7 @@ public class DistributionRegionHelper {
 	 */
 	public final static Collection<DistributionRegionState> STATES_STREAM = Arrays.asList(
 				DistributionRegionState.SPLITTING,
-				DistributionRegionState.MERGING);
+				DistributionRegionState.MERGING_CHILDREN);
 	
 	/**
 	 * Systems for stream operations
