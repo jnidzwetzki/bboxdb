@@ -66,9 +66,9 @@ public class TestIsotoneStringMapper {
 			
 			final int curPrefix = prefix;
 			
-			final List<Double> mappedElements = elements
+			final List<Integer> mappedElements = elements
 				.stream()
-				.map(s -> IsotoneStringMapper.mapToDouble(s, curPrefix))
+				.map(s -> IsotoneStringMapper.mapToInt(s, curPrefix))
 				.collect(Collectors.toList());
 			
 			//System.out.println("Result Mapping (" + prefix + "): " + mappedElements);
@@ -81,4 +81,9 @@ public class TestIsotoneStringMapper {
 		
 	}
 	
+	@Test(timeout=60_00)
+	public void testIsotoneMapping() {
+		Assert.assertEquals(658188, IsotoneStringMapper.mapToInt("abc", 3), 0.00001);
+	}
+
 }

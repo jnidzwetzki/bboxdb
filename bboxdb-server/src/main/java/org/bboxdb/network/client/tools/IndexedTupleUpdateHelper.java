@@ -143,7 +143,7 @@ public class IndexedTupleUpdateHelper {
 	 */
 	private Hyperrectangle getBoundingBoxForKey(final String key) {
 		final double bboxValue = IsotoneStringMapper.mapToDouble(key);
-		logger.info("BBoxValue is: " + bboxValue);
+		logger.info("BBoxValue for {} is {} ", key, bboxValue);
 		return new Hyperrectangle(bboxValue, bboxValue);
 	}
 

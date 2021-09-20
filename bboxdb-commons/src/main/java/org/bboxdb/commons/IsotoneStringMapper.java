@@ -24,7 +24,7 @@ public class IsotoneStringMapper {
 	/**
 	 * The amount of chars that are considered for mapping
 	 */
-	public final static int DEFAULT_PREFIX_LENGTH = 10;
+	public final static int DEFAULT_PREFIX_LENGTH = 3;
 	
 	/**
 	 * Perform a isotone mapping with the default prefix length
@@ -32,7 +32,7 @@ public class IsotoneStringMapper {
 	 * @return
 	 */
 	public static double mapToDouble(final String element) {
-		return mapToDouble(element, DEFAULT_PREFIX_LENGTH);
+		return mapToInt(element, DEFAULT_PREFIX_LENGTH);
 	}
 
 	/**
@@ -56,18 +56,19 @@ public class IsotoneStringMapper {
 	 * @param element
 	 * @return
 	 */
-	public static double mapToDouble(final String element, final int prefixLength) {
+	public static int mapToInt(final String element, final int prefixLength) {
 		
 		final String mapString = element.substring(0, Math.min(prefixLength, element.length()));
 		
 		final String prefixedMapString = Strings.padEnd(mapString, prefixLength, '\u0000');
 		
-		double result = 0;
+		int result = 0;
 				
 		for(int i = 0; i < prefixedMapString.length(); i++) {
 			final char theChar = prefixedMapString.charAt(i);
 			final int posValue = Character.getNumericValue(theChar);
-			result += posValue * Math.pow(Character.MAX_CODE_POINT, (prefixLength - i));
+			final int exponent = prefixLength - i - 1;
+			result += posValue * Math.pow(256, exponent);
 		}
 		
 		return result;
