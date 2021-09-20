@@ -12,6 +12,7 @@ order: 1
 - Improvement: Added warn message when an invalid percentage is specified for the creation of random bboxes
 - Improvement: Added downloader and converter for europe OSM data
 - Improvement: Renamed distribution region states to more meaningful names
+- Improvement: Use the IsotoneStringMapper in the Indexed tuple update strategy
 - Bugfix: Fixed watermark calculation for the ADS-B datastream
 - Bugfix: Fixed Docker compose based installation with ZooKeeper >= 3.6
 - Bugfix: Updated outdated Docker compose commands in documentation

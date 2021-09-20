@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.bboxdb.commons.IsotoneStringMapper;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
@@ -141,8 +142,8 @@ public class IndexedTupleUpdateHelper {
 	 * @return
 	 */
 	private Hyperrectangle getBoundingBoxForKey(final String key) {
-		final int hashCode = key.hashCode();
-		return new Hyperrectangle((double) hashCode, (double) hashCode);
+		final double bboxValue = IsotoneStringMapper.mapToDouble(key);
+		return new Hyperrectangle(bboxValue, bboxValue);
 	}
 
 	/**
