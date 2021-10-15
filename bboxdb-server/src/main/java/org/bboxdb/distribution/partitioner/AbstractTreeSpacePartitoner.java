@@ -168,12 +168,6 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		try {
 			distributionRegionZookeeperAdapter
 				.setStateForDistributionRegion(sourceRegion, DistributionRegionState.SPLIT);
-			
-			// Children are ready
-			for(final DistributionRegion childRegion : destination) {
-				distributionRegionZookeeperAdapter
-					.setStateForDistributionRegion(childRegion, DistributionRegionState.ACTIVE);
-			}
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		} 
@@ -197,10 +191,10 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * @throws InterruptedException 
 	 */
 	@VisibleForTesting
-	public void waitForSplitCompleteZookeeperCallback(final DistributionRegion regionToSplit, 
+	public void waitForSplitChildsReadyZookeeperCallback(final DistributionRegion regionToSplit, 
 			final int noOfChildren) throws InterruptedException {
 		
-		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r, noOfChildren);
+		final Predicate<DistributionRegion> predicate = (r) -> isChildsAreActive(r, noOfChildren);
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
 	}
 
@@ -210,14 +204,14 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * @param noOfChildren 
 	 * @return
 	 */
-	protected boolean isSplitForNodeComplete(final DistributionRegion region, final int noOfChildren) {
+	protected boolean isChildsAreActive(final DistributionRegion region, final int noOfChildren) {
 		
 		if(region.getDirectChildren().size() != noOfChildren) {
 			return false;
 		}
 		
 		final boolean unreadyChild = region.getDirectChildren().stream()
-			.anyMatch(r -> r.getState() != DistributionRegionState.MERGING_PARENT);
+			.anyMatch(r -> r.getState() != DistributionRegionState.ACTIVE);
 		
 		return ! unreadyChild;
 	}
@@ -227,28 +221,28 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * @param numberOfChilden2 
 	 * @throws InterruptedException 
 	 */
-	protected void setStateToRedistributionActiveAndWait(final DistributionRegion regionToSplit, 
+	protected void setChildStateToActiveAndWait(final DistributionRegion regionToSplit, 
 			final int numberOfChilden) 
 			throws ZookeeperException, InterruptedException {
 		
-		setStateToRedistributionActive(regionToSplit);		
-		waitForSplitCompleteZookeeperCallback(regionToSplit, numberOfChilden);
+		setChildrenToActive(regionToSplit);		
+		waitForSplitChildsReadyZookeeperCallback(regionToSplit, numberOfChilden);
 	}
 
 
 	/**
-	 * Set children to REDISTRIBUTION_ACTIVE and wait
-	 * @param numberOfChilden2 
+	 * Set children to ACTIVE
+	 * @param numberOfChilden
 	 * @throws InterruptedException 
 	 */
-	protected void setStateToRedistributionActive(final DistributionRegion regionToSplit) throws ZookeeperException {
+	protected void setChildrenToActive(final DistributionRegion regionToSplit) throws ZookeeperException {
 		
 		for (final DistributionRegion region : regionToSplit.getAllChildren()) {
 			final String childPath 
 				= distributionRegionZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 
 			distributionRegionZookeeperAdapter.setStateForDistributionGroup(childPath, 
-					DistributionRegionState.MERGING_PARENT);
+					DistributionRegionState.ACTIVE);
 		}
 	}
 	

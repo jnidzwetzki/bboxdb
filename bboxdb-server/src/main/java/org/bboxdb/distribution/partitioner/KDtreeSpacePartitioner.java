@@ -116,12 +116,12 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			allocateSystems(regionToSplit, 2);
 			
 			if(waitForReady) {
-				setStateToRedistributionActiveAndWait(regionToSplit, 2);
+				setChildStateToActiveAndWait(regionToSplit, 2);
 			} else {
-				setStateToRedistributionActive(regionToSplit);
+				setChildrenToActive(regionToSplit);
 			}
 
-			// Children ready (state: redistribution active // write access = true)
+			// Children ready (state: active // write access = true)
 			// update parent state and redirect write operations
 			distributionRegionZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 

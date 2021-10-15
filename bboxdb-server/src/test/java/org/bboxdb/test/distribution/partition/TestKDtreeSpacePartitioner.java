@@ -151,7 +151,7 @@ public class TestKDtreeSpacePartitioner {
 		final KDtreeSpacePartitioner spacepartitionier = getSpacePartitioner();
 		final DistributionRegion rootNode = spacepartitionier.getRootNode();
 		spacepartitionier.splitNode(rootNode, 10);
-		spacepartitionier.waitForSplitCompleteZookeeperCallback(rootNode, 2);
+		spacepartitionier.waitForSplitChildsReadyZookeeperCallback(rootNode, 2);
 		spacepartitionier.splitComplete(rootNode, rootNode.getDirectChildren());
 		spacepartitionier.waitUntilNodeStateIs(rootNode, DistributionRegionState.SPLIT);
 		Assert.assertEquals(rootNode.getState(), DistributionRegionState.SPLIT);
@@ -163,7 +163,7 @@ public class TestKDtreeSpacePartitioner {
 		Assert.assertTrue(spacepartitionier.getMergeCandidates(childNumber1).isEmpty());
 		
 		spacepartitionier.splitNode(childNumber0, 10);
-		spacepartitionier.waitForSplitCompleteZookeeperCallback(childNumber0, 2);
+		spacepartitionier.waitForSplitChildsReadyZookeeperCallback(childNumber0, 2);
 		spacepartitionier.splitComplete(childNumber0, childNumber0.getDirectChildren());
 		spacepartitionier.waitUntilNodeStateIs(childNumber0, DistributionRegionState.SPLIT);
 		Assert.assertEquals(childNumber0.getState(), DistributionRegionState.SPLIT);
@@ -207,7 +207,7 @@ public class TestKDtreeSpacePartitioner {
 		System.out.println("--> Set split for node");
 		spacePartitioner.splitNode(rootNode, 10);
 	
-		spacePartitioner.waitForSplitCompleteZookeeperCallback(rootNode, 2);
+		spacePartitioner.waitForSplitChildsReadyZookeeperCallback(rootNode, 2);
 
 		final DistributionRegion firstChild = rootNode.getDirectChildren().get(0);
 		Assert.assertEquals(10.0, firstChild.getConveringBox().getCoordinateHigh(0), DELTA);		
@@ -256,7 +256,7 @@ public class TestKDtreeSpacePartitioner {
 		adapter1.splitNode(distributionGroup1, 10);
 
 		// Sleep some seconds to wait for the update
-		adapter2.waitForSplitCompleteZookeeperCallback(distributionGroup1, 2);
+		adapter2.waitForSplitChildsReadyZookeeperCallback(distributionGroup1, 2);
 
 		// Read update from the second object
 		final DistributionRegion firstChild = distributionGroup2.getDirectChildren().get(0);
@@ -305,7 +305,7 @@ public class TestKDtreeSpacePartitioner {
 		adapter1.splitNode(leftChild, 50);
 
 		// Sleep 2 seconds to wait for the update
-		adapter2.waitForSplitCompleteZookeeperCallback(leftChild, 2);
+		adapter2.waitForSplitChildsReadyZookeeperCallback(leftChild, 2);
 
 		// Read update from the second object
 		final DistributionRegion firstChild = distributionGroup2.getDirectChildren().get(0);
@@ -332,7 +332,7 @@ public class TestKDtreeSpacePartitioner {
 
 		kdTreeAdapter.splitNode(rootNode, (float) 20.0);
 		
-		kdTreeAdapter.waitForSplitCompleteZookeeperCallback(rootNode, 2);
+		kdTreeAdapter.waitForSplitChildsReadyZookeeperCallback(rootNode, 2);
 		
 		Assert.assertEquals(2, rootNode.getTotalLevel());
 		

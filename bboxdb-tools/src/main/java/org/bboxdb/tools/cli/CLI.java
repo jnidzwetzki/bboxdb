@@ -890,7 +890,7 @@ public class CLI implements Runnable, AutoCloseable {
 				final List<DistributionRegion> newRegions 
 					= spacePartitioner.splitRegion(regionToSplit, activeRegions.get(regionToSplit));
 				
-				spacePartitioner.waitForSplitCompleteZookeeperCallback(regionToSplit, 2);
+				spacePartitioner.waitForSplitChildsReadyZookeeperCallback(regionToSplit, 2);
 				spacePartitioner.splitComplete(regionToSplit, newRegions);
 				spacePartitioner.waitUntilNodeStateIs(regionToSplit, DistributionRegionState.SPLIT);
 				

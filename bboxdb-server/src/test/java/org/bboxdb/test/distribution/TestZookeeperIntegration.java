@@ -367,7 +367,7 @@ public class TestZookeeperIntegration {
 		Assert.assertFalse(totalSize1.isPresent());
 
 		spaceparitioner.splitNode(region, 12, false);
-		spaceparitioner.waitForSplitCompleteZookeeperCallback(region, 2);
+		spaceparitioner.waitForSplitChildsReadyZookeeperCallback(region, 2);
 
 		distributionRegionAdapter.updateRegionStatistics(region.getDirectChildren().get(0), system1, 12, 999);
 		distributionRegionAdapter.updateRegionStatistics(region.getDirectChildren().get(1), system1, 33, 999);

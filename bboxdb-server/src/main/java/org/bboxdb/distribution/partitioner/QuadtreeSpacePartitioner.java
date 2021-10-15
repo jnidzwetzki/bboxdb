@@ -63,7 +63,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 
 			waitUntilChildrenAreCreated(regionToSplit, numberOfChilden);
 			allocateSystems(regionToSplit, numberOfChilden);
-			setStateToRedistributionActiveAndWait(regionToSplit, numberOfChilden);
+			setChildStateToActiveAndWait(regionToSplit, numberOfChilden);
 
 			// Children ready (state: redistribution active // write access = true)
 			// update parent state and redirect write operations
