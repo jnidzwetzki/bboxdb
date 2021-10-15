@@ -161,7 +161,8 @@ public class DataRedistributionLoader implements Runnable {
 			for(int i = 0; i < numberOfFilesToLoad;) {
 				
 				while(loadedFiles.size() >= numberOfMaxLoadedFiles) {
-					final int filesToDelete = ThreadLocalRandom.current().nextInt(loadedFiles.size() / 2) + (loadedFiles.size() / 2) - 1;
+					final int upperDeleteBound = loadedFiles.size() / 2;
+					final int filesToDelete = Math.max(ThreadLocalRandom.current().nextInt(upperDeleteBound), 1);
 					
 					System.out.println("Deleting " + filesToDelete + " files");
 					
