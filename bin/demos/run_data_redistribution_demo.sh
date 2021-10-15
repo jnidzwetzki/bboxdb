@@ -27,18 +27,34 @@ if [ -z "$BBOXDB_HOME" ]; then
    exit -1
 fi
 
+if [[ $# -ne 1 ]]; then
+    echo "Illegal number of parameters. Demomode exprected" >&2
+    exit 2
+fi
+
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
+demomode=$1
 
-# Testfiles
-#datafiles="/export/homes/nidzwetzki/osm-germany/nordrhein-westfalen/osm/TREE:/export/homes/nidzwetzki/osm-germany/berlin/osm/TREE:/export/homes/nidzwetzki/osm-germany/hamburg/osm/TREE:/export/homes/nidzwetzki/osm-germany/hessen/osm/TREE"
+if [[ $demomode == "tree" ]]; then
+   # Testfiles
+   #datafiles="/export/homes/nidzwetzki/osm-germany/nordrhein-westfalen/osm/TREE:/export/homes/nidzwetzki/osm-germany/berlin/osm/TREE:/export/homes/nidzwetzki/osm-germany/hamburg/osm/TREE:/export/homes/nidzwetzki/osm-germany/hessen/osm/TREE"
+   datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'TREE' | xargs echo | tr ' ' ':')
+   $BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 32 64 newton1:50181 mycluster
+fi
 
-#datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'ROAD' | xargs echo | tr ' ' ':')
-#$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 768 1024 newton1:50181 mycluster
+if [[ $demomode == "treeauto" ]]; then
+   datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'TREE' | xargs echo | tr ' ' ':')
+   $BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 16 32 newton1:50181 mycluster true
+fi
 
-datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'TREE' | xargs echo | tr ' ' ':')
-$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 32 64 newton1:50181 mycluster
-#$BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 16 32 newton1:50181 mycluster true
+if [[ $demomode == "road" ]]; then
+   datafiles=$(find /BIG/nidzwetzki/datasets/osm/german-states -name 'ROAD' | xargs echo | tr ' ' ':')
+   $BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles 16 6 768 1024 newton1:50181 mycluster
+fi
+
+
+
 
 
