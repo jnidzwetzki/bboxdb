@@ -61,7 +61,7 @@ public class DistributionRegionComponent {
 	/**
 	 * The width of the box
 	 */
-	public final static int WIDTH = 110;
+	public final static int WIDTH = 120;
 	
 	/**
 	 * The distribution region to paint
