@@ -21,8 +21,8 @@ All BBoxDB related counters are starting with the prefix ``bboxdb_``. Also, deta
 |----------------------------------------|-------------|----------------------------------------------------------------------|
 | ``bboxdb_network_read_bytes``          | Bytes       | The amount of read bytes from the network connection                 |
 | ``bboxdb_network_write_bytes``         | Bytes       | The amount of written bytes from the network connection              |
-| ``bboxdb_network_read_packages_total`` | Packets     | The amount of read network packets                                   |
-| ``bboxdb_network_read_insert_packages_total``   | Packets       | The amount of processed insert calls                      |
+| ``bboxdb_network_read_packets_total``  | Packets     | The amount of read network packets                                   |
+| ``bboxdb_network_read_insert_packets_total`` | Packets  | The amount of processed insert calls                              |
 | ``bboxdb_network_connections_total``   | Connections | The amount of active client connections to the instance              |
 | ``bboxdb_read_tuple_keys_total``       | Keys        | The amount of read keys from SSTables                                |
 | ``bboxdb_read_tuple_total``            | Tuples      | The amount of read tuples from SSTables                              |
