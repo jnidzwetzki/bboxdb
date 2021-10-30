@@ -71,8 +71,8 @@ public class InsertTupleHandler implements RequestHandler {
 	/**
 	 * The number of read insert packages
 	 */
-	private final static Gauge readInsertPackagesTotal = Gauge.build()
-			.name("bboxdb_network_read_insert_packages_total")
+	private final static Gauge readInsertPacketsTotal = Gauge.build()
+			.name("bboxdb_network_read_insert_packets_total")
 			.help("Total amount read insert network packages").register();
 
 	@Override
@@ -88,7 +88,7 @@ public class InsertTupleHandler implements RequestHandler {
 		}
 
 		try {
-			readInsertPackagesTotal.inc();
+			readInsertPacketsTotal.inc();
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 
 			// Does the tuple have the right dimension?
