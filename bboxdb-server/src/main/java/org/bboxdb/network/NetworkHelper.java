@@ -22,7 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
-import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packets.PacketEncodeException;
 
 public class NetworkHelper {
 
@@ -31,10 +31,10 @@ public class NetworkHelper {
 	 * @param compressionType 
 	 * @param compressedBytes
 	 * @return
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	public static byte[] uncompressBytes(final byte compressionType, 
-			final byte[] compressedBytes) throws PackageEncodeException {
+			final byte[] compressedBytes) throws PacketEncodeException {
 		
 		try {
 			final ByteArrayInputStream bais = new ByteArrayInputStream(compressedBytes);
@@ -51,7 +51,7 @@ public class NetworkHelper {
 			
 			return baos.toByteArray();
 		} catch (IOException e) {
-			throw new PackageEncodeException(e);
+			throw new PacketEncodeException(e);
 		}
 	}
 

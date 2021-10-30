@@ -20,9 +20,9 @@ package org.bboxdb.network.server.connection.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.NextPageRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class NextPageHandler implements RequestHandler {
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 		try {
 			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
 			final short querySequence = nextPagePackage.getQuerySequence();
@@ -52,7 +52,7 @@ public class NextPageHandler implements RequestHandler {
 			// Send tuples as result for original query
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, querySequence);
 			
-		} catch (PackageEncodeException e) {
+		} catch (PacketEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
 			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(errorResponse);	

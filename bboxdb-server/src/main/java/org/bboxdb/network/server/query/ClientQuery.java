@@ -20,7 +20,7 @@ package org.bboxdb.network.server.query;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packets.PacketEncodeException;
 
 public interface ClientQuery extends Closeable {
 
@@ -28,10 +28,10 @@ public interface ClientQuery extends Closeable {
 	 * Calculate the next tuples of the query
 	 * @param packageSequence2 
 	 * @return
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
-	public void fetchAndSendNextTuples(short packageSequence) throws IOException, PackageEncodeException;
+	public void fetchAndSendNextTuples(short packageSequence) throws IOException, PacketEncodeException;
 
 	/**
 	 * Is the current query done

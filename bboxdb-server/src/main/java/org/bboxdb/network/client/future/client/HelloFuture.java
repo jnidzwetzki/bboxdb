@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.response.HelloResponse;
+import org.bboxdb.network.packets.response.HelloResponse;
 
 public class HelloFuture extends OperationFutureImpl<HelloResponse> {
 

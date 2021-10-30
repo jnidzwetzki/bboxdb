@@ -1,0 +1,205 @@
+/*******************************************************************************
+ *
+ *    Copyright (C) 2015-2021 the BBoxDB project
+ *  
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License. 
+ *    
+ *******************************************************************************/
+package org.bboxdb.network.packets.request;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.misc.Const;
+import org.bboxdb.network.NetworkConst;
+import org.bboxdb.network.NetworkPackageDecoder;
+import org.bboxdb.network.packets.NetworkQueryRequestPacket;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.storage.entity.TupleStoreName;
+
+public class QueryHyperrectangleTimeRequest extends NetworkQueryRequestPacket {
+	
+	/**
+	 * The name of the table
+	 */
+	protected final TupleStoreName table;
+
+	/**
+	 * The the query bounding box
+	 */
+	protected final Hyperrectangle box;
+	
+	/**
+	 * The timestamp
+	 */
+	protected final long timestamp;
+	
+	/**
+	 * Paging enables
+	 */
+	protected final boolean pagingEnabled;
+	
+	/**
+	 * The max tuples per page
+	 */
+	protected final short tuplesPerPage;
+	
+	public QueryHyperrectangleTimeRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
+			final String table, final Hyperrectangle box, final long timestamp, final boolean pagingEnabled, 
+			final short tuplesPerPage) {
+		
+		super(sequenceNumber, routingHeader);
+		
+		this.table = new TupleStoreName(table);
+		this.box = box;
+		this.timestamp = timestamp;
+		this.pagingEnabled = pagingEnabled;
+		this.tuplesPerPage = tuplesPerPage;
+	}
+
+	@Override
+	public long writeToOutputStream(final OutputStream outputStream) throws PacketEncodeException {
+
+		try {
+			final byte[] tableBytes = table.getFullnameBytes();
+			final byte[] bboxBytes = box.toByteArray();
+			
+			final ByteBuffer bb = ByteBuffer.allocate(20);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
+			
+			bb.put(getQueryType());
+			
+			if(pagingEnabled) {
+				bb.put((byte) 1);
+			} else {
+				bb.put((byte) 0);
+			}
+			
+			bb.putShort(tuplesPerPage);
+			
+			bb.putShort((short) tableBytes.length);
+			bb.put(NetworkConst.UNUSED_BYTE);
+			bb.put(NetworkConst.UNUSED_BYTE);
+			bb.putInt((int) bboxBytes.length);
+			bb.putLong(timestamp);
+			
+			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;			
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
+
+			// Write body
+			outputStream.write(bb.array());
+			outputStream.write(tableBytes);
+			outputStream.write(bboxBytes);
+			
+			return headerLength + bodyLength;
+		} catch (IOException e) {
+			throw new PacketEncodeException("Got exception while converting package into bytes", e);
+		}	
+	}
+	
+	/**
+	 * Decode the encoded package into a object
+	 * 
+	 * @param encodedPackage
+	 * @return
+	 * @throws PacketEncodeException 
+	 * @throws IOException 
+	 */
+	public static QueryHyperrectangleTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PacketEncodeException, IOException {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
+		
+		if(decodeResult == false) {
+			throw new PacketEncodeException("Unable to decode package");
+		}
+		
+	    final byte queryType = encodedPackage.get();
+	    
+	    if(queryType != NetworkConst.REQUEST_QUERY_BBOX_AND_TIME) {
+	    	throw new PacketEncodeException("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX_AND_TIME);
+	    }
+	    
+	    boolean pagingEnabled = false;
+	    if(encodedPackage.get() != 0) {
+	    	pagingEnabled = true;
+	    }
+	    
+	    final short tuplesPerPage = encodedPackage.getShort();
+
+		final short tableLength = encodedPackage.getShort();
+		
+	    // 2 unused bytes
+	    encodedPackage.get();
+	    encodedPackage.get();
+		
+	    final int bboxLength = encodedPackage.getInt();
+	    final long timestamp = encodedPackage.getLong();
+
+		final byte[] tableBytes = new byte[tableLength];
+		encodedPackage.get(tableBytes, 0, tableBytes.length);
+		final String table = new String(tableBytes);
+		
+		final byte[] bboxBytes = new byte[bboxLength];
+		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
+		final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(bboxBytes);
+		
+		if(encodedPackage.remaining() != 0) {
+			throw new PacketEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
+		}
+		
+		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+
+		return new QueryHyperrectangleTimeRequest(sequenceNumber, routingHeader, table, boundingBox, 
+				timestamp, pagingEnabled, tuplesPerPage);
+	}
+
+	@Override
+	public byte getPackageType() {
+		return NetworkConst.REQUEST_TYPE_QUERY;
+	}
+
+	@Override
+	public byte getQueryType() {
+		return NetworkConst.REQUEST_QUERY_BBOX_AND_TIME;
+	}
+	
+	public TupleStoreName getTable() {
+		return table;
+	}
+
+	public Hyperrectangle getBoundingBox() {
+		return box;
+	}
+	
+	public short getTuplesPerPage() {
+		return tuplesPerPage;
+	}
+
+	public boolean isPagingEnabled() {
+		return pagingEnabled;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	@Override
+	public String toString() {
+		return "QueryHyperrectangleTimeRequest [table=" + table + ", box=" + box + ", timestamp=" + timestamp
+				+ ", pagingEnabled=" + pagingEnabled + ", tuplesPerPage=" + tuplesPerPage + "]";
+	}
+}

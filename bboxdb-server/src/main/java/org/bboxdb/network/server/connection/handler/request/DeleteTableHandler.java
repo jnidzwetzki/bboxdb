@@ -23,10 +23,10 @@ import java.nio.ByteBuffer;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.DeleteTableRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.DeleteTableRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.SuccessResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -47,7 +47,7 @@ public class DeleteTableHandler implements RequestHandler {
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 		
 		try {			
 			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);

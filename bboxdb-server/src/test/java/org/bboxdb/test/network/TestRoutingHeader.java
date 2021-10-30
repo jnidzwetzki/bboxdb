@@ -35,11 +35,11 @@ import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
+import org.bboxdb.network.packets.PacketEncodeException;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.junit.Assert;
 import org.junit.Test;
@@ -161,10 +161,10 @@ public class TestRoutingHeader {
 	/**
 	 * Test the encoding and the decoding of an unrouted package
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	@Test(timeout=60000)
-	public void testUnroutedPackageHeader() throws IOException, PackageEncodeException {
+	public void testUnroutedPackageHeader() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader(false);
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 
@@ -177,10 +177,10 @@ public class TestRoutingHeader {
 	/**
 	 * Test the encoding and the decoding of an routed package
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	@Test(timeout=60000)
-	public void testRoutedPackageHeader1() throws IOException, PackageEncodeException {
+	public void testRoutedPackageHeader1() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0;node2:23,2:0");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 
@@ -193,10 +193,10 @@ public class TestRoutingHeader {
 	/**
 	 * Test the encoding and the decoding of an routed package
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	@Test(timeout=60000)
-	public void testRoutedPackageHeader2() throws IOException, PackageEncodeException {
+	public void testRoutedPackageHeader2() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 
@@ -209,10 +209,10 @@ public class TestRoutingHeader {
 	/**
 	 * Test the encoding and the decoding of an routed package
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	@Test(timeout=60000)
-	public void testRoutedPackageHeader3() throws IOException, PackageEncodeException {
+	public void testRoutedPackageHeader3() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1:0;node2:23,2:0");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
@@ -230,10 +230,10 @@ public class TestRoutingHeader {
 	/**
 	 * Test the encoding and the decoding of an routed package
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	@Test(timeout=60000)
-	public void testRoutedPackageHeader4() throws IOException, PackageEncodeException {
+	public void testRoutedPackageHeader4() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);

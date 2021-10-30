@@ -20,8 +20,8 @@ package org.bboxdb.network.server.connection.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.response.SuccessResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class DisconnectHandler implements RequestHandler {
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 		
 		logger.info("Got disconnect package, preparing for connection close: "  
 				+ clientConnectionHandler.clientSocket.getInetAddress());

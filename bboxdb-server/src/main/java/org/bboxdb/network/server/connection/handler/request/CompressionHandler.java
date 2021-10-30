@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +45,10 @@ public class CompressionHandler implements RequestHandler {
 			final InputStream compressedDataStream = CompressionEnvelopeRequest.decodePackage(encodedPackage);
 						
 			while(compressedDataStream.available() > 0) {
-				clientConnectionHandler.handleNextPackage(compressedDataStream);
+				clientConnectionHandler.handleNextPacket(compressedDataStream);
 			}
 			
-		} catch (IOException | PackageEncodeException e) {
+		} catch (IOException | PacketEncodeException e) {
 			logger.error("Got an exception while handling compression", e);
 		} 
 		

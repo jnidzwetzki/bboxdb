@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryKeyRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.QueryKeyRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ClientQuery;
 import org.bboxdb.network.server.query.ErrorMessages;
@@ -47,7 +47,7 @@ public class HandleKeyQuery implements QueryHandler {
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 
 		final Runnable queryRunable = new ExceptionSafeRunnable() {
 
@@ -74,7 +74,7 @@ public class HandleKeyQuery implements QueryHandler {
 					
 					clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
 					clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
-				} catch (PackageEncodeException e) {
+				} catch (PacketEncodeException e) {
 					logger.warn("Got exception while decoding package", e);
 					clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 				}

@@ -39,36 +39,36 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.connection.SequenceNumberGenerator;
 import org.bboxdb.network.entity.ContinuousQueryServerState;
-import org.bboxdb.network.packages.NetworkPackage;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CancelRequest;
-import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
-import org.bboxdb.network.packages.request.ContinuousQueryStateRequest;
-import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
-import org.bboxdb.network.packages.request.CreateTableRequest;
-import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
-import org.bboxdb.network.packages.request.DeleteTableRequest;
-import org.bboxdb.network.packages.request.DisconnectRequest;
-import org.bboxdb.network.packages.request.HelloRequest;
-import org.bboxdb.network.packages.request.InsertTupleRequest;
-import org.bboxdb.network.packages.request.KeepAliveRequest;
-import org.bboxdb.network.packages.request.LockTupleRequest;
-import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.request.QueryContinuousRequest;
-import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
-import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
-import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
-import org.bboxdb.network.packages.request.QueryJoinRequest;
-import org.bboxdb.network.packages.request.QueryKeyRequest;
-import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
-import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
-import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
-import org.bboxdb.network.packages.response.HelloResponse;
-import org.bboxdb.network.packages.response.MultiTupleResponse;
-import org.bboxdb.network.packages.response.ListTablesResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
-import org.bboxdb.network.packages.response.TupleLockedResponse;
-import org.bboxdb.network.packages.response.TupleResponse;
+import org.bboxdb.network.packets.NetworkPacket;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.CancelRequest;
+import org.bboxdb.network.packets.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packets.request.ContinuousQueryStateRequest;
+import org.bboxdb.network.packets.request.CreateDistributionGroupRequest;
+import org.bboxdb.network.packets.request.CreateTableRequest;
+import org.bboxdb.network.packets.request.DeleteDistributionGroupRequest;
+import org.bboxdb.network.packets.request.DeleteTableRequest;
+import org.bboxdb.network.packets.request.DisconnectRequest;
+import org.bboxdb.network.packets.request.HelloRequest;
+import org.bboxdb.network.packets.request.InsertTupleRequest;
+import org.bboxdb.network.packets.request.KeepAliveRequest;
+import org.bboxdb.network.packets.request.LockTupleRequest;
+import org.bboxdb.network.packets.request.NextPageRequest;
+import org.bboxdb.network.packets.request.QueryContinuousRequest;
+import org.bboxdb.network.packets.request.QueryHyperrectangleRequest;
+import org.bboxdb.network.packets.request.QueryHyperrectangleTimeRequest;
+import org.bboxdb.network.packets.request.QueryInsertTimeRequest;
+import org.bboxdb.network.packets.request.QueryJoinRequest;
+import org.bboxdb.network.packets.request.QueryKeyRequest;
+import org.bboxdb.network.packets.request.QueryVersionTimeRequest;
+import org.bboxdb.network.packets.response.CompressionEnvelopeResponse;
+import org.bboxdb.network.packets.response.ContinuousQueryStateResponse;
+import org.bboxdb.network.packets.response.HelloResponse;
+import org.bboxdb.network.packets.response.ListTablesResponse;
+import org.bboxdb.network.packets.response.MultiTupleResponse;
+import org.bboxdb.network.packets.response.SuccessResponse;
+import org.bboxdb.network.packets.response.TupleLockedResponse;
+import org.bboxdb.network.packets.response.TupleResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.query.ContinuousRangeQueryPlan;
@@ -115,10 +115,10 @@ public class TestNetworkClasses {
 	 * @param sequenceNumber
 	 * @return
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
-	protected byte[] networkPackageToByte(final NetworkPackage networkPackage) 
-			throws IOException, PackageEncodeException {
+	protected byte[] networkPackageToByte(final NetworkPacket networkPackage) 
+			throws IOException, PacketEncodeException {
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		networkPackage.writeToOutputStream(bos);
@@ -130,10 +130,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test the encoding of the request package header
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testRequestPackageHeader() throws IOException, PackageEncodeException {
+	public void testRequestPackageHeader() throws IOException, PacketEncodeException {
 		final short currentSequenceNumber = sequenceNumberGenerator.getLastGeneratedNumber();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
@@ -159,10 +159,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an insert tuple package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeDeletedTuple1() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeDeletedTuple1() throws IOException, PacketEncodeException {
 		final Tuple tuple = new DeletedTuple("key", 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -188,10 +188,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an insert tuple package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeInsertTuple1() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeInsertTuple1() throws IOException, PacketEncodeException {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -215,10 +215,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an insert tuple package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeInsertTuple2() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeInsertTuple2() throws IOException, PacketEncodeException {
 		final Tuple tuple = new Tuple("key", new Hyperrectangle(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -241,11 +241,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Test the decoding and the encoding of a joined tuple
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeJoinedTuple() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeJoinedTuple() throws IOException, PacketEncodeException {
 		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
 		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(1.32443453224, 545334.03, 34324.343, 343243.0), "abc".getBytes(), 12);
 		final Tuple tuple3 = new Tuple("key3", new Hyperrectangle(1.35433224, 5453.43, 34324.343, 343243.0), "abc".getBytes(), 12);
@@ -279,10 +279,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an insert tuple package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -310,10 +310,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an create distribution group package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeCreateDistributionGroup() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeCreateDistributionGroup() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final DistributionGroupConfiguration distributionGroupConfiguration = DistributionGroupConfigurationBuilder.create(4)
@@ -343,10 +343,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an create distribution group package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeDeleteDistributionGroup() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeDeleteDistributionGroup() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final DeleteDistributionGroupRequest groupPackage = new DeleteDistributionGroupRequest(sequenceNumber, "test");
@@ -367,10 +367,10 @@ public class TestNetworkClasses {
 	/**
 	 * The encoding and decoding of an next page package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeNextPage() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeNextPage() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final short querySequence = 12;
@@ -392,10 +392,10 @@ public class TestNetworkClasses {
 	/**
 	 * The  encoding and decoding of an cancel query package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeCancelQuery() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeCancelQuery() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final short querySequence = 12;
@@ -415,10 +415,10 @@ public class TestNetworkClasses {
 	/**
 	 * The  encoding and decoding of an cancel query package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeLockTuple() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeLockTuple() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final LockTupleRequest request = new LockTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED, 
@@ -440,10 +440,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an delete table package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeDeleteTable() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeDeleteTable() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final DeleteTableRequest deletePackage = new DeleteTableRequest(sequenceNumber, "test");
@@ -463,10 +463,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of an create table package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeCreateTable() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeCreateTable() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final TupleStoreConfiguration ssTableConfiguration = TupleStoreConfigurationBuilder
@@ -496,10 +496,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decoding and encoding of the key query
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeKeyQuery() throws IOException, PackageEncodeException {
+	public void testDecodeKeyQuery() throws IOException, PacketEncodeException {
 		final String table = "1_mygroup_table1";
 		final String key = "key1";
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -525,10 +525,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode bounding box query - with UDFs
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeBoundingBoxQuery1() throws IOException, PackageEncodeException {
+	public void testDecodeBoundingBoxQuery1() throws IOException, PacketEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -565,10 +565,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode bounding box query - without UDFs
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeBoundingBoxQuery2() throws IOException, PackageEncodeException {
+	public void testDecodeBoundingBoxQuery2() throws IOException, PacketEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -598,10 +598,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode bounding box query
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PackageEncodeException {
+	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PacketEncodeException {
 		final String table = "table1";
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
 		final ContinuousRangeQueryPlan constQueryPlan = new ContinuousRangeQueryPlan(UUID.randomUUID().toString(),
@@ -625,10 +625,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode version time query
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeVersionTimeQuery() throws IOException, PackageEncodeException {
+	public void testDecodeVersionTimeQuery() throws IOException, PacketEncodeException {
 		final String table = "table1";
 		final long timeStamp = 4711;
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -655,10 +655,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode insert time query
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeInsertTimeQuery() throws IOException, PackageEncodeException {
+	public void testDecodeInsertTimeQuery() throws IOException, PacketEncodeException {
 		final String table = "table1";
 		final long timeStamp = 4711;
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -685,10 +685,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode time query
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeBoundingBoxAndTime() throws IOException, PackageEncodeException {
+	public void testDecodeBoundingBoxAndTime() throws IOException, PacketEncodeException {
 		final String table = "table1";
 		final long timeStamp = 4711;
 		final Hyperrectangle boundingBox = new Hyperrectangle(10d, 20d);
@@ -718,10 +718,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode bounding box query - with UDFs
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeJoinQuery0() throws IOException, PackageEncodeException {
+	public void testDecodeJoinQuery0() throws IOException, PacketEncodeException {
 		final List<TupleStoreName> tables = Arrays.asList(new TupleStoreName("3dgroup_table1"),
 				new TupleStoreName("3dgroup_table2"), new TupleStoreName("3dgroup_table3"));
 		
@@ -760,10 +760,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test decode bounding box query - without UDFs
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodeJoinQuery1() throws IOException, PackageEncodeException {
+	public void testDecodeJoinQuery1() throws IOException, PacketEncodeException {
 		final List<TupleStoreName> tables = Arrays.asList(new TupleStoreName("3dgroup_table1"),
 				new TupleStoreName("3dgroup_table2"), new TupleStoreName("3dgroup_table3"));
 		
@@ -795,10 +795,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of disconnect package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeDisconnect() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeDisconnect() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final DisconnectRequest listPackage = new DisconnectRequest(sequenceNumber);
@@ -817,10 +817,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the request helo
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeHeloRequest1() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeHeloRequest1() throws IOException, PacketEncodeException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -843,10 +843,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the request helo
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeHeloRequest2() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeHeloRequest2() throws IOException, PacketEncodeException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		
@@ -871,10 +871,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the response helo
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeHeloResponse1() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeHeloResponse1() throws IOException, PacketEncodeException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -897,10 +897,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the response helo
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeHeloResponse2() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeHeloResponse2() throws IOException, PacketEncodeException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		
@@ -925,10 +925,10 @@ public class TestNetworkClasses {
 	/**
 	 * Decode an encoded package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testDecodePackage() throws IOException, PackageEncodeException {
+	public void testDecodePackage() throws IOException, PacketEncodeException {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -947,10 +947,10 @@ public class TestNetworkClasses {
 	/**
 	 * Get the sequence number from a package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testGetSequenceNumber() throws IOException, PackageEncodeException {
+	public void testGetSequenceNumber() throws IOException, PacketEncodeException {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		
 		// Increment to avoid sequenceNumber = 0
@@ -972,10 +972,10 @@ public class TestNetworkClasses {
 	/**
 	 * Read the body length from a request package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testGetRequestBodyLength() throws IOException, PackageEncodeException {
+	public void testGetRequestBodyLength() throws IOException, PacketEncodeException {
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -995,11 +995,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Get the package type from the response
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void getPackageTypeLockedTupleSuccess() throws PackageEncodeException, IOException {
+	public void getPackageTypeLockedTupleSuccess() throws PacketEncodeException, IOException {
 		final TupleLockedResponse response = new TupleLockedResponse((short) 2);
 		final byte[] encodedPackage = networkPackageToByte(response);
 
@@ -1012,11 +1012,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Get the package type from the response
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void getPackageTypeFromResponse1() throws PackageEncodeException, IOException {
+	public void getPackageTypeFromResponse1() throws PacketEncodeException, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2);
 		final byte[] encodedPackage = networkPackageToByte(response);
 
@@ -1027,11 +1027,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Get the package type from the response
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void getPackageTypeFromResponse2() throws PackageEncodeException, IOException {
+	public void getPackageTypeFromResponse2() throws PacketEncodeException, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2, "abc");
 		final byte[] encodedPackage = networkPackageToByte(response);
 		
@@ -1042,11 +1042,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Read the body length from a result package
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void testGetResultBodyLength1() throws PackageEncodeException, IOException {
+	public void testGetResultBodyLength1() throws PacketEncodeException, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2);
 		final byte[] encodedPackage = networkPackageToByte(response);
 		
@@ -1062,11 +1062,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Read the body length from a result package
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void testGetResultBodyLength2() throws PackageEncodeException, IOException {
+	public void testGetResultBodyLength2() throws PacketEncodeException, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2, "abc");
 		final byte[] encodedPackage = networkPackageToByte(response);
 		Assert.assertNotNull(encodedPackage);
@@ -1081,11 +1081,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Try to encode and decode the list tables response
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void testListTablesResponse() throws PackageEncodeException, IOException {
+	public void testListTablesResponse() throws PacketEncodeException, IOException {
 		final List<TupleStoreName> tables = new ArrayList<TupleStoreName>();
 		tables.add(new TupleStoreName("3_group1_table1"));
 		tables.add(new TupleStoreName("3_group1_testtable"));
@@ -1105,11 +1105,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Try to encode and decode the single tuple response 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void testSingleTupleResponse() throws PackageEncodeException, IOException {
+	public void testSingleTupleResponse() throws PacketEncodeException, IOException {
 		final String tablename = "table1";
 		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "databytes".getBytes());
 		
@@ -1129,11 +1129,11 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Try to encode and decode the single tuple response - with deleted tuple
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	@Test(timeout=60000)
-	public void testSingleTupleDeletedResponse() throws PackageEncodeException, IOException {
+	public void testSingleTupleDeletedResponse() throws PacketEncodeException, IOException {
 		final String tablename = "table1";
 		final Tuple tuple = new DeletedTuple("abc", 12);
 		
@@ -1154,10 +1154,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test the decoding and the encoding of an compressed request package
 	 * @throws IOException
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testCompression1Request() throws IOException, PackageEncodeException {
+	public void testCompression1Request() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
 		
 		final Tuple tuple = new Tuple("key", Hyperrectangle.FULL_SPACE, "abc".getBytes(), 12);
@@ -1198,10 +1198,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test the decoding and the encoding of an compressed request package
 	 * @throws IOException
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testCompression2Request() throws IOException, PackageEncodeException {
+	public void testCompression2Request() throws IOException, PacketEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
 		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", Hyperrectangle.FULL_SPACE, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -1242,10 +1242,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test the compression response
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testCompressionReponse1() throws IOException, PackageEncodeException {
+	public void testCompressionReponse1() throws IOException, PacketEncodeException {
 		final String tablename = "table1";
 		final Tuple tuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "databytes".getBytes());
 		
@@ -1269,10 +1269,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test the compression response
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testCompressionReponse2() throws IOException, PackageEncodeException {
+	public void testCompressionReponse2() throws IOException, PacketEncodeException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		
@@ -1302,10 +1302,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of a keep alive package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeKeepAlive1() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeKeepAlive1() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest(sequenceNumber);
@@ -1325,10 +1325,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of a keep alive package
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeKeepAlive2() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeKeepAlive2() throws IOException, PacketEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final String tablename = "testgroup_abc";
@@ -1353,10 +1353,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the state request
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void encodeAndDecodeContinuousQueryStateRequest() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeContinuousQueryStateRequest() throws IOException, PacketEncodeException {
 		final TupleStoreName tupleStoreName = new TupleStoreName("dgroup_table_12");
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -1375,10 +1375,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the ContinuousQueryStateResponse
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testContinuousQueryStateResponse0() throws IOException, PackageEncodeException {
+	public void testContinuousQueryStateResponse0() throws IOException, PacketEncodeException {
 		
 		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -1400,10 +1400,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the ContinuousQueryStateResponse
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testContinuousQueryStateResponse1() throws IOException, PackageEncodeException {
+	public void testContinuousQueryStateResponse1() throws IOException, PacketEncodeException {
 		
 		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
 		
@@ -1435,10 +1435,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the ContinuousQueryStateResponse
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testContinuousQueryStateResponse2() throws IOException, PackageEncodeException {
+	public void testContinuousQueryStateResponse2() throws IOException, PacketEncodeException {
 		
 		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
 		
@@ -1467,10 +1467,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the ContinuousQueryStateResponse
 	 * @throws IOException 
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 */
 	@Test(timeout=60000)
-	public void testContinuousQueryStateResponse3() throws IOException, PackageEncodeException {
+	public void testContinuousQueryStateResponse3() throws IOException, PacketEncodeException {
 		
 		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
 		

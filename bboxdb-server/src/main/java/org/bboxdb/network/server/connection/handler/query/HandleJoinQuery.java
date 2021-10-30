@@ -22,9 +22,9 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryJoinRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.QueryJoinRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.bboxdb.network.server.query.QueryHelper;
@@ -53,7 +53,7 @@ public class HandleJoinQuery implements QueryHandler {
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 		
 		try {
 			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
@@ -109,7 +109,7 @@ public class HandleJoinQuery implements QueryHandler {
 			
 			clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
-		} catch (PackageEncodeException e) {
+		} catch (PacketEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}		

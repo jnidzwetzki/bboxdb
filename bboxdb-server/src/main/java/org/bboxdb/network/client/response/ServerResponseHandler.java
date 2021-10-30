@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packets.PacketEncodeException;
 
 public interface ServerResponseHandler {
 
@@ -30,10 +30,10 @@ public interface ServerResponseHandler {
 	 * @param encodedPackage
 	 * @param future
 	 * @return Remove the result future or not
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws InterruptedException 
 	 */
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage,final NetworkOperationFuture future) 
-					throws PackageEncodeException, InterruptedException;
+					throws PacketEncodeException, InterruptedException;
 }

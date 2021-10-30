@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.TupleResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.response.TupleResponse;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class TupleHandler implements ServerResponseHandler {
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
-			throws PackageEncodeException, InterruptedException {
+			throws PacketEncodeException, InterruptedException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle tuple package");

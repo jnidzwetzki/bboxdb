@@ -23,8 +23,8 @@ import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.response.ErrorResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -84,12 +84,12 @@ public class QueryHelper {
 	 * @param requestTable
 	 * @param clientConnectionHandler
 	 * @return
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	public static boolean handleNonExstingTable(final TupleStoreName requestTable, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 		
 		
 		// Table is locally known, prevent expensive zookeeper call

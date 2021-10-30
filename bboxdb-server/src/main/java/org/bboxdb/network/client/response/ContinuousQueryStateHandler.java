@@ -21,8 +21,8 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.response.ContinuousQueryStateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class ContinuousQueryStateHandler implements ServerResponseHandler {
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future)
-			throws PackageEncodeException {
+			throws PacketEncodeException {
 		
 		
 		final ContinuousQueryStateResponse result = ContinuousQueryStateResponse.decodePackage(encodedPackage);

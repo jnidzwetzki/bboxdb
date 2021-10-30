@@ -23,10 +23,10 @@ import java.nio.ByteBuffer;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.DeleteDistributionGroupRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.SuccessResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 	 * Delete an existing distribution group
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PacketEncodeException {
 
 		try {
 			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);

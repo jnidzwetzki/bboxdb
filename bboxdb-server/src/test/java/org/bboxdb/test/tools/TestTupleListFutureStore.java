@@ -28,7 +28,7 @@ import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
-import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packets.NetworkRequestPacket;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.test.BBoxDBTestHelper;
@@ -59,7 +59,7 @@ public class TestTupleListFutureStore {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 		tupleListFutureStore.shutdown();
 		final BBoxDBConnection connection = BBoxDBTestHelper.MOCKED_CONNECTION;
-		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		final Supplier<NetworkRequestPacket> supplier = () -> (null);
 		final NetworkOperationFutureImpl networkOperationFuture = new NetworkOperationFutureImpl(connection, supplier);
 
 		tupleListFutureStore.put(new TupleListFuture(() -> Arrays.asList(networkOperationFuture),
@@ -132,7 +132,7 @@ class TestTupleListFuture extends TupleListFuture {
 	 */
 	private static NetworkOperationFutureImpl getFuture() {
 		final BBoxDBConnection connection = BBoxDBTestHelper.MOCKED_CONNECTION;
-		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		final Supplier<NetworkRequestPacket> supplier = () -> (null);
 		final NetworkOperationFutureImpl networkOperationFuture = new NetworkOperationFutureImpl(connection, supplier);
 		return networkOperationFuture;
 	}

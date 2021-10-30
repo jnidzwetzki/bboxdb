@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bboxdb.network.entity.ContinuousQueryServerState;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.ContinuousQueryStateRequest;
-import org.bboxdb.network.packages.response.ContinuousQueryStateResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.ContinuousQueryStateRequest;
+import org.bboxdb.network.packets.response.ContinuousQueryStateResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.ClientConnectionRegistry;
 import org.bboxdb.network.server.query.ClientQuery;
@@ -45,7 +45,7 @@ public class ContinuousQueryStateHandler implements RequestHandler {
 	@Override
 	public boolean handleRequest(final ByteBuffer encodedPackage, final short packageSequence,
 			final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 
 		final ContinuousQueryServerState continuousQueryServerState = new ContinuousQueryServerState();
 		

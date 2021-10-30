@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
-import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packets.PacketEncodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +61,12 @@ public class ServerResponseReaderRunnable extends ExceptionSafeRunnable {
 	
 	/**
 	 * Process the next server answer
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
 	public void processNextResponsePackage(final InputStream inputStream) 
-			throws PackageEncodeException, IOException, InterruptedException {
+			throws PacketEncodeException, IOException, InterruptedException {
 
 		final ByteBuffer bb = readNextResponsePackageHeader(inputStream);
 		

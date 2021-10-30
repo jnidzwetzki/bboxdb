@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packets.PacketEncodeException;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class MultipleTupleStartHandler implements ServerResponseHandler {
 	@Override
 	public boolean handleServerResult(final BBoxDBConnection bBoxDBConnection, 
 			final ByteBuffer encodedPackage, final NetworkOperationFuture future) 
-			throws PackageEncodeException {
+			throws PacketEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Handle multiple tuple start package from={}", bBoxDBConnection.getConnectionName());

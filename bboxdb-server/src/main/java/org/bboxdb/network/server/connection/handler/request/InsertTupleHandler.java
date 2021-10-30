@@ -32,12 +32,12 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.InsertTupleRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.InsertTupleRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.lock.LockManager;
@@ -81,7 +81,7 @@ public class InsertTupleHandler implements RequestHandler {
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage,
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler)
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got insert tuple request");
@@ -164,12 +164,12 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @param routingHeader
 	 * @throws BBoxDBException
 	 * @throws RejectedException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	private void processPackageLocally(final short packageSequence,
 			final ClientConnectionHandler clientConnectionHandler,
 			final InsertTupleRequest insertTupleRequest)
-			throws BBoxDBException, RejectedException, PackageEncodeException {
+			throws BBoxDBException, RejectedException, PacketEncodeException {
 
 		final Tuple tuple = insertTupleRequest.getTuple();
 		final TupleStoreName requestTable = insertTupleRequest.getTable();

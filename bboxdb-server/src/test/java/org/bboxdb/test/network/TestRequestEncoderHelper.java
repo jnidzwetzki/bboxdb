@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.packages.request.helper.RequestEncoderHelper;
+import org.bboxdb.network.packets.request.helper.RequestEncoderHelper;
 import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 import org.junit.Assert;
 import org.junit.Test;

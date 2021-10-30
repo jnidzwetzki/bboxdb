@@ -25,7 +25,7 @@ import org.bboxdb.network.client.future.client.FutureRetryPolicy;
 import org.bboxdb.network.client.future.client.OperationFutureImpl;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
-import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packets.NetworkRequestPacket;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -144,7 +144,7 @@ public class TestFuture {
 	 * @return
 	 */
 	public static NetworkOperationFutureImpl getFailingNetworkFuture() {
-		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		final Supplier<NetworkRequestPacket> supplier = () -> (null);
 
 		final NetworkOperationFutureImpl resultFuture = 
 				new NetworkOperationFutureImpl(BBoxDBTestHelper.MOCKED_CONNECTION, supplier) {
@@ -167,7 +167,7 @@ public class TestFuture {
 	 * @return
 	 */
 	public static NetworkOperationFutureImpl getReadyNetworkFuture() {
-		final Supplier<NetworkRequestPackage> supplier = () -> (null);
+		final Supplier<NetworkRequestPacket> supplier = () -> (null);
 
 		final NetworkOperationFutureImpl resultFuture = 
 				new NetworkOperationFutureImpl(BBoxDBTestHelper.MOCKED_CONNECTION, supplier) {

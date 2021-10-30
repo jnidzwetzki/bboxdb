@@ -30,10 +30,10 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.EmptyResultFuture;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.InsertTupleRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.InsertTupleRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.SuccessResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.slf4j.Logger;
@@ -98,7 +98,7 @@ public class PackageRouter {
 					logger.error("Exception while routing package", e);
 					Thread.currentThread().interrupt();
 					operationSuccess = false;
-				} catch (PackageEncodeException e) {
+				} catch (PacketEncodeException e) {
 					logger.error("Exception while routing package", e);
 					operationSuccess = false;
 				} 
@@ -127,12 +127,12 @@ public class PackageRouter {
 	 * @param insertTupleRequest
 	 * @return
 	 * @throws InterruptedException
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws TimeoutException 
 	 * @throws ExecutionException
 	 */
 	protected boolean sendInsertPackage(final InsertTupleRequest insertTupleRequest) 
-			throws InterruptedException, PackageEncodeException {
+			throws InterruptedException, PacketEncodeException {
 		
 		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 		final RoutingHop routingHop = routingHeader.getRoutingHop();

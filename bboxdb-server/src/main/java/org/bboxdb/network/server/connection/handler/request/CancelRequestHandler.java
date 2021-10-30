@@ -22,10 +22,10 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CancelRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.CancelRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.SuccessResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.lock.LockEntry;
 import org.bboxdb.network.server.connection.lock.LockManager;
@@ -46,7 +46,7 @@ public class CancelRequestHandler implements RequestHandler {
 	 * Cancel the given query
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PacketEncodeException {
 		
 		try {
 			final CancelRequest cancelPackage = CancelRequest.decodeTuple(encodedPackage);
@@ -68,7 +68,7 @@ public class CancelRequestHandler implements RequestHandler {
 					queryToCancel, packageSequence);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (PackageEncodeException e) {
+		} catch (PacketEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
@@ -84,10 +84,10 @@ public class CancelRequestHandler implements RequestHandler {
 	 * @param clientConnectionHandler
 	 * @param requestPackage
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	private void removeLocks(final short packageSequence, final ClientConnectionHandler clientConnectionHandler,
-			final short requestPackage) throws IOException, PackageEncodeException {
+			final short requestPackage) throws IOException, PacketEncodeException {
 		
 		final LockManager lockManager = clientConnectionHandler.getLockManager();
 		

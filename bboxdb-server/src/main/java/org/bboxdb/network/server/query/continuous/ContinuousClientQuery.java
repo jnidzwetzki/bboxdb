@@ -33,11 +33,11 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
-import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
-import org.bboxdb.network.packages.response.PageEndResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.MultipleTupleEndResponse;
+import org.bboxdb.network.packets.response.MultipleTupleStartResponse;
+import org.bboxdb.network.packets.response.PageEndResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ClientQuery;
 import org.bboxdb.network.server.query.QueryHelper;
@@ -270,7 +270,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	}
 
 	@Override
-	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
+	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PacketEncodeException {
 
 		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 

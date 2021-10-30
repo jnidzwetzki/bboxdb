@@ -27,13 +27,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.LockTupleRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.LockTupleRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.SuccessResponse;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.connection.lock.LockManager;
@@ -63,7 +63,7 @@ public class LockTupleHandler implements RequestHandler {
 	 * Lock the given tuple
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage,
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PacketEncodeException {
 
 		try {
 			final LockTupleRequest request = LockTupleRequest.decodeTuple(encodedPackage);
@@ -118,11 +118,11 @@ public class LockTupleHandler implements RequestHandler {
 	 * @param request
 	 * @return
 	 * @throws BBoxDBException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws StorageManagerException
 	 */
 	private long getLocalTupleVersion(final ClientConnectionHandler clientConnectionHandler,
-			final LockTupleRequest request) throws BBoxDBException, PackageEncodeException, StorageManagerException {
+			final LockTupleRequest request) throws BBoxDBException, PacketEncodeException, StorageManagerException {
 
 		final List<Tuple> tuplesForKey = getAllTuplesForKey(clientConnectionHandler, request);
 
@@ -142,11 +142,11 @@ public class LockTupleHandler implements RequestHandler {
 	 * @param key
 	 * @return
 	 * @throws BBoxDBException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws StorageManagerException
 	 */
 	private List<Tuple> getAllTuplesForKey(final ClientConnectionHandler clientConnectionHandler,
-			final LockTupleRequest request) throws BBoxDBException, PackageEncodeException,
+			final LockTupleRequest request) throws BBoxDBException, PacketEncodeException,
 			StorageManagerException {
 
 		final String table = request.getTablename();

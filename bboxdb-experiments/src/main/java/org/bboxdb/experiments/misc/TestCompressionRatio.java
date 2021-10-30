@@ -26,10 +26,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.NetworkConst;
-import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
-import org.bboxdb.network.packages.request.InsertTupleRequest;
+import org.bboxdb.network.packets.NetworkRequestPacket;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packets.request.InsertTupleRequest;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -86,7 +86,7 @@ public class TestCompressionRatio implements Runnable {
 				final double ratio = (float) experimentSize / (float) baseSize * 100.0;
 				System.out.format("%d\t%d\t%f\t%f%n", batchSize, experimentSize, ratio, pDiff);
 
-			} catch (ClassNotFoundException | IOException | PackageEncodeException e) {
+			} catch (ClassNotFoundException | IOException | PacketEncodeException e) {
 				logger.error("Exception while running experiment", e);
 			}
 		}
@@ -98,9 +98,9 @@ public class TestCompressionRatio implements Runnable {
 	 * @return
 	 * @throws IOException
 	 * @throws ClassNotFoundException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
-	protected long runExperiment(final Integer batchSize) throws ClassNotFoundException, IOException, PackageEncodeException {
+	protected long runExperiment(final Integer batchSize) throws ClassNotFoundException, IOException, PacketEncodeException {
 		final TupleStoreName tableName = new TupleStoreName("2_group1_table1");
 		final List<Long> experimentSize = new ArrayList<>();
 
@@ -134,14 +134,14 @@ public class TestCompressionRatio implements Runnable {
 	 * @param tableName
 	 * @param buffer
 	 * @return
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws IOException
 	 */
 	protected long handleCompressedData(final TupleStoreName tableName, final List<Tuple> buffer) {
 
 		final RoutingHeader routingHeader = new RoutingHeader(false);
 
-		final List<NetworkRequestPackage> packages =
+		final List<NetworkRequestPacket> packages =
 				buffer
 				.stream()
 				.map(t -> new InsertTupleRequest((short) 4, routingHeader, tableName, t))
@@ -175,7 +175,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @param networkPackage
 	 * @return
 	 */
-	protected long packageToBytes(final NetworkRequestPackage networkPackage) {
+	protected long packageToBytes(final NetworkRequestPacket networkPackage) {
 
 		try {
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -185,7 +185,7 @@ public class TestCompressionRatio implements Runnable {
 		} catch (IOException e) {
 			logger.error("Got an IO-Exception while closing stream", e);
 			System.exit(-1);
-		} catch (PackageEncodeException e) {
+		} catch (PacketEncodeException e) {
 			logger.error("Got an Package encode exception", e);
 			System.exit(-1);
 		}

@@ -62,12 +62,12 @@ import org.bboxdb.network.client.response.PageEndHandler;
 import org.bboxdb.network.client.response.ServerResponseHandler;
 import org.bboxdb.network.client.response.SuccessHandler;
 import org.bboxdb.network.client.response.TupleHandler;
-import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
-import org.bboxdb.network.packages.request.DisconnectRequest;
-import org.bboxdb.network.packages.request.HelloRequest;
-import org.bboxdb.network.packages.response.HelloResponse;
+import org.bboxdb.network.packets.NetworkRequestPacket;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packets.request.DisconnectRequest;
+import org.bboxdb.network.packets.request.HelloRequest;
+import org.bboxdb.network.packets.response.HelloResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +158,7 @@ public class BBoxDBConnection {
 	/**
 	 * The pending packages for compression
 	 */
-	private final BlockingQueue<NetworkRequestPackage> pendingCompressionPackages;
+	private final BlockingQueue<NetworkRequestPacket> pendingCompressionPackages;
 
 	/**
 	 * The Server response handler
@@ -525,7 +525,7 @@ public class BBoxDBConnection {
 	 * @return
 	 * @throws IOException
 	 */
-	public void sendPackageToServer(final NetworkRequestPackage requestPackage,
+	public void sendPackageToServer(final NetworkRequestPacket requestPackage,
 			final NetworkOperationFuture future) {
 
 		final short sequenceNumber = requestPackage.getSequenceNumber();
@@ -550,7 +550,7 @@ public class BBoxDBConnection {
 	 * @param future
 	 * @return
 	 */
-	private boolean testPackageSend(final NetworkRequestPackage requestPackage,
+	private boolean testPackageSend(final NetworkRequestPacket requestPackage,
 			final NetworkOperationFuture future) {
 
 		// Check if package needs to be send
@@ -572,12 +572,12 @@ public class BBoxDBConnection {
 	 * @param requestPackage
 	 * @param future
 	 */
-	private void writePackageUncompressed(final NetworkRequestPackage requestPackage,
+	private void writePackageUncompressed(final NetworkRequestPacket requestPackage,
 			final NetworkOperationFuture future) {
 
 		try {
 			writePackageToSocket(requestPackage);
-		} catch (IOException | PackageEncodeException e) {
+		} catch (IOException | PacketEncodeException e) {
 			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
 			future.fireCompleteEvent();
@@ -590,7 +590,7 @@ public class BBoxDBConnection {
 	 * @param requestPackage
 	 * @param future
 	 */
-	private void writePackageWithCompression(final NetworkRequestPackage requestPackage,
+	private void writePackageWithCompression(final NetworkRequestPacket requestPackage,
 			final NetworkOperationFuture future) {
 
 		boolean queueBecomesFull = false;
@@ -622,7 +622,7 @@ public class BBoxDBConnection {
 	 */
 	public long flushPendingCompressionPackages() {
 
-		final List<NetworkRequestPackage> packagesToWrite = new ArrayList<>();
+		final List<NetworkRequestPacket> packagesToWrite = new ArrayList<>();
 
 		if(pendingCompressionPackages.isEmpty()) {
 			return 0;
@@ -636,12 +636,12 @@ public class BBoxDBConnection {
 		
 		final long writtenPackges = packagesToWrite.size();
 		
-		final NetworkRequestPackage compressionEnvelopeRequest
+		final NetworkRequestPacket compressionEnvelopeRequest
 			= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
 
 		try {
 			writePackageToSocket(compressionEnvelopeRequest);
-		} catch (PackageEncodeException | IOException e) {
+		} catch (PacketEncodeException | IOException e) {
 			logger.error("Got an exception while write pending compression packages to server", e);
 			terminateConnection();
 		}
@@ -652,11 +652,11 @@ public class BBoxDBConnection {
 	/**
 	 * Write the package onto the socket
 	 * @param requestPackage
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws IOException
 	 */
-	private void writePackageToSocket(final NetworkRequestPackage requestPackage)
-			throws PackageEncodeException, IOException {
+	private void writePackageToSocket(final NetworkRequestPacket requestPackage)
+			throws PacketEncodeException, IOException {
 
 		synchronized (connectionState) {
 			if(connectionState.isInNewState()) {
@@ -683,7 +683,7 @@ public class BBoxDBConnection {
 	 * @param future
 	 * @return
 	 */
-	public short registerPackageCallback(final NetworkRequestPackage requestPackage,
+	public short registerPackageCallback(final NetworkRequestPacket requestPackage,
 			final NetworkOperationFutureImpl future) {
 
 		final short sequenceNumber = requestPackage.getSequenceNumber();
@@ -717,10 +717,10 @@ public class BBoxDBConnection {
 	/**
 	 * Handle the next result package
 	 * @param packageHeader
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws InterruptedException 
 	 */
-	public void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException, InterruptedException {
+	public void handleResultPackage(final ByteBuffer encodedPackage) throws PacketEncodeException, InterruptedException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 

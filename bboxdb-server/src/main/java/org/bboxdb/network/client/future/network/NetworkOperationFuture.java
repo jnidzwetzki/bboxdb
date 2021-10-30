@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureErrorCallback;
-import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packets.NetworkRequestPacket;
 
 public interface NetworkOperationFuture {
 
@@ -111,7 +111,7 @@ public interface NetworkOperationFuture {
 	 * The last transmitted package
 	 * @return
 	 */
-	public NetworkRequestPackage getTransmittedPackage();
+	public NetworkRequestPacket getTransmittedPackage();
 
 	/**
 	 * Get the message and the connection id in a human readable format

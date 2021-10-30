@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
-import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packets.NetworkRequestPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -345,7 +345,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @param future
 	 */
 	private void cancelOldFuture(final NetworkOperationFuture future) {
-		final NetworkRequestPackage transmittedPackage = future.getTransmittedPackage();
+		final NetworkRequestPacket transmittedPackage = future.getTransmittedPackage();
 
 		logger.debug("Canceling future [seq={}, connection={}, state={}]", future.getRequestId(),
 				future.getConnection().getConnectionName(), future.getConnection().getConnectionState());

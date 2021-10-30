@@ -31,10 +31,10 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
-import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
-import org.bboxdb.network.packages.response.PageEndResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.response.MultipleTupleEndResponse;
+import org.bboxdb.network.packets.response.MultipleTupleStartResponse;
+import org.bboxdb.network.packets.response.PageEndResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.query.queryprocessor.OperatorTreeBuilder;
 import org.bboxdb.query.queryprocessor.operator.Operator;
@@ -178,7 +178,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 * @see org.bboxdb.network.server.ClientQuery#fetchAndSendNextTuples(short)
 	 */
 	@Override
-	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
+	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PacketEncodeException {
 
 		long sendTuplesInThisPage = 0;
 		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureErrorCallback;
-import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packets.NetworkRequestPacket;
 
 public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	
@@ -231,7 +231,7 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#getTransmittedPackage()
 	 */
 	@Override
-	public NetworkRequestPackage getTransmittedPackage() {
+	public NetworkRequestPacket getTransmittedPackage() {
 		return getReadyFuture().getTransmittedPackage();
 	}
 

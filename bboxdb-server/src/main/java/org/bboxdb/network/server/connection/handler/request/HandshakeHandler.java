@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.HelloRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.HelloResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.HelloRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.HelloResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class HandshakeHandler implements RequestHandler {
 	 */
 	@Override
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PacketEncodeException {
 		
 		logger.info("Handshaking with: {}", clientConnectionHandler.clientSocket.getInetAddress());
 		

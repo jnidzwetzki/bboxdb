@@ -31,10 +31,10 @@ import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.DistributionRegionAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.CreateDistributionGroupRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.SuccessResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ErrorMessages;
 import org.bboxdb.storage.entity.DistributionGroupHelper;
@@ -54,7 +54,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 	 * Create a new distribution group
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PacketEncodeException {
 
 		String distributionGroup = null;
 		
@@ -112,11 +112,11 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 	 * @param clientConnectionHandler
 	 * @param errorMessage
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	private void returnWithError(final String distributionGroup, final short packageSequence, 
 			final ClientConnectionHandler clientConnectionHandler, final String errorMessage)
-			throws IOException, PackageEncodeException {
+			throws IOException, PacketEncodeException {
 		
 		deleteHalfWrittenDistributionGroup(distributionGroup);
 

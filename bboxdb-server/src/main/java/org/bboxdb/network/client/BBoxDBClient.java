@@ -41,24 +41,24 @@ import org.bboxdb.network.client.future.client.OperationFuture;
 import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
-import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.bboxdb.network.packages.request.CancelRequest;
-import org.bboxdb.network.packages.request.ContinuousQueryStateRequest;
-import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
-import org.bboxdb.network.packages.request.CreateTableRequest;
-import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
-import org.bboxdb.network.packages.request.DeleteTableRequest;
-import org.bboxdb.network.packages.request.InsertTupleRequest;
-import org.bboxdb.network.packages.request.KeepAliveRequest;
-import org.bboxdb.network.packages.request.LockTupleRequest;
-import org.bboxdb.network.packages.request.NextPageRequest;
-import org.bboxdb.network.packages.request.QueryContinuousRequest;
-import org.bboxdb.network.packages.request.QueryHyperrectangleRequest;
-import org.bboxdb.network.packages.request.QueryHyperrectangleTimeRequest;
-import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
-import org.bboxdb.network.packages.request.QueryJoinRequest;
-import org.bboxdb.network.packages.request.QueryKeyRequest;
-import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
+import org.bboxdb.network.packets.NetworkRequestPacket;
+import org.bboxdb.network.packets.request.CancelRequest;
+import org.bboxdb.network.packets.request.ContinuousQueryStateRequest;
+import org.bboxdb.network.packets.request.CreateDistributionGroupRequest;
+import org.bboxdb.network.packets.request.CreateTableRequest;
+import org.bboxdb.network.packets.request.DeleteDistributionGroupRequest;
+import org.bboxdb.network.packets.request.DeleteTableRequest;
+import org.bboxdb.network.packets.request.InsertTupleRequest;
+import org.bboxdb.network.packets.request.KeepAliveRequest;
+import org.bboxdb.network.packets.request.LockTupleRequest;
+import org.bboxdb.network.packets.request.NextPageRequest;
+import org.bboxdb.network.packets.request.QueryContinuousRequest;
+import org.bboxdb.network.packets.request.QueryHyperrectangleRequest;
+import org.bboxdb.network.packets.request.QueryHyperrectangleTimeRequest;
+import org.bboxdb.network.packets.request.QueryInsertTimeRequest;
+import org.bboxdb.network.packets.request.QueryJoinRequest;
+import org.bboxdb.network.packets.request.QueryKeyRequest;
+import org.bboxdb.network.packets.request.QueryVersionTimeRequest;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.query.ContinuousQueryPlan;
@@ -146,7 +146,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public Supplier<List<NetworkOperationFuture>> getDeleteTableSupplier(final String table) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new DeleteTableRequest(nextSequenceNumber, table);
 		};
@@ -225,7 +225,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> createLockTupleFuture(final String table, final Tuple tuple,
 			final boolean deleteOnTimeout, final RoutingHeader routingHeader) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			final String key = tuple.getKey();
@@ -247,7 +247,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> getInsertTupleFuture(final String table, final Tuple tuple,
 			final RoutingHeader routingHeader) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final TupleStoreName ssTableName = new TupleStoreName(table);
 			final short sequenceNumber = connection.getNextSequenceNumber();
 
@@ -309,7 +309,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> getCreateDistributionGroupFuture(final String distributionGroup,
 			final DistributionGroupConfiguration distributionGroupConfiguration) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new CreateDistributionGroupRequest(
@@ -337,7 +337,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public Supplier<List<NetworkOperationFuture>> getDeleteDistributionGroupFuture(final String distributionGroup) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new DeleteDistributionGroupRequest(nextSequenceNumber, distributionGroup);
 		};
@@ -377,7 +377,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> getQueryKeyFuture(final String table, final String key,
 			final RoutingHeader routingHeader) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new QueryKeyRequest(nextSequenceNumber,
@@ -415,7 +415,7 @@ public class BBoxDBClient implements BBoxDB {
 			final Hyperrectangle boundingBox, final RoutingHeader routingHeader, 
 			final List<UserDefinedFilterDefinition> udfs) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new QueryHyperrectangleRequest(nextSequenceNumber,
@@ -446,7 +446,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> getQueryBoundingBoxContinousFuture(
 			final ContinuousQueryPlan queryPlan) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final RoutingHeader routingHeaderSupplier = RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
 					queryPlan.getStreamTable(), queryPlan.getQueryRange(), false, connection.getServerAddress());
 
@@ -493,7 +493,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> getBoundingBoxAndTimeFuture(final String table, final Hyperrectangle boundingBox,
 			final long timestamp, RoutingHeader routingHeader) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new QueryHyperrectangleTimeRequest(nextSequenceNumber,
@@ -526,7 +526,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> getVersionTimeFuture(final String table, final long timestamp,
 			final RoutingHeader routingHeader) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new QueryVersionTimeRequest(nextSequenceNumber,
@@ -559,7 +559,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Supplier<List<NetworkOperationFuture>> getInsertedTimeFuture(final String table, final long timestamp,
 			final RoutingHeader routingHeader) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new QueryInsertTimeRequest(nextSequenceNumber,
 					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
@@ -596,7 +596,7 @@ public class BBoxDBClient implements BBoxDB {
 			final Hyperrectangle boundingBox, final RoutingHeader routingHeader, 
 			final List<UserDefinedFilterDefinition> udfs) {
 
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 
 			final List<TupleStoreName> tupleStoreNames = tableNames
 					.stream()
@@ -642,7 +642,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public Supplier<List<NetworkOperationFuture>> getKeepAliveFuture(final String tablename, final List<Tuple> tuples) {
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new KeepAliveRequest(nextSequenceNumber, tablename, tuples);
 		};
@@ -667,7 +667,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	private Supplier<List<NetworkOperationFuture>> getNextPageFuture(final short queryPackageId) {
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 
 			return new NextPageRequest(nextSequenceNumber, queryPackageId);
@@ -691,7 +691,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public Supplier<List<NetworkOperationFuture>> getCancelQueryFuture(final short queryPackageId) {
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new CancelRequest(nextSequenceNumber, queryPackageId);
 		};
@@ -713,7 +713,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public ContinuousQueryServerStateFuture getContinuousQueryState(final TupleStoreName tupleStore) {
 		
-		final Supplier<NetworkRequestPackage> packageSupplier = () -> {
+		final Supplier<NetworkRequestPacket> packageSupplier = () -> {
 			final short nextSequenceNumber = connection.getNextSequenceNumber();
 			return new ContinuousQueryStateRequest(nextSequenceNumber, tupleStore);
 		};

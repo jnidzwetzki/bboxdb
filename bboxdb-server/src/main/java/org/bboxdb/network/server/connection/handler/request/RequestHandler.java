@@ -20,7 +20,7 @@ package org.bboxdb.network.server.connection.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.packages.PackageEncodeException;
+import org.bboxdb.network.packets.PacketEncodeException;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 
 public interface RequestHandler {
@@ -31,10 +31,10 @@ public interface RequestHandler {
 	 * @param packageSequence
 	 * @param packageHandler
 	 * @return - Read additional packages or not
-	 * @throws PackageEncodeException 
+	 * @throws PacketEncodeException 
 	 * @throws IOException 
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException;
+					throws IOException, PacketEncodeException;
 }

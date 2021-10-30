@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryContinuousRequest;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
-import org.bboxdb.network.packages.response.PageEndResponse;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.request.QueryContinuousRequest;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.MultipleTupleStartResponse;
+import org.bboxdb.network.packets.response.PageEndResponse;
 import org.bboxdb.network.server.connection.ClientConnectionHandler;
 import org.bboxdb.network.server.query.ClientQuery;
 import org.bboxdb.network.server.query.ErrorMessages;
@@ -51,7 +51,7 @@ public class HandleContinuousQuery implements QueryHandler {
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+					throws IOException, PacketEncodeException {
 		
 		try {
 			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
@@ -103,7 +103,7 @@ public class HandleContinuousQuery implements QueryHandler {
 				clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 				clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 			}
-		} catch (PackageEncodeException e) {
+		} catch (PacketEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}		
@@ -116,10 +116,10 @@ public class HandleContinuousQuery implements QueryHandler {
 	 * @param newUUID
 	 * @return 
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	private boolean isQueryAlreadyRegistered(final Map<Short, ClientQuery> activeQueries,
-			final String newUUID) throws IOException, PackageEncodeException {
+			final String newUUID) throws IOException, PacketEncodeException {
 		
 		for(final ClientQuery query : activeQueries.values()) {
 			if(query instanceof ContinuousClientQuery) {

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
+import org.bboxdb.network.packets.NetworkTupleEncoderDecoder;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.IdleQueryStateRemovedTuple;
 import org.bboxdb.storage.entity.InvalidationTuple;

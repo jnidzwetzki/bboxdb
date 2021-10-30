@@ -39,12 +39,12 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
-import org.bboxdb.network.packages.NetworkResponsePackage;
-import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
-import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.MultiTupleResponse;
-import org.bboxdb.network.packages.response.TupleResponse;
+import org.bboxdb.network.packets.NetworkResponsePacket;
+import org.bboxdb.network.packets.PacketEncodeException;
+import org.bboxdb.network.packets.response.CompressionEnvelopeResponse;
+import org.bboxdb.network.packets.response.ErrorResponse;
+import org.bboxdb.network.packets.response.MultiTupleResponse;
+import org.bboxdb.network.packets.response.TupleResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
@@ -129,7 +129,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * The pending packages for compression
 	 */
-	private final List<NetworkResponsePackage> pendingCompressionPackages;
+	private final List<NetworkResponsePacket> pendingCompressionPackages;
 
 	/**
 	 * Number of pending requests
@@ -266,9 +266,9 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Read the next package header from the socket
 	 * @return The package header, wrapped in a ByteBuffer
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
-	private ByteBuffer readNextPackageHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
+	private ByteBuffer readNextPackageHeader(final InputStream inputStream) throws IOException, PacketEncodeException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
 		ByteStreams.readFully(inputStream, bb.array(), 0, bb.limit());
 
@@ -288,7 +288,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 */
 	public void flushPendingCompressionPackages() {
 
-		final List<NetworkResponsePackage> packagesToWrite = new ArrayList<>();
+		final List<NetworkResponsePacket> packagesToWrite = new ArrayList<>();
 
 		// We have to ensure that the buffer clear and socket write
 		// are performed in one synchronized block otherwise
@@ -305,12 +305,12 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 				logger.debug("Chunk size is: {}", packagesToWrite.size());
 			}
 
-			final NetworkResponsePackage compressionEnvelopeRequest
+			final NetworkResponsePacket compressionEnvelopeRequest
 				= new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
 
 			try {
 				writePackageToSocket(compressionEnvelopeRequest);
-			} catch (PackageEncodeException | IOException e) {
+			} catch (PacketEncodeException | IOException e) {
 				logger.error("Got an exception while write pending compression packages to client", e);
 				serviceState.dispatchToFailed(e);
 			}
@@ -320,11 +320,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * Write a response package to the client
 	 * @param responsePackage
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws IOException
 	 */
-	public synchronized void writeResultPackage(final NetworkResponsePackage responsePackage)
-			throws IOException, PackageEncodeException {
+	public synchronized void writeResultPackage(final NetworkResponsePacket responsePackage)
+			throws IOException, PacketEncodeException {
 
 		if(connectionCapabilities.hasGZipCompression()) {
 			boolean uncompressedQueueFull = false;
@@ -348,7 +348,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Send a package and catch the exception
 	 * @param responsePackage
 	 */
-	public synchronized void writeResultPackageNE(final NetworkResponsePackage responsePackage) {
+	public synchronized void writeResultPackageNE(final NetworkResponsePacket responsePackage) {
 		try {
 			writeResultPackage(responsePackage);
 		} catch (Exception e) {
@@ -360,10 +360,10 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Write a network package uncompressed
 	 * @param responsePackage
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
-	private void writePackageToSocket(final NetworkResponsePackage responsePackage)
-			throws IOException, PackageEncodeException {
+	private void writePackageToSocket(final NetworkResponsePacket responsePackage)
+			throws IOException, PacketEncodeException {
 
 		synchronized (outputStream) {
 			final long writtenBytes = responsePackage.writeToOutputStream(outputStream);
@@ -378,7 +378,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			logger.debug("Handling new connection from: {}", clientSocket.getInetAddress());
 
 			while(serviceState.isInRunningState() || serviceState.isInStartingState()) {
-				handleNextPackage(inputStream);
+				handleNextPacket(inputStream);
 			}
 
 			// Flush all pending results to client
@@ -392,7 +392,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			serviceState.dispatchToTerminated();
 
 			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
-		} catch (IOException | PackageEncodeException e) {
+		} catch (IOException | PacketEncodeException e) {
 			// Ignore exception on closing sockets
 			if(serviceState.isInRunningState()) {
 
@@ -458,11 +458,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	}
 
 	/**
-	 * Handle the next request package
+	 * Handle the next request packet
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
-	public void handleNextPackage(final InputStream inputStream) throws IOException, PackageEncodeException {
+	public void handleNextPacket(final InputStream inputStream) throws IOException, PacketEncodeException {
 		readPacketsTotal.inc();
 		
 		final ByteBuffer packageHeader = readNextPackageHeader(inputStream);
@@ -493,11 +493,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @param packageSequence
 	 * @param requestTable
 	 * @param tuple
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws IOException
 	 */
 	public void writeResultTuple(final short packageSequence, final MultiTuple joinedTuple,
-			final boolean forceJoinedTupleResult) throws IOException, PackageEncodeException {
+			final boolean forceJoinedTupleResult) throws IOException, PacketEncodeException {
 
 		if(joinedTuple.getNumberOfTuples() > 1 || forceJoinedTupleResult) {
 			final MultiTupleResponse responsePackage = new MultiTupleResponse(
@@ -520,11 +520,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @param bb
 	 * @param packageSequence
 	 * @return
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws IOException
 	 */
 	private boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence)
-			throws IOException, PackageEncodeException {
+			throws IOException, PacketEncodeException {
 
 		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
 
@@ -559,11 +559,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * @param packageType
 	 * @return
 	 * @throws IOException
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 */
 	private boolean handleBufferedPackage(final ByteBuffer encodedPackage,
 			final short packageSequence,
-			final short packageType) throws PackageEncodeException, IOException {
+			final short packageType) throws PacketEncodeException, IOException {
 
 		// Handle the different query types
 		if(packageType == NetworkConst.REQUEST_TYPE_QUERY) {
@@ -631,11 +631,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	 * Send next results for the given query
 	 * @param packageSequence
 	 * @param
-	 * @throws PackageEncodeException
+	 * @throws PacketEncodeException
 	 * @throws IOException
 	 */
 	public void sendNextResultsForQuery(final short packageSequence, final short querySequence)
-			throws IOException, PackageEncodeException {
+			throws IOException, PacketEncodeException {
 
 		if(! activeQueries.containsKey(querySequence)) {
 			logger.error("Unable to resume query {} - package {} - not found", querySequence, packageSequence);
@@ -646,7 +646,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		final Runnable queryRunable = new ExceptionSafeRunnable() {
 
 			@Override
-			protected void runThread() throws IOException, PackageEncodeException {
+			protected void runThread() throws IOException, PacketEncodeException {
 				final ClientQuery clientQuery = activeQueries.get(querySequence);
 
 				if(clientQuery == null) {
@@ -669,7 +669,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 			protected void afterExceptionHook() {
 				try {
 					writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
-				} catch (IOException | PackageEncodeException e) {
+				} catch (IOException | PacketEncodeException e) {
 					logger.error("Unable to send result package", e);
 				}
 			}

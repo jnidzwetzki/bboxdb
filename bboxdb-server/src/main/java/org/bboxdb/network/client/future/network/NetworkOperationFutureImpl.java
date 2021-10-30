@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.network.client.future.client.FutureErrorCallback;
-import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packets.NetworkRequestPacket;
 import org.bboxdb.network.routing.RoutingHop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	/**
 	 * The package supplier
 	 */
-	private Supplier<NetworkRequestPackage> packageSupplier;
+	private Supplier<NetworkRequestPacket> packageSupplier;
 
 	/**
 	 * The executions
@@ -100,7 +100,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	/**
 	 * The last send package
 	 */
-	private NetworkRequestPackage lastTransmittedPackage;
+	private NetworkRequestPacket lastTransmittedPackage;
 
 	/**
 	 * The success callback
@@ -126,7 +126,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * Empty constructor
 	 */
 	public NetworkOperationFutureImpl(final BBoxDBConnection connection,
-			final Supplier<NetworkRequestPackage> packageSupplier) {
+			final Supplier<NetworkRequestPacket> packageSupplier) {
 
 		this.packageSupplier = packageSupplier;
 		this.stopwatch = Stopwatch.createStarted();
@@ -153,7 +153,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 			return;
 		}
 
-		final NetworkRequestPackage nextPackage = packageSupplier.get();
+		final NetworkRequestPacket nextPackage = packageSupplier.get();
 		
 		if(connection.getConnectionState().isInFinishedState()) {
 			final short packageId = (nextPackage != null) ? nextPackage.getSequenceNumber() : -1;
@@ -318,7 +318,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * @see org.bboxdb.network.client.future.NetworkOperationFuture#getTransmittedPackage()
 	 */
 	@Override
-	public NetworkRequestPackage getTransmittedPackage() {
+	public NetworkRequestPacket getTransmittedPackage() {
 		return lastTransmittedPackage;
 	}
 
