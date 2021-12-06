@@ -223,12 +223,12 @@ public class QueryWindow {
 		table2ColorField.setEnabled(false);
 		builder.add(table2ColorField, cc.xy (3, 11));
 	
-		builder.addLabel("Receive Watermarks", cc.xy (1,  13));
+		builder.addLabel("Receive watermarks", cc.xy (1,  13));
 		final JComboBox<String> receiveWatermarksField = new JComboBox<>(BOOL_NAMES);
 		receiveWatermarksField.setEnabled(false);
 		builder.add(receiveWatermarksField, cc.xy (3, 13));
 	
-		builder.addLabel("Receive Invalidations", cc.xy (1,  15));
+		builder.addLabel("Receive invalidations", cc.xy (1,  15));
 		final JComboBox<String> receiveInvalidationsField = new JComboBox<>(BOOL_NAMES);
 		receiveInvalidationsField.setEnabled(false);
 		builder.add(receiveInvalidationsField, cc.xy (3, 15));
