@@ -76,7 +76,7 @@ public class StreamSampling implements Runnable {
 		performSamplingBasedPartitioning();
 		
 		// Element based partitioning
-		final List<Integer> sampleSizes = Arrays.asList(
+		/*final List<Integer> sampleSizes = Arrays.asList(
 			100, 500,
 			1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 
 			10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000,
@@ -87,6 +87,12 @@ public class StreamSampling implements Runnable {
 		);
 
 		sampleSizes.forEach(s -> runExperiment(s));
+
+		*/
+
+		for(int i = 5_000; i < 1_000_000; i += 5_000) {
+			runExperiment(i);
+		}
 
 	}
 
