@@ -18,7 +18,11 @@
 package org.bboxdb.network.client.future.client;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
@@ -28,6 +32,7 @@ import org.bboxdb.network.client.connection.RoutingHeaderHelper;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +101,31 @@ public class ReadRepair {
 			// Unable to perform read repair when the connection is not known
 			return;
 		}
+		
+		// Build max version map
+		final Map<EntityIdentifier, Long> tupleMaxVersions = new HashMap<>();
+		for(final Tuple tuple : allTuples) {
+			
+			final EntityIdentifier entityIdentifier = tuple.getEntityIdentifier();
+			
+			if(! tupleMaxVersions.containsKey(entityIdentifier)) {
+				tupleMaxVersions.put(entityIdentifier, tuple.getVersionTimestamp());
+			}
+			
+			if(tupleMaxVersions.get(entityIdentifier) < tuple.getVersionTimestamp()) {
+				tupleMaxVersions.put(entityIdentifier, tuple.getVersionTimestamp());
+			}
+		}
+		
+		// Find outdated tuples
+		final Set<EntityIdentifier> outdatedTuples = new HashSet<>();
+		for(final Tuple tuple : allTuples) {
+			final EntityIdentifier entityIdentifier = tuple.getEntityIdentifier();
+
+			if(tupleMaxVersions.get(entityIdentifier) < tuple.getVersionTimestamp()) {
+				outdatedTuples.add(entityIdentifier);
+			}
+		}
 
 		for(final Tuple tuple : allTuples) {
 			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
@@ -106,12 +136,22 @@ public class ReadRepair {
 				return;
 			}
 
+			final EntityIdentifier entityIdentifier = tuple.getEntityIdentifier();
+
+			
 			if(! tupleResult.contains(tuple)) {
 
 				logger.info("Tuple {} is not contained in result {} from server {}, "
 						+ "performing read repair", tuple, tupleResult,
 						bboxDBConnection.getConnectionName());
 
+				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
+				bboxDBClient.insertTuple(tablename, tuple, routingHeader);
+			}
+			
+			// Tuple is outdated on some nodes and we have the most recent version
+			if(outdatedTuples.contains(entityIdentifier) && tupleMaxVersions.get(entityIdentifier) == tuple.getVersionTimestamp()) {
+				logger.info("Performing read repair for tuple {}", entityIdentifier);
 				final BBoxDBClient bboxDBClient = bboxDBConnection.getBboxDBClient();
 				bboxDBClient.insertTuple(tablename, tuple, routingHeader);
 			}
