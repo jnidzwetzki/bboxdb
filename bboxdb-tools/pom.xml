@@ -44,13 +44,7 @@
 			<artifactId>bboxdb-server</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
-		<dependency>
-		    <groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-api</artifactId>
-		    <version>1.7.32</version>
-		</dependency>
-
+		
 		<dependency>
 			<artifactId>je</artifactId>
 			<groupId>com.sleepycat</groupId>
