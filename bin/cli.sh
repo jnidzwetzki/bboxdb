@@ -37,15 +37,15 @@ debug_args=""
 if [ ! -z "$BBOXDB_LOG" ]; then
    if [ "$BBOXDB_LOG" == "debug" ]; then
         echo "Debug startup......"
-        debug_args+="-Dlog4j.configuration=log4j_debug.properties"
+        debug_args+="-Dlog4j.configuration=log4j2_debug.xml"
    fi
    
    if [ "$BBOXDB_LOG" == "trace" ]; then
         echo "Trace startup......"
-        debug_args+="-Dlog4j.configuration=log4j_trace.properties"
+        debug_args+="-Dlog4j.configuration=log4j2_trace.xml"
    fi
 else
-   debug_args+="-Dlog4j.configuration=log4j_warn.properties"
+   debug_args+="-Dlog4j.configuration=log4j2_warn.xml"
 fi
 
 # Read zookeeper connection string

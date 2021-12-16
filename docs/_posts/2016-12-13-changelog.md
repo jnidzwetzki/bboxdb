@@ -14,6 +14,7 @@ order: 1
 - Improvement: Renamed distribution region states to more meaningful names
 - Improvement: Use the IsotoneStringMapper in the Indexed tuple update strategy
 - Improvement: Refactored distribution region state names
+- Improvement: Changed logging to log4j2 via slf4j
 - Bugfix: Fixed watermark calculation for the ADS-B datastream
 - Bugfix: Fixed Docker compose based installation with ZooKeeper >= 3.6
 - Bugfix: Updated outdated Docker compose commands in documentation
