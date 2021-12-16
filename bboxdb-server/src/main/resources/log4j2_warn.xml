@@ -19,7 +19,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="org.bboxdb" level="info" />
+        <Logger name="org.bboxdb" level="warn" />
         
         <!-- Debug config
         <Logger name="org.bboxdb.tools.network.SocketImporter" level="debug" />
