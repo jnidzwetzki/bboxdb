@@ -3,6 +3,7 @@
 
 
  <Properties>
+        <Property name="bboxdb.log.dir">/tmp</Property>
         <Property name="LOG_DIR">${sys:bboxdb.log.dir}</Property>
     </Properties>
     
