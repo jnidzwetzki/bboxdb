@@ -93,7 +93,7 @@
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient</artifactId>
-			<version>0.12.0</version>
+			<version>0.14.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
