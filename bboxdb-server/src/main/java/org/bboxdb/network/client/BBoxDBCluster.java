@@ -24,8 +24,8 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -88,14 +88,9 @@ public class BBoxDBCluster implements BBoxDB {
 	private final MembershipConnectionService membershipConnectionService;
 	
 	/**
-	 * The query continuous plans
+	 * The continuous query client manager
 	 */
-	private Map<String, ContinuousQueryState> continousQueryStates = new ConcurrentHashMap<>();
-
-	/**
-	 * The running continuous queries
-	 */
-	private Map<String, JoinedTupleListFuture> continousQueries = new ConcurrentHashMap<>();
+	private final ContinuousQueryClientManager continousClientManager = new ContinuousQueryClientManager();
 
 	/**
 	 * The Logger
@@ -473,10 +468,9 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			final JoinedTupleListFuture resultFuture = new JoinedTupleListFuture(supplier);
 			resultFuture.addShutdownCallbackConsumer(s -> registerer.unregisterOldQuery(queryUUID));
+		
+			continousClientManager.registerQuery(queryUUID, queryState, resultFuture);
 			
-			continousQueries.put(queryUUID, resultFuture);
-			continousQueryStates.put(queryUUID, queryState);
-
 			return resultFuture; 
 			
 		} catch (ZookeeperException e) {
@@ -601,20 +595,14 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	public boolean cancelContinousQuery(final String queryUUID) throws BBoxDBException, InterruptedException {
 		
-		if(! continousQueryStates.containsKey(queryUUID)) {
+		final Optional<JoinedTupleListFuture> future = continousClientManager.unregisterQuery(queryUUID);
+		
+		if(! future.isPresent()) {
 			logger.warn("Unable to cancel continous query {}, query is unkown", queryUUID);
 			return false;
 		}
-		
-		continousQueryStates.remove(queryUUID);
-		final JoinedTupleListFuture future = continousQueries.remove(queryUUID);
-		
-		if(future == null) {
-			logger.error("Unable to get future for query {}", queryUUID);
-			return false;
-		}
 
-		final Map<BBoxDBClient, List<Short>> cancelData = future.getAllConnections();
+		final Map<BBoxDBClient, List<Short>> cancelData = future.get().getAllConnections();
 				
 		cancelQuery(cancelData);
 		
@@ -626,8 +614,8 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @param queryUUID
 	 * @return
 	 */
-	public ContinuousQueryState getContinousQueryState(final String queryUUID) {
-		return continousQueryStates.get(queryUUID);
+	public Optional<ContinuousQueryState> getContinousQueryState(final String queryUUID) {
+		return continousClientManager.getQueryState(queryUUID);
 	}
 	
 	/**

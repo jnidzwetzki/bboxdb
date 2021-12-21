@@ -59,7 +59,7 @@ public class SpacePartitionerContext {
 		this.distributionGroupName = Objects.requireNonNull(distributionGroupName);
 		this.zookeeperClient = Objects.requireNonNull(zookeeperClient);
 		this.callback = Objects.requireNonNull(callback);
-		this.mapper =Objects.requireNonNull(mapper);
+		this.mapper = Objects.requireNonNull(mapper);
 	}
 
 	public String getSpacePartitionerConfig() {

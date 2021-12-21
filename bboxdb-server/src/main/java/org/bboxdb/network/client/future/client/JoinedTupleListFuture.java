@@ -73,7 +73,15 @@ public class JoinedTupleListFuture extends AbstractListFuture<MultiTuple>{
 			result.computeIfAbsent(key, k -> new ArrayList<Short>());
 			result.get(key).add(future.getTransmittedPackage().getSequenceNumber());
 		}
-		
+			
 		return result;
+	}
+
+	/**
+	 * Add further result tuples to process
+	 * @param list
+	 */
+	public void addFuture(List<NetworkOperationFuture> list) {
+		futures.addAll(list);		
 	}
 }

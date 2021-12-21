@@ -55,7 +55,7 @@ public class SpacePartitionerCache implements Watcher {
 	 * The region mapper
 	 */
 	private final Map<String, DistributionRegionIdMapper> distributionRegionIdMapper;
-	
+		
 	/**
 	 * The callbacks
 	 */

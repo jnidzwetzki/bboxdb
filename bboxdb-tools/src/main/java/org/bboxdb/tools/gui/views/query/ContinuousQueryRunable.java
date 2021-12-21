@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TransferQueue;
@@ -141,7 +142,14 @@ public class ContinuousQueryRunable extends AbstractContinuousQueryRunable {
 		seenWatermarks.add(regionId);
 		
 		final String queryUUID = qp.getQueryUUID();
-		final ContinuousQueryState queryState = connection.getContinousQueryState(queryUUID);
+		final Optional<ContinuousQueryState> queryStateOptional = connection.getContinousQueryState(queryUUID);
+
+		if(! queryStateOptional.isPresent()) {
+			logger.error("Query state is not present, unable to handle watermark");
+			return;
+		}
+		
+		final ContinuousQueryState queryState = queryStateOptional.get();
 		
 		// All watermarks are present
 		if(seenWatermarks.size() == queryState.getRegisteredRegions().size()) {
