@@ -6,6 +6,9 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 1.0.0 (release candidate 3) - TBA
+
+
 ### Version 1.0.0 (release candidate 2) - 21.12.2021
 - New Feature: Emit IdleQueryStateRemovedTuple when idle query state entries are removed
 - Improvement: Implemented watermark generation based invalidation
