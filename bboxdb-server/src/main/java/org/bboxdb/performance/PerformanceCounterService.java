@@ -68,7 +68,7 @@ public class PerformanceCounterService implements BBoxDBService {
 	@Override
 	public void shutdown() {
 		if(server != null) {
-			server.stop();
+			server.close();
 			server = null;
 		}
 	}
