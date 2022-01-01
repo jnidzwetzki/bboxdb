@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -291,7 +292,7 @@ public class FixedSizeFutureStore {
 			Set<OperationFuture> activeFutures = null;
 			
 			synchronized (pendingFutureMap) {
-				activeFutures = pendingFutureMap.keySet();
+				activeFutures = new HashSet<>(pendingFutureMap.keySet());
 			}
 
 			// Handle futures in non-synchronized code, so new futures can
