@@ -298,6 +298,10 @@ public class FixedSizeFutureStore {
 			// be added to the map
 			for(final OperationFuture future : activeFutures) {
 				future.waitForCompletion();
+				
+				synchronized (pendingFutureMap) {
+					pendingFutureMap.remove(future);
+				}
 			}
 			
 			synchronized (pendingFutureMap) {
