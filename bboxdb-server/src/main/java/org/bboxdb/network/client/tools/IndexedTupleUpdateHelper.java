@@ -102,14 +102,7 @@ public class IndexedTupleUpdateHelper {
 			// Insert new tuple
 			final EmptyResultFuture insertFuture = cluster.put(table, tuple);
 			futureStore.put(insertFuture);
-
-			// Delete old tuple
-			final String key = tuple.getKey();
-			final long deletionTimestamp = tuple.getVersionTimestamp() - 1;
-			final EmptyResultFuture deleteFuture = cluster.delete(
-					table, key, deletionTimestamp, oldBoundingBox);
-			futureStore.put(deleteFuture);
-
+			
 			// Update index (and remove index locks)
 			insertFuture.addSuccessCallbackConsumer((c) -> {
 				updateIndexEntryNE(table, tuple.getKey(), tuple.getBoundingBox());
@@ -121,6 +114,14 @@ public class IndexedTupleUpdateHelper {
 			insertFuture.addFailureCallbackConsumer((c) -> {
 				deleteIndexEntryNE(table, tuple.getKey());
 			});
+
+			// Delete old tuple
+			final String key = tuple.getKey();
+			final long deletionTimestamp = tuple.getVersionTimestamp() - 1;
+			final EmptyResultFuture deleteFuture = cluster.delete(
+					table, key, deletionTimestamp, oldBoundingBox);
+			futureStore.put(deleteFuture);
+
 			
 			return insertFuture;
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {

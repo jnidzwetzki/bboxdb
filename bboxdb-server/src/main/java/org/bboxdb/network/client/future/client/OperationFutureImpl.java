@@ -79,11 +79,21 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * The success callbacks
 	 */
 	protected final List<Consumer<OperationFuture>> successCallbacks;
+	
+	/**
+	 * Are the success callbacks already run?
+	 */
+	protected boolean successCallbacksRun = false;
 
 	/**
 	 * The failure callbacks
 	 */
 	protected final List<Consumer<OperationFuture>> failureCallbacks;
+	
+	/**
+	 * Are the failure callbacks already run?
+	 */
+	protected boolean failureCallbacksRun = false;
 	
 	/**
 	 * The shutdown callbacks
@@ -180,6 +190,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * Run the complete callbacks
 	 */
 	public void runSuccessCallbacks() {
+		successCallbacksRun = true;
 		successCallbacks.forEach(c -> c.accept(this));
 	}
 	
@@ -187,6 +198,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * Run the failure callbacks
 	 */
 	public void runFailureCallbacks() {
+		failureCallbacksRun = true;
 		failureCallbacks.forEach(c -> c.accept(this));
 	}
 	
@@ -203,6 +215,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 */
 	public void addSuccessCallbackConsumer(final Consumer<OperationFuture> consumer) {
 		successCallbacks.add(consumer);
+		
+		// Run late callback immediately
+		if(successCallbacksRun) {
+			consumer.accept(this);
+		}
 	}
 	
 	/**
@@ -211,6 +228,11 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 */
 	public void addFailureCallbackConsumer(final Consumer<OperationFuture> consumer) {
 		failureCallbacks.add(consumer);
+		
+		// Run late callback immediately
+		if(failureCallbacksRun) {
+			consumer.accept(this);
+		}
 	}
 	
 	/**

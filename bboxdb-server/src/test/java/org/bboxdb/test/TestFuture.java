@@ -140,6 +140,48 @@ public class TestFuture {
 		Assert.assertEquals(1, errorCalls.get());
 		Assert.assertEquals(0, successCalls.get());
 	}
+	
+	@Test(timeout=60000)
+	public void testAllRetry3() throws InterruptedException {
+		final NetworkOperationFutureImpl networkFuture = getFailingNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier
+		= () -> (Arrays.asList(networkFuture));
+		
+		final AtomicInteger errorCalls = new AtomicInteger(0);
+		final Consumer<OperationFuture> errorConsumer = new Consumer<OperationFuture>() {
+
+			@Override
+			public void accept(OperationFuture c) {
+				errorCalls.incrementAndGet();
+			}
+		};
+		
+		final AtomicInteger successCalls = new AtomicInteger(0);
+		final Consumer<OperationFuture> sucessConsumer = new Consumer<OperationFuture>() {
+
+			@Override
+			public void accept(OperationFuture c) {
+				System.out.println(StacktraceHelper.getFormatedStacktrace());
+				successCalls.incrementAndGet();
+			}
+		};
+
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
+				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+
+		future.waitForCompletion();
+		
+		// Register late
+		future.addSuccessCallbackConsumer(sucessConsumer);
+		future.addFailureCallbackConsumer(errorConsumer);
+		
+		Assert.assertTrue(future.isDone());
+		Assert.assertTrue(future.isFailed());
+		Assert.assertEquals(networkFuture.getTotalRetries() + 1, networkFuture.getExecutions());
+		Assert.assertEquals(1, errorCalls.get());
+		Assert.assertEquals(0, successCalls.get());
+	}
 
 	@Test(timeout=60000)
 	public void testAllRetry2() throws InterruptedException {

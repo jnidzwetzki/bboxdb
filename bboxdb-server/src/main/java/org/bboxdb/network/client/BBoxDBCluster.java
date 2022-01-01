@@ -183,6 +183,23 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public EmptyResultFuture put(final String table, final Tuple tuple) throws BBoxDBException {
+		
+		final Optional<TupleStoreConfiguration> tupleStoreConfiguration 
+			= TupleStoreConfigurationCache.getInstance().getTupleStoreConfiguration(table);
+
+		if(! tupleStoreConfiguration.isPresent()) {
+			throw new BBoxDBException("Configuration for table " + table + " is unknown");
+		}
+		
+		if(tupleStoreConfiguration.get().isUseBBoxIndex()) {
+			final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(this);
+			try {
+				return updateHelper.handleTupleUpdate(table, tuple);
+			} catch (InterruptedException e) {
+				throw new BBoxDBException(e);
+			}
+		}
+		
 		final Hyperrectangle boundingBox = tuple.getBoundingBox();
 		return executeInsert(table, tuple, boundingBox, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 	}
@@ -228,23 +245,7 @@ public class BBoxDBCluster implements BBoxDB {
 		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
 			throw new BBoxDBException("Table " + table + " is unknown");
 		}
-		
-		final Optional<TupleStoreConfiguration> tupleStoreConfiguration 
-			= TupleStoreConfigurationCache.getInstance().getTupleStoreConfiguration(table);
-
-		if(! tupleStoreConfiguration.isPresent()) {
-			throw new BBoxDBException("Configuration for table " + table + " is unknown");
-		}
-		
-		if(tupleStoreConfiguration.get().isUseBBoxIndex()) {
-			final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(this);
-			try {
-				return updateHelper.handleTupleUpdate(table, tuple);
-			} catch (InterruptedException e) {
-				throw new BBoxDBException(e);
-			}
-		}
-		
+				
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
 				ClusterOperationType.WRITE_TO_NODES, table, boundingBox, insertOptions) {
 
