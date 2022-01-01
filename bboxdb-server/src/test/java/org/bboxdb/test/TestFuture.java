@@ -206,6 +206,47 @@ public class TestFuture {
 		Assert.assertTrue(executions1 == totalRetries || executions2 == totalRetries);
 	}
 
+	@Test(timeout=60000)
+	public void testAllSuccess() throws InterruptedException {
+		final NetworkOperationFutureImpl networkFuture = getReadyNetworkFuture();
+
+		final Supplier<List<NetworkOperationFuture>> supplier
+		= () -> (Arrays.asList(networkFuture));
+		
+		final AtomicInteger errorCalls = new AtomicInteger(0);
+		final Consumer<OperationFuture> errorConsumer = new Consumer<OperationFuture>() {
+
+			@Override
+			public void accept(OperationFuture c) {
+				errorCalls.incrementAndGet();
+			}
+		};
+		
+		final AtomicInteger successCalls = new AtomicInteger(0);
+		final Consumer<OperationFuture> sucessConsumer = new Consumer<OperationFuture>() {
+
+			@Override
+			public void accept(OperationFuture c) {
+				System.out.println(StacktraceHelper.getFormatedStacktrace());
+				successCalls.incrementAndGet();
+			}
+		};
+
+		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
+				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+
+		future.waitForCompletion();
+		
+		// Register late
+		future.addSuccessCallbackConsumer(sucessConsumer);
+		future.addFailureCallbackConsumer(errorConsumer);
+		
+		Assert.assertTrue(future.isDone());
+		Assert.assertFalse(future.isFailed());
+		Assert.assertEquals(0, errorCalls.get());
+		Assert.assertEquals(1, successCalls.get());
+	}
+	
 	/**
 	 * Get a failing network future
 	 *
