@@ -96,7 +96,7 @@ public class IndexedTupleUpdateHelper {
 			throws BBoxDBException, InterruptedException {
 
 		try {
-			logger.info("Tuple update started {}", tuple);
+			logger.debug("Tuple update started {}", tuple.getKey());
 			// Might be full space covering box when index entry not found
 			final Hyperrectangle oldBoundingBox = getAndLockOldBundingBoxForTuple(table, tuple);
 
@@ -106,9 +106,8 @@ public class IndexedTupleUpdateHelper {
 			
 			// Update index (and remove index locks)
 			insertFuture.addSuccessCallbackConsumer((c) -> {
-				logger.info("Success called");
 				updateIndexEntryNE(table, tuple.getKey(), tuple.getBoundingBox());
-				logger.info("Success called DONE");
+				logger.debug("Success for tuple update called {}", tuple.getKey());
 			});
 			
 			// When an error occurs, delete the index entry
@@ -116,6 +115,7 @@ public class IndexedTupleUpdateHelper {
 			// and a new index entry is written
 			insertFuture.addFailureCallbackConsumer((c) -> {
 				deleteIndexEntryNE(table, tuple.getKey());
+				logger.warn("Failure for tuple update called {}", tuple.getKey());
 			});
 
 			// Delete old tuple
