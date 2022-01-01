@@ -239,7 +239,7 @@ public class BBoxDBCluster implements BBoxDB {
 		if(tupleStoreConfiguration.get().isUseBBoxIndex()) {
 			final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(this);
 			try {
-				updateHelper.handleTupleUpdate(table, tuple);
+				return updateHelper.handleTupleUpdate(table, tuple);
 			} catch (InterruptedException e) {
 				throw new BBoxDBException(e);
 			}
