@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -283,14 +284,24 @@ public class FixedSizeFutureStore {
 	 */
 	public void waitForCompletion() throws InterruptedException {
 
-		synchronized (pendingFutureMap) {
-			while(! pendingFutureMap.isEmpty()) {
-	
-				for(final OperationFuture future : pendingFutureMap.keySet()) {
-					future.waitForCompletion();
-				}
-	
-				removeCompleteFutures();
+		boolean empty = false;
+		
+		while(! empty) {
+			
+			Set<OperationFuture> activeFutures = null;
+			
+			synchronized (pendingFutureMap) {
+				activeFutures = pendingFutureMap.keySet();
+			}
+
+			// Handle futures in non-synchronized code, so new futures can
+			// be added to the map
+			for(final OperationFuture future : activeFutures) {
+				future.waitForCompletion();
+			}
+			
+			synchronized (pendingFutureMap) {
+				empty = pendingFutureMap.isEmpty();
 			}
 		}
 	}

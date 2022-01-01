@@ -11,6 +11,7 @@ order: 1
 - Improvement: Unified operation naming
 - Improvement: Improved future callback handling
 - Bugfix: Made future callbacks more reliable
+- Bugfix: Fixed deadlock in FixedSizeFutureStore
 
 ### Version 1.0.0 (release candidate 2) - 21.12.2021
 - New Feature: Emit IdleQueryStateRemovedTuple when idle query state entries are removed

@@ -104,21 +104,17 @@ public class IndexedTupleUpdateHelper {
 			final EmptyResultFuture insertFuture = cluster.put(table, tuple);
 			futureStore.put(insertFuture);
 			
-			logger.info("Tuple update put");
-
-			
 			// Update index (and remove index locks)
 			insertFuture.addSuccessCallbackConsumer((c) -> {
 				logger.info("Success called");
 				updateIndexEntryNE(table, tuple.getKey(), tuple.getBoundingBox());
+				logger.info("Success called DONE");
 			});
 			
 			// When an error occurs, delete the index entry
 			// So, the next operation is executed on all nodes / distribution regions
 			// and a new index entry is written
 			insertFuture.addFailureCallbackConsumer((c) -> {
-				logger.info("Failure called");
-
 				deleteIndexEntryNE(table, tuple.getKey());
 			});
 
@@ -128,9 +124,6 @@ public class IndexedTupleUpdateHelper {
 			final EmptyResultFuture deleteFuture = cluster.delete(
 					table, key, deletionTimestamp, oldBoundingBox);
 			futureStore.put(deleteFuture);
-			logger.info("Delete called");
-
-
 			
 			return insertFuture;
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
