@@ -71,7 +71,7 @@ public interface BBoxDB extends Closeable {
 	 * @param table
 	 * @return
 	 */
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException;
+	public EmptyResultFuture put(final String table, final Tuple tuple) throws BBoxDBException;
 
 	/**
 	 * Insert a tuple with the given options
@@ -80,7 +80,7 @@ public interface BBoxDB extends Closeable {
 	 * @param insertOptions
 	 * @return
 	 */
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple,
+	public EmptyResultFuture put(final String table, final Tuple tuple,
 			final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException;
 	
 	/**
@@ -100,7 +100,7 @@ public interface BBoxDB extends Closeable {
 	 * @param timestamp
 	 * @return
 	 */
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
+	public EmptyResultFuture delete(final String table, final String key, final long timestamp) 
 			throws BBoxDBException;
 
 	/**
@@ -110,7 +110,7 @@ public interface BBoxDB extends Closeable {
 	 * @param timestamp
 	 * @return
 	 */
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp,
+	public EmptyResultFuture delete(final String table, final String key, final long timestamp,
 			final Hyperrectangle boundingBox) throws BBoxDBException;
 
 	/**
@@ -120,7 +120,7 @@ public interface BBoxDB extends Closeable {
 	 * @return
 	 * @throws BBoxDBException
 	 */
-	public EmptyResultFuture deleteTuple(String table, String key) throws BBoxDBException;
+	public EmptyResultFuture delete(String table, String key) throws BBoxDBException;
 
 	/**
 	 * Create a new distribution group

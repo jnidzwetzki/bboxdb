@@ -164,7 +164,7 @@ public class SocketImporter implements Runnable {
 					tuple.setBoundingBox(tupleBBox);
 
 					if (!NULL_STRING.equals(table)) {
-						final EmptyResultFuture result = bboxdbClient.insertTuple(table, tuple, insertOptions);
+						final EmptyResultFuture result = bboxdbClient.put(table, tuple, insertOptions);
 						pendingFutures.put(result);
 					}
 				}

@@ -299,7 +299,7 @@ public class DataRedistributionLoader implements Runnable {
 
 				try {
 					if(tuple != null) {
-						final EmptyResultFuture insertFuture = bboxDBCluster.insertTuple(TABLE, tuple);
+						final EmptyResultFuture insertFuture = bboxDBCluster.put(TABLE, tuple);
 						pendingFutures.put(insertFuture);
 					}
 				} catch (BBoxDBException e) {
@@ -352,7 +352,7 @@ public class DataRedistributionLoader implements Runnable {
 			lines.forEach(l -> {
 				final String key = prefix + lineNumber.getAndIncrement();
 				try {
-					final EmptyResultFuture resultFuture = bboxDBCluster.deleteTuple(TABLE, key);
+					final EmptyResultFuture resultFuture = bboxDBCluster.delete(TABLE, key);
 					pendingFutures.put(resultFuture);
 
 					if(lineNumber.get() % 5000 == 0) {

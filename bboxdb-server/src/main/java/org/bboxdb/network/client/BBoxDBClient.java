@@ -165,7 +165,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	@Override
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
+	public EmptyResultFuture put(final String table, final Tuple tuple) throws BBoxDBException {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
 				table, tuple.getBoundingBox(), false, connection.getServerAddress(), EnumSet.noneOf(DistributionRegionHandlingFlag.class));
@@ -177,7 +177,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	@Override
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
+	public EmptyResultFuture put(final String table, final Tuple tuple, 
 			final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
@@ -261,7 +261,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp,
+	public EmptyResultFuture delete(final String table, final String key, final long timestamp,
 			final Hyperrectangle boundingBox) {
 
 		final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
@@ -274,17 +274,17 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
-		return deleteTuple(table, key, timestamp, Hyperrectangle.FULL_SPACE);
+	public EmptyResultFuture delete(final String table, final String key, final long timestamp) {
+		return delete(table, key, timestamp, Hyperrectangle.FULL_SPACE);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key) throws BBoxDBException {
+	public EmptyResultFuture delete(final String table, final String key) throws BBoxDBException {
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
-		return deleteTuple(table, key, timestamp);
+		return delete(table, key, timestamp);
 	}
 
 	/* (non-Javadoc)

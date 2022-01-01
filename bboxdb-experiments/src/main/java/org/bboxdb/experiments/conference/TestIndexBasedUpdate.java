@@ -224,12 +224,12 @@ public class TestIndexBasedUpdate implements Runnable {
 						final TupleListFuture keyQuery = bboxDBConnection.queryKey(tablename, key);
 						pendingFutures.put(keyQuery);
 
-						final EmptyResultFuture deleteQuery = bboxDBConnection.deleteTuple(tablename, key, System.currentTimeMillis(), box);
+						final EmptyResultFuture deleteQuery = bboxDBConnection.delete(tablename, key, System.currentTimeMillis(), box);
 						pendingFutures.put(deleteQuery);
 
 						final Tuple tuple = new Tuple(key, box, "".getBytes());
 
-						final EmptyResultFuture updateRequest = bboxDBConnection.insertTuple(tablename, tuple);
+						final EmptyResultFuture updateRequest = bboxDBConnection.put(tablename, tuple);
 						pendingFutures.put(updateRequest);
 					} catch (Exception e) {
 						logger.error("Got an exception in update thread", e);

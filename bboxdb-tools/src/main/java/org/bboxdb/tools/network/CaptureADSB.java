@@ -109,14 +109,14 @@ public class CaptureADSB implements Runnable {
 						// ID restarts, add watermark
 						if(lastId != 0 && lastId > polygon.getId()) {
 							final WatermarkTuple watermarkTuple = new WatermarkTuple(lastTimestmap.get());
-							final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, watermarkTuple);
+							final EmptyResultFuture insertFuture = bboxdbClient.put(tablename, watermarkTuple);
 							pendingFutures.put(insertFuture);
 						}
 
 						lastId = polygon.getId();
 						lastTimestmap.set(tuple.getVersionTimestamp());
 
-						final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(tablename, tuple);
+						final EmptyResultFuture insertFuture = bboxdbClient.put(tablename, tuple);
 						pendingFutures.put(insertFuture);
 						readTuples++;
 					}

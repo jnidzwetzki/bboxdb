@@ -239,7 +239,7 @@ public class TestDeleteGetQuery implements Runnable {
 				for(int i = 0; i < queries; i++) {
 					final double randomDouble = ThreadLocalRandom.current().nextDouble(1000);
 					final String key = Double.toString(randomDouble);
-					final EmptyResultFuture future = bboxDBConnection.deleteTuple(tablename, key);
+					final EmptyResultFuture future = bboxDBConnection.delete(tablename, key);
 					pendingFutures.put(future);
 				}
 

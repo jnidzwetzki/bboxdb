@@ -49,7 +49,7 @@ public class PutHandler implements ProxyCommandHandler {
 				table, tuple, tuple.getBoundingBox() == Hyperrectangle.FULL_SPACE);
 
 		try {
-			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(table, tuple);
+			final EmptyResultFuture insertResult = bboxdbClient.put(table, tuple);
 			insertResult.waitForCompletion();
 
 			if(insertResult.isFailed()) {

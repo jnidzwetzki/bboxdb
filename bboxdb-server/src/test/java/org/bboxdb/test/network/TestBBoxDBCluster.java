@@ -245,7 +245,7 @@ public class TestBBoxDBCluster {
 		final String table = DISTRIBUTION_GROUP + "_nonexistingtable";
 
 		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abc".getBytes());
-		final EmptyResultFuture insertResult1 = bboxDBClient.insertTuple(table, tuple1);
+		final EmptyResultFuture insertResult1 = bboxDBClient.put(table, tuple1);
 		insertResult1.waitForCompletion();
 
 		Assert.fail("No exception was thrown during insert");

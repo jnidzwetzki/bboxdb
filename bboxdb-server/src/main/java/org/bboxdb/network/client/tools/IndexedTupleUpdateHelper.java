@@ -102,12 +102,12 @@ public class IndexedTupleUpdateHelper {
 			// Delete old tuple
 			final String key = tuple.getKey();
 			final long deletionTimestamp = tuple.getVersionTimestamp() - 1;
-			final EmptyResultFuture deleteFuture = cluster.deleteTuple(
+			final EmptyResultFuture deleteFuture = cluster.delete(
 					table, key, deletionTimestamp, oldBoundingBox);
 			futureStore.put(deleteFuture);
 
 			// Insert new tuple
-			final EmptyResultFuture insertFuture = cluster.insertTuple(table, tuple);
+			final EmptyResultFuture insertFuture = cluster.put(table, tuple);
 			futureStore.put(insertFuture);
 
 			// Update index (and remove index locks)
@@ -132,7 +132,7 @@ public class IndexedTupleUpdateHelper {
 		final Hyperrectangle indexBox = getBoundingBoxForKey(key);
 
 		final Tuple tupleToUpdate = new Tuple(key, indexBox, boundingBoxValue.getBytes());
-		final EmptyResultFuture insertFuture = cluster.insertTuple(tablename, tupleToUpdate);
+		final EmptyResultFuture insertFuture = cluster.put(tablename, tupleToUpdate);
 		futureStore.put(insertFuture);
 	}
 

@@ -46,7 +46,7 @@ public class DeleteHandler implements ProxyCommandHandler {
 		logger.info("Got delete call for table {} and key {}", table, key);
 
 		try {
-			final EmptyResultFuture deleteResult = bboxdbClient.deleteTuple(table, key);
+			final EmptyResultFuture deleteResult = bboxdbClient.delete(table, key);
 			deleteResult.waitForCompletion();
 			socketOutputStream.write(ProxyConst.RESULT_OK);
 		} catch(InterruptedException e) {

@@ -40,7 +40,7 @@ public class NetworkTupleSink extends AbstractTupleSink {
 		sinkedTuples++;
 		
 		try {
-			connection.getBboxDBClient().insertTuple(tablename, tuple);
+			connection.getBboxDBClient().put(tablename, tuple);
 		} catch (BBoxDBException e) {
 			throw new StorageManagerException(e);
 		}

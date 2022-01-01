@@ -220,7 +220,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 			
 			for(final Tuple tuple: lastGossipTuples) {
 				try {
-					bboxDBClient.insertTuple(lastGossipTableName.getFullnameWithoutPrefix(), tuple);
+					bboxDBClient.put(lastGossipTableName.getFullnameWithoutPrefix(), tuple);
 				} catch (BBoxDBException e) {
 					logger.error("Got Exception while performing gossip repair", e);
 				}

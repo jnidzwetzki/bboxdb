@@ -766,7 +766,7 @@ public class CLI implements Runnable, AutoCloseable {
 		System.out.println("Deleting tuple for key: " + key);
 
 		try {
-			final EmptyResultFuture resultFuture = bboxDbConnection.deleteTuple(table, key);
+			final EmptyResultFuture resultFuture = bboxDbConnection.delete(table, key);
 			pendingFutures.put(resultFuture);
 			pendingFutures.waitForCompletion();
 		} catch (BBoxDBException e) {
@@ -811,7 +811,7 @@ public class CLI implements Runnable, AutoCloseable {
 		System.out.println("Insert new tuple into table: " + table);
 
 		try {
-			final EmptyResultFuture future = bboxDbConnection.insertTuple(table, tuple);
+			final EmptyResultFuture future = bboxDbConnection.put(table, tuple);
 			pendingFutures.put(future);
 			pendingFutures.waitForCompletion();
 		} catch (BBoxDBException e) {
@@ -1063,7 +1063,7 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 
 			try {
-				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, t);
+				final EmptyResultFuture result = bboxDbConnection.put(table, t);
 				pendingFutures.put(result);
 
 			} catch (BBoxDBException e) {

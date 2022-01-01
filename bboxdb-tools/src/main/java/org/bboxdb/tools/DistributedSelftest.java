@@ -190,7 +190,7 @@ public class DistributedSelftest {
 		logger.info("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final EmptyResultFuture deletionResult = bboxdbClient.deleteTuple(TABLE, key);
+			final EmptyResultFuture deletionResult = bboxdbClient.delete(TABLE, key);
 			deletionResult.waitForCompletion();
 			
 			if(deletionResult.isFailed() ) {
@@ -284,7 +284,7 @@ public class DistributedSelftest {
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 			final Tuple myTuple = new Tuple(key, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "test".getBytes());
-			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(TABLE, myTuple);
+			final EmptyResultFuture insertResult = bboxdbClient.put(TABLE, myTuple);
 			insertResult.waitForCompletion();
 			
 			if(insertResult.isFailed()) {

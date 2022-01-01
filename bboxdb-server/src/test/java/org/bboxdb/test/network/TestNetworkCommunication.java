@@ -427,14 +427,14 @@ public class TestNetworkCommunication {
 
 		// Insert first version
 		final Tuple tuple1 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "abc".getBytes());
-		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
+		final EmptyResultFuture insertResult1 = bboxdbClient.put(table, tuple1);
 		insertResult1.waitForCompletion();
 		Assert.assertFalse(insertResult1.isFailed());
 		Assert.assertTrue(insertResult1.isDone());
 
 		// Insert second version
 		final Tuple tuple2 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "efg".getBytes());
-		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
+		final EmptyResultFuture insertResult2 = bboxdbClient.put(table, tuple2);
 		insertResult2.waitForCompletion();
 		Assert.assertFalse(insertResult2.isFailed());
 		Assert.assertTrue(insertResult2.isDone());
@@ -503,12 +503,12 @@ public class TestNetworkCommunication {
 		// Insert first tuple
 		final String value1 = "abc";
 		final Tuple tuple1 = new Tuple("key1", Hyperrectangle.FULL_SPACE, value1.getBytes());
-		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
+		final EmptyResultFuture insertResult1 = bboxdbClient.put(table, tuple1);
 
 		// Insert second tuple
 		final String value2 = "def";
 		final Tuple tuple2 = new Tuple("key2", Hyperrectangle.FULL_SPACE, value2.getBytes());
-		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
+		final EmptyResultFuture insertResult2 = bboxdbClient.put(table, tuple2);
 
 		insertResult1.waitForCompletion();
 		insertResult2.waitForCompletion();
@@ -547,12 +547,12 @@ public class TestNetworkCommunication {
 		// Insert first tuple
 		final String value1 = "abc";
 		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(-10d, -9d, -10d, -9d), value1.getBytes());
-		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(table, tuple1);
+		final EmptyResultFuture insertResult1 = bboxdbClient.put(table, tuple1);
 
 		// Insert second tuple
 		final String value2 = "def";
 		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(-10d, -9d, -10d, -9d), value2.getBytes());
-		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(table, tuple2);
+		final EmptyResultFuture insertResult2 = bboxdbClient.put(table, tuple2);
 
 		insertResult1.waitForCompletion();
 		insertResult2.waitForCompletion();
@@ -609,7 +609,7 @@ public class TestNetworkCommunication {
 
 		System.out.println("Insert tuple");
 		final Tuple tuple = new Tuple(key, Hyperrectangle.FULL_SPACE, "abc".getBytes());
-		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
+		final EmptyResultFuture insertResult = bboxDBClient.put(table, tuple);
 
 		// Prevent retries
 		insertResult.setRetryPolicy(FutureRetryPolicy.RETRY_POLICY_NONE);
@@ -874,19 +874,19 @@ public class TestNetworkCommunication {
 
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(0d, 1d, 0d, 1d), "abc".getBytes());
-		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
+		final EmptyResultFuture result1 = bboxDBClient.put(table, tuple1);
 
 		final Tuple tuple2 = new Tuple("def", new Hyperrectangle(0d, 0.5d, 0d, 0.5d), "def".getBytes());
-		final EmptyResultFuture result2 = bboxDBClient.insertTuple(table, tuple2);
+		final EmptyResultFuture result2 = bboxDBClient.put(table, tuple2);
 
 		final Tuple tuple3 = new Tuple("geh", new Hyperrectangle(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
-		final EmptyResultFuture result3 = bboxDBClient.insertTuple(table, tuple3);
+		final EmptyResultFuture result3 = bboxDBClient.put(table, tuple3);
 
 		final Tuple tuple4 = new Tuple("ijk", new Hyperrectangle(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		final EmptyResultFuture result4 = bboxDBClient.insertTuple(table, tuple4);
+		final EmptyResultFuture result4 = bboxDBClient.put(table, tuple4);
 
 		final Tuple tuple5 = new Tuple("lmn", new Hyperrectangle(1d, 2d, 1d, 2d), "lmn".getBytes());
-		final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
+		final EmptyResultFuture result5 = bboxDBClient.put(table, tuple5);
 
 		result1.waitForCompletion();
 		result2.waitForCompletion();
@@ -970,7 +970,7 @@ public class TestNetworkCommunication {
 
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new Hyperrectangle(0d, 1d, 0d, 1d), "abc".getBytes());
-		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
+		final EmptyResultFuture result1 = bboxDBClient.put(table, tuple1);
 
 		result1.waitForCompletion();
 
@@ -1134,7 +1134,7 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(lockTupleResult2.isFailed());
 
 		// Insert a tuple
-		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, newTuple);
+		final EmptyResultFuture insertResult = bboxDBClient.put(table, newTuple);
 		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
@@ -1168,7 +1168,7 @@ public class TestNetworkCommunication {
 		final Tuple newTuple2 = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes(), 1235);
 
 		// Insert a tuple
-		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
+		final EmptyResultFuture insertResult = bboxDBClient1.put(table, newTuple);
 		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
@@ -1186,7 +1186,7 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(lockTupleResult2.isFailed());
 
 		// Unlock the tuple in connection 1
-		final EmptyResultFuture insertResult2 = bboxDBClient1.insertTuple(table, newTuple2);
+		final EmptyResultFuture insertResult2 = bboxDBClient1.put(table, newTuple2);
 		insertResult2.waitForCompletion();
 		Assert.assertTrue(insertResult2.isDone());
 		Assert.assertFalse(insertResult2.isFailed());
@@ -1226,7 +1226,7 @@ public class TestNetworkCommunication {
 		final Tuple newTuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes(), 1234);
 
 		// Insert a tuple
-		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
+		final EmptyResultFuture insertResult = bboxDBClient1.put(table, newTuple);
 		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());
@@ -1278,7 +1278,7 @@ public class TestNetworkCommunication {
 		final Tuple newTuple = new Tuple("abc", Hyperrectangle.FULL_SPACE, "".getBytes(), 1234);
 
 		// Insert a tuple
-		final EmptyResultFuture insertResult = bboxDBClient1.insertTuple(table, newTuple);
+		final EmptyResultFuture insertResult = bboxDBClient1.put(table, newTuple);
 		insertResult.waitForCompletion();
 		Assert.assertTrue(insertResult.isDone());
 		Assert.assertFalse(insertResult.isFailed());

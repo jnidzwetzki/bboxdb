@@ -181,12 +181,12 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
+	public EmptyResultFuture put(final String table, final Tuple tuple) throws BBoxDBException {
 		final Hyperrectangle boundingBox = tuple.getBoundingBox();
 		return executeInsert(table, tuple, boundingBox, EnumSet.noneOf(DistributionRegionHandlingFlag.class));
 	}
 	
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
+	public EmptyResultFuture put(final String table, final Tuple tuple, 
 			final EnumSet<DistributionRegionHandlingFlag> insertOptions) throws BBoxDBException {
 		
 		final Hyperrectangle boundingBox = tuple.getBoundingBox();
@@ -243,20 +243,20 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key) throws BBoxDBException {
+	public EmptyResultFuture delete(final String table, final String key) throws BBoxDBException {
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
-		return deleteTuple(table, key, timestamp);
+		return delete(table, key, timestamp);
 	}
 
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp)
+	public EmptyResultFuture delete(final String table, final String key, final long timestamp)
 			throws BBoxDBException {
 
-		return deleteTuple(table, key, timestamp, Hyperrectangle.FULL_SPACE);
+		return delete(table, key, timestamp, Hyperrectangle.FULL_SPACE);
 	}
 
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp,
+	public EmptyResultFuture delete(final String table, final String key, final long timestamp,
 			final Hyperrectangle boundingBox) throws BBoxDBException {
 
 		final DeletedTuple tuple = new DeletedTuple(key, timestamp);

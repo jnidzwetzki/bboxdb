@@ -185,7 +185,7 @@ public class InvalidationHelper {
 	 * @throws BBoxDBException 
 	 */
 	public void putTuple(final Tuple tuple) throws BBoxDBException {
-		final EmptyResultFuture resultFuture = bboxdbCluster.insertTuple(table, tuple);
+		final EmptyResultFuture resultFuture = bboxdbCluster.put(table, tuple);
 		keys.put(resultFuture, tuple.getKey());
 		watermarkActive.put(tuple.getKey(), watermarkGeneration);
 		fixedSizeFutureStore.put(resultFuture);
