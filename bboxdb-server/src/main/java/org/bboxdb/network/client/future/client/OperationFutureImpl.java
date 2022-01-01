@@ -78,8 +78,13 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * The success callbacks
 	 */
-	protected final List<Consumer<OperationFuture>> completeCallbacks = new ArrayList<>();
+	protected final List<Consumer<OperationFuture>> successCallbacks = new ArrayList<>();
 
+	/**
+	 * The failure callbacks
+	 */
+	protected final List<Consumer<OperationFuture>> failureCallbacks = new ArrayList<>();
+	
 	/**
 	 * The shutdown callbacks
 	 */
@@ -155,15 +160,22 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		if (allDone) {
 			readyLatch.countDown();
-			runCompleteCallbacks();
+			runSuccessCallbacks();
 		}
 	}
 
 	/**
 	 * Run the complete callbacks
 	 */
-	public void runCompleteCallbacks() {
-		completeCallbacks.forEach(c -> c.accept(this));
+	public void runSuccessCallbacks() {
+		successCallbacks.forEach(c -> c.accept(this));
+	}
+	
+	/**
+	 * Run the failure callbacks
+	 */
+	public void runFailureCallbacks() {
+		failureCallbacks.forEach(c -> c.accept(this));
 	}
 	
 	/**
@@ -174,11 +186,19 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	}
 	
 	/**
-	 * Add the future to the lust of success futures
+	 * Add the consumer to the list of success callbacks
 	 * @param consumer
 	 */
 	public void addSuccessCallbackConsumer(final Consumer<OperationFuture> consumer) {
-		completeCallbacks.add(consumer);
+		successCallbacks.add(consumer);
+	}
+	
+	/**
+	 * Add the consumer to the list of failure callbacks
+	 * @param consumer
+	 */
+	public void addFailureCallbackConsumer(final Consumer<OperationFuture> consumer) {
+		failureCallbacks.add(consumer);
 	}
 	
 	/**
@@ -391,10 +411,12 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		if (!future.getConnection().isConnected()) {
 			logger.debug("Unable to retry future, because connection failed [connection={}, state={}]",
 					future.getConnection().getConnectionName(), future.getConnection().getConnectionState());
+			runFailureCallbacks();
 			return false;
 		}
 
 		if (retryPolicy == FutureRetryPolicy.RETRY_POLICY_NONE) {
+			runFailureCallbacks();
 			return false;
 		}
 
@@ -416,7 +438,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleOneFutureRetry(final NetworkOperationFuture future) {
+		
 		if (future.getExecutions() > future.getTotalRetries()) {
+			runFailureCallbacks();
 			return false;
 		}
 
@@ -450,7 +474,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * @return
 	 */
 	private boolean handleAllFutureRetry(final NetworkOperationFuture future) {
+		
 		if (globalRetryCounter >= futures.get(0).getTotalRetries()) {
+			runFailureCallbacks();
 			return false;
 		}
 

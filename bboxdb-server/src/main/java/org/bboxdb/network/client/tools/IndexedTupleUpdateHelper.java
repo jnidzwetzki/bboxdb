@@ -99,6 +99,10 @@ public class IndexedTupleUpdateHelper {
 			// Might be full space covering box when index entry not found
 			final Hyperrectangle oldBoundingBox = getAndLockOldBundingBoxForTuple(table, tuple);
 
+			// Insert new tuple
+			final EmptyResultFuture insertFuture = cluster.put(table, tuple);
+			futureStore.put(insertFuture);
+
 			// Delete old tuple
 			final String key = tuple.getKey();
 			final long deletionTimestamp = tuple.getVersionTimestamp() - 1;
@@ -106,13 +110,18 @@ public class IndexedTupleUpdateHelper {
 					table, key, deletionTimestamp, oldBoundingBox);
 			futureStore.put(deleteFuture);
 
-			// Insert new tuple
-			final EmptyResultFuture insertFuture = cluster.put(table, tuple);
-			futureStore.put(insertFuture);
-
 			// Update index (and remove index locks)
-			updateIndexEntry(table, tuple);
-
+			insertFuture.addSuccessCallbackConsumer((c) -> {
+				updateIndexEntryNE(table, tuple.getKey(), tuple.getBoundingBox());
+			});
+			
+			// When an error occurs, delete the index entry
+			// So, the next operation is executed on all nodes / distribution regions
+			// and a new index entry is written
+			insertFuture.addFailureCallbackConsumer((c) -> {
+				deleteIndexEntryNE(table, tuple.getKey());
+			});
+			
 			return insertFuture;
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
@@ -124,16 +133,33 @@ public class IndexedTupleUpdateHelper {
 	 * @param tuple
 	 * @throws BBoxDBException
 	 */
-	private void updateIndexEntry(final String table, final Tuple tuple) throws BBoxDBException {
-		final String boundingBoxValue = tuple.getBoundingBox().toCompactString();
-		final String tablename = convertTablenameToIndexTablename(table);
+	private void updateIndexEntryNE(final String table, final String key, final Hyperrectangle bbox) {
+		try {
+			final String boundingBoxValue = bbox.toCompactString();
+			final String tablename = convertTablenameToIndexTablename(table);
+			final Hyperrectangle indexBox = getBoundingBoxForKey(key);
 
-		final String key = tuple.getKey();
-		final Hyperrectangle indexBox = getBoundingBoxForKey(key);
-
-		final Tuple tupleToUpdate = new Tuple(key, indexBox, boundingBoxValue.getBytes());
-		final EmptyResultFuture insertFuture = cluster.put(tablename, tupleToUpdate);
-		futureStore.put(insertFuture);
+			final Tuple tupleToUpdate = new Tuple(key, indexBox, boundingBoxValue.getBytes());
+			final EmptyResultFuture insertFuture = cluster.put(tablename, tupleToUpdate);
+			futureStore.put(insertFuture);
+		} catch (BBoxDBException e) {
+			logger.error("Got exception while updating index entry", e);
+		}
+	}
+	
+	/**
+	 * Delete the index entry
+	 * @param table
+	 * @param key
+	 */
+	private void deleteIndexEntryNE(final String table, final String key) {
+		try {
+			final String tablename = convertTablenameToIndexTablename(table);
+			final EmptyResultFuture insertFuture = cluster.delete(tablename, key);
+			futureStore.put(insertFuture);
+		} catch (BBoxDBException e) {
+			logger.error("Got exception while updating index entry", e);
+		}
 	}
 
 	/**
@@ -215,6 +241,7 @@ public class IndexedTupleUpdateHelper {
 			if(indexEntry.isPresent()) {
 				return indexEntry;
 			} else {
+				// No index entry present, perform operation in the full space (i.e., on all nodes)
 				final Hyperrectangle fullSpace = Hyperrectangle.FULL_SPACE;
 				final String fullSpaceString = fullSpace.toCompactString();
 				return Optional.of(new Tuple(key, fullSpace, fullSpaceString.getBytes(), -1));
