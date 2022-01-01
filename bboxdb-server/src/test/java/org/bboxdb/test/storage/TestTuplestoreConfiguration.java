@@ -25,8 +25,8 @@ import org.junit.Test;
 
 public class TestTuplestoreConfiguration {
 	
-	@Test(timeout=60000)
-	public void testWriteAndReadConfiguration() {
+	@Test(timeout=60_000)
+	public void testWriteAndReadConfiguration1() {
 		final TupleStoreConfiguration configuration1 = new TupleStoreConfiguration();
 		final String yamlString = configuration1.exportToYaml();
 		final TupleStoreConfiguration configuration2 = TupleStoreConfiguration.importFromYaml(yamlString);
@@ -35,8 +35,25 @@ public class TestTuplestoreConfiguration {
 		Assert.assertEquals(configuration1.hashCode(), configuration2.hashCode());
 		Assert.assertTrue(configuration1.toString().length() > 10);
 	}
+	
+	@Test(timeout=60_000)
+	public void testWriteAndReadConfiguration2() {
+		final TupleStoreConfiguration configuration1 = new TupleStoreConfiguration();
+		configuration1.setAllowDuplicates(true);
+		configuration1.setUseBBoxIndex(true);
+		configuration1.setSpatialIndexReader("Test1");
+		configuration1.setSpatialIndexWriter("Test2");
+		configuration1.setTtl(4556);
+		configuration1.setVersions(5);
+		final String yamlString = configuration1.exportToYaml();
+		final TupleStoreConfiguration configuration2 = TupleStoreConfiguration.importFromYaml(yamlString);
+		
+		Assert.assertEquals(configuration1, configuration2);
+		Assert.assertEquals(configuration1.hashCode(), configuration2.hashCode());
+		Assert.assertTrue(configuration1.toString().length() > 10);
+	}
 
-	@Test(timeout=60000)
+	@Test(timeout=60_000)
 	public void testReadNonExistingFile() {
 		final File tmpFile = new File("/tmp/tuplestore.nonexisting");
 		Assert.assertTrue(TupleStoreConfiguration.importFromYamlFile(tmpFile) == null);

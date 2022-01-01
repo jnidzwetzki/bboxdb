@@ -39,10 +39,15 @@ public class TupleStoreAdapter {
 	public static final String ZOOKEEPER_SPATIAL_INDEX_READER = "sindex_reader";
 
 	/**
-	 * The duplicate allowed
+	 * The duplicate allowed name
 	 */
 	public static final String ZOOKEEPER_DUPLICATES_ALLOWED = "duplicate_allowed";
 
+	/**
+	 * The bbox index name
+	 */
+	public static final String ZOOKEEPER_BUILD_BBOX_INDEX = "bbox_index";
+	
 	/**
 	 * The duplicate versions
 	 */
@@ -97,6 +102,11 @@ public class TupleStoreAdapter {
 		final String allowDuplicatesString = Boolean.toString(allowDuplicates);
 		zookeeperClient.createPersistentNode(getDuplicatesAllowedPath(tupleStoreName), 
 				allowDuplicatesString.getBytes());
+		
+		final boolean maintainBBoxIndex = tupleStoreConfiguration.isUseBBoxIndex();
+		final String maintainBBoxIndexString = Boolean.toString(maintainBBoxIndex);
+		zookeeperClient.createPersistentNode(getBBoxIndexPath(tupleStoreName), 
+				maintainBBoxIndexString.getBytes());
 		
 		final long ttl = tupleStoreConfiguration.getTTL();
 		final String ttlString = Long.toString(ttl);
@@ -217,6 +227,11 @@ public class TupleStoreAdapter {
 			final boolean duplicatesAllowedBoolean = Boolean.parseBoolean(duplicatesAllowed);
 			tupleStoreConfiguration.setAllowDuplicates(duplicatesAllowedBoolean);
 			
+			final String maintainBBoxIndex = 
+					zookeeperClient.readPathAndReturnString(getBBoxIndexPath(tupleStoreName));
+			final boolean maintainBBoxIndexBoolean = Boolean.parseBoolean(maintainBBoxIndex);
+			tupleStoreConfiguration.setUseBBoxIndex(maintainBBoxIndexBoolean);
+			
 			final String duplicatesTTL = 
 					zookeeperClient.readPathAndReturnString(getDuplicatesTTLPath(tupleStoreName));
 			final Integer ttlInterger = Integer.parseInt(duplicatesTTL);
@@ -285,6 +300,16 @@ public class TupleStoreAdapter {
 	private String getDuplicatesAllowedPath(final TupleStoreName tupleStoreName) {
 		final String tablePath = getTablePath(tupleStoreName);
 		return tablePath + "/" + ZOOKEEPER_DUPLICATES_ALLOWED;
+	}
+	
+	/**
+	 * The bbox index path
+	 * @param tupleStoreName
+	 * @return
+	 */
+	private String getBBoxIndexPath(final TupleStoreName tupleStoreName) {
+		final String tablePath = getTablePath(tupleStoreName);
+		return tablePath + "/" + ZOOKEEPER_BUILD_BBOX_INDEX;
 	}
 
 	/**

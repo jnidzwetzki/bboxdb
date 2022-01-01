@@ -7,13 +7,13 @@ order: 1
 ---
 
 ### Version 1.0.0 (release candidate 3) - TBA
-
+- Improvement: Unified table configuration options
 
 ### Version 1.0.0 (release candidate 2) - 21.12.2021
 - New Feature: Emit IdleQueryStateRemovedTuple when idle query state entries are removed
 - Improvement: Implemented watermark generation based invalidation
 - Improvement: Added warn message when an invalid percentage is specified for the creation of random bboxes
-- Improvement: Added downloader and converter for europe OSM data
+- Improvement: Added downloader and converter for Europe OSM data
 - Improvement: Renamed distribution region states to more meaningful names
 - Improvement: Use the IsotoneStringMapper in the Indexed tuple update strategy
 - Improvement: Refactored distribution region state names

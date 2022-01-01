@@ -38,6 +38,11 @@ public class TupleStoreConfiguration {
 	protected boolean allowDuplicates = false;
 	
 	/**
+	 * Maintain the bbox index
+	 */
+	protected boolean useBBoxIndex = false;
+	
+	/**
 	 * The ttl
 	 */
 	protected long ttl = 0;
@@ -109,6 +114,14 @@ public class TupleStoreConfiguration {
 		this.spatialIndexReader = spatialIndexReader;
 	}
 
+	public boolean isUseBBoxIndex() {
+		return useBBoxIndex;
+	}
+
+	public void setUseBBoxIndex(boolean useBBoxIndex) {
+		this.useBBoxIndex = useBBoxIndex;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -117,6 +130,7 @@ public class TupleStoreConfiguration {
 		result = prime * result + ((spatialIndexReader == null) ? 0 : spatialIndexReader.hashCode());
 		result = prime * result + ((spatialIndexWriter == null) ? 0 : spatialIndexWriter.hashCode());
 		result = prime * result + (int) (ttl ^ (ttl >>> 32));
+		result = prime * result + (useBBoxIndex ? 1231 : 1237);
 		result = prime * result + versions;
 		return result;
 	}
@@ -144,6 +158,8 @@ public class TupleStoreConfiguration {
 			return false;
 		if (ttl != other.ttl)
 			return false;
+		if (useBBoxIndex != other.useBBoxIndex)
+			return false;
 		if (versions != other.versions)
 			return false;
 		return true;
@@ -151,9 +167,9 @@ public class TupleStoreConfiguration {
 
 	@Override
 	public String toString() {
-		return "TupleStoreConfiguration [allowDuplicates=" + allowDuplicates + ", ttl=" + ttl + ", versions=" + versions
-				+ ", spatialIndexWriter=" + spatialIndexWriter + ", spatialIndexReader=" + spatialIndexReader
-				+ "]";
+		return "TupleStoreConfiguration [allowDuplicates=" + allowDuplicates + ", useBBoxIndex=" + useBBoxIndex
+				+ ", ttl=" + ttl + ", versions=" + versions + ", spatialIndexWriter=" + spatialIndexWriter
+				+ ", spatialIndexReader=" + spatialIndexReader + "]";
 	}
 
 	/**
@@ -190,6 +206,7 @@ public class TupleStoreConfiguration {
 	protected Map<String, Object> getPropertyMap() {
 		final Map<String, Object> data = new HashMap<String, Object>();	
 		data.put("allowDuplicates", allowDuplicates);
+		data.put("useBBoxIndex", useBBoxIndex);
 	    data.put("spatialIndexReader", spatialIndexReader);
 	    data.put("spatialIndexWriter", spatialIndexWriter);
 	    data.put("ttl", ttl);
