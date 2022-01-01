@@ -78,12 +78,12 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * The success callbacks
 	 */
-	protected final List<Consumer<OperationFuture>> successCallbacks = new ArrayList<>();
+	protected final List<Consumer<OperationFuture>> successCallbacks;
 
 	/**
 	 * The failure callbacks
 	 */
-	protected final List<Consumer<OperationFuture>> failureCallbacks = new ArrayList<>();
+	protected final List<Consumer<OperationFuture>> failureCallbacks;
 	
 	/**
 	 * The shutdown callbacks
@@ -107,8 +107,17 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futureSupplier,
 			final FutureRetryPolicy retryPolicy) {
 
+		this(futureSupplier, retryPolicy, new ArrayList<>(), new ArrayList<>());
+	}
+	
+	public OperationFutureImpl(final Supplier<List<NetworkOperationFuture>> futureSupplier,
+			final FutureRetryPolicy retryPolicy, List<Consumer<OperationFuture>> successCallbacks,
+			List<Consumer<OperationFuture>> failureCallbacks) {
+
 		this.futureSupplier = futureSupplier;
 		this.retryPolicy = retryPolicy;
+		this.successCallbacks = successCallbacks;
+		this.failureCallbacks = failureCallbacks;
 
 		execute();
 	}
@@ -123,23 +132,23 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		// Set callbacks
 		futures.forEach(f -> f.setErrorCallback(this));
-		futures.forEach(f -> f.setDoneCallback((c) -> handleNetworkFutureSuccess(c)));
+		futures.forEach(f -> f.setDoneCallback((c) -> handleNetworkFutureDone(c)));
 
 		// Execute
 		futures.forEach(f -> f.execute());
 
 		// Maybe we have a empty future list, so no callback is executed. Let's
 		// check if we are already done
-		handleNetworkFutureSuccess(null);
+		handleNetworkFutureDone(null);
 	}
 
 	/**
-	 * Handle a future success
+	 * Handle a future done
 	 * @param c 
 	 * 
 	 * @param future
 	 */
-	private void handleNetworkFutureSuccess(final NetworkOperationFuture networkOperationFuture) {
+	private void handleNetworkFutureDone(final NetworkOperationFuture networkOperationFuture) {
 		final boolean allDone = futures.stream().allMatch(f -> f.isDone());
 
 		if(logger.isDebugEnabled()) {
@@ -160,7 +169,10 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 
 		if (allDone) {
 			readyLatch.countDown();
-			runSuccessCallbacks();
+			
+			if(networkOperationFuture != null && ! networkOperationFuture.isFailed()) {
+				runSuccessCallbacks();
+			}
 		}
 	}
 

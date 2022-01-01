@@ -19,9 +19,13 @@ package org.bboxdb.test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.bboxdb.commons.StacktraceHelper;
 import org.bboxdb.network.client.future.client.FutureRetryPolicy;
+import org.bboxdb.network.client.future.client.OperationFuture;
 import org.bboxdb.network.client.future.client.OperationFutureImpl;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFutureImpl;
@@ -105,14 +109,36 @@ public class TestFuture {
 
 		final Supplier<List<NetworkOperationFuture>> supplier
 		= () -> (Arrays.asList(networkFuture));
+		
+		final AtomicInteger errorCalls = new AtomicInteger(0);
+		final Consumer<OperationFuture> errorConsumer = new Consumer<OperationFuture>() {
+
+			@Override
+			public void accept(OperationFuture c) {
+				errorCalls.incrementAndGet();
+			}
+		};
+		
+		final AtomicInteger successCalls = new AtomicInteger(0);
+		final Consumer<OperationFuture> sucessConsumer = new Consumer<OperationFuture>() {
+
+			@Override
+			public void accept(OperationFuture c) {
+				System.out.println(StacktraceHelper.getFormatedStacktrace());
+				successCalls.incrementAndGet();
+			}
+		};
 
 		final OperationFutureImpl<Boolean> future = new OperationFutureImpl<>(supplier,
-				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES);
+				FutureRetryPolicy.RETRY_POLICY_ALL_FUTURES, 
+				Arrays.asList(sucessConsumer), Arrays.asList(errorConsumer));
 
 		future.waitForCompletion();
 		Assert.assertTrue(future.isDone());
 		Assert.assertTrue(future.isFailed());
 		Assert.assertEquals(networkFuture.getTotalRetries() + 1, networkFuture.getExecutions());
+		Assert.assertEquals(1, errorCalls.get());
+		Assert.assertEquals(0, successCalls.get());
 	}
 
 	@Test(timeout=60000)
