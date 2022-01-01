@@ -19,6 +19,7 @@ package org.bboxdb.distribution;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +49,7 @@ public class TupleStoreConfigurationCache {
 	/**
 	 * The cache
 	 */
-	protected final Map<String, DuplicateResolver<Tuple>> cache;
+	protected final Map<String, TupleStoreConfiguration> cache;
 	
 	/**
 	 * The tuple store name cache
@@ -56,16 +57,16 @@ public class TupleStoreConfigurationCache {
 	protected final LoadingCache<String, Boolean> tupleStoreNameCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build(
 			new CacheLoader<String, Boolean>() {
 
-				@Override
-				public Boolean load(final String key) throws Exception {
-					final TupleStoreName tupleStoreNameObject = new TupleStoreName(key);
-					final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
-							.getZookeeperClient().getTupleStoreAdapter();
-					
-					return tupleStoreAdapter.isTableKnown(tupleStoreNameObject);
-				}
+		@Override
+		public Boolean load(final String key) throws Exception {
+			final TupleStoreName tupleStoreNameObject = new TupleStoreName(key);
+			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+					.getZookeeperClient().getTupleStoreAdapter();
+			
+			return tupleStoreAdapter.isTableKnown(tupleStoreNameObject);
+		}
 				
-			});
+	});
 	
 	/**
 	 * The Logger
@@ -99,32 +100,47 @@ public class TupleStoreConfigurationCache {
 	 * @param tupleStorename
 	 * @return
 	 */
-	public synchronized DuplicateResolver<Tuple> getDuplicateResolverForTupleStore(final String tupleStorename) {
+	public synchronized DuplicateResolver<Tuple> getDuplicateResolverForTupleStore(final String tupleStorename) {		
+		final Optional<TupleStoreConfiguration> configuration = getTupleStoreConfiguration(tupleStorename);
 		
-		if(!cache.containsKey(tupleStorename)) {
-			try {
-				final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
-						.getZookeeperClient().getTupleStoreAdapter();
-				
-				final TupleStoreName tupleStoreNameObject = new TupleStoreName(tupleStorename);
-
-				if(! tupleStoreAdapter.isTableKnown(tupleStoreNameObject)) {
-					logger.error("Table {} is not known, using do nothing duplicate resolver", tupleStorename);
-					return new DoNothingDuplicateResolver();
-				}
-				
-				final TupleStoreConfiguration tupleStoreConfiguration = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreNameObject);
-				final DuplicateResolver<Tuple> resolver = TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
-				cache.put(tupleStorename, resolver);
-			} catch (ZookeeperException e) {
-				logger.error("Exception while reading zookeeper data", e);
-				return new DoNothingDuplicateResolver();
-			}
+		if(! configuration.isPresent()) {
+			logger.error("Table {} is not known, using do nothing duplicate resolver", tupleStorename);
+			return new DoNothingDuplicateResolver();
 		}
 		
-		final DuplicateResolver<Tuple> duplicateResolver = cache.get(tupleStorename);
+		return TupleDuplicateResolverFactory.build(configuration.get());
+	}
+
+	/**
+	 * Get the tuple store configuration
+	 * @param tupleStorename
+	 * @return 
+	 */
+	public Optional<TupleStoreConfiguration> getTupleStoreConfiguration(final String tupleStorename) {
+		
+		if(cache.containsKey(tupleStorename)) {
+			return Optional.of(cache.get(tupleStorename));
+		}
+		
+		try {
+			final TupleStoreAdapter tupleStoreAdapter = ZookeeperClientFactory
+					.getZookeeperClient().getTupleStoreAdapter();
 			
-		return duplicateResolver;
+			final TupleStoreName tupleStoreNameObject = new TupleStoreName(tupleStorename);
+
+			if(! tupleStoreAdapter.isTableKnown(tupleStoreNameObject)) {
+				return Optional.empty();
+			}
+			
+			final TupleStoreConfiguration tupleStoreConfiguration = tupleStoreAdapter.readTuplestoreConfiguration(tupleStoreNameObject);
+			cache.put(tupleStorename, tupleStoreConfiguration);
+			
+			return Optional.of(tupleStoreConfiguration);
+		} catch (ZookeeperException e) {
+			logger.error("Exception while reading zookeeper data", e);
+			return Optional.empty();
+		}
+	
 	}
 	
 	/**

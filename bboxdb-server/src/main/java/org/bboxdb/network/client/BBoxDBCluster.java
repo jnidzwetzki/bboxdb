@@ -56,6 +56,7 @@ import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.future.network.NetworkOperationFuture;
 import org.bboxdb.network.client.tools.AbtractClusterFutureBuilder;
 import org.bboxdb.network.client.tools.ClusterOperationType;
+import org.bboxdb.network.client.tools.IndexedTupleUpdateHelper;
 import org.bboxdb.network.routing.DistributionRegionHandlingFlag;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.query.ContinuousQueryPlan;
@@ -226,6 +227,22 @@ public class BBoxDBCluster implements BBoxDB {
 		
 		if(! TupleStoreConfigurationCache.getInstance().isTupleStoreKnown(table)) {
 			throw new BBoxDBException("Table " + table + " is unknown");
+		}
+		
+		final Optional<TupleStoreConfiguration> tupleStoreConfiguration 
+			= TupleStoreConfigurationCache.getInstance().getTupleStoreConfiguration(table);
+
+		if(! tupleStoreConfiguration.isPresent()) {
+			throw new BBoxDBException("Configuration for table " + table + " is unknown");
+		}
+		
+		if(tupleStoreConfiguration.get().isUseBBoxIndex()) {
+			final IndexedTupleUpdateHelper updateHelper = new IndexedTupleUpdateHelper(this);
+			try {
+				updateHelper.handleTupleUpdate(table, tuple);
+			} catch (InterruptedException e) {
+				throw new BBoxDBException(e);
+			}
 		}
 		
 		final AbtractClusterFutureBuilder builder = new AbtractClusterFutureBuilder(
