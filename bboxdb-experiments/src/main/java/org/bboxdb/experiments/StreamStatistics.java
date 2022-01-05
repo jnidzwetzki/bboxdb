@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.bboxdb.tools.TupleFileReader;
 
-public class CountElements {
+public class StreamStatistics {
 
 	/***
 	 * Main * Main * Main * Main
@@ -50,14 +50,35 @@ public class CountElements {
 		
 		final TupleFileReader tupleFile = new TupleFileReader(filename, inputformat);
 		final AtomicLong processedTuples = new AtomicLong(0);
+		final AtomicLong fiveSecBucket = new AtomicLong(0);
+		final AtomicLong lastBucketBegin = new AtomicLong(-1);
+		final AtomicLong maxBurst = new AtomicLong(0);
 		
 		tupleFile.addTupleListener(t -> {
+			
+			if(lastBucketBegin.get() < 0) {
+				lastBucketBegin.set(t.getVersionTimestamp());
+			}
+			
+			// Create a five sec bucket and count max throughput
+			if(lastBucketBegin.get() + 5000 > t.getVersionTimestamp()) {
+				fiveSecBucket.incrementAndGet();
+			} else {
+				if(maxBurst.get() < fiveSecBucket.get()) {
+					maxBurst.set(fiveSecBucket.get());
+				}
+				// Start new Bucket
+				fiveSecBucket.set(0);
+				lastBucketBegin.set(t.getVersionTimestamp());
+			}
+			
 			processedTuples.incrementAndGet();
 		});
 
 		try {
 			tupleFile.processFile();
 			System.out.println("Processed " + processedTuples.get() + " elements");
+			System.out.println("Max element throughut per sec: " + maxBurst.get() / 5);
 		} catch (Exception e) {
 			System.err.println("Got an Exception during experiment: "+ e);
 			System.exit(-1);
