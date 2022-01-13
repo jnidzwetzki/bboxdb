@@ -49,6 +49,11 @@ public class TupleBuilderFactory {
 		 * The synthetic builder
 		 */
 		public static final String SYNTHETIC = "synthetic";
+		
+		/**
+		 * The synthetic stream builder
+		 */
+		public static final String SYNTHETIC_STREAM = "synthetic_stream";
 
 		/**
 		 * The TPC-H lineitem builder - point version (shipDateTime)
@@ -120,7 +125,7 @@ public class TupleBuilderFactory {
 	 * All known builder
 	 */
 	public static final List<String> ALL_BUILDER = Arrays.asList(
-			Name.GEOJSON, Name.SYNTHETIC,
+			Name.GEOJSON, Name.SYNTHETIC, Name.SYNTHETIC_STREAM,
 			Name.YELLOWTAXI_POINT, Name.YELLOWTAXI_RANGE, 
 			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE, 
 			Name.TPCH_ORDER_POINT, Name.ROME_TAXI_POINT, 
@@ -140,6 +145,8 @@ public class TupleBuilderFactory {
 				return new GeoJSONTupleBuilder();
 			case Name.SYNTHETIC:
 				return new SyntheticTupleBuilder();
+			case Name.SYNTHETIC_STREAM:
+				return new SyntheticDataStreamTupleBuilder();
 			case Name.YELLOWTAXI_POINT:
 				return new YellowTaxiPointTupleBuilder();
 			case Name.YELLOWTAXI_RANGE:

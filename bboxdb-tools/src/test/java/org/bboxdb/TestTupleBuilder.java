@@ -54,6 +54,11 @@ public class TestTupleBuilder {
 	private final static String SYNTHETIC_TEST_LINE = "51.47015078569419,58.26664175357267,49.11808592466023,52.72529828070016 e1k141dox9rayxo544y9";
 
 	/**
+	 * The testline for synthetic stream tests
+	 */
+	private final static String SYNTHETIC_STREAM_TEST_LINE = "2so3r7lmmlt2204 23.000566996237414,23.000566996237414,17.782247471059588,17.782247471059588,33.20003060813562,33.20003060813562,96.82571259235081,96.82571259235081 y9ucczzo53";
+	
+	/**
 	 * The testline for yellow taxi format tests
 	 */
 	private final static String TAXI_TEST_LINE = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
@@ -529,7 +534,7 @@ public class TestTupleBuilder {
 	}
 
 	/**
-	 * Test the syntetic tuple builder
+	 * Test the synthetic tuple builder
 	 * @throws ParseException
 	 */
 	@Test
@@ -547,6 +552,28 @@ public class TestTupleBuilder {
 
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 		Assert.assertEquals("e1k141dox9rayxo544y9", new String(tuple.getDataBytes()));
+	}
+	
+	/**
+	 * Test the synthetic tuple builder
+	 * @throws ParseException
+	 */
+	@Test
+	public void testSyntheticStreamTupleBuilder() throws ParseException {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.SYNTHETIC_STREAM);
+
+		final Tuple tuple = tupleBuilder.buildTuple(SYNTHETIC_STREAM_TEST_LINE);
+
+		Assert.assertNotNull(tuple);
+		Assert.assertEquals("2so3r7lmmlt2204", tuple.getKey());
+
+		final Hyperrectangle exptectedBox = new Hyperrectangle(23.000566996237414,23.000566996237414,
+				17.782247471059588,17.782247471059588,33.20003060813562,33.20003060813562,
+				96.82571259235081,96.82571259235081);
+
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+		Assert.assertEquals("y9ucczzo53", new String(tuple.getDataBytes()));
 	}
 
 	/**
