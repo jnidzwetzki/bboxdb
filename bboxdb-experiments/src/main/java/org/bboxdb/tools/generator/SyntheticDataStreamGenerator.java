@@ -24,10 +24,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -250,12 +248,9 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			
 			// Generate keys
 			final List<String> keys = new ArrayList<>();
-			final Set<String> allKeys = new HashSet<>();
-			
-			while(allKeys.size() < elements) {
-				allKeys.add(getRandomString(15));
+			for(int i = 0; i < elements; i++) {
+				keys.add(Integer.toString(i));
 			}
-			keys.addAll(allKeys);
 			
 			// Generate lines
 			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
