@@ -18,7 +18,7 @@
 package org.bboxdb;
 
 import org.bboxdb.commons.math.Hyperrectangle;
-import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
+import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class TestRandomQueryRangeGenerator {
 		final Hyperrectangle completeSpace = new Hyperrectangle(0d, 100d, 0d, 500d);
 		
 		for(int i = 0; i < 1000; i++) {
-			final Hyperrectangle queryHyperrectangle = RandomQueryRangeGenerator.getRandomQueryRange(completeSpace, 0.01);			
+			final Hyperrectangle queryHyperrectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(completeSpace, 0.01);			
 			Assert.assertEquals(completeSpace.getVolume() / 100, queryHyperrectangle.getVolume(), EQUALS_DELTA);
 			Assert.assertTrue(completeSpace.isCovering(queryHyperrectangle));
 		}
@@ -52,7 +52,7 @@ public class TestRandomQueryRangeGenerator {
 		final Hyperrectangle completeSpace = new Hyperrectangle(0d, 100d, 0d, 500d, 0d, 600d);
 		
 		for(int i = 0; i < 1000; i++) {
-			final Hyperrectangle queryHyperrectangle = RandomQueryRangeGenerator.getRandomQueryRange(completeSpace, 0.01);			
+			final Hyperrectangle queryHyperrectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(completeSpace, 0.01);			
 			Assert.assertEquals(completeSpace.getVolume() / 100, queryHyperrectangle.getVolume(), EQUALS_DELTA);
 			Assert.assertTrue(completeSpace.isCovering(queryHyperrectangle));
 		}

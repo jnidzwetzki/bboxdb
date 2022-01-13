@@ -37,6 +37,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
 
 public class SyntheticDataStreamGenerator implements Runnable {
 
@@ -71,6 +73,11 @@ public class SyntheticDataStreamGenerator implements Runnable {
 		 * The bounding box type
 		 */
 		public final static String BBOX_TYPE = "bboxtype";
+		
+		/**
+		 * The covered area
+		 */
+		public final static String COVERED_AREA = "covered_area";
 		
 		/**
 		 * Print help
@@ -180,6 +187,14 @@ public class SyntheticDataStreamGenerator implements Runnable {
 				.build();
 		options.addOption(bboxtype);
 	
+		// Coverered area
+		final Option coveredAra = Option.builder(Parameter.COVERED_AREA)
+				.hasArg()
+				.argName("coveredarea")
+				.desc("The covered area of the bboxes")
+				.build();
+		options.addOption(coveredAra);
+		
 		return options;
 	}
 
@@ -213,8 +228,13 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
 			final BBoxType bboxType = getBBoxType();
 			
-			System.out.format("Generating %d lines of %d elements with %d bytes and %d dimensions%n", 
-					lines, elements, size, dimension);
+			double coveredArea = 0;
+			if(bboxType == BBoxType.RANGE) {
+				coveredArea = Double.parseDouble(line.getOptionValue(Parameter.COVERED_AREA));
+			}
+			
+			System.out.format("Generating %d lines of %d elements with %d bytes and %d dimensions %d covered %n", 
+					lines, elements, size, dimension, coveredArea);
 
 			final File file = new File(outputFile);
 			if(file.exists()) {
@@ -235,7 +255,7 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
 				for(int i = 0; i < lines; i++) {
 					final String usedKey = keys.get((int) (i % elements));
-					generateLine(usedKey, size, dimension, writer, bboxType);
+					generateLine(usedKey, size, dimension, writer, bboxType, coveredArea);
 				}				
 			} catch(IOException e) {
 				System.err.println("Got IO exception while writing data" + e);
@@ -274,12 +294,13 @@ public class SyntheticDataStreamGenerator implements Runnable {
 	 * @param dimension
 	 * @param writer 
 	 * @param bboxType 
+	 * @param coveredArea 
 	 * @throws IOException 
 	 */
-	protected void generateLine(final String key, final int size, final int dimension, final Writer writer, 
-			final BBoxType bboxType)  {
+	protected void generateLine(final String key, final int size, final int dimension, 
+			final Writer writer, final BBoxType bboxType, final double coveredArea) {
 		try {
-			final String randomBBox = getRandomBoundingBox(dimension, bboxType);
+			final String randomBBox = getRandomBoundingBox(dimension, bboxType, coveredArea);
 			final String randomData = getRandomString(size);
 			final String line = String.format("%s %s %s%n", key, randomBBox, randomData);
 			writer.write(line);
@@ -293,27 +314,40 @@ public class SyntheticDataStreamGenerator implements Runnable {
 	 * Get a new random bounding box for n dimensions
 	 * @param dimension
 	 * @param bboxType 
+	 * @param coveredArea 
 	 * @return
 	 */
-	protected String getRandomBoundingBox(final int dimension, final BBoxType bboxType) {
-		final List<Double> bboxData = new ArrayList<>();
+	protected String getRandomBoundingBox(final int dimension, final BBoxType bboxType, 
+			final double coveredArea) {
 		
-		for(int i = 0; i < dimension; i++) {
-			
-			if(bboxType == BBoxType.POINT) {
-				final double point = random.nextDouble() * 100;
-				
-				bboxData.add(point); // Begin
-				bboxData.add(point); // End
-			} else if(bboxType == BBoxType.RANGE) {
-				final double begin = random.nextDouble() * 100;
-				final double end = begin + random.nextDouble() * 10;
-				
-				bboxData.add(begin);
-				bboxData.add(end);
-			} else {
-				throw new IllegalArgumentException("Unknown bbox type: " + bboxType);
+		final List<Double> bboxData = new ArrayList<>();
+
+		if(bboxType == BBoxType.POINT) {
+
+			for(int i = 0; i < dimension; i++) {	
+					final double point = random.nextDouble() * 100;
+					bboxData.add(point); // Begin
+					bboxData.add(point); // End
 			}
+			
+		} else if(bboxType == BBoxType.RANGE) {
+			
+			final double fullSpaceValues[] = new double[2*dimension];
+			for(int i = 0; i < dimension; i++) {
+				fullSpaceValues[2*i] = 0;
+				fullSpaceValues[2*i+1] = 100;
+			}
+			
+			final Hyperrectangle fullSpace = new Hyperrectangle(fullSpaceValues);
+			final Hyperrectangle bbox = RandomHyperrectangleGenerator.generateRandomHyperrectangle(fullSpace, coveredArea);
+			
+			for(int i = 0; i < dimension; i++) {
+				bboxData.add(bbox.getCoordinateLow(i));
+				bboxData.add(bbox.getCoordinateHigh(i));
+			}
+			
+		} else {
+			throw new IllegalArgumentException("Unknown bbox type: " + bboxType);
 		}
 		
 		return bboxData

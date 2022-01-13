@@ -26,18 +26,18 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RandomQueryRangeGenerator {
+public class RandomHyperrectangleGenerator {
 	
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RandomQueryRangeGenerator.class);
+	private final static Logger logger = LoggerFactory.getLogger(RandomHyperrectangleGenerator.class);
 	
 	/**
 	 * Determine a random query rectangle
 	 * @return
 	 */
-	public static Hyperrectangle getRandomQueryRange(final Hyperrectangle completeSpace, final double percentage) {
+	public static Hyperrectangle generateRandomHyperrectangle(final Hyperrectangle completeSpace, final double percentage) {
 		
 		logger.debug("Generating a random hyperrectangle with a coverage of {} percent", percentage);
 		

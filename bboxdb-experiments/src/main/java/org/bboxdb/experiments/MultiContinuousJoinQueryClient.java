@@ -40,7 +40,7 @@ import org.bboxdb.query.QueryPlanBuilder;
 import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.MultiTuple;
-import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
+import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -261,7 +261,7 @@ public class MultiContinuousJoinQueryClient extends AbstractMultiQueryClient imp
 		final List<Hyperrectangle> ranges = new ArrayList<>();
 
 		for(int i = 0; i < parallelQueries; i++) {
-			final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
+			final Hyperrectangle queryRectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(range.get(), percentage);
 			ranges.add(queryRectangle);
 		}
 		

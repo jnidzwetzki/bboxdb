@@ -40,7 +40,7 @@ import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
-import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
+import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
 
 public class DetermineQueryStateSize extends AbstractStateSize implements Runnable {
 
@@ -345,7 +345,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 		final List<Hyperrectangle> ranges = new ArrayList<>();
 	
 		for(int i = 0; i < parallelQueries; i++) {
-			final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
+			final Hyperrectangle queryRectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(range.get(), percentage);
 			ranges.add(queryRectangle);
 		}
 		

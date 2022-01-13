@@ -35,7 +35,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.tools.helper.RandomQueryRangeGenerator;
+import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +147,7 @@ abstract public class AbstractMultiQueryClient {
 	
 		try(final BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath(), Const.DEFAULT_CHARSET)) {
 			for(int i = 0; i < parallelQueries; i++) {
-				final Hyperrectangle queryRectangle = RandomQueryRangeGenerator.getRandomQueryRange(range.get(), percentage);
+				final Hyperrectangle queryRectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(range.get(), percentage);
 				writer.write(queryRectangle.toCompactString() + "\n");
 			}
 		} catch (IOException e) {
