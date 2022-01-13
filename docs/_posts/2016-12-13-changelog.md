@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 1.0.0 (release candidate 3) - TBA
+- New Feature: Added generator for synthetic data streams
 - Improvement: Unified table configuration options
 - Improvement: Unified operation naming
 - Improvement: Improved future callback handling
