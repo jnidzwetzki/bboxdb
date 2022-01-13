@@ -230,10 +230,16 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			
 			double coveredArea = 0;
 			if(bboxType == BBoxType.RANGE) {
+				
+				if (!line.hasOption(Parameter.COVERED_AREA)) {
+					System.err.println("Option is missing: " + Parameter.COVERED_AREA);
+					System.exit(1);
+				}
+				
 				coveredArea = Double.parseDouble(line.getOptionValue(Parameter.COVERED_AREA));
 			}
 			
-			System.out.format("Generating %d lines of %d elements with %d bytes and %d dimensions %d covered %n", 
+			System.out.format("Generating %d lines of %d elements with %d bytes and %d dimensions %f covered %n", 
 					lines, elements, size, dimension, coveredArea);
 
 			final File file = new File(outputFile);
