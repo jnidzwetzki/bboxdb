@@ -97,6 +97,11 @@ public class SyntheticDataStreamGenerator implements Runnable {
 	 * The parsed command line
 	 */
 	protected final CommandLine line;
+	
+	/**
+	 * The full space of the data stream
+	 */
+	protected Hyperrectangle fullSpace;
 
 	/**
 	 * The random generator
@@ -225,6 +230,7 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			final int dimension = Integer.parseInt(line.getOptionValue(Parameter.DIMENSION));
 			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
 			final BBoxType bboxType = getBBoxType();
+			this.fullSpace = getFullSpaceForDimension(dimension);
 			
 			double coveredArea = 0;
 			if(bboxType == BBoxType.RANGE) {
@@ -331,15 +337,7 @@ public class SyntheticDataStreamGenerator implements Runnable {
 					bboxData.add(point); // End
 			}
 			
-		} else if(bboxType == BBoxType.RANGE) {
-			
-			final double fullSpaceValues[] = new double[2*dimension];
-			for(int i = 0; i < dimension; i++) {
-				fullSpaceValues[2*i] = 0;
-				fullSpaceValues[2*i+1] = 100;
-			}
-			
-			final Hyperrectangle fullSpace = new Hyperrectangle(fullSpaceValues);
+		} else if(bboxType == BBoxType.RANGE) {			
 			final Hyperrectangle bbox = RandomHyperrectangleGenerator.generateRandomHyperrectangle(fullSpace, coveredArea);
 			
 			for(int i = 0; i < dimension; i++) {
@@ -355,6 +353,17 @@ public class SyntheticDataStreamGenerator implements Runnable {
 				.stream()
 				.map(d -> Double.toString(d))
 				.collect(Collectors.joining(","));
+	}
+
+	private Hyperrectangle getFullSpaceForDimension(final int dimension) {
+		final double fullSpaceValues[] = new double[2*dimension];
+		for(int i = 0; i < dimension; i++) {
+			fullSpaceValues[2*i] = 0;
+			fullSpaceValues[2*i+1] = 100;
+		}
+		
+		final Hyperrectangle fullSpace = new Hyperrectangle(fullSpaceValues);
+		return fullSpace;
 	}
 
 	/**
