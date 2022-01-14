@@ -36,6 +36,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
 
 public class SyntheticDataStreamGenerator implements Runnable {
@@ -230,7 +231,7 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			final int dimension = Integer.parseInt(line.getOptionValue(Parameter.DIMENSION));
 			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
 			final BBoxType bboxType = getBBoxType();
-			this.fullSpace = getFullSpaceForDimension(dimension);
+			this.fullSpace = HyperrectangleHelper.getFullSpaceForDimension(dimension, 0, 100);
 			
 			double coveredArea = 0;
 			if(bboxType == BBoxType.RANGE) {
@@ -353,17 +354,6 @@ public class SyntheticDataStreamGenerator implements Runnable {
 				.stream()
 				.map(d -> Double.toString(d))
 				.collect(Collectors.joining(","));
-	}
-
-	private Hyperrectangle getFullSpaceForDimension(final int dimension) {
-		final double fullSpaceValues[] = new double[2*dimension];
-		for(int i = 0; i < dimension; i++) {
-			fullSpaceValues[2*i] = 0;
-			fullSpaceValues[2*i+1] = 100;
-		}
-		
-		final Hyperrectangle fullSpace = new Hyperrectangle(fullSpaceValues);
-		return fullSpace;
 	}
 
 	/**

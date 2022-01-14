@@ -35,4 +35,33 @@ public class HyperrectangleHelper {
 			return Optional.empty();
 		}
 	}
+	
+	/**
+	 * Get a Hyperrectangle covering the full space
+	 * @param dimensions
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static Hyperrectangle getFullSpaceForDimension(final int dimensions, 
+			final double min, final double max) {
+		
+		if(dimensions < 1) {
+			throw new IllegalArgumentException("The dimensionality has to be at least 1");
+		}
+		
+		if(min >= max) {
+			throw new IllegalArgumentException("Min value has to be smaller than max value " 
+					+ min + " " + max); 
+		}
+		
+		final double fullSpaceValues[] = new double[2*dimensions];
+		
+		for(int i = 0; i < dimensions; i++) {
+			fullSpaceValues[2*i] = min;
+			fullSpaceValues[2*i+1] = max;
+		}
+		
+		return new Hyperrectangle(fullSpaceValues);
+	}
 }
