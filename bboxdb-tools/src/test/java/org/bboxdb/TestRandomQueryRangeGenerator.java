@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.bboxdb;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
@@ -68,10 +71,14 @@ public class TestRandomQueryRangeGenerator {
 		
 		final Hyperrectangle completeSpace = HyperrectangleHelper.getFullSpaceForDimension(4, 0, 100);
 		
-		for(int i = 0; i < 1000; i++) {
-			final Hyperrectangle queryHyperrectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(completeSpace, 0.01);			
-			Assert.assertEquals(completeSpace.getVolume() / 100, queryHyperrectangle.getVolume(), EQUALS_DELTA);
-			Assert.assertTrue(completeSpace.isCovering(queryHyperrectangle));
+		final List<Double> sizes = Arrays.asList(0.01, 0.02, 0.05, 0.1);
+		
+		for(final double size : sizes) {
+			for(int i = 0; i < 1000; i++) {
+				final Hyperrectangle queryHyperrectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(completeSpace, size);			
+				Assert.assertEquals(completeSpace.getVolume() * size, queryHyperrectangle.getVolume(), EQUALS_DELTA);
+				Assert.assertTrue(completeSpace.isCovering(queryHyperrectangle));
+			}
 		}
 		
 	}
