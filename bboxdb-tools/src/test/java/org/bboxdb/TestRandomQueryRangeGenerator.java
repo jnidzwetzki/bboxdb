@@ -18,6 +18,7 @@
 package org.bboxdb;
 
 import org.bboxdb.commons.math.Hyperrectangle;
+import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,6 +51,22 @@ public class TestRandomQueryRangeGenerator {
 	public void test3Dimension() {
 		
 		final Hyperrectangle completeSpace = new Hyperrectangle(0d, 100d, 0d, 500d, 0d, 600d);
+		
+		for(int i = 0; i < 1000; i++) {
+			final Hyperrectangle queryHyperrectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(completeSpace, 0.01);			
+			Assert.assertEquals(completeSpace.getVolume() / 100, queryHyperrectangle.getVolume(), EQUALS_DELTA);
+			Assert.assertTrue(completeSpace.isCovering(queryHyperrectangle));
+		}
+		
+	}
+	
+	/**
+	 * Test the rectangles in 4 dimensions
+	 */
+	@Test(timeout=60000)
+	public void test4Dimension() {
+		
+		final Hyperrectangle completeSpace = HyperrectangleHelper.getFullSpaceForDimension(4, 0, 100);
 		
 		for(int i = 0; i < 1000; i++) {
 			final Hyperrectangle queryHyperrectangle = RandomHyperrectangleGenerator.generateRandomHyperrectangle(completeSpace, 0.01);			
