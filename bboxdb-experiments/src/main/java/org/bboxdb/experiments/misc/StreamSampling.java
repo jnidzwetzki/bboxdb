@@ -29,10 +29,10 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.tools.RandomSamplesReader;
 import org.bboxdb.tools.TupleFileReader;
@@ -208,18 +208,21 @@ public class StreamSampling implements Runnable {
 				.max((entry1, entry2) -> entry1.getValue().size() > entry2.getValue().size() ? 1 : -1)
 				.get().getKey();
 			
-			
-			final List<Hyperrectangle> samples = activeRegions.get(regionToSplit);
-			Collections.sort(samples);
-
 			final int dimension = dimensions.get(regionToSplit);
-			final Hyperrectangle splitHyperrectangle = samples.get(samples.size() / 2);
-			final DoubleInterval splitPoint = splitHyperrectangle.getIntervalForDimension(dimension);
-			final double midPoint = splitPoint.getMidpoint();
-							
+
+			final List<Hyperrectangle> samples = activeRegions.get(regionToSplit);
+			
+			final List<Double> points = samples.stream()
+				.map(s -> s.getIntersection(regionToSplit))
+				.map(s -> s.getIntervalForDimension(dimension))
+				.map(d -> d.getMidpoint())
+				.collect(Collectors.toList());
+			
+			Collections.sort(points);
+
+			final double midPoint = points.get(points.size() / 2);							
 			System.out.println("Splitting region " + regionToSplit + " at " + midPoint);
 
-			
 			Hyperrectangle leftRegion;
 			Hyperrectangle rightRegion;
 			try {
@@ -234,7 +237,7 @@ public class StreamSampling implements Runnable {
 			newRegions.add(leftRegion);
 			newRegions.add(rightRegion);
 			
-			final int nextDimension = (dimension + 1) % splitHyperrectangle.getDimension();
+			final int nextDimension = (dimension + 1) % sampleDimension;
 			dimensions.put(leftRegion, nextDimension);
 			dimensions.put(rightRegion, nextDimension);
 
