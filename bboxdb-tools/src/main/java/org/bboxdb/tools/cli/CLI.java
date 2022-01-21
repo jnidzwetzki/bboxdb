@@ -872,7 +872,7 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
-			checkGroupAndampleDimensions(allSamples, readActiveRegions);
+			checkGroupAndSampleDimensions(allSamples, readActiveRegions);
 			
 			activeRegions.put(readActiveRegions.get(0), allSamples);
 			
@@ -940,7 +940,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param allSamples
 	 * @param readActiveRegions
 	 */
-	private void checkGroupAndampleDimensions(final List<Hyperrectangle> allSamples,
+	private void checkGroupAndSampleDimensions(final List<Hyperrectangle> allSamples,
 			final List<DistributionRegion> readActiveRegions) {
 		final int groupDimensionality = readActiveRegions.get(0).getConveringBox().getDimension();
 		final int sampleDimensionality = allSamples.get(0).getDimension();
