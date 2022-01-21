@@ -11,6 +11,7 @@ order: 1
 - Improvement: Unified table configuration options
 - Improvement: Unified operation naming
 - Improvement: Improved future callback handling
+- Improvement: Check dataset dimensionality and distribution group dimensionality in prepartition
 - Bugfix: Made future callbacks more reliable
 - Bugfix: Fixed deadlock in FixedSizeFutureStore
 

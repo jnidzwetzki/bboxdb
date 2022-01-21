@@ -872,6 +872,8 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
+			checkGroupAndampleDimensions(allSamples, readActiveRegions);
+			
 			activeRegions.put(readActiveRegions.get(0), allSamples);
 			
 			while(activeRegions.keySet().size() < partitions) {
@@ -931,6 +933,23 @@ public class CLI implements Runnable, AutoCloseable {
 			logger.error("Got an exception", e);
 			System.exit(-1);
 		}	
+	}
+
+	/** 
+	 * Check group and sample dimensions
+	 * @param allSamples
+	 * @param readActiveRegions
+	 */
+	private void checkGroupAndampleDimensions(final List<Hyperrectangle> allSamples,
+			final List<DistributionRegion> readActiveRegions) {
+		final int groupDimensionality = readActiveRegions.get(0).getConveringBox().getDimension();
+		final int sampleDimensionality = allSamples.get(0).getDimension();
+		
+		if(sampleDimensionality != groupDimensionality) {
+			System.err.println("Group dimensionality " + groupDimensionality 
+					+ " and sample dimensionality " + sampleDimensionality + " differ");
+			System.exit(-1);
+		}
 	}
 	
 	/**
