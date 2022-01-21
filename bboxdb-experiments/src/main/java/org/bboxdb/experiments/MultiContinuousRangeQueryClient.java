@@ -193,6 +193,7 @@ public class MultiContinuousRangeQueryClient extends AbstractMultiQueryClient im
 		
 		if(! range.isPresent()) {
 			System.err.println("Unable to parse as bounding box: " + rangeString);
+			System.exit(-1);
 		}
 		
 		final double percentage = MathUtil.tryParseDoubleOrExit(percentageString, () -> "Unable to parse: " + percentageString);
