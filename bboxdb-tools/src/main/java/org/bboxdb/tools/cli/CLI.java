@@ -908,10 +908,19 @@ public class CLI implements Runnable, AutoCloseable {
 				}
 				
 				for(final Hyperrectangle sample : oldSamples) {
+					
+					boolean tupleDistributed = false;
+					
 					for(final DistributionRegion region : newRegions) {
 						if(region.getConveringBox().intersects(sample)) {
 							activeRegions.get(region).add(sample);
+							tupleDistributed = true;
 						}
+					}
+					
+					if(! tupleDistributed) {
+						System.err.println("Unable to distribute sample: " + sample);
+						System.exit(1);
 					}
 				}				
 			}
