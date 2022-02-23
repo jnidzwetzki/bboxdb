@@ -93,7 +93,7 @@ order: 1
 - New Feature: The queue size of unprocessed tuples for continuous queries can now be configured
 - New Feature: The discarding of tuples in continuous queries on full queues can be disabled
 - Improvement: Moved the execution of continuous queries into a separate thread per region
-- Improvement: Flush pages for continuous query when at least one tuple was send
+- Improvement: Flush pages for continuous query when at least one tuple was sent
 - Improvement: Register a continuous query only one time per instance
 - Improvement: Shortcut UDF processing
 - Improvement: In the package routing, each region has the own DistributionRegionHandlingFlag. Generic insert options are removed.
@@ -294,7 +294,7 @@ order: 1
 ### Version 0.8.3 - 28.09.2018
 - Improvement: Made reads on replicated data HA (only one replicate needs to be available)
 - Improvement: Refactored future retry to supplier
-- Improvement: Send read and write operations only to active instances
+- Improvement: sent read and write operations only to active instances
 - Improvement: Updated simpleclient from 0.4.0 to 0.5.0, zookeeper from 3.4.12 to 3.4.13, json from 20180130 to 20180813, Guava from 25.1-jre to 26.0-jre, mockito from 2.19.0 to 2.21.0, snakeyaml from 1.21 to 1.23
 - Improvement: Added usage counter to memory-mapped IO resources
 - Improvement: Simplified table deletion code
@@ -357,8 +357,8 @@ order: 1
 - Improvement: Refactored maintainability to A rating (closes #80)
 - Improvement: The complete space of the tree space partitioner can be restricted
 - Improvement: Added the ability to display generic trees in GUI (closes #84)
-- Improvement: The delete distribution group call needs only to be send to one node
-- Improvement: The table deletion call needs only to be send to one node
+- Improvement: The delete distribution group call needs only to be sent to one node
+- Improvement: The table deletion call needs only to be sent to one node
 - Improvement: Reimplemented the futures and the BBoxDBCluster to increase fault tolerance (closes #79)
 - Improvement: Removed the unused update anomaly resolver config
 - Improvement: Fixed a lot of bugs found by 'findbugs'
@@ -590,7 +590,7 @@ order: 1
 - Improvement: Introduced the last modified timestamp for sstables
 - Improvement: Big compacts are only executed every hour
 - Improvement: Small table threshold is now set to 5*memtable size
-- Bugfix: Don't send write requests to systems in splitting state
+- Bugfix: Don't sent write requests to systems in splitting state
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
 - Bugfix: Fixed the primary key for the JDBC osm-converter backend
 - Bugfix: Name of the a invalid distribution region is removed from sstable dir
@@ -606,7 +606,7 @@ order: 1
 ### Version 0.2.6 - 23.05.2017
 - New Feature: Created the project mailing list
 - Improvement: Removed unused server read only mode
-- Improvement: Send client queries immediately to server
+- Improvement: sent client queries immediately to server
 - Improvement: Added output file to data generator
 - Improvement: Synthetic data can now be generated with point bboxes
 - Improvement: The execution time of the experiments is improved by using a line index
@@ -632,7 +632,7 @@ order: 1
 - Bugfix: Don’t include the content of the conf/ directory in the jar
 - Bugfix: The count lines script searches in the wrong directory for source files
 - Bugfix: Flush pending server responses on connection close
-- Bugfix: Don’t send keep-alive packages on closing connections
+- Bugfix: Don’t sent keep-alive packages on closing connections
 - Bugfix: Fixed wrong table name in BBox queries
 - Bugfix: The spatial index was not built during compactification
 - Bugfix: Remove also empty memtables from unflushed table list
@@ -794,7 +794,7 @@ order: 1
 - Bugfix: Fixed calculation of 'in-flight calls' for a cluster
 - Bugfix: Fixed calculation of the routing header, don't route packages to local instance
 - Bugfix: Ignore socket exception, when a server shutdown is performed
-- Bugfix: When a dead instance is detected, don't send a disconnect package. Close the network connection instead
+- Bugfix: When a dead instance is detected, don't sent a disconnect package. Close the network connection instead
 - Bugfix: Fixed division by zero in WeightBasedSplitStrategy
 - Bugfix: Thread names contain the full output of sstablename.toString
 - Bugfix: The checkpoint date is not written to zookeper, if no memtable was flushed
