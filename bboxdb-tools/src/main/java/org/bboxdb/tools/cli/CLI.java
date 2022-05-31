@@ -35,6 +35,11 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -177,8 +182,11 @@ public class CLI implements Runnable, AutoCloseable {
 		System.out.println(" [Established]");
 
 		if(line.hasOption(CLIParameter.VERBOSE)) {
-			org.apache.log4j.Logger logger4j = org.apache.log4j.Logger.getRootLogger();
-			logger4j.setLevel(org.apache.log4j.Level.toLevel("DEBUG"));
+			LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+			Configuration config = ctx.getConfiguration();
+			LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME); 
+			loggerConfig.setLevel(Level.DEBUG);
+			ctx.updateLoggers();
 		}
 
 		final String action = line.getOptionValue(CLIParameter.ACTION);
