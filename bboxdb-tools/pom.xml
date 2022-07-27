@@ -78,7 +78,7 @@
 		<dependency>
 		    <groupId>com.google.protobuf</groupId>
 		    <artifactId>protobuf-java</artifactId>
-		    <version>3.21.3</version>
+		    <version>3.21.4</version>
 		</dependency>
 
 		<!-- Used by some experiments
