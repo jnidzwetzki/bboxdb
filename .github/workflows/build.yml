@@ -6,6 +6,7 @@ jobs:
   compile:
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         java: [ 12, 13, 14 ]
     name: Java ${{ matrix.java }} compile
