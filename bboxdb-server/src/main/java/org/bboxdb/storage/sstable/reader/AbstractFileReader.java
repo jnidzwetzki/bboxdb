@@ -89,11 +89,6 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 		this.tablenumber = tablenumber;
 		this.file = constructFileToRead();
 		this.serviceState = new AcquirableService();
-
-		if(! UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable()) {
-			logger.error("Memory unmapper not available, please use a oracle JVM");
-			System.exit(-1);
-		}
 	}
 
 	/**
