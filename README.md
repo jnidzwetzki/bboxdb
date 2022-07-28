@@ -1,7 +1,7 @@
 <img src="docs/logo/logo.png" width="400"> <br>
 
-<a href="https://travis-ci.com/github/jnidzwetzki/bboxdb">
-  <img alt="Travis-CI.com Buld Status" src="https://travis-ci.com/jnidzwetzki/bboxdb.svg?branch=master">
+<a href="https://github.com/jnidzwetzki/bboxdb/actions/workflows/build.yml">
+  <img alt="Build Status" src="https://github.com/jnidzwetzki/bboxdb/actions/workflows/build.yml/badge.svg">
 </a><a href="https://scan.coverity.com/projects/jnidzwetzki-bboxdb">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/11479/badge.svg"/>
@@ -12,8 +12,6 @@
   </a> <a href="https://repo1.maven.org/maven2/org/bboxdb/"><img alt="Maven Central Version" src="https://maven-badges.herokuapp.com/maven-central/org.bboxdb/bboxdb-server/badge.svg" />
   </a> <a href="https://codeclimate.com/github/jnidzwetzki/bboxdb/maintainability"><img src="https://api.codeclimate.com/v1/badges/0b8b98bde4ec65bfb5b7/maintainability" /></a><a href="http://makeapullrequest.com">
  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
- </a>
- <a href="https://hub.docker.com/r/jnidzwetzki/bboxdb/"><img src="https://img.shields.io/docker/stars/jnidzwetzki/bboxdb.svg">
  </a>
 
 __Please Note:__ The master branch may be in an unstable state during development. Please use our releases for productive environments.

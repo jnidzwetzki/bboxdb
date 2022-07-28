@@ -15,6 +15,7 @@ order: 1
 - Bugfix: Made future callbacks more reliable
 - Bugfix: Fixed deadlock in FixedSizeFutureStore
 - Bugfix: Removed log4j 1 dependencies
+- Bugfix: Fixed a race condition in the bonding box index updater
 
 ### Version 1.0.0 (release candidate 2) - 21.12.2021
 - New Feature: Emit IdleQueryStateRemovedTuple when idle query state entries are removed
