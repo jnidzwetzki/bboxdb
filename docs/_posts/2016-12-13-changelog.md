@@ -12,6 +12,7 @@ order: 1
 - Improvement: Unified operation naming
 - Improvement: Improved future callback handling
 - Improvement: Check dataset dimensionality and distribution group dimensionality in prepartition
+- Improvement: Improved Java 11 compatibility
 - Bugfix: Made future callbacks more reliable
 - Bugfix: Fixed deadlock in FixedSizeFutureStore
 - Bugfix: Removed log4j 1 dependencies
