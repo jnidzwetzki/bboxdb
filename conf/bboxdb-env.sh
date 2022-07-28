@@ -68,10 +68,10 @@ jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.access.file=$BBOXDB_HOME/conf/j
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.password.file=$BBOXDB_HOME/conf/jmxremote.password"
 
 # Add classed to Java 11+ JVMs
-jvm_ops="$jvm_ops--add-exports java.base/jdk.internal.misc=ALL-UNNAMED"
-jvm_ops="$jvm_ops--add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
-jvm_ops="$jvm_ops--add-exports java.base/sun.nio.ch=ALL-UNNAMED"
-jvm_ops="$jvm_ops--add-opens java.base/jdk.internal.ref=ALL-UNNAMED"
+jvm_ops="$jvm_ops --add-exports java.base/jdk.internal.misc=ALL-UNNAMED"
+jvm_ops="$jvm_ops --add-exports java.base/jdk.internal.ref=ALL-UNNAMED"
+jvm_ops="$jvm_ops --add-exports java.base/sun.nio.ch=ALL-UNNAMED"
+jvm_ops="$jvm_ops --add-opens java.base/jdk.internal.ref=ALL-UNNAMED"
 
 # Port for the remote debuger
 jvm_debug_port=40010
