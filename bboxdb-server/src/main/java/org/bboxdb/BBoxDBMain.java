@@ -183,8 +183,7 @@ public class BBoxDBMain {
 		final boolean memoryCleanerOk = UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable();
 
 		if(memoryCleanerOk == false) {
-			logger.error("Cannot initialize memory un-mmaper. Please use a Oracle JVM");
-			return false;
+			logger.warn("Cannot initialize memory un-mmaper. Please consider using an Oracle JVM");
 		}
 
 		// Check for address space size
