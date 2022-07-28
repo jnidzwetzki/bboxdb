@@ -178,11 +178,12 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		}
 
 		if (allDone) {
-			readyLatch.countDown();
 			
 			if(networkOperationFuture != null && ! networkOperationFuture.isFailed()) {
 				runSuccessCallbacks();
 			}
+			
+			readyLatch.countDown();
 		}
 	}
 
