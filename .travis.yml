@@ -34,19 +34,4 @@ cache:
   directories:
   - $HOME/.m2
   
-env:
-  global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "I55DLSknopk0Xoadq3obOCh9pqJHjT/Leg8fOJQe5JISHDLOoORZzm5a5O5OaTx+ozzDV1CT9U6XmyrwsSC1nLkRtvzCf9xITvlOchCJ3VW5I18fDlurQljX/QAdFQLKM4KxwIn3b9aIGGd4n18hzG4z8TC2VfAWggryRgPSyOAGCAsAQWGjk7glwsLHIY1mVn05LMLTaIMK5yCKbhbKPUFTLCQg2dBUAJU6PT8u8bafpJub2AXtjNS8lqeY+x6eBjxZfYhVw7khNmxwlOJPXUjaGknID3C3h2PwAV9KbUm40t9LsHwa/PAIgoH8zBWC7Fdi6aYmXgNUVh6KniYDF8w91lAIc40VCw9jUrKoEhaVIyhiAGAKeYiBCbQWqKuSTc+4XZXvktRUcfOQZjGKiiGuIFzVIESQ9Hm5ArhNKc28o3f+GeG/0yX+YLsaDOn9KwOOuXEqfSMZNqzW9wdhvpxxbA8PVZzWckmfqhanFerTuzsXtmJk/iynixNcWl6BggdATcfLBa13acmJXIiqhUgHofkQFRfbjUNhgB14Kbb5SKPTD3BbFYHc6wzkWaANZqdPdZmxmSfSovZPfYc4df+AAI5q7X+IYl2d32clWLkLVzLspmZfqlVnKkvT+8gP02Y3Wkqacq7b5sjU8xBz497LzNzKe0EuLe9MKWpzGvY="
 
-addons:
-  coverity_scan:
-    project:
-      name: "jnidzwetzki/bboxdb"
-      description: "Build submitted via Travis CI"
-    notification_email: jnidzwetzki@gmx.de
-    build_command_prepend: "mvn clean"
-    build_command:   "mvn -DskipTests=true compile"
-    branch_pattern: coverity_scan
-    
