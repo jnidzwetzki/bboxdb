@@ -161,7 +161,10 @@ public class SplitFile implements Runnable {
 			System.exit(-2);
 		}
 		
-		outputdirFile.mkdirs();
+		if(! outputdirFile.mkdirs()) {
+			System.err.println("Unable to create: " + outputdirFile);
+			System.exit(-2);
+		}
 		
 		final int linesPerBatch = MathUtil.tryParseIntOrExit(linesPerBatchString, () -> "Unable to parse as int: " + linesPerBatchString);
 		final int numberOfFiles = MathUtil.tryParseIntOrExit(numberOfFilesString, () -> "Unable to parse as int: " + numberOfFilesString);

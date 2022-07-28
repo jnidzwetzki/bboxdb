@@ -72,11 +72,12 @@ public class OSMJDBCH2NodeStore implements OSMNodeStore {
 				final String workfolder = baseDir.get(i % baseDir.size());
 				
 				final Connection connection = DriverManager.getConnection("jdbc:derby:directory:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
-				Statement statement = connection.createStatement();
 				
-				statement.executeUpdate("DROP TABLE if exists osmnode");
-				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT PRIMARY KEY, data BLOB)");
-				statement.close();
+				
+				try (Statement statement = connection.createStatement()) {
+					statement.executeUpdate("DROP TABLE if exists osmnode");
+					statement.executeUpdate("CREATE TABLE osmnode (id BIGINT PRIMARY KEY, data BLOB)");
+				}
 				
 				final PreparedStatement insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
 				final PreparedStatement selectNode = connection.prepareStatement("SELECT data from osmnode where id = ?");

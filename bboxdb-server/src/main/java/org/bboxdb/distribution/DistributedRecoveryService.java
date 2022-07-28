@@ -194,6 +194,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 			
 			if(connection == null) {
 				logger.error("Unable to get connection for {}", newestInstance.getInetSocketAddress());
+				return;
 			}
 			
 			final long regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();

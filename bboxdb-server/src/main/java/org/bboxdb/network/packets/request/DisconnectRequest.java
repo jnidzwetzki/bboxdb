@@ -82,6 +82,11 @@ public class DisconnectRequest extends NetworkRequestPacket {
 		
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return 1;
+	}
 
 	@Override
 	public String toString() {

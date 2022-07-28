@@ -23,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -188,8 +189,9 @@ public class DataRedistributionLoader implements Runnable {
 				System.in.read();
 			}
 
-			// Delete all files before exit
-			for(final String filename: loadedFiles) {
+			// Delete all files before exit, deleteFile modifies loadedFiles,
+			// so the content is copied for iteration.
+			for(final String filename: new ArrayList<String>(loadedFiles)) {
 				deleteFile(filename);
 			}
 			loadedFiles.clear();

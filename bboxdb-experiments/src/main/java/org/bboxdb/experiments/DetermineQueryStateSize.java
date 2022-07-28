@@ -217,11 +217,14 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 					dumpStatistics(linesInInput);
 				}
 				
-				final double errorPercentage = (((double) seenButNotInState / (double) processedElements) * 100.0);
 				
-				System.out.println("# Already seen but not in state: " + seenButNotInState + " / processed " 
-							+ processedElements + " / " + MathUtil.round(errorPercentage, 4) + " %");
-				System.out.println("#########################\n\n");
+				if(processedElements != 0) {
+					final double errorPercentage = (((double) seenButNotInState / (double) processedElements) * 100.0);
+
+					System.out.println("# Already seen but not in state: " + seenButNotInState + " / processed " 
+								+ processedElements + " / " + MathUtil.round(errorPercentage, 4) + " %");
+					System.out.println("#########################\n\n");
+				}
 				
 			} catch (IOException e) {
 				e.printStackTrace();

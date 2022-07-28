@@ -233,6 +233,11 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			final BBoxType bboxType = getBBoxType();
 			this.fullSpace = HyperrectangleHelper.getFullSpaceForDimension(dimension, 0, 100);
 			
+			if(elements == 0) {
+				System.err.println("Elements must be > 0");
+				System.exit(1);
+			}
+			
 			double coveredArea = 0;
 			if(bboxType == BBoxType.RANGE) {
 				
