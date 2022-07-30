@@ -6,6 +6,9 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 1.0.0 (release candidate 4) - TBA
+
+
 ### Version 1.0.0 (release candidate 3) - 20.07.2022
 - New Feature: Added generator for synthetic data streams
 - Improvement: Unified table configuration options
