@@ -62,6 +62,7 @@ BBoxDB is also able to handle data streams. The first screenshot shows the busse
   * [Demo paper](https://ieeexplore.ieee.org/document/9005999) about user defined filters (presented at [IEEE Big Spatial Data 2019](http://cse.ucdenver.edu/~BSD2019/); received the best paper award).
   * [Demo paper](https://edbt2021proceedings.github.io/docs/p170.pdf) about BBoxDB Streams (presented at [EDBT 2021](https://edbticdt2021.cs.ucy.ac.cy)).
   * [Research Paper](https://doi.org/10.1007/s10619-022-07408-8) about the architecture of BBoxDB Streams at Springer Distributed and Parallel Databases.
+  * [PhD Thesis](https://ub-deposit.fernuni-hagen.de/receive/mir_mods_00001836) about the design of BBoxDB.
 * Join our chat at [gitter](https://gitter.im/bboxdb/Lobby)
 * Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
 * Subscribe our mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
