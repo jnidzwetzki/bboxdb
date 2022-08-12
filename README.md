@@ -1,4 +1,4 @@
-<img src="docs/logo/logo.png" width="400"> <br>
+<img src="https://bboxdb.org/assets/images/logo.png" width="400"> <br>
 
 <a href="https://github.com/jnidzwetzki/bboxdb/actions/workflows/build.yml">
   <img alt="Build Status" src="https://github.com/jnidzwetzki/bboxdb/actions/workflows/build.yml/badge.svg">
@@ -19,7 +19,7 @@ __Please Note:__ The master branch may be in an unstable state during developmen
 # What is BBoxDB?
 BBoxDB is a highly available distributed storage manager designed to handle multi-dimensional big data. In contrast to existing key-value stores, BBoxDB can handle multi-dimensional efficiently. Existing key-value stores are using one-dimensional keys to address the values. Finding a proper key for multi-dimensional data is challenging and often impossible; this is especially true when the data has an extent (non-point data / regions). To retrieve multi-dimensional data from a key-value store, a full data scan is often required. BBoxDB was developed to avoid the expensive full data scan and to make the work with multi-dimensional data more convenient. User-defined filters are supported to process custom data formats, and BBoxDB also supports the handling of data streams.
 
-<p><img src="docs/images/space.jpg" width="400"></p>
+<p><img src="https://bboxdb.org/assets/doc-images/space.jpg" width="400"></p>
 
 ## Key features
 * ✅ A distributed and fault-tolerant data store for n-dimensional data.
@@ -41,15 +41,15 @@ For a guided tour through the features of BBoxDB, see the [getting started](http
 ## Screenshots
 BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown. When two-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the top right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported. In addition, the GUI provides operations to explore two dimensional GeoJSON encoded data.
 
-<p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
+<p><img src="https://bboxdb.org/assets/doc-images/bboxdb_gui1.jpg" width="400"> <img src="https://bboxdb.org/assets/doc-images/bboxdb_gui2.jpg" width="400"><br>
 <br>
-<p><img src="docs/images/bboxdb_gui3.jpg" width="400"> <img src="docs/images/bboxdb_gui4.jpg" width="400"><br>
+<p><img src="https://bboxdb.org/assets/doc-images/bboxdb_gui3.jpg" width="400"> <img src="https://bboxdb.org/assets/doc-images/bboxdb_gui4.jpg" width="400"><br>
 <i>(The screenshots contain content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
 </p>
 
 BBoxDB is also able to handle data streams. The first screenshot shows the busses in Sydney fetched from a real-time GTFS feed. The data is provided by the [Transport for New South Wales Website](https://opendata.transport.nsw.gov.au/). The second screenshot shows the aircraft traffic in the area of Berlin. The data is fetched from the Automatic Dependent Surveillance–Broadcast (ADS–B) data feed from the [ADSBHub Website](https://www.adsbhub.org/). For more details about that, see our [tutorial](https://bboxdb.org/documentation/data-stream-tutorial/) on the handling of real-world data streams.
 
-<p><img src="docs/images/bboxdb_sydney.jpg" width="400"> <img src="docs/images/bboxdb_adsb.jpg" width="400"><br>
+<p><img src="https://bboxdb.org/assets/doc-images/bboxdb_sydney.jpg" width="400"> <img src="https://bboxdb.org/assets/doc-images/bboxdb_adsb.jpg" width="400"><br>
 <i>(The screenshots contain content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
 </p>
 
