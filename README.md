@@ -33,10 +33,10 @@ BBoxDB is a highly available distributed storage manager designed to handle mult
 * ✅ User-defined filters for query processing on custom data types. 
 
 ## Documentation
-The documentation of the project is located at [https://jnidzwetzki.github.io/bboxdb/](https://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
+The documentation of the project is located at [https://bboxdb.org/documentation/](https://bboxdb.org/documentation/). The documentation also contains the [changelog](https://bboxdb.org/documentation/changelog/) of the project.
 
 ## Getting started
-For a guided tour through the features of BBoxDB, see the [getting started](https://jnidzwetzki.github.io/bboxdb/doc/gettingstarted.html) chapter in the documentation. We also recommend reading the [creating client code section](https://jnidzwetzki.github.io/bboxdb/doc/client.html). The [install guide](https://jnidzwetzki.github.io/bboxdb/doc/installation.html) explains the needed steps to deploy an own BBoxDB cluster. The guide also describes how you can setup a virtualized cluster with 5 BBoxDB nodes in under two minutes, by using [Docker](https://hub.docker.com/r/jnidzwetzki/bboxdb/) and [Docker Compose](https://docs.docker.com/compose/).
+For a guided tour through the features of BBoxDB, see the [getting started](https://bboxdb.org/documentation/gettingstarted/) chapter in the documentation. We also recommend reading the [creating client code section](https://bboxdb.org/documentation/client/). The [install guide](https://bboxdb.org/documentation/installation/) explains the needed steps to deploy an own BBoxDB cluster. The guide also describes how you can setup a virtualized cluster with 5 BBoxDB nodes in under two minutes, by using [Docker](https://hub.docker.com/r/jnidzwetzki/bboxdb/) and [Docker Compose](https://docs.docker.com/compose/).
 
 ## Screenshots
 BBoxDB ships with a GUI that allows observing the global index structure. Below you find two screenshots of the GUI. The screenshots show how the space is partitioned. In addition, some details about the discovered nodes are shown. When two-dimensional bounding boxes with [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates are used, a map overlay visualization is supported by the GUI. On the top right picture, some spatial data about Germany was imported and the Figure shows, how Germany in partitioned after the data was imported. In addition, the GUI provides operations to explore two dimensional GeoJSON encoded data.
@@ -47,7 +47,7 @@ BBoxDB ships with a GUI that allows observing the global index structure. Below 
 <i>(The screenshots contain content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
 </p>
 
-BBoxDB is also able to handle data streams. The first screenshot shows the busses in Sydney fetched from a real-time GTFS feed. The data is provided by the [Transport for New South Wales Website](https://opendata.transport.nsw.gov.au/). The second screenshot shows the aircraft traffic in the area of Berlin. The data is fetched from the Automatic Dependent Surveillance–Broadcast (ADS–B) data feed from the [ADSBHub Website](https://www.adsbhub.org/). For more details about that, see our [tutorial](https://jnidzwetzki.github.io/bboxdb/doc/tutorial-streamdata.html) on the handling of real-world data streams.
+BBoxDB is also able to handle data streams. The first screenshot shows the busses in Sydney fetched from a real-time GTFS feed. The data is provided by the [Transport for New South Wales Website](https://opendata.transport.nsw.gov.au/). The second screenshot shows the aircraft traffic in the area of Berlin. The data is fetched from the Automatic Dependent Surveillance–Broadcast (ADS–B) data feed from the [ADSBHub Website](https://www.adsbhub.org/). For more details about that, see our [tutorial](https://bboxdb.org/documentation/data-stream-tutorial/) on the handling of real-world data streams.
 
 <p><img src="docs/images/bboxdb_sydney.jpg" width="400"> <img src="docs/images/bboxdb_adsb.jpg" width="400"><br>
 <i>(The screenshots contain content from <a href="https://www.openstreetmap.org/">OpenStreetMap</a> - CC-BY-SA 2.0)</i>
@@ -67,7 +67,7 @@ BBoxDB is also able to handle data streams. The first screenshot shows the busse
 * Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
 * Subscribe our mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
 * Visit our [bug tracking system](https://github.com/jnidzwetzki/bboxdb/issues)
-* Read the [source code](https://github.com/jnidzwetzki/bboxdb) and the [documentation](https://jnidzwetzki.github.io/bboxdb/)
+* Read the [source code](https://github.com/jnidzwetzki/bboxdb) and the [documentation](https://bboxdb.org/documentation/)
 * For contributing, see our [contributing guide](https://github.com/jnidzwetzki/bboxdb/blob/master/CONTRIBUTING.md)
 * If you like the project, please star it on GitHub!
 
