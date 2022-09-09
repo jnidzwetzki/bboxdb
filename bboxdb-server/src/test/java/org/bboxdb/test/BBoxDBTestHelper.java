@@ -128,11 +128,11 @@ public class BBoxDBTestHelper {
 	
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
 		
-		final long createdVersion = 
-				distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, configuration);
-		
 		// Add fake instances for testing
 		registerFakeInstance(fakeInstances);
+		
+		final long createdVersion = 
+				distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, configuration);
 				
 		SpacePartitionerCache.getInstance().resetSpacePartitioner(distributionGroup);
 		
