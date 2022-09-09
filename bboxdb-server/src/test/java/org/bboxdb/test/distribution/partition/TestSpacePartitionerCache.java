@@ -73,7 +73,8 @@ public class TestSpacePartitionerCache {
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
-		
+		Thread.sleep(1000);
+
 		final KDtreeSpacePartitioner newSpacepartitionier1 = (KDtreeSpacePartitioner) 
 				SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
 		
