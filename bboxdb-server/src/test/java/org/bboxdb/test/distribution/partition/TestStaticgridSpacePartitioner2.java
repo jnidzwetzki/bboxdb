@@ -30,6 +30,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class TestStaticgridSpacePartitioner2 {
 	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	@BeforeClass
-	public static void beforeClass() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
+	public static void beforeClass() throws ZookeeperException, BBoxDBException, ResourceAllocationException, InterruptedException {
 		distributionGroupZookeeperAdapter 
 				= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
 		
@@ -59,8 +60,7 @@ public class TestStaticgridSpacePartitioner2 {
 				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
+		BBoxDBTestHelper.recreateDistributionGroup(distributionGroupZookeeperAdapter, TEST_GROUP, configuration, 2);
 	}
 
 	@Test(expected=BBoxDBException.class)

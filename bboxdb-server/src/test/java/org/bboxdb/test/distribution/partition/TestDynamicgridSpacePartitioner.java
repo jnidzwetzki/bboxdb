@@ -64,7 +64,7 @@ public class TestDynamicgridSpacePartitioner {
 	}
 
 	@Before
-	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException {
+	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException, InterruptedException {
 
 		final String config = "[[0.0,5.0]:[0.0,6.0]];0.5";
 
@@ -75,11 +75,7 @@ public class TestDynamicgridSpacePartitioner {
 				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 
-		// Add fake instances for testing
-		BBoxDBTestHelper.registerFakeInstance(2);
-		
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration);
+		BBoxDBTestHelper.recreateDistributionGroup(distributionGroupZookeeperAdapter, TEST_GROUP, configuration, 2);
 	}
 
 	@Test(timeout=60000)

@@ -27,6 +27,7 @@ import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,8 +59,7 @@ public class TestSpacePartitionerCache {
 				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
 		
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
+		BBoxDBTestHelper.recreateDistributionGroup(distributionGroupZookeeperAdapter, TEST_GROUP, configuration, 2);
 		
 		final KDtreeSpacePartitioner oldSpacepartitionier = (KDtreeSpacePartitioner) 
 				SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
