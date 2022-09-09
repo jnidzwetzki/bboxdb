@@ -41,6 +41,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.util.EnvironmentHelper;
 import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,13 +61,16 @@ public class TestQuadtreeSpacePartitioner {
 	private static DistributionGroupAdapter distributionGroupZookeeperAdapter;
 	
 	@BeforeClass
-	public static void beforeClass() {
-		distributionGroupZookeeperAdapter 
-		= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+	public static void beforeClass() throws ZookeeperException {
+		EnvironmentHelper.resetTestEnvironment();
 	}
 	
 	@Before
 	public void before() throws ZookeeperException, BBoxDBException, ResourceAllocationException, InterruptedException {
+		
+		distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getZookeeperClient().getDistributionGroupAdapter();
+		
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withReplicationFactor((short) 1)
