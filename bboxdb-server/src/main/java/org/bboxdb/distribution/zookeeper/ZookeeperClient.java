@@ -598,10 +598,15 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 		try {
 			// Delete old state if exists (e.g. caused by a fast restart of the
 			// service)
-			if (zookeeper.exists(path, false) != null) {
+			try {
 				zookeeper.delete(path, -1);
+			} catch(KeeperException e) {
+				if (e.code() == Code.NONODE) {
+					// Ignore deletion of failed node
+				}
+				throw e;
 			}
-
+			
 			// Register new state
 			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 		} catch (KeeperException e) {
