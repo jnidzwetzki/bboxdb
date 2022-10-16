@@ -143,33 +143,35 @@ public class BBoxDBInstanceManager {
 	@VisibleForTesting
 	public void updateInstanceList(final Set<BBoxDBInstance> newInstances) {
 		
-		// Are members removed?
-		final List<InetSocketAddress> deletedInstances = new ArrayList<>();
-		deletedInstances.addAll(instances.keySet());
-		
-		// Remove still existing instances from 'to delete list'
-		for(final BBoxDBInstance newInstance : newInstances) {
-			deletedInstances.remove(newInstance.getInetSocketAddress());
-		}
-		
-		for(final InetSocketAddress inetSocketAddress : deletedInstances) {
-			final BBoxDBInstance deletedInstance = instances.remove(inetSocketAddress);
-			sendEvent(DistributedInstanceEvent.DELETED, deletedInstance);
-		}
-
-		for(final BBoxDBInstance instance : newInstances) {
+		synchronized (instances) {
+			// Are members removed?
+			final List<InetSocketAddress> deletedInstances = new ArrayList<>(instances.size());
+			deletedInstances.addAll(instances.keySet());
 			
-			final InetSocketAddress inetSocketAddress = instance.getInetSocketAddress();
+			// Remove still existing instances from 'to delete list'
+			for(final BBoxDBInstance newInstance : newInstances) {
+				deletedInstances.remove(newInstance.getInetSocketAddress());
+			}
 			
-			// Any new member?
-			if( ! instances.containsKey(inetSocketAddress)) {
-				instances.put(inetSocketAddress, instance);
-				sendEvent(DistributedInstanceEvent.ADD, instance);
-			} else {
-				// Changed member?
-				if(! instances.get(inetSocketAddress).fullEquals(instance)) {
+			for(final InetSocketAddress inetSocketAddress : deletedInstances) {
+				final BBoxDBInstance deletedInstance = instances.remove(inetSocketAddress);
+				sendEvent(DistributedInstanceEvent.DELETED, deletedInstance);
+			}
+	
+			for(final BBoxDBInstance instance : newInstances) {
+				
+				final InetSocketAddress inetSocketAddress = instance.getInetSocketAddress();
+				
+				// Any new member?
+				if( ! instances.containsKey(inetSocketAddress)) {
 					instances.put(inetSocketAddress, instance);
-					sendEvent(DistributedInstanceEvent.CHANGED, instance);
+					sendEvent(DistributedInstanceEvent.ADD, instance);
+				} else {
+					// Changed member?
+					if(! instances.get(inetSocketAddress).fullEquals(instance)) {
+						instances.put(inetSocketAddress, instance);
+						sendEvent(DistributedInstanceEvent.CHANGED, instance);
+					}
 				}
 			}
 		}
@@ -213,7 +215,9 @@ public class BBoxDBInstanceManager {
 	 * @return
 	 */
 	public List<BBoxDBInstance> getInstances() {
-		return new ArrayList<>(instances.values());
+		synchronized (instances) {
+			return new ArrayList<>(instances.values());
+		}
 	}
 	
 	/**
@@ -221,8 +225,10 @@ public class BBoxDBInstanceManager {
 	 */
 	protected void zookeeperDisconnect() {
 		logger.debug("Zookeeper disconnected, sending delete events for all instances");
-		instances.values().forEach((i) -> sendEvent(DistributedInstanceEvent.DELETED, i));
-		instances.clear();		
+		synchronized (instances) {
+			instances.values().forEach((i) -> sendEvent(DistributedInstanceEvent.DELETED, i));
+			instances.clear();
+		}
 	}
 	
 }
