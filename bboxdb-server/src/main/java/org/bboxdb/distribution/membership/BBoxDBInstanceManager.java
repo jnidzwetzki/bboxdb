@@ -144,7 +144,7 @@ public class BBoxDBInstanceManager {
 	public void updateInstanceList(final Set<BBoxDBInstance> newInstances) {
 		
 		// Are members removed?
-		final List<InetSocketAddress> deletedInstances = new ArrayList<>(instances.size());
+		final List<InetSocketAddress> deletedInstances = new ArrayList<>();
 		deletedInstances.addAll(instances.keySet());
 		
 		// Remove still existing instances from 'to delete list'
