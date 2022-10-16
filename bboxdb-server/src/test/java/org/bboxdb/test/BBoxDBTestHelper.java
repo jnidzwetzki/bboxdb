@@ -81,7 +81,7 @@ public class BBoxDBTestHelper {
 	}
 	
 	/**
-	 * Wait until the space paritioner is reread
+	 * Wait until the space partitioner is reread
 	 * @param distributionGroup
 	 * @param desiredVersion
 	 * @throws BBoxDBException
