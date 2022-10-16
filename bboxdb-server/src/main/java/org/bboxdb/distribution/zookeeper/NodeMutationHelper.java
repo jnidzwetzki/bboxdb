@@ -20,6 +20,7 @@ package org.bboxdb.distribution.zookeeper;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
@@ -29,6 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NodeMutationHelper {
+	
+	
+	/**
+	 * The logical time for this process
+	 */
+	private final static AtomicLong logicalTime = new AtomicLong(0);
 	
 	/**
 	 * The logger
@@ -53,12 +60,18 @@ public class NodeMutationHelper {
 					
 			try {
 				oldVersion = getNodeMutationVersion(zookeeperClient, path, null, stat);
+				
+				// Update local system clock with remote system clock
+				if(oldVersion > logicalTime.get()) {
+					logicalTime.set(oldVersion);
+				}
+				
 			} catch (ZookeeperNotFoundException e) {
 				// ignore not found
 			}
 			
 			// Use logical time to prevent time synchronization issues
-			long newVersion = oldVersion + 1;
+			long newVersion = logicalTime.incrementAndGet();
 			
 			final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(newVersion);
 			
