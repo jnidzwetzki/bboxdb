@@ -415,8 +415,10 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	public void updateStateData(final BBoxDBInstance instance, final BBoxDBInstanceState newState) 
 			throws ZookeeperException {
 		
+		zookeeperClient.createDirectoryStructureRecursive(zookeeperClient.getActiveInstancesPath());
+
 		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instance.getStringValue();
-		
+				
 		logger.info("Update instance state on: {}", statePath);
 		zookeeperClient.replaceEphemeralNode(statePath, newState.getZookeeperValue().getBytes());
 	}
