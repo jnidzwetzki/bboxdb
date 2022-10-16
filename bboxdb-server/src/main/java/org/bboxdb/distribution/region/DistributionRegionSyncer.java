@@ -204,7 +204,7 @@ public class DistributionRegionSyncer implements Watcher {
 			logger.debug("updateNodeIfNeeded called with path {}", nodePath);
 
 			final long remoteVersion = NodeMutationHelper.getNodeMutationVersion(
-					zookeeperClient, nodePath, this);
+					zookeeperClient, nodePath, this, null);
 
 			final long localVersion = versions.getOrDefault(region, 0l);
 

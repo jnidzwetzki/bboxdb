@@ -18,8 +18,12 @@
 package org.bboxdb.distribution.zookeeper;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.data.Stat;
+import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,49 +41,48 @@ public class NodeMutationHelper {
 	 * @param position
 	 * @return 
 	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
 	 */
 	public static long markNodeMutationAsComplete(final ZookeeperClient zookeeperClient, 
 			final String path) throws ZookeeperException {
-		
-		// Ensure we don't set an older version
-		long oldVersion = 0;
-				
-		try {
-			oldVersion = getNodeMutationVersion(zookeeperClient, path, null);
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
-			// ignore not found
-		}
-		
-		long newVersion = System.currentTimeMillis();
-				
-		if(newVersion < oldVersion) {
-			logger.error("Unable to update node mutation to {}, remote value is newer {}", 
-					newVersion, oldVersion);
-			throw new ZookeeperException("Version problem for " + path);
-		}
-		
-		// Ensure a new version is used, even if
-		// the update call is performed multiple
-		// times during one millisecond
-		if(newVersion == oldVersion) {
+
+		final Callable<Long> versionUpdate = () -> {
+			// Ensure we don't set an older version
+			final Stat stat = new Stat();
+			long oldVersion = 0;
+					
 			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				oldVersion = getNodeMutationVersion(zookeeperClient, path, null, stat);
+			} catch (ZookeeperNotFoundException e) {
+				// ignore not found
 			}
 			
-			newVersion++;
-		}
+			// Use logical time to prevent time synchronization issues
+			long newVersion = oldVersion + 1;
+			
+			final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(newVersion);
+			
+			final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
+			
+			zookeeperClient.replacePersistentNode(nodePath, versionBytes.array(), stat.getVersion());
+			
+			logger.debug("Mark mutation as complete {} (old={}, new={})", path, oldVersion, newVersion);
+			
+			return newVersion;
+		};
 		
-		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(newVersion);
+		// Retry version update (might fail if two updates are performed in parallel)
+		final Retryer<Long> versionUpdateRetryer = new Retryer<>(25, 10, TimeUnit.MILLISECONDS, versionUpdate);
 		
-		final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
+		try {
+			if(versionUpdateRetryer.execute()) {
+				throw new ZookeeperException(versionUpdateRetryer.getLastException());
+			}
+		} catch (InterruptedException e) {
+			throw new ZookeeperException(e);
+		} 
 		
-		logger.debug("Mark mutation as complete {}", path);
-		
-		zookeeperClient.replacePersistentNode(nodePath, versionBytes.array());
-		
-		return newVersion;
+		return versionUpdateRetryer.getResult();
 	}
 	
 	/**
@@ -102,13 +105,13 @@ public class NodeMutationHelper {
 	 * @throws ZookeeperException 
 	 */
 	public static long getNodeMutationVersion(final ZookeeperClient zookeeperClient,
-			final String path, final Watcher watcher) 
+			final String path, final Watcher watcher, final Stat stat) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		logger.debug("Reading mutation from path {}", path);
 		
 		final byte[] result = zookeeperClient.readPathAndReturnBytes(
-				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, watcher);
+				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, watcher, stat);
 		
 		return DataEncoderHelper.readLongFromByte(result);
 	}

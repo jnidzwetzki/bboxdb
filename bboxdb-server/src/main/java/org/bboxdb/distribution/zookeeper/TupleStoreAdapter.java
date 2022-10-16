@@ -189,7 +189,7 @@ public class TupleStoreAdapter {
 		
 		try {
 			final String allTablesPath = getAllTablesPath(distributionGroup);
-			NodeMutationHelper.getNodeMutationVersion(zookeeperClient, allTablesPath, watcher);
+			NodeMutationHelper.getNodeMutationVersion(zookeeperClient, allTablesPath, watcher, null);
 					
 			final List<String> children = zookeeperClient.getChildren(allTablesPath);
 			children.removeIf(c -> c.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION));

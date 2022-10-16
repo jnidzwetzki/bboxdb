@@ -413,7 +413,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public String readPathAndReturnString(final String pathName, final Watcher watcher)
 			throws ZookeeperException, ZookeeperNotFoundException {
 
-		final byte[] bytes = readPathAndReturnBytes(pathName, watcher);
+		final byte[] bytes = readPathAndReturnBytes(pathName, watcher, null);
 		return new String(bytes);
 	}
 
@@ -421,11 +421,12 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * Read the given path and returns a byte array result
 	 *
 	 * @param pathName
+	 * @param stat
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	public byte[] readPathAndReturnBytes(final String pathName, final Watcher watcher)
+	public byte[] readPathAndReturnBytes(final String pathName, final Watcher watcher, final Stat stat)
 			throws ZookeeperException, ZookeeperNotFoundException {
 
 		try {
@@ -433,7 +434,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 					throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
 			}
 
-			return zookeeper.getData(pathName, watcher, null);
+			return zookeeper.getData(pathName, watcher, stat);
 		} catch (KeeperException e) {
 
 			// Was node deleted between exists and getData call?
@@ -552,6 +553,16 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			throw new ZookeeperException(e);
 		}
 	}
+	
+	/**
+	 * Replace the persistent node - ignoring version version
+	 * @param path
+	 * @param bytes
+	 * @throws ZookeeperException
+	 */
+	public void replacePersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
+		replacePersistentNode(path, bytes, -1);
+	}
 
 	/**
 	 * Replace the persistent node
@@ -559,13 +570,13 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 * @param bytes
 	 * @throws ZookeeperException
 	 */
-	public void replacePersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
+	public void replacePersistentNode(final String path, final byte[] bytes, int version) throws ZookeeperException {
 		try {
 			if (zookeeper.exists(path, false) != null) {
-				zookeeper.setData(path, bytes, -1);
+				zookeeper.setData(path, bytes, version);
 			} else {
 				createDirectoryStructureRecursive(path);
-				zookeeper.setData(path, bytes, -1);
+				zookeeper.setData(path, bytes, version);
 			}
 		} catch (KeeperException e) {
 			throw new ZookeeperException(e);

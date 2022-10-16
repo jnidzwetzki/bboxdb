@@ -163,7 +163,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 					.getDistributionGroupPath(distributionGroupName);
 			
 			final long remoteVersion = NodeMutationHelper
-					.getNodeMutationVersion(zookeeperClient, path, null);
+					.getNodeMutationVersion(zookeeperClient, path, null, null);
 			
 			final long localVersion = metaData.getVersion();
 			

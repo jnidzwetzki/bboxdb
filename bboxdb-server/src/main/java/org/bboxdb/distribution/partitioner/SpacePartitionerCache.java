@@ -109,7 +109,7 @@ public class SpacePartitionerCache implements Watcher {
 						.getDistributionGroupAdapter().getDistributionGroupPath(groupName);
 				
 				final long version = NodeMutationHelper
-						.getNodeMutationVersion(zookeeperClient, path, this);
+						.getNodeMutationVersion(zookeeperClient, path, this, null);
 				
 				// Create callback list
 				if(! callbacks.containsKey(groupName)) {
@@ -193,7 +193,7 @@ public class SpacePartitionerCache implements Watcher {
 						.getDistributionGroupAdapter().getDistributionGroupPath(groupname);
 				
 				final long zookeeperVersion 
-					= NodeMutationHelper.getNodeMutationVersion(zookeeperClient, path, this);
+					= NodeMutationHelper.getNodeMutationVersion(zookeeperClient, path, this, null);
 				
 				final long memoryVersion = getSpacePartitionerVersion(groupname);
 				
