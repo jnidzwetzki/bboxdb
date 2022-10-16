@@ -56,16 +56,10 @@ public class NodeMutationHelper {
 		final Callable<Long> versionUpdate = () -> {
 			// Ensure we don't set an older version
 			final Stat stat = new Stat();
-			long oldVersion = 0;
+			long curVersion = 0;
 					
 			try {
-				oldVersion = getNodeMutationVersion(zookeeperClient, path, null, stat);
-				
-				// Update local system clock with remote system clock
-				if(oldVersion > logicalTime.get()) {
-					logicalTime.set(oldVersion);
-				}
-				
+				curVersion = getNodeMutationVersion(zookeeperClient, path, null, stat);
 			} catch (ZookeeperNotFoundException e) {
 				// ignore not found
 			}
@@ -79,7 +73,7 @@ public class NodeMutationHelper {
 			
 			zookeeperClient.replacePersistentNode(nodePath, versionBytes.array(), stat.getVersion());
 			
-			logger.debug("Mark mutation as complete {} (old={}, new={})", path, oldVersion, newVersion);
+			logger.debug("Mark mutation as complete {} (old={}, new={})", path, curVersion, newVersion);
 			
 			return newVersion;
 		};
@@ -126,7 +120,14 @@ public class NodeMutationHelper {
 		final byte[] result = zookeeperClient.readPathAndReturnBytes(
 				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, watcher, stat);
 		
-		return DataEncoderHelper.readLongFromByte(result);
+		final long curVersion = DataEncoderHelper.readLongFromByte(result);
+		
+		// Update local system clock with remote system clock
+		if(curVersion > logicalTime.get()) {
+			logicalTime.set(curVersion);
+		}
+		
+		return curVersion;
 	}
 	
 }
