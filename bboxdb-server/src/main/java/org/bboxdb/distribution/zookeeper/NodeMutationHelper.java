@@ -75,7 +75,7 @@ public class NodeMutationHelper {
 		final Retryer<Long> versionUpdateRetryer = new Retryer<>(25, 10, TimeUnit.MILLISECONDS, versionUpdate);
 		
 		try {
-			if(versionUpdateRetryer.execute()) {
+			if(! versionUpdateRetryer.execute()) {
 				throw new ZookeeperException(versionUpdateRetryer.getLastException());
 			}
 		} catch (InterruptedException e) {
