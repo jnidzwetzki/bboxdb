@@ -601,10 +601,10 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			try {
 				zookeeper.delete(path, -1);
 			} catch(KeeperException e) {
-				if (e.code() == Code.NONODE) {
-					// Ignore deletion of failed node
+				// Ignore deletion of non-existing node
+				if (e.code() != Code.NONODE) {
+					throw e;
 				}
-				throw e;
 			}
 			
 			// Register new state
@@ -618,7 +618,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	}
 	
 	/**
-	 * Create a ephemeral sequencial node
+	 * Create a ephemeral sequential node
 	 * @param path
 	 * @param bytes
 	 * @return 
