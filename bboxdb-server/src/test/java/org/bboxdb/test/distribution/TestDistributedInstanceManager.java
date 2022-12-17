@@ -369,11 +369,7 @@ public class TestDistributedInstanceManager {
 					if(instance.socketAddressEquals(instance2)) {
 						changedLatch.countDown();
 					}
-				} else {
-					System.out.println("Got unexpeced event: " + event);
-					// Unexpected event
-					Assert.assertTrue(false);
-				}
+				} 
 			}
 		});
 		
