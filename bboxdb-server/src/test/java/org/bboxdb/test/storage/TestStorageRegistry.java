@@ -41,6 +41,7 @@ import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
+import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -72,6 +73,9 @@ public class TestStorageRegistry {
 				.create(2)
 				.withPlacementStrategy(DummyResourceAllocator.class.getName(), "")
 				.build();
+		
+		// Add fake instances for testing
+		BBoxDBTestHelper.registerFakeInstance(2);
 		
 		adapter.createDistributionGroup(RELATION_NAME.getDistributionGroup(), configuration);
 	}
