@@ -18,6 +18,7 @@
 package org.bboxdb.commons;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +36,8 @@ import java.util.Objects;
 public class SortedIteratorMerger<E> implements Iterable<E> {
 
 	private final class SortedIterator implements Iterator<E> {
-		/**
+		
+		/*
 		 * The list with unconsumed duplicates for the current key
 		 */
 		final List<E> unconsumedDuplicates = new ArrayList<E>();
@@ -61,13 +63,8 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 				return unconsumedDuplicates.remove(0);
 			}
 			
-			final E lowestElement = iteratorElementMap
-					.values()
-					.stream()
-					.filter(e -> Objects.nonNull(e))
-					.min(elementComparator)
-					.orElse(null);
-			
+			final E lowestElement = Collections.min(iteratorElementMap.values(), elementComparator);
+						
 			assert (lowestElement != null);
 			
 			for(final Iterator<E> iteratorToCheck : iteratorElementMap.keySet()) {
