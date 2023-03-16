@@ -18,7 +18,6 @@
 package org.bboxdb.commons;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,7 +62,22 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 				return unconsumedDuplicates.remove(0);
 			}
 			
-			final E lowestElement = Collections.min(iteratorElementMap.values(), elementComparator);
+			E lowestElement = null;
+			
+			/* Find the lowest elemnt and ignore NULLs */
+			for(E element : iteratorElementMap.values()) {
+				if(element == null) {
+					continue;
+				}
+				
+				if(lowestElement == null) {
+					lowestElement = element;
+				} else {
+					if(elementComparator.compare(lowestElement, element) > 0) {
+						lowestElement = element;
+					}
+				}
+			}
 						
 			assert (lowestElement != null);
 			
