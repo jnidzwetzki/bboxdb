@@ -1,5 +1,8 @@
 name: Perform coverity scan
  
+permissions:
+  contents: read
+
 on: 
   push:
      branches:
