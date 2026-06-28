@@ -1,6 +1,6 @@
 <!--
 
-       Copyright (C) 2015-2018 the BBoxDB project
+       Copyright (C) 2015-2026 the BBoxDB project
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -83,20 +83,8 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.15.0</version>
-				<configuration>
-					<release>17</release>
-				</configuration>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.6</version>
 				<configuration>
-					<enableAssertions>true</enableAssertions>
-					<trimStackTrace>false</trimStackTrace>
 					<additionalClasspathElements>
 						<additionalClasspathElement>${project.parent.basedir}/conf</additionalClasspathElement>
 					</additionalClasspathElements>
