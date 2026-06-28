@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution.partition;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.allocator.DummyResourceAllocator;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
@@ -32,7 +33,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestSpacePartitionerCache {
+public class TestSpacePartitionerCache extends BBoxDBTestEnvironment {
 	
 	/**
 	 * The name of the test region

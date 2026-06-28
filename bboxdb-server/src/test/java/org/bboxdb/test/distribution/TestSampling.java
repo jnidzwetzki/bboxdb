@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.Collection;
 
 import org.bboxdb.commons.RejectedException;
@@ -47,7 +48,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestSampling {
+public class TestSampling extends BBoxDBTestEnvironment {
 	
 	/**
 	 * The distribution group adapter

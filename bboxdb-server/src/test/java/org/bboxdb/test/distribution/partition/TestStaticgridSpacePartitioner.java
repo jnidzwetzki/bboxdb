@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution.partition;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.HashSet;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -40,7 +41,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestStaticgridSpacePartitioner {
+public class TestStaticgridSpacePartitioner extends BBoxDBTestEnvironment {
 	
 	/**
 	 * The name of the test region

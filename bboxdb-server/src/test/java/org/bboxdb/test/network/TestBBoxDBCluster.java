@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.network;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -39,7 +40,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestBBoxDBCluster {
+public class TestBBoxDBCluster extends BBoxDBTestEnvironment {
 
 
 	/**

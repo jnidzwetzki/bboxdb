@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution.partition;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.HashSet;
 
 import org.bboxdb.distribution.allocator.DummyResourceAllocator;
@@ -35,7 +36,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestStaticgridSpacePartitioner2 {
+public class TestStaticgridSpacePartitioner2 extends BBoxDBTestEnvironment {
 	
 	/**
 	 * The name of the test region

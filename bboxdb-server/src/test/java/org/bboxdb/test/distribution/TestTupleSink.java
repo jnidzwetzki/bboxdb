@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TestTupleSink {
+public class TestTupleSink extends BBoxDBTestEnvironment {
 
 	/**
 	 * The tablename

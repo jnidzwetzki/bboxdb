@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
@@ -28,7 +29,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestTupleStoreAdapter {
+public class TestTupleStoreAdapter extends BBoxDBTestEnvironment {
 	
 	protected final TupleStoreAdapter tupleStoreAdapter;
 	

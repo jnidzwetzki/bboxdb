@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.zookeeper.ContinuousQueryEnlargementRegisterer;
 import org.bboxdb.distribution.zookeeper.DistributionGroupAdapter;
@@ -36,7 +37,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestContinuousQueryEnlargement {
+public class TestContinuousQueryEnlargement extends BBoxDBTestEnvironment {
 
 	/**
 	 * The name of the cluster for this test
