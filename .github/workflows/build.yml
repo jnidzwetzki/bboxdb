@@ -28,6 +28,6 @@ jobs:
       - name: Test the Project
         run: mvn -B test
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
            verbose: true
