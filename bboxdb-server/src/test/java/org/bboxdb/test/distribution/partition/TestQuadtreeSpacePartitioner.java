@@ -200,9 +200,20 @@ public class TestQuadtreeSpacePartitioner extends BBoxDBTestEnvironment {
 			= spacepartitionier.getDistributionRegionSyncer();
 		
 		distributionRegionSyncer.registerCallback(callback);
+
+		// Is the condition already fulfilled after registering the callback?
+		final boolean allChildrenActive = rootNode
+				.getAllChildren()
+				.stream()
+				.allMatch(a -> a.getState() == DistributionRegionState.ACTIVE);
+
+		if(allChildrenActive) {
+			changeLatch.countDown();
+		}
+
 		changeLatch.await();
 		distributionRegionSyncer.unregisterCallback(callback);
-		
+
 		final BBoxDBInstance system = rootNode.getSystems().get(0);
 		Assert.assertFalse(RegionMergeHelper.isRegionUnderflow(destination, system));
 		
