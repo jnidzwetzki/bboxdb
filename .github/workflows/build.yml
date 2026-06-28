@@ -15,7 +15,7 @@ jobs:
     name: Java ${{ matrix.java }} compile
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
