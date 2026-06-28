@@ -19,7 +19,6 @@ package org.bboxdb.tools.converter.osm;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -238,7 +237,7 @@ public class OSMDataConverter {
 			}
 			
 			System.out.format("Importing %s%n", filename);
-			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
+			final OsmosisReader reader = new OsmosisReader(new File(filename));
 			reader.setSink(new Sink() {
 				
 				@Override

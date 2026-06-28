@@ -26,7 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import org.apache.commons.compress.utils.CountingInputStream;
+import org.apache.commons.io.input.CountingInputStream;
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.io.FileUtil;
 import org.slf4j.Logger;
@@ -107,7 +107,7 @@ public class FileLineIndex implements AutoCloseable {
 				final char readChar = (char) inputStream.read();
 
 				if(readChar == '\n') {
-					registerLine(indexedLines, inputStream.getBytesRead());
+					registerLine(indexedLines, inputStream.getByteCount());
 					indexedLines++;
 				}
 
