@@ -20,6 +20,7 @@ package org.bboxdb.experiments;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.InputParseException;
@@ -29,35 +30,27 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.SimpleStatement;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.google.common.base.Stopwatch;
 
 public class TestBaselineApproach implements AutoCloseable {
 
 	/**
-	 * The cassandra cluster object
-	 */
-	private Cluster cluster;
-
-	/**
 	 * The cassandra session object
 	 */
-	private Session session;
+	private CqlSession session;
 
-	public TestBaselineApproach(final Cluster cluster) {
-		this.cluster = cluster;
-		this.session = cluster.connect();
+	public TestBaselineApproach(final CqlSession session) {
+		this.session = session;
 	}
 
 	@Override
 	public void close() throws Exception {
 		session.close();
-		cluster.close();
 	}
 
 	/**
@@ -131,17 +124,14 @@ public class TestBaselineApproach implements AutoCloseable {
 		long readRecords = 0;
 		long resultRecords = 0;
 
-		final SimpleStatement statement = new SimpleStatement("SELECT * FROM " + destTable);
-		statement.setFetchSize(2000); // Use 2000 tuples per page
+		final SimpleStatement statement = SimpleStatement.builder("SELECT * FROM " + destTable)
+				.setPageSize(2000) // Use 2000 tuples per page
+				.build();
 
 		final ResultSet rs = session.execute(statement);
 
+		// The driver automatically fetches the next page while iterating
 		for (final Row row : rs) {
-
-			// Request next page
-		    if (rs.getAvailableWithoutFetching() == 100 && !rs.isFullyFetched()) {
-		        rs.fetchMoreResults(); // this is asynchronous
-		    }
 
 		    readRecords++;
 
@@ -200,17 +190,14 @@ public class TestBaselineApproach implements AutoCloseable {
 		long readRecords = 0;
 		long resultRecords = 0;
 
-		final SimpleStatement statementTable1 = new SimpleStatement("SELECT * FROM " + table1);
-		statementTable1.setFetchSize(2000); // Use 2000 tuples per page
+		final SimpleStatement statementTable1 = SimpleStatement.builder("SELECT * FROM " + table1)
+				.setPageSize(2000) // Use 2000 tuples per page
+				.build();
 
 		final ResultSet rs1 = session.execute(statementTable1);
 
+		// The driver automatically fetches the next page while iterating
 		for (final Row row1 : rs1) {
-
-			// Request next page
-		    if (rs1.getAvailableWithoutFetching() == 100 && !rs1.isFullyFetched()) {
-		        rs1.fetchMoreResults(); // this is asynchronous
-		    }
 
 		    readRecords++;
 
@@ -230,16 +217,14 @@ public class TestBaselineApproach implements AutoCloseable {
 		    }
 
 			// Perform the nested loop join
-		    final SimpleStatement statementTable2 = new SimpleStatement("SELECT * FROM " + table2);
-			statementTable2.setFetchSize(2000); // Use 2000 tuples per page
+		    final SimpleStatement statementTable2 = SimpleStatement.builder("SELECT * FROM " + table2)
+					.setPageSize(2000) // Use 2000 tuples per page
+					.build();
 
 			final ResultSet rs2 = session.execute(statementTable2);
 
+			// The driver automatically fetches the next page while iterating
 			for (final Row row2 : rs2) {
-				// Request next page
-			    if (rs1.getAvailableWithoutFetching() == 100 && !rs1.isFullyFetched()) {
-			        rs1.fetchMoreResults(); // this is asynchronous
-			    }
 
 			    readRecords++;
 
@@ -270,11 +255,12 @@ public class TestBaselineApproach implements AutoCloseable {
 	 */
 	public static void main(final String[] args) throws Exception {
 
-		final Cluster cluster = Cluster.builder()
-				.addContactPoint("127.0.0.1")
+		final CqlSession session = CqlSession.builder()
+				.addContactPoint(new InetSocketAddress("127.0.0.1", 9042))
+				.withLocalDatacenter("datacenter1")
 				.build();
 
-		final TestBaselineApproach testBaselineApproach = new TestBaselineApproach(cluster);
+		final TestBaselineApproach testBaselineApproach = new TestBaselineApproach(session);
 
 		if(args.length == 0) {
 			System.err.println("Usage: <Class> <import|rangequery|join>");
