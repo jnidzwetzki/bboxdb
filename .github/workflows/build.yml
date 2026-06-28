@@ -1,23 +1,23 @@
 name: Build project
- 
+
 on: [push]
- 
+
 permissions:
   contents: write
- 
+
 jobs:
   compile:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        java: [ 12, 13, 14 ]
+        java: [ 17, 21 ]
     name: Java ${{ matrix.java }} compile
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-package: jdk
@@ -25,25 +25,9 @@ jobs:
           cache: 'maven'
       - name: Compile the Project
         run: mvn -B compile
-      - name: Start Zookeeper
-        run: |
-           mkdir /tmp/zookeeper
-           export ZK="apache-zookeeper-3.7.0-bin"
-           wget https://archive.apache.org/dist/zookeeper/zookeeper-3.7.0/$ZK.tar.gz
-           tar xzf $ZK.tar.gz -C /tmp/zookeeper
-           cp /tmp/zookeeper/$ZK/conf/zoo_sample.cfg /tmp/zookeeper/$ZK/conf/zoo.cfg
-           /tmp/zookeeper/$ZK/bin/zkServer.sh start
-           cat /tmp/zookeeper/$ZK/logs/*
-           sed -i "s/zookeepernodes:.*/zookeepernodes:\ ['localhost:2181']/" conf/bboxdb.yaml
-           echo "#####################################################################"
-           cat conf/bboxdb.yaml
-           echo "#####################################################################"
-           mkdir -p /tmp/bboxdb/data
       - name: Test the Project
-        run: mvn test
+        run: mvn -B test
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
            verbose: true
-           
-  

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
@@ -44,7 +45,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class TestRegionSyncer {
+public class TestRegionSyncer extends BBoxDBTestEnvironment {
 	
 	/**
 	 * The test group

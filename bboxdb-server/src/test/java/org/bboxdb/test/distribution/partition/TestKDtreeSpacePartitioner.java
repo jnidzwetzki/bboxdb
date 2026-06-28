@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.distribution.partition;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.HashSet;
 import java.util.List;
 
@@ -43,7 +44,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestKDtreeSpacePartitioner {
+public class TestKDtreeSpacePartitioner extends BBoxDBTestEnvironment {
 	
 	/**
 	 * The name of the test region

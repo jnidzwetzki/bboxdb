@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.network;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.util.Optional;
 
 import org.bboxdb.BBoxDBMain;
@@ -39,7 +40,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestIndexedTupleUpdate {
+public class TestIndexedTupleUpdate extends BBoxDBTestEnvironment {
 	/**
 	 * The instance of the software
 	 */
@@ -50,11 +51,6 @@ public class TestIndexedTupleUpdate {
 	 */
 	public final static short REPLICATION_FACTOR = 1;
 	
-	/**
-	 * The cluster contact point
-	 */
-	private static final String CLUSTER_CONTACT_POINT = "localhost:2181";
-
 	/**
 	 * The distribution group
 	 */
@@ -132,7 +128,9 @@ public class TestIndexedTupleUpdate {
 	 */
 	protected BBoxDBCluster connectToServer() throws InterruptedException {
 		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
-		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(CLUSTER_CONTACT_POINT, clusterName);
+		final String contactPoint = BBoxDBConfigurationManager.getConfiguration()
+				.getZookeepernodes().iterator().next();
+		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(contactPoint, clusterName);
 	
 		final boolean result = bboxdbCluster.connect();
 		Assert.assertTrue(result);

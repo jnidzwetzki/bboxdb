@@ -59,7 +59,7 @@ public class TestDistributionGroupMedadata {
 	    logger.info("Create: {}", dirName);
 	    
 	    final File dir = new File(dirName);
-	    dir.mkdir();
+	    dir.mkdirs();
 	}
 	
 	/**

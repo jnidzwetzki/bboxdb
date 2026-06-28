@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.bboxdb" level="info" />
+        <Logger name="org.apache.zookeeper" level="warn" />
+
+        <!-- Keep the Testcontainers / docker-java internals quiet -->
+        <Logger name="org.testcontainers" level="info" />
+        <Logger name="com.github.dockerjava" level="warn" />
+        <Logger name="tc" level="info" />
+
+        <Root level="info">
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>

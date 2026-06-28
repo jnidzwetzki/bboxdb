@@ -31,6 +31,7 @@ import org.bboxdb.networkproxy.ProxyConst;
 import org.bboxdb.networkproxy.ProxyMain;
 import org.bboxdb.networkproxy.client.NetworkProxyClient;
 import org.bboxdb.storage.entity.MultiTuple;
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.util.EnvironmentHelper;
@@ -41,7 +42,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ProxyTest {
+public class ProxyTest extends BBoxDBTestEnvironment {
 
 	/**
 	 * The BBoxDB Main
@@ -136,7 +137,7 @@ public class ProxyTest {
 			throw new IllegalStateException("Proxy is already running");
 		}
 
-		proxyMain = new ProxyMain("127.0.0.1", "mycluster");
+		proxyMain = new ProxyMain(getZookeeperConnectString(), "mycluster");
 		proxyMain.run();
 		proxyMain.getServiceState().awaitRunning();
 	}

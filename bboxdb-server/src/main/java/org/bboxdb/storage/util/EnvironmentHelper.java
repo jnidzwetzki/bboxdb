@@ -35,21 +35,18 @@ import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.sstable.SSTableHelper;
 
 public class EnvironmentHelper {
-	
-	/**
-	 * The cluster contact point
-	 */
-	private static final String CLUSTER_CONTACT_POINT = "localhost:2181";
 
 	/**
 	 * Build a new connection to the bboxdb server
-	 * 
+	 *
 	 * @return
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public static BBoxDBCluster connectToServer() throws InterruptedException {
 		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
-		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(CLUSTER_CONTACT_POINT, clusterName);
+		final String contactPoint = BBoxDBConfigurationManager.getConfiguration()
+				.getZookeepernodes().iterator().next();
+		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(contactPoint, clusterName);
 	
 		final boolean result = bboxdbCluster.connect();
 		assert (result == true) : "Connection failed";

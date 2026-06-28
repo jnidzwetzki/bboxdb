@@ -55,6 +55,7 @@ import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.util.EnvironmentHelper;
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import org.bboxdb.test.BBoxDBTestHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -62,7 +63,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestZookeeperIntegration {
+public class TestZookeeperIntegration extends BBoxDBTestEnvironment {
 
 	/**
 	 * The zookeeper client

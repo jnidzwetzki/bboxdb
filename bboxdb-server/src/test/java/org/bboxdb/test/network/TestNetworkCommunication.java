@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.network;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +63,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class TestNetworkCommunication {
+public class TestNetworkCommunication extends BBoxDBTestEnvironment {
 
 	/**
 	 * The instance of the software

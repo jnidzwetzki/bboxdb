@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.test.storage;
 
+import org.bboxdb.test.BBoxDBTestEnvironment;
 import java.io.File;
 import java.util.List;
 
@@ -47,7 +48,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestStorageRegistry {
+public class TestStorageRegistry extends BBoxDBTestEnvironment {
 	
 	/**
 	 * The name of the test relation
