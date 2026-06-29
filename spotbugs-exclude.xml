@@ -42,13 +42,5 @@
         <Bug pattern="CT_CONSTRUCTOR_THROW,DM_EXIT,SC_START_IN_CTOR,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR" />
     </Match>
 
-    <!-- ============================================================= -->
-    <!-- Domain specific floating point comparisons. Interval and       -->
-    <!-- bounding box boundaries are compared for exact equality on     -->
-    <!-- purpose.                                                       -->
-    <!-- ============================================================= -->
-    <Match>
-        <Bug pattern="FE_FLOATING_POINT_EQUALITY,CO_COMPARETO_INCORRECT_FLOATING" />
-    </Match>
 
 </FindBugsFilter>

@@ -569,12 +569,9 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 		// Check start point of each dimension
 		for(int d = 0; d < getDimension(); d++) {
-			if(getCoordinateLow(d) != otherBox.getCoordinateLow(d)) {
-				if(getCoordinateLow(d) > otherBox.getCoordinateLow(d)) {
-					return 1;
-				} else {
-					return -1;
-				}
+			final int compare = Double.compare(getCoordinateLow(d), otherBox.getCoordinateLow(d));
+			if(compare != 0) {
+				return compare;
 			}
 		}
 
