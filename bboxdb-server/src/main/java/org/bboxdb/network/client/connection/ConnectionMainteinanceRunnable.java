@@ -69,7 +69,12 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	 * The flush monitor
 	 */
 	private final Object FLUSH_MONITOR = new Object();
-	
+
+	/**
+	 * A flush was requested (guarded by FLUSH_MONITOR)
+	 */
+	private boolean flushRequested = false;
+
 	/**
 	 * The Logger
 	 */
@@ -99,7 +104,10 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 				performKeepAliveIfNeeded();
 				
 				synchronized (FLUSH_MONITOR) {
-					FLUSH_MONITOR.wait(NetworkConst.MAX_COMPRESSION_DELAY_MS);
+					if(! flushRequested) {
+						FLUSH_MONITOR.wait(NetworkConst.MAX_COMPRESSION_DELAY_MS);
+					}
+					flushRequested = false;
 				}
 			} catch (InterruptedException e) {
 				// Handle InterruptedException directly
@@ -233,6 +241,7 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	 */
 	public void triggerConnectionFlush() {
 		synchronized (FLUSH_MONITOR) {
+			flushRequested = true;
 			FLUSH_MONITOR.notifyAll();
 		}
 	}

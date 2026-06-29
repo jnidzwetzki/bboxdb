@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.BBoxDBService;
@@ -64,12 +66,12 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * Is the paging for queries enabled?
 	 */
-	private boolean pagingEnabled;
+	private final AtomicBoolean pagingEnabled = new AtomicBoolean(false);
 
 	/**
 	 * The amount of tuples per page
 	 */
-	private short tuplesPerPage;
+	private final AtomicInteger tuplesPerPage = new AtomicInteger(0);
 
 	/**
 	 * The tuple store manager registry (used for gossip, between server<->server connections)
@@ -88,6 +90,11 @@ public class MembershipConnectionService implements BBoxDBService {
 	private static MembershipConnectionService instance = null;
 
 	/**
+	 * The lock used to guard the singleton instance
+	 */
+	private static final Object instanceLock = new Object();
+
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(MembershipConnectionService.class);
@@ -95,8 +102,8 @@ public class MembershipConnectionService implements BBoxDBService {
 	private MembershipConnectionService() {
 		this.serverConnections = new ConcurrentHashMap<>();
 		this.knownInstances = new ConcurrentHashMap<>();
-		this.pagingEnabled = false;
-		this.tuplesPerPage = 0;
+		this.pagingEnabled.set(false);
+		this.tuplesPerPage.set(0);
 		this.blacklist = new HashSet<>();
 	}
 
@@ -120,12 +127,14 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * Get the instance of the membership connection service
 	 * @return
 	 */
-	public static synchronized MembershipConnectionService getInstance() {
-		if(instance == null) {
-			instance = new MembershipConnectionService();
-		}
+	public static MembershipConnectionService getInstance() {
+		synchronized (instanceLock) {
+			if(instance == null) {
+				instance = new MembershipConnectionService();
+			}
 
-		return instance;
+			return instance;
+		}
 	}
 
 	@Override
@@ -233,8 +242,8 @@ public class MembershipConnectionService implements BBoxDBService {
 		final BBoxDBConnection connection = new BBoxDBConnection(distributedInstance.getInetSocketAddress());
 		final BBoxDBClient client = connection.getBboxDBClient();
 
-		client.setPagingEnabled(pagingEnabled);
-		client.setTuplesPerPage(tuplesPerPage);
+		client.setPagingEnabled(pagingEnabled.get());
+		client.setTuplesPerPage((short) tuplesPerPage.get());
 		client.setTupleStoreManagerRegistry(tupleStoreManagerRegistry);
 		
 		if(connectionStrategy == ConnectionStrategy.DIRECT) {
@@ -310,7 +319,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * @return
 	 */
 	public boolean isPagingEnabled() {
-		return pagingEnabled;
+		return pagingEnabled.get();
 	}
 
 	/**
@@ -318,7 +327,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * @param pagingEnabled
 	 */
 	public void setPagingEnabled(final boolean pagingEnabled) {
-		this.pagingEnabled = pagingEnabled;
+		this.pagingEnabled.set(pagingEnabled);
 		serverConnections.values().forEach(c -> c.getBboxDBClient().setPagingEnabled(pagingEnabled));
 	}
 
@@ -327,7 +336,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * @return
 	 */
 	public short getTuplesPerPage() {
-		return tuplesPerPage;
+		return (short) tuplesPerPage.get();
 	}
 
 	/**
@@ -335,7 +344,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * @param tuplesPerPage
 	 */
 	public void setTuplesPerPage(final short tuplesPerPage) {
-		this.tuplesPerPage = tuplesPerPage;
+		this.tuplesPerPage.set(tuplesPerPage);
 		serverConnections.values().forEach(c -> c.getBboxDBClient().setTuplesPerPage(tuplesPerPage));
 	}
 

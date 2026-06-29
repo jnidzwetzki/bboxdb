@@ -102,7 +102,7 @@ public class BerlinModTupleBuilder extends TupleBuilder {
 			}
 						
 			final Date date = dateParser.parse(dateString);
-			final Hyperrectangle enlargedBox = polygon.getBoundingBox().enlargeByAmount(boxPadding);
+			final Hyperrectangle enlargedBox = polygon.getBoundingBox().enlargeByAmount(getBoxPadding());
 			return new Tuple(key, enlargedBox, tupleBytes, date.getTime());
 		} catch (ParseException e) {
 			throw new RuntimeException("Unable to decode tuple (date parse): " + valueData, e);

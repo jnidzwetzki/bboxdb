@@ -52,7 +52,7 @@ public class RTreeMMFReader extends AbstractRTreeReader {
 	/**
 	 * The position of the first node
 	 */
-	private int firstNodePos;
+	private volatile int firstNodePos;
 	
 	/**
 	 * The Logger

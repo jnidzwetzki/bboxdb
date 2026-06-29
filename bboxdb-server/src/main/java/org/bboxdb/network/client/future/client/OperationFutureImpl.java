@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +57,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * The default retry policy
 	 */
-	private FutureRetryPolicy retryPolicy;
+	private volatile FutureRetryPolicy retryPolicy;
 
 	/**
 	 * The ready latch
@@ -83,7 +84,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * Are the success callbacks already run?
 	 */
-	protected boolean successCallbacksRun = false;
+	protected final AtomicBoolean successCallbacksRun = new AtomicBoolean(false);
 
 	/**
 	 * The failure callbacks
@@ -93,7 +94,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	/**
 	 * Are the failure callbacks already run?
 	 */
-	protected boolean failureCallbacksRun = false;
+	protected final AtomicBoolean failureCallbacksRun = new AtomicBoolean(false);
 	
 	/**
 	 * The shutdown callbacks
@@ -191,7 +192,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * Run the complete callbacks
 	 */
 	public void runSuccessCallbacks() {
-		successCallbacksRun = true;
+		successCallbacksRun.set(true);
 		successCallbacks.forEach(c -> c.accept(this));
 	}
 	
@@ -199,7 +200,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	 * Run the failure callbacks
 	 */
 	public void runFailureCallbacks() {
-		failureCallbacksRun = true;
+		failureCallbacksRun.set(true);
 		failureCallbacks.forEach(c -> c.accept(this));
 	}
 	
@@ -218,7 +219,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		successCallbacks.add(consumer);
 		
 		// Run late callback immediately
-		if(successCallbacksRun) {
+		if(successCallbacksRun.get()) {
 			consumer.accept(this);
 		}
 	}
@@ -231,7 +232,7 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 		failureCallbacks.add(consumer);
 		
 		// Run late callback immediately
-		if(failureCallbacksRun) {
+		if(failureCallbacksRun.get()) {
 			consumer.accept(this);
 		}
 	}

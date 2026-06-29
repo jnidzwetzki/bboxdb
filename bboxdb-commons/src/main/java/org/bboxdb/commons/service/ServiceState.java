@@ -47,7 +47,7 @@ public class ServiceState {
 	/**
 	 * The current state
 	 */
-	protected State state;
+	protected volatile State state;
 
 	/**
 	 * The reason for the failed state
@@ -69,13 +69,12 @@ public class ServiceState {
 	 * @param state
 	 */
 	protected void setNewState(final State state) {
-		this.state = state;
-		
-		callbacks.forEach(c -> c.accept(this));
-		
 		synchronized (this) {
+			this.state = state;
 			this.notifyAll();
 		}
+
+		callbacks.forEach(c -> c.accept(this));
 	}
 	
 	/**

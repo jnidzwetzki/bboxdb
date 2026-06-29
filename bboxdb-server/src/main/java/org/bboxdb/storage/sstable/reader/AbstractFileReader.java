@@ -49,7 +49,7 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 	/**
 	 * The filename of the table
 	 */
-	protected File file;
+	protected volatile File file;
 
 	/**
 	 * The Directory for the SSTables

@@ -177,13 +177,12 @@ public class DistributionRegionIdMapper {
 		}
 		
 		logger.info("Add local mapping for: {} / {}", regionId, distributionGroup);
-		
-		regions.put(regionId, boundingBox);
-			
+
 		synchronized (MUTEX) {
+			regions.put(regionId, boundingBox);
 			MUTEX.notifyAll();
 		}
-		
+
 		return true;
 	}
 	
@@ -193,17 +192,18 @@ public class DistributionRegionIdMapper {
 	 */
 	public boolean removeMapping(final long regionId) {
 		
-		final boolean removed = regions.containsKey(regionId);
-		regions.remove(regionId);
-		
+		final boolean removed;
+
+		synchronized (MUTEX) {
+			removed = regions.containsKey(regionId);
+			regions.remove(regionId);
+			MUTEX.notifyAll();
+		}
+
 		if(removed) {
 			logger.info("Mapping for region id {} / {} removed", regionId, distributionGroup);
 		}
-		
-		synchronized (MUTEX) {	
-			MUTEX.notifyAll();			
-		}
-		
+
 		return removed;
 	}
 	
@@ -212,10 +212,9 @@ public class DistributionRegionIdMapper {
 	 */
 	public void clear() {
 		logger.info("Clear all local mappings in {}", distributionGroup);
-		
-		regions.clear();
-		
+
 		synchronized (MUTEX) {
+			regions.clear();
 			MUTEX.notifyAll();
 		}
 	}
@@ -284,13 +283,19 @@ public class DistributionRegionIdMapper {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		final long waitTimeInMilis = timeUnit.toMillis(maxWaitTime);
 
-		while(! predicate.test(getAllRegionIds())) {
-			synchronized (MUTEX) {
+		synchronized (MUTEX) {
+			while(! predicate.test(getAllRegionIds())) {
 				final long timeToWait = waitTimeInMilis - stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+				if(timeToWait <= 0) {
+					throw new TimeoutException("Timeout after waiting "
+							+ stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
+				}
+
 				MUTEX.wait(timeToWait);
-				
+
 				final long passedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-				
+
 				if(passedTime >= waitTimeInMilis) {
 					throw new TimeoutException("Timeout after waiting " + passedTime + " ms");
 				}

@@ -17,36 +17,40 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.osm;
 
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.DoubleAdder;
+
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OSMConverterStatistics extends ExceptionSafeRunnable {
-	
+
 	/**
 	 * The amount of processed nodes
 	 */
-	protected double processedNodes;
-	
+	protected final DoubleAdder processedNodes = new DoubleAdder();
+
 	/**
 	 * The amount of processed ways
 	 */
-	protected double processedWays;
-	
+	protected final DoubleAdder processedWays = new DoubleAdder();
+
 	/**
 	 * The performance timestamp
 	 */
-	protected long lastPerformaceTimestamp;
-	
+	protected final AtomicLong lastPerformaceTimestamp = new AtomicLong();
+
 	/**
 	 * The amount of processed nodes in the last call
 	 */
-	protected double lastProcessedElements;
-	
+	protected final AtomicReference<Double> lastProcessedElements = new AtomicReference<>(0.0);
+
 	/**
 	 * Conversion begin
 	 */
-	protected long beginTimestamp;
+	protected final AtomicLong beginTimestamp = new AtomicLong();
 	
 	/**
 	 * The print thread
@@ -65,10 +69,10 @@ public class OSMConverterStatistics extends ExceptionSafeRunnable {
 
 
 	public void start() {
-		processedNodes = 0;
-		lastPerformaceTimestamp = 0;
-		lastProcessedElements = 0;
-		beginTimestamp = System.currentTimeMillis();
+		processedNodes.reset();
+		lastPerformaceTimestamp.set(0);
+		lastProcessedElements.set(0.0);
+		beginTimestamp.set(System.currentTimeMillis());
 		thread = new Thread(this);
 		thread.start();
 	}
@@ -87,17 +91,17 @@ public class OSMConverterStatistics extends ExceptionSafeRunnable {
 			final long now = System.currentTimeMillis();
 			final double totalProcessedElements = getTotalProcessedElements();
 			
-			final double performanceTotal = totalProcessedElements / ((now - beginTimestamp) / (float) DELAY_IN_MS);				
-			final double performanceSinceLastCall = (totalProcessedElements - lastProcessedElements) / ((now - lastPerformaceTimestamp) / (float) 1000.0);
+			final double performanceTotal = totalProcessedElements / ((now - beginTimestamp.get()) / (float) DELAY_IN_MS);				
+			final double performanceSinceLastCall = (totalProcessedElements - lastProcessedElements.get()) / ((now - lastPerformaceTimestamp.get()) / (float) 1000.0);
 			
 			final String logMessage = String.format(
 					"Processing node %.0f and way %.0f / Elements per Sec %.2f / Total elements per Sec %.2f",
-					processedNodes, processedWays, performanceSinceLastCall, performanceTotal);
+					processedNodes.sum(), processedWays.sum(), performanceSinceLastCall, performanceTotal);
 	
 			logger.info(logMessage);
 			
-			lastPerformaceTimestamp = now;
-			lastProcessedElements = totalProcessedElements;
+			lastPerformaceTimestamp.set(now);
+			lastProcessedElements.set(totalProcessedElements);
 			
 			try {
 				Thread.sleep(DELAY_IN_MS);
@@ -108,23 +112,23 @@ public class OSMConverterStatistics extends ExceptionSafeRunnable {
 	}
 	
 	public void incProcessedNodes() {
-		processedNodes++;
+		processedNodes.add(1);
 	}
-	
+
 	public void incProcessedWays() {
-		processedWays++;
+		processedWays.add(1);
 	}
-	
+
 	public double getProcessedNodes() {
-		return processedNodes;
+		return processedNodes.sum();
 	}
-	
+
 	public double getProcessedWays() {
-		return processedWays;
+		return processedWays.sum();
 	}
-	
+
 	public double getTotalProcessedElements() {
-		return processedNodes + processedWays;
+		return processedNodes.sum() + processedWays.sum();
 	}
 
 }

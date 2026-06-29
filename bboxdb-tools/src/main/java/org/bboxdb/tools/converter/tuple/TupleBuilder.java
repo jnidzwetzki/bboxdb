@@ -18,16 +18,17 @@
 package org.bboxdb.tools.converter.tuple;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.bboxdb.storage.entity.Tuple;
 
 public abstract class TupleBuilder {
-	
+
 	/**
 	 * The default bbox padding
 	 */
-	protected double boxPadding = 0.0;
-	
+	protected final AtomicReference<Double> boxPadding = new AtomicReference<>(0.0);
+
 	/**
 	 * The counter for the default key
 	 */
@@ -64,14 +65,14 @@ public abstract class TupleBuilder {
 	 * @param boxPadding
 	 */
 	public void setPadding(final double boxPadding) {
-		this.boxPadding = boxPadding;
+		this.boxPadding.set(boxPadding);
 	}
-	
+
 	/**
 	 * Get the bounding box padding
 	 * @return
 	 */
 	public double getBoxPadding() {
-		return boxPadding;
+		return boxPadding.get();
 	}
 }

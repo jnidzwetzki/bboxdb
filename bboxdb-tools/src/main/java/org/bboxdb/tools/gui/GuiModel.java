@@ -21,6 +21,7 @@ import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import javax.swing.SwingUtilities;
@@ -49,12 +50,17 @@ public class GuiModel implements DistributionRegionCallback {
 	/**
 	 * In screenshot mode, all IPs are replaced with 'XXXX'
 	 */
-	public boolean screenshotMode = false;
+	private final AtomicBoolean screenshotMode = new AtomicBoolean(false);
 
 	/**
 	 * The BBoxDB instances
 	 */
 	private final List<BBoxDBInstance> bboxdbInstances;
+
+	/**
+	 * The lock used to guard updates of the instance list
+	 */
+	private final Object bboxdbInstancesLock = new Object();
 
 	/**
 	 * The distribution group to display
@@ -137,7 +143,7 @@ public class GuiModel implements DistributionRegionCallback {
 	 * Update the system state
 	 */
 	private void updateBBoxDBInstances() {
-		synchronized (bboxdbInstances) {
+		synchronized (bboxdbInstancesLock) {
 			bboxdbInstances.clear();
 			bboxdbInstances.addAll(BBoxDBInstanceManager.getInstance()
 					.getInstances());
@@ -317,7 +323,7 @@ public class GuiModel implements DistributionRegionCallback {
 	 * @return
 	 */
 	public boolean isScreenshotMode() {
-		return screenshotMode;
+		return screenshotMode.get();
 	}
 
 	/**
@@ -325,7 +331,7 @@ public class GuiModel implements DistributionRegionCallback {
 	 * @param screenshotMode
 	 */
 	public void setScreenshotMode(final boolean screenshotMode) {
-		this.screenshotMode = screenshotMode;
+		this.screenshotMode.set(screenshotMode);
 	}
 	
 	/**

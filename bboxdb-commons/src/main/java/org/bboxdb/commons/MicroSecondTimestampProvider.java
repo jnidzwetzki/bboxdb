@@ -28,33 +28,43 @@ public class MicroSecondTimestampProvider {
 	 * The counter for this millisecond
 	 */
 	private static int counter = 0;
-	
+
+	/**
+	 * The lock used to guard the timestamp state
+	 */
+	private static final Object lock = new Object();
+
 	/**
 	 * Get a faked micro seconds timestamp. Millisecond collisions are avoided
 	 * by adding a faked micro seconds counter to the timestamp
-	 * @return 
+	 * @return
 	 */
-	public synchronized static long getNewTimestamp() {
-		
-		if(counter >= 999) {
+	public static long getNewTimestamp() {
+
+		while(true) {
+			synchronized (lock) {
+				final long currentMillis = System.currentTimeMillis();
+
+				if(currentMillis != lastTimestampMillis) {
+					counter = 0;
+					lastTimestampMillis = currentMillis;
+				}
+
+				if(counter < 1000) {
+					final long resultValue = currentMillis * 1000 + counter;
+					counter++;
+					return resultValue;
+				}
+			}
+
+			// The counter for the current millisecond is exhausted. Wait for the
+			// next millisecond (outside of the lock) and retry.
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
-				// Ignore exception
+				Thread.currentThread().interrupt();
+				return System.currentTimeMillis() * 1000;
 			}
 		}
-		
-		final long currentMillis = System.currentTimeMillis();
-		
-		if(currentMillis != lastTimestampMillis) {
-			counter = 0;
-			lastTimestampMillis = currentMillis;
-		}
-		
-		final long resultValue = currentMillis * 1000 + counter;
-		
-		counter++;
-		
-		return resultValue;
 	}
 }

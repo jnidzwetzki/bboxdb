@@ -43,15 +43,6 @@
     </Match>
 
     <!-- ============================================================= -->
-    <!-- Synchronization patterns that are intentional in this code     -->
-    <!-- base (singleton/instance locks, deeper concurrency smells that -->
-    <!-- would require a dedicated review to change safely).            -->
-    <!-- ============================================================= -->
-    <Match>
-        <Bug pattern="USO_UNSAFE_METHOD_SYNCHRONIZATION,USO_UNSAFE_STATIC_METHOD_SYNCHRONIZATION,USO_UNSAFE_ACCESSIBLE_OBJECT_SYNCHRONIZATION,AT_NONATOMIC_64BIT_PRIMITIVE,AT_NONATOMIC_OPERATIONS_ON_SHARED_VARIABLE,AT_STALE_THREAD_WRITE_OF_PRIMITIVE,IS2_INCONSISTENT_SYNC,NN_NAKED_NOTIFY,SWL_SLEEP_WITH_LOCK_HELD" />
-    </Match>
-
-    <!-- ============================================================= -->
     <!-- Domain specific floating point comparisons. Interval and       -->
     <!-- bounding box boundaries are compared for exact equality on     -->
     <!-- purpose.                                                       -->

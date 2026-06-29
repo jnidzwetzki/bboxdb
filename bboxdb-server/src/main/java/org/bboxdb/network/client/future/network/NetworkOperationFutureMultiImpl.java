@@ -48,7 +48,7 @@ public class NetworkOperationFutureMultiImpl implements NetworkOperationFuture {
 	/**
 	 * The original success callback
 	 */
-	private Consumer<NetworkOperationFuture> successCallback;
+	private volatile Consumer<NetworkOperationFuture> successCallback;
 	
 	public NetworkOperationFutureMultiImpl(final List<NetworkOperationFuture> futures) {
 		this.futures = futures;

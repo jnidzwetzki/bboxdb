@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.misc.BBoxDBService;
@@ -62,7 +64,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * The next free position in the data array
 	 */
-	private int freePos;
+	private final AtomicInteger freePos = new AtomicInteger();
 
 	/**
 	 * Maximal number of entries keep in memory
@@ -77,7 +79,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * Current memory size in bytes
 	 */
-	private long sizeInMemory;
+	private final AtomicLong sizeInMemory = new AtomicLong();
 
 	/**
 	 * The timestamp when the memtable is created
@@ -87,12 +89,12 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * The oldest tuple
 	 */
-	private long oldestTupleTimestamp;
+	private final AtomicLong oldestTupleTimestamp = new AtomicLong();
 
 	/**
 	 * The newest tuple
 	 */
-	private long newestTupleTimestamp;
+	private final AtomicLong newestTupleTimestamp = new AtomicLong();
 
 	/**
 	 * The reference counter
@@ -102,7 +104,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * Is a deletion performed after (usage == 0)
 	 */
-	private boolean pendingDelete;
+	private final AtomicBoolean pendingDelete = new AtomicBoolean();
 
 	/**
 	 * The write ahead log writer
@@ -128,29 +130,29 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		this.walWriter = walWriter;
 
 		this.data = new Tuple[entries];
-		this.freePos = -1;
-		this.sizeInMemory = 0;
+		this.freePos.set(-1);
+		this.sizeInMemory.set(0);
 
 		this.spatialIndexBuilder = SpatialIndexBuilderFactory.getInstance();
 
 		this.createdTimestamp = System.currentTimeMillis();
-		this.oldestTupleTimestamp = -1;
-		this.newestTupleTimestamp = -1;
+		this.oldestTupleTimestamp.set(-1);
+		this.newestTupleTimestamp.set(-1);
 
 		this.usage = new AtomicInteger(0);
-		this.pendingDelete = false;
+		this.pendingDelete.set(false);
 		this.keyPositions = new HashMap<>();
 	}
 
 	@Override
 	public void init() {
-		if(freePos != -1) {
+		if(freePos.get() != -1) {
 			logger.error("init() called on an initalized memtable");
 			return;
 		}
 
 		logger.debug("Initializing a new memtable for table: {}", table.getFullname());
-		freePos = 0;
+		freePos.set(0);
 	}
 
 	@Override
@@ -163,7 +165,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 		assert (usage.get() > 0);
 
-		if(freePos >= maxEntries) {
+		if(freePos.get() >= maxEntries) {
 			throw new StorageManagerException("Unable to store a new tuple, all memtable slots are full");
 		}
 
@@ -171,28 +173,28 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 			walWriter.addTuple(tuple);
 		}
 
-		data[freePos] = tuple;
+		data[freePos.get()] = tuple;
 		
 		if(! TupleHelper.isDeletedTuple(tuple)) {
-			final SpatialIndexEntry indexEntry = new SpatialIndexEntry(tuple.getBoundingBox(), freePos);
+			final SpatialIndexEntry indexEntry = new SpatialIndexEntry(tuple.getBoundingBox(), freePos.get());
 			spatialIndexBuilder.insert(indexEntry);
 		}
 
-		keyPositions.computeIfAbsent(tuple.getKey(), (e) -> ConcurrentHashMap.newKeySet()).add(freePos);
+		keyPositions.computeIfAbsent(tuple.getKey(), (e) -> ConcurrentHashMap.newKeySet()).add(freePos.get());
 
-		freePos++;
-		sizeInMemory = sizeInMemory + tuple.getSize();
+		freePos.incrementAndGet();
+		sizeInMemory.addAndGet(tuple.getSize());
 
-		if(oldestTupleTimestamp == -1) {
-			oldestTupleTimestamp = tuple.getVersionTimestamp();
+		if(oldestTupleTimestamp.get() == -1) {
+			oldestTupleTimestamp.set(tuple.getVersionTimestamp());
 		} else {
-			oldestTupleTimestamp = Math.min(oldestTupleTimestamp, tuple.getVersionTimestamp());
+			oldestTupleTimestamp.set(Math.min(oldestTupleTimestamp.get(), tuple.getVersionTimestamp()));
 		}
 
-		if(newestTupleTimestamp == -1) {
-			newestTupleTimestamp = tuple.getVersionTimestamp();
+		if(newestTupleTimestamp.get() == -1) {
+			newestTupleTimestamp.set(tuple.getVersionTimestamp());
 		} else {
-			newestTupleTimestamp = Math.max(newestTupleTimestamp, tuple.getVersionTimestamp());
+			newestTupleTimestamp.set(Math.max(newestTupleTimestamp.get(), tuple.getVersionTimestamp()));
 		}
 	}
 
@@ -239,9 +241,9 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	public List<Tuple> getSortedTupleList() {
 		assert (usage.get() > 0);
 
-		final List<Tuple> resultList = new ArrayList<>(freePos + 1);
+		final List<Tuple> resultList = new ArrayList<>(freePos.get() + 1);
 
-		for(int i = 0; i < freePos; i++) {
+		for(int i = 0; i < freePos.get(); i++) {
 			resultList.add(data[i]);
 		}
 
@@ -262,8 +264,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 			data[i] = null;
 		}
 
-		this.freePos = 0;
-		this.sizeInMemory = 0;
+		this.freePos.set(0);
+		this.sizeInMemory.set(0);
 	}
 
 	/**
@@ -274,12 +276,12 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	public boolean isFull() {
 
 		// Check size of the table
-		if(sizeInMemory >= maxSizeInMemory) {
+		if(sizeInMemory.get() >= maxSizeInMemory) {
 			return true;
 		}
 
 		// Check number of entries
-		if(freePos + 1 > maxEntries) {
+		if(freePos.get() + 1 > maxEntries) {
 			return true;
 		}
 
@@ -290,7 +292,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	 * Is this memtable empty?
 	 */
 	public boolean isEmpty() {
-		if(freePos <= 0) {
+		if(freePos.get() <= 0) {
 			return true;
 		}
 
@@ -311,7 +313,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	 */
 	@Override
 	public long getSize() {
-		return sizeInMemory;
+		return sizeInMemory.get();
 	}
 
 	/**
@@ -335,7 +337,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 		return new Iterator<Tuple>() {
 
 			private int entry = 0;
-			private int lastEntry = freePos;
+			private int lastEntry = freePos.get();
 
 			@Override
 			public boolean hasNext() {
@@ -363,11 +365,11 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 	@Override
 	public long getNewestTupleInsertedTimestamp() {
-		if(freePos == 0) {
+		if(freePos.get() == 0) {
 			return System.currentTimeMillis();
 		}
 
-		final Tuple mostRecentTuple = data[freePos - 1];
+		final Tuple mostRecentTuple = data[freePos.get() - 1];
 		return mostRecentTuple.getReceivedTimestamp();
 	}
 
@@ -377,7 +379,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	 */
 	@Override
 	public long getOldestTupleVersionTimestamp() {
-		return oldestTupleTimestamp;
+		return oldestTupleTimestamp.get();
 	}
 
 	/**
@@ -386,21 +388,21 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	 */
 	@Override
 	public long getNewestTupleVersionTimestamp() {
-		return newestTupleTimestamp;
+		return newestTupleTimestamp.get();
 	}
 
 	@Override
 	public void deleteOnClose() {
 		logger.debug("deleteOnClose called and we have {} references", usage.get());
 
-		pendingDelete = true;
+		pendingDelete.set(true);
 
 		clearIfUnreferenced();
 	}
 
 	@Override
 	public boolean acquire() {
-		if(pendingDelete == true) {
+		if(pendingDelete.get()) {
 			return false;
 		}
 
@@ -414,7 +416,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 		usage.decrementAndGet();
 
-		if(pendingDelete) {
+		if(pendingDelete.get()) {
 			clearIfUnreferenced();
 		}
 	}
@@ -451,7 +453,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 	@Override
 	public long getNumberOfTuples() {
-		return freePos;
+		return freePos.get();
 	}
 
 	@Override
@@ -463,11 +465,11 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 	@Override
 	public String toString() {
-		return "Memtable [table=" + table.getFullname() + ", freePos=" + freePos
-				+ ", sizeInMemory=" + sizeInMemory + ", createdTimestamp="
+		return "Memtable [table=" + table.getFullname() + ", freePos=" + freePos.get()
+				+ ", sizeInMemory=" + sizeInMemory.get() + ", createdTimestamp="
 				+ createdTimestamp + ", oldestTupleTimestamp="
-				+ oldestTupleTimestamp + ", newestTupleTimestamp="
-				+ newestTupleTimestamp +", pendingDelete=" + pendingDelete + "]";
+				+ oldestTupleTimestamp.get() + ", newestTupleTimestamp="
+				+ newestTupleTimestamp.get() +", pendingDelete=" + pendingDelete.get() + "]";
 	}
 
 	@Override
@@ -501,7 +503,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 	@Override
 	public boolean isDeletePending() {
-		return pendingDelete;
+		return pendingDelete.get();
 	}
 
 	/**
