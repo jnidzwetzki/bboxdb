@@ -32,33 +32,27 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-commons</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-           <groupId>org.apache.logging.log4j</groupId>
-           <artifactId>log4j-api</artifactId>
-           <version>2.26.0</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.logging.log4j</groupId>
-           <artifactId>log4j-core</artifactId>
-           <version>2.26.0</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.logging.log4j</groupId>
-           <artifactId>log4j-slf4j-impl</artifactId>
-           <version>2.26.0</version>
-       </dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
-			<version>2.6</version>
 		</dependency>
        <!--  Needed for ZooKeeper (Log4J 1.x is excluded) -->
 		<dependency>
 			<groupId>org.apache.zookeeper</groupId>
 			<artifactId>zookeeper</artifactId>
-			<version>3.9.5</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -77,56 +71,46 @@
 		<dependency>
 		    <groupId>org.eclipse.jetty</groupId>
 		    <artifactId>jetty-security</artifactId>
-		    <version>12.1.10</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.jetty.ee10</groupId>
 		    <artifactId>jetty-ee10-servlet</artifactId>
-		    <version>12.1.10</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.xerial.snappy</groupId>
 		    <artifactId>snappy-java</artifactId>
-		    <version>1.1.10.8</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient</artifactId>
-			<version>0.16.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient_hotspot</artifactId>
-			<version>0.16.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient_httpserver</artifactId>
-			<version>0.16.0</version>
 		</dependency>
 		<dependency>
 		  <groupId>com.esri.geometry</groupId>
 		  <artifactId>esri-geometry-api</artifactId>
-		  <version>2.2.4</version>
 		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>5.23.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
-			<version>2.0.5</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
