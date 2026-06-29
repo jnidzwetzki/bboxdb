@@ -20,8 +20,15 @@ package org.bboxdb.commons;
 import java.io.File;
 
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SystemInfo {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SystemInfo.class);
 
 	/**
 	 * Get the amount of CPU cores in this system
@@ -88,9 +95,9 @@ public class SystemInfo {
 			
 			sb.append(mappedString);
 		} catch (Exception e) {
-			// Ignore exception
+			logger.debug("Unable to determine memory mapped statistics", e);
 		}
-		
+
 		return sb.toString();
 	}
 

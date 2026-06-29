@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -836,6 +837,8 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Prepartition the given distribution group
 	 * @param line
 	 */
+	@SuppressFBWarnings(value = "REC_CATCH_EXCEPTION",
+			justification = "Top level CLI command handler, intentionally catches all exceptions to exit cleanly")
 	private void prepartition(final CommandLine line) {
 		final List<String> requiredArgs = Arrays.asList(CLIParameter.FILE,
 				CLIParameter.FORMAT, CLIParameter.DISTRIBUTION_GROUP, CLIParameter.PARTITIONS);

@@ -39,6 +39,8 @@ import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class OSMBDBNodeStore implements OSMNodeStore {
 
 	/**
@@ -104,7 +106,9 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 				System.exit(-1);
 			}
 			
-			folder.mkdirs();
+			if(! folder.mkdirs() && ! folder.isDirectory()) {
+				throw new RuntimeException("Unable to create directory: " + folder);
+			}
 
 			pendingWriteQueues.add(new LinkedList<SerializableNode>());
 			
@@ -133,6 +137,8 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	 * @param folder
 	 */
 	@SuppressWarnings("unused")
+	@SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE",
+			justification = "txn is only non-null when USE_TRANSACTIONS is enabled")
 	protected void initNewBDBEnvironment(final File folder, final EnvironmentConfig envConfig) {
 
 		final Environment dbEnv = new Environment(folder, envConfig);

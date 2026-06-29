@@ -32,6 +32,8 @@ import org.bboxdb.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class AnalyzeAuData implements Runnable {
 	
 	/**
@@ -50,6 +52,8 @@ public class AnalyzeAuData implements Runnable {
 	}
 
 	@Override
+	@SuppressFBWarnings(value = "REC_CATCH_EXCEPTION",
+			justification = "Top level runnable handler, intentionally catches all exceptions")
 	public void run() {
 		
 		try (

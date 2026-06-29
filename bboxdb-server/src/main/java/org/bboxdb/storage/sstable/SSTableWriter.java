@@ -268,7 +268,9 @@ public class SSTableWriter implements AutoCloseable {
 		
 		for(final File file : filesToDelete) {
 			if(file != null && file.exists()) {
-				file.delete();
+				if(! file.delete() && file.exists()) {
+					throw new RuntimeException("Unable to delete file: " + file);
+				}
 			}
 		}
 	}

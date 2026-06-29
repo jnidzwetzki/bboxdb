@@ -77,16 +77,16 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 	public Tuple readTuple(final String key) throws Exception {
 
 		selectStatement.setInt(1, Integer.parseInt(key));
-		final ResultSet result = selectStatement.executeQuery();
-		
-		if(! result.next()) {
-			throw new RuntimeException("Unable to find data for key: " + key);
+
+		try (final ResultSet result = selectStatement.executeQuery()) {
+			if(! result.next()) {
+				throw new RuntimeException("Unable to find data for key: " + key);
+			}
+
+			final byte[] bytes = result.getBytes(1);
+
+			return TupleHelper.decodeTuple(ByteBuffer.wrap(bytes));
 		}
-		
-		final byte[] bytes = result.getBytes(1);
-		result.close();
-		
-		return TupleHelper.decodeTuple(ByteBuffer.wrap(bytes));
 	}
 
 	@Override

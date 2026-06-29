@@ -54,7 +54,7 @@ public class PackageRouter {
 	/**
 	 * Routing timeout
 	 */
-	protected final int ROUTING_TIMEOUT_IN_SEC = 2;
+	protected final static int ROUTING_TIMEOUT_IN_SEC = 2;
 	
 	/**
 	 * The Logger

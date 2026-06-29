@@ -329,15 +329,21 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 			
 			// Delete spatial index
 			final File spatialIndexFile = getSpatialIndexFile(directory, tablename, tablenumber);
-			spatialIndexFile.delete();
+			if(! spatialIndexFile.delete() && spatialIndexFile.exists()) {
+				throw new RuntimeException("Unable to delete file: " + spatialIndexFile);
+			}
 			
 			// Delete bloom filter
 			final File bloomFilterFile = getBloomFilterFile(directory, tablename, tablenumber);
-			bloomFilterFile.delete();
-			
+			if(! bloomFilterFile.delete() && bloomFilterFile.exists()) {
+				throw new RuntimeException("Unable to delete file: " + bloomFilterFile);
+			}
+
 			// Delete metadata
 			final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
-			metadataFile.delete();
+			if(! metadataFile.delete() && metadataFile.exists()) {
+				throw new RuntimeException("Unable to delete file: " + metadataFile);
+			}
 		}
 	}
 

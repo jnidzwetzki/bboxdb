@@ -18,7 +18,7 @@
 package org.bboxdb.network.client.connection;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.ListHelper;
@@ -193,8 +193,8 @@ public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 			final ReadOnlyTupleStore tupleStore) 
 			throws StorageManagerException {
 		
-		final Random random = new Random();
-		final Tuple tuple = tupleStore.getTupleAtPosition(random.nextInt((int) tupleStore.getNumberOfTuples()));
+		final Tuple tuple = tupleStore.getTupleAtPosition(
+				ThreadLocalRandom.current().nextInt((int) tupleStore.getNumberOfTuples()));
 		
 		final String key = tuple.getKey();
 		lastGossipTuples = tupleStoreManager.get(key);

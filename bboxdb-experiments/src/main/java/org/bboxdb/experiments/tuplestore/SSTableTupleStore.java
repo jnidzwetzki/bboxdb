@@ -18,6 +18,7 @@
 package org.bboxdb.experiments.tuplestore;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -118,7 +119,10 @@ public class SSTableTupleStore implements TupleStore {
 		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));		
 
 		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
-		dataDir.mkdirs();
+		if(! dataDir.mkdirs() && ! dataDir.isDirectory()) {
+			logger.error("Unable to create directory: {}", dataDir);
+			throw new IOException("Unable to create directory: " + dataDir);
+		}
 		
 		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();

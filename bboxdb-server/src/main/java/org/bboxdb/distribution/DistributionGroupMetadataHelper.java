@@ -89,14 +89,11 @@ public class DistributionGroupMetadataHelper {
 	    	return null;
 	    }
 	    
-		FileReader reader;
-		try {
-			reader = new FileReader(filename, StandardCharsets.UTF_8);
+		try (final FileReader reader = new FileReader(filename, StandardCharsets.UTF_8)) {
+			return yaml.loadAs(reader, DistributionGroupMetadata.class);
 		} catch (IOException e) {
 			logger.warn("Unable to load file: " + filename, e);
 			return null;
 		}
-
-		return yaml.loadAs(reader, DistributionGroupMetadata.class);
 	}
 }

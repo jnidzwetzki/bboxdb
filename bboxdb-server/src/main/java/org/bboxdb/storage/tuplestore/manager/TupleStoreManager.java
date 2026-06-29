@@ -411,7 +411,9 @@ public class TupleStoreManager implements BBoxDBService {
 
 		if(! ssTableDirHandle.exists()) {
 			logger.info("Create a new dir for table {} ({}) ", tupleStoreName.getFullname(), ssTableDirHandle);
-			ssTableDirHandle.mkdir();
+			if(! ssTableDirHandle.mkdir() && ! ssTableDirHandle.isDirectory()) {
+				throw new StorageManagerException("Unable to create directory: " + ssTableDirHandle);
+			}
 		}
 	}
 
@@ -461,6 +463,10 @@ public class TupleStoreManager implements BBoxDBService {
 		checkSSTableDir(directoryHandle);
 
 		final File[] entries = directoryHandle.listFiles();
+
+		if(entries == null) {
+			throw new StorageManagerException("Unable to list files in dir: " + directoryHandle);
+		}
 
 		for(final File file : entries) {
 			final String filename = file.getName();
@@ -530,16 +536,24 @@ public class TupleStoreManager implements BBoxDBService {
 
 		final File[] entries = directoryHandle.listFiles();
 
+		if(entries == null) {
+			throw new RuntimeException("Unable to list files in dir: " + directoryHandle);
+		}
+
 		for(final File file : entries) {
 			deleteFileIfKnown(file);
 		}
 
 		// Delete the directory if empty
-		if(directoryHandle.listFiles().length != 0) {
+		final File[] remainingEntries = directoryHandle.listFiles();
+
+		if(remainingEntries == null || remainingEntries.length != 0) {
 			logger.info("SStable directory is not empty, skip directory delete");
 			return false;
 		} else {
-			directoryHandle.delete();
+			if(! directoryHandle.delete() && directoryHandle.exists()) {
+				throw new RuntimeException("Unable to delete directory: " + directoryHandle);
+			}
 			return true;
 		}
 	}
@@ -554,22 +568,34 @@ public class TupleStoreManager implements BBoxDBService {
 
 		if(SSTableHelper.isFileNameSSTable(filename)) {
 			logger.info("Deleting file: {} ", file);
-			file.delete();
+			if(! file.delete() && file.exists()) {
+				throw new RuntimeException("Unable to delete file: " + file);
+			}
 		} else if(SSTableHelper.isFileNameSSTableIndex(filename)) {
 			logger.info("Deleting index file: {} ", file);
-			file.delete();
+			if(! file.delete() && file.exists()) {
+				throw new RuntimeException("Unable to delete file: " + file);
+			}
 		} else if(SSTableHelper.isFileNameSSTableBloomFilter(filename)) {
 			logger.info("Deleting bloom filter file: {} ", file);
-			file.delete();
+			if(! file.delete() && file.exists()) {
+				throw new RuntimeException("Unable to delete file: " + file);
+			}
 		} else if(SSTableHelper.isFileNameMetadata(filename)) {
 			logger.info("Deleting meta file: {}", file);
-			file.delete();
+			if(! file.delete() && file.exists()) {
+				throw new RuntimeException("Unable to delete file: " + file);
+			}
 		} else if(SSTableHelper.isFileNameSpatialIndex(filename)) {
 			logger.info("Deleting spatial index file: {}", file);
-			file.delete();
+			if(! file.delete() && file.exists()) {
+				throw new RuntimeException("Unable to delete file: " + file);
+			}
 		} else if(SSTableHelper.isFileNameWAL(filename)) {
 			logger.info("Deleting WAL file: {}", file);
-			file.delete();
+			if(! file.delete() && file.exists()) {
+				throw new RuntimeException("Unable to delete file: " + file);
+			}
 		} else {
 			logger.warn("NOT deleting unknown file: {}", file);
 		}

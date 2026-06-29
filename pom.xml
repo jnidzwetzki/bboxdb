@@ -289,7 +289,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<descriptor>misc/assembly.xml</descriptor>
+					<descriptors>
+						<descriptor>misc/assembly.xml</descriptor>
+					</descriptors>
 					<finalName>${project.artifactId}-${project.version}</finalName>
 					<skipAssembly>${assembly.skipAssembly}</skipAssembly>
 				</configuration>

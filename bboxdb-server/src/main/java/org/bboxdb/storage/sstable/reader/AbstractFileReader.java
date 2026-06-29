@@ -283,7 +283,9 @@ public abstract class AbstractFileReader implements BBoxDBService, AcquirableRes
 		synchronized (this) {
 			if(file != null) {
 				logger.debug("Delete file: {}", file);
-				file.delete();
+				if(! file.delete() && file.exists()) {
+					throw new RuntimeException("Unable to delete file: " + file);
+				}
 				file = null;
 			}
 		}

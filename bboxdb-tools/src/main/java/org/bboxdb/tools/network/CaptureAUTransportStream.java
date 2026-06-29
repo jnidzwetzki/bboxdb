@@ -133,7 +133,7 @@ public class CaptureAUTransportStream implements Runnable {
 						tuple = tupleBuilder.buildTuple(polygon.toGeoJson(), key);
 						
 						if(tuple == null) {
-							System.err.println("Unable to build tuple for: " + tuple);
+							System.err.println("Unable to build tuple for: " + key);
 							return;
 						}
 					}
