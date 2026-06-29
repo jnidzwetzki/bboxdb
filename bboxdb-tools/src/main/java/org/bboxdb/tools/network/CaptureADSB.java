@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.network;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -104,7 +105,7 @@ public class CaptureADSB implements Runnable {
 					
 					if(tuple != null) {
 
-						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));
+						final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes(), StandardCharsets.UTF_8));
 
 						// ID restarts, add watermark
 						if(lastId != 0 && lastId > polygon.getId()) {

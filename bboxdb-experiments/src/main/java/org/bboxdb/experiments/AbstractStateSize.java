@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 
@@ -72,8 +73,8 @@ public class AbstractStateSize {
 		
 	
 		if(tupleBuilder instanceof ADSBTupleBuilder2D || tupleBuilder instanceof ADSBTupleBuilder3D) {
-			final GeoJsonPolygon polygonOld = GeoJsonPolygon.fromGeoJson(new String(lastTuple.getDataBytes()));			
-			final GeoJsonPolygon polygonNew = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));			
+			final GeoJsonPolygon polygonOld = GeoJsonPolygon.fromGeoJson(new String(lastTuple.getDataBytes(), StandardCharsets.UTF_8));			
+			final GeoJsonPolygon polygonNew = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes(), StandardCharsets.UTF_8));			
 	
 			return (polygonOld.getId() > polygonNew.getId());
 		}
@@ -97,7 +98,7 @@ public class AbstractStateSize {
 		
 		if(tupleBuilder instanceof AuTransportGeoJSONTupleBuilder) {
 	
-			final GeoJsonPolygon polygonNew = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes()));			
+			final GeoJsonPolygon polygonNew = GeoJsonPolygon.fromGeoJson(new String(tuple.getDataBytes(), StandardCharsets.UTF_8));			
 			final String newTimestampString = polygonNew.getProperties().getOrDefault("TimestampParsed", "-1");
 			final long newTimestamp = MathUtil.tryParseLongOrExit(newTimestampString, () -> "Unable to parse: " + newTimestampString);
 			

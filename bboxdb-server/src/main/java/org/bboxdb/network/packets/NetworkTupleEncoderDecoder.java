@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets;
 
+import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,11 +48,11 @@ public class NetworkTupleEncoderDecoder {
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
+		final String table = new String(tableBytes, StandardCharsets.UTF_8);
 		
 		final byte[] keyBytes = new byte[keyLength];
 		encodedPackage.get(keyBytes, 0, keyBytes.length);
-		final String key = new String(keyBytes);
+		final String key = new String(keyBytes, StandardCharsets.UTF_8);
 		
 		final byte[] boxBytes = new byte[bBoxLength];
 		encodedPackage.get(boxBytes, 0, boxBytes.length);
@@ -88,8 +89,8 @@ public class NetworkTupleEncoderDecoder {
 	public static byte[] encode(final Tuple tuple, final String table) throws IOException {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
-		final byte[] tableBytes = table.getBytes();
-		final byte[] keyBytes = tuple.getKey().getBytes();
+		final byte[] tableBytes = table.getBytes(StandardCharsets.UTF_8);
+		final byte[] keyBytes = tuple.getKey().getBytes(StandardCharsets.UTF_8);
 		final byte[] bboxBytes = tuple.getBoundingBoxBytes();
 		
 		final ByteBuffer bb = ByteBuffer.allocate(20);

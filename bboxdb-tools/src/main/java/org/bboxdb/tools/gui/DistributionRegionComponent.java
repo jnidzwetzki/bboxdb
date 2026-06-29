@@ -370,8 +370,9 @@ public class DistributionRegionComponent {
 		final Map<BBoxDBInstance, Map<String, Long>> statistics 
 			= adapter.getRegionStatistics(distributionRegion);
 
-		for(final BBoxDBInstance instance : statistics.keySet()) {
-			final Map<String, Long> statisticData = statistics.get(instance);
+		for(final Map.Entry<BBoxDBInstance, Map<String, Long>> entry : statistics.entrySet()) {
+			final BBoxDBInstance instance = entry.getKey();
+			final Map<String, Long> statisticData = entry.getValue();
 			sb.append("Node: ");
 			sb.append(instance.toGUIString(guiModel.isScreenshotMode()));
 			sb.append(" Tuples: ");

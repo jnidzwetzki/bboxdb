@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -233,7 +234,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	public boolean setData(final String path, final String value, final int version) throws ZookeeperException {
 
 		try {
-			zookeeper.setData(path, value.getBytes(), version);
+			zookeeper.setData(path, value.getBytes(StandardCharsets.UTF_8), version);
 
 			return true;
 		} catch (KeeperException e) {
@@ -258,7 +259,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 	 */
 	public String getData(final String path, final Stat stat) throws ZookeeperException, ZookeeperNotFoundException {
 		try {
-			return new String(zookeeper.getData(path, false, stat));
+			return new String(zookeeper.getData(path, false, stat), StandardCharsets.UTF_8);
 		} catch (KeeperException e) {
 			if (e.code() == Code.NONODE) {
 				throw new ZookeeperNotFoundException("The path does not exist: " + path, e);
@@ -370,7 +371,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 				if (zookeeper.exists(partialPath, false) == null) {
 					try {
 						logger.debug("Path '{}' not found, creating", partialPath);
-						zookeeper.create(partialPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+						zookeeper.create(partialPath, "".getBytes(StandardCharsets.UTF_8), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 					} catch(KeeperException e) {
 						if(e.code() == Code.NODEEXISTS) {
 							// Ignore exception if node was created already
@@ -414,7 +415,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableResource {
 			throws ZookeeperException, ZookeeperNotFoundException {
 
 		final byte[] bytes = readPathAndReturnBytes(pathName, watcher, null);
-		return new String(bytes);
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	/**

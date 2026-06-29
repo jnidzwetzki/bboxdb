@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class NariDynamicBuilder extends TupleBuilder {
 			final Hyperrectangle boundingBox = new Hyperrectangle(time, time,
 					longitude, longitude, latitude, latitude);
 
-			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
+			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

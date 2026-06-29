@@ -62,7 +62,12 @@ public class TupleListFutureStore {
 	 * The amount of completed tasks
 	 */
 	private final AtomicInteger completedTasks;
-	
+
+	/**
+	 * The monitor used to wait for / signal task completion
+	 */
+	private final Object completedTasksMonitor = new Object();
+
 	/**
 	 * The service state
 	 */
@@ -94,7 +99,7 @@ public class TupleListFutureStore {
 		serviceState.dipatchToStarting();
 		
 		for(int i = 0; i < requestWorker; i++) {
-			final RequestWorker requestWorkerInstance = new RequestWorker(futureQueue, completedTasks);
+			final RequestWorker requestWorkerInstance = new RequestWorker(futureQueue, completedTasks, completedTasksMonitor);
 			final Thread thread = new Thread(requestWorkerInstance);
 			thread.start();
 			runningThreads.add(thread);
@@ -142,9 +147,9 @@ public class TupleListFutureStore {
 	 * @throws InterruptedException
 	 */
 	public void waitForCompletion() throws InterruptedException {
-		synchronized (completedTasks) {
+		synchronized (completedTasksMonitor) {
 			while(submittedTasks.get() != completedTasks.get()) {
-				completedTasks.wait();
+				completedTasksMonitor.wait();
 			}
 		}
 	}
@@ -186,9 +191,16 @@ class RequestWorker extends ExceptionSafeRunnable {
 	 */
 	private final AtomicInteger completedTasks;
 
-	public RequestWorker(final BlockingQueue<TupleListFuture> queue, final AtomicInteger completedTasks) {
+	/**
+	 * The monitor used to signal task completion
+	 */
+	private final Object completedTasksMonitor;
+
+	public RequestWorker(final BlockingQueue<TupleListFuture> queue, final AtomicInteger completedTasks,
+			final Object completedTasksMonitor) {
 		this.queue = queue;
 		this.completedTasks = completedTasks;
+		this.completedTasksMonitor = completedTasksMonitor;
 	}
 
 	@Override
@@ -207,9 +219,9 @@ class RequestWorker extends ExceptionSafeRunnable {
 					}
 				}
 				
-				synchronized (completedTasks) {
+				synchronized (completedTasksMonitor) {
 					completedTasks.incrementAndGet();
-					completedTasks.notifyAll();
+					completedTasksMonitor.notifyAll();
 				}
 				
 			} catch (InterruptedException e) {

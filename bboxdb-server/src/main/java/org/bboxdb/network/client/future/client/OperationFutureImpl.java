@@ -367,7 +367,9 @@ public class OperationFutureImpl<T> implements OperationFuture, FutureErrorCallb
 	public void waitForCompletion(final long timeout, final TimeUnit unit)
 			throws InterruptedException, TimeoutException {
 
-		readyLatch.await(timeout, unit);
+		if(! readyLatch.await(timeout, unit)) {
+			throw new TimeoutException("Future did not complete within " + timeout + " " + unit);
+		}
 	}
 
 	@Override

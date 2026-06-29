@@ -28,6 +28,12 @@
 	</parent>
 
 	<dependencies>
+		<!-- Static analysis annotations -->
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<!-- Project dependencies -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>

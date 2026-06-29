@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.query.filter;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.storage.entity.Tuple;
 
 public class UserDefinedKeyFilter implements UserDefinedFilter {
@@ -27,7 +28,7 @@ public class UserDefinedKeyFilter implements UserDefinedFilter {
 	public boolean filterTuple(final Tuple tuple, final byte[] customData) {
 		
 		if(customDataString == null) {
-			customDataString = new String(customData);
+			customDataString = new String(customData, StandardCharsets.UTF_8);
 		}
 		
 		return tuple.getKey().equals(customDataString);
@@ -37,7 +38,7 @@ public class UserDefinedKeyFilter implements UserDefinedFilter {
 	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
 		
 		if(customDataString == null) {
-			customDataString = new String(customData);
+			customDataString = new String(customData, StandardCharsets.UTF_8);
 		}
 
 		return tuple1.getKey().equals(customDataString) && tuple2.getKey().equals(customDataString);

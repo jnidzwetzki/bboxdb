@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 public class SSTableConst {
@@ -24,22 +25,22 @@ public class SSTableConst {
 	/**
 	 * The magic bytes at the beginning of every SSTable file
 	 */
-	public final static byte[] MAGIC_BYTES_SSTABLE = "bboxdb".getBytes();
+	public final static byte[] MAGIC_BYTES_SSTABLE = "bboxdb".getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * The magic bytes at the beginning of every write ahead log file
 	 */
-	public final static byte[] MAGIC_BYTES_WAL = "bboxdb-wal".getBytes();
+	public final static byte[] MAGIC_BYTES_WAL = "bboxdb-wal".getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * The magic bytes at the beginning of every SSTable index file
 	 */
-	public final static byte[] MAGIC_BYTES_INDEX = "bboxdb-idx".getBytes();
+	public final static byte[] MAGIC_BYTES_INDEX = "bboxdb-idx".getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * The magic bytes at the beginning of every spatial index file
 	 */
-	public final static byte[] MAGIC_BYTES_SPATIAL_RTREE_INDEX = "bboxdb-sidx".getBytes();
+	public final static byte[] MAGIC_BYTES_SPATIAL_RTREE_INDEX = "bboxdb-sidx".getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * The current version of the SSTable layout format
@@ -104,7 +105,7 @@ public class SSTableConst {
 	/**
 	 * Marker for deleted tuples
 	 */
-	public final static byte[] DELETED_MARKER = "DEL".getBytes();
+	public final static byte[] DELETED_MARKER = "DEL".getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * Key for watermark tuples
@@ -114,17 +115,17 @@ public class SSTableConst {
 	/**
 	 * Marker for watermark tuples
 	 */
-	public final static byte[] WATERMARK_MARKER = WATERMARK_KEY.getBytes();
+	public final static byte[] WATERMARK_MARKER = WATERMARK_KEY.getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * Marker for invalidation tuples
 	 */
-	public final static byte[] INVALIDATED_MARKER = "INVALID".getBytes();
+	public final static byte[] INVALIDATED_MARKER = "INVALID".getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * Marker for invalidation tuples
 	 */
-	public final static byte[] IDLE_STATE_REMOVED_MARKER = "IDLE_STATE_REMOVED".getBytes();
+	public final static byte[] IDLE_STATE_REMOVED_MARKER = "IDLE_STATE_REMOVED".getBytes(StandardCharsets.UTF_8);
 	
 	/**
 	 * Execution interval for the compact thread (30 seconds)

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments.misc;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -114,7 +115,7 @@ public class TestRWPerformance implements Runnable {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		
 		for(int i = 0; i < TUPLES; i++) {
-			final Tuple tuple = new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, data.getBytes());
+			final Tuple tuple = new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, data.getBytes(StandardCharsets.UTF_8));
 			tupleStore.writeTuple(tuple);
 		}
 		

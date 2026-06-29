@@ -52,7 +52,7 @@ public class CPUCoreUtilizationAllocator extends AbstractUtilizationAllocator {
 			return 0;
 		}
 		
-		return distributedInstance.getCpuCores() / count;
+		return (double) distributedInstance.getCpuCores() / count;
 	}
 
 	@Override

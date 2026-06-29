@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
@@ -37,7 +38,8 @@ public class Forex2DBuilder extends TupleBuilder {
 	/**
 	 * The date parser for  20151201 000005720
 	 */
-	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
+	private final static ThreadLocal<SimpleDateFormat> dateFormat
+		= ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyyMMdd HHmmss"));
 	
 	@Override
 	public Tuple buildTuple(final String valueData, final String keyData) {
@@ -52,7 +54,7 @@ public class Forex2DBuilder extends TupleBuilder {
 			
 			// 20151201 000005720
 			final String datetime = data[0];
-			final Date parsedTime = dateFormat.parse(datetime);
+			final Date parsedTime = dateFormat.get().parse(datetime);
 			final long time = (parsedTime.getTime() / 1000);
 			
 			final Optional<Double> bid = MathUtil.tryParseDouble(data[1]);
@@ -65,7 +67,7 @@ public class Forex2DBuilder extends TupleBuilder {
 					(double) time, (double) time,
 					bid.get(), bid.get());
 			
-			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
+			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

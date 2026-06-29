@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.cli;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -814,7 +815,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final String value = line.getOptionValue(CLIParameter.VALUE);
 		final Hyperrectangle boundingBox = getBoundingBoxFromArgs(line);
 
-		final Tuple tuple = new Tuple(key, boundingBox, value.getBytes());
+		final Tuple tuple = new Tuple(key, boundingBox, value.getBytes(StandardCharsets.UTF_8));
 
 		System.out.println("Insert new tuple into table: " + table);
 

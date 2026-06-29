@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.demo;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -156,7 +157,7 @@ public class DataRedistributionLoader implements Runnable {
 			final File tempFile = File.createTempFile("performance-", ".tmp");
 			logger.info("Performance data is logged to {}", tempFile);
 
-			final BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+			final BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile, StandardCharsets.UTF_8));
 			pendingFutures.writeStatistics(bw);
 
 			for(int i = 0; i < numberOfFilesToLoad;) {

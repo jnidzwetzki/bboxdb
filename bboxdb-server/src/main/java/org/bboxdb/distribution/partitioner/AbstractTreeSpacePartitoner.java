@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,16 +63,16 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 					.getNextTableIdForDistributionGroup(distributionGroup);
 						
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
-					Integer.toString(nameprefix).getBytes());
+					Integer.toString(nameprefix).getBytes(StandardCharsets.UTF_8));
 			
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
-					"".getBytes());
+					"".getBytes(StandardCharsets.UTF_8));
 					
 			final Hyperrectangle rootBox = getRootBox(configuration);
 			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
 
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
-					DistributionRegionState.ACTIVE.getStringValue().getBytes());		
+					DistributionRegionState.ACTIVE.getStringValue().getBytes(StandardCharsets.UTF_8));		
 						
 			SpacePartitionerHelper.allocateSystemsToRegion(rootPath, distributionGroup,
 					new HashSet<>(), zookeeperClient);

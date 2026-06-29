@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.generator;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -265,7 +266,7 @@ public class SyntheticDataStreamGenerator implements Runnable {
 			}
 			
 			// Generate lines
-			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
 				for(int i = 0; i < lines; i++) {
 					final String usedKey = keys.get((int) (i % elements));
 					generateLine(usedKey, size, dimension, writer, bboxType, coveredArea);

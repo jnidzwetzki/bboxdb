@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,7 +52,7 @@ public class ProxyHelper {
 		final byte[] stringBytes = new byte[stringLength];
 		ByteStreams.readFully(inputStream, stringBytes, 0, stringBytes.length);
 
-		return new String(stringBytes);
+		return new String(stringBytes, StandardCharsets.UTF_8);
 	}
 
 

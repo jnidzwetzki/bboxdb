@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.query.transformation;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.network.entity.TupleAndBoundingBox;
 import org.bboxdb.query.filter.UserDefinedFilter;
 import org.bboxdb.query.filter.UserDefinedFilterDefinition;
@@ -62,7 +63,7 @@ public class UserDefinedFilterTransformation implements TupleTransformation {
 			} 
 		}
 		
-		final byte[] value = userDefinedFilterDefinition.getUserDefinedFilterValue().getBytes();
+		final byte[] value = userDefinedFilterDefinition.getUserDefinedFilterValue().getBytes(StandardCharsets.UTF_8);
 		
 		// Filter input
 		if(filter.filterTuple(input.getTuple(), value)) {

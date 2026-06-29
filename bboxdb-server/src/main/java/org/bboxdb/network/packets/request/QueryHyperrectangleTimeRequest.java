@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -151,7 +152,7 @@ public class QueryHyperrectangleTimeRequest extends NetworkQueryRequestPacket {
 
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
+		final String table = new String(tableBytes, StandardCharsets.UTF_8);
 		
 		final byte[] bboxBytes = new byte[bboxLength];
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.tools;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -142,7 +143,7 @@ public class IndexedTupleUpdateHelper {
 			final String tablename = convertTablenameToIndexTablename(table);
 			final Hyperrectangle indexBox = getBoundingBoxForKey(key);
 
-			final Tuple tupleToUpdate = new Tuple(key, indexBox, boundingBoxValue.getBytes());
+			final Tuple tupleToUpdate = new Tuple(key, indexBox, boundingBoxValue.getBytes(StandardCharsets.UTF_8));
 			final EmptyResultFuture insertFuture = cluster.put(tablename, tupleToUpdate);
 			futureStore.put(insertFuture);
 		} catch (BBoxDBException e) {
@@ -247,7 +248,7 @@ public class IndexedTupleUpdateHelper {
 				// No index entry present, perform operation in the full space (i.e., on all nodes)
 				final Hyperrectangle fullSpace = Hyperrectangle.FULL_SPACE;
 				final String fullSpaceString = fullSpace.toCompactString();
-				return Optional.of(new Tuple(key, fullSpace, fullSpaceString.getBytes(), -1));
+				return Optional.of(new Tuple(key, fullSpace, fullSpaceString.getBytes(StandardCharsets.UTF_8), -1));
 			}
 		}
 	}
@@ -280,7 +281,7 @@ public class IndexedTupleUpdateHelper {
 			// Lock was successful
 			if(! lockResult.isFailed()) {
 				final byte[] boundingBoxData = oldIndexEntry.getDataBytes();
-				return Hyperrectangle.fromString(new String(boundingBoxData));
+				return Hyperrectangle.fromString(new String(boundingBoxData, StandardCharsets.UTF_8));
 			}
 		}
 

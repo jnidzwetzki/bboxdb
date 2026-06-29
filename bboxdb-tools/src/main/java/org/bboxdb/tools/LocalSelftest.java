@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -102,7 +103,7 @@ public class LocalSelftest {
 
 		logger.info("Inserting tuples...");
 		for(int i = 0; i < TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), Hyperrectangle.FULL_SPACE, Integer.toString(i).getBytes(StandardCharsets.UTF_8));
 			storageManager.put(createdTuple);
 		}
 		

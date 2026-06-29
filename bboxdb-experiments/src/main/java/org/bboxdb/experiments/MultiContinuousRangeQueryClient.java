@@ -218,7 +218,7 @@ public class MultiContinuousRangeQueryClient extends AbstractMultiQueryClient im
 	 */
 	private static void performReadData(final String[] args) {
 		
-		if(args.length != 5) {
+		if(args.length != 5 && args.length != 7) {
 			System.err.println("Usage: <Class> readfile <File> <ClusterContactPoint> <Clustername> <Table> {<UDF-Name> <UDF-Value>}");
 			System.exit(-1);
 		}

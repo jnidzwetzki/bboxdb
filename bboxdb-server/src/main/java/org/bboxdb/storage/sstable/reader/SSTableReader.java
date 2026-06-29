@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.reader;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 
@@ -171,7 +172,7 @@ public class SSTableReader extends AbstractFileReader {
 			
 			readTupleKeysTotal.inc();
 			
-			return new String(keyBytes);
+			return new String(keyBytes, StandardCharsets.UTF_8);
 		} catch(Exception e) {
 			throw e;
 		} finally {

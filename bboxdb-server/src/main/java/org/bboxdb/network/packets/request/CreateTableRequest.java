@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -72,11 +73,11 @@ public class CreateTableRequest extends NetworkRequestPacket {
 			bb.putInt(ssTableConfiguration.getVersions());
 
 			// Spatial index reader
-			final byte[] spatialIndexReaderBytes = ssTableConfiguration.getSpatialIndexReader().getBytes();
+			final byte[] spatialIndexReaderBytes = ssTableConfiguration.getSpatialIndexReader().getBytes(StandardCharsets.UTF_8);
 			bb.putShort((short) spatialIndexReaderBytes.length);
 			
 			// Spatial index writer
-			final byte[] spatialIndexWriterBytes = ssTableConfiguration.getSpatialIndexWriter().getBytes();
+			final byte[] spatialIndexWriterBytes = ssTableConfiguration.getSpatialIndexWriter().getBytes(StandardCharsets.UTF_8);
 			bb.putShort((short) spatialIndexWriterBytes.length);
 			
 			// Body length
@@ -140,17 +141,17 @@ public class CreateTableRequest extends NetworkRequestPacket {
 		// Table name
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
+		final String table = new String(tableBytes, StandardCharsets.UTF_8);
 		
 		// Spatial index reader
 		final byte[] spatialReaderBytes = new byte[spatialReaderLength];
 		encodedPackage.get(spatialReaderBytes, 0, spatialReaderBytes.length);
-		final String spatialIndexReader = new String(spatialReaderBytes);
+		final String spatialIndexReader = new String(spatialReaderBytes, StandardCharsets.UTF_8);
 		
 		// Spatial index writer
 		final byte[] spatialWriterBytes = new byte[spatialWriterLength];
 		encodedPackage.get(spatialWriterBytes, 0, spatialWriterBytes.length);
-		final String spatialIndexWriter = new String(spatialWriterBytes);
+		final String spatialIndexWriter = new String(spatialWriterBytes, StandardCharsets.UTF_8);
 				
 		final TupleStoreConfiguration tupleStoreConfiguration = new TupleStoreConfiguration();
 		tupleStoreConfiguration.setAllowDuplicates(allowDuplicates);

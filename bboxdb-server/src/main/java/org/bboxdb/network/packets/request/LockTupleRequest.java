@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -65,8 +66,8 @@ public class LockTupleRequest extends NetworkRequestPacket {
 	public long writeToOutputStream(final OutputStream outputStream) throws PacketEncodeException {
 
 		try {
-			final byte[] tablenameBytes = tablename.getBytes();
-			final byte[] keyBytes = key.getBytes();
+			final byte[] tablenameBytes = tablename.getBytes(StandardCharsets.UTF_8);
+			final byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
 
 			final ByteBuffer bb = ByteBuffer.allocate(16);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -136,12 +137,12 @@ public class LockTupleRequest extends NetworkRequestPacket {
 		// Tablename
 		final byte[] tableBytes = new byte[tablenameLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String tablename = new String(tableBytes);
+		final String tablename = new String(tableBytes, StandardCharsets.UTF_8);
 
 		// Key
 		final byte[] keyBytes = new byte[keyLength];
 		encodedPackage.get(keyBytes, 0, keyBytes.length);
-		final String key = new String(keyBytes);
+		final String key = new String(keyBytes, StandardCharsets.UTF_8);
 
 		if(encodedPackage.remaining() != 0) {
 			throw new PacketEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy.client;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -87,7 +88,7 @@ public class NetworkProxyClient implements AutoCloseable {
 
 		final int stringLength = string.length();
 		socketOutputStream.write(DataEncoderHelper.intToByteBuffer(stringLength).array());
-		socketOutputStream.write(string.getBytes());
+		socketOutputStream.write(string.getBytes(StandardCharsets.UTF_8));
 		socketOutputStream.flush();
 	}
 

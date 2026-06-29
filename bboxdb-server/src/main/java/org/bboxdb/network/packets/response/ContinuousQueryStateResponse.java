@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.response;
 
+import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -168,7 +169,7 @@ public class ContinuousQueryStateResponse extends NetworkResponsePacket {
 			final int lengthOfUUID = encodedPackage.getInt();
 			final byte[] uuidBytes = new byte[lengthOfUUID];			
 			encodedPackage.get(uuidBytes, 0, uuidBytes.length);
-			final String uuid = new String(uuidBytes);
+			final String uuid = new String(uuidBytes, StandardCharsets.UTF_8);
 			
 			// Range query elements
 			final Set<String> keys = new HashSet<>();
@@ -177,7 +178,7 @@ public class ContinuousQueryStateResponse extends NetworkResponsePacket {
 				final int lengthOfKey = encodedPackage.getInt();
 				final byte[] keyBytes = new byte[lengthOfKey];			
 				encodedPackage.get(keyBytes, 0, keyBytes.length);
-				final String key = new String(keyBytes);
+				final String key = new String(keyBytes, StandardCharsets.UTF_8);
 				keys.add(key);
 			}
 			
@@ -193,7 +194,7 @@ public class ContinuousQueryStateResponse extends NetworkResponsePacket {
 				final int lengthOfKey = encodedPackage.getInt();
 				final byte[] keyBytes = new byte[lengthOfKey];			
 				encodedPackage.get(keyBytes, 0, keyBytes.length);
-				final String key = new String(keyBytes);
+				final String key = new String(keyBytes, StandardCharsets.UTF_8);
 				
 				final int numberOfJoinPartners = encodedPackage.getInt();
 				final Set<String> joinPartner = new HashSet<>();
@@ -201,7 +202,7 @@ public class ContinuousQueryStateResponse extends NetworkResponsePacket {
 					final int lengthOfPartner = encodedPackage.getInt();
 					final byte[] partnerBytes = new byte[lengthOfPartner];			
 					encodedPackage.get(partnerBytes, 0, partnerBytes.length);
-					final String partner = new String(partnerBytes);
+					final String partner = new String(partnerBytes, StandardCharsets.UTF_8);
 					joinPartner.add(partner);
 				}
 				

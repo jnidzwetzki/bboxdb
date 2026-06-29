@@ -15,6 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -105,10 +106,10 @@ public class BBoxDBClientExample {
 		}
 		
 		// Insert two new tuples
-		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(0d, 5d, 0d, 1d), "mydata1".getBytes());
+		final Tuple tuple1 = new Tuple("key1", new Hyperrectangle(0d, 5d, 0d, 1d), "mydata1".getBytes(StandardCharsets.UTF_8));
 		final EmptyResultFuture insertResult1 = bboxdbClient.put(mytable, tuple1);
 		
-		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(-1d, 2d, -1d, 2d), "mydata2".getBytes());
+		final Tuple tuple2 = new Tuple("key2", new Hyperrectangle(-1d, 2d, -1d, 2d), "mydata2".getBytes(StandardCharsets.UTF_8));
 		final EmptyResultFuture insertResult2 = bboxdbClient.put(mytable, tuple2);
 		
 		// Wait for the insert operations to complete

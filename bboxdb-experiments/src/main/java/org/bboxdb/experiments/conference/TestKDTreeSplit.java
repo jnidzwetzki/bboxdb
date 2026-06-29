@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments.conference;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -186,7 +187,7 @@ public class TestKDTreeSplit implements Runnable {
 
 		// Bounding box db entry
 		final DatabaseEntry key = new DatabaseEntry();
-		key.setData(Long.toString(System.nanoTime()).getBytes());
+		key.setData(Long.toString(System.nanoTime()).getBytes(StandardCharsets.UTF_8));
 		final DatabaseEntry value = new DatabaseEntry();
 		value.setData(boundingBox.toByteArray());
 

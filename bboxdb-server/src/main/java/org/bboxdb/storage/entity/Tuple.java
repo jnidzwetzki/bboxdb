@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -226,7 +227,7 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 		} else {
 			return String.format("Key=%s, Hyperrectangle=%s, value=%s, version timestamp=%d%n",
 					getKey(), getBoundingBox().toCompactString(), 
-					new String(getDataBytes()), getVersionTimestamp());
+					new String(getDataBytes(), StandardCharsets.UTF_8), getVersionTimestamp());
 		}
 	}
 

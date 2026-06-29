@@ -60,7 +60,7 @@ public class DistributionGroupConfigurationCache {
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		throw new IllegalArgumentException("Unable to clone a singleton");
+		throw new CloneNotSupportedException("Unable to clone a singleton");
 	}
 	
 	/**

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -86,7 +87,7 @@ public class ContinuousQueryStateRequest extends NetworkRequestPacket {
 		// Table name
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
+		final String table = new String(tableBytes, StandardCharsets.UTF_8);
 		final TupleStoreName tupleStoreName = new TupleStoreName(table);
 		
 		if(encodedPackage.remaining() != 0) {

@@ -22,6 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.network.packets.PacketEncodeException;
@@ -46,7 +48,7 @@ public class RoutingHeaderParser {
 				&& (routedOrDirect[0] != RoutingHeader.ROUTED_PACKAGE)) {
 			
 			throw new PacketEncodeException("Invalid package routing type, unable to decode package "
-					+ "header: " + routedOrDirect);
+					+ "header: " + Arrays.toString(routedOrDirect));
 		}
 		
 		if(routedOrDirect[0] == RoutingHeader.DIRECT_PACKAGE) {
@@ -106,7 +108,7 @@ public class RoutingHeaderParser {
 
 		final byte[] routingListBuffer = new byte[routingListLength];
 		ByteStreams.readFully(inputStream, routingListBuffer, 0, routingListBuffer.length);
-		final String routingList = new String(routingListBuffer);
+		final String routingList = new String(routingListBuffer, StandardCharsets.UTF_8);
 		
 		return new RoutingHeader(hop, routingList);
 	}
@@ -146,7 +148,7 @@ public class RoutingHeaderParser {
 			byteArrayOutputStream.write(rountingListLength.array());
 			
 			// Host list
-			byteArrayOutputStream.write(routingList.getBytes());
+			byteArrayOutputStream.write(routingList.getBytes(StandardCharsets.UTF_8));
 			
 		} else {
 			byteArrayOutputStream.write(RoutingHeader.DIRECT_PACKAGE);

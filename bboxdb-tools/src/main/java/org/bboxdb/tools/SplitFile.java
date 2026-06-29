@@ -1,5 +1,6 @@
 package org.bboxdb.tools;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -82,7 +83,7 @@ public class SplitFile implements Runnable {
 			final File file = new File(outputDir + File.separator + Integer.toString(fileNo));
 			
 			try {
-				final BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+				final BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8));
 				writers.add(writer);
 			} catch (IOException e) {
 				System.err.println("Unable to open file for writing: " + file);

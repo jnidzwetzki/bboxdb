@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.bboxdb.commons.math.GeoJsonPolygon;
@@ -35,7 +36,7 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 		// Longitude / Latitude switch
 		polygon.invertPolygonCoordinates();
 		
-		final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+		final byte[] tupleBytes = polygon.toGeoJson().getBytes(StandardCharsets.UTF_8);
 
 		if(polygon.getBoundingBox().getDimension() == 0) {
 			return null;

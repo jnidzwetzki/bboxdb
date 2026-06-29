@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -73,7 +74,7 @@ public class TPCHLineitemRangeBuilder extends TupleBuilder {
 					Math.min(shipDateTime, receiptDateTime),
 					Math.max(shipDateTime, receiptDateTime));
 
-			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

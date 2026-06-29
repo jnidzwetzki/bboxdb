@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.benchmark;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -91,7 +92,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 	protected void handleLine(String line) {
 		try {
 			final GeoJsonPolygon polygon = GeoJsonPolygon.fromGeoJson(line);
-			final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+			final byte[] tupleBytes = polygon.toGeoJson().getBytes(StandardCharsets.UTF_8);
 
 			final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
 			final EmptyResultFuture insertFuture = bboxdbClient.put(table, tuple);

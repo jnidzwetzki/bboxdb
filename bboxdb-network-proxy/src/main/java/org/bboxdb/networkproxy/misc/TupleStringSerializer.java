@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.networkproxy.misc;
 
+import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,8 +105,8 @@ public class TupleStringSerializer {
 	public static byte[] tupleToProxyBytes(final Tuple tuple) throws IOException {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-		final byte[] keyBytes = tuple.getKey().getBytes();
-		final byte[] bboxBytes = tuple.getBoundingBox().toCompactString().getBytes();
+		final byte[] keyBytes = tuple.getKey().getBytes(StandardCharsets.UTF_8);
+		final byte[] bboxBytes = tuple.getBoundingBox().toCompactString().getBytes(StandardCharsets.UTF_8);
 		final byte[] dataBytes = tuple.getDataBytes();
 
 		final int keyLength = keyBytes.length;
@@ -175,13 +176,13 @@ public class TupleStringSerializer {
 			final int keyLength = bb.getInt();
 			final byte[] keyBytes = new byte[keyLength];
 			bb.get(keyBytes, 0, keyBytes.length);
-			final String key = new String(keyBytes);
+			final String key = new String(keyBytes, StandardCharsets.UTF_8);
 
 			// Bounding box
 			final int bboxLength = bb.getInt();
 			final byte[] bboxBytes = new byte[bboxLength];
 			bb.get(bboxBytes, 0, bboxBytes.length);
-			final String bboxString = new String(bboxBytes);
+			final String bboxString = new String(bboxBytes, StandardCharsets.UTF_8);
 			final Hyperrectangle bbox = Hyperrectangle.fromString(bboxString);
 
 			// Value
@@ -230,7 +231,7 @@ public class TupleStringSerializer {
 				final int nameLength = bb.getInt();
 				final byte[] nameBytes = new byte[nameLength];
 				bb.get(nameBytes, 0, nameBytes.length);
-				final String tableName = new String(nameBytes);
+				final String tableName = new String(nameBytes, StandardCharsets.UTF_8);
 				tupleStoreNames.add(tableName);
 			}
 			
