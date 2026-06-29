@@ -50,7 +50,10 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Intentional process termination on an unrecoverable startup or recovery error.")
 public class DistributedRecoveryService implements BBoxDBService {
 	
 	/**

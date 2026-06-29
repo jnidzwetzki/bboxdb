@@ -75,7 +75,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW",
+		justification = "Constructor validates its arguments and may throw; the class defines no finalizer and therefore is not susceptible to a finalizer attack. The class cannot be made final (it is an extensible base class / is mocked in tests).")
 public class BBoxDBConnection {
 
 	/**

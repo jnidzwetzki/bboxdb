@@ -22,7 +22,7 @@ import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.entity.TupleAndBoundingBox;
 
-public class EnlargeBoundingBoxByWGS84Transformation implements TupleTransformation {
+public final class EnlargeBoundingBoxByWGS84Transformation implements TupleTransformation {
 	
 	/**
 	 * The change in the latitude

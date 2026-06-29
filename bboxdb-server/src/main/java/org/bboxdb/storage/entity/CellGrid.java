@@ -33,7 +33,7 @@ import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
 
 import com.google.common.collect.Lists;
 
-public class CellGrid {
+public final class CellGrid {
 
 	/**
 	 * The covering box

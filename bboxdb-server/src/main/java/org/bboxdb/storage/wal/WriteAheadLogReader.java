@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
-public class WriteAheadLogReader implements Closeable, Iterable<Tuple> {
+public final class WriteAheadLogReader implements Closeable, Iterable<Tuple> {
 
 	/**
 	 * The input stream

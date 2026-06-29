@@ -21,7 +21,10 @@ import org.bboxdb.BBoxDBMain;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Intentional process termination on an unrecoverable startup or recovery error.")
 public class Lifecycle implements LifecycleMBean {
 	
 	/**

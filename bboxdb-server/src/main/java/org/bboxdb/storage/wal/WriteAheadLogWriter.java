@@ -28,7 +28,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.util.TupleHelper;
 
-public class WriteAheadLogWriter implements Closeable {
+public final class WriteAheadLogWriter implements Closeable {
 
 	/**
 	 * The file writer

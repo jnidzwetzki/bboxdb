@@ -39,7 +39,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionMerger {
+public final class RegionMerger {
 
 	/**
 	 * The storage reference

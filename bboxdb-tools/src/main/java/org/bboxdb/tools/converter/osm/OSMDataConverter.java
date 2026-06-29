@@ -72,7 +72,7 @@ import org.slf4j.LoggerFactory;
 
 import crosby.binary.osmosis.OsmosisReader;
 
-public class OSMDataConverter {
+public final class OSMDataConverter {
 
 	/**
 	 * The file to import

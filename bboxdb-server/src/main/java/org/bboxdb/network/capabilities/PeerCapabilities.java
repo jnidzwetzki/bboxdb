@@ -19,7 +19,7 @@ package org.bboxdb.network.capabilities;
 
 import java.nio.ByteBuffer;
 
-public class PeerCapabilities {
+public final class PeerCapabilities {
 
 	protected final ByteBuffer capabilities;
 

@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 
-public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
+public final class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	 
 	/**
 	 * The name of the table

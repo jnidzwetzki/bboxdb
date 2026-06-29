@@ -30,7 +30,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.storage.entity.DistributionGroupHelper;
 
-public class DistributionRegion {
+public final class DistributionRegion {
 
 	/**
 	 * The name of the distribution group

@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * so that the duplicates can be removed
  *
  */
-public class KeyClientQuery implements ClientQuery {
+public final class KeyClientQuery implements ClientQuery {
 
 	/**
 	 * The key to query

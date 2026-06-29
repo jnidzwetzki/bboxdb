@@ -25,7 +25,7 @@ import org.bboxdb.commons.FileSizeHelper;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 
-public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
+public final class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	
 	/**
 	 * The string when the property is unknown

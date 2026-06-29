@@ -24,7 +24,7 @@ import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 
-public class SpacePartitionerContext {
+public final class SpacePartitionerContext {
 	
 	/**
 	 * The space partitioner configuration

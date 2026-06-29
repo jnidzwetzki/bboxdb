@@ -29,7 +29,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoutingHeader {
+public final class RoutingHeader {
 	
 	/**
 	 * Is this a routed or a direct package?

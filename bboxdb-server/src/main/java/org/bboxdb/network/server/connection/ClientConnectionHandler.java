@@ -252,9 +252,6 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		this.pendingCompressionPackages = new ArrayList<>();
 		this.maintenanceThread = new ConnectionMaintenanceRunnable(this);
 
-		final Thread thread = new Thread(maintenanceThread);
-		thread.start();
-
 		// Init the request handler map
 		initRequestHandlerMap();
 
@@ -376,6 +373,11 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	public void runThread() {
 		try {
 			logger.debug("Handling new connection from: {}", clientSocket.getInetAddress());
+
+			// Start the connection maintenance thread (started here instead of in the
+			// constructor to avoid leaking a partially constructed object to the new thread)
+			final Thread maintenanceThreadHandle = new Thread(maintenanceThread);
+			maintenanceThreadHandle.start();
 
 			while(serviceState.isInRunningState() || serviceState.isInStartingState()) {
 				handleNextPacket(inputStream);

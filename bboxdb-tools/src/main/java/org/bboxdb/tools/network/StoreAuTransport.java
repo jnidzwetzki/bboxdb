@@ -35,7 +35,10 @@ import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.misc.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class StoreAuTransport implements Runnable {
 	
 	/**

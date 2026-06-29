@@ -43,7 +43,10 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class DetermineQueryStateSize extends AbstractStateSize implements Runnable {
 
 	/** 

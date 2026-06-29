@@ -30,7 +30,10 @@ import org.bboxdb.tools.converter.tuple.ADSBTupleBuilder3D;
 import org.bboxdb.tools.converter.tuple.AuTransportGeoJSONTupleBuilder;
 import org.bboxdb.tools.converter.tuple.BerlinModTupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class AbstractStateSize {
 
 	/**

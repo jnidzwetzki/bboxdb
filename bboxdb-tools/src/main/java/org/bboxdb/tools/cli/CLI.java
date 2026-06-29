@@ -86,6 +86,8 @@ import org.slf4j.LoggerFactory;
  * The BBoxDB CLI
  *
  */
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class CLI implements Runnable, AutoCloseable {
 
 	/**

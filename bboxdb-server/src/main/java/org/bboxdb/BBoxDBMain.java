@@ -42,11 +42,14 @@ import org.bboxdb.performance.PerformanceCounterService;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Start the BBoxDB server
  *
  */
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Intentional process termination on an unrecoverable startup or recovery error.")
 public class BBoxDBMain {
 
 	/**

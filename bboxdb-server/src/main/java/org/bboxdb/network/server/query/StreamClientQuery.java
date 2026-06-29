@@ -46,7 +46,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StreamClientQuery implements Closeable, ClientQuery {
+public final class StreamClientQuery implements Closeable, ClientQuery {
 
 	/**
 	 * The query plan to execute

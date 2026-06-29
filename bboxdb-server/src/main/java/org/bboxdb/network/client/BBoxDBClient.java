@@ -71,7 +71,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 
-public class BBoxDBClient implements BBoxDB {
+public final class BBoxDBClient implements BBoxDB {
 
 	/**
 	 * The Connection

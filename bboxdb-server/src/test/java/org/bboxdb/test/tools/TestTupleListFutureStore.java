@@ -40,6 +40,7 @@ public class TestTupleListFutureStore {
 	@Test(timeout=1000)
 	public void testEmptyFutureStoreWait() throws InterruptedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
+		tupleListFutureStore.init();
 		Assert.assertTrue(tupleListFutureStore.getServiceState().isInRunningState());
 		tupleListFutureStore.waitForCompletion();
 		tupleListFutureStore.shutdown();
@@ -49,6 +50,7 @@ public class TestTupleListFutureStore {
 	@Test(timeout=60000)
 	public void testDefaultValues() {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
+		tupleListFutureStore.init();
 		Assert.assertEquals(TupleListFutureStore.DEFAULT_MAX_QUEUE_SIZE, tupleListFutureStore.getMaxQueueSize());
 		Assert.assertEquals(TupleListFutureStore.DEFAULT_REQUEST_WORKER, tupleListFutureStore.getRequestWorker());
 		tupleListFutureStore.shutdown();
@@ -57,6 +59,7 @@ public class TestTupleListFutureStore {
 	@Test(expected=RejectedException.class)
 	public void testRejectedExeption() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
+		tupleListFutureStore.init();
 		tupleListFutureStore.shutdown();
 		final BBoxDBConnection connection = BBoxDBTestHelper.MOCKED_CONNECTION;
 		final Supplier<NetworkRequestPacket> supplier = () -> (null);
@@ -69,6 +72,7 @@ public class TestTupleListFutureStore {
 	@Test(timeout=60000)
 	public void testOneFuture() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
+		tupleListFutureStore.init();
 		final TestTupleListFuture testFuture = new TestTupleListFuture();
 		Assert.assertEquals(testFuture.getIteratorCalls(), 0);
 
@@ -85,6 +89,7 @@ public class TestTupleListFutureStore {
 	@Test(timeout=60000)
 	public void testFiftyFutures() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
+		tupleListFutureStore.init();
 
 		final List<TestTupleListFuture> futures = new ArrayList<>();
 		for(int i = 0; i < 50; i++) {

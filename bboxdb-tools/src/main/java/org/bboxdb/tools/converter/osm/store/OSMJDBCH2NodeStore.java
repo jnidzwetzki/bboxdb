@@ -32,7 +32,7 @@ import java.util.List;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
-public class OSMJDBCH2NodeStore implements OSMNodeStore {
+public final class OSMJDBCH2NodeStore implements OSMNodeStore {
 	
     /**
      * The H2 DB file flags

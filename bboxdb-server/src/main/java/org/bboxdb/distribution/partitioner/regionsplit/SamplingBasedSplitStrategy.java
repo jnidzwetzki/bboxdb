@@ -28,7 +28,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SamplingBasedSplitStrategy implements SplitpointStrategy {
+public final class SamplingBasedSplitStrategy implements SplitpointStrategy {
 
 	/**
 	 * The samples

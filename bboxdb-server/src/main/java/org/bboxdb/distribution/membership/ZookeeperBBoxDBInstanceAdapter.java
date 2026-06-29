@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Longs;
 
-public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
+public final class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 
 	/**
 	 * The zookeeper client

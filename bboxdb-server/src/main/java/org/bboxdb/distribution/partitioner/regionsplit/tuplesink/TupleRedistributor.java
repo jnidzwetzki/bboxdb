@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-public class TupleRedistributor {
+public final class TupleRedistributor {
 	
 	/**
 	 * The tuple store name for data redistribution

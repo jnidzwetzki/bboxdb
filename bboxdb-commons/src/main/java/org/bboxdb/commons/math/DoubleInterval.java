@@ -21,7 +21,7 @@ import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.StringUtil;
 
-public class DoubleInterval implements Comparable<DoubleInterval> {
+public final class DoubleInterval implements Comparable<DoubleInterval> {
 	
 	/**
 	 * The begin of the interval

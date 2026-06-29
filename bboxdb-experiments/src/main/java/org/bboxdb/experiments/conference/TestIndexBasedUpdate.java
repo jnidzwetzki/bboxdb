@@ -47,7 +47,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class TestIndexBasedUpdate implements Runnable {
 
 	/**

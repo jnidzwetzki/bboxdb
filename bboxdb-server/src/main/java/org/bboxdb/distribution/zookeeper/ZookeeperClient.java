@@ -41,7 +41,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperClient implements BBoxDBService, AcquirableResource {
+public final class ZookeeperClient implements BBoxDBService, AcquirableResource {
 
 	/**
 	 * The list of the zookeeper hosts

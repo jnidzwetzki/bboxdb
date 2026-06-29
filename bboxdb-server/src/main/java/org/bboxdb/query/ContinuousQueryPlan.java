@@ -23,7 +23,10 @@ import java.util.Objects;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.query.transformation.TupleTransformation;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW",
+		justification = "Constructor validates its arguments and may throw; the class defines no finalizer and therefore is not susceptible to a finalizer attack. The class cannot be made final (it is an extensible base class / is mocked in tests).")
 public abstract class ContinuousQueryPlan {
 
 	/**

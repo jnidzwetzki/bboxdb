@@ -39,7 +39,10 @@ import org.apache.commons.cli.ParseException;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.commons.math.HyperrectangleHelper;
 import org.bboxdb.tools.helper.RandomHyperrectangleGenerator;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class SyntheticDataStreamGenerator implements Runnable {
 
 	static class Parameter {

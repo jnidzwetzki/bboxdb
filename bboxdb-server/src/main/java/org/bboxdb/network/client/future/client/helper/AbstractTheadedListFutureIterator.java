@@ -232,7 +232,8 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 
 			// All worker are done
 			if(seenTerminals == futuresToQuery) {
-				return (nextTuple != null);
+				// nextTuple is known to be null here (loop condition)
+				return false;
 			}
 
 			try {
