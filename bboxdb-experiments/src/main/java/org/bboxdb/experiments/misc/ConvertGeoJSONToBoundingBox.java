@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments.misc;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -61,7 +62,7 @@ public class ConvertGeoJSONToBoundingBox implements Runnable {
 		
 		try (
 				final Stream<String> stream = Files.lines(Paths.get(inputFile));
-				final BufferedWriter bw = new BufferedWriter(new FileWriter(outputFileHandle));
+				final BufferedWriter bw = new BufferedWriter(new FileWriter(outputFileHandle, StandardCharsets.UTF_8));
 			) {
 			stream.forEach(l -> handleLine(l, bw));
 		} catch (Exception e) {

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -68,7 +69,7 @@ public class QueryKeyRequest extends NetworkQueryRequestPacket {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
-			final byte[] keyBytes = key.getBytes();
+			final byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
 			
 			final ByteBuffer bb = ByteBuffer.allocate(8);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -135,11 +136,11 @@ public class QueryKeyRequest extends NetworkQueryRequestPacket {
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
+		final String table = new String(tableBytes, StandardCharsets.UTF_8);
 		
 		final byte[] keyBytes = new byte[keyLength];
 		encodedPackage.get(keyBytes, 0, keyBytes.length);
-		final String key = new String(keyBytes);
+		final String key = new String(keyBytes, StandardCharsets.UTF_8);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PacketEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());

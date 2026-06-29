@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.response;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -42,7 +43,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePacket {
 	public long writeToOutputStream(final OutputStream outputStream) throws PacketEncodeException {
 		
 		try {
-			final byte[] bodyBytes = body.getBytes();
+			final byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
 			final ByteBuffer bb = ByteBuffer.allocate(2);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort((short) bodyBytes.length);
@@ -79,7 +80,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePacket {
 		
 		final byte[] bodyBytes = new byte[bodyLength];
 		bb.get(bodyBytes, 0, bodyBytes.length);
-		final String body = new String(bodyBytes);
+		final String body = new String(bodyBytes, StandardCharsets.UTF_8);
 		
 		if(bb.remaining() != 0) {
 			throw new PacketEncodeException("Some bytes are left after encoding: " + bb.remaining());

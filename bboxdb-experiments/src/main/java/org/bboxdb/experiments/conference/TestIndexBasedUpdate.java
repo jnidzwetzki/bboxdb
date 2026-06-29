@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments.conference;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -227,7 +228,7 @@ public class TestIndexBasedUpdate implements Runnable {
 						final EmptyResultFuture deleteQuery = bboxDBConnection.delete(tablename, key, System.currentTimeMillis(), box);
 						pendingFutures.put(deleteQuery);
 
-						final Tuple tuple = new Tuple(key, box, "".getBytes());
+						final Tuple tuple = new Tuple(key, box, "".getBytes(StandardCharsets.UTF_8));
 
 						final EmptyResultFuture updateRequest = bboxDBConnection.put(tablename, tuple);
 						pendingFutures.put(updateRequest);
@@ -286,7 +287,7 @@ public class TestIndexBasedUpdate implements Runnable {
 
 					final Hyperrectangle box = new Hyperrectangle(bboxIntervals);
 
-					final Tuple tuple = new Tuple(key, box, "".getBytes());
+					final Tuple tuple = new Tuple(key, box, "".getBytes(StandardCharsets.UTF_8));
 					final EmptyResultFuture updateRequest = updateHelper.handleTupleUpdate(tablename, tuple);
 					pendingFutures.put(updateRequest);
 				}

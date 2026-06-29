@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -60,7 +61,7 @@ public class KeepAliveRequest extends NetworkRequestPacket {
 	public long writeToOutputStream(final OutputStream outputStream) throws PacketEncodeException {
 
 		try {
-			final byte[] tableBytes = tablename.getBytes();
+			final byte[] tableBytes = tablename.getBytes(StandardCharsets.UTF_8);
 			
 			final ByteBuffer bb = ByteBuffer.allocate(8);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -74,7 +75,7 @@ public class KeepAliveRequest extends NetworkRequestPacket {
 			bos.write(tableBytes);
 			
 			for(final Tuple tuple : tuples) {
-				final byte[] keyByteArray = tuple.getKey().getBytes();
+				final byte[] keyByteArray = tuple.getKey().getBytes(StandardCharsets.UTF_8);
 				final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
 				final ByteBuffer keyLengthBytes = DataEncoderHelper.intToByteBuffer(keyByteArray.length);
 				final ByteBuffer boundingBoxLength = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
@@ -128,13 +129,13 @@ public class KeepAliveRequest extends NetworkRequestPacket {
 		
 		final byte[] tableNameBytes = new byte[tableLength];
 		encodedPackage.get(tableNameBytes, 0, tableNameBytes.length);
-		final String tableName = new String(tableNameBytes);
+		final String tableName = new String(tableNameBytes, StandardCharsets.UTF_8);
 		
 		for(int i = 0; i < elements; i++) {
 			final int keyLength = encodedPackage.getInt();
 			final byte[] keyBytes = new byte[keyLength];
 			encodedPackage.get(keyBytes, 0, keyBytes.length);
-			final String key = new String(keyBytes);
+			final String key = new String(keyBytes, StandardCharsets.UTF_8);
 			
 			final int boundingBoxLength = encodedPackage.getInt();
 			final byte[] boundingBoxBytes = new byte[boundingBoxLength];
@@ -142,7 +143,7 @@ public class KeepAliveRequest extends NetworkRequestPacket {
 			final Hyperrectangle boundingBox = Hyperrectangle.fromByteArray(boundingBoxBytes);
 			
 			final long version = encodedPackage.getLong();
-			final Tuple tuple = new Tuple(key, boundingBox, "".getBytes(), version);
+			final Tuple tuple = new Tuple(key, boundingBox, "".getBytes(StandardCharsets.UTF_8), version);
 			tuples.add(tuple);
 		}
 		

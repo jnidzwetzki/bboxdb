@@ -233,6 +233,13 @@
 				<artifactId>testcontainers</artifactId>
 				<version>2.0.5</version>
 			</dependency>
+
+			<!-- Static analysis annotations (e.g. @SuppressFBWarnings) -->
+			<dependency>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-annotations</artifactId>
+				<version>4.10.2</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -253,6 +260,27 @@
 						<enableAssertions>true</enableAssertions>
 						<trimStackTrace>false</trimStackTrace>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.github.spotbugs</groupId>
+					<artifactId>spotbugs-maven-plugin</artifactId>
+					<version>4.10.2.0</version>
+					<configuration>
+						<effort>Max</effort>
+						<threshold>Medium</threshold>
+						<failOnError>true</failOnError>
+						<includeTests>false</includeTests>
+						<excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+					</configuration>
+					<executions>
+						<execution>
+							<id>spotbugs-check</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -288,6 +316,11 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
 			</plugin>
 
 			<plugin>

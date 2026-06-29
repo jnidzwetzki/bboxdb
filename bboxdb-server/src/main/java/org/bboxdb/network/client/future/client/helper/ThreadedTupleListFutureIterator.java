@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future.client.helper;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.client.future.client.AbstractListFuture;
 import org.bboxdb.storage.entity.Tuple;
@@ -29,7 +30,7 @@ public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIt
 
 	@Override
 	protected Tuple buildQueueTerminal() {
-		return new Tuple("", Hyperrectangle.FULL_SPACE, "".getBytes());
+		return new Tuple("", Hyperrectangle.FULL_SPACE, "".getBytes(StandardCharsets.UTF_8));
 	}
 	
 

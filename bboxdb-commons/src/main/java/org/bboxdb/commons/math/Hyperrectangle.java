@@ -71,7 +71,7 @@ public class Hyperrectangle implements Comparable<Hyperrectangle> {
 			boundingBox[i] = args[i];
 			pointIncluded[i] = true;
 
-			if(i % 2 == 1 && boundingBox[i - 1] > boundingBox[i]) {
+			if(i % 2 != 0 && boundingBox[i - 1] > boundingBox[i]) {
 				throw new IllegalArgumentException(boundingBox[i - 1]  +
 						" shuould be smaller than " + boundingBox[i]);
 			}

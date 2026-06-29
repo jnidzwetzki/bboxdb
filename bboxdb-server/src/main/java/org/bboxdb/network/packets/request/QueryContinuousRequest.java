@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -50,7 +51,7 @@ public class QueryContinuousRequest extends NetworkQueryRequestPacket {
 
 		try {
 			final String queryPlanString = ContinuousQueryPlanSerializer.toJSON(queryPlan);
-			final byte[] queryPlanBytes = queryPlanString.getBytes();
+			final byte[] queryPlanBytes = queryPlanString.getBytes(StandardCharsets.UTF_8);
 			
 			final ByteBuffer bb = ByteBuffer.allocate(6);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -101,7 +102,7 @@ public class QueryContinuousRequest extends NetworkQueryRequestPacket {
 
 		final byte[] queryPlanBytes = new byte[queryPlanLength];
 		encodedPackage.get(queryPlanBytes, 0, queryPlanBytes.length);
-		final String queryPlanString = new String(queryPlanBytes);
+		final String queryPlanString = new String(queryPlanBytes, StandardCharsets.UTF_8);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PacketEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());

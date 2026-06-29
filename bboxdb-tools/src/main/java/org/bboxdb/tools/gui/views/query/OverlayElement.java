@@ -382,8 +382,8 @@ public class OverlayElement {
 		final int changedZoom = zoom / 4;
 		final int size = Math.max(POINT_SIZE, (int) (POINT_SIZE * changedZoom));
 			
-		final int pointX = (int) (thePoint.getX() - size/2);
-		final int pointY = (int) (thePoint.getY() - size/2);
+		final int pointX = (int) (thePoint.getX() - size/2.0);
+		final int pointY = (int) (thePoint.getY() - size/2.0);
 		
 		return new Rectangle(pointX, pointY, size, size);
 	}

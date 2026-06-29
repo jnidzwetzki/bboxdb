@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.osm;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -232,7 +233,7 @@ public class OSMDataConverter {
 		try {
 			// Open file handles
 			for(final OSMType osmType : filter.keySet()) {
-				final BufferedWriter bw = new BufferedWriter(new FileWriter(new File(output + File.separator + osmType.toString())));
+				final BufferedWriter bw = new BufferedWriter(new FileWriter(new File(output + File.separator + osmType.toString()), StandardCharsets.UTF_8));
 				writerMap.put(osmType, bw);
 			}
 			

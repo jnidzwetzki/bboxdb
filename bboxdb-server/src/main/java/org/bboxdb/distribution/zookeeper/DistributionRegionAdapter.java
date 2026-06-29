@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +87,7 @@ public class DistributionRegionAdapter {
 		
 		final String boundingBoxString = boundingBox.toCompactString();
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_BOUNDINGBOX, 
-				boundingBoxString.getBytes());		
+				boundingBoxString.getBytes(StandardCharsets.UTF_8));		
 	}
 	
 	/**
@@ -380,7 +381,7 @@ public class DistributionRegionAdapter {
 
 		logger.debug("Register system under systems node: {}", systemsPath);
 		
-		zookeeperClient.replacePersistentNode(instancePath, "".getBytes());
+		zookeeperClient.replacePersistentNode(instancePath, "".getBytes(StandardCharsets.UTF_8));
 		
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, regionPath);
 	}
@@ -498,10 +499,10 @@ public class DistributionRegionAdapter {
 		zookeeperClient.createDirectoryStructureRecursive(path);
 		
 		final String sizePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE;
-		zookeeperClient.replacePersistentNode(sizePath, Long.toString(size).getBytes());
+		zookeeperClient.replacePersistentNode(sizePath, Long.toString(size).getBytes(StandardCharsets.UTF_8));
 		
 		final String tuplePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES;
-		zookeeperClient.replacePersistentNode(tuplePath, Long.toString(tuple).getBytes());
+		zookeeperClient.replacePersistentNode(tuplePath, Long.toString(tuple).getBytes(StandardCharsets.UTF_8));
 	}
 	
 	/**
@@ -629,7 +630,7 @@ public class DistributionRegionAdapter {
 		final String pathMerge = getMergePath(region);
 		final String value = Boolean.toString(suppported);
 		
-		zookeeperClient.replacePersistentNode(pathMerge, value.getBytes());
+		zookeeperClient.replacePersistentNode(pathMerge, value.getBytes(StandardCharsets.UTF_8));
 	}
 	
 	/**
@@ -670,7 +671,7 @@ public class DistributionRegionAdapter {
 			throw new ZookeeperException("Child already exists: " + childPath);
 		}
 
-		zookeeperClient.createPersistentNode(childPath, "".getBytes());
+		zookeeperClient.createPersistentNode(childPath, "".getBytes(StandardCharsets.UTF_8));
 		
 		final DistributionGroupAdapter distributionGroupAdapter 
 			= zookeeperClient.getDistributionGroupAdapter();
@@ -679,17 +680,17 @@ public class DistributionRegionAdapter {
 			= distributionGroupAdapter.getNextTableIdForDistributionGroup(distributionGroupName);
 		
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
-				Integer.toString(namePrefix).getBytes());
+				Integer.toString(namePrefix).getBytes(StandardCharsets.UTF_8));
 		
 		logger.info("Set {} to {}", childPath, namePrefix);
 		
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
-				"".getBytes());
+				"".getBytes(StandardCharsets.UTF_8));
 		
 		setBoundingBoxForPath(childPath, boundingBox);
 				
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
-				DistributionRegionState.CREATING.getStringValue().getBytes());
+				DistributionRegionState.CREATING.getStringValue().getBytes(StandardCharsets.UTF_8));
 			
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, childPath);
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, parentPath);

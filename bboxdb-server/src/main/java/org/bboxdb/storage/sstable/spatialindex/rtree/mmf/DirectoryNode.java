@@ -81,7 +81,7 @@ public class DirectoryNode {
 				final SpatialIndexEntry spatialIndexEntry = SpatialIndexEntry.readFromByteBuffer(memory);
 				indexEntries.add(spatialIndexEntry);
 			} else if(! Arrays.equals(followingByte, RTreeBuilder.MAGIC_CHILD_NODE_NOT_EXISTING)) {
-				throw new IllegalArgumentException("Unknown node type following: " + followingByte);
+				throw new IllegalArgumentException("Unknown node type following: " + Arrays.toString(followingByte));
 			}				
 		}
 		

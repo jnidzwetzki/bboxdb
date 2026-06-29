@@ -62,7 +62,7 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((boundingBox == null) ? 0 : boundingBox.hashCode());
-		result = prime * result + (int) (value ^ (value >>> 32));
+		result = prime * result + value;
 		return result;
 	}
 

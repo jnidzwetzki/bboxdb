@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -171,7 +172,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPacket {
 			final short tableNameLength = encodedPackage.getShort();
 			final byte[] tableBytes = new byte[tableNameLength];
 			encodedPackage.get(tableBytes, 0, tableBytes.length);
-			final String tablename = new java.lang.String(tableBytes);
+			final String tablename = new String(tableBytes, StandardCharsets.UTF_8);
 			tableNames.add(new TupleStoreName(tablename));
 		}
 		

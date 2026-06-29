@@ -52,7 +52,7 @@ public class StorageLocationsUtilizationAllocator extends AbstractUtilizationAll
 			return 0;
 		}
 		
-		return distributedInstance.getNumberOfStorages() / count;
+		return (double) distributedInstance.getNumberOfStorages() / count;
 	}
 
 	@Override

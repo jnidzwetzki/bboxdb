@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.query.filter;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.storage.entity.Tuple;
 
 public class UserDefinedStringFilter implements UserDefinedFilter {
@@ -27,19 +28,19 @@ public class UserDefinedStringFilter implements UserDefinedFilter {
 	public boolean filterTuple(final Tuple tuple, final byte[] customData) {
 		
 		if(customDataString == null) {
-			customDataString = new String(customData);
+			customDataString = new String(customData, StandardCharsets.UTF_8);
 		}
 		
-		return new String(tuple.getDataBytes()).contains(customDataString);
+		return new String(tuple.getDataBytes(), StandardCharsets.UTF_8).contains(customDataString);
 	}
 
 	@Override
 	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
-		final String string1 = new String(tuple1.getDataBytes());
-		final String string2 = new String(tuple2.getDataBytes());
+		final String string1 = new String(tuple1.getDataBytes(), StandardCharsets.UTF_8);
+		final String string2 = new String(tuple2.getDataBytes(), StandardCharsets.UTF_8);
 		
 		if(customDataString == null) {
-			customDataString = new String(customData);
+			customDataString = new String(customData, StandardCharsets.UTF_8);
 		}
 
 		return string1.contains(customDataString) && string2.contains(customDataString);

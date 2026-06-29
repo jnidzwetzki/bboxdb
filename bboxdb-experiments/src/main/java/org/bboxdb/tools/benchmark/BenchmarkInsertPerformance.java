@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.benchmark;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,7 +76,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 			
 			final Hyperrectangle boundingBox = new Hyperrectangle(x, x+1, y, y+1, z, z+1);
 			
-			final EmptyResultFuture insertFuture = bboxdbClient.put(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
+			final EmptyResultFuture insertFuture = bboxdbClient.put(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes(StandardCharsets.UTF_8)));
 			
 			// register pending future
 			pendingFutures.put(insertFuture);

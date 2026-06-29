@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -132,7 +133,7 @@ public class QueryInsertTimeRequest extends NetworkQueryRequestPacket {
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
+		final String table = new String(tableBytes, StandardCharsets.UTF_8);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PacketEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());

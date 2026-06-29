@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -82,7 +83,7 @@ public class TestBaselineApproach implements AutoCloseable {
 		String line = null;
 
 		try(
-				final BufferedReader br = new BufferedReader(new FileReader(new File(sourceFile)));
+				final BufferedReader br = new BufferedReader(new FileReader(new File(sourceFile), StandardCharsets.UTF_8));
 		) {
 
 			while((line = br.readLine()) != null) {

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.query.filter;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.commons.math.GeoJsonPolygon;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
@@ -69,9 +70,9 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 			return true;
 		}
 		
-		final String customString = new String(customData);
+		final String customString = new String(customData, StandardCharsets.UTF_8);
 		
-		final String geoJsonString = new String(tuple.getDataBytes());
+		final String geoJsonString = new String(tuple.getDataBytes(), StandardCharsets.UTF_8);
 		final JSONObject geoJsonObject = new JSONObject(geoJsonString);
 		
 		if(!customString.startsWith("{") && customString.contains(":")) {
@@ -116,15 +117,15 @@ public class UserDefinedGeoJsonSpatialFilter implements UserDefinedFilter {
 	@Override
 	public boolean filterJoinCandidate(final Tuple tuple1, final Tuple tuple2, final byte[] customData) {
 		
-		final String geoJsonString1 = new String(tuple1.getDataBytes());
-		final String geoJsonString2 = new String(tuple2.getDataBytes());
+		final String geoJsonString1 = new String(tuple1.getDataBytes(), StandardCharsets.UTF_8);
+		final String geoJsonString2 = new String(tuple2.getDataBytes(), StandardCharsets.UTF_8);
 
 		final JSONObject jsonObject1 = new JSONObject(geoJsonString1);
 		final JSONObject jsonObject2 = new JSONObject(geoJsonString2);
 		
 		// Full text search on string (if provided)
 		if(customData != null && customData.length > 1) {
-			final String customDataString = new String(customData);
+			final String customDataString = new String(customData, StandardCharsets.UTF_8);
 			final String[] customParts = customDataString.split(":");
 			
 			if(customParts.length != 2) {

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -55,11 +56,11 @@ public class CreateDistributionGroupRequest extends NetworkRequestPacket {
 	public long writeToOutputStream(final OutputStream outputStream) throws PacketEncodeException {
 
 		try {
-			final byte[] groupBytes = distributionGroup.getBytes();
-			final byte[] placementBytes = distributionGroupConfiguration.getPlacementStrategy().getBytes();
-			final byte[] placementConfigBytes = distributionGroupConfiguration.getPlacementStrategyConfig().getBytes();
-			final byte[] spacePartitionierBytes = distributionGroupConfiguration.getSpacePartitioner().getBytes();
-			final byte[] spacePartitionierConfigBytes = distributionGroupConfiguration.getSpacePartitionerConfig().getBytes();
+			final byte[] groupBytes = distributionGroup.getBytes(StandardCharsets.UTF_8);
+			final byte[] placementBytes = distributionGroupConfiguration.getPlacementStrategy().getBytes(StandardCharsets.UTF_8);
+			final byte[] placementConfigBytes = distributionGroupConfiguration.getPlacementStrategyConfig().getBytes(StandardCharsets.UTF_8);
+			final byte[] spacePartitionierBytes = distributionGroupConfiguration.getSpacePartitioner().getBytes(StandardCharsets.UTF_8);
+			final byte[] spacePartitionierConfigBytes = distributionGroupConfiguration.getSpacePartitionerConfig().getBytes(StandardCharsets.UTF_8);
 
 			final ByteBuffer bb = ByteBuffer.allocate(28);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -124,27 +125,27 @@ public class CreateDistributionGroupRequest extends NetworkRequestPacket {
 		// Distribution group
 		final byte[] groupBytes = new byte[groupLength];
 		encodedPackage.get(groupBytes, 0, groupBytes.length);
-		final String distributionGroup = new String(groupBytes);
+		final String distributionGroup = new String(groupBytes, StandardCharsets.UTF_8);
 		
 		// Placement strategy
 		final byte[] placementBytes = new byte[placementLength];
 		encodedPackage.get(placementBytes, 0, placementBytes.length);
-		final String placemeneStrategy = new String(placementBytes);
+		final String placemeneStrategy = new String(placementBytes, StandardCharsets.UTF_8);
 		
 		// Placement config length
 		final byte[] placementConfigBytes = new byte[placementConfigLength];
 		encodedPackage.get(placementConfigBytes, 0, placementConfigBytes.length);
-		final String placementConfig = new String(placementConfigBytes);
+		final String placementConfig = new String(placementConfigBytes, StandardCharsets.UTF_8);
 		
 		// Space partitioner
 		final byte[] spacePartitionerBytes = new byte[spacePartitionerLength];
 		encodedPackage.get(spacePartitionerBytes, 0, spacePartitionerBytes.length);
-		final String spacePartitioner = new String(spacePartitionerBytes);
+		final String spacePartitioner = new String(spacePartitionerBytes, StandardCharsets.UTF_8);
 		
 		// Space partitioner configuration
 		final byte[] spacePartitionerConfigBytes = new byte[spacePartitionerConfigLength];
 		encodedPackage.get(spacePartitionerConfigBytes, 0, spacePartitionerConfigBytes.length);
-		final String spacePartitionerConfig = new String(spacePartitionerConfigBytes);
+		final String spacePartitionerConfig = new String(spacePartitionerConfigBytes, StandardCharsets.UTF_8);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PacketEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());

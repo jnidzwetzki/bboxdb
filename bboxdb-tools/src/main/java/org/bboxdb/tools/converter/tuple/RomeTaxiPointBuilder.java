@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -57,7 +58,7 @@ public class RomeTaxiPointBuilder extends TupleBuilder {
 			final Hyperrectangle boundingBox = new Hyperrectangle(dateSeconds, dateSeconds,
 					longitude, longitude, latitude, latitude);
 
-			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
+			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

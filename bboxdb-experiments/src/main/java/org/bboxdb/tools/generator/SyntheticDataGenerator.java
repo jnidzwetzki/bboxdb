@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.generator;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -204,7 +205,7 @@ public class SyntheticDataGenerator implements Runnable {
 				System.exit(-1);
 			}
 			
-			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
 				LongStream.range(0, lines).forEach(l -> generateLine(size, dimension, writer, bboxType));
 			} catch(IOException e) {
 				System.err.println("Got IO exception while writing data" + e);

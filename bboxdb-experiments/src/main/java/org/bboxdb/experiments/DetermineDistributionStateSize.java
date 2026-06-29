@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -221,7 +222,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 		
 		for(final Map.Entry<String, Long> entry : distributionState.entrySet()) {
 			// Size of entry
-			size = size + entry.getKey().getBytes().length; 	
+			size = size + entry.getKey().getBytes(StandardCharsets.UTF_8).length; 	
 			
 			// Size of two 64 bit long values 
 			// I.e., the distribution region and the watermark counter

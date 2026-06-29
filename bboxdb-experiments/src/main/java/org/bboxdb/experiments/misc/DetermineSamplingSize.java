@@ -112,7 +112,7 @@ public class DetermineSamplingSize implements Runnable {
 		try {
 			final long linesInFile = fli.getIndexedLines();
 			final long numberOfElements = Math.min(linesInFile, MAX_ELEMENTS);
-			final int numberOfSamples = (int) (numberOfElements / 100 * sampleSize);
+			final int numberOfSamples = (int) (numberOfElements / 100.0 * sampleSize);
 
 			final ExperimentSeriesStatistics experimentSeriesStatistics = new ExperimentSeriesStatistics();
 

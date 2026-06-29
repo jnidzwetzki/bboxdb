@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.query.filter;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.storage.entity.Tuple;
 
 import com.esri.core.geometry.MapOGCStructure;
@@ -35,7 +36,7 @@ public class SimpleUserDefinedGeoJSONFilter implements UserDefinedFilter {
 	}
 	
 	private OGCGeometry extractGeometry(final Tuple tuple) {
-       final String jsonString = new String(tuple.getDataBytes());
+       final String jsonString = new String(tuple.getDataBytes(), StandardCharsets.UTF_8);
 		
        final OperatorImportFromGeoJson op = (OperatorImportFromGeoJson) OperatorFactoryLocal.getInstance().getOperator(Operator.Type.ImportFromGeoJson);
 				

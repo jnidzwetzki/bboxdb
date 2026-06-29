@@ -1,5 +1,6 @@
 package org.bboxdb.benchmark;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,7 +53,7 @@ public class BenchmarkSSTableWrite {
 
 				final Hyperrectangle hyperrectangle = new Hyperrectangle(d1, d1 + 10.0, d2, d2 + 10.0, d3, d3 + 10.0);
 
-				final Tuple createdTuple = new Tuple(Integer.toString(i), hyperrectangle, Integer.toString(i).getBytes());
+				final Tuple createdTuple = new Tuple(Integer.toString(i), hyperrectangle, Integer.toString(i).getBytes(StandardCharsets.UTF_8));
 				storageManager.put(createdTuple);
 
 				if(i == SPECIAL_TUPLE) {

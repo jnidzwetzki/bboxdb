@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.util;
 
+import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +101,7 @@ public class TupleHelper {
 	 * @throws IOException
 	 */
 	public static void writeTupleToStream(final Tuple tuple, final OutputStream outputStream) throws IOException {
-		final byte[] keyBytes = tuple.getKey().getBytes();
+		final byte[] keyBytes = tuple.getKey().getBytes(StandardCharsets.UTF_8);
 		final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
 
 		final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
@@ -157,7 +158,7 @@ public class TupleHelper {
 		final byte[] dataBytes = new byte[dataLength];
 		byteBuffer.get(dataBytes, 0, dataBytes.length);				
 		
-		final String keyString = new String(keyBytes);
+		final String keyString = new String(keyBytes, StandardCharsets.UTF_8);
 		
 		if(isDeletedTuple(boxBytes, dataBytes)) {
 			return new DeletedTuple(keyString, versionTimestamp);
@@ -204,7 +205,7 @@ public class TupleHelper {
 		final byte[] dataBytes = new byte[dataLength];
 		ByteStreams.readFully(inputStream, dataBytes);		
 
-		final String keyString = new String(keyBytes);
+		final String keyString = new String(keyBytes, StandardCharsets.UTF_8);
 
 		if(isDeletedTuple(boxBytes, dataBytes)) {
 			return new DeletedTuple(keyString, versionTimestamp);

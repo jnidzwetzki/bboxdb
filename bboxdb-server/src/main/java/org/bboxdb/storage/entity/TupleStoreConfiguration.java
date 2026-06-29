@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -191,7 +191,7 @@ public class TupleStoreConfiguration {
 	public void exportToYamlFile(final File outputFile) throws IOException {
 	    final Map<String, Object> data = getPropertyMap();
 	    
-	    final FileWriter writer = new FileWriter(outputFile);
+	    final FileWriter writer = new FileWriter(outputFile, StandardCharsets.UTF_8);
 	    logger.debug("Output data to: " + outputFile);
 	    
 	    final Yaml yaml = new Yaml();
@@ -236,8 +236,8 @@ public class TupleStoreConfiguration {
 		  final Yaml yaml = new Yaml(); 
 		  FileReader reader;
 		try {
-			reader = new FileReader(tmpFile);
-		} catch (FileNotFoundException e) {
+			reader = new FileReader(tmpFile, StandardCharsets.UTF_8);
+		} catch (IOException e) {
 			logger.warn("Unable to load file: " + tmpFile, e);
 			return null;
 		}

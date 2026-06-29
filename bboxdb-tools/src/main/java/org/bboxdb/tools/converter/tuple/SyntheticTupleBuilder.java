@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class SyntheticTupleBuilder extends TupleBuilder {
 			
 			final Hyperrectangle boundingBox = new Hyperrectangle(bboxValues);
 			
-			final Tuple tuple = new Tuple(keyData, boundingBox, data[1].getBytes());
+			final Tuple tuple = new Tuple(keyData, boundingBox, data[1].getBytes(StandardCharsets.UTF_8));
 			
 			return tuple;
 		} catch (NumberFormatException e) {

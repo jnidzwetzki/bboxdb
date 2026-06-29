@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,31 +93,31 @@ public class TupleStoreAdapter {
 				
 		final String spatialIndexReader = tupleStoreConfiguration.getSpatialIndexReader();
 		zookeeperClient.createPersistentNode(getIndexReaderPath(tupleStoreName), 
-				spatialIndexReader.getBytes());
+				spatialIndexReader.getBytes(StandardCharsets.UTF_8));
 		
 		final String spatialIndexWriter = tupleStoreConfiguration.getSpatialIndexWriter();
 		zookeeperClient.createPersistentNode(getIndexWriterPath(tupleStoreName), 
-				spatialIndexWriter.getBytes());
+				spatialIndexWriter.getBytes(StandardCharsets.UTF_8));
 		
 		final boolean allowDuplicates = tupleStoreConfiguration.isAllowDuplicates();
 		final String allowDuplicatesString = Boolean.toString(allowDuplicates);
 		zookeeperClient.createPersistentNode(getDuplicatesAllowedPath(tupleStoreName), 
-				allowDuplicatesString.getBytes());
+				allowDuplicatesString.getBytes(StandardCharsets.UTF_8));
 		
 		final boolean maintainBBoxIndex = tupleStoreConfiguration.isUseBBoxIndex();
 		final String maintainBBoxIndexString = Boolean.toString(maintainBBoxIndex);
 		zookeeperClient.createPersistentNode(getBBoxIndexPath(tupleStoreName), 
-				maintainBBoxIndexString.getBytes());
+				maintainBBoxIndexString.getBytes(StandardCharsets.UTF_8));
 		
 		final long ttl = tupleStoreConfiguration.getTTL();
 		final String ttlString = Long.toString(ttl);
 		zookeeperClient.createPersistentNode(getDuplicatesTTLPath(tupleStoreName), 
-				ttlString.getBytes());
+				ttlString.getBytes(StandardCharsets.UTF_8));
 		
 		final int versions = tupleStoreConfiguration.getVersions();
 		final String versionsString = Integer.toString(versions);
 		zookeeperClient.createPersistentNode(getDuplicateVersionsPath(tupleStoreName), 
-				versionsString.getBytes());
+				versionsString.getBytes(StandardCharsets.UTF_8));
 		
 		NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, tablePath);
 		

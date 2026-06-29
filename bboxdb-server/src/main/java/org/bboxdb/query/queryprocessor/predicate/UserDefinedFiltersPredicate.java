@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.query.queryprocessor.predicate;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.bboxdb.query.filter.UserDefinedFilter;
@@ -49,7 +50,7 @@ public class UserDefinedFiltersPredicate implements Predicate {
 			for(final UserDefinedFilterDefinition udf : udfs) {
 				final Class<?> userDefinedFilterClass = Class.forName(udf.getUserDefinedFilterClass());
 				final UserDefinedFilter userDefinedFilter = (UserDefinedFilter) userDefinedFilterClass.newInstance();
-				final boolean matches = userDefinedFilter.filterTuple(tuple, udf.getUserDefinedFilterValue().getBytes());
+				final boolean matches = userDefinedFilter.filterTuple(tuple, udf.getUserDefinedFilterValue().getBytes(StandardCharsets.UTF_8));
 			
 				if(! matches) {
 					return false;

@@ -27,7 +27,12 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 	 * The usage counter
 	 */
 	private final AtomicInteger usageCounter;
-	
+
+	/**
+	 * The monitor used to guard updates and wait/notify on the usage counter
+	 */
+	private final Object usageCounterMonitor = new Object();
+
 	public AcquirableService() {
 		super();
 		this.usageCounter = new AtomicInteger(0);
@@ -40,9 +45,9 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 			return false;
 		}
 		
-		synchronized (usageCounter) {
+		synchronized (usageCounterMonitor) {
 			usageCounter.incrementAndGet();
-			usageCounter.notifyAll();
+			usageCounterMonitor.notifyAll();
 		}
 		
 		return true;
@@ -52,9 +57,9 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 	public void release() {
 		assert (usageCounter.get() > 0) : "Usage counter is 0";
 		
-		synchronized (usageCounter) {
+		synchronized (usageCounterMonitor) {
 			usageCounter.decrementAndGet();
-			usageCounter.notifyAll();
+			usageCounterMonitor.notifyAll();
 		}
 	}
 	
@@ -72,9 +77,9 @@ public class AcquirableService extends ServiceState implements AcquirableResourc
 	 * @throws InterruptedException
 	 */
 	public void waitUntilUnused() throws InterruptedException {
-		synchronized (usageCounter) {
+		synchronized (usageCounterMonitor) {
 			while(usageCounter.get() > 0) {
-				usageCounter.wait();
+				usageCounterMonitor.wait();
 			}
 		}
 	}

@@ -158,7 +158,7 @@ public class RTreeMemoryReader extends AbstractRTreeReader {
 				final SpatialIndexEntry spatialIndexEntry = SpatialIndexEntry.readFromFile(randomAccessFile);
 				rootNode.indexEntries.add(spatialIndexEntry);
 			} else if(! Arrays.equals(followingByte, RTreeBuilder.MAGIC_CHILD_NODE_NOT_EXISTING)) {
-				throw new IllegalArgumentException("Unknown node type following: " + followingByte);
+				throw new IllegalArgumentException("Unknown node type following: " + Arrays.toString(followingByte));
 			}				
 		}
 	}

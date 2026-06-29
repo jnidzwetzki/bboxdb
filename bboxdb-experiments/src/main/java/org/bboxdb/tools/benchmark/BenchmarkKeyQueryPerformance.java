@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.benchmark;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -88,7 +89,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuplesToInsert; insertedTuples.incrementAndGet()) {
-			bboxdbClient.put(TABLE, new Tuple(Integer.toString(insertedTuples.get()), Hyperrectangle.FULL_SPACE, "abcdef".getBytes()));
+			bboxdbClient.put(TABLE, new Tuple(Integer.toString(insertedTuples.get()), Hyperrectangle.FULL_SPACE, "abcdef".getBytes(StandardCharsets.UTF_8)));
 		}
 		
 		// Wait for requests to settle

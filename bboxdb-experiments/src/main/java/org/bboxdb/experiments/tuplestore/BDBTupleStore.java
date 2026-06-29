@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments.tuplestore;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -68,7 +69,7 @@ public class BDBTupleStore implements TupleStore {
 		}
 		
 		final byte[] tupleBytes = TupleHelper.tupleToBytes(tuple);
-		final DatabaseEntry key = new DatabaseEntry(tuple.getKey().getBytes());
+		final DatabaseEntry key = new DatabaseEntry(tuple.getKey().getBytes(StandardCharsets.UTF_8));
 		final DatabaseEntry value = new DatabaseEntry(tupleBytes);
 		final OperationStatus status = database.put(txn, key, value);
 	
@@ -83,7 +84,7 @@ public class BDBTupleStore implements TupleStore {
 
 	@Override
 	public Tuple readTuple(final String key) throws IOException {
-		final DatabaseEntry keyEntry = new DatabaseEntry(key.getBytes());
+		final DatabaseEntry keyEntry = new DatabaseEntry(key.getBytes(StandardCharsets.UTF_8));
 	    final DatabaseEntry value = new DatabaseEntry();
 	    
 		Transaction txn = null;

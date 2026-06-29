@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.request;
 
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -43,7 +44,7 @@ public class DeleteDistributionGroupRequest extends NetworkRequestPacket {
 	public long writeToOutputStream(final OutputStream outputStream) throws PacketEncodeException {
 
 		try {
-			final byte[] groupBytes = distributionGroup.getBytes();
+			final byte[] groupBytes = distributionGroup.getBytes(StandardCharsets.UTF_8);
 			final ByteBuffer bb = DataEncoderHelper.shortToByteBuffer((short) groupBytes.length);
 			
 			// Body length
@@ -81,7 +82,7 @@ public class DeleteDistributionGroupRequest extends NetworkRequestPacket {
 		
 		final byte[] groupBytes = new byte[groupLength];
 		encodedPackage.get(groupBytes, 0, groupBytes.length);
-		final String distributionGroup = new String(groupBytes);
+		final String distributionGroup = new String(groupBytes, StandardCharsets.UTF_8);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PacketEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());

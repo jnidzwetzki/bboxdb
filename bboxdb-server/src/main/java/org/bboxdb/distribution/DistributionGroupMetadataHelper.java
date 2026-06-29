@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class DistributionGroupMetadataHelper {
 	    
 	    logger.info("Writing metadata to {} ", metadataFile);
 	    
-		final FileWriter writer = new FileWriter(metadataFile);
+		final FileWriter writer = new FileWriter(metadataFile, StandardCharsets.UTF_8);
 	    
 	    final Yaml yaml = new Yaml();
 	    yaml.dump(data, writer);
@@ -91,8 +91,8 @@ public class DistributionGroupMetadataHelper {
 	    
 		FileReader reader;
 		try {
-			reader = new FileReader(filename);
-		} catch (FileNotFoundException e) {
+			reader = new FileReader(filename, StandardCharsets.UTF_8);
+		} catch (IOException e) {
 			logger.warn("Unable to load file: " + filename, e);
 			return null;
 		}

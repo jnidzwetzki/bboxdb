@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -283,7 +284,7 @@ public class DistributedSelftest {
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final Tuple myTuple = new Tuple(key, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "test".getBytes());
+			final Tuple myTuple = new Tuple(key, new Hyperrectangle(1.0d, 2.0d, 1.0d, 2.0d), "test".getBytes(StandardCharsets.UTF_8));
 			final EmptyResultFuture insertResult = bboxdbClient.put(TABLE, myTuple);
 			insertResult.waitForCompletion();
 			

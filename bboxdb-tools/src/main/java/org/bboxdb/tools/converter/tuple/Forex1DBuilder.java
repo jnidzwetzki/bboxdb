@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import org.bboxdb.commons.MathUtil;
@@ -52,7 +53,7 @@ public class Forex1DBuilder extends TupleBuilder {
 			
 			final Hyperrectangle boundingBox = new Hyperrectangle(bid.get(), bid.get());
 			
-			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes());
+			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

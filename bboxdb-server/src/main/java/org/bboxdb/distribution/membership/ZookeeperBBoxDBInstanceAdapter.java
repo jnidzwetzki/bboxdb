@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.membership;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
@@ -368,17 +369,17 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		
 		// Version 
 		final String versionPath = pathHelper.getInstancesVersionPath(instance);
-		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes());
+		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes(StandardCharsets.UTF_8));
 		
 		// CPUs
 		final int cpuCores = SystemInfo.getCPUCores();
 		final String cpuCoresPath = pathHelper.getInstancesCpuCorePath(instance);
-		zookeeperClient.replacePersistentNode(cpuCoresPath, Integer.toString(cpuCores).getBytes());
+		zookeeperClient.replacePersistentNode(cpuCoresPath, Integer.toString(cpuCores).getBytes(StandardCharsets.UTF_8));
 
 		// Memory
 		final long memory = SystemInfo.getAvailableMemory();
 		final String memoryPath = pathHelper.getInstancesMemoryPath(instance);
-		zookeeperClient.replacePersistentNode(memoryPath, Long.toString(memory).getBytes());
+		zookeeperClient.replacePersistentNode(memoryPath, Long.toString(memory).getBytes(StandardCharsets.UTF_8));
 
 		// Diskspace
 		final BBoxDBConfiguration bboxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
@@ -389,12 +390,12 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 			// Free
 			final long freeDiskspace = SystemInfo.getFreeDiskspace(path);
 			final String freeDiskspacePath = pathHelper.getInstancesDiskspaceFreePath(instance, directory);
-			zookeeperClient.replacePersistentNode(freeDiskspacePath, Long.toString(freeDiskspace).getBytes());
+			zookeeperClient.replacePersistentNode(freeDiskspacePath, Long.toString(freeDiskspace).getBytes(StandardCharsets.UTF_8));
 
 			// Total
 			final long totalDiskspace = SystemInfo.getTotalDiskspace(path);
 			final String totalDiskspacePath = pathHelper.getInstancesDiskspaceTotalPath(instance, directory);
-			zookeeperClient.replacePersistentNode(totalDiskspacePath, Long.toString(totalDiskspace).getBytes());
+			zookeeperClient.replacePersistentNode(totalDiskspacePath, Long.toString(totalDiskspace).getBytes(StandardCharsets.UTF_8));
 		}
 	}
 
@@ -420,6 +421,6 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instance.getStringValue();
 				
 		logger.info("Update instance state on: {}", statePath);
-		zookeeperClient.replaceEphemeralNode(statePath, newState.getZookeeperValue().getBytes());
+		zookeeperClient.replaceEphemeralNode(statePath, newState.getZookeeperValue().getBytes(StandardCharsets.UTF_8));
 	}
 }

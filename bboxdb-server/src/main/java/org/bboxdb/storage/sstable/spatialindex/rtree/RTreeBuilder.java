@@ -142,11 +142,12 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 			}
 
 			childNode = childNode.findBestNodeForInsert(entryBox);
-			path.push(childNode);
 
 			if(childNode == null) {
 				throw new RuntimeException("Unable to find a node for insert");
 			}
+
+			path.push(childNode);
 		}
 
 		childNode.getIndexEntries().add(entry);

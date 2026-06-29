@@ -51,7 +51,7 @@ public class MemoryUtilizationFreeAllocator extends AbstractUtilizationAllocator
 			return 0;
 		}
 		
-		return distributedInstance.getMemory() / count;
+		return (double) distributedInstance.getMemory() / count;
 	}
 	
 	@Override

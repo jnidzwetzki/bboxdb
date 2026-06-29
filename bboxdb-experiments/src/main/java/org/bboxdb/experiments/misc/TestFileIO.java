@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments.misc;
 
+import java.nio.charset.StandardCharsets;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -149,7 +150,7 @@ public class TestFileIO implements Runnable {
 		file.deleteOnExit();
 
 		long writtenBytes = 0;
-		final byte[] stringBufferBytes = getTestDataBuffer(1024).getBytes();
+		final byte[] stringBufferBytes = getTestDataBuffer(1024).getBytes(StandardCharsets.UTF_8);
 
 		try(
 				final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,7 @@ public class DistributionGroupAdapter {
 				+ ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX;
 		
 		final String nodename = zookeeperClient.createPersistentSequencialNode(
-				nodePath, "".getBytes());
+				nodePath, "".getBytes(StandardCharsets.UTF_8));
 		
 		// Delete the created node
 		logger.debug("Got new table id; deleting node: {}", nodename);
@@ -141,25 +142,25 @@ public class DistributionGroupAdapter {
 		zookeeperClient.createDirectoryStructureRecursive(path);
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_DIMENSIONS, 
-				Integer.toString(configuration.getDimensions()).getBytes());
+				Integer.toString(configuration.getDimensions()).getBytes(StandardCharsets.UTF_8));
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, 
-				Short.toString(configuration.getReplicationFactor()).getBytes());
+				Short.toString(configuration.getReplicationFactor()).getBytes(StandardCharsets.UTF_8));
 		
 		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSizeInMB(), 
 				configuration.getMinimumRegionSizeInMB());
 		
 		// Placement
 		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
-		zookeeperClient.replacePersistentNode(placementPath, configuration.getPlacementStrategy().getBytes());
+		zookeeperClient.replacePersistentNode(placementPath, configuration.getPlacementStrategy().getBytes(StandardCharsets.UTF_8));
 		final String placementConfigPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_CONFIG;
-		zookeeperClient.replacePersistentNode(placementConfigPath, configuration.getPlacementStrategyConfig().getBytes());
+		zookeeperClient.replacePersistentNode(placementConfigPath, configuration.getPlacementStrategyConfig().getBytes(StandardCharsets.UTF_8));
 		
 		// Space partitioner
 		final String spacePartitionerPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER;
-		zookeeperClient.replacePersistentNode(spacePartitionerPath, configuration.getSpacePartitioner().getBytes());
+		zookeeperClient.replacePersistentNode(spacePartitionerPath, configuration.getSpacePartitioner().getBytes(StandardCharsets.UTF_8));
 		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
-		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, configuration.getSpacePartitionerConfig().getBytes());
+		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, configuration.getSpacePartitionerConfig().getBytes(StandardCharsets.UTF_8));
 		
 		final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 		tupleStoreAdapter.createTupleStoreConfigNode(distributionGroup);
@@ -368,11 +369,11 @@ public class DistributionGroupAdapter {
 		
 		// Max region size
 		final String maxRegionSizePath = path + "/" + ZookeeperNodeNames.NAME_MAX_REGION_SIZE;
-		zookeeperClient.replacePersistentNode(maxRegionSizePath, Integer.toString(maxRegionSize).getBytes());
+		zookeeperClient.replacePersistentNode(maxRegionSizePath, Integer.toString(maxRegionSize).getBytes(StandardCharsets.UTF_8));
 		
 		// Min region size
 		final String minRegionSizePath = path + "/" + ZookeeperNodeNames.NAME_MIN_REGION_SIZE;
-		zookeeperClient.replacePersistentNode(minRegionSizePath, Integer.toString(minRegionSize).getBytes());
+		zookeeperClient.replacePersistentNode(minRegionSizePath, Integer.toString(minRegionSize).getBytes(StandardCharsets.UTF_8));
 	}
 
 

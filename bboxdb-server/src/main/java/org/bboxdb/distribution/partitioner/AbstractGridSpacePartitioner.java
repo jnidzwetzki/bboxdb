@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.nio.charset.StandardCharsets;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.distribution.zookeeper.NodeMutationHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -51,10 +52,10 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 					.getNextTableIdForDistributionGroup(distributionGroup);
 						
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
-					Integer.toString(nameprefix).getBytes());
+					Integer.toString(nameprefix).getBytes(StandardCharsets.UTF_8));
 			
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
-					"".getBytes());
+					"".getBytes(StandardCharsets.UTF_8));
 					
 			final Hyperrectangle rootBox = Hyperrectangle.fromString(splitConfig[0]);
 			distributionRegionZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
@@ -63,7 +64,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 			createCells(splitConfig, configuration, rootPath, rootBox);
 	
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
-					DistributionRegionState.SPLIT.getStringValue().getBytes());		
+					DistributionRegionState.SPLIT.getStringValue().getBytes(StandardCharsets.UTF_8));		
 			
 			NodeMutationHelper.markNodeMutationAsComplete(zookeeperClient, rootPath);
 		} catch (Exception e) {

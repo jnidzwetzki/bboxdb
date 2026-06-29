@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.nio.charset.StandardCharsets;
 import java.util.OptionalLong;
 
 import org.bboxdb.commons.StringUtil;
@@ -216,7 +217,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * @return
 	 */
 	public byte[] getFullnameBytes() {
-		return fullname.getBytes();
+		return fullname.getBytes(StandardCharsets.UTF_8);
 	}
 
 	@Override

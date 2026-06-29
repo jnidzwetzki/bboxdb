@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packets.response;
 
+import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -126,7 +127,7 @@ public class ListTablesResponse extends NetworkResponsePacket {
 			
 			// Read table name and decode
 			encodedPackage.get(tablenameBytes, 0, tablenameBytes.length);
-			final String tablename = new String(tablenameBytes);
+			final String tablename = new String(tablenameBytes, StandardCharsets.UTF_8);
 			final TupleStoreName sstableName = new TupleStoreName(tablename);
 			tables.add(sstableName);
 		}

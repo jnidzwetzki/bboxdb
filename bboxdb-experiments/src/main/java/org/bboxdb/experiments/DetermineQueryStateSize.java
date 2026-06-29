@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments;
 
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -291,7 +292,7 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 			for(final Map.Entry<String, Long> entry : query.getQueryState().entrySet()) {
 				
 				// Size of entry
-				size = size + entry.getKey().getBytes().length; 	
+				size = size + entry.getKey().getBytes(StandardCharsets.UTF_8).length; 	
 				
 				// Size of one 64 bit long value
 				// I.e., the watermark counter
