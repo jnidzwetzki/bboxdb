@@ -34,13 +34,4 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,EI_EXPOSE_STATIC_REP2,MS_EXPOSE_REP,MS_MUTABLE_ARRAY,MS_MUTABLE_COLLECTION,MS_MUTABLE_COLLECTION_PKGPROTECT,MS_SHOULD_BE_FINAL,PA_PUBLIC_PRIMITIVE_ATTRIBUTE" />
     </Match>
 
-    <!-- ============================================================= -->
-    <!-- Constructors that throw, and intentional process termination  -->
-    <!-- in command line tools.                                        -->
-    <!-- ============================================================= -->
-    <Match>
-        <Bug pattern="CT_CONSTRUCTOR_THROW,DM_EXIT,SC_START_IN_CTOR,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR" />
-    </Match>
-
-
 </FindBugsFilter>

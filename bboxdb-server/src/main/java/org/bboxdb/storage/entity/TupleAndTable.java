@@ -19,7 +19,7 @@ package org.bboxdb.storage.entity;
 
 import java.util.Objects;
 
-public class TupleAndTable {
+public final class TupleAndTable {
 
 	/**
 	 * The tuple

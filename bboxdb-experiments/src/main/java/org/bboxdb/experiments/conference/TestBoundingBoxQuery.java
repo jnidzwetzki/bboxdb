@@ -36,7 +36,10 @@ import org.bboxdb.network.client.future.client.TupleListFuture;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
 
 import com.google.common.base.Stopwatch;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class TestBoundingBoxQuery implements Runnable {
 
 	/**
@@ -87,6 +90,7 @@ public class TestBoundingBoxQuery implements Runnable {
 		this.cluster = cluster;
 		this.tablename = tablename;
 		this.pendingFutures = new TupleListFutureStore();
+		this.pendingFutures.init();
 	}
 
 	@Override

@@ -40,7 +40,7 @@ import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 
-public class FileLineIndex implements AutoCloseable {
+public final class FileLineIndex implements AutoCloseable {
 
 	/**
 	 * The file to index

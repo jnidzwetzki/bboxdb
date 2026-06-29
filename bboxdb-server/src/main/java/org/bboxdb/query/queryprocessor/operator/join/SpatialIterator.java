@@ -112,7 +112,8 @@ public class SpatialIterator implements Iterator<MultiTuple> {
 			nextTuple = buildNextJoinedTuple(nextCandidateTuple);
 		}
 
-		return nextTuple != null;
+		// nextTuple is known to be non-null here (loop terminated)
+		return true;
 	}
 
 	/**

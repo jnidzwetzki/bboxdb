@@ -154,7 +154,7 @@ public class MemoryMappedFiles {
 
 }
 
-class MemoryMappedFile {
+final class MemoryMappedFile {
 	
 	private File file;
 	

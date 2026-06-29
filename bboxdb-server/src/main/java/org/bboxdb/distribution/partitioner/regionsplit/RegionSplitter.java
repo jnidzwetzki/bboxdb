@@ -40,7 +40,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionSplitter {
+public final class RegionSplitter {
 
 	/**
 	 * The storage reference

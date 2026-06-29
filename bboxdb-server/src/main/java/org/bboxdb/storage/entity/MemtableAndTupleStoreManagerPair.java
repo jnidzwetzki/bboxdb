@@ -22,7 +22,7 @@ import java.util.Objects;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
-public class MemtableAndTupleStoreManagerPair {
+public final class MemtableAndTupleStoreManagerPair {
 
 	/**
 	 * The memtale

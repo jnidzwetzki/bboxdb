@@ -54,7 +54,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContinuousClientQuery implements ClientQuery {
+public final class ContinuousClientQuery implements ClientQuery {
 
 	/**
 	 * The bounding box of the query

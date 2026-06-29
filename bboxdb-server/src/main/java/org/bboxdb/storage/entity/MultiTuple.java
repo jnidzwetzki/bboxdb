@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.math.Hyperrectangle;
 
-public class MultiTuple implements Comparable<MultiTuple>, PagedTransferableEntity {
+public final class MultiTuple implements Comparable<MultiTuple>, PagedTransferableEntity {
 	
 	/**
 	 * The joined tuples

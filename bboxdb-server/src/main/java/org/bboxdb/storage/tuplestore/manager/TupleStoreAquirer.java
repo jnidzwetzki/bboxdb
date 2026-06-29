@@ -30,7 +30,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
-public class TupleStoreAquirer implements AutoCloseable {
+public final class TupleStoreAquirer implements AutoCloseable {
 
 	private List<ReadOnlyTupleStore> tupleStores;
 	

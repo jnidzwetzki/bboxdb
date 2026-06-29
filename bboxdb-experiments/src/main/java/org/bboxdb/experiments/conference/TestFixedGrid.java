@@ -36,7 +36,10 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.experiments.ExperimentHelper;
 import org.bboxdb.storage.entity.CellGrid;
 import org.bboxdb.tools.TupleFileReader;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
 public class TestFixedGrid implements Runnable {
 
 	/**

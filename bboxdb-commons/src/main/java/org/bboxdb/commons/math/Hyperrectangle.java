@@ -28,7 +28,7 @@ import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.StringUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
 
-public class Hyperrectangle implements Comparable<Hyperrectangle> {
+public final class Hyperrectangle implements Comparable<Hyperrectangle> {
 
 	/**
 	 * This special bounding box covers every space completely

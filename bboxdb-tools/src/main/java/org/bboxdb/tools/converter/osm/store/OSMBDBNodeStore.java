@@ -41,7 +41,9 @@ import com.sleepycat.je.Transaction;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-public class OSMBDBNodeStore implements OSMNodeStore {
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
+public final class OSMBDBNodeStore implements OSMNodeStore {
 
 	/**
 	 * The environments connection

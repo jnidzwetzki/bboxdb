@@ -22,7 +22,7 @@ import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.network.entity.TupleAndBoundingBox;
 
-public class EnlargeBoundingBoxByFactorTransformation implements TupleTransformation {
+public final class EnlargeBoundingBoxByFactorTransformation implements TupleTransformation {
 	
 	/**
 	 * The enlargement factor

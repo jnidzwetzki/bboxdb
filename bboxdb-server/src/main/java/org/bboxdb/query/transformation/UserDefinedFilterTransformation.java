@@ -22,7 +22,7 @@ import org.bboxdb.network.entity.TupleAndBoundingBox;
 import org.bboxdb.query.filter.UserDefinedFilter;
 import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 
-public class UserDefinedFilterTransformation implements TupleTransformation {
+public final class UserDefinedFilterTransformation implements TupleTransformation {
 	
 	public final static String DELEMITER = "_____";
 

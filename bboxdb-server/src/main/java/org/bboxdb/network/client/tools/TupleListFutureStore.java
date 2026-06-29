@@ -95,16 +95,23 @@ public class TupleListFutureStore {
 		this.runningThreads = new ArrayList<>(requestWorker);
 		this.submittedTasks = new AtomicInteger(0);
 		this.completedTasks = new AtomicInteger(0);
+	}
 
+	/**
+	 * Start the request worker threads. Must be called once after construction
+	 * before futures are added. The threads are started outside of the constructor
+	 * to avoid leaking a partially constructed instance to the new threads.
+	 */
+	public void init() {
 		serviceState.dipatchToStarting();
-		
+
 		for(int i = 0; i < requestWorker; i++) {
 			final RequestWorker requestWorkerInstance = new RequestWorker(futureQueue, completedTasks, completedTasksMonitor);
 			final Thread thread = new Thread(requestWorkerInstance);
 			thread.start();
 			runningThreads.add(thread);
 		}
-		
+
 		serviceState.dispatchToRunning();
 	}
 

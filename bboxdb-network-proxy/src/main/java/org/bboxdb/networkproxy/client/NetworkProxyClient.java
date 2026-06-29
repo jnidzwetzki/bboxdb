@@ -36,7 +36,7 @@ import org.bboxdb.networkproxy.misc.TupleStringSerializer;
 import org.bboxdb.storage.entity.MultiTuple;
 import org.bboxdb.storage.entity.Tuple;
 
-public class NetworkProxyClient implements AutoCloseable {
+public final class NetworkProxyClient implements AutoCloseable {
 
 	/**
 	 * The client socket

@@ -24,7 +24,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.query.transformation.TupleTransformation;
 
-public class ContinuousSpatialJoinQueryPlan extends ContinuousQueryPlan {
+public final class ContinuousSpatialJoinQueryPlan extends ContinuousQueryPlan {
 
 	/** 
 	 * The transformations of the tuples in the table

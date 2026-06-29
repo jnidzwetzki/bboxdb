@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class Retryer<T> {
+public final class Retryer<T> {
 	
 	/**
 	 * The retry mode

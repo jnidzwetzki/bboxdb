@@ -47,8 +47,11 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-public class TestKDTreeSplit implements Runnable {
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
+public final class TestKDTreeSplit implements Runnable {
 
 	/**
 	 * The file to import

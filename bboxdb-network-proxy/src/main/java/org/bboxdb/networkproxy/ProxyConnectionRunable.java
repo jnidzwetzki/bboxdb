@@ -40,7 +40,7 @@ import org.bboxdb.networkproxy.handler.RangeQueryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProxyConnectionRunable implements Runnable {
+public final class ProxyConnectionRunable implements Runnable {
 
 	/**
 	 * The client socket

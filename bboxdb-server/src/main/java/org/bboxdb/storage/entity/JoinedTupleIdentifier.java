@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class JoinedTupleIdentifier implements EntityIdentifier {
+public final class JoinedTupleIdentifier implements EntityIdentifier {
 	
 	public enum Strategy {
 		FULL, // Key, Version, Table

@@ -48,8 +48,11 @@ import org.bboxdb.tools.TupleFileReader;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-public class TestSpatialIndex implements Runnable, Closeable {
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Standalone command line tool / entry point that intentionally terminates the JVM with an explicit exit status.")
+public final class TestSpatialIndex implements Runnable, Closeable {
 
 	/**
 	 * The file to import

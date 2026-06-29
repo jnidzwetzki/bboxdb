@@ -48,7 +48,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InvalidationHelper {
+public final class InvalidationHelper {
 
 	/**
 	 * The BBoxDB cluster connection

@@ -24,7 +24,7 @@ import org.bboxdb.commons.math.Hyperrectangle;
 import org.bboxdb.query.filter.UserDefinedFilterDefinition;
 import org.bboxdb.query.transformation.TupleTransformation;
 
-public class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
+public final class ContinuousRangeQueryPlan extends ContinuousQueryPlan {
 
 	/**
 	 * The hyperrectangle to compare

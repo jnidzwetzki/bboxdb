@@ -32,7 +32,7 @@ import java.util.Objects;
  *
  * @param <E>
  */
-public class SortedIteratorMerger<E> implements Iterable<E> {
+public final class SortedIteratorMerger<E> implements Iterable<E> {
 
 	private final class SortedIterator implements Iterator<E> {
 		

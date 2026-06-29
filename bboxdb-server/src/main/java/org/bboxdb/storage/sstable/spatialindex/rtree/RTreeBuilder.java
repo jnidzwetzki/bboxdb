@@ -28,7 +28,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 
-public class RTreeBuilder implements SpatialIndexBuilder {
+public final class RTreeBuilder implements SpatialIndexBuilder {
 
 	/**
 	 * The node factory

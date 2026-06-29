@@ -47,7 +47,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@SuppressFBWarnings(value = "DM_EXIT",
+		justification = "Intentional process termination on an unrecoverable startup or recovery error.")
 public class TupleStoreManagerRegistry implements BBoxDBService {
 
 	/**
