@@ -70,7 +70,17 @@ public class SpacePartitionerCache implements Watcher {
 	 * The instance
 	 */
 	private static SpacePartitionerCache instance;
-	
+
+	/**
+	 * The lock used to guard the singleton instance
+	 */
+	private static final Object instanceLock = new Object();
+
+	/**
+	 * The lock used to guard the cache state
+	 */
+	private final Object lock = new Object();
+
 	/**
 	 * The Logger
 	 */
@@ -84,12 +94,14 @@ public class SpacePartitionerCache implements Watcher {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 	}
 	
-	public synchronized static SpacePartitionerCache getInstance() {
-		 if(instance == null) {
-			 instance = new SpacePartitionerCache();
-		 }
-		 
-		 return instance;
+	public static SpacePartitionerCache getInstance() {
+		synchronized (instanceLock) {
+			 if(instance == null) {
+				 instance = new SpacePartitionerCache();
+			 }
+
+			 return instance;
+		}
 	}
 	
 	/**
@@ -100,40 +112,42 @@ public class SpacePartitionerCache implements Watcher {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
+	public SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
 			throws BBoxDBException {
+		synchronized (lock) {
 		
-		try {
-			if(! spacePartitioner.containsKey(groupName)) {		
-				final String path = zookeeperClient
-						.getDistributionGroupAdapter().getDistributionGroupPath(groupName);
+			try {
+				if(! spacePartitioner.containsKey(groupName)) {		
+					final String path = zookeeperClient
+							.getDistributionGroupAdapter().getDistributionGroupPath(groupName);
 				
-				final long version = NodeMutationHelper
-						.getNodeMutationVersion(zookeeperClient, path, this, null);
+					final long version = NodeMutationHelper
+							.getNodeMutationVersion(zookeeperClient, path, this, null);
 				
-				// Create callback list
-				if(! callbacks.containsKey(groupName)) {
-					final Set<DistributionRegionCallback> callback = new CopyOnWriteArraySet<>();
-					callbacks.put(groupName, callback);
+					// Create callback list
+					if(! callbacks.containsKey(groupName)) {
+						final Set<DistributionRegionCallback> callback = new CopyOnWriteArraySet<>();
+						callbacks.put(groupName, callback);
+					}
+				
+					// Create region id mapper
+					if(! distributionRegionIdMapper.containsKey(groupName)) {
+						final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper(groupName);
+						distributionRegionIdMapper.put(groupName, mapper);
+					}
+				
+					final SpacePartitioner adapter = zookeeperClient
+							.getDistributionGroupAdapter().getSpaceparitioner(groupName, 
+							callbacks.get(groupName), distributionRegionIdMapper.get(groupName));
+				
+					partitionerVersions.put(groupName, version);
+					spacePartitioner.put(groupName, adapter);
 				}
-				
-				// Create region id mapper
-				if(! distributionRegionIdMapper.containsKey(groupName)) {
-					final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper(groupName);
-					distributionRegionIdMapper.put(groupName, mapper);
-				}
-				
-				final SpacePartitioner adapter = zookeeperClient
-						.getDistributionGroupAdapter().getSpaceparitioner(groupName, 
-						callbacks.get(groupName), distributionRegionIdMapper.get(groupName));
-				
-				partitionerVersions.put(groupName, version);
-				spacePartitioner.put(groupName, adapter);
-			}
 			
-			return spacePartitioner.get(groupName);
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
-			throw new BBoxDBException(e);
+				return spacePartitioner.get(groupName);
+			} catch (ZookeeperException | ZookeeperNotFoundException e) {
+				throw new BBoxDBException(e);
+			}
 		}
 	}
 
@@ -141,8 +155,10 @@ public class SpacePartitionerCache implements Watcher {
 	 * Get all known distribution groups
 	 * @return
 	 */
-	public synchronized Set<String> getAllKnownDistributionGroups() {
-		return new HashSet<>(spacePartitioner.keySet());
+	public Set<String> getAllKnownDistributionGroups() {
+		synchronized (lock) {
+			return new HashSet<>(spacePartitioner.keySet());
+		}
 	}
 	
 	/**

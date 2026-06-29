@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments.misc;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class DetermineSamplingSize implements Runnable {
 	/**
 	 * The dimension of the tuples
 	 */
-	private int tupleDimension = -1;
+	private final AtomicInteger tupleDimension = new AtomicInteger(-1);
 
 	/**
 	 * The Logger
@@ -142,7 +143,7 @@ public class DetermineSamplingSize implements Runnable {
 	protected ExperimentStatistics runExperimentForPos(final double splitPos) throws ClassNotFoundException, IOException {
 
 		final ExperimentStatistics statistics = new ExperimentStatistics();
-		final Hyperrectangle fullBox = Hyperrectangle.createFullCoveringDimensionBoundingBox(tupleDimension);
+		final Hyperrectangle fullBox = Hyperrectangle.createFullCoveringDimensionBoundingBox(tupleDimension.get());
 		final Hyperrectangle leftBox = fullBox.splitAndGetLeft(splitPos, 0, true);
 		final Hyperrectangle rightBox = fullBox.splitAndGetRight(splitPos, 0, false);
 
@@ -222,7 +223,7 @@ public class DetermineSamplingSize implements Runnable {
 
 				final Hyperrectangle boundingBox = tuple.getBoundingBox();
 				samples.add(boundingBox);
-				tupleDimension = boundingBox.getDimension();
+				tupleDimension.set(boundingBox.getDimension());
 
 				takenSamples.add(sampleId);
 

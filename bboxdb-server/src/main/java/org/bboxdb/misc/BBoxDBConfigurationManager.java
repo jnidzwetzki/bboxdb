@@ -37,18 +37,25 @@ public class BBoxDBConfigurationManager {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBConfigurationManager.class);
 
-	
+	/**
+	 * The lock used to guard the configuration state
+	 */
+	private static final Object lock = new Object();
+
+
 	/**
 	 * Get the configuration of the BBoxDB
 	 * @return
 	 */
-	public static synchronized BBoxDBConfiguration getConfiguration() {
-		
-		if(configuration == null) {
-			loadConfiguration();
+	public static BBoxDBConfiguration getConfiguration() {
+
+		synchronized (lock) {
+			if(configuration == null) {
+				loadConfiguration();
+			}
+
+			return configuration;
 		}
-		
-		return configuration;
 	}
 
 	/**

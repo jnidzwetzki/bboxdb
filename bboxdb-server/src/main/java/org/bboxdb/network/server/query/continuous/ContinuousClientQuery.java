@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
 import org.bboxdb.commons.math.Hyperrectangle;
@@ -73,7 +74,7 @@ public class ContinuousClientQuery implements ClientQuery {
 	/**
 	 * The total amount of send tuples
 	 */
-	private long totalSendTuples;
+	private final AtomicLong totalSendTuples = new AtomicLong();
 	
 	/**
 	 * The total amount of send tuples for this page
@@ -156,7 +157,7 @@ public class ContinuousClientQuery implements ClientQuery {
 			this.allowDiscardTuples = configuration.isAllowContinuousClientQueueDiscard();
 			this.tupleQueue = new LinkedBlockingQueue<>(queueSize);
 
-			this.totalSendTuples = 0;
+			this.totalSendTuples.set(0);
 			this.tuplesInPage = 0;
 			this.storageManager = new ArrayList<>();
 
@@ -281,7 +282,7 @@ public class ContinuousClientQuery implements ClientQuery {
 				if(System.currentTimeMillis() >= lastFlushTime + FLUSH_TIME_IN_MS && tuplesInPage > 0) {
 					
 					logger.debug("Flushing page for continous query {}, old time {}, cur time {}, send tuples {}",
-							packageSequence, lastFlushTime, System.currentTimeMillis(), totalSendTuples);
+							packageSequence, lastFlushTime, System.currentTimeMillis(), totalSendTuples.get());
 					
 					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
 					clientConnectionHandler.flushPendingCompressionPackages();
@@ -311,7 +312,7 @@ public class ContinuousClientQuery implements ClientQuery {
 				}
 				
 				clientConnectionHandler.writeResultTuple(packageSequence, tuple, true);
-				totalSendTuples++;
+				totalSendTuples.incrementAndGet();
 				tuplesInPage++;
 				
 			} catch (InterruptedException e) {
@@ -353,7 +354,7 @@ public class ContinuousClientQuery implements ClientQuery {
 		
 		queryActive = false;
 		
-		logger.info("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
+		logger.info("Closing query {} (send {} result tuples)", querySequence, totalSendTuples.get());
 
 		for(final TupleStoreManager tableTupleStoreManager : storageManager) {
 			final boolean removeResult = tableTupleStoreManager.removeInsertCallback(tupleInsertCallback);
@@ -380,7 +381,7 @@ public class ContinuousClientQuery implements ClientQuery {
 
 	@Override
 	public long getTotalSendTuples() {
-		return totalSendTuples;
+		return totalSendTuples.get();
 	}
 	
 	/**

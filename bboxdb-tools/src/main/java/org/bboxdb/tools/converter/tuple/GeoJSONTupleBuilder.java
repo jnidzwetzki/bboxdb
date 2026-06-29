@@ -42,7 +42,7 @@ public class GeoJSONTupleBuilder extends TupleBuilder {
 			return null;
 		}
 		
-		final Hyperrectangle bbox = polygon.getBoundingBox().enlargeByAmount(boxPadding);
+		final Hyperrectangle bbox = polygon.getBoundingBox().enlargeByAmount(getBoxPadding());
 		
 		final Map<String, String> properties = polygon.getProperties();
 		

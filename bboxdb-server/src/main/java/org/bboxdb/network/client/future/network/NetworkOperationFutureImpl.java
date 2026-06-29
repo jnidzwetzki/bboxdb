@@ -20,8 +20,8 @@ package org.bboxdb.network.client.future.network;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	/**
 	 * The id of the operation
 	 */
-	private short requestId;
+	private final AtomicInteger requestId = new AtomicInteger();
 
 	/**
 	 * The result of the operation
@@ -95,7 +95,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	/**
 	 * The total number of retries before the future fails
 	 */
-	private int totalRetries = 50;
+	private final AtomicInteger totalRetries = new AtomicInteger(50);
 
 	/**
 	 * The last send package
@@ -173,7 +173,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 
 		// Can be null in some unit tests
 		if(lastTransmittedPackage != null) {
-			this.requestId = lastTransmittedPackage.getSequenceNumber();
+			this.requestId.set(lastTransmittedPackage.getSequenceNumber());
 		}
 		
 		connection.registerPackageCallback(lastTransmittedPackage, this);
@@ -197,7 +197,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 */
 	@Override
 	public short getRequestId() {
-		return requestId;
+		return (short) requestId.get();
 	}
 
 	/* (non-Javadoc)
@@ -289,7 +289,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 
 	@Override
 	public String toString() {
-		return "NetworkOperationFutureImpl [requestId=" + requestId + ", operationResult=" + operationResult + ", latch="
+		return "NetworkOperationFutureImpl [requestId=" + requestId.get() + ", operationResult=" + operationResult + ", latch="
 				+ latch + ", failed=" + failed + ", done=" + done + ", complete=" + complete + ", message=" + message
 				+ ", stopwatch=" + stopwatch + ", connection=" + connection + "]";
 	}
@@ -370,7 +370,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * Get the total number of retries before the future fails
 	 */
 	public int getTotalRetries() {
-		return totalRetries;
+		return totalRetries.get();
 	}
 
 	/**
@@ -378,7 +378,7 @@ public class NetworkOperationFutureImpl implements NetworkOperationFuture {
 	 * @param totalRetries
 	 */
 	public void setTotalRetries(int totalRetries) {
-		this.totalRetries = totalRetries;
+		this.totalRetries.set(totalRetries);
 	}
 
 	@Override

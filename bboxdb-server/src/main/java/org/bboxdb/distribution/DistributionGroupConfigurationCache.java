@@ -41,7 +41,12 @@ public class DistributionGroupConfigurationCache {
 	 * The cache
 	 */
 	protected final Map<String, DistributionGroupConfiguration> cache;
-	
+
+	/**
+	 * The lock used to guard the cache
+	 */
+	private final Object lock = new Object();
+
 
 	/**
 	 * The Logger
@@ -77,41 +82,47 @@ public class DistributionGroupConfigurationCache {
 	 * @return
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public synchronized DistributionGroupConfiguration getDistributionGroupConfiguration(
+	public DistributionGroupConfiguration getDistributionGroupConfiguration(
 			final String distributionGroupName) throws ZookeeperNotFoundException {
-		
-		if(! cache.containsKey(distributionGroupName)) {
-			try {
-				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-				final DistributionGroupAdapter distributionGroupZookeeperAdapter = new DistributionGroupAdapter(zookeeperClient);
-				
-				final DistributionGroupConfiguration configuration = distributionGroupZookeeperAdapter.getDistributionGroupConfiguration(distributionGroupName);
-				
-				addNewConfiguration(distributionGroupName, configuration);
-			} catch (InputParseException | ZookeeperException e) {
-				logger.error("Exception while reading zokeeper data", e);
-				return new DistributionGroupConfiguration();
-			} 
+
+		synchronized (lock) {
+			if(! cache.containsKey(distributionGroupName)) {
+				try {
+					final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+					final DistributionGroupAdapter distributionGroupZookeeperAdapter = new DistributionGroupAdapter(zookeeperClient);
+
+					final DistributionGroupConfiguration configuration = distributionGroupZookeeperAdapter.getDistributionGroupConfiguration(distributionGroupName);
+
+					addNewConfiguration(distributionGroupName, configuration);
+				} catch (InputParseException | ZookeeperException e) {
+					logger.error("Exception while reading zokeeper data", e);
+					return new DistributionGroupConfiguration();
+				}
+			}
+
+			return cache.get(distributionGroupName);
 		}
-		
-		return cache.get(distributionGroupName);
 	}
 
 	/**
 	 * @param distributionGroupName
 	 * @param configuration
 	 */
-	public synchronized void addNewConfiguration(final String distributionGroupName,
+	public void addNewConfiguration(final String distributionGroupName,
 			final DistributionGroupConfiguration configuration) {
-		
-		cache.put(distributionGroupName, configuration);
+
+		synchronized (lock) {
+			cache.put(distributionGroupName, configuration);
+		}
 	}
-	
+
 	/**
 	 * Clear the cache
 	 */
-	public synchronized void clear() {
-		cache.clear();
+	public void clear() {
+		synchronized (lock) {
+			cache.clear();
+		}
 	}
 
 }

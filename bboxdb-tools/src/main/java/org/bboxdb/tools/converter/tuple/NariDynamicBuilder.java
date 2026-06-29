@@ -59,7 +59,7 @@ public class NariDynamicBuilder extends TupleBuilder {
 			final Hyperrectangle boundingBox = new Hyperrectangle(time, time,
 					longitude, longitude, latitude, latitude);
 
-			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
+			return new Tuple(key, boundingBox.enlargeByAmount(getBoxPadding()), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

@@ -66,7 +66,7 @@ public class YellowTaxiRangeTupleBuilder extends TupleBuilder {
 					Math.min((double) tripStart.getTime(), (double) tripEnd.getTime()),
 					Math.max((double) tripStart.getTime(), (double) tripEnd.getTime()));
 
-			return new Tuple(keyData, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
+			return new Tuple(keyData, boundingBox.enlargeByAmount(getBoxPadding()), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (NumberFormatException | ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

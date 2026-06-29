@@ -35,42 +35,51 @@ public class ZookeeperClientFactory {
 	private static BBoxDBInstance localInstanceName;
 
 	/**
+	 * The lock used to guard the static state of this factory
+	 */
+	private static final Object lock = new Object();
+
+	/**
 	 * Returns a new instance of the zookeeper client
 	 * @return
 	 */
-	public synchronized static ZookeeperClient getZookeeperClient() {
+	public static ZookeeperClient getZookeeperClient() {
 
-		try {
-			if(client == null) {
-				final BBoxDBConfiguration bboxdbConfiguration =
-						BBoxDBConfigurationManager.getConfiguration();
+		synchronized (lock) {
+			try {
+				if(client == null) {
+					final BBoxDBConfiguration bboxdbConfiguration =
+							BBoxDBConfigurationManager.getConfiguration();
 
-				final Collection<String> zookeepernodes = bboxdbConfiguration.getZookeepernodes();
-				final String clustername = bboxdbConfiguration.getClustername();
+					final Collection<String> zookeepernodes = bboxdbConfiguration.getZookeepernodes();
+					final String clustername = bboxdbConfiguration.getClustername();
 
-				client = new ZookeeperClient(zookeepernodes, clustername);
+					client = new ZookeeperClient(zookeepernodes, clustername);
+				}
+
+				if(! client.isConnected()) {
+					client.init();
+				}
+			} catch (Exception e) {
+				BBoxDBMain.FATAL_HANDLER.accept(e);
 			}
 
-			if(! client.isConnected()) {
-				client.init();
-			}
-		} catch (Exception e) {
-			BBoxDBMain.FATAL_HANDLER.accept(e);
+			return client;
 		}
-
-		return client;
 	}
 
 	/**
 	 * Set the default zookeeper client
 	 * @param zookeeperClient
 	 */
-	public static synchronized void setDefaultZookeeperClient(final ZookeeperClient zookeeperClient) {
-		if(client != null) {
-			throw new RuntimeException("Unable to set zookeeper client, already set");
-		}
+	public static void setDefaultZookeeperClient(final ZookeeperClient zookeeperClient) {
+		synchronized (lock) {
+			if(client != null) {
+				throw new RuntimeException("Unable to set zookeeper client, already set");
+			}
 
-		client = zookeeperClient;
+			client = zookeeperClient;
+		}
 	}
 
 	/**
@@ -78,15 +87,17 @@ public class ZookeeperClientFactory {
 	 * @param bboxdbConfiguration
 	 * @return
 	 */
-	public static synchronized BBoxDBInstance getLocalInstanceName() {
+	public static BBoxDBInstance getLocalInstanceName() {
 
-		if(localInstanceName == null) {
-			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-			final String localIp = configuration.getLocalip();
-			final int localPort = configuration.getNetworkListenPort();
-			localInstanceName = new BBoxDBInstance(localIp, localPort, Const.VERSION);
+		synchronized (lock) {
+			if(localInstanceName == null) {
+				final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+				final String localIp = configuration.getLocalip();
+				final int localPort = configuration.getNetworkListenPort();
+				localInstanceName = new BBoxDBInstance(localIp, localPort, Const.VERSION);
+			}
+
+			return localInstanceName;
 		}
-
-		return localInstanceName;
 	}
 }

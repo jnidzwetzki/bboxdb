@@ -67,7 +67,7 @@ public class Forex2DBuilder extends TupleBuilder {
 					(double) time, (double) time,
 					bid.get(), bid.get());
 			
-			return new Tuple(key, boundingBox.enlargeByAmount(boxPadding), valueData.getBytes(StandardCharsets.UTF_8));
+			return new Tuple(key, boundingBox.enlargeByAmount(getBoxPadding()), valueData.getBytes(StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			logger.error("Unabe to parse: ", e);
 			return null;

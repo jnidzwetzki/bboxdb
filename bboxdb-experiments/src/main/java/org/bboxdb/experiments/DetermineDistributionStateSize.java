@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.experiments;
 
+import java.util.concurrent.atomic.AtomicLong;
 import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 	/** 
 	 * The amount of processed lines
 	 */
-	private long lineNumber;
+	private final AtomicLong lineNumber = new AtomicLong();
 
 	/**
 	 * The last read file
@@ -74,7 +75,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 		super(inputFile, tupleFactory);
 		this.distributionState = new HashMap<>();
 		this.alreadySeenKeys = new HashSet<>();
-		this.lineNumber = 0;
+		this.lineNumber.set(0);
 		this.seenButNotInState = 0;
 		this.fileLine = null;
 		this.lastStateDumped = false;
@@ -112,7 +113,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 			
 			try(final Stream<String> fileStream = Files.lines(Paths.get(inputFile.getAbsolutePath()))) {
 				
-				lineNumber = 1;
+				lineNumber.set(1);
 				Tuple lastTuple = null;
 				
 				long watermarkGeneration = 0;
@@ -144,7 +145,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 						lastTuple = tuple;
 					}
 					
-					if(lineNumber % (stateAfterLines) == 0) {
+					if(lineNumber.get() % (stateAfterLines) == 0) {
 						final double roundPercent = dumpStatistics(linesInInput);
 						
 						if(roundPercent == 100) {
@@ -152,7 +153,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 						}
 					}
 					
-					lineNumber++;
+					lineNumber.incrementAndGet();
 				}
 				
 				if(! lastStateDumped) {
@@ -176,7 +177,7 @@ public class DetermineDistributionStateSize extends AbstractStateSize implements
 	 * @return
 	 */
 	private double dumpStatistics(final long linesInInput) {
-		final double percent = ((double) lineNumber / (double) linesInInput) * 100.0;
+		final double percent = ((double) lineNumber.get() / (double) linesInInput) * 100.0;
 		
 		final double roundPercent = MathUtil.round(percent, 0);
 		

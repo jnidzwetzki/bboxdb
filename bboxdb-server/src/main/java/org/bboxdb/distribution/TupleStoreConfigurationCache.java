@@ -72,7 +72,12 @@ public class TupleStoreConfigurationCache {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreConfigurationCache.class);
-	
+
+	/**
+	 * The lock used to guard the cache
+	 */
+	private final Object lock = new Object();
+
 	static {
 		instance = new TupleStoreConfigurationCache();
 	}
@@ -100,15 +105,17 @@ public class TupleStoreConfigurationCache {
 	 * @param tupleStorename
 	 * @return
 	 */
-	public synchronized DuplicateResolver<Tuple> getDuplicateResolverForTupleStore(final String tupleStorename) {		
-		final Optional<TupleStoreConfiguration> configuration = getTupleStoreConfiguration(tupleStorename);
+	public DuplicateResolver<Tuple> getDuplicateResolverForTupleStore(final String tupleStorename) {
+		synchronized (lock) {
+			final Optional<TupleStoreConfiguration> configuration = getTupleStoreConfiguration(tupleStorename);
 		
-		if(! configuration.isPresent()) {
-			logger.error("Table {} is not known, using do nothing duplicate resolver", tupleStorename);
-			return new DoNothingDuplicateResolver();
+			if(! configuration.isPresent()) {
+				logger.error("Table {} is not known, using do nothing duplicate resolver", tupleStorename);
+				return new DoNothingDuplicateResolver();
+			}
+		
+			return TupleDuplicateResolverFactory.build(configuration.get());
 		}
-		
-		return TupleDuplicateResolverFactory.build(configuration.get());
 	}
 
 	/**
@@ -147,20 +154,24 @@ public class TupleStoreConfigurationCache {
 	 * Is the tuple store known
 	 * @param tupleStoreName
 	 */
-	public synchronized boolean isTupleStoreKnown(final String tupleStoreName) {
-		try {
-			return tupleStoreNameCache.get(tupleStoreName);
-		} catch (ExecutionException e) {
-			logger.error("Got exception while checking tuplestore name: " + tupleStoreName, e);
-			return false;
+	public boolean isTupleStoreKnown(final String tupleStoreName) {
+		synchronized (lock) {
+			try {
+				return tupleStoreNameCache.get(tupleStoreName);
+			} catch (ExecutionException e) {
+				logger.error("Got exception while checking tuplestore name: " + tupleStoreName, e);
+				return false;
+			}
 		}
 	}
-	
+
 	/**
 	 * Clear the cache
 	 */
-	public synchronized void clear() {
-		cache.clear();
+	public void clear() {
+		synchronized (lock) {
+			cache.clear();
+		}
 	}
 
 }

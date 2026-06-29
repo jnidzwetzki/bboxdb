@@ -68,23 +68,35 @@ public class BBoxDBInstanceManager {
 	 * The instance
 	 */
 	private static BBoxDBInstanceManager instance;
-		
+
+	/**
+	 * The lock used to guard the singleton instance
+	 */
+	private static final Object instanceLock = new Object();
+
+	/**
+	 * The lock used to guard the membership observer state
+	 */
+	private final Object observerLock = new Object();
+
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBInstanceManager.class);
 
-	
+
 	/**
 	 * Get the instance
 	 * @return
 	 */
-	public static synchronized BBoxDBInstanceManager getInstance() {
-		if(instance == null) {
-			instance = new BBoxDBInstanceManager();
+	public static BBoxDBInstanceManager getInstance() {
+		synchronized (instanceLock) {
+			if(instance == null) {
+				instance = new BBoxDBInstanceManager();
+			}
+
+			return instance;
 		}
-		
-		return instance;
 	}
 	
 	/**
@@ -108,32 +120,36 @@ public class BBoxDBInstanceManager {
 	 * 
 	 * @return
 	 */
-	public synchronized void startMembershipObserver(final ZookeeperClient zookeeperClient) {
-		
-		if (zookeeperBBoxDBInstanceAdapter != null) {
-			stopMembershipObserver();
+	public void startMembershipObserver(final ZookeeperClient zookeeperClient) {
+
+		synchronized (observerLock) {
+			if (zookeeperBBoxDBInstanceAdapter != null) {
+				stopMembershipObserver();
+			}
+
+			zookeeperBBoxDBInstanceAdapter = new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+			zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();
+			zookeeperClient.getServiceState().registerCallback(zookeeperShutdownCallback);
+			zookeeperClient.getServiceState().registerCallback(zookeeperStartedCallback);
 		}
-		
-		zookeeperBBoxDBInstanceAdapter = new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
-		zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();
-		zookeeperClient.getServiceState().registerCallback(zookeeperShutdownCallback);
-		zookeeperClient.getServiceState().registerCallback(zookeeperStartedCallback);
 	}
 
 	/**
 	 * Stop the membership observer. This will send a delete event for all known
 	 * instances if the membership observer was active.
 	 */
-	public synchronized void stopMembershipObserver() {
+	public void stopMembershipObserver() {
 
-		if (zookeeperBBoxDBInstanceAdapter != null) {
-			final ZookeeperClient zookeeper = zookeeperBBoxDBInstanceAdapter.getZookeeperClient();
-			zookeeper.getServiceState().removeCallback(zookeeperStartedCallback);
-			zookeeper.getServiceState().removeCallback(zookeeperShutdownCallback);
-			zookeeperBBoxDBInstanceAdapter = null;
+		synchronized (observerLock) {
+			if (zookeeperBBoxDBInstanceAdapter != null) {
+				final ZookeeperClient zookeeper = zookeeperBBoxDBInstanceAdapter.getZookeeperClient();
+				zookeeper.getServiceState().removeCallback(zookeeperStartedCallback);
+				zookeeper.getServiceState().removeCallback(zookeeperShutdownCallback);
+				zookeeperBBoxDBInstanceAdapter = null;
+			}
+
+			zookeeperDisconnect();
 		}
-		
-		zookeeperDisconnect();
 	}
 	
 	/**

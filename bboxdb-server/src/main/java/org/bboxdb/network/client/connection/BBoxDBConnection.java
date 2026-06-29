@@ -99,6 +99,11 @@ public class BBoxDBConnection {
 	private BufferedOutputStream outputStream;
 
 	/**
+	 * The lock used to guard writes to the output stream
+	 */
+	private final Object outputStreamLock = new Object();
+
+	/**
 	 * The pending calls
 	 */
 	private final Map<Short, NetworkOperationFutureImpl> pendingCalls;
@@ -132,6 +137,11 @@ public class BBoxDBConnection {
 	 * The connection state
 	 */
 	private final ServiceState connectionState;
+
+	/**
+	 * The lock used to guard the lazy opening of the network connection
+	 */
+	private final Object connectionOpenLock = new Object();
 
 	/**
 	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
@@ -658,7 +668,7 @@ public class BBoxDBConnection {
 	private void writePackageToSocket(final NetworkRequestPacket requestPackage)
 			throws PacketEncodeException, IOException {
 
-		synchronized (connectionState) {
+		synchronized (connectionOpenLock) {
 			if(connectionState.isInNewState()) {
 				logger.info("Outgoing packages detected, opening connection {}", getConnectionName());
 				boolean connectresult = openNetworkConnection();
@@ -669,7 +679,7 @@ public class BBoxDBConnection {
 			}
 		}
 		
-		synchronized (outputStream) {
+		synchronized (outputStreamLock) {
 			requestPackage.writeToOutputStream(outputStream);
 			outputStream.flush();
 		}

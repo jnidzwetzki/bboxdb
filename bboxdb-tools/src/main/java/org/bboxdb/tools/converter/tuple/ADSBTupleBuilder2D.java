@@ -132,7 +132,7 @@ public class ADSBTupleBuilder2D extends TupleBuilder {
 			
 				final Hyperrectangle boundingBox = getHyperrectangleFromAircraft(aircraft);
 				
-				return new Tuple(aircraft.callsign, boundingBox.enlargeByAmount(boxPadding), 
+				return new Tuple(aircraft.callsign, boundingBox.enlargeByAmount(getBoxPadding()), 
 						aircraft.toGeoJSON().getBytes(Const.DEFAULT_CHARSET), 
 						aircraft.lastUpdateTimestamp * 1000);
 			} 
