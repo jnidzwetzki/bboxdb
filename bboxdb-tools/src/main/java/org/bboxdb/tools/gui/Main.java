@@ -20,6 +20,8 @@ package org.bboxdb.tools.gui;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 public class Main {
 	
@@ -39,6 +41,8 @@ public class Main {
 	/**
 	 * Try to set the new Nimbus L&F
 	 */
+	@SuppressFBWarnings(value = "REC_CATCH_EXCEPTION",
+			justification = "Look and feel setup is best effort, any failure falls back to the default")
 	private static void setLookAndFeel() {
 		try {
 		    for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {

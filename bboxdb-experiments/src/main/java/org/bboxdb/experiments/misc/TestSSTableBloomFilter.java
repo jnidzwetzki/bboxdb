@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.CloseableHelper;
@@ -75,7 +75,9 @@ public class TestSSTableBloomFilter implements Runnable {
 	
 			// Delete old data
 			FileUtil.deleteRecursive(dir.toPath());
-			dir.mkdirs();
+			if(! dir.mkdirs() && ! dir.isDirectory()) {
+				throw new RuntimeException("Unable to create directory: " + dir);
+			}
 			
 			generateDataset();
 			
@@ -151,10 +153,9 @@ public class TestSSTableBloomFilter implements Runnable {
 	protected long readTuplesRandom(final SSTableTupleStore tupleStore) throws Exception {
 		System.out.println("# Reading Tuples random");
 		final Stopwatch stopwatch = Stopwatch.createStarted();
-		final Random random = new Random();
 
 		for(int i = 0; i < TUPLES; i++) {
-			tupleStore.readTuple(Integer.toString(random.nextInt(TUPLES)));
+			tupleStore.readTuple(Integer.toString(ThreadLocalRandom.current().nextInt(TUPLES)));
 		}
 		
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);

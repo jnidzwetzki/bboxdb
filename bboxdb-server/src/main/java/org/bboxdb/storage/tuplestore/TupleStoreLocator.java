@@ -43,11 +43,17 @@ public class TupleStoreLocator {
 		if(! dataDir.exists()) {
 			throw new StorageManagerException("Root dir does not exist: " + dataDir);
 		}
-		
+
 		final Map<TupleStoreName, String> sstableLocations = new HashMap<>();
 
+		final File[] dataDirEntries = dataDir.listFiles();
+
+		if(dataDirEntries == null) {
+			throw new StorageManagerException("Unable to list files in dir: " + dataDir);
+		}
+
 		// Distribution groups
-		for (final File fileEntry : dataDir.listFiles()) {
+		for (final File fileEntry : dataDirEntries) {
 			
 	        if (! fileEntry.isDirectory()) {
 	        	continue;
@@ -78,9 +84,15 @@ public class TupleStoreLocator {
 			final File fileEntry, final String distributionGroupName) {
 		
 		final Map<TupleStoreName, String> sstableLocations = new HashMap<>();
-		
+
+		final File[] tableEntries = fileEntry.listFiles();
+
+		if(tableEntries == null) {
+			return sstableLocations;
+		}
+
 		// Tables
-		for (final File tableEntry : fileEntry.listFiles()) {
+		for (final File tableEntry : tableEntries) {
 		    if (tableEntry.isDirectory()) {
 		    	final String tablename = tableEntry.getName();
 		    	final String fullname = distributionGroupName + "_" + tablename;

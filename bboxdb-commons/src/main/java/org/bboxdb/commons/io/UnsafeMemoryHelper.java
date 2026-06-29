@@ -29,7 +29,11 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+
+@SuppressFBWarnings(value = "REC_CATCH_EXCEPTION",
+		justification = "Detection of the optional Unsafe memory cleaner must catch any failure")
 public class UnsafeMemoryHelper {
 	
 	/**

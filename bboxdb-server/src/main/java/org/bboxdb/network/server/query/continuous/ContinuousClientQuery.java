@@ -337,7 +337,9 @@ public class ContinuousClientQuery implements ClientQuery {
 		// let them finish the query page if needed
 		
 		if(tupleQueue.isEmpty()) {
-			tupleQueue.offer(KEEP_ALIVE_PILL);
+			if(! tupleQueue.offer(KEEP_ALIVE_PILL)) {
+				logger.error("Unable to enqueue keep alive pill, queue is full");
+			}
 		}
 	}
 

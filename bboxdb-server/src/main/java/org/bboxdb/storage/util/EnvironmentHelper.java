@@ -80,7 +80,9 @@ public class EnvironmentHelper {
 		
 		final File dataDir = new File(SSTableHelper.getDataDir(storageDir0));
 		
-		dataDir.mkdirs();		
+		if(! dataDir.mkdirs() && ! dataDir.isDirectory()) {
+			throw new RuntimeException("Unable to create directory: " + dataDir);
+		}
 	}
 	
 	/**

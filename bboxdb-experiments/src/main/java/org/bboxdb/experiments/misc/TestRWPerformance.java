@@ -85,7 +85,9 @@ public class TestRWPerformance implements Runnable {
 	
 				for(int i = 0; i < RETRY; i++) {
 					FileUtil.deleteRecursive(dir.toPath());
-					dir.mkdirs();
+					if(! dir.mkdirs() && ! dir.isDirectory()) {
+						throw new RuntimeException("Unable to create directory: " + dir);
+					}
 					tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
 					
 					timeWrite += writeTuples(data);

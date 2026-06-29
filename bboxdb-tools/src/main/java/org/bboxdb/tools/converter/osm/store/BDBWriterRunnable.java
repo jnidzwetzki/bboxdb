@@ -28,6 +28,8 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class BDBWriterRunnable extends ExceptionSafeRunnable {
 
 	protected final List<SerializableNode> pendingWriteQueue;
@@ -73,6 +75,8 @@ public class BDBWriterRunnable extends ExceptionSafeRunnable {
 	}
 	
 	@SuppressWarnings("unused")
+	@SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE",
+			justification = "txn is only non-null when USE_TRANSACTIONS is enabled")
 	protected void storeNode(final SerializableNode node) {
 		final byte[] nodeBytes = node.toByteArray();
 

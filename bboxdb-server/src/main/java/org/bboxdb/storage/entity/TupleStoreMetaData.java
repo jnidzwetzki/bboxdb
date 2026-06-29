@@ -119,13 +119,12 @@ public class TupleStoreMetaData {
 	 */
 	public void exportToYamlFile(final File outputFile) throws IOException {
 	    final Map<String, Object> data = getPropertyMap();
-	    	    
-	    final FileWriter writer = new FileWriter(outputFile, StandardCharsets.UTF_8);
 	    logger.debug("Output data to: " + outputFile);
-	    
-	    final Yaml yaml = new Yaml();
-	    yaml.dump(data, writer);
-	    writer.close();
+
+	    try (final FileWriter writer = new FileWriter(outputFile, StandardCharsets.UTF_8)) {
+	    	final Yaml yaml = new Yaml();
+	    	yaml.dump(data, writer);
+	    }
 	}
 
 	/**
@@ -164,16 +163,14 @@ public class TupleStoreMetaData {
 	 * @throws FileNotFoundException
 	 */
 	public static TupleStoreMetaData importFromYamlFile(final File tmpFile) throws StorageManagerException {
-		final Yaml yaml = new Yaml(); 
-		FileReader reader;
-		try {
-			reader = new FileReader(tmpFile, StandardCharsets.UTF_8);
+		final Yaml yaml = new Yaml();
+
+		try (final FileReader reader = new FileReader(tmpFile, StandardCharsets.UTF_8)) {
+			return yaml.loadAs(reader, TupleStoreMetaData.class);
 		} catch (IOException e) {
 			logger.error("Unable to load file: " + tmpFile, e);
 			throw new StorageManagerException(e);
 		}
-
-		return yaml.loadAs(reader, TupleStoreMetaData.class);
 	}
 
 	public long getOldestTupleVersionTimestamp() {

@@ -23,10 +23,8 @@ jobs:
           java-package: jdk
           java-version: ${{ matrix.java }}
           cache: 'maven'
-      - name: Compile the Project
-        run: mvn -B compile
-      - name: Test the Project
-        run: mvn -B test
+      - name: Verify the Project (tests + SpotBugs)
+        run: mvn -B verify
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
         with:

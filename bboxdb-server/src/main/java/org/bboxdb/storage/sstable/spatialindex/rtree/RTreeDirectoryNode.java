@@ -229,24 +229,17 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 */
 	private void getEntriesForRegion(final Hyperrectangle boundingBox, final List<SpatialIndexEntry> result) {
 		
-		try {
-			for(final SpatialIndexEntry entry : indexEntries) {
-				if(entry.getBoundingBox().intersects(boundingBox)) {
-					result.add(entry);
-				}
+		for(final SpatialIndexEntry entry : indexEntries) {
+			if(entry.getBoundingBox().intersects(boundingBox)) {
+				result.add(entry);
 			}
-			
-			for(final RTreeDirectoryNode entry : directoryNodeChilds) {
-				if(entry.getBoundingBox().intersects(boundingBox)) {
-					entry.getEntriesForRegion(boundingBox, result);
-				}
+		}
+
+		for(final RTreeDirectoryNode entry : directoryNodeChilds) {
+			if(entry.getBoundingBox().intersects(boundingBox)) {
+				entry.getEntriesForRegion(boundingBox, result);
 			}
-			
-			} catch(NullPointerException e) {
-				System.out.println(e);
-				System.out.println(directoryNodeChilds);
-				return;
-			}		
+		}
 	}
 
 	/**

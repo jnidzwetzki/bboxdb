@@ -170,17 +170,16 @@ public class OSMJDBCH2NodeStore implements OSMNodeStore {
 		final PreparedStatement selectNode = selectNodeStatements.get(connectionNumber);
 
 		selectNode.setLong(1, nodeId);
-		final ResultSet result = selectNode.executeQuery();
-		
-		if(! result.next()) {
-			throw new RuntimeException("Unable to find node for way: " + nodeId);
+
+		try (final ResultSet result = selectNode.executeQuery()) {
+			if(! result.next()) {
+				throw new RuntimeException("Unable to find node for way: " + nodeId);
+			}
+
+			final byte[] nodeBytes = result.getBytes(1);
+
+			return SerializableNode.fromByteArray(nodeBytes);
 		}
-		
-		final byte[] nodeBytes = result.getBytes(1);
-		result.close();
-		
-		final SerializableNode node = SerializableNode.fromByteArray(nodeBytes);
-		return node;
 	}
 
 	@Override

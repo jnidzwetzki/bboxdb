@@ -76,8 +76,8 @@ public class DetermineQueryStateSize extends AbstractStateSize implements Runnab
 	 */
 	protected boolean lastStateDumped;
 	
-	class Query {
-		
+	static class Query {
+
 		/**
 		 * The query rectangle
 		 */

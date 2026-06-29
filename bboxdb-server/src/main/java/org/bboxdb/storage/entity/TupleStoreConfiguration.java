@@ -190,13 +190,12 @@ public class TupleStoreConfiguration {
 	 */
 	public void exportToYamlFile(final File outputFile) throws IOException {
 	    final Map<String, Object> data = getPropertyMap();
-	    
-	    final FileWriter writer = new FileWriter(outputFile, StandardCharsets.UTF_8);
 	    logger.debug("Output data to: " + outputFile);
-	    
-	    final Yaml yaml = new Yaml();
-	    yaml.dump(data, writer);
-	    writer.close();
+
+	    try (final FileWriter writer = new FileWriter(outputFile, StandardCharsets.UTF_8)) {
+	    	final Yaml yaml = new Yaml();
+	    	yaml.dump(data, writer);
+	    }
 	}
 
 	/**
@@ -233,15 +232,13 @@ public class TupleStoreConfiguration {
 	 * @throws FileNotFoundException
 	 */
 	public static TupleStoreConfiguration importFromYamlFile(final File tmpFile) {
-		  final Yaml yaml = new Yaml(); 
-		  FileReader reader;
-		try {
-			reader = new FileReader(tmpFile, StandardCharsets.UTF_8);
+		final Yaml yaml = new Yaml();
+
+		try (final FileReader reader = new FileReader(tmpFile, StandardCharsets.UTF_8)) {
+			return yaml.loadAs(reader, TupleStoreConfiguration.class);
 		} catch (IOException e) {
 			logger.warn("Unable to load file: " + tmpFile, e);
 			return null;
 		}
-		
-		return yaml.loadAs(reader, TupleStoreConfiguration.class);
 	}
 }

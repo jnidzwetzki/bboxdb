@@ -106,7 +106,9 @@ public class TestKDTreeSplit implements Runnable {
 		this.boxDimension = new HashMap<>();
 
 		// Setup database dir
-		tmpDir.mkdirs();
+		if(! tmpDir.mkdirs() && ! tmpDir.isDirectory()) {
+			throw new RuntimeException("Unable to create directory: " + tmpDir);
+		}
 		FileUtil.deleteDirOnExit(tmpDir.toPath());
 
 		final EnvironmentConfig envConfig = new EnvironmentConfig();

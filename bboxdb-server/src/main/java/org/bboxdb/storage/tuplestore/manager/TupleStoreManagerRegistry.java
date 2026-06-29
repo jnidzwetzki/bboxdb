@@ -128,8 +128,8 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			try {
 				
 				final File markerFile = new File(directory + "/.bboxdb");
-				if(! markerFile.exists()) {
-					markerFile.createNewFile();
+				if(! markerFile.exists() && ! markerFile.createNewFile()) {
+					throw new RuntimeException("Unable to create marker file: " + markerFile);
 				}
 				
 				tupleStoreLocations.putAll(TupleStoreLocator.scanDirectoryForExistingTables(directory));
@@ -376,7 +376,9 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 
 			if(groupDir.exists()) {
 				logger.debug("Deleting {}", groupDir);
-				groupDir.delete();
+				if(! groupDir.delete() && groupDir.exists()) {
+					throw new RuntimeException("Unable to delete directory: " + groupDir);
+				}
 			}
 		}
 	}
@@ -446,7 +448,9 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 
 		if(medatadaFile.exists()) {
 			logger.debug("Remove medatada file {}", medatadaFile);
-			medatadaFile.delete();
+			if(! medatadaFile.delete() && medatadaFile.exists()) {
+				throw new RuntimeException("Unable to delete file: " + medatadaFile);
+			}
 		}
 	}
 

@@ -93,7 +93,9 @@ public class TestSpatialIndex implements Runnable, Closeable {
 		this.samples = new ArrayList<>();
 
 		// Setup database dir
-		tmpDir.mkdirs();
+		if(! tmpDir.mkdirs() && ! tmpDir.isDirectory()) {
+			throw new RuntimeException("Unable to create directory: " + tmpDir);
+		}
 		FileUtil.deleteDirOnExit(tmpDir.toPath());
 		this.tupleCounter = new AtomicLong(0);
 

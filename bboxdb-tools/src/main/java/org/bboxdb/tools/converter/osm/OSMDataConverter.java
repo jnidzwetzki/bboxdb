@@ -117,7 +117,7 @@ public class OSMDataConverter {
 	/**
 	 * The amount of consumer threads
 	 */
-	protected final int CONSUMER_THREADS = 5;
+	protected final static int CONSUMER_THREADS = 5;
 	
 	/** 
 	 * The red pill way

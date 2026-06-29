@@ -18,7 +18,7 @@
 package org.bboxdb.tools.benchmark;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,13 +66,12 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 		
 		createResult.waitForCompletion();
 		
-		final Random bbBoxRandom = new Random();
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuples; insertedTuples.incrementAndGet()) {
-			final double x = Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
-			final double y = Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
-			final double z = Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
+			final double x = Math.abs(ThreadLocalRandom.current().nextFloat() % 100000.0 * 1000);
+			final double y = Math.abs(ThreadLocalRandom.current().nextFloat() % 100000.0 * 1000);
+			final double z = Math.abs(ThreadLocalRandom.current().nextFloat() % 100000.0 * 1000);
 			
 			final Hyperrectangle boundingBox = new Hyperrectangle(x, x+1, y, y+1, z, z+1);
 			
