@@ -43,39 +43,33 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-server</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-tools</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.datastax.oss</groupId>
 			<artifactId>java-driver-core</artifactId>
-			<version>4.17.0</version>
 		</dependency>
 
-        <dependency>
-                 <groupId>com.google.guava</groupId>
-                 <artifactId>guava</artifactId>
-                 <version>33.6.0-jre</version>
-         </dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
 
 
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>5.23.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

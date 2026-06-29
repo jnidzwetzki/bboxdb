@@ -31,19 +31,16 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-server</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-tools</artifactId>
-			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-experiments</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
