@@ -56,7 +56,7 @@ public class KeepAliveHandler implements RequestHandler {
 	/**
 	 * Gossip enabled
 	 */
-	protected static boolean gossipEnabled = false;
+	protected static final boolean gossipEnabled = false;
 
 	/**
 	 * Handle the keep alive package. Simply send a success response package back

@@ -25,6 +25,8 @@ import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.Const;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class ZookeeperClientFactory {
 
 	private static ZookeeperClient client;
@@ -43,6 +45,8 @@ public class ZookeeperClientFactory {
 	 * Returns a new instance of the zookeeper client
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional global accessor; the shared zookeeper client is meant to be returned")
 	public static ZookeeperClient getZookeeperClient() {
 
 		synchronized (lock) {
@@ -72,6 +76,8 @@ public class ZookeeperClientFactory {
 	 * Set the default zookeeper client
 	 * @param zookeeperClient
 	 */
+	@SuppressFBWarnings(value = "EI_EXPOSE_STATIC_REP2",
+			justification = "Intentional global setter; the provided zookeeper client is stored as the shared instance")
 	public static void setDefaultZookeeperClient(final ZookeeperClient zookeeperClient) {
 		synchronized (lock) {
 			if(client != null) {
@@ -87,6 +93,8 @@ public class ZookeeperClientFactory {
 	 * @param bboxdbConfiguration
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional global accessor; the shared local instance is meant to be returned")
 	public static BBoxDBInstance getLocalInstanceName() {
 
 		synchronized (lock) {

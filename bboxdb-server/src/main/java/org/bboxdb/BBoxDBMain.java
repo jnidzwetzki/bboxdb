@@ -62,7 +62,7 @@ public class BBoxDBMain {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBMain.class);
 
-	public static Consumer<Throwable> FATAL_HANDLER = (e) -> {
+	public static final Consumer<Throwable> FATAL_HANDLER = (e) -> {
 		logger.error("Got a fatal exception", e);
 		System.exit(-1);
 	};

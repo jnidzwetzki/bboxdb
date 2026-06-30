@@ -43,7 +43,7 @@ public final class Hyperrectangle implements Comparable<Hyperrectangle> {
 	/**
 	 * Enable advanced (expensive and additional) consistency checks
 	 */
-	public static boolean enableChecks = false;
+	private static boolean enableChecks = false;
 
 	/**
 	 * The boundingBox contains a interval for each dimension
@@ -226,6 +226,22 @@ public final class Hyperrectangle implements Comparable<Hyperrectangle> {
 		}
 
 		return new Hyperrectangle(dimensions);
+	}
+
+	/**
+	 * Are the advanced (expensive and additional) consistency checks enabled?
+	 * @return
+	 */
+	public static boolean isEnableChecks() {
+		return enableChecks;
+	}
+
+	/**
+	 * Enable or disable the advanced (expensive and additional) consistency checks
+	 * @param enableChecks
+	 */
+	public static void setEnableChecks(final boolean enableChecks) {
+		Hyperrectangle.enableChecks = enableChecks;
 	}
 
 	/**

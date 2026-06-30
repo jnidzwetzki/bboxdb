@@ -36,12 +36,12 @@ public class TestHyperrectangle {
 
 	@BeforeClass
 	public static void beforeClass() {
-		Hyperrectangle.enableChecks = true;
+		Hyperrectangle.setEnableChecks(true);
 	}
 
 	@AfterClass
 	public static void afterClass() {
-		Hyperrectangle.enableChecks = false;
+		Hyperrectangle.setEnableChecks(false);
 	}
 
 	/**

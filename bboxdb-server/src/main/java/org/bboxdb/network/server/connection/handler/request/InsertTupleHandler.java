@@ -61,7 +61,7 @@ public class InsertTupleHandler implements RequestHandler {
 	/**
 	 * Should full stacktrace be included in the error message
 	 */
-	public static boolean includeStacktraceInError = true;
+	public static final boolean includeStacktraceInError = true;
 
 	/**
 	 * The Logger

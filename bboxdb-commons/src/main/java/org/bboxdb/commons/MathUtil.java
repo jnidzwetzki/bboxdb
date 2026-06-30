@@ -25,12 +25,12 @@ public class MathUtil {
 	/**
 	 * The return value when parsing has failed and no exit is requested
 	 */
-	public static int RESULT_PARSE_FAILED_AND_NO_EXIT_INT = -1;
+	public static final int RESULT_PARSE_FAILED_AND_NO_EXIT_INT = -1;
 
 	/**
 	 * The return value when parsing has failed and no exit is requested
 	 */
-	public static boolean RESULT_PARSE_FAILED_AND_NO_EXIT_BOOL = false;
+	public static final boolean RESULT_PARSE_FAILED_AND_NO_EXIT_BOOL = false;
 
 	/**
 	 * The default error supplier

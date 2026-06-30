@@ -30,6 +30,8 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class DistributionGroupConfigurationCache {
 
 	/**
@@ -72,6 +74,8 @@ public class DistributionGroupConfigurationCache {
 	 * Return the instance
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional singleton accessor; the shared instance is meant to be returned")
 	public static DistributionGroupConfigurationCache getInstance() {
 		return instance;
 	}

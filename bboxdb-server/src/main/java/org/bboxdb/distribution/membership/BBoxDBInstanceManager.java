@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 public class BBoxDBInstanceManager {
 
@@ -89,6 +91,8 @@ public class BBoxDBInstanceManager {
 	 * Get the instance
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional singleton accessor; the shared instance is meant to be returned")
 	public static BBoxDBInstanceManager getInstance() {
 		synchronized (instanceLock) {
 			if(instance == null) {

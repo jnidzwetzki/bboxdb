@@ -19,6 +19,8 @@ package org.bboxdb.distribution.region;
 
 import java.util.HashSet;
 import java.util.Set;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 public class GlobalDistributionRegionEventBus {
 	
@@ -34,6 +36,8 @@ public class GlobalDistributionRegionEventBus {
 	 * Get the instance
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional singleton accessor; the shared instance is meant to be returned")
 	public static GlobalDistributionRegionEventBus getInstance() {
 		return instance;
 	}

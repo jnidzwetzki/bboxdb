@@ -29,7 +29,7 @@ public class ThreadHelper {
 	/**
 	 * The timeout for a thread join (10 seconds)
 	 */
-	public static long THREAD_WAIT_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
+	public static final long THREAD_WAIT_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 	
 	/**
 	 * The logger

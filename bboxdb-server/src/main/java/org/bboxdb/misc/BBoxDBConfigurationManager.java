@@ -24,6 +24,8 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 public class BBoxDBConfigurationManager {
 
@@ -47,6 +49,8 @@ public class BBoxDBConfigurationManager {
 	 * Get the configuration of the BBoxDB
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional global accessor; the shared configuration is meant to be returned")
 	public static BBoxDBConfiguration getConfiguration() {
 
 		synchronized (lock) {

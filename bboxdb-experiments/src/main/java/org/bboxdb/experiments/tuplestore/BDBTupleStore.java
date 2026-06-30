@@ -39,7 +39,7 @@ public class BDBTupleStore implements TupleStore {
 	/**
 	 * Use transactions
 	 */
-	public static boolean USE_TRANSACTIONS = false;
+	private static boolean useTransactions = false;
 	
 	/**
 	 * The DB environment
@@ -59,12 +59,28 @@ public class BDBTupleStore implements TupleStore {
 	public BDBTupleStore(final File dir) {
 		this.dir = dir;
 	}
+
+	/**
+	 * Are transactions enabled?
+	 * @return
+	 */
+	public static boolean isUseTransactions() {
+		return useTransactions;
+	}
+
+	/**
+	 * Enable or disable the usage of transactions
+	 * @param useTransactions
+	 */
+	public static void setUseTransactions(final boolean useTransactions) {
+		BDBTupleStore.useTransactions = useTransactions;
+	}
 	
 	@Override
 	public void writeTuple(final Tuple tuple) throws IOException {
 		Transaction txn = null;
 		
-		if(USE_TRANSACTIONS) {
+		if(useTransactions) {
 			txn = environment.beginTransaction(null, null);
 		}
 		
@@ -89,7 +105,7 @@ public class BDBTupleStore implements TupleStore {
 	    
 		Transaction txn = null;
 
-		if(USE_TRANSACTIONS) {
+		if(useTransactions) {
 			txn = environment.beginTransaction(null, null);
 		}
 		
@@ -124,18 +140,18 @@ public class BDBTupleStore implements TupleStore {
 	@Override
 	public void open() throws Exception {
 		final EnvironmentConfig envConfig = new EnvironmentConfig();
-		envConfig.setTransactional(USE_TRANSACTIONS);
+		envConfig.setTransactional(useTransactions);
 		envConfig.setAllowCreate(true);
 
 		environment = new Environment(dir, envConfig);
 
 		Transaction txn = null;
-		if(USE_TRANSACTIONS) {
+		if(useTransactions) {
 			txn = environment.beginTransaction(null, null);
 		}
 		
 		final DatabaseConfig dbConfig = new DatabaseConfig();
-		dbConfig.setTransactional(USE_TRANSACTIONS);
+		dbConfig.setTransactional(useTransactions);
 		dbConfig.setAllowCreate(true);
 		//dbConfig.setSortedDuplicates(true);
 		dbConfig.setDeferredWrite(true);

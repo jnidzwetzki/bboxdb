@@ -60,7 +60,7 @@ public class DistributionRegionHelper {
 	/**
 	 * System for read operations
 	 */
-	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_READ
+	public static final Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_READ
 		= (s) -> (STATES_READ.contains(s));
 
 	/**
@@ -73,7 +73,7 @@ public class DistributionRegionHelper {
 	/**
 	 * Systems for write operations
 	 */
-	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE
+	public static final Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE
 		= (s) -> (STATES_WRITE.contains(s));
 		
 	/**
@@ -86,7 +86,7 @@ public class DistributionRegionHelper {
 	/**
 	 * Systems for stream operations
 	 */
-	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_STREAM
+	public static final Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_STREAM
 		= (s) -> (STATES_STREAM.contains(s));
 
 

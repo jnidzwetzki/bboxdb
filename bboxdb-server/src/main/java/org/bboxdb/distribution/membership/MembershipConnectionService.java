@@ -35,6 +35,8 @@ import org.bboxdb.network.client.connection.BBoxDBConnection;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 public class MembershipConnectionService implements BBoxDBService {
 	
@@ -127,6 +129,8 @@ public class MembershipConnectionService implements BBoxDBService {
 	 * Get the instance of the membership connection service
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional singleton accessor; the shared instance is meant to be returned")
 	public static MembershipConnectionService getInstance() {
 		synchronized (instanceLock) {
 			if(instance == null) {

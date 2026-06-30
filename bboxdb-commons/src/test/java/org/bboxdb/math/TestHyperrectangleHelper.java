@@ -30,12 +30,12 @@ public class TestHyperrectangleHelper {
 
 	@BeforeClass
 	public static void beforeClass() {
-		Hyperrectangle.enableChecks = true;
+		Hyperrectangle.setEnableChecks(true);
 	}
 
 	@AfterClass
 	public static void afterClass() {
-		Hyperrectangle.enableChecks = false;
+		Hyperrectangle.setEnableChecks(false);
 	}
 
 	@Test(timeout=60_000, expected = IllegalArgumentException.class)

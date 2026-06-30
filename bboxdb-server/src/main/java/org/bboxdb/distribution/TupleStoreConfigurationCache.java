@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.CacheBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
@@ -96,6 +98,8 @@ public class TupleStoreConfigurationCache {
 	 * Return the instance
 	 * @return
 	 */
+	@SuppressFBWarnings(value = "MS_EXPOSE_REP",
+			justification = "Intentional singleton accessor; the shared instance is meant to be returned")
 	public static TupleStoreConfigurationCache getInstance() {
 		return instance;
 	}
