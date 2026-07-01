@@ -27,6 +27,10 @@
 		<version>1.0.0-rc4</version>
 	</parent>
 
+	<name>BBoxDB Network Proxy</name>
+	<description>A network proxy for the BBoxDB server</description>
+	<url>http://bboxdb.org</url>
+
 	<!-- Needed for berkeley db (com.sleepycat) -->
 	<repositories>
 		<repository>

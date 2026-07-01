@@ -27,6 +27,10 @@
 		<version>1.0.0-rc4</version>
 	</parent>
 
+	<name>BBoxDB Server</name>
+	<description>The BBoxDB server, a distributed key-boundingbox-value store</description>
+	<url>http://bboxdb.org</url>
+
 	<dependencies>
 		<!-- Static analysis annotations -->
 		<dependency>

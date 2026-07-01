@@ -27,6 +27,10 @@
 		<version>1.0.0-rc4</version>
 	</parent>
 
+	<name>BBoxDB Examples</name>
+	<description>Usage examples for the BBoxDB project</description>
+	<url>http://bboxdb.org</url>
+
 	<dependencies>
 		<!-- Static analysis annotations -->
 		<dependency>

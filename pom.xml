@@ -390,6 +390,11 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>3.12.0</version>
+						<configuration>
+							<!-- Do not fail the release on Javadoc lint warnings (missing @param/@return etc.) -->
+							<doclint>none</doclint>
+							<failOnWarnings>false</failOnWarnings>
+						</configuration>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>

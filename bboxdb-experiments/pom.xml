@@ -28,6 +28,10 @@
 		<version>1.0.0-rc4</version>
 	</parent>
 
+	<name>BBoxDB Experiments</name>
+	<description>Experiments and benchmarks for the BBoxDB project</description>
+	<url>http://bboxdb.org</url>
+
 	<!-- Needed for berkeley db (com.sleepycat) -->
 	<repositories>
 		<repository>

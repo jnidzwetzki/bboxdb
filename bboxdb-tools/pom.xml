@@ -27,6 +27,10 @@
 		<version>1.0.0-rc4</version>
 	</parent>
 
+	<name>BBoxDB Tools</name>
+	<description>Command line and GUI tools for the BBoxDB project</description>
+	<url>http://bboxdb.org</url>
+
 	<!-- Needed for berkeley db (com.sleepycat) -->
 	<repositories>
 		<repository>

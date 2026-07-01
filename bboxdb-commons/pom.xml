@@ -27,6 +27,10 @@
 		<version>1.0.0-rc4</version>
 	</parent>
 
+	<name>BBoxDB Commons</name>
+	<description>Shared utility classes for the BBoxDB project</description>
+	<url>http://bboxdb.org</url>
+
 	<dependencies>
 		<!-- Static analysis annotations -->
 		<dependency>
