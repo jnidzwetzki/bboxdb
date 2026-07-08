@@ -139,7 +139,7 @@
 			<dependency>
 				<groupId>org.eclipse.jetty.ee10</groupId>
 				<artifactId>jetty-ee10-servlet</artifactId>
-				<version>12.1.10</version>
+				<version>12.1.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.xerial.snappy</groupId>
