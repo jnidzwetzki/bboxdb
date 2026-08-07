@@ -18,6 +18,7 @@
 package org.bboxdb.storage.tuplestore.manager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,10 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@SuppressFBWarnings(value = "DM_EXIT",
-		justification = "Intentional process termination on an unrecoverable startup or recovery error.")
 public class TupleStoreManagerRegistry implements BBoxDBService {
 
 	/**
@@ -128,23 +126,27 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 
 		// Populate the sstable location map
 		for(final String directory : storageDirs) {
+			final String dataDirString = SSTableHelper.getDataDir(directory);
+
 			try {
-				
+				final File dataDir = new File(dataDirString);
+				if(! dataDir.isDirectory() && ! dataDir.mkdirs()) {
+					throw new IOException("Unable to create data directory: " + dataDir);
+				}
+
 				final File markerFile = new File(directory + "/.bboxdb");
 				if(! markerFile.exists() && ! markerFile.createNewFile()) {
-					throw new RuntimeException("Unable to create marker file: " + markerFile);
+					throw new IOException("Unable to create marker file: " + markerFile);
 				}
-				
+
 				tupleStoreLocations.putAll(TupleStoreLocator.scanDirectoryForExistingTables(directory));
 				final int flushThreadsPerStorage = configuration.getMemtableFlushThreadsPerStorage();
 				final DiskStorage storage = new DiskStorage(this, new File(directory), flushThreadsPerStorage);
 				storage.init();
 				storages.put(directory, storage);
 			} catch (Exception e) {
-				logger.error("Got error", e);
-				final String dataDirString = SSTableHelper.getDataDir(directory);
-				logger.error("Got an error while opening {}, exiting...", dataDirString);
-				System.exit(-1);
+				serviceState.dispatchToFailed(e);
+				throw new BBoxDBException("Got an error while opening " + dataDirString, e);
 			}
 		}
 
