@@ -69,6 +69,8 @@ public class TestIndexedTupleUpdate extends BBoxDBTestEnvironment {
 	
 	@BeforeClass
 	public static void init() throws Exception {
+		EnvironmentHelper.resetTestEnvironment();
+
 		bboxDBMain = new BBoxDBMain();
 		bboxDBMain.init();
 		bboxDBMain.start();
