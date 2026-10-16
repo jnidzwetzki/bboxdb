@@ -35,6 +35,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class SSTableKeyIndexReader extends AbstractFileReader implements Iterable<Tuple> {
 
 	/**
@@ -322,6 +324,8 @@ public class SSTableKeyIndexReader extends AbstractFileReader implements Iterabl
 				return entry <= lastEntry;
 			}
 
+			@SuppressFBWarnings(value = "AT_NONATOMIC_OPERATIONS_ON_SHARED_VARIABLE",
+					justification = "Each call to iterator() returns a new iterator instance; it is not shared between threads.")
 			@Override
 			public Tuple next() {
 
