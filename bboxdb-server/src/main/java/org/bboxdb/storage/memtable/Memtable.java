@@ -44,6 +44,8 @@ import org.bboxdb.storage.wal.WriteAheadLogWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 
 	/**
@@ -344,6 +346,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 				return entry < lastEntry;
 			}
 
+			@SuppressFBWarnings(value = "AT_NONATOMIC_OPERATIONS_ON_SHARED_VARIABLE",
+					justification = "Each call to iterator() returns a new iterator instance; it is not shared between threads.")
 			@Override
 			public Tuple next() {
 
